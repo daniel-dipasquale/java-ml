@@ -36,7 +36,7 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId> {
     @RequiredArgsConstructor
     private static final class MinorIdContainer {
         private final long minorId;
-        private final AtomicLong revisionId = new AtomicLong(0L);
+        private final AtomicLong revisionId = new AtomicLong();
     }
 
     @RequiredArgsConstructor

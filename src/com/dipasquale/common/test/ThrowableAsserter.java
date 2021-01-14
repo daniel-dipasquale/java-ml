@@ -28,11 +28,7 @@ public final class ThrowableAsserter {
     private final List<ThrowableAsserter> suppressed;
 
     @Builder
-    private static ThrowableAsserter create(final Class<?> type,
-                                            final String messagePattern,
-                                            final String message,
-                                            final ThrowableAsserter cause,
-                                            final List<ThrowableAsserter> suppressed) {
+    private static ThrowableAsserter create(final Class<?> type, final String messagePattern, final String message, final ThrowableAsserter cause, final List<ThrowableAsserter> suppressed) {
         Message messageArg = Optional.ofNullable(messagePattern)
                 .map(Message::pattern)
                 .orElseGet(() -> Message.literal(message));

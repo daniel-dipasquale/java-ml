@@ -65,13 +65,9 @@ public interface BitManipulatorSupport {
         return getAndAdd(raw, offset, -1L);
     }
 
-    private static void ensureBitsIsValid(final int bits) {
+    static BitManipulatorSupport create(final int bits) {
         ArgumentValidator.getInstance().ensureGreaterThanZero(bits, "bits");
         ArgumentValidator.getInstance().ensureLessThanOrEqualTo(bits, MAXIMUM_BITS, "bits");
-    }
-
-    static BitManipulatorSupport create(final int bits) {
-        ensureBitsIsValid(bits);
 
         if (bits == MAXIMUM_BITS) {
             return new BitManipulatorSupport64();

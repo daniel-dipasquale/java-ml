@@ -3,7 +3,6 @@ package com.dipasquale.common;
 import com.dipasquale.common.test.ThrowableAsserter;
 import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.junit.Assert;
 import org.junit.Test;
 

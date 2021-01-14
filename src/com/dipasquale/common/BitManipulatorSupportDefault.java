@@ -1,14 +1,20 @@
 package com.dipasquale.common;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 final class BitManipulatorSupportDefault implements BitManipulatorSupport {
     private final int bits;
     private final long mask;
     private final long size;
+    @Getter(AccessLevel.PACKAGE)
+    private final UnitTest unitTest;
 
     BitManipulatorSupportDefault(final int bits) {
         this.bits = bits;
         this.mask = (1L << bits) - 1L;
         this.size = (long) BitManipulatorSupport.MAXIMUM_BITS / (long) bits;
+        this.unitTest = new UnitTest();
     }
 
     @Override
@@ -38,5 +44,11 @@ final class BitManipulatorSupportDefault implements BitManipulatorSupport {
         long valueCappedShifted = valueCapped << shifts;
 
         return rawCleared | valueCappedShifted;
+    }
+
+    final class UnitTest {
+        public int getBits() {
+            return bits;
+        }
     }
 }

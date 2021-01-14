@@ -1,10 +1,11 @@
 package com.dipasquale.concurrent;
 
-import com.google.common.base.Objects;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@EqualsAndHashCode
 public final class ConcurrentId implements Comparable<ConcurrentId> {
     private final Comparable<Object> majorId;
     private final Comparable<Object> minorId;
@@ -33,24 +34,6 @@ public final class ConcurrentId implements Comparable<ConcurrentId> {
         }
 
         return revisionId.compareTo(concurrentId.revisionId);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (obj instanceof ConcurrentId) {
-            return compareTo((ConcurrentId) obj) == 0;
-        }
-
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(majorId, minorId, revisionId);
     }
 
     @Override

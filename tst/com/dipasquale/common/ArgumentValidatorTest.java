@@ -23,6 +23,188 @@ public final class ArgumentValidatorTest {
     @Test
     public void TEST_2() {
         try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10D, 11D, "number", "especially number cannot be less than the limit");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10.000000' cannot be less than '11.000000', additional information: especially number cannot be less than the limit")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10D, 10D, "number", "especially number cannot be less than the limit");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10D, 9D, "number", "especially number cannot be less than the limit");
+
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10D, 11D, "number");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10.000000' cannot be less than '11.000000'")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10D, 10D, "number");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10D, 9D, "number");
+    }
+
+    @Test
+    public void TEST_3() {
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10L, 11L, "number", "especially number cannot be less than the limit");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10' cannot be less than '11', additional information: especially number cannot be less than the limit")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10L, 10L, "number", "especially number cannot be less than the limit");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10L, 9L, "number", "especially number cannot be less than the limit");
+
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10L, 11L, "number");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10' cannot be less than '11'")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10L, 10L, "number");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10L, 9L, "number");
+    }
+
+    @Test
+    public void TEST_4() {
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 11, "number", "especially number cannot be less than the limit");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10' cannot be less than '11', additional information: especially number cannot be less than the limit")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 10, "number", "especially number cannot be less than the limit");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 9, "number", "especially number cannot be less than the limit");
+
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 11, "number");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10' cannot be less than '11'")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 10, "number");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 9, "number");
+    }
+
+    @Test
+    public void TEST_5() {
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThan(10, 11, "number", "especially number cannot be less than or equal to the limit");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10' cannot be less than or equal to '11', additional information: especially number cannot be less than or equal to the limit")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThan(10, 10, "number", "especially number cannot be less than or equal to the limit");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10' cannot be less than or equal to '10', additional information: especially number cannot be less than or equal to the limit")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThan(10, 9, "number", "especially number cannot be less than or equal to the limit");
+
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThan(10, 11, "number");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10' cannot be less than or equal to '11'")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThan(10, 10, "number");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '10' cannot be less than or equal to '10'")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThan(10, 9, "number");
+    }
+
+    @Test
+    public void TEST_7() {
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(-10D, "number");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '-10.000000' cannot be less than '0.000000'")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(0D, "number");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(10D, "number");
+    }
+
+    @Test
+    public void TEST_8() {
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(-10L, "number");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '-10' cannot be less than '0'")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(0L, "number");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(10L, "number");
+    }
+
+    @Test
+    public void TEST_9() {
+        try {
+            ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(-10, "number");
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("number '-10' cannot be less than '0'")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(0, "number");
+        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(10, "number");
+    }
+
+    @Test
+    public void TEST_10() {
+        try {
             ArgumentValidator.getInstance().ensureGreaterThanZero(-10L, "number", "especially -10 is bad");
             Assert.fail();
         } catch (Throwable e) {
@@ -42,11 +224,8 @@ public final class ArgumentValidatorTest {
                     .build(), ThrowableAsserter.create(e));
         }
 
-        ArgumentValidator.getInstance().ensureGreaterThanZero(10L, "number", "especially -10 is bad");
-    }
+        ArgumentValidator.getInstance().ensureGreaterThanZero(10L, "number", "especially 10 is bad");
 
-    @Test
-    public void TEST_3() {
         try {
             ArgumentValidator.getInstance().ensureGreaterThanZero(-10L, "number");
             Assert.fail();
@@ -71,7 +250,7 @@ public final class ArgumentValidatorTest {
     }
 
     @Test
-    public void TEST_4() {
+    public void TEST_12() {
         try {
             ArgumentValidator.getInstance().ensureGreaterThanZero(-10, "number", "especially -10 is bad");
             Assert.fail();
@@ -92,11 +271,8 @@ public final class ArgumentValidatorTest {
                     .build(), ThrowableAsserter.create(e));
         }
 
-        ArgumentValidator.getInstance().ensureGreaterThanZero(10, "number", "especially -10 is bad");
-    }
+        ArgumentValidator.getInstance().ensureGreaterThanZero(10, "number", "especially 10 is bad");
 
-    @Test
-    public void TEST_5() {
         try {
             ArgumentValidator.getInstance().ensureGreaterThanZero(-10, "number");
             Assert.fail();
@@ -121,71 +297,49 @@ public final class ArgumentValidatorTest {
     }
 
     @Test
-    public void TEST_6() {
+    public void TEST_13() {
         try {
-            ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(-10L, "number");
+            ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10D, 9D, "number", "especially number cannot be greater than the limit");
             Assert.fail();
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableAsserter.builder()
                     .type(IllegalArgumentException.class)
-                    .message("number '-10' cannot be less than '0'")
+                    .message("number '10.000000' cannot be greater than '9.000000', additional information: especially number cannot be greater than the limit")
                     .build(), ThrowableAsserter.create(e));
         }
 
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(10L, "number");
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(0L, "number");
-    }
+        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10D, 10D, "number", "especially number cannot be greater than the limit");
+        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10D, 11D, "number", "especially number cannot be greater than the limit");
 
-    @Test
-    public void TEST_7() {
         try {
-            ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(-10, "number");
+            ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10D, 9D, "number");
             Assert.fail();
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableAsserter.builder()
                     .type(IllegalArgumentException.class)
-                    .message("number '-10' cannot be less than '0'")
+                    .message("number '10.000000' cannot be greater than '9.000000'")
                     .build(), ThrowableAsserter.create(e));
         }
 
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(10, "number");
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(0, "number");
+        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10D, 10D, "number");
+        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10D, 11D, "number");
     }
 
     @Test
-    public void TEST_8() {
+    public void TEST_17() {
         try {
-            ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 11, "number");
+            ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10L, 9L, "number", "especially number cannot be greater than the limit");
             Assert.fail();
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableAsserter.builder()
                     .type(IllegalArgumentException.class)
-                    .message("number '10' cannot be less than '11'")
+                    .message("number '10' cannot be greater than '9', additional information: especially number cannot be greater than the limit")
                     .build(), ThrowableAsserter.create(e));
         }
 
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 10, "number");
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(10, 0, "number");
-    }
+        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10L, 10L, "number", "especially number cannot be greater than the limit");
+        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10L, 11L, "number", "especially number cannot be greater than the limit");
 
-    @Test
-    public void TEST_9() {
-        try {
-            ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10L, 9L, "number", "especially 10 of course");
-            Assert.fail();
-        } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
-                    .type(IllegalArgumentException.class)
-                    .message("number '10' cannot be greater than '9', additional information: especially 10 of course")
-                    .build(), ThrowableAsserter.create(e));
-        }
-
-        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10L, 10L, "number", "especially 10 of course");
-        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10L, 11L, "number", "especially 10 of course");
-    }
-
-    @Test
-    public void TEST_10() {
         try {
             ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10L, 9L, "number");
             Assert.fail();
@@ -201,23 +355,20 @@ public final class ArgumentValidatorTest {
     }
 
     @Test
-    public void TEST_11() {
+    public void TEST_18() {
         try {
-            ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10, 9, "number", "especially 10 of course");
+            ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10, 9, "number", "especially number cannot be greater than the limit");
             Assert.fail();
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableAsserter.builder()
                     .type(IllegalArgumentException.class)
-                    .message("number '10' cannot be greater than '9', additional information: especially 10 of course")
+                    .message("number '10' cannot be greater than '9', additional information: especially number cannot be greater than the limit")
                     .build(), ThrowableAsserter.create(e));
         }
 
-        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10, 10, "number", "especially 10 of course");
-        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10, 11, "number", "especially 10 of course");
-    }
+        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10, 10, "number", "especially number cannot be greater than the limit");
+        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10, 11, "number", "especially number cannot be greater than the limit");
 
-    @Test
-    public void TEST_12() {
         try {
             ArgumentValidator.getInstance().ensureLessThanOrEqualTo(10, 9, "number");
             Assert.fail();
@@ -233,7 +384,7 @@ public final class ArgumentValidatorTest {
     }
 
     @Test
-    public void TEST_13() {
+    public void TEST_21() {
         try {
             ArgumentValidator.getInstance().ensureEqual(10L, 9L, "number", "especially 10 of course");
             Assert.fail();
@@ -255,10 +406,7 @@ public final class ArgumentValidatorTest {
         }
 
         ArgumentValidator.getInstance().ensureEqual(10L, 10L, "number", "especially 10 of course");
-    }
 
-    @Test
-    public void TEST_14() {
         try {
             ArgumentValidator.getInstance().ensureEqual(10L, 9L, "number");
             Assert.fail();
@@ -283,7 +431,7 @@ public final class ArgumentValidatorTest {
     }
 
     @Test
-    public void TEST_15() {
+    public void TEST_22() {
         try {
             ArgumentValidator.getInstance().ensureEqual(10, 9, "number", "especially 10 of course");
             Assert.fail();
@@ -305,10 +453,7 @@ public final class ArgumentValidatorTest {
         }
 
         ArgumentValidator.getInstance().ensureEqual(10, 10, "number", "especially 10 of course");
-    }
 
-    @Test
-    public void TEST_16() {
         try {
             ArgumentValidator.getInstance().ensureEqual(10, 9, "number");
             Assert.fail();
@@ -333,32 +478,32 @@ public final class ArgumentValidatorTest {
     }
 
     @Test
-    public void TEST_17() {
+    public void TEST_23() {
         try {
-            ArgumentValidator.getInstance().ensureFalse(true, "boolean", "especially boolean");
+            ArgumentValidator.getInstance().ensureFalse(true, "boolean", "especially true");
             Assert.fail();
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableAsserter.builder()
                     .type(IllegalArgumentException.class)
-                    .message("boolean especially boolean")
+                    .message("boolean especially true")
                     .build(), ThrowableAsserter.create(e));
         }
 
-        ArgumentValidator.getInstance().ensureFalse(false, "boolean", "especially boolean");
+        ArgumentValidator.getInstance().ensureFalse(false, "boolean", "especially false");
     }
 
     @Test
-    public void TEST_18() {
+    public void TEST_24() {
         try {
-            ArgumentValidator.getInstance().ensureTrue(false, "boolean", "especially boolean");
+            ArgumentValidator.getInstance().ensureTrue(false, "boolean", "especially false");
             Assert.fail();
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableAsserter.builder()
                     .type(IllegalArgumentException.class)
-                    .message("boolean especially boolean")
+                    .message("boolean especially false")
                     .build(), ThrowableAsserter.create(e));
         }
 
-        ArgumentValidator.getInstance().ensureTrue(true, "boolean", "especially boolean");
+        ArgumentValidator.getInstance().ensureTrue(true, "boolean", "especially true");
     }
 }
