@@ -23,19 +23,6 @@ public interface EventLoop {
 
     void shutdown();
 
-    interface Handler {
-        boolean shouldReQueue();
-
-        long getDelayTime();
-
-        void handle();
-    }
-
-    @FunctionalInterface
-    interface Factory {
-        EventLoop create(EventLoop nextLoop);
-    }
-
     private static EventLoop create(final EventLoopDefault.FactoryProxy eventLoopFactoryProxy, final DateTimeSupport dateTimeSupport, final RandomSupport randomSupport, final String name, final int count, final ExceptionLogger exceptionLogger, final ExecutorService executorService) {
         ArgumentValidator.getInstance().ensureGreaterThanZero(count, "count");
 
@@ -71,5 +58,18 @@ public interface EventLoop {
 
     static EventLoop createFifoAsap(final DateTimeSupport dateTimeSupport, final int count, final ExceptionLogger exceptionLogger, final ExecutorService executorService) {
         return createFifoAsap(dateTimeSupport, EventLoopFifoAsap.class.getSimpleName(), count, exceptionLogger, executorService);
+    }
+
+    interface Handler {
+        boolean shouldReQueue();
+
+        long getDelayTime();
+
+        void handle();
+    }
+
+    @FunctionalInterface
+    interface Factory {
+        EventLoop create(EventLoop nextLoop);
     }
 }

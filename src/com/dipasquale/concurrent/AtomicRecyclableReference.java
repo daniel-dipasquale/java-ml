@@ -97,12 +97,9 @@ public final class AtomicRecyclableReference<T> {
 
         try {
             return expirableEnvelopeCas.accumulateAndGet(null, (oee, nee) -> {
-                ExpirableEnvelope expirableEnvelopeNew = recycleIfExpired(oee);
-
                 audit.previous = oee;
-                audit.next = expirableEnvelopeNew;
 
-                return expirableEnvelopeNew;
+                return audit.next = recycleIfExpired(oee);
             });
         } finally {
             if (audit.previous != audit.next) {

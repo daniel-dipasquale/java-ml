@@ -8,16 +8,16 @@ import java.util.stream.StreamSupport;
 
 public final class LinkedIterator<T> implements Iterator<T> {
     private final Navigator<T> nextItemNavigator;
-    private final HasMorePredicate<T> hasNextItemPredicate;
+    private final Predicate<T> hasNextItemPredicate;
     private Supplier<T> currentItemSupplier;
 
-    private LinkedIterator(final T rootItem, final Navigator<T> nextItemNavigator, final HasMorePredicate<T> hasNextItemPredicate) {
+    private LinkedIterator(final T rootItem, final Navigator<T> nextItemNavigator, final Predicate<T> hasNextItemPredicate) {
         this.currentItemSupplier = () -> rootItem;
         this.nextItemNavigator = nextItemNavigator;
         this.hasNextItemPredicate = hasNextItemPredicate;
     }
 
-    public static <T> Iterable<T> createIterable(final T root, final Navigator<T> nextItemGetter, final HasMorePredicate<T> hasNextItemPredicate) {
+    public static <T> Iterable<T> createIterable(final T root, final Navigator<T> nextItemGetter, final Predicate<T> hasNextItemPredicate) {
         return () -> new LinkedIterator<>(root, nextItemGetter, hasNextItemPredicate);
     }
 
@@ -25,12 +25,12 @@ public final class LinkedIterator<T> implements Iterator<T> {
         return createIterable(root, nextItemGetter, Objects::nonNull);
     }
 
-    public static <T> Stream<T> createStream(final T root, final Navigator<T> nextItemGetter, final HasMorePredicate<T> hasNextItemPredicate) {
+    public static <T> Stream<T> createStream(final T root, final Navigator<T> nextItemGetter, final Predicate<T> hasNextItemPredicate) {
         return StreamSupport.stream(createIterable(root, nextItemGetter, hasNextItemPredicate).spliterator(), false);
     }
 
     public static <T> Stream<T> createStream(final T root, final Navigator<T> nextItemGetter) {
-        return createStream(root, nextItemGetter, Objects::nonNull);
+        return StreamSupport.stream(createIterable(root, nextItemGetter).spliterator(), false);
     }
 
     @Override
@@ -53,7 +53,7 @@ public final class LinkedIterator<T> implements Iterator<T> {
     }
 
     @FunctionalInterface
-    public interface HasMorePredicate<T> {
+    public interface Predicate<T> {
         boolean hasMore(T item);
     }
 }

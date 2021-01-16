@@ -27,18 +27,26 @@ public final class AtomicLongArrayBitManipulatorTest {
 
     @Test
     public void TEST_2() {
+        Assert.assertTrue(TEST.isOutOfBounds(-1L));
+        Assert.assertFalse(TEST.isOutOfBounds(0L));
+        Assert.assertFalse(TEST.isOutOfBounds(1_023L));
+        Assert.assertTrue(TEST.isOutOfBounds(1_024L));
+    }
+
+    @Test
+    public void TEST_3() {
         for (int i = 0, c = (int) TEST.size(); i < c; i++) {
             Assert.assertEquals(0L, TEST.extract(i));
         }
     }
 
     @Test
-    public void TEST_3() {
+    public void TEST_4() {
         Assert.assertEquals(572L, TEST.merge(0, 572L));
     }
 
     @Test
-    public void TEST_4() {
+    public void TEST_5() {
         RandomSupport randomSupport = RandomSupport.create();
         List<Long> randomNumbers = new ArrayList<>();
 
@@ -55,7 +63,7 @@ public final class AtomicLongArrayBitManipulatorTest {
     }
 
     @Test
-    public void TEST_5() {
+    public void TEST_6() {
         Assert.assertEquals(5L, TEST.setAndGet(0, 5L));
         Assert.assertEquals(2L, TEST.setAndGet(0, 2L));
         Assert.assertEquals(9L, TEST.setAndGet(0, 9L));
@@ -65,7 +73,7 @@ public final class AtomicLongArrayBitManipulatorTest {
     }
 
     @Test
-    public void TEST_6() {
+    public void TEST_7() {
         Assert.assertEquals(0L, TEST.getAndSet(0, 5L));
         Assert.assertEquals(5L, TEST.getAndSet(0, 2L));
         Assert.assertEquals(2L, TEST.getAndSet(0, 9L));
@@ -75,7 +83,7 @@ public final class AtomicLongArrayBitManipulatorTest {
     }
 
     @Test
-    public void TEST_7() {
+    public void TEST_8() {
         Assert.assertEquals(5L, TEST.accumulateAndGet(0, 5L, Long::sum));
         Assert.assertEquals(3L, TEST.accumulateAndGet(0, -2L, Long::sum));
         Assert.assertEquals(12L, TEST.accumulateAndGet(0, 9L, Long::sum));
@@ -85,7 +93,7 @@ public final class AtomicLongArrayBitManipulatorTest {
     }
 
     @Test
-    public void TEST_8() {
+    public void TEST_9() {
         Assert.assertEquals(0L, TEST.getAndAccumulate(0, 5L, Long::sum));
         Assert.assertEquals(5L, TEST.getAndAccumulate(0, -2L, Long::sum));
         Assert.assertEquals(3L, TEST.getAndAccumulate(0, 9L, Long::sum));
