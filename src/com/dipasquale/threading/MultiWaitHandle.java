@@ -44,8 +44,8 @@ public final class MultiWaitHandle {
         long offsetDateTime = dateTimeSupport.now();
         long timeoutRemaining = (long) DateTimeSupport.getUnit(unit).getConverterTo(dateTimeSupport.unit()).convert((double) timeout); // TODO: consider caching converters in a thread safe manner
 
-        for (int attempt = 0; handlerInvocationPredicate.shouldAwait(++attempt); ) {
-            for (int i = 0, c = waitHandles.size(); i < c && acquired && timeoutRemaining > 0L; i++) {
+        for (int attempt = 0; acquired && timeoutRemaining > 0L && handlerInvocationPredicate.shouldAwait(++attempt); ) {
+            for (int i = 0, c = waitHandles.size(); acquired && timeoutRemaining > 0L; i = (i + 1) % c) {
                 acquired = timedHandler.await(ensureType(waitHandles.get(i)), timeoutRemaining, dateTimeSupport.timeUnit());
 
                 long currentDateTime = dateTimeSupport.now();

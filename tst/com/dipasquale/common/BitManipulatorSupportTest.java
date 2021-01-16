@@ -4,35 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public final class BitManipulatorSupportTest {
-    private static final BitManipulatorSupport TEST = new BitManipulatorSupport() {
-        @Override
-        public long size() {
-            return 2L;
-        }
-
-        @Override
-        public boolean isOutOfBounds(final long value) {
-            return value < 0L || value >= (long) Integer.MAX_VALUE;
-        }
-
-        @Override
-        public long extract(final long raw, final long offset) {
-            if (offset == 0L) {
-                return (int) raw;
-            }
-
-            return raw >> 32;
-        }
-
-        @Override
-        public long merge(final long raw, final long offset, final long value) {
-            if (offset == 0L) {
-                return raw & ((raw >> 31) << 31) | (long) (int) value;
-            }
-
-            return raw & ((raw << 31) >> 31) | (((long) (int) value) << 32);
-        }
-    };
+    private static final BitManipulatorSupport TEST = new BitManipulatorSupportMock();
 
     @Test
     public void TEST_1() {
@@ -122,5 +94,35 @@ public final class BitManipulatorSupportTest {
     public void TEST_14() {
         Assert.assertTrue(BitManipulatorSupport.create(64) instanceof BitManipulatorSupport64);
         Assert.assertTrue(BitManipulatorSupport.create(63) instanceof BitManipulatorSupportDefault a && a.getUnitTest().getBits() == 63);
+    }
+
+    private static final class BitManipulatorSupportMock implements BitManipulatorSupport {
+        @Override
+        public long size() {
+            return 2L;
+        }
+
+        @Override
+        public boolean isOutOfBounds(final long value) {
+            return value < 0L || value >= (long) Integer.MAX_VALUE;
+        }
+
+        @Override
+        public long extract(final long raw, final long offset) {
+            if (offset == 0L) {
+                return (int) raw;
+            }
+
+            return raw >> 32;
+        }
+
+        @Override
+        public long merge(final long raw, final long offset, final long value) {
+            if (offset == 0L) {
+                return raw & ((raw >> 31) << 31) | (long) (int) value;
+            }
+
+            return raw & ((raw << 31) >> 31) | (((long) (int) value) << 32);
+        }
     }
 }

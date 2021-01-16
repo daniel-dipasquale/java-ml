@@ -1,5 +1,6 @@
 package com.dipasquale.common;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,30 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class BitManipulatorTest {
     private static final AtomicLong SIZE = new AtomicLong();
     private static final AtomicLong VALUE = new AtomicLong();
-
-    private static final BitManipulator TEST = new BitManipulator() {
-        @Override
-        public long size() {
-            return SIZE.get();
-        }
-
-        @Override
-        public boolean isOutOfBounds(final long value) {
-            return value > 64L;
-        }
-
-        @Override
-        public long extract(final long offset) {
-            return VALUE.get() + offset;
-        }
-
-        @Override
-        public long merge(final long offset, final long value) {
-            VALUE.set(offset + value);
-
-            return VALUE.get();
-        }
-    };
+    private static final BitManipulator TEST = new BitManipulatorMock(SIZE, VALUE);
 
     @Before
     public void before() {
@@ -144,5 +122,33 @@ public final class BitManipulatorTest {
         Assert.assertEquals(4L, VALUE.get());
         Assert.assertEquals(9L, TEST.getAndDecrement(5L));
         Assert.assertEquals(13L, VALUE.get());
+    }
+
+    @RequiredArgsConstructor
+    private static final class BitManipulatorMock implements BitManipulator {
+        private final AtomicLong sizeCas;
+        private final AtomicLong valueCas;
+
+        @Override
+        public long size() {
+            return sizeCas.get();
+        }
+
+        @Override
+        public boolean isOutOfBounds(final long value) {
+            return value > 64L;
+        }
+
+        @Override
+        public long extract(final long offset) {
+            return valueCas.get() + offset;
+        }
+
+        @Override
+        public long merge(final long offset, final long value) {
+            valueCas.set(offset + value);
+
+            return valueCas.get();
+        }
     }
 }

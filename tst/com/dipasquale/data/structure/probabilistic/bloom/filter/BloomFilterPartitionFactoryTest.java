@@ -1,6 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.RequiredArgsConstructor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,38 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class BloomFilterPartitionFactoryTest {
     private static final AtomicInteger MAXIMUM_HASH_FUNCTIONS = new AtomicInteger();
     private static final Map<String, String> ITEMS = new HashMap<>();
-
-    private static final BloomFilterFactory BLOOM_FILTER_FACTORY = new BloomFilterFactory() {
-        @Override
-        public int getMaximumHashFunctions() {
-            return MAXIMUM_HASH_FUNCTIONS.get();
-        }
-
-        private <T> T ensureType(final Object object) {
-            return (T) object;
-        }
-
-        @Override
-        public <T> BloomFilter<T> create(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size) {
-            ITEMS.put("estimatedSize", Integer.toString(estimatedSize));
-            ITEMS.put("hashFunctions", Integer.toString(hashFunctions));
-            ITEMS.put("falsePositiveRatio", Double.toString(falsePositiveRatio));
-            ITEMS.put("size", Long.toString(size));
-
-            return ensureType(new BloomFilter<String>() {
-                @Override
-                public boolean mightContain(final String item) {
-                    return ITEMS.containsKey(item);
-                }
-
-                @Override
-                public boolean add(final String item) {
-                    return ITEMS.put(item, item) == null;
-                }
-            });
-        }
-    };
-
+    private static final BloomFilterFactory BLOOM_FILTER_FACTORY = new BloomFilterFactoryMock(MAXIMUM_HASH_FUNCTIONS, ITEMS);
     private static final BloomFilterPartitionFactory TEST = BloomFilterPartitionFactory.create(BLOOM_FILTER_FACTORY);
 
     @Before
@@ -81,5 +51,40 @@ public final class BloomFilterPartitionFactoryTest {
                 .put("falsePositiveRatio", "0.5")
                 .put("size", "1000000")
                 .build(), ITEMS);
+    }
+
+    private static <T> T ensureType(final Object object) {
+        return (T) object;
+    }
+
+    @RequiredArgsConstructor
+    private static final class BloomFilterFactoryMock implements BloomFilterFactory {
+        private final AtomicInteger maximumHashFunctions;
+        private final Map<String, String> items;
+
+        @Override
+        public int getMaximumHashFunctions() {
+            return maximumHashFunctions.get();
+        }
+
+        @Override
+        public <T> BloomFilter<T> create(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size) {
+            items.put("estimatedSize", Integer.toString(estimatedSize));
+            items.put("hashFunctions", Integer.toString(hashFunctions));
+            items.put("falsePositiveRatio", Double.toString(falsePositiveRatio));
+            items.put("size", Long.toString(size));
+
+            return ensureType(new BloomFilter<String>() {
+                @Override
+                public boolean mightContain(final String item) {
+                    return items.containsKey(item);
+                }
+
+                @Override
+                public boolean add(final String item) {
+                    return items.put(item, item) == null;
+                }
+            });
+        }
     }
 }

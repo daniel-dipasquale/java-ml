@@ -46,6 +46,8 @@ public final class MultiWaitHandleTest {
                 .add(WaitHandle.builder()
                         .build())
                 .build(), waitHandles);
+
+        Assert.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
 
     @Test
@@ -70,6 +72,8 @@ public final class MultiWaitHandleTest {
                         .indefinite(1)
                         .build())
                 .build(), waitHandles);
+
+        Assert.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
 
     @Test
@@ -103,6 +107,8 @@ public final class MultiWaitHandleTest {
                         .indefinite(0)
                         .build())
                 .build(), waitHandles);
+
+        Assert.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
 
     @Test
@@ -136,6 +142,190 @@ public final class MultiWaitHandleTest {
                         .indefinite(0)
                         .build())
                 .build(), waitHandles);
+
+        Assert.assertEquals(0L, CURRENT_DATE_TIME.get());
+    }
+
+    @Test
+    public void TEST_5()
+            throws InterruptedException {
+        ImmutableList<WaitHandle> waitHandles = ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .build())
+                .add(WaitHandle.builder()
+                        .build())
+                .build();
+
+        MultiWaitHandle test = MultiWaitHandle.create(DATE_TIME_SUPPORT, a -> false, waitHandles, WaitHandle::await, WaitHandle::await);
+
+        Assert.assertTrue(test.await(10L, TimeUnit.MILLISECONDS));
+
+        Assert.assertEquals(ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .build())
+                .add(WaitHandle.builder()
+                        .build())
+                .build(), waitHandles);
+
+        Assert.assertEquals(1L, CURRENT_DATE_TIME.get());
+    }
+
+    @Test
+    public void TEST_6()
+            throws InterruptedException {
+        ImmutableList<WaitHandle> waitHandles = ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .build())
+                .add(WaitHandle.builder()
+                        .build())
+                .build();
+
+        MultiWaitHandle test = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, waitHandles, WaitHandle::await, WaitHandle::await);
+
+        Assert.assertTrue(test.await(4L, TimeUnit.MILLISECONDS));
+
+        Assert.assertEquals(ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .timed(ImmutableList.<Timed>builder()
+                                .add(new Timed(4L, TimeUnit.MILLISECONDS))
+                                .add(new Timed(2L, TimeUnit.MILLISECONDS))
+                                .build())
+                        .build())
+                .add(WaitHandle.builder()
+                        .timed(ImmutableList.<Timed>builder()
+                                .add(new Timed(3L, TimeUnit.MILLISECONDS))
+                                .add(new Timed(1L, TimeUnit.MILLISECONDS))
+                                .build())
+                        .build())
+                .build(), waitHandles);
+
+        Assert.assertEquals(5L, CURRENT_DATE_TIME.get());
+    }
+
+    @Test
+    public void TEST_7() {
+        ImmutableList<WaitHandle> waitHandles = ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .interruptedExceptionMessage("throw interrupted exception 1")
+                        .build())
+                .add(WaitHandle.builder()
+                        .build())
+                .build();
+
+        MultiWaitHandle test = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, waitHandles, WaitHandle::await, WaitHandle::await);
+
+        try {
+            test.await(4L, TimeUnit.MILLISECONDS);
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(InterruptedException.class)
+                    .message("throw interrupted exception 1")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        Assert.assertEquals(ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .build())
+                .add(WaitHandle.builder()
+                        .build())
+                .build(), waitHandles);
+
+        Assert.assertEquals(1L, CURRENT_DATE_TIME.get());
+    }
+
+    @Test
+    public void TEST_8() {
+        ImmutableList<WaitHandle> waitHandles = ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .build())
+                .add(WaitHandle.builder()
+                        .interruptedExceptionMessage("throw interrupted exception 2")
+                        .build())
+                .build();
+
+        MultiWaitHandle test = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, waitHandles, WaitHandle::await, WaitHandle::await);
+
+        try {
+            test.await(4L, TimeUnit.MILLISECONDS);
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableAsserter.builder()
+                    .type(InterruptedException.class)
+                    .message("throw interrupted exception 2")
+                    .build(), ThrowableAsserter.create(e));
+        }
+
+        Assert.assertEquals(ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .timed(ImmutableList.<Timed>builder()
+                                .add(new Timed(4L, TimeUnit.MILLISECONDS))
+                                .build())
+                        .build())
+                .add(WaitHandle.builder()
+                        .build())
+                .build(), waitHandles);
+
+        Assert.assertEquals(2L, CURRENT_DATE_TIME.get());
+    }
+
+    @Test
+    public void TEST_9()
+            throws InterruptedException {
+        ImmutableList<WaitHandle> waitHandles = ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .acquired(false)
+                        .build())
+                .add(WaitHandle.builder()
+                        .build())
+                .build();
+
+        MultiWaitHandle test = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, waitHandles, WaitHandle::await, WaitHandle::await);
+
+        Assert.assertFalse(test.await(4L, TimeUnit.MILLISECONDS));
+
+        Assert.assertEquals(ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .timed(ImmutableList.<Timed>builder()
+                                .add(new Timed(4L, TimeUnit.MILLISECONDS))
+                                .build())
+                        .build())
+                .add(WaitHandle.builder()
+                        .build())
+                .build(), waitHandles);
+
+        Assert.assertEquals(2L, CURRENT_DATE_TIME.get());
+    }
+
+    @Test
+    public void TEST_10()
+            throws InterruptedException {
+        ImmutableList<WaitHandle> waitHandles = ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .build())
+                .add(WaitHandle.builder()
+                        .acquired(false)
+                        .build())
+                .build();
+
+        MultiWaitHandle test = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, waitHandles, WaitHandle::await, WaitHandle::await);
+
+        Assert.assertFalse(test.await(4L, TimeUnit.MILLISECONDS));
+
+        Assert.assertEquals(ImmutableList.<WaitHandle>builder()
+                .add(WaitHandle.builder()
+                        .timed(ImmutableList.<Timed>builder()
+                                .add(new Timed(4L, TimeUnit.MILLISECONDS))
+                                .build())
+                        .build())
+                .add(WaitHandle.builder()
+                        .timed(ImmutableList.<Timed>builder()
+                                .add(new Timed(3L, TimeUnit.MILLISECONDS))
+                                .build())
+                        .build())
+                .build(), waitHandles);
+
+        Assert.assertEquals(3L, CURRENT_DATE_TIME.get());
     }
 
     @RequiredArgsConstructor
