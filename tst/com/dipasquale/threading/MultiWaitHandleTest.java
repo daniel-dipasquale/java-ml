@@ -294,7 +294,7 @@ public final class MultiWaitHandleTest {
                         .build())
                 .build(), waitHandles);
 
-        Assert.assertEquals(2L, CURRENT_DATE_TIME.get());
+        Assert.assertEquals(1L, CURRENT_DATE_TIME.get());
     }
 
     @Test
@@ -325,7 +325,7 @@ public final class MultiWaitHandleTest {
                         .build())
                 .build(), waitHandles);
 
-        Assert.assertEquals(3L, CURRENT_DATE_TIME.get());
+        Assert.assertEquals(2L, CURRENT_DATE_TIME.get());
     }
 
     @RequiredArgsConstructor

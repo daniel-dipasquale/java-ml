@@ -5,12 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ComparableLock implements Comparable<ComparableLock>, Lock {
@@ -25,14 +22,6 @@ public final class ComparableLock implements Comparable<ComparableLock>, Lock {
 
     public static <T extends Comparable<T>> ComparableLock create(final Lock lock, final ConcurrentId<T> concurrentId) {
         return new ComparableLock(lock, ensureType(concurrentId));
-    }
-
-    public static Lock createAggregated(final Iterable<ComparableLock> locks) {
-        List<ComparableLock> sortedLocks = StreamSupport.stream(locks.spliterator(), false)
-                .sorted()
-                .collect(Collectors.toList());
-
-        return new MultiLock(sortedLocks);
     }
 
     @Override

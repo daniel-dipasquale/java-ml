@@ -12,8 +12,8 @@ import java.util.concurrent.locks.Condition;
 
 final class MultiCondition implements Condition {
     private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createNanoseconds();
-    private final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(DATE_TIME_SUPPORT.unit());
-    private final TimeUnit NS_TIME_UNIT = DATE_TIME_SUPPORT.timeUnit();
+    private static final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(DATE_TIME_SUPPORT.unit());
+    private static final TimeUnit NS_TIME_UNIT = DATE_TIME_SUPPORT.timeUnit();
     private final List<Condition> conditions;
     private final MultiWaitHandle conditionsWaitHandle;
     private final ExceptionHandler conditionsAwaitExceptionHandler;

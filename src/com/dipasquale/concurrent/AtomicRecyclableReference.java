@@ -93,20 +93,20 @@ public final class AtomicRecyclableReference<T> {
     }
 
     private ExpirableEnvelope compareAndSwapIfExpired() {
-        Object[] expirableEnvelopes = new Object[2];
+        ExpirableEnvelopeAudit audit = new ExpirableEnvelopeAudit();
 
         try {
             return expirableEnvelopeCas.accumulateAndGet(null, (oee, nee) -> {
                 ExpirableEnvelope expirableEnvelopeNew = recycleIfExpired(oee);
 
-                expirableEnvelopes[0] = oee;
-                expirableEnvelopes[1] = expirableEnvelopeNew;
+                audit.previous = oee;
+                audit.next = expirableEnvelopeNew;
 
                 return expirableEnvelopeNew;
             });
         } finally {
-            if (expirableEnvelopes[0] != expirableEnvelopes[1]) {
-                lastReferenceRecycledDateTimeConfirmed.set(((ExpirableEnvelope) expirableEnvelopes[1]).expiryDateTime);
+            if (audit.previous != audit.next) {
+                lastReferenceRecycledDateTimeConfirmed.set(audit.next.expiryDateTime);
             }
         }
     }
@@ -172,6 +172,11 @@ public final class AtomicRecyclableReference<T> {
 
             return envelope = new Envelope(createRecyclableReference());
         }
+    }
+
+    private final class ExpirableEnvelopeAudit {
+        private ExpirableEnvelope previous;
+        private ExpirableEnvelope next;
     }
 }
 
