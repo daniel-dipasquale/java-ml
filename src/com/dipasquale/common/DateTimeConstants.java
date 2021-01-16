@@ -6,6 +6,7 @@ import lombok.Generated;
 import lombok.NoArgsConstructor;
 
 import javax.measure.quantity.Duration;
+import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.time.ZoneId;
@@ -37,9 +38,9 @@ final class DateTimeConstants {
         timeUnits.put(TimeUnit.MICROSECONDS, SI.MICRO(SI.SECOND));
         timeUnits.put(TimeUnit.MILLISECONDS, SI.MILLI(SI.SECOND));
         timeUnits.put(TimeUnit.SECONDS, SI.SECOND);
-//        timeUnits.put(TimeUnit.MINUTES, NonSI.MINUTE);
-//        timeUnits.put(TimeUnit.HOURS, NonSI.HOUR);
-//        timeUnits.put(TimeUnit.DAYS, NonSI.DAY);
+        timeUnits.put(TimeUnit.MINUTES, NonSI.MINUTE);
+        timeUnits.put(TimeUnit.HOURS, NonSI.HOUR);
+        timeUnits.put(TimeUnit.DAYS, NonSI.DAY);
 
         return timeUnits;
     }
@@ -50,9 +51,9 @@ final class DateTimeConstants {
                 .put(TIME_UNITS.get(TimeUnit.MICROSECONDS), TimeUnit.MICROSECONDS)
                 .put(TIME_UNITS.get(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS)
                 .put(TIME_UNITS.get(TimeUnit.SECONDS), TimeUnit.SECONDS)
-//                .put(TIME_UNITS.get(TimeUnit.MINUTES), TimeUnit.MINUTES)
-//                .put(TIME_UNITS.get(TimeUnit.HOURS), TimeUnit.HOURS)
-//                .put(TIME_UNITS.get(TimeUnit.DAYS), TimeUnit.DAYS)
+                .put(TIME_UNITS.get(TimeUnit.MINUTES), TimeUnit.MINUTES)
+                .put(TIME_UNITS.get(TimeUnit.HOURS), TimeUnit.HOURS)
+                .put(TIME_UNITS.get(TimeUnit.DAYS), TimeUnit.DAYS)
                 .build();
     }
 }

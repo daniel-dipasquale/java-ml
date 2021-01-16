@@ -152,7 +152,7 @@ final class EventLoopDefault implements EventLoop {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Getter
-    static class Record {
+    static class Record { // TODO: consider promoting this to EventLoop public interface
         private final Runnable eventHandler;
         private final long executionDateTime;
     }

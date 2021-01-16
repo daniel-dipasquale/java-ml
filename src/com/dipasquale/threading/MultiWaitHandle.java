@@ -33,6 +33,7 @@ public final class MultiWaitHandle {
                 .add(TimeUnit.SECONDS)
                 .add(TimeUnit.MINUTES)
                 .add(TimeUnit.HOURS)
+                .add(TimeUnit.DAYS)
                 .build();
 
         List<Unit<Duration>> units = ImmutableList.<Unit<Duration>>builder()
@@ -42,6 +43,7 @@ public final class MultiWaitHandle {
                 .add(SI.SECOND)
                 .add(NonSI.MINUTE)
                 .add(NonSI.HOUR)
+                .add(NonSI.DAY)
                 .build();
 
         Map<TimeUnitConversionKey, UnitConverter> timeUnitConverters = new HashMap<>(timeUnits.size() * units.size());

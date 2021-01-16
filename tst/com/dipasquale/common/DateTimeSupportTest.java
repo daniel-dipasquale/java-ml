@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.TimeUnit;
@@ -35,9 +36,9 @@ public final class DateTimeSupportTest {
         Assert.assertEquals(SI.MICRO(SI.SECOND), DateTimeSupport.getUnit(TimeUnit.MICROSECONDS));
         Assert.assertEquals(SI.MILLI(SI.SECOND), DateTimeSupport.getUnit(TimeUnit.MILLISECONDS));
         Assert.assertEquals(SI.SECOND, DateTimeSupport.getUnit(TimeUnit.SECONDS));
-//        Assert.assertEquals(NonSI.MINUTE, DateTimeSupport.getUnit(TimeUnit.MINUTES));
-//        Assert.assertEquals(NonSI.HOUR, DateTimeSupport.getUnit(TimeUnit.HOURS));
-//        Assert.assertEquals(NonSI.DAY, DateTimeSupport.getUnit(TimeUnit.DAYS));
+        Assert.assertEquals(NonSI.MINUTE, DateTimeSupport.getUnit(TimeUnit.MINUTES));
+        Assert.assertEquals(NonSI.HOUR, DateTimeSupport.getUnit(TimeUnit.HOURS));
+        Assert.assertEquals(NonSI.DAY, DateTimeSupport.getUnit(TimeUnit.DAYS));
     }
 
     @Test
@@ -46,9 +47,9 @@ public final class DateTimeSupportTest {
         Assert.assertEquals(TimeUnit.MICROSECONDS, DateTimeSupport.getTimeUnit(SI.MICRO(SI.SECOND)));
         Assert.assertEquals(TimeUnit.MILLISECONDS, DateTimeSupport.getTimeUnit(SI.MILLI(SI.SECOND)));
         Assert.assertEquals(TimeUnit.SECONDS, DateTimeSupport.getTimeUnit(SI.SECOND));
-//        Assert.assertEquals(TimeUnit.MINUTES, DateTimeSupport.getTimeUnit(NonSI.MINUTE));
-//        Assert.assertEquals(TimeUnit.HOURS, DateTimeSupport.getTimeUnit(NonSI.HOUR));
-//        Assert.assertEquals(TimeUnit.DAYS, DateTimeSupport.getTimeUnit(NonSI.DAY));
+        Assert.assertEquals(TimeUnit.MINUTES, DateTimeSupport.getTimeUnit(NonSI.MINUTE));
+        Assert.assertEquals(TimeUnit.HOURS, DateTimeSupport.getTimeUnit(NonSI.HOUR));
+        Assert.assertEquals(TimeUnit.DAYS, DateTimeSupport.getTimeUnit(NonSI.DAY));
     }
 
     @Test
