@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
@@ -37,6 +38,7 @@ public final class ReusableCountDownLatch { // NOTE: based on: https://github.co
     }
 
     private static class Sync extends AbstractQueuedSynchronizer {
+        @Serial
         private static final long serialVersionUID = 4435118903758077543L;
 
         public Sync(final int count) {

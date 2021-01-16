@@ -1,7 +1,7 @@
 package com.experimental.data.structure.tree.bst;
 
 import com.dipasquale.concurrent.ConcurrentHandler;
-import com.dipasquale.concurrent.ConcurrentId;
+import com.dipasquale.threading.ComparableLock;
 import lombok.EqualsAndHashCode;
 
 import java.util.Map;
@@ -14,15 +14,15 @@ abstract class TreeNodeConcurrentBase<TKey, TValue, TNodeUnsafe extends TreeNode
     private static final ConcurrentHandler CONCURRENT_HANDLER = ConcurrentHandler.getInstance();
     @EqualsAndHashCode.Include
     protected final TNodeUnsafe node;
-    protected final ConcurrentId concurrentId;
+    protected final ComparableLock comparableLock;
     protected final ReadWriteLock valueLock;
     protected final ReadWriteLock parentLock;
     protected final ReadWriteLock leftLock;
     protected final ReadWriteLock rightLock;
 
-    protected TreeNodeConcurrentBase(final TNodeUnsafe node, final ConcurrentId concurrentId, final boolean shouldWritingBePriority) {
+    protected TreeNodeConcurrentBase(final TNodeUnsafe node, final ComparableLock comparableLock, final boolean shouldWritingBePriority) {
         this.node = node;
-        this.concurrentId = concurrentId;
+        this.comparableLock = comparableLock;
         this.valueLock = new ReentrantReadWriteLock(!shouldWritingBePriority);
         this.parentLock = new ReentrantReadWriteLock(!shouldWritingBePriority);
         this.leftLock = new ReentrantReadWriteLock(!shouldWritingBePriority);
@@ -80,7 +80,7 @@ abstract class TreeNodeConcurrentBase<TKey, TValue, TNodeUnsafe extends TreeNode
     }
 
     private TreeNodeLockConcurrent<TLock> createLock() {
-        return new TreeNodeLockConcurrent<>(concurrentId, parentLock, leftLock, rightLock);
+        return new TreeNodeLockConcurrent<>(comparableLock, parentLock, leftLock, rightLock);
     }
 
     @Override

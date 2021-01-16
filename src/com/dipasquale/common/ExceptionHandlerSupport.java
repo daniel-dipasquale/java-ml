@@ -6,12 +6,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 
-public final class ExceptionSupport {
+public final class ExceptionHandlerSupport {
     @Getter
-    private static final ExceptionSupport instance = new ExceptionSupport();
+    private static final ExceptionHandlerSupport instance = new ExceptionHandlerSupport();
 
     public <T extends Exception> void throwAsSuppressedIfAny(final Factory<T> exceptionFactory, final List<Throwable> suppressed)
             throws T {
@@ -30,25 +29,6 @@ public final class ExceptionSupport {
         throwAsSuppressedIfAny(() -> new RuntimeException(message), suppressed);
     }
 
-    public <TItem, TException extends Exception> void invokeAllAndThrowAsSuppressedIfAny(final List<TItem> items, final ItemHandler<TItem> itemHandler, final Factory<TException> exceptionFactory)
-            throws TException {
-        List<Throwable> suppressed = new ArrayList<>();
-
-        for (TItem item : items) {
-            try {
-                itemHandler.handle(item);
-            } catch (Throwable e) {
-                suppressed.add(e);
-            }
-        }
-
-        throwAsSuppressedIfAny(exceptionFactory, suppressed);
-    }
-
-    public <T> void invokeAllAndThrowAsSuppressedIfAny(final List<T> items, final ItemHandler<T> itemHandler, final String message) {
-        invokeAllAndThrowAsSuppressedIfAny(items, itemHandler, () -> new RuntimeException(message));
-    }
-
     public void print(final OutputStream outputStream, final Throwable exception, final boolean autoFlush, final Charset charset)
             throws IOException {
         try (PrintStream printStream = new PrintStream(outputStream, autoFlush, charset.toString())) {
@@ -64,10 +44,5 @@ public final class ExceptionSupport {
     @FunctionalInterface
     public interface Factory<T extends Exception> {
         T create();
-    }
-
-    @FunctionalInterface
-    public interface ItemHandler<T> {
-        void handle(T item);
     }
 }

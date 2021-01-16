@@ -1,26 +1,15 @@
 package com.dipasquale.concurrent;
 
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode
-public final class ConcurrentId implements Comparable<ConcurrentId> {
-    private final Comparable<Object> majorId;
-    private final Comparable<Object> minorId;
-    private final Comparable<Object> revisionId;
-
-    public static <T extends Comparable<T>> ConcurrentId create(final T majorId, final T minorId, final T revisionId) {
-        Comparable<Object> majorIdObject = (Comparable<Object>) (Object) majorId;
-        Comparable<Object> minorIdObject = (Comparable<Object>) (Object) minorId;
-        Comparable<Object> revisionIdObject = (Comparable<Object>) (Object) revisionId;
-
-        return new ConcurrentId(majorIdObject, minorIdObject, revisionIdObject);
-    }
+@RequiredArgsConstructor
+public final class ConcurrentId<T extends Comparable<T>> implements Comparable<ConcurrentId<T>> {
+    private final T majorId;
+    private final T minorId;
+    private final T revisionId;
 
     @Override
-    public int compareTo(final ConcurrentId concurrentId) {
+    public int compareTo(final ConcurrentId<T> concurrentId) {
         int comparison = majorId.compareTo(concurrentId.majorId);
 
         if (comparison != 0) {

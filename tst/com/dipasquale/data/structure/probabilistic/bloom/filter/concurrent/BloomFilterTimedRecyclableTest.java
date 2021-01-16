@@ -42,7 +42,6 @@ public final class BloomFilterTimedRecyclableTest {
     public void GIVEN_an_empty_bloom_filter_WHEN_determining_if_an_item_might_exist_after_it_is_added_THEN_determine_it_might_not_contain_it_due_to_expiration() {
         BloomFilter<String> test = BLOOM_FILTER_FACTORY.createEstimated(1, 1, 0.5D);
 
-
         Assert.assertFalse(test.mightContain("one"));
         Assert.assertTrue(test.add("one"));
 

@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
 
-import com.dipasquale.common.ExceptionSupport;
+import com.dipasquale.common.ExceptionHandlerSupport;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
-    private static final ExceptionSupport EXCEPTION_SUPPORT = ExceptionSupport.getInstance();
+    private static final ExceptionHandlerSupport EXCEPTION_HANDLER_SUPPORT = ExceptionHandlerSupport.getInstance();
     private CountMinSketch<T> aggregatedCountMinSketch;
     private final ObjectFactory<CountMinSketch<T>> aggregatedCountMinSketchFactory;
     private final CountMinSketch<T> countMinSketch;
@@ -62,13 +62,13 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
                 try {
                     flushPredicate.confirmRecycled(aggregatedCountMinSketch, expiryDateTime, heavyHitters, minimumHeavyHitterCount);
                 } catch (Throwable e) {
-                    EXCEPTION_SUPPORT.throwAsSuppressedIfAny(() -> new RuntimeException(e.getMessage(), e), suppressed);
+                    EXCEPTION_HANDLER_SUPPORT.throwAsSuppressedIfAny(() -> new RuntimeException(e.getMessage(), e), suppressed);
                 } finally {
                     aggregatedCountMinSketch = aggregatedCountMinSketchFactory.create();
                 }
             }
 
-            EXCEPTION_SUPPORT.throwAsSuppressedIfAny("unable to collect the heavy hitters", suppressed);
+            EXCEPTION_HANDLER_SUPPORT.throwAsSuppressedIfAny("unable to collect the heavy hitters", suppressed);
         }
     }
 

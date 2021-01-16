@@ -2,20 +2,17 @@ package com.dipasquale.common;
 
 import com.dipasquale.common.test.ThrowableAsserter;
 import com.google.common.collect.ImmutableList;
-import lombok.RequiredArgsConstructor;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public final class ExceptionSupportTest {
-    private static final ExceptionSupport TEST = ExceptionSupport.getInstance();
+public final class ExceptionHandlerSupportTest {
+    private static final ExceptionHandlerSupport TEST = ExceptionHandlerSupport.getInstance();
 
     private static Throwable createException() {
         try {
@@ -84,98 +81,6 @@ public final class ExceptionSupportTest {
     }
 
     @Test
-    public void TEST_1() {
-        AtomicLongArray data = new AtomicLongArray(3);
-
-        List<Handler> items = ImmutableList.<Handler>builder()
-                .add(new Handler(data, 0, 3))
-                .add(new Handler(data, 1, 2))
-                .add(new Handler(data, 2, 1))
-                .build();
-
-        TEST.invokeAllAndThrowAsSuppressedIfAny(items, Handler::handle, () -> new RuntimeException("unit test failure"));
-        Assert.assertEquals(3, data.get(0));
-        Assert.assertEquals(2, data.get(1));
-        Assert.assertEquals(1, data.get(2));
-    }
-
-    @Test
-    public void TEST_2() {
-        AtomicLongArray data = new AtomicLongArray(3);
-
-        List<Handler> items = ImmutableList.<Handler>builder()
-                .add(new Handler(data, 0, 3))
-                .add(new Handler(data, -1, 2))
-                .add(new Handler(data, 2, 1))
-                .build();
-
-        try {
-            TEST.invokeAllAndThrowAsSuppressedIfAny(items, Handler::handle, () -> new RuntimeException("unit test failure"));
-        } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
-                    .type(RuntimeException.class)
-                    .message("unit test failure")
-                    .suppressed(ImmutableList.<ThrowableAsserter>builder()
-                            .add(ThrowableAsserter.builder()
-                                    .type(ArrayIndexOutOfBoundsException.class)
-                                    .message("Index -1 out of bounds for length 3")
-                                    .build())
-                            .build())
-                    .build(), ThrowableAsserter.create(e));
-        }
-
-        Assert.assertEquals(3, data.get(0));
-        Assert.assertEquals(0, data.get(1));
-        Assert.assertEquals(1, data.get(2));
-    }
-
-    @Test
-    public void TEST_3() {
-        AtomicLongArray data = new AtomicLongArray(3);
-
-        List<Handler> items = ImmutableList.<Handler>builder()
-                .add(new Handler(data, 0, 3))
-                .add(new Handler(data, 1, 2))
-                .add(new Handler(data, 2, 1))
-                .build();
-
-        TEST.invokeAllAndThrowAsSuppressedIfAny(items, Handler::handle, "unit test failure");
-        Assert.assertEquals(3, data.get(0));
-        Assert.assertEquals(2, data.get(1));
-        Assert.assertEquals(1, data.get(2));
-    }
-
-    @Test
-    public void TEST_4() {
-        AtomicLongArray data = new AtomicLongArray(3);
-
-        List<Handler> items = ImmutableList.<Handler>builder()
-                .add(new Handler(data, 0, 3))
-                .add(new Handler(data, -1, 2))
-                .add(new Handler(data, 2, 1))
-                .build();
-
-        try {
-            TEST.invokeAllAndThrowAsSuppressedIfAny(items, Handler::handle, "unit test failure");
-        } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
-                    .type(RuntimeException.class)
-                    .message("unit test failure")
-                    .suppressed(ImmutableList.<ThrowableAsserter>builder()
-                            .add(ThrowableAsserter.builder()
-                                    .type(ArrayIndexOutOfBoundsException.class)
-                                    .message("Index -1 out of bounds for length 3")
-                                    .build())
-                            .build())
-                    .build(), ThrowableAsserter.create(e));
-        }
-
-        Assert.assertEquals(3, data.get(0));
-        Assert.assertEquals(0, data.get(1));
-        Assert.assertEquals(1, data.get(2));
-    }
-
-    @Test
     public void GIVEN_an_exception_with_a_cause_and_suppressed_exceptions_WHEN_printing_the_information_in_an_output_stream_THEN_print_all_of_it_by_relying_on_the_exception_printStackTrace_method()
             throws IOException {
         String rootRegex = "java\\.lang\\.RuntimeException: root(?:[\\s\\S](?!Suppressed))+\\s*";
@@ -190,17 +95,6 @@ public final class ExceptionSupportTest {
             String result = outputStream.toString(StandardCharsets.UTF_8);
 
             Assert.assertTrue(assertResult.test(result)); // TODO: FIX THIS
-        }
-    }
-
-    @RequiredArgsConstructor
-    private static final class Handler {
-        private final AtomicLongArray data;
-        private final int index;
-        private final long value;
-
-        public void handle() {
-            data.set(index, value);
         }
     }
 }

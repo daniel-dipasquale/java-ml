@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class ConcurrentIdFactory implements IdFactory<ConcurrentId> {
+public final class ConcurrentIdFactory implements IdFactory<ConcurrentId<Long>> {
     private final AtomicRecyclableReference<MajorIdContainer> recyclableMajorIdContainer;
     private final IdFactory<Long> minorIdFactory;
 
@@ -18,7 +18,7 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId> {
     }
 
     public ConcurrentIdFactory(final ExpirySupport expirySupport, final int initialCapacity, final float loadFactor, final int concurrencyLevel) {
-        this(expirySupport, IdFactory.createThreadIdFactory(), initialCapacity, loadFactor, concurrencyLevel);
+        this(expirySupport, () -> Thread.currentThread().getId(), initialCapacity, loadFactor, concurrencyLevel);
     }
 
     private static RecyclableReference.Factory<MajorIdContainer> createMajorIdContainerFactory(final int initialCapacity, final float loadFactor, final int concurrencyLevel) {
@@ -26,11 +26,11 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId> {
     }
 
     @Override
-    public ConcurrentId createId() {
+    public ConcurrentId<Long> createId() {
         MajorIdContainer majorIdContainer = recyclableMajorIdContainer.reference();
         MinorIdContainer minorIdContainer = majorIdContainer.minorIdContainers.computeIfAbsent(minorIdFactory.createId(), MinorIdContainer::new);
 
-        return ConcurrentId.create(majorIdContainer.majorId, minorIdContainer.minorId, minorIdContainer.revisionId.getAndIncrement());
+        return new ConcurrentId<>(majorIdContainer.majorId, minorIdContainer.minorId, minorIdContainer.revisionId.getAndIncrement());
     }
 
     @RequiredArgsConstructor

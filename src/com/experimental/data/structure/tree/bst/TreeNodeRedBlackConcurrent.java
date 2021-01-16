@@ -1,7 +1,7 @@
 package com.experimental.data.structure.tree.bst;
 
 import com.dipasquale.concurrent.ConcurrentHandler;
-import com.dipasquale.concurrent.ConcurrentId;
+import com.dipasquale.threading.ComparableLock;
 import lombok.EqualsAndHashCode;
 
 import java.util.SortedSet;
@@ -14,8 +14,8 @@ class TreeNodeRedBlackConcurrent<TKey, TValue> extends TreeNodeConcurrentBase<TK
     @EqualsAndHashCode.Exclude
     private final ReadWriteLock isRedLock;
 
-    public TreeNodeRedBlackConcurrent(final TreeNodeRedBlack<TKey, TValue> node, final ConcurrentId concurrentId, final boolean shouldWritingBePriority) {
-        super(node, concurrentId, shouldWritingBePriority);
+    public TreeNodeRedBlackConcurrent(final TreeNodeRedBlack<TKey, TValue> node, final ComparableLock comparableLock, final boolean shouldWritingBePriority) {
+        super(node, comparableLock, shouldWritingBePriority);
         this.isRedLock = new ReentrantReadWriteLock(!shouldWritingBePriority);
     }
 
@@ -30,7 +30,7 @@ class TreeNodeRedBlackConcurrent<TKey, TValue> extends TreeNodeConcurrentBase<TK
     }
 
     private TreeNodeLockRedBlackConcurrent createLock() {
-        return new TreeNodeLockRedBlackConcurrent(concurrentId, parentLock, leftLock, rightLock, isRedLock);
+        return new TreeNodeLockRedBlackConcurrent(comparableLock, parentLock, leftLock, rightLock, isRedLock);
     }
 
     @Override

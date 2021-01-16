@@ -1,6 +1,6 @@
 package com.experimental.data.structure.tree.bst;
 
-import com.dipasquale.concurrent.ConcurrentId;
+import com.dipasquale.threading.ComparableLock;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Stack;
@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 @RequiredArgsConstructor
 class TreeNodeLockConcurrent<T extends TreeNodeLockConcurrent<T>> implements TreeNodeLock<T> {
-    private final ConcurrentId concurrentId;
+    private final ComparableLock comparableLock;
     private final ReadWriteLock parentLock;
     private final ReadWriteLock leftLock;
     private final ReadWriteLock rightLock;
@@ -79,6 +79,6 @@ class TreeNodeLockConcurrent<T extends TreeNodeLockConcurrent<T>> implements Tre
 
     @Override
     public int compareTo(final T other) {
-        return concurrentId.compareTo(((TreeNodeLockConcurrent<T>) other).concurrentId);
+        return comparableLock.compareTo(((TreeNodeLockConcurrent<T>) other).comparableLock);
     }
 }
