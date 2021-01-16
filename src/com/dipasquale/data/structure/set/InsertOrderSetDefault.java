@@ -62,7 +62,7 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
 
     @Override
     public boolean add(final T value) {
-        boolean[] added = new boolean[]{false};
+        boolean[] added = new boolean[1];
 
         nodesMap.computeIfAbsent(value, v -> {
             Node node = nodesQueue.createUnlinked(v);

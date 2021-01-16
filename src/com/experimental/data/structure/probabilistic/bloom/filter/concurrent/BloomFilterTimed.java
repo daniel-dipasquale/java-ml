@@ -52,7 +52,7 @@ final class BloomFilterTimed<T> implements BloomFilter<T> {
     public boolean add(final T item) {
         ExpiryRecord record = expirySupport.next();
         long[] expiryDateTimesOld = selectOrUpdateExpiryDateTimes(item, i -> expiryDateTimes.getAndAccumulate(i, record.getExpiryDateTime(), Math::max));
-        boolean[] added = new boolean[]{false};
+        boolean[] added = new boolean[1];
 
         Arrays.stream(expiryDateTimesOld)
                 .filter(record::isExpired)

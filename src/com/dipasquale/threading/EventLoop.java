@@ -30,7 +30,7 @@ public interface EventLoop {
             return eventLoopFactoryProxy.create(dateTimeSupport, name, exceptionLogger, null, executorService);
         }
 
-        int[] index = new int[]{0};
+        int[] index = new int[1];
         EventLoop.Factory eventLoopFactory = nl -> eventLoopFactoryProxy.create(dateTimeSupport, String.format("%s-%d", name, ++index[0]), exceptionLogger, nl, executorService);
 
         return new EventLoopMulti(eventLoopFactory, count, dateTimeSupport, randomSupport);
