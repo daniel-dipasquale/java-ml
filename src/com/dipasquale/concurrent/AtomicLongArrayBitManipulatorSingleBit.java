@@ -2,6 +2,7 @@ package com.dipasquale.concurrent;
 
 import com.dipasquale.common.BitManipulator;
 import com.dipasquale.common.BitManipulatorSupport;
+import lombok.Generated;
 import lombok.ToString;
 
 import java.util.concurrent.atomic.AtomicLongArray;
@@ -101,6 +102,7 @@ public final class AtomicLongArrayBitManipulatorSingleBit implements BitManipula
         return compareAndSwap(offset, value, accumulator).valueOld;
     }
 
+    @Generated
     @ToString
     private static final class ValueGatherer {
         private long valueOld;
