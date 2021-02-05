@@ -46,9 +46,9 @@ public final class BitManipulatorTest {
 
     @Test
     public void TEST_5() {
-        Assert.assertEquals(4L, TEST.setAndGet(2L, 4L));
+        Assert.assertEquals(8L, TEST.setAndGet(2L, 4L));
         Assert.assertEquals(6L, VALUE.get());
-        Assert.assertEquals(7L, TEST.setAndGet(5L, 7L));
+        Assert.assertEquals(17L, TEST.setAndGet(5L, 7L));
         Assert.assertEquals(12L, VALUE.get());
     }
 
@@ -62,9 +62,9 @@ public final class BitManipulatorTest {
 
     @Test
     public void TEST_7() {
-        Assert.assertEquals(7L, TEST.accumulateAndGet(2L, 4L, Long::sum));
+        Assert.assertEquals(11L, TEST.accumulateAndGet(2L, 4L, Long::sum));
         Assert.assertEquals(9L, VALUE.get());
-        Assert.assertEquals(21L, TEST.accumulateAndGet(5L, 7L, Long::sum));
+        Assert.assertEquals(31L, TEST.accumulateAndGet(5L, 7L, Long::sum));
         Assert.assertEquals(26L, VALUE.get());
     }
 
@@ -78,9 +78,9 @@ public final class BitManipulatorTest {
 
     @Test
     public void TEST_9() {
-        Assert.assertEquals(7L, TEST.addAndGet(2L, 4L));
+        Assert.assertEquals(11L, TEST.addAndGet(2L, 4L));
         Assert.assertEquals(9L, VALUE.get());
-        Assert.assertEquals(21L, TEST.addAndGet(5L, 7L));
+        Assert.assertEquals(31L, TEST.addAndGet(5L, 7L));
         Assert.assertEquals(26L, VALUE.get());
     }
 
@@ -94,9 +94,9 @@ public final class BitManipulatorTest {
 
     @Test
     public void TEST_11() {
-        Assert.assertEquals(4L, TEST.incrementAndGet(2L));
+        Assert.assertEquals(8L, TEST.incrementAndGet(2L));
         Assert.assertEquals(6L, VALUE.get());
-        Assert.assertEquals(12L, TEST.incrementAndGet(5L));
+        Assert.assertEquals(22L, TEST.incrementAndGet(5L));
         Assert.assertEquals(17L, VALUE.get());
     }
 
@@ -110,9 +110,9 @@ public final class BitManipulatorTest {
 
     @Test
     public void TEST_13() {
-        Assert.assertEquals(2L, TEST.decrementAndGet(2L));
+        Assert.assertEquals(6L, TEST.decrementAndGet(2L));
         Assert.assertEquals(4L, VALUE.get());
-        Assert.assertEquals(8L, TEST.decrementAndGet(5L));
+        Assert.assertEquals(18L, TEST.decrementAndGet(5L));
         Assert.assertEquals(13L, VALUE.get());
     }
 
@@ -136,7 +136,7 @@ public final class BitManipulatorTest {
 
         @Override
         public boolean isOutOfBounds(final long value) {
-            return value > 64L;
+            return value < 0L || value > 64L;
         }
 
         @Override

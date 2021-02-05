@@ -12,7 +12,7 @@ public interface BitManipulator {
     default long setAndGet(final long offset, final long value) {
         merge(offset, value);
 
-        return value;
+        return extract(offset);
     }
 
     default long getAndSet(final long offset, final long value) {

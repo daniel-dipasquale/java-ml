@@ -30,20 +30,20 @@ public final class AtomicLongArrayBitManipulatorSingleBit implements BitManipula
         return (int) (offset >>> 6);
     }
 
-    private long getBitMask(final long offset) {
+    private long createBitMask(final long offset) {
         return 1L << (int) (offset % 64);
     }
 
-    private long getValueFromBitMask(final long value, final long offset) {
-        return (value & getBitMask(offset)) == 0L ? 0L : 1L;
+    private long getValueFromBitMask(final long mask, final long offset) {
+        return (mask & createBitMask(offset)) == 0L ? 0L : 1L;
     }
 
     @Override
     public long extract(final long offset) {
         int arrayIndex = getArrayIndex(offset);
-        long value = array.get(arrayIndex);
+        long mask = array.get(arrayIndex);
 
-        return getValueFromBitMask(value, offset);
+        return getValueFromBitMask(mask, offset);
     }
 
     private static long mergeOutOfCas(final long value, final long oldMask, final long newMask) {
@@ -55,7 +55,7 @@ public final class AtomicLongArrayBitManipulatorSingleBit implements BitManipula
     }
 
     private long merge(final int arrayIndex, final long value, final long mask) {
-        return array.accumulateAndGet(arrayIndex, mask, (o, n) -> mergeOutOfCas(value, o, n));
+        return array.accumulateAndGet(arrayIndex, mask, (om, nm) -> mergeOutOfCas(value, om, nm));
     }
 
     @Override
@@ -63,21 +63,19 @@ public final class AtomicLongArrayBitManipulatorSingleBit implements BitManipula
         int arrayIndex = getArrayIndex(offset);
         long valueNew = value % 2;
 
-        return merge(arrayIndex, valueNew, getBitMask(offset));
+        return merge(arrayIndex, valueNew, createBitMask(offset));
     }
 
     private ValueGatherer compareAndSwap(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {
         ValueGatherer valueGatherer = new ValueGatherer();
         int arrayIndex = getArrayIndex(offset);
-        long valueNew = value % 2;
+        long valueFixed = value % 2;
 
-        array.accumulateAndGet(arrayIndex, getBitMask(offset), (o, n) -> {
-            long valueOld = getValueFromBitMask(o, offset);
+        array.accumulateAndGet(arrayIndex, createBitMask(offset), (om, nm) -> {
+            valueGatherer.valueOld = getValueFromBitMask(om, offset);
+            valueGatherer.valueNew = accumulator.accumulate(valueGatherer.valueOld, valueFixed) % 2;
 
-            valueGatherer.valueOld = valueOld;
-            valueGatherer.valueNew = accumulator.accumulate(valueOld, valueNew);
-
-            return mergeOutOfCas(valueGatherer.valueNew, o, n);
+            return mergeOutOfCas(valueGatherer.valueNew, om, nm);
         });
 
         return valueGatherer;

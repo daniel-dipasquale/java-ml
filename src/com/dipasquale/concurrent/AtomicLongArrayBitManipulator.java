@@ -53,7 +53,7 @@ public final class AtomicLongArrayBitManipulator implements BitManipulator {
         int arrayIndex = getArrayIndex(offset);
         long bitsIndex = getBitIndex(offset);
 
-        return array.accumulateAndGet(arrayIndex, -1L, (o, n) -> bitManipulatorSupport.merge(o, bitsIndex, value));
+        return array.accumulateAndGet(arrayIndex, -1L, (om, nm) -> bitManipulatorSupport.merge(om, bitsIndex, value));
     }
 
     private ValueGatherer compareAndSwap(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {
@@ -61,11 +61,15 @@ public final class AtomicLongArrayBitManipulator implements BitManipulator {
         int arrayIndex = getArrayIndex(offset);
         long bitsIndex = getBitIndex(offset);
 
-        array.accumulateAndGet(arrayIndex, -1L, (o, n) -> {
-            valueGatherer.valueOld = bitManipulatorSupport.extract(o, bitsIndex);
-            valueGatherer.valueNew = accumulator.accumulate(valueGatherer.valueOld, value);
+        array.accumulateAndGet(arrayIndex, -1L, (om, nm) -> {
+            valueGatherer.valueOld = bitManipulatorSupport.extract(om, bitsIndex);
 
-            return bitManipulatorSupport.merge(o, bitsIndex, valueGatherer.valueNew);
+            long valueNew = accumulator.accumulate(valueGatherer.valueOld, value);
+            long mergedMask = bitManipulatorSupport.merge(om, bitsIndex, valueNew);
+
+            valueGatherer.valueNew = bitManipulatorSupport.extract(mergedMask, bitsIndex);
+
+            return mergedMask;
         });
 
         return valueGatherer;
