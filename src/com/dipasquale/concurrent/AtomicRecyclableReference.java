@@ -3,6 +3,7 @@ package com.dipasquale.concurrent;
 import com.dipasquale.common.ExpiryRecord;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
@@ -145,6 +146,7 @@ public final class AtomicRecyclableReference<T> {
         return reference().toString();
     }
 
+    @Generated
     @RequiredArgsConstructor
     private final class Envelope { // NOTE: the envelope is only needed if the factory provided is designed to sometimes produce null pointers, that way, we can rely on the envelope to determine whether a synchronization block is needed for the initialization of the reference
         private final RecyclableReference<T> recyclableReference;
@@ -171,6 +173,7 @@ public final class AtomicRecyclableReference<T> {
         }
     }
 
+    @Generated
     private final class ExpirableEnvelopeAudit {
         private ExpirableEnvelope previous;
         private ExpirableEnvelope next;
