@@ -13,21 +13,16 @@ public interface RandomSupport {
         return value * (max - min) + min;
     }
 
-    default long next(final long min, final long maxExcluded) {
-        long max = maxExcluded - 1L;
+    default long next(final long min, final long max) {
+        long maxFixed = max - 1L;
 
-        if (min == max) {
+        if (min >= maxFixed) {
             return min;
         }
 
         double value = next();
-
-        if (Double.compare(value, 1D) == 0) {
-            return max;
-        }
-
         double minDouble = (double) min;
-        double maxDouble = (double) max;
+        double maxDouble = (double) maxFixed;
 
         return (long) (value * maxDouble - value * minDouble + value + minDouble);
     }

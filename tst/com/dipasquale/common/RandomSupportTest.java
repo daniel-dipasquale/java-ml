@@ -36,9 +36,9 @@ public final class RandomSupportTest {
         Assert.assertEquals(0.75D, TEST.next(0D, 1D), 0D);
         Assert.assertEquals(0.6500000000000001D, TEST.next(0.2D, 0.8D), 0D);
         Assert.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
-        RANDOM_SEED.set(1D);
-        Assert.assertEquals(1D, TEST.next(0D, 1D), 0D);
-        Assert.assertEquals(0.8D, TEST.next(0.2D, 0.8D), 0D);
+        RANDOM_SEED.set(0.99D);
+        Assert.assertEquals(0.99D, TEST.next(0D, 1D), 0D);
+        Assert.assertEquals(0.794D, TEST.next(0.2D, 0.8D), 0D);
         Assert.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
     }
 
@@ -63,8 +63,6 @@ public final class RandomSupportTest {
         Assert.assertEquals(4L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.99D);
         Assert.assertEquals(4L, TEST.next(0L, 5L));
-        RANDOM_SEED.set(1D);
-        Assert.assertEquals(4L, TEST.next(0L, 5L));
     }
 
     @Test
@@ -81,9 +79,9 @@ public final class RandomSupportTest {
         RANDOM_SEED.set(0.5D);
         Assert.assertEquals(0.5D, test.next(), 0);
         Assert.assertEquals(0.5D, test.next(0.3D, 0.7D), 0);
-        RANDOM_SEED.set(1D);
-        Assert.assertEquals(0.8D, test.next(), 0);
-        Assert.assertEquals(0.62D, test.next(0.3D, 0.7D), 0);
+        RANDOM_SEED.set(0.99D);
+        Assert.assertEquals(0.794D, test.next(), 0);
+        Assert.assertEquals(0.5588D, test.next(0.4D, 0.6D), 0);
     }
 
     @Test
