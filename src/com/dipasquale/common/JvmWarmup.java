@@ -10,9 +10,7 @@ public final class JvmWarmup {
 
     public static void start(final int count) {
         for (int i = 0; i < count; i++) {
-            JvmWarmup jvmWarmup = new JvmWarmup();
-
-            jvmWarmup.invoke();
+            new JvmWarmup().invoke();
         }
     }
 }

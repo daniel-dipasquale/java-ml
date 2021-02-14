@@ -18,21 +18,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<T>, Queue<T> {
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<T> {
     private final Map<T, Node> nodesMap;
     private final NodeQueue<T> nodesQueue;
 
     public InsertOrderSetDefault() {
         this(new HashMap<>(), NodeQueue.create());
-    }
-
-    private static Set<?> ensureSet(final Collection<?> collection) {
-        if (collection instanceof Set<?>) {
-            return (Set<?>) collection;
-        }
-
-        return new HashSet<>(collection);
     }
 
     @Override
@@ -61,6 +53,22 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
     }
 
     @Override
+    public T element() {
+        T value = first();
+
+        if (value == null) {
+            throw new NoSuchElementException();
+        }
+
+        return value;
+    }
+
+    @Override
+    public T peek() {
+        return first();
+    }
+
+    @Override
     public boolean add(final T value) {
         boolean[] added = new boolean[1];
 
@@ -77,6 +85,11 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
     }
 
     @Override
+    public boolean offer(final T value) {
+        return add(value);
+    }
+
+    @Override
     public boolean remove(final Object value) {
         Node node = nodesMap.remove(value);
 
@@ -87,11 +100,6 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
         return nodesQueue.remove(node);
     }
 
-    @Override
-    public boolean offer(final T value) {
-        return add(value);
-    }
-
     private Node removeNode() {
         Node node = nodesQueue.first();
 
@@ -99,12 +107,7 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
             return null;
         }
 
-        node = nodesMap.remove(nodesQueue.getValue(node));
-
-        if (node == null) {
-            return null;
-        }
-
+        nodesMap.remove(nodesQueue.getValue(node));
         nodesQueue.remove(node);
 
         return node;
@@ -133,19 +136,33 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
     }
 
     @Override
-    public T element() {
-        T value = first();
-
-        if (value == null) {
-            throw new NoSuchElementException();
-        }
-
-        return value;
+    public void clear() {
+        nodesMap.clear();
+        nodesQueue.clear();
     }
 
     @Override
-    public T peek() {
-        return first();
+    public Iterator<T> iterator() {
+        return nodesQueue.stream()
+                .map(nodesQueue::getValue)
+                .iterator();
+    }
+
+    @Override
+    public Iterator<T> iteratorDescending() {
+        Iterable<Node> iterable = nodesQueue::iteratorDescending;
+
+        return StreamSupport.stream(iterable.spliterator(), false)
+                .map(nodesQueue::getValue)
+                .iterator();
+    }
+
+    private static Set<?> ensureSet(final Collection<?> collection) {
+        if (collection instanceof Set<?>) {
+            return (Set<?>) collection;
+        }
+
+        return new HashSet<>(collection);
     }
 
     @Override
@@ -168,27 +185,5 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
                 .count();
 
         return removed > 0L;
-    }
-
-    @Override
-    public void clear() {
-        nodesMap.clear();
-        nodesQueue.clear();
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-        return nodesQueue.stream()
-                .map(nodesQueue::getValue)
-                .iterator();
-    }
-
-    @Override
-    public Iterator<T> iteratorDescending() {
-        Iterable<Node> iterable = nodesQueue::iteratorDescending;
-
-        return StreamSupport.stream(iterable.spliterator(), false)
-                .map(nodesQueue::getValue)
-                .iterator();
     }
 }

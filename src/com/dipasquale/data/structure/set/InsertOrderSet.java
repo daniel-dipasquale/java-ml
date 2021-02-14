@@ -2,9 +2,10 @@ package com.dipasquale.data.structure.set;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.Set;
 
-public interface InsertOrderSet<T> extends Set<T> {
+public interface InsertOrderSet<T> extends Set<T>, Queue<T> {
     T first();
 
     T last();
@@ -42,9 +43,86 @@ public interface InsertOrderSet<T> extends Set<T> {
             }
 
             @Override
+            public T first() {
+                synchronized (sync) {
+                    return set.first();
+                }
+            }
+
+            @Override
+            public T last() {
+                synchronized (sync) {
+                    return set.last();
+                }
+            }
+
+            @Override
+            public T element() {
+                synchronized (sync) {
+                    return set.element();
+                }
+            }
+
+            @Override
+            public T peek() {
+                synchronized (sync) {
+                    return set.peek();
+                }
+            }
+
+            @Override
+            public boolean add(final T value) {
+                synchronized (sync) {
+                    return set.add(value);
+                }
+            }
+
+            @Override
+            public boolean offer(final T value) {
+                synchronized (sync) {
+                    return set.offer(value);
+                }
+            }
+
+            @Override
+            public boolean remove(final Object object) {
+                synchronized (sync) {
+                    return set.remove(object);
+                }
+            }
+
+            @Override
+            public T remove() {
+                synchronized (sync) {
+                    return set.remove();
+                }
+            }
+
+            @Override
+            public T poll() {
+                synchronized (sync) {
+                    return set.poll();
+                }
+            }
+
+            @Override
+            public void clear() {
+                synchronized (sync) {
+                    set.clear();
+                }
+            }
+
+            @Override
             public Iterator<T> iterator() {
                 synchronized (sync) {
                     return set.iterator();
+                }
+            }
+
+            @Override
+            public Iterator<T> iteratorDescending() {
+                synchronized (sync) {
+                    return set.iteratorDescending();
                 }
             }
 
@@ -59,20 +137,6 @@ public interface InsertOrderSet<T> extends Set<T> {
             public <R> R[] toArray(final R[] array) {
                 synchronized (sync) {
                     return set.toArray(array);
-                }
-            }
-
-            @Override
-            public boolean add(final T node) {
-                synchronized (sync) {
-                    return set.add(node);
-                }
-            }
-
-            @Override
-            public boolean remove(final Object object) {
-                synchronized (sync) {
-                    return set.remove(object);
                 }
             }
 
@@ -101,34 +165,6 @@ public interface InsertOrderSet<T> extends Set<T> {
             public boolean removeAll(final Collection<?> collection) {
                 synchronized (sync) {
                     return set.removeAll(collection);
-                }
-            }
-
-            @Override
-            public void clear() {
-                synchronized (sync) {
-                    set.clear();
-                }
-            }
-
-            @Override
-            public T first() {
-                synchronized (sync) {
-                    return set.first();
-                }
-            }
-
-            @Override
-            public T last() {
-                synchronized (sync) {
-                    return set.last();
-                }
-            }
-
-            @Override
-            public Iterator<T> iteratorDescending() {
-                synchronized (sync) {
-                    return set.iteratorDescending();
                 }
             }
         };
