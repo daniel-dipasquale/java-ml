@@ -28,18 +28,26 @@ import java.util.stream.StreamSupport;
 public class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> {
     private final Map<TKey, EntryInternal> map;
     private final NavigableMap<TValue, InsertOrderSet<EntryInternal>> navigableMap;
-    private final ObjectFactory<InsertOrderSet<EntryInternal>> createEntriesSet;
+    private final ObjectFactory<InsertOrderSet<EntryInternal>> entriesSetFactory;
 
     public static <TKey, TValue> SortedByValueMap<TKey, TValue> create(final Comparator<TValue> comparator) {
         ArgumentValidator.getInstance().ensureNotNull(comparator, "comparator");
 
-        return new SortedByValueMap<>(new HashMap<>(), new TreeMap<>(comparator), InsertOrderSet::create);
+        Map<TKey, SortedByValueMap<TKey, TValue>.EntryInternal> map = new HashMap<>();
+        NavigableMap<TValue, InsertOrderSet<SortedByValueMap<TKey, TValue>.EntryInternal>> navigableMap = new TreeMap<>(comparator);
+        ObjectFactory<InsertOrderSet<SortedByValueMap<TKey, TValue>.EntryInternal>> entriesSetFactory = InsertOrderSet::create;
+
+        return new SortedByValueMap<TKey, TValue>(map, navigableMap, entriesSetFactory);
     }
 
     public static <TKey, TValue> SortedByValueMap<TKey, TValue> createConcurrent(final Comparator<TValue> comparator) {
         ArgumentValidator.getInstance().ensureNotNull(comparator, "comparator");
 
-        return new SortedByValueMap<>(new ConcurrentHashMap<>(), new ConcurrentSkipListMap<>(comparator), InsertOrderSet::createSynchronized);
+        Map<TKey, SortedByValueMap<TKey, TValue>.EntryInternal> map = new ConcurrentHashMap<>();
+        NavigableMap<TValue, InsertOrderSet<SortedByValueMap<TKey, TValue>.EntryInternal>> navigableMap = new ConcurrentSkipListMap<>(comparator);
+        ObjectFactory<InsertOrderSet<SortedByValueMap<TKey, TValue>.EntryInternal>> entriesSetFactory = InsertOrderSet::createSynchronized;
+
+        return new SortedByValueMap<TKey, TValue>(map, navigableMap, entriesSetFactory);
     }
 
     @Override
@@ -81,7 +89,7 @@ public class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> {
     }
 
     private void addToNavigableMap(final EntryInternal entry) {
-        Set<EntryInternal> entries = navigableMap.computeIfAbsent(entry.value, k -> createEntriesSet.create());
+        Set<EntryInternal> entries = navigableMap.computeIfAbsent(entry.value, k -> entriesSetFactory.create());
 
         entries.add(entry);
     }

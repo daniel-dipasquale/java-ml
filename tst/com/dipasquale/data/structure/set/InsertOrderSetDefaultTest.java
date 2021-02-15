@@ -1,16 +1,22 @@
 package com.dipasquale.data.structure.set;
 
 import com.dipasquale.common.test.ThrowableAsserter;
+import com.dipasquale.data.structure.queue.Node;
+import com.dipasquale.data.structure.queue.NodeQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 public final class InsertOrderSetDefaultTest {
-    private static final InsertOrderSetDefault<String> TEST = new InsertOrderSetDefault<>();
+    private static final Map<String, Node> NODES_MAP = new HashMap<>();
+    private static final NodeQueue<String> NODES_QUEUE = NodeQueue.create();
+    private static final InsertOrderSetDefault<String> TEST = new InsertOrderSetDefault<>(NODES_MAP, NODES_QUEUE);
 
     @Before
     public void before() {
@@ -95,15 +101,13 @@ public final class InsertOrderSetDefaultTest {
 
     @Test
     public void TEST_7() {
+        TEST.clear();
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
-
-        Assert.assertEquals(ImmutableList.builder()
-                .add("item-1")
-                .add("item-2")
-                .add("item-3")
-                .build(), ImmutableList.copyOf(TEST));
+        Assert.assertEquals(3, TEST.size());
+        TEST.clear();
+        Assert.assertEquals(0, TEST.size());
     }
 
     @Test
@@ -111,13 +115,11 @@ public final class InsertOrderSetDefaultTest {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.remove("item-2"));
-        Assert.assertTrue(TEST.add("item-2"));
 
         Assert.assertEquals(ImmutableList.builder()
                 .add("item-1")
-                .add("item-3")
                 .add("item-2")
+                .add("item-3")
                 .build(), ImmutableList.copyOf(TEST));
     }
 
@@ -126,6 +128,21 @@ public final class InsertOrderSetDefaultTest {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
+        Assert.assertTrue(TEST.remove("item-2"));
+        Assert.assertTrue(TEST.add("item-2"));
+
+        Assert.assertEquals(ImmutableList.builder()
+                .add("item-1")
+                .add("item-3")
+                .add("item-2")
+                .build(), ImmutableList.copyOf(TEST));
+    }
+
+    @Test
+    public void TEST_10() {
+        Assert.assertTrue(TEST.add("item-1"));
+        Assert.assertTrue(TEST.add("item-2"));
+        Assert.assertTrue(TEST.add("item-3"));
 
         Assert.assertEquals(ImmutableList.builder()
                 .add("item-3")
@@ -135,7 +152,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_10() {
+    public void TEST_11() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
@@ -150,7 +167,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_11() {
+    public void TEST_12() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
@@ -169,7 +186,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_12() {
+    public void TEST_13() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
@@ -185,7 +202,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_13() {
+    public void TEST_14() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
@@ -203,7 +220,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_14() {
+    public void TEST_15() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
@@ -228,7 +245,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_15() {
+    public void TEST_16() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
@@ -248,7 +265,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_16() {
+    public void TEST_17() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
@@ -270,7 +287,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_17() {
+    public void TEST_18() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));
@@ -291,7 +308,7 @@ public final class InsertOrderSetDefaultTest {
     }
 
     @Test
-    public void TEST_18() {
+    public void TEST_19() {
         Assert.assertTrue(TEST.add("item-1"));
         Assert.assertTrue(TEST.add("item-2"));
         Assert.assertTrue(TEST.add("item-3"));

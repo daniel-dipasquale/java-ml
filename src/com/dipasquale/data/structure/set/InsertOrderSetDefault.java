@@ -7,13 +7,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.AbstractSet;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -22,10 +20,6 @@ import java.util.stream.StreamSupport;
 class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<T> {
     private final Map<T, Node> nodesMap;
     private final NodeQueue<T> nodesQueue;
-
-    public InsertOrderSetDefault() {
-        this(new HashMap<>(), NodeQueue.create());
-    }
 
     @Override
     public int size() {
@@ -54,18 +48,13 @@ class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<
 
     @Override
     public T element() {
-        T value = first();
+        Node node = nodesQueue.first();
 
-        if (value == null) {
+        if (node == null) {
             throw new NoSuchElementException();
         }
 
-        return value;
-    }
-
-    @Override
-    public T peek() {
-        return first();
+        return nodesQueue.getValue(node);
     }
 
     @Override
@@ -82,11 +71,6 @@ class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<
         });
 
         return added[0];
-    }
-
-    @Override
-    public boolean offer(final T value) {
-        return add(value);
     }
 
     @Override

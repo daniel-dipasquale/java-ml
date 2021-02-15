@@ -29,6 +29,15 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
         this.size = 0;
     }
 
+    private NodeDefault<T> createUnlinkedTyped(final T value) {
+        return new NodeDefault<>(value, membership);
+    }
+
+    @Override
+    public Node createUnlinked(final T value) {
+        return createUnlinkedTyped(value);
+    }
+
     @Override
     public int size() {
         return size;
@@ -38,12 +47,85 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
         return node != null && node.getMembership() == membership;
     }
 
-    private void ensureHasMembership(final Node node) {
-        ArgumentValidator.getInstance().ensureTrue(hasMembership(node), "node", "was not created by this queue");
-    }
-
     private boolean canBeAdded(final NodeDefault<T> node) {
         return node.previous == null;
+    }
+
+    @Override
+    public boolean contains(final Object object) {
+        if (!(object instanceof Node)) {
+            return false;
+        }
+
+        return hasMembership((Node) object) && !canBeAdded((NodeDefault<T>) object);
+    }
+
+    @Override
+    public final Node first() {
+        if (start.next == end) {
+            return null;
+        }
+
+        return start.next;
+    }
+
+    @Override
+    public Node last() {
+        if (end.previous == start) {
+            return null;
+        }
+
+        return end.previous;
+    }
+
+    private NodeDefault<T> previous(final NodeDefault<T> node) {
+        if (node.previous == start) {
+            return null;
+        }
+
+        return node.previous;
+    }
+
+    @Override
+    public Node previous(final Node node) {
+        if (!hasMembership(node)) {
+            return null;
+        }
+
+        return previous((NodeDefault<T>) node);
+    }
+
+    private NodeDefault<T> next(final NodeDefault<T> node) {
+        if (node.next == end) {
+            return null;
+        }
+
+        return node.next;
+    }
+
+    @Override
+    public Node next(final Node node) {
+        if (!hasMembership(node)) {
+            return null;
+        }
+
+        return next((NodeDefault<T>) node);
+    }
+
+    private T getValue(final NodeDefault<T> node) {
+        return node.value;
+    }
+
+    public T getValue(final Node node) {
+        if (!hasMembership(node)) {
+            return null;
+        }
+
+        return getValue((NodeDefault<T>) node);
+    }
+
+    private void ensureHasMembership(final Node node) {
+        ArgumentValidator.getInstance().ensureTrue(hasMembership(node), "node", "was not created by this queue");
     }
 
     private boolean add(final NodeDefault<T> node) {
@@ -90,18 +172,18 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
         return node;
     }
 
-    private boolean remove(final Node nodeLink) {
-        if (!hasMembership(nodeLink)) {
+    private boolean remove(final Node node) {
+        if (!hasMembership(node)) {
             return false;
         }
 
-        NodeDefault<T> node = (NodeDefault<T>) nodeLink;
+        NodeDefault<T> nodeFixed = (NodeDefault<T>) node;
 
-        if (!canBeRemoved(node)) {
+        if (!canBeRemoved(nodeFixed)) {
             return false;
         }
 
-        remove(node);
+        remove(nodeFixed);
 
         return true;
     }
@@ -113,15 +195,6 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
         }
 
         return remove((Node) object);
-    }
-
-    private NodeDefault<T> createUnlinkedTyped(final T value) {
-        return new NodeDefault<>(value, membership);
-    }
-
-    @Override
-    public Node createUnlinked(final T value) {
-        return createUnlinkedTyped(value);
     }
 
     private boolean reoffer(final NodeDefault<T> node) {
@@ -150,71 +223,6 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
         }
 
         return remove(start.next);
-    }
-
-    @Override
-    public Node peek() {
-        if (start.next == end) {
-            return null;
-        }
-
-        return start.next;
-    }
-
-    @Override
-    public final Node first() {
-        return peek();
-    }
-
-    @Override
-    public Node last() {
-        if (end.previous == start) {
-            return null;
-        }
-
-        return end.previous;
-    }
-
-    private NodeDefault<T> previous(final NodeDefault<T> node) {
-        if (node.previous == start) {
-            return null;
-        }
-
-        return node.previous;
-    }
-
-    @Override
-    public Node previous(final Node node) {
-        ensureHasMembership(node);
-
-        return previous((NodeDefault<T>) node);
-    }
-
-    private NodeDefault<T> next(final NodeDefault<T> node) {
-        if (node.next == end) {
-            return null;
-        }
-
-        return node.next;
-    }
-
-    @Override
-    public Node next(final Node node) {
-        ensureHasMembership(node);
-
-        return next((NodeDefault<T>) node);
-    }
-
-    private T getValue(final NodeDefault<T> node) {
-        return node.value;
-    }
-
-    public T getValue(final Node node) {
-        if (!hasMembership(node)) {
-            return null;
-        }
-
-        return getValue((NodeDefault<T>) node);
     }
 
     @Override
