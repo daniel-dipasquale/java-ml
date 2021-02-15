@@ -1,10 +1,10 @@
 package com.dipasquale.data.structure.set;
 
-import com.dipasquale.common.test.ThrowableAsserter;
+import com.dipasquale.common.test.ThrowableComparer;
+import com.dipasquale.data.structure.collection.test.CollectionAsserter;
 import com.dipasquale.data.structure.queue.Node;
 import com.dipasquale.data.structure.queue.NodeQueue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,9 +60,9 @@ public final class InsertOrderSetDefaultTest {
             TEST.element();
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(NoSuchElementException.class)
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertNull(TEST.peek());
@@ -86,9 +86,9 @@ public final class InsertOrderSetDefaultTest {
             TEST.remove();
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(NoSuchElementException.class)
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertNull(TEST.poll());
@@ -168,161 +168,12 @@ public final class InsertOrderSetDefaultTest {
 
     @Test
     public void TEST_12() {
-        Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertTrue(TEST.add("item-2"));
-        Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.add("item-4"));
-        Assert.assertTrue(TEST.add("item-5"));
+        CollectionAsserter<String> collectionAsserter = new CollectionAsserter<>(TEST, i -> String.format("item-%d", i), String.class, Assert::assertEquals);
 
-        Assert.assertTrue(TEST.retainAll(ImmutableList.<String>builder()
-                .add("item-2")
-                .add("item-3")
-                .build()));
-
-        Assert.assertEquals(ImmutableList.builder()
-                .add("item-2")
-                .add("item-3")
-                .build(), ImmutableList.copyOf(TEST));
-    }
-
-    @Test
-    public void TEST_13() {
-        Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertTrue(TEST.add("item-2"));
-        Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.add("item-4"));
-        Assert.assertTrue(TEST.add("item-5"));
-
-        Assert.assertTrue(TEST.retainAll(ImmutableSet.<String>builder()
-                .add("item-6")
-                .add("item-7")
-                .build()));
-
-        Assert.assertEquals(ImmutableList.of(), ImmutableList.copyOf(TEST));
-    }
-
-    @Test
-    public void TEST_14() {
-        Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertTrue(TEST.add("item-2"));
-        Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.add("item-4"));
-        Assert.assertTrue(TEST.add("item-5"));
-
-        Assert.assertTrue(TEST.retainAll(ImmutableList.<String>builder()
-                .add("item-1")
-                .add("item-7")
-                .build()));
-
-        Assert.assertEquals(ImmutableList.builder()
-                .add("item-1")
-                .build(), ImmutableList.copyOf(TEST));
-    }
-
-    @Test
-    public void TEST_15() {
-        Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertTrue(TEST.add("item-2"));
-        Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.add("item-4"));
-        Assert.assertTrue(TEST.add("item-5"));
-
-        Assert.assertFalse(TEST.retainAll(ImmutableList.<String>builder()
-                .add("item-1")
-                .add("item-2")
-                .add("item-3")
-                .add("item-4")
-                .add("item-5")
-                .build()));
-
-        Assert.assertEquals(ImmutableList.builder()
-                .add("item-1")
-                .add("item-2")
-                .add("item-3")
-                .add("item-4")
-                .add("item-5")
-                .build(), ImmutableList.copyOf(TEST));
-    }
-
-    @Test
-    public void TEST_16() {
-        Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertTrue(TEST.add("item-2"));
-        Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.add("item-4"));
-        Assert.assertTrue(TEST.add("item-5"));
-
-        Assert.assertTrue(TEST.removeAll(ImmutableList.<String>builder()
-                .add("item-2")
-                .add("item-3")
-                .build()));
-
-        Assert.assertEquals(ImmutableList.builder()
-                .add("item-1")
-                .add("item-4")
-                .add("item-5")
-                .build(), ImmutableList.copyOf(TEST));
-    }
-
-    @Test
-    public void TEST_17() {
-        Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertTrue(TEST.add("item-2"));
-        Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.add("item-4"));
-        Assert.assertTrue(TEST.add("item-5"));
-
-        Assert.assertFalse(TEST.removeAll(ImmutableList.<String>builder()
-                .add("item-6")
-                .add("item-7")
-                .build()));
-
-        Assert.assertEquals(ImmutableList.builder()
-                .add("item-1")
-                .add("item-2")
-                .add("item-3")
-                .add("item-4")
-                .add("item-5")
-                .build(), ImmutableList.copyOf(TEST));
-    }
-
-    @Test
-    public void TEST_18() {
-        Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertTrue(TEST.add("item-2"));
-        Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.add("item-4"));
-        Assert.assertTrue(TEST.add("item-5"));
-
-        Assert.assertTrue(TEST.removeAll(ImmutableList.<String>builder()
-                .add("item-1")
-                .add("item-7")
-                .build()));
-
-        Assert.assertEquals(ImmutableList.builder()
-                .add("item-2")
-                .add("item-3")
-                .add("item-4")
-                .add("item-5")
-                .build(), ImmutableList.copyOf(TEST));
-    }
-
-    @Test
-    public void TEST_19() {
-        Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertTrue(TEST.add("item-2"));
-        Assert.assertTrue(TEST.add("item-3"));
-        Assert.assertTrue(TEST.add("item-4"));
-        Assert.assertTrue(TEST.add("item-5"));
-
-        Assert.assertTrue(TEST.removeAll(ImmutableList.<String>builder()
-                .add("item-1")
-                .add("item-2")
-                .add("item-3")
-                .add("item-4")
-                .add("item-5")
-                .build()));
-
-        Assert.assertEquals(ImmutableList.of(), ImmutableList.copyOf(TEST));
+        collectionAsserter.assertToArray();
+        collectionAsserter.assertContainsAll();
+        collectionAsserter.assertAddAll();
+        collectionAsserter.assertRetainAll();
+        collectionAsserter.assertRemoveAll();
     }
 }

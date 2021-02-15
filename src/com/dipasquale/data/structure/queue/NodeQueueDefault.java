@@ -4,7 +4,14 @@ import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 
 import java.util.AbstractQueue;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue<T> {
     protected Object membership;
@@ -34,7 +41,7 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
     }
 
     @Override
-    public Node createUnlinked(final T value) {
+    public Node createUnbound(final T value) {
         return createUnlinkedTyped(value);
     }
 
@@ -242,5 +249,35 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
         return LinkedIterator.createStream(end.previous, e -> e.previous, e -> e != start)
                 .map(e -> (Node) e)
                 .iterator();
+    }
+
+    private static Set<?> ensureSet(final Collection<?> collection) {
+        Set<Object> set = Collections.newSetFromMap(new IdentityHashMap<>());
+
+        set.addAll(collection);
+
+        return set;
+    }
+
+    @Override
+    public boolean retainAll(final Collection<?> collection) {
+        Set<?> nodesToRetain = ensureSet(collection);
+
+        List<Node> nodesToRemove = StreamSupport.stream(spliterator(), false)
+                .filter(k -> !nodesToRetain.contains(k))
+                .collect(Collectors.toList());
+
+        nodesToRemove.forEach(this::remove);
+
+        return !nodesToRemove.isEmpty();
+    }
+
+    @Override
+    public boolean removeAll(final Collection<?> collection) {
+        long removed = collection.stream()
+                .filter(this::remove)
+                .count();
+
+        return removed > 0L;
     }
 }

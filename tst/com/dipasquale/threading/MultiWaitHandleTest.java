@@ -1,7 +1,7 @@
 package com.dipasquale.threading;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.test.ThrowableAsserter;
+import com.dipasquale.common.test.ThrowableComparer;
 import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -93,10 +93,10 @@ public final class MultiWaitHandleTest {
             test.await();
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(InterruptedException.class)
                     .message("throw interrupted exception 1")
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertEquals(ImmutableList.<WaitHandle>builder()
@@ -128,10 +128,10 @@ public final class MultiWaitHandleTest {
             test.await();
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(InterruptedException.class)
                     .message("throw interrupted exception 2")
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertEquals(ImmutableList.<WaitHandle>builder()
@@ -218,10 +218,10 @@ public final class MultiWaitHandleTest {
             test.await(4L, TimeUnit.MILLISECONDS);
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(InterruptedException.class)
                     .message("throw interrupted exception 1")
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertEquals(ImmutableList.<WaitHandle>builder()
@@ -250,10 +250,10 @@ public final class MultiWaitHandleTest {
             test.await(4L, TimeUnit.MILLISECONDS);
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(InterruptedException.class)
                     .message("throw interrupted exception 2")
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertEquals(ImmutableList.<WaitHandle>builder()

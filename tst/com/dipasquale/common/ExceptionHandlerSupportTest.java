@@ -1,6 +1,6 @@
 package com.dipasquale.common;
 
-import com.dipasquale.common.test.ThrowableAsserter;
+import com.dipasquale.common.test.ThrowableComparer;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,16 +48,16 @@ public final class ExceptionHandlerSupportTest {
             TEST.throwAsSuppressedIfAny(() -> new IllegalStateException("test-message"), ImmutableList.of(new IllegalStateException("illegal-state-exception")));
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(IllegalStateException.class)
                     .message("test-message")
-                    .suppressed(ImmutableList.<ThrowableAsserter>builder()
-                            .add(ThrowableAsserter.builder()
+                    .suppressed(ImmutableList.<ThrowableComparer>builder()
+                            .add(ThrowableComparer.builder()
                                     .type(IllegalStateException.class)
                                     .message("illegal-state-exception")
                                     .build())
                             .build())
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
     }
 
@@ -67,16 +67,16 @@ public final class ExceptionHandlerSupportTest {
             TEST.throwAsSuppressedIfAny("test-message", ImmutableList.of(new IllegalStateException("illegal-state-exception")));
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(RuntimeException.class)
                     .message("test-message")
-                    .suppressed(ImmutableList.<ThrowableAsserter>builder()
-                            .add(ThrowableAsserter.builder()
+                    .suppressed(ImmutableList.<ThrowableComparer>builder()
+                            .add(ThrowableComparer.builder()
                                     .type(IllegalStateException.class)
                                     .message("illegal-state-exception")
                                     .build())
                             .build())
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
     }
 

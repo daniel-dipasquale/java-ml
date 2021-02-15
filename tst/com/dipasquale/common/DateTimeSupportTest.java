@@ -1,6 +1,6 @@
 package com.dipasquale.common;
 
-import com.dipasquale.common.test.ThrowableAsserter;
+import com.dipasquale.common.test.ThrowableComparer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -125,10 +125,10 @@ public final class DateTimeSupportTest {
             TEST.parse("unparseable");
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(DateTimeParseException.class)
                     .message("Text 'unparseable' could not be parsed at index 0")
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
     }
 

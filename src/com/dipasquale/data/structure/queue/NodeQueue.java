@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Queue;
 
 public interface NodeQueue<T> extends Queue<Node> {
-    Node createUnlinked(T value);
+    Node createUnbound(T value);
 
     boolean reoffer(Node node);
 
@@ -33,9 +33,9 @@ public interface NodeQueue<T> extends Queue<Node> {
     private static <T> NodeQueue<T> createSynchronized(final NodeQueue<T> queue) {
         return new NodeQueue<>() {
             @Override
-            public Node createUnlinked(final T value) {
+            public Node createUnbound(final T value) {
                 synchronized (queue) {
-                    return queue.createUnlinked(value);
+                    return queue.createUnbound(value);
                 }
             }
 
@@ -54,7 +54,7 @@ public interface NodeQueue<T> extends Queue<Node> {
             }
 
             @Override
-            public boolean contains(final Object object) { // NOTE: not originally implemented in NodeQueueDefault
+            public boolean contains(final Object object) {
                 synchronized (queue) {
                     return queue.contains(object);
                 }

@@ -1,6 +1,6 @@
 package com.dipasquale.common;
 
-import com.dipasquale.common.test.ThrowableAsserter;
+import com.dipasquale.common.test.ThrowableComparer;
 import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import org.junit.Assert;
@@ -43,16 +43,16 @@ public class ExceptionHandlerTest {
         try {
             test.invokeAllAndThrowAsSuppressedIfAny(() -> new RuntimeException("unit test failure"));
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
-                    .suppressed(ImmutableList.<ThrowableAsserter>builder()
-                            .add(ThrowableAsserter.builder()
+                    .suppressed(ImmutableList.<ThrowableComparer>builder()
+                            .add(ThrowableComparer.builder()
                                     .type(ArrayIndexOutOfBoundsException.class)
                                     .message("Index -1 out of bounds for length 3")
                                     .build())
                             .build())
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertEquals(3, data.get(0));
@@ -93,16 +93,16 @@ public class ExceptionHandlerTest {
         try {
             test.invokeAllAndThrowAsSuppressedIfAny("unit test failure");
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
-                    .suppressed(ImmutableList.<ThrowableAsserter>builder()
-                            .add(ThrowableAsserter.builder()
+                    .suppressed(ImmutableList.<ThrowableComparer>builder()
+                            .add(ThrowableComparer.builder()
                                     .type(ArrayIndexOutOfBoundsException.class)
                                     .message("Index -1 out of bounds for length 3")
                                     .build())
                             .build())
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertEquals(3, data.get(0));

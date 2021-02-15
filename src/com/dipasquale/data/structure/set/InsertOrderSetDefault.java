@@ -62,7 +62,7 @@ class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<
         boolean[] added = new boolean[1];
 
         nodesMap.computeIfAbsent(value, v -> {
-            Node node = nodesQueue.createUnlinked(v);
+            Node node = nodesQueue.createUnbound(v);
 
             nodesQueue.add(node);
             added[0] = true;

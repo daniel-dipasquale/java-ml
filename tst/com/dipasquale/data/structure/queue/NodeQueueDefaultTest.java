@@ -1,6 +1,7 @@
 package com.dipasquale.data.structure.queue;
 
-import com.dipasquale.common.test.ThrowableAsserter;
+import com.dipasquale.common.test.ThrowableComparer;
+import com.dipasquale.data.structure.collection.test.CollectionAsserter;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,7 +10,7 @@ import org.junit.Test;
 import java.util.NoSuchElementException;
 
 public final class NodeQueueDefaultTest {
-    private static final NodeQueue<String> TEST = NodeQueue.create();
+    private static final NodeQueue<String> TEST = new NodeQueueDefault<>();
 
     @Before
     public void before() {
@@ -26,9 +27,9 @@ public final class NodeQueueDefaultTest {
             TEST.element();
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(NoSuchElementException.class)
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertNull(TEST.last());
@@ -50,7 +51,7 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_2() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertNotNull(node);
         assertEmptyState(node, "item-1");
@@ -58,7 +59,7 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_3() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertTrue(TEST.add(node));
         Assert.assertEquals(1, TEST.size());
@@ -72,21 +73,11 @@ public final class NodeQueueDefaultTest {
         Assert.assertNull(TEST.previous(node));
         Assert.assertNull(TEST.next(node));
         Assert.assertEquals("item-1", TEST.getValue(node));
-
-        try {
-            TEST.add(node);
-            Assert.fail();
-        } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
-                    .type(IllegalArgumentException.class)
-                    .message("node was already added")
-                    .build(), ThrowableAsserter.create(e));
-        }
     }
 
     @Test
     public void TEST_4() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertTrue(TEST.add(node));
 
@@ -94,10 +85,10 @@ public final class NodeQueueDefaultTest {
             TEST.add(node);
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(IllegalArgumentException.class)
                     .message("node was already added")
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertFalse(TEST.offer(node));
@@ -105,7 +96,7 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_5() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertTrue(TEST.offer(node));
         Assert.assertFalse(TEST.offer(node));
@@ -114,16 +105,16 @@ public final class NodeQueueDefaultTest {
             TEST.add(node);
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(IllegalArgumentException.class)
                     .message("node was already added")
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
     }
 
     @Test
     public void TEST_6() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertFalse(TEST.remove(node));
         Assert.assertTrue(TEST.add(node));
@@ -134,7 +125,7 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_7() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertNull(TEST.poll());
         Assert.assertTrue(TEST.add(node));
@@ -144,9 +135,9 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_8() {
-        Node node1 = TEST.createUnlinked("item-1");
-        Node node2 = TEST.createUnlinked("item-2");
-        Node node3 = TEST.createUnlinked("item-3");
+        Node node1 = TEST.createUnbound("item-1");
+        Node node2 = TEST.createUnbound("item-2");
+        Node node3 = TEST.createUnbound("item-3");
 
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
@@ -164,15 +155,15 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_9() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertFalse(TEST.reoffer(node));
     }
 
     @Test
     public void TEST_10() {
-        Node node1 = TEST.createUnlinked("item-1");
-        Node node2 = TEST.createUnlinked("item-2");
+        Node node1 = TEST.createUnbound("item-1");
+        Node node2 = TEST.createUnbound("item-2");
 
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
@@ -187,8 +178,8 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_11() {
-        Node node1 = TEST.createUnlinked("item-1");
-        Node node2 = TEST.createUnlinked("item-2");
+        Node node1 = TEST.createUnbound("item-1");
+        Node node2 = TEST.createUnbound("item-2");
 
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
@@ -203,8 +194,8 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_12() {
-        Node node1 = TEST.createUnlinked("item-1");
-        Node node2 = TEST.createUnlinked("item-2");
+        Node node1 = TEST.createUnbound("item-1");
+        Node node2 = TEST.createUnbound("item-2");
 
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
@@ -227,8 +218,8 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_13() {
-        Node node1 = TEST.createUnlinked("item-1");
-        Node node2 = TEST.createUnlinked("item-2");
+        Node node1 = TEST.createUnbound("item-1");
+        Node node2 = TEST.createUnbound("item-2");
 
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
@@ -239,7 +230,7 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_14() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertTrue(TEST.add(node));
         TEST.clear();
@@ -248,10 +239,10 @@ public final class NodeQueueDefaultTest {
             TEST.add(node);
             Assert.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableAsserter.builder()
+            Assert.assertEquals(ThrowableComparer.builder()
                     .type(IllegalArgumentException.class)
                     .message("node was not created by this queue")
-                    .build(), ThrowableAsserter.create(e));
+                    .build(), ThrowableComparer.create(e));
         }
 
         Assert.assertFalse(TEST.offer(node));
@@ -259,7 +250,7 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_15() {
-        Node node = TEST.createUnlinked("item-1");
+        Node node = TEST.createUnbound("item-1");
 
         Assert.assertTrue(TEST.add(node));
         TEST.clear();
@@ -269,9 +260,9 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_16() {
-        Node node1 = TEST.createUnlinked("item-1");
-        Node node2 = TEST.createUnlinked("item-2");
-        Node node3 = TEST.createUnlinked("item-3");
+        Node node1 = TEST.createUnbound("item-1");
+        Node node2 = TEST.createUnbound("item-2");
+        Node node3 = TEST.createUnbound("item-3");
 
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
@@ -286,9 +277,9 @@ public final class NodeQueueDefaultTest {
 
     @Test
     public void TEST_17() {
-        Node node1 = TEST.createUnlinked("item-1");
-        Node node2 = TEST.createUnlinked("item-2");
-        Node node3 = TEST.createUnlinked("item-3");
+        Node node1 = TEST.createUnbound("item-1");
+        Node node2 = TEST.createUnbound("item-2");
+        Node node3 = TEST.createUnbound("item-3");
 
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
@@ -299,5 +290,16 @@ public final class NodeQueueDefaultTest {
                 .add(node2)
                 .add(node1)
                 .build(), ImmutableList.copyOf(TEST::iteratorDescending));
+    }
+
+    @Test
+    public void TEST_18() {
+        CollectionAsserter<Node> collectionAsserter = new CollectionAsserter<>(TEST, i -> TEST.createUnbound(String.format("item-%d", i)), Node.class, Assert::assertEquals);
+
+        collectionAsserter.assertToArray();
+        collectionAsserter.assertContainsAll();
+        collectionAsserter.assertAddAll();
+        collectionAsserter.assertRetainAll();
+        collectionAsserter.assertRemoveAll();
     }
 }

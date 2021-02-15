@@ -49,7 +49,7 @@ final class RateLimiterMultiBucket {
                 RateLimitAuditor auditor = new RateLimitAuditor(slidingWindow, checker);
                 RateLimiterSingle rateLimiter = new RateLimiterSingle(dateTimeSupport, auditor, waitHandle);
                 Bucket bucket = new Bucket(bn, rateLimiter);
-                Node nodeNew = rateLimitersQueue.createUnlinked(bucket);
+                Node nodeNew = rateLimitersQueue.createUnbound(bucket);
 
                 clearOldRateLimiters();
                 rateLimitersQueue.offer(nodeNew);

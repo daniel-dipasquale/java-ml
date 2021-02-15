@@ -39,7 +39,7 @@ final class RateLimitAuditor {
 
     private Function<Long, Counter> createCounterFactory(final boolean removedOldCounters, final long currentTime) {
         return timeFrame -> {
-            timeFrames.offer(timeFrames.createUnlinked(timeFrame));
+            timeFrames.offer(timeFrames.createUnbound(timeFrame));
 
             if (!removedOldCounters) {
                 removeOldCounters(currentTime);
