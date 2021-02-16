@@ -201,14 +201,14 @@ public interface NodeQueue<T> extends Queue<Node> {
             }
 
             @Override
-            public boolean retainAll(final Collection<?> collection) { // NOTE: not originally implemented in NodeQueueDefault
+            public boolean retainAll(final Collection<?> collection) {
                 synchronized (queue) {
                     return queue.retainAll(collection);
                 }
             }
 
             @Override
-            public boolean removeAll(final Collection<?> collection) { // NOTE: not originally implemented in NodeQueueDefault
+            public boolean removeAll(final Collection<?> collection) {
                 synchronized (queue) {
                     return queue.removeAll(collection);
                 }

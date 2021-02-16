@@ -1,13 +1,11 @@
 package com.dipasquale.data.structure.collection.test;
 
 import lombok.Generated;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.function.IntFunction;
 
 @Generated // TODO: should the testing tool be tested? I'm feeling like it should be
-@RequiredArgsConstructor
 public final class CollectionAsserter<T> {
     private final TestCaseCollectionRunner<T> testCaseRunner;
     private final Collection<T> collection;
