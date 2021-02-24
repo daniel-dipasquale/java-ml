@@ -1,6 +1,7 @@
 package com.experimental.ai.rl.neat;
 
 import com.dipasquale.common.RandomSupportFloat;
+import com.experimental.ai.common.Counter;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -11,15 +12,17 @@ final class ConnectionGeneSupportDefault<T extends Comparable<T>> implements Con
     private final Counter<T> counter;
     private final RandomSupportFloat randomSupport;
     private final Map<DirectedEdge<T>, InnovationId<T>> innovationIds;
+    private final boolean allowCyclicConnections;
+    private final boolean allowReInnovations;
 
     @Override
     public boolean allowCyclicConnections() {
-        return false;
+        return allowCyclicConnections;
     }
 
     @Override
     public boolean allowReInnovations() {
-        return false;
+        return allowReInnovations;
     }
 
     @Override

@@ -40,3 +40,7 @@ fix the way the classes are organized
 provide a way to save the genomes
 extract most classes to interfaces
 remove directedEdgeNodePair
+
+topological sort:
+http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
+https://vbstudio.hu/en/blog/20190317-Growing-an-AI-with-NEAT

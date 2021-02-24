@@ -1,4 +1,4 @@
-package com.experimental.ai;
+package com.experimental.ai.common;
 
 @FunctionalInterface
 public interface ActivationFunction {

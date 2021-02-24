@@ -1,6 +1,6 @@
 package com.experimental.ai.rl.neat;
 
-import com.experimental.ai.ActivationFunction;
+import com.experimental.ai.common.ActivationFunction;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -12,11 +12,14 @@ import lombok.ToString;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString
+@ToString(onlyExplicitlyIncluded = true)
 final class NodeGene<T> {
     @EqualsAndHashCode.Include
+    @ToString.Include
     private final T id;
+    @ToString.Include
     private final Type type;
+    @ToString.Include
     private final float bias;
     private final ActivationFunction activationFunction;
 

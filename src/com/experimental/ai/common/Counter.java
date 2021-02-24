@@ -1,4 +1,4 @@
-package com.experimental.ai.rl.neat;
+package com.experimental.ai.common;
 
 public interface Counter<T extends Comparable<T>> {
     T next();

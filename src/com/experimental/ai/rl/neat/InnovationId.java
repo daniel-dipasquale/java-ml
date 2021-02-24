@@ -15,12 +15,12 @@ public final class InnovationId<T extends Comparable<T>> implements Comparable<I
     private final DirectedEdge<T> directedEdge;
     private final T index;
 
-    public T getInNodeId() {
-        return directedEdge.getInNodeId();
+    public T getSourceNodeId() {
+        return directedEdge.getSourceNodeId();
     }
 
-    public T getOutNodeId() {
-        return directedEdge.getOutNodeId();
+    public T getTargetNodeId() {
+        return directedEdge.getTargetNodeId();
     }
 
     @Override

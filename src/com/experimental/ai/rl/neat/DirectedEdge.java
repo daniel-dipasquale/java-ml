@@ -8,15 +8,15 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @EqualsAndHashCode
 public final class DirectedEdge<T> {
-    private final T inNodeId;
-    private final T outNodeId;
+    private final T sourceNodeId;
+    private final T targetNodeId;
 
     DirectedEdge(final NodeGene<T> inNode, final NodeGene<T> outNode) {
-        this.inNodeId = inNode.getId();
-        this.outNodeId = outNode.getId();
+        this.sourceNodeId = inNode.getId();
+        this.targetNodeId = outNode.getId();
     }
 
     DirectedEdge<T> createReversed() {
-        return new DirectedEdge<>(outNodeId, inNodeId);
+        return new DirectedEdge<>(targetNodeId, sourceNodeId);
     }
 }

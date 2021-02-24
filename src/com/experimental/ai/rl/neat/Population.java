@@ -3,26 +3,24 @@ package com.experimental.ai.rl.neat;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 final class Population<T extends Comparable<T>> {
     private final Context<T> context;
-    private final Genome<T> genesisGenome;
+    private final GenomeDefault<T> genesisGenome;
     private final Set<Organism<T>> organismsWithoutSpecies;
-//    private final Map<Organism<T>, Species<T>> organismsToSpecies;
+    //    private final Map<Organism<T>, Species<T>> organismsToSpecies;
     private final List<Species<T>> allSpecies;
     @Getter
     private int generation;
 
     Population(final Context<T> context) {
-        Genome<T> genesisGenome = context.general().createGenesisGenome();
+        GenomeDefault<T> genesisGenome = context.general().createGenesisGenome();
 
         this.context = context;
         this.genesisGenome = genesisGenome;
@@ -32,7 +30,7 @@ final class Population<T extends Comparable<T>> {
         this.generation = 1;
     }
 
-    private static <T extends Comparable<T>> Set<Organism<T>> createOrganisms(final Context<T> context, final Genome<T> genesisGenome) {
+    private static <T extends Comparable<T>> Set<Organism<T>> createOrganisms(final Context<T> context, final GenomeDefault<T> genesisGenome) {
         IdentityHashMap<Organism<T>, Boolean> organismsWithoutSpecies = IntStream.range(0, context.general().populationSize())
                 .mapToObj(i -> genesisGenome.createCopy())
                 .map(g -> new Organism<>(context.general(), g))

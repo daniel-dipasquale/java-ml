@@ -1,33 +1,23 @@
 package com.experimental.ai.rl.neat;
 
-import com.google.common.collect.Sets;
-
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Set;
+import com.dipasquale.data.structure.set.InsertOrderSet;
 
 final class HashedQueue<T> {
-    private final Set<T> set = Sets.newSetFromMap(new LinkedHashMap<>());
+    private final InsertOrderSet<T> insertOrderSet = InsertOrderSet.create();
 
     public boolean isEmpty() {
-        return set.isEmpty();
+        return insertOrderSet.isEmpty();
     }
 
     public boolean push(final T value) {
-        return set.add(value);
+        return insertOrderSet.add(value);
     }
 
     public T pop() {
-        if (set.isEmpty()) {
+        if (insertOrderSet.isEmpty()) {
             return null;
         }
 
-        Iterator<T> iterator = set.iterator();
-
-        try {
-            return iterator.next();
-        } finally {
-            iterator.remove();
-        }
+        return insertOrderSet.poll();
     }
 }

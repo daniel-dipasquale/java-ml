@@ -24,19 +24,18 @@ interface Context<T extends Comparable<T>> {
 
         int maximumGenerations();
 
-        Genome<T> createGenesisGenome();
+        GenomeDefault<T> createGenesisGenome();
 
-        float calculateFitness(Genome<T> genome);
+        float calculateFitness(GenomeDefault<T> genome);
     }
 
     @FunctionalInterface
     interface NeuralNetworkSupport<T extends Comparable<T>> {
-        NeuralNetwork create(Genome<T> genome);
+        NeuralNetwork create(GenomeDefault<T> genome);
     }
 
+    @FunctionalInterface
     interface NodeGeneSupport<T extends Comparable<T>> {
-        NodeGene<T> get(T id);
-
         NodeGene<T> create(NodeGene.Type type);
     }
 
@@ -117,9 +116,9 @@ interface Context<T extends Comparable<T>> {
 
         float compatibilityThreshold(int generationNumber); // 6.0 ( * compatibilityThresholdModifier ^ generationNumber )
 
-        float calculateCompatibility(Genome<T> genome1, Genome<T> genome2);
+        float calculateCompatibility(GenomeDefault<T> genome1, GenomeDefault<T> genome2);
 
-        default boolean belongs(final Genome<T> genome1, final Genome<T> genome2, final int generationNumber) {
+        default boolean belongs(final GenomeDefault<T> genome1, final GenomeDefault<T> genome2, final int generationNumber) {
             float compatibility = calculateCompatibility(genome1, genome2);
 
             return Float.compare(compatibility, compatibilityThreshold(generationNumber)) < 0;

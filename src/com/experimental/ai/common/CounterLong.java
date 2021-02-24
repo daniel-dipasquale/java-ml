@@ -1,4 +1,4 @@
-package com.experimental.ai.rl.neat;
+package com.experimental.ai.common;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -89,16 +89,16 @@ final class Species<T extends Comparable<T>> {
         return organismsKilled;
     }
 
-    private Organism<T> create(final Genome<T> genome) {
+    private Organism<T> create(final GenomeDefault<T> genome) {
         return new Organism<>(context.general(), genome);
     }
 
     private Organism<T> breed(final Organism<T> organism1, final Organism<T> organism2) {
         if (Float.compare(organisms.get(organism1), organisms.get(organism2)) >= 0) {
-            return create(Genome.crossover(organism1.getGenome(), organism2.getGenome()));
+            return create(GenomeDefault.crossover(organism1.getGenome(), organism2.getGenome()));
         }
 
-        return create(Genome.crossover(organism2.getGenome(), organism1.getGenome()));
+        return create(GenomeDefault.crossover(organism2.getGenome(), organism1.getGenome()));
     }
 
     public List<Organism<T>> reproduceOutcast(final int count) {

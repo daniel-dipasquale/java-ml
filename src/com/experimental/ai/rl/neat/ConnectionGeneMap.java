@@ -70,10 +70,10 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
     private void addToExpressed(final ConnectionGene<T> connection) {
         expressed.put(connection.getInnovationId(), connection);
 
-        incomingToNodeId.computeIfAbsent(connection.getInnovationId().getOutNodeId(), ni -> new LinkedHashMap<>())
+        incomingToNodeId.computeIfAbsent(connection.getInnovationId().getTargetNodeId(), ni -> new LinkedHashMap<>())
                 .put(connection.getInnovationId().getDirectedEdge(), connection);
 
-        outgoingFromNodeId.computeIfAbsent(connection.getInnovationId().getInNodeId(), ni -> new LinkedHashMap<>())
+        outgoingFromNodeId.computeIfAbsent(connection.getInnovationId().getSourceNodeId(), ni -> new LinkedHashMap<>())
                 .put(connection.getInnovationId().getDirectedEdge(), connection);
     }
 
@@ -90,7 +90,7 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
     }
 
     private void removeFromExpressedIncomingAndOutgoing(final ConnectionGene<T> connection) {
-        incomingToNodeId.computeIfPresent(connection.getInnovationId().getOutNodeId(), (k, oic) -> {
+        incomingToNodeId.computeIfPresent(connection.getInnovationId().getTargetNodeId(), (k, oic) -> {
             oic.remove(connection.getInnovationId().getDirectedEdge());
 
             if (oic.isEmpty()) {
@@ -100,7 +100,7 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
             return oic;
         });
 
-        outgoingFromNodeId.computeIfPresent(connection.getInnovationId().getInNodeId(), (k, oic) -> {
+        outgoingFromNodeId.computeIfPresent(connection.getInnovationId().getSourceNodeId(), (k, oic) -> {
             oic.remove(connection.getInnovationId().getDirectedEdge());
 
             if (oic.isEmpty()) {

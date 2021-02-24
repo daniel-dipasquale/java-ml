@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 final class Organism<T extends Comparable<T>> {
     private final Context.GeneralSupport<T> generalSupport;
     @Getter
-    private final Genome<T> genome;
+    private final GenomeDefault<T> genome;
 
     public float determineFitness() {
         return Math.max(generalSupport.calculateFitness(genome), Float.MIN_VALUE);

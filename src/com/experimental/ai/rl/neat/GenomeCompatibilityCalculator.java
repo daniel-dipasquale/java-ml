@@ -19,7 +19,7 @@ final class GenomeCompatibilityCalculator<T extends Comparable<T>> {
         return excessFromConnection == null || joinEntry.getItem1() != null && !isExcess(joinEntry.getItem1(), excessFromConnection) || joinEntry.getItem2() != null && !isExcess(joinEntry.getItem2(), excessFromConnection);
     }
 
-    public float calculateCompatibility(final Genome<T> genome1, final Genome<T> genome2) {
+    public float calculateCompatibility(final GenomeDefault<T> genome1, final GenomeDefault<T> genome2) {
         int genome1MaximumConnections = genome1.getConnections().sizeFromAll();
         int genome2MaximumConnections = genome2.getConnections().sizeFromAll();
         int maximumConnections = Math.max(genome1MaximumConnections, genome2MaximumConnections);
