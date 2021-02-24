@@ -42,7 +42,7 @@ public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable
 
     public static <T> SortedByValueRankedAggregator<T, Long> createHighestRankedConcurrent(final int limit) {
         Comparator<Long> comparator = Long::compare;
-        Factory<T, Long> mapFactory = SortedByValueMap::createConcurrent;
+        Factory<T, Long> mapFactory = SortedByValueMap::createHashConcurrent;
         long initialExtremeValue = 0L;
 
         return new SortedByValueRankedAggregator<>(comparator, mapFactory, initialExtremeValue, limit);
@@ -60,8 +60,8 @@ public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable
                 TValue valueOld = map.put(key, value);
 
                 if (valueOld == null && size.getAndIncrement() >= limit) {
-                    size.decrementAndGet();
                     map.remove(map.headKey());
+                    size.decrementAndGet();
                     extremeValue.set(map.headValue());
                 }
 

@@ -128,11 +128,59 @@ public final class RandomSupportTest {
     }
 
     @Test
+    public void GIVEN_a_random_number_generator_that_is_thread_unsafe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_with_a_specific_limit_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+        RandomSupport test = RandomSupport.createGaussian(24D);
+        double result = test.next();
+
+        Assert.assertTrue(Double.compare(result, 0D) >= 0);
+        Assert.assertTrue(Double.compare(result, 1D) <= 0);
+    }
+
+    @Test
+    public void GIVEN_a_random_number_generator_that_is_thread_unsafe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_without_limits_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+        RandomSupport test = RandomSupport.createGaussianUnbounded();
+
+        for (int i = 0; i < 100_000; i++) {
+            double result = test.next();
+
+            if (Double.compare(result, 0D) < 0 || Double.compare(result, 1D) > 0) {
+                return;
+            }
+        }
+
+        Assert.fail();
+    }
+
+    @Test
     public void GIVEN_a_random_number_generator_that_is_thread_safe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
         RandomSupport test = RandomSupport.createGaussianConcurrent();
         double result = test.next();
 
         Assert.assertTrue(Double.compare(result, 0D) >= 0);
         Assert.assertTrue(Double.compare(result, 1D) <= 0);
+    }
+
+    @Test
+    public void GIVEN_a_random_number_generator_that_is_thread_safe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_with_a_specific_limit_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+        RandomSupport test = RandomSupport.createGaussianConcurrent(24D);
+        double result = test.next();
+
+        Assert.assertTrue(Double.compare(result, 0D) >= 0);
+        Assert.assertTrue(Double.compare(result, 1D) <= 0);
+    }
+
+    @Test
+    public void GIVEN_a_random_number_generator_that_is_thread_safe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_without_limits_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+        RandomSupport test = RandomSupport.createGaussianConcurrentUnbounded();
+
+        for (int i = 0; i < 100_000; i++) {
+            double result = test.next();
+
+            if (Double.compare(result, 0D) < 0 || Double.compare(result, 1D) > 0) {
+                return;
+            }
+        }
+
+        Assert.fail();
     }
 }

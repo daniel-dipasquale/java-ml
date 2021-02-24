@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.util.AbstractMap;
 
 public final class SortedByValueMapTest {
-    private static final SortedByValueMap<String, Long> TEST = SortedByValueMap.create(Long::compareTo);
+    private static final SortedByValueMap<String, Long> TEST = SortedByValueMap.createHash(Long::compareTo);
 
     @Before
     public void before() {

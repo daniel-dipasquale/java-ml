@@ -1,0 +1,42 @@
+neat:
+http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf
+
+https://github.com/hydrozoa-yt/hydroneat/blob/master/src/com/hydrozoa/hydroneat/Genome.java
+https://www.youtube.com/watch?v=1I1eG-WLLrY&ab_channel=Hydrozoa
+http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
+https://www.youtube.com/watch?v=vvSjJZDPQVc&ab_channel=FinnEggers
+https://github.com/Luecx/NEAT/blob/master/vid%203/src/data_structures/RandomHashSet.java
+https://pastebin.com/ZZmSNaHX
+https://wagenaartje.github.io/neataptic/docs/builtins/gru/
+https://github.com/wagenaartje/neataptic/blob/master/src/architecture/architect.js
+https://github.com/colgreen/sharpneat-refactor/blob/master/src/SharpNeat/NeuralNets/Double/NeuralNetAcyclic.cs
+https://www.youtube.com/watch?v=MPFWsRjDmnU&ab_channel=TechWithTim
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2758373/
+https://neat-python.readthedocs.io/en/latest/neat_overview.html
+https://www.freecodecamp.org/news/how-to-use-ai-to-play-sonic-the-hedgehog-its-neat-9d862a2aef98/
+https://www.youtube.com/watch?v=nhT56blfRpE&ab_channel=KieCodes
+https://stackoverflow.com/questions/55569260/feedforward-algorithm-in-neat-neural-evolution-of-augmenting-topologies
+https://www.cs.ucf.edu/~kstanley/neat.html
+
+activation:
+https://github.com/colgreen/sharpneat-refactor/tree/master/src/SharpNeat/NeuralNets/Double/ActivationFunctions
+https://github.com/wagenaartje/neataptic/blob/master/src/methods/activation.js
+
+https://stackoverflow.com/questions/47898104/adjusted-fitness-in-neat-algorithm
+https://www.cs.cmu.edu/afs/cs/project/jair/pub/volume21/stanley04a-html/node3.html
+https://stackoverflow.com/questions/65895442/neat-what-to-do-with-single-member-species
+https://stackoverflow.com/questions/50960834/neat-speciating
+https://ai.stackexchange.com/questions/2689/how-does-mating-take-place-in-neat
+
+https://stackoverflow.com/questions/45390481/what-is-neat-neuroevolution-of-augmenting-topologies
+
+issues:
+fix the way disconnected nodes are persisted
+fix neural network with ready neurons and topological sort
+fix the context properties, maybe implement a few to realize what's over done
+fix the speciation and evolution
+fix the way cyclic connections are detected
+fix the way the classes are organized
+provide a way to save the genomes
+extract most classes to interfaces
+remove directedEdgeNodePair
