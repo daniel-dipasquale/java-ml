@@ -9,7 +9,7 @@ interface Context<T extends Comparable<T>> {
 
     ConnectionGeneSupport<T> connections();
 
-    NeuralNetworkSupport<T> neuralNetwork();
+    NeuralNetworkSupport neuralNetwork();
 
     Random random();
 
@@ -30,8 +30,8 @@ interface Context<T extends Comparable<T>> {
     }
 
     @FunctionalInterface
-    interface NeuralNetworkSupport<T extends Comparable<T>> {
-        NeuralNetwork create(GenomeDefault<T> genome);
+    interface NeuralNetworkSupport {
+        NeuralNetwork create(Genome genome);
     }
 
     @FunctionalInterface
@@ -96,7 +96,7 @@ interface Context<T extends Comparable<T>> {
     }
 
     interface CrossOver {
-        float rate();
+        float rate(); // 0.8
 
         float disableExpressedInheritanceRate(); // 0.5
     }

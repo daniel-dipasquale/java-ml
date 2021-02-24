@@ -89,6 +89,8 @@ final class NeuronNavigator<T> implements Iterable<Neuron<T>> {
     }
 
     public void clear() {
+        neurons.clear();
+        outputNeurons.clear();
         neuronsOrdered = null;
     }
 

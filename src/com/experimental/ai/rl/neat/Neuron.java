@@ -12,13 +12,17 @@ interface Neuron<T> {
 
     NodeGene.Type getType();
 
+    ActivationFunction getActivationFunction();
+
     Collection<T> getInputIds();
 
     Collection<Output<T>> getOutputs();
 
     float getValue(ActivationFunction activationFunction);
 
-    float getValue();
+    default float getValue() {
+        return getValue(getActivationFunction());
+    }
 
     void forceValue(float newValue);
 

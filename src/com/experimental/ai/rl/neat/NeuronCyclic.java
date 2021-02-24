@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class NeuronCyclic<T> implements Neuron<T> { // TODO: Finish
+final class NeuronCyclic<T> implements Neuron<T> {
     private final NodeGene<T> node;
     @Getter
     private final Collection<T> inputIds;
@@ -19,14 +19,22 @@ final class NeuronCyclic<T> implements Neuron<T> { // TODO: Finish
     private final Map<T, Float> inputValues = new HashMap<>();
     private float value = 0f;
 
+    @Override
     public T getId() {
         return node.getId();
     }
 
+    @Override
     public NodeGene.Type getType() {
         return node.getType();
     }
 
+    @Override
+    public ActivationFunction getActivationFunction() {
+        return node.getActivationFunction();
+    }
+
+    @Override
     public float getValue(final ActivationFunction activationFunction) {
         if (activationFunction == null) {
             return node.getActivationFunction().forward(value + node.getBias());
@@ -35,14 +43,12 @@ final class NeuronCyclic<T> implements Neuron<T> { // TODO: Finish
         return activationFunction.forward(value + node.getBias());
     }
 
-    public float getValue() {
-        return getValue(node.getActivationFunction());
-    }
-
+    @Override
     public void forceValue(final float newValue) {
         value = newValue;
     }
 
+    @Override
     public void addToValue(final T id, final float delta) {
         if (inputValues.put(id, delta) != null) {
             value = inputValues.values().stream()
@@ -52,6 +58,7 @@ final class NeuronCyclic<T> implements Neuron<T> { // TODO: Finish
         }
     }
 
+    @Override
     public void reset() {
         inputValues.clear();
         value = 0f;

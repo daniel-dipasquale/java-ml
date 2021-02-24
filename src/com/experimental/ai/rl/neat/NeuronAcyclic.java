@@ -27,17 +27,17 @@ final class NeuronAcyclic<T> implements Neuron<T> {
     }
 
     @Override
+    public ActivationFunction getActivationFunction() {
+        return node.getActivationFunction();
+    }
+
+    @Override
     public float getValue(final ActivationFunction activationFunction) {
         if (activationFunction == null) {
             return node.getActivationFunction().forward(value + node.getBias());
         }
 
         return activationFunction.forward(value + node.getBias());
-    }
-
-    @Override
-    public float getValue() {
-        return getValue(node.getActivationFunction());
     }
 
     @Override

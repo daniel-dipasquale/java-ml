@@ -21,7 +21,7 @@ final class Species<T extends Comparable<T>> {
     @Getter
     private float maximumFitness;
 
-    public Species(final Context<T> context, final Population<T> population, final Organism<T> originalOrganism) {
+    Species(final Context<T> context, final Population<T> population, final Organism<T> originalOrganism) {
         this.context = context;
         this.population = population;
         this.originalOrganism = originalOrganism;
@@ -59,7 +59,7 @@ final class Species<T extends Comparable<T>> {
         float fitnessMaximum = -Float.MAX_VALUE;
 
         for (Map.Entry<Organism<T>, Float> entry : organismEntries) {
-            float fitness = entry.getKey().determineFitness();
+            float fitness = entry.getKey().updateFitness();
             float sharedFitness = fitness / organismEntries.size();
 
             sharedFitnessTotal += sharedFitness;
@@ -94,7 +94,7 @@ final class Species<T extends Comparable<T>> {
     }
 
     private Organism<T> breed(final Organism<T> organism1, final Organism<T> organism2) {
-        if (Float.compare(organisms.get(organism1), organisms.get(organism2)) >= 0) {
+        if (Float.compare(organism1.getFitness(), organism2.getFitness()) >= 0) {
             return create(GenomeDefault.crossover(organism1.getGenome(), organism2.getGenome()));
         }
 
@@ -105,7 +105,7 @@ final class Species<T extends Comparable<T>> {
         List<Organism<T>> organismsAdded = new ArrayList<>();
 
         if (organisms.size() > 0) {
-            List<Organism<T>> organismsToReproduce = new ArrayList<>(organisms.keySet()); // TODO: is a random index in a sorted list random enough?
+            List<Organism<T>> organismsToReproduce = new ArrayList<>(organisms.keySet());
 
             for (int i = 0; i < count; i++) {
                 if (organismsToReproduce.size() > 1 && context.random().isAtMost(context.crossover().rate())) {
