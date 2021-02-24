@@ -6,50 +6,30 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class Neuron<T> {
-    @Getter
-    private final NodeGene<T> node;
-    @Getter
-    private final Collection<T> inputIds;
-    @Getter
-    private final Collection<Output<T>> outputs;
-    private final Map<T, Float> inputValues = new HashMap<>();
-    private float value = 0f;
+interface Neuron<T> {
+    T getId();
 
-    public float getValue(final ActivationFunction activationFunction) {
-        return activationFunction.forward(value + node.getBias());
-    }
+    NodeGene.Type getType();
 
-    public float getValue() {
-        return getValue(node.getActivationFunction());
-    }
+    Collection<T> getInputIds();
 
-    public void forceValue(final float newValue) {
-        value = newValue;
-    }
+    Collection<Output<T>> getOutputs();
 
-    public void addToValue(final T id, final float delta) {
-        if (inputValues.put(id, delta) != null) {
-            value = inputValues.values().stream()
-                    .reduce(0f, Float::sum);
-        } else {
-            value += delta;
-        }
-    }
+    float getValue(ActivationFunction activationFunction);
 
-    public void reset() {
-        inputValues.clear();
-        value = 0f;
-    }
+    float getValue();
+
+    void forceValue(float newValue);
+
+    void addToValue(T id, float delta);
+
+    void reset();
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @Getter
-    public static final class Output<T> {
-        private final T id;
-        private final float weight;
+    final class Output<T> {
+        private final T neuronId;
+        private final float connectionWeight;
     }
 }

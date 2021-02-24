@@ -1,19 +1,20 @@
 package com.experimental.ai.rl.neat;
 
 import com.dipasquale.common.RandomSupportFloat;
-import com.experimental.ai.common.Counter;
+import com.experimental.ai.common.SequentialIdFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ConnectionGeneSupportDefault<T extends Comparable<T>> implements Context.ConnectionGeneSupport<T> {
-    private final Counter<T> counter;
-    private final RandomSupportFloat randomSupport;
-    private final Map<DirectedEdge<T>, InnovationId<T>> innovationIds;
     private final boolean allowCyclicConnections;
-    private final boolean allowReInnovations;
+    private final SequentialIdFactory<T> sequentialIdFactory;
+    private final RandomSupportFloat randomSupportFloat;
+    private final Map<DirectedEdge<T>, InnovationId<T>> innovationIds;
+    private final Set<DirectedEdge<T>> innovationIdsNotAllowed;
 
     @Override
     public boolean allowCyclicConnections() {
@@ -21,22 +22,22 @@ final class ConnectionGeneSupportDefault<T extends Comparable<T>> implements Con
     }
 
     @Override
-    public boolean allowReInnovations() {
-        return allowReInnovations;
-    }
+    public InnovationId<T> getOrCreateInnovationId(final DirectedEdge<T> directedEdge) {
+        if (allowCyclicConnections) {
+            return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId<>(de, sequentialIdFactory.next()));
+        }
 
-    @Override
-    public InnovationId<T> getInnovationId(final DirectedEdge<T> directedEdge) {
-        return innovationIds.get(directedEdge);
-    }
+        if (innovationIdsNotAllowed.contains(directedEdge)) {
+            return null;
+        }
 
-    @Override
-    public InnovationId<T> createInnovationId(final DirectedEdge<T> directedEdge) {
-        return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId<>(de, counter.next()));
+        innovationIdsNotAllowed.add(directedEdge.createReversed());
+
+        return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId<>(de, sequentialIdFactory.next()));
     }
 
     @Override
     public float nextWeight() {
-        return randomSupport.next() * 4f - 2f;
+        return randomSupportFloat.next();
     }
 }

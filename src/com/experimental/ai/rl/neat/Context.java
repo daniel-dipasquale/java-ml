@@ -42,20 +42,16 @@ interface Context<T extends Comparable<T>> {
     interface ConnectionGeneSupport<T extends Comparable<T>> {
         boolean allowCyclicConnections();
 
-        boolean allowReInnovations();
+        InnovationId<T> getOrCreateInnovationId(DirectedEdge<T> directedEdge);
 
-        InnovationId<T> getInnovationId(DirectedEdge<T> directedEdge);
-
-        InnovationId<T> createInnovationId(DirectedEdge<T> directedEdge);
-
-        default InnovationId<T> createInnovationId(final T inNodeId, final T outNodeId) {
+        default InnovationId<T> getOrCreateInnovationId(final T inNodeId, final T outNodeId) {
             DirectedEdge<T> directedEdge = new DirectedEdge<>(inNodeId, outNodeId);
 
-            return createInnovationId(directedEdge);
+            return getOrCreateInnovationId(directedEdge);
         }
 
-        default InnovationId<T> createInnovationId(final NodeGene<T> inNode, final NodeGene<T> outNode) {
-            return createInnovationId(inNode.getId(), outNode.getId());
+        default InnovationId<T> getOrCreateInnovationId(final NodeGene<T> inNode, final NodeGene<T> outNode) {
+            return getOrCreateInnovationId(inNode.getId(), outNode.getId());
         }
 
         float nextWeight(); // next() * 4 - 2
@@ -86,7 +82,7 @@ interface Context<T extends Comparable<T>> {
 
         float next();
 
-        boolean isAtMost(float ratio);
+        boolean isAtMost(float rate);
     }
 
     interface Mutation {

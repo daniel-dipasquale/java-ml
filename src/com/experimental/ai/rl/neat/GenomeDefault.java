@@ -37,13 +37,10 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
 
     private void addNode(final NodeGene<T> node) {
         nodes.put(node);
-        neuralNetwork.reset();
     }
 
     private void addConnection(final ConnectionGene<T> connection) {
-        if (connections.put(connection)) {
-            neuralNetwork.reset();
-        }
+        connections.put(connection);
     }
 
     private boolean addNodeMutation() {
@@ -54,13 +51,11 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
         int connectionIndex = context.random().nextIndex(connections.sizeFromExpressed());
         ConnectionGene<T> connection = connections.disableByIndex(connectionIndex);
 
-        neuralNetwork.reset();
-
         NodeGene<T> inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
         NodeGene<T> outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
         NodeGene<T> newNode = context.nodes().create(NodeGene.Type.Hidden);
-        ConnectionGene<T> inToNewConnection = new ConnectionGene<>(context.connections().createInnovationId(inNode, newNode), 1f);
-        ConnectionGene<T> newToOutConnection = new ConnectionGene<>(context.connections().createInnovationId(newNode, outNode), connection.getWeight());
+        ConnectionGene<T> inToNewConnection = new ConnectionGene<>(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
+        ConnectionGene<T> newToOutConnection = new ConnectionGene<>(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
 
         addNode(newNode);
         addConnection(inToNewConnection);
@@ -97,7 +92,13 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
         }
     }
 
-    private DirectedEdge<T> createRandomDirectedEdge() {
+    private InnovationId<T> createInnovationId(final NodeGene<T> node1, final NodeGene<T> node2) {
+        DirectedEdge<T> directedEdge = new DirectedEdge<>(node1, node2);
+
+        return context.connections().getOrCreateInnovationId(directedEdge);
+    }
+
+    private InnovationId<T> createRandomInnovationId() {
         if (nodes.size() <= 1) {
             return null;
         }
@@ -109,49 +110,40 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
             return null;
         }
 
-        if (context.connections().allowCyclicConnections()) {
-            if (node1.getType() != NodeGene.Type.Output) {
-                return new DirectedEdge<>(node1, node2);
-            }
+        return switch (node1.getType()) {
+            case Input -> createInnovationId(node1, node2);
 
-            return new DirectedEdge<>(node2, node1);
-        }
+            case Output -> createInnovationId(node2, node1);
 
-        if (node1.getId().compareTo(node2.getId()) <= 0) {
-            return new DirectedEdge<>(node1, node2);
-        }
+            default -> switch (node2.getType()) {
+                case Input -> createInnovationId(node2, node1);
 
-        return new DirectedEdge<>(node2, node1);
+                default -> Optional.ofNullable(createInnovationId(node1, node2))
+                        .orElseGet(() -> createInnovationId(node2, node1));
+            };
+        };
     }
 
     private boolean addConnectionMutation() {
-        DirectedEdge<T> directedEdge = createRandomDirectedEdge();
+        InnovationId<T> innovationId = createRandomInnovationId();
 
-        if (directedEdge == null) {
-            return false;
+        if (innovationId != null) {
+            ConnectionGene<T> connection = connections.getByIdFromAll(innovationId);
+
+            if (connection == null) {
+                addConnection(new ConnectionGene<>(innovationId, context.connections().nextWeight()));
+
+                return true;
+            }
+
+            if (context.connections().allowCyclicConnections()) {
+                connection.increaseCyclesAllowed();
+
+                return true;
+            }
         }
 
-        InnovationId<T> innovationId = context.connections().createInnovationId(directedEdge);
-
-        if (innovationId == null && !context.connections().allowReInnovations()) {
-            return false;
-        }
-
-        if (innovationId == null) {
-            innovationId = context.connections().getInnovationId(directedEdge);
-        }
-
-        ConnectionGene<T> connection = connections.getByIdFromAll(innovationId);
-
-        if (connection == null) {
-            addConnection(new ConnectionGene<>(innovationId, context.connections().nextWeight()));
-        } else if (context.connections().allowCyclicConnections()) {
-            connection.increaseCyclesAllowed();
-        } else {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     private void mutateSomeConnectionWeights() {
@@ -183,6 +175,7 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
 
         mutateSomeConnectionWeights();
         mutateSomeConnectionExpressed();
+        neuralNetwork.reset();
     }
 
     private static <T extends Comparable<T>> GenomeDefault<T> crossoverBySkippingUnfit(final GenomeDefault<T> fitParent, final GenomeDefault<T> unfitParent) {
