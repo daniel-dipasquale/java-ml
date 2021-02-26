@@ -86,18 +86,18 @@ public final class RandomSupportTest {
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_determining_if_the_random_number_is_within_an_expected_boundary_THEN_indicate_true_if_within_and_false_otherwise() {
-        Assert.assertTrue(TEST.isBetween(0D, 0D));
+        Assert.assertTrue(TEST.isBetween(0D, Double.MIN_VALUE));
         Assert.assertTrue(TEST.isBetween(0D, 0.25D));
-        RANDOM_SEED.set(0.26D);
+        RANDOM_SEED.set(0.25D);
         Assert.assertFalse(TEST.isBetween(0D, 0.25D));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_determining_if_the_random_number_is_within_0_and_some_maximum_boundary_THEN_indicate_true_if_within_and_false_otherwise() {
-        Assert.assertTrue(TEST.isAtMost(0D));
-        Assert.assertTrue(TEST.isAtMost(0.5D));
-        RANDOM_SEED.set(0.51D);
-        Assert.assertFalse(TEST.isAtMost(0.5D));
+        Assert.assertFalse(TEST.isLessThan(0D));
+        Assert.assertTrue(TEST.isLessThan(0.5D));
+        RANDOM_SEED.set(0.5D);
+        Assert.assertFalse(TEST.isLessThan(0.5D));
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.experimental.data.structure.tree.bst;
 
-import com.dipasquale.concurrent.ConcurrentHandler;
 import com.dipasquale.threading.ComparableLock;
+import com.experimental.concurrent.ConcurrentHandler;
 import lombok.EqualsAndHashCode;
 
 import java.util.Map;

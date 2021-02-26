@@ -6,18 +6,18 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor
 final class EventLoopPriority implements EventLoop {
     private final EventLoopDefault eventLoop;
 
-    EventLoopPriority(final DateTimeSupport dateTimeSupport, final String name, final ExceptionLogger exceptionLogger, final EventLoop next, final ExecutorService executorService) {
-        Queue<EventLoopDefault.Record> eventHandlers = new PriorityQueue<>(Comparator.comparing(EventLoopDefault.Record::getExecutionDateTime));
+    EventLoopPriority(final DateTimeSupport dateTimeSupport, final String name, final ExceptionLogger exceptionLogger, final EventLoop nextEventLoop, final ExecutorService executorService) {
+        ExclusiveQueue<EventLoop.Record> eventRecords = new ExclusiveQueueLocked<>(new ReentrantLock(), new PriorityQueue<>(Comparator.comparing(EventLoop.Record::getExecutionDateTime)));
 
-        this.eventLoop = new EventLoopDefault(eventHandlers, dateTimeSupport, name, exceptionLogger, next, executorService);
+        this.eventLoop = new EventLoopDefault(eventRecords, dateTimeSupport, name, exceptionLogger, nextEventLoop, executorService);
     }
 
     @Override
@@ -26,7 +26,7 @@ final class EventLoopPriority implements EventLoop {
     }
 
     @Override
-    public void queue(final Handler handler) {
+    public void queue(final EventLoop.Handler handler) {
         eventLoop.queue(handler);
     }
 

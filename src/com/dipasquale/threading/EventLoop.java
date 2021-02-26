@@ -4,6 +4,9 @@ import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.ExceptionLogger;
 import com.dipasquale.common.RandomSupport;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +34,7 @@ public interface EventLoop {
         }
 
         int[] index = new int[1];
-        EventLoop.Factory eventLoopFactory = nl -> eventLoopFactoryProxy.create(dateTimeSupport, String.format("%s-%d", name, ++index[0]), exceptionLogger, nl, executorService);
+        EventLoop.Factory eventLoopFactory = nel -> eventLoopFactoryProxy.create(dateTimeSupport, String.format("%s-%d", name, ++index[0]), exceptionLogger, nel, executorService);
 
         return new EventLoopMulti(eventLoopFactory, count, dateTimeSupport, randomSupport);
     }
@@ -71,5 +74,12 @@ public interface EventLoop {
     @FunctionalInterface
     interface Factory {
         EventLoop create(EventLoop nextLoop);
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    @Getter
+    final class Record {
+        private final Runnable handler;
+        private final long executionDateTime;
     }
 }

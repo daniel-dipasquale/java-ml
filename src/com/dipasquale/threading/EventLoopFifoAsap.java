@@ -5,17 +5,17 @@ import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.ExceptionLogger;
 
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 final class EventLoopFifoAsap implements EventLoop {
     private final EventLoopDefault eventLoop;
 
-    EventLoopFifoAsap(final DateTimeSupport dateTimeSupport, final String name, final ExceptionLogger exceptionLogger, final EventLoop nextLoop, final ExecutorService executorService) {
-        Queue<EventLoopDefault.Record> eventHandlers = new LinkedList<>();
+    EventLoopFifoAsap(final DateTimeSupport dateTimeSupport, final String name, final ExceptionLogger exceptionLogger, final EventLoop nextEventLoop, final ExecutorService executorService) {
+        ExclusiveQueue<EventLoop.Record> eventRecords = new ExclusiveQueueLocked<>(new ReentrantLock(), new LinkedList<>());
 
-        this.eventLoop = new EventLoopDefault(eventHandlers, dateTimeSupport, name, exceptionLogger, nextLoop, executorService);
+        this.eventLoop = new EventLoopDefault(eventRecords, dateTimeSupport, name, exceptionLogger, nextEventLoop, executorService);
     }
 
     private static void ensureDelayTimeIsValid(final long delayTime) {
@@ -29,10 +29,10 @@ final class EventLoopFifoAsap implements EventLoop {
     }
 
     @Override
-    public void queue(final Handler handler) {
+    public void queue(final EventLoop.Handler handler) {
         ensureDelayTimeIsValid(handler.getDelayTime());
 
-        eventLoop.queue(new Handler() {
+        eventLoop.queue(new EventLoop.Handler() {
             @Override
             public boolean shouldReQueue() {
                 return handler.shouldReQueue();

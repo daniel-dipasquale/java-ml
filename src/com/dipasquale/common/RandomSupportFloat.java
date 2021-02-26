@@ -33,10 +33,10 @@ public interface RandomSupportFloat {
     default boolean isBetween(final float min, final float max) {
         float value = next();
 
-        return Float.compare(value, min) >= 0 && Float.compare(value, max) <= 0;
+        return Float.compare(value, min) >= 0 && Float.compare(value, max) < 0;
     }
 
-    default boolean isAtMost(final float max) {
+    default boolean isLessThan(final float max) {
         return isBetween(0f, max);
     }
 

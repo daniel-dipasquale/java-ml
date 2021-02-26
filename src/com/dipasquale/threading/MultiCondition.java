@@ -1,7 +1,7 @@
 package com.dipasquale.threading;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionHandler;
+import com.dipasquale.common.MultiExceptionHandler;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
@@ -15,19 +15,19 @@ final class MultiCondition implements Condition {
     private static final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(DATE_TIME_SUPPORT.unit());
     private static final TimeUnit NS_TIME_UNIT = DATE_TIME_SUPPORT.timeUnit();
     private final List<Condition> conditions;
-    private final MultiWaitHandle conditionsWaitHandle;
-    private final ExceptionHandler conditionsAwaitExceptionHandler;
+    private final MultiWaitHandle waitConditionsHandle;
+    private final MultiExceptionHandler awaitConditionsHandler;
 
     MultiCondition(final List<Condition> conditions) {
         this.conditions = conditions;
-        this.conditionsWaitHandle = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, conditions, null, Condition::await);
-        this.conditionsAwaitExceptionHandler = ExceptionHandler.create(conditions, Condition::await);
+        this.waitConditionsHandle = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, conditions, null, Condition::await);
+        this.awaitConditionsHandler = MultiExceptionHandler.create(conditions, Condition::await);
     }
 
     @Override
     public void await()
             throws InterruptedException {
-        conditionsAwaitExceptionHandler.invokeAllAndThrowAsSuppressedIfAny(() -> new InterruptedException("unable to await on all conditions"));
+        awaitConditionsHandler.invokeAllAndThrowAsSuppressedIfAny(() -> new InterruptedException("unable to await on all conditions"));
     }
 
     @Override
@@ -40,7 +40,7 @@ final class MultiCondition implements Condition {
             throws InterruptedException {
         long startDateTime = DATE_TIME_SUPPORT.now();
 
-        conditionsWaitHandle.await(nanosTimeout, NS_TIME_UNIT);
+        waitConditionsHandle.await(nanosTimeout, NS_TIME_UNIT);
 
         return nanosTimeout - DATE_TIME_SUPPORT.now() + startDateTime;
     }
@@ -48,7 +48,7 @@ final class MultiCondition implements Condition {
     @Override
     public boolean await(final long time, final TimeUnit unit)
             throws InterruptedException {
-        return conditionsWaitHandle.await(time, unit);
+        return waitConditionsHandle.await(time, unit);
     }
 
     @Override
@@ -58,7 +58,7 @@ final class MultiCondition implements Condition {
         long currentDateTime = DATE_TIME_SUPPORT.now();
         long time = Math.max(deadlineDateTime - currentDateTime, 0L);
 
-        return conditionsWaitHandle.await(time, NS_TIME_UNIT);
+        return waitConditionsHandle.await(time, NS_TIME_UNIT);
     }
 
     @Override

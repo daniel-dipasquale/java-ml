@@ -1,7 +1,7 @@
 package com.dipasquale.threading;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionHandler;
+import com.dipasquale.common.MultiExceptionHandler;
 import com.dipasquale.common.RandomSupport;
 
 import java.util.ArrayList;
@@ -10,16 +10,16 @@ import java.util.concurrent.TimeUnit;
 
 final class EventLoopMulti implements EventLoop {
     private final List<EventLoop> eventLoops;
-    private final MultiWaitHandle eventLoopsWaitHandle;
-    private final ExceptionHandler eventLoopsShutdownExceptionHandler;
+    private final MultiWaitHandle waitUntilEmptyEventLoopsHandle;
+    private final MultiExceptionHandler shutdownEventLoopsHandler;
     private final RandomSupport randomSupport;
 
     EventLoopMulti(final EventLoop.Factory eventLoopFactory, final int count, final DateTimeSupport dateTimeSupport, final RandomSupport randomSupport) {
         List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, count, this);
 
         this.eventLoops = eventLoops;
-        this.eventLoopsWaitHandle = MultiWaitHandle.create(dateTimeSupport, a -> !isEmpty(), eventLoops, EventLoop::awaitUntilEmpty, EventLoop::awaitUntilEmpty);
-        this.eventLoopsShutdownExceptionHandler = ExceptionHandler.create(eventLoops, EventLoop::shutdown);
+        this.waitUntilEmptyEventLoopsHandle = MultiWaitHandle.create(dateTimeSupport, a -> !isEmpty(), eventLoops, EventLoop::awaitUntilEmpty, EventLoop::awaitUntilEmpty);
+        this.shutdownEventLoopsHandler = MultiExceptionHandler.create(eventLoops, EventLoop::shutdown);
         this.randomSupport = randomSupport;
     }
 
@@ -57,17 +57,17 @@ final class EventLoopMulti implements EventLoop {
     @Override
     public void awaitUntilEmpty()
             throws InterruptedException {
-        eventLoopsWaitHandle.await();
+        waitUntilEmptyEventLoopsHandle.await();
     }
 
     @Override
     public boolean awaitUntilEmpty(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return eventLoopsWaitHandle.await(timeout, unit);
+        return waitUntilEmptyEventLoopsHandle.await(timeout, unit);
     }
 
     @Override
     public void shutdown() {
-        eventLoopsShutdownExceptionHandler.invokeAllAndThrowAsSuppressedIfAny("unable to shutdown the event loops");
+        shutdownEventLoopsHandler.invokeAllAndThrowAsSuppressedIfAny("unable to shutdown the event loops");
     }
 }

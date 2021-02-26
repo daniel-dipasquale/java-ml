@@ -34,10 +34,10 @@ public interface RandomSupport {
     default boolean isBetween(final double min, final double max) {
         double value = next();
 
-        return Double.compare(value, min) >= 0 && Double.compare(value, max) <= 0;
+        return Double.compare(value, min) >= 0 && Double.compare(value, max) < 0;
     }
 
-    default boolean isAtMost(final double max) {
+    default boolean isLessThan(final double max) {
         return isBetween(0D, max);
     }
 

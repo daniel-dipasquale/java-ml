@@ -1,7 +1,7 @@
 package com.dipasquale.threading;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionHandler;
+import com.dipasquale.common.MultiExceptionHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -17,8 +17,8 @@ import java.util.stream.StreamSupport;
 final class MultiLock implements Lock {
     private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createNanoseconds();
     private final List<ComparableLock> locks;
-    private final MultiWaitHandle locksTryLock;
-    private final ExceptionHandler locksLockInterruptiblyExceptionHandler;
+    private final MultiWaitHandle waitWhileTryLockAllLocksHandle;
+    private final MultiExceptionHandler lockInterruptiblyAllLocksHandler;
     private final Object sync;
 
     public static Lock create(final Iterable<ComparableLock> locks) {
@@ -27,7 +27,7 @@ final class MultiLock implements Lock {
                 .collect(Collectors.toList());
 
         MultiWaitHandle locksTryLock = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, sortedLocks, null, Lock::tryLock);
-        ExceptionHandler locksLockInterruptiblyExceptionHandler = ExceptionHandler.create(sortedLocks, ComparableLock::lockInterruptibly);
+        MultiExceptionHandler locksLockInterruptiblyExceptionHandler = MultiExceptionHandler.create(sortedLocks, ComparableLock::lockInterruptibly);
         Object sync = new Object();
 
         return new MultiLock(sortedLocks, locksTryLock, locksLockInterruptiblyExceptionHandler, sync);
@@ -44,7 +44,7 @@ final class MultiLock implements Lock {
     public void lockInterruptibly()
             throws InterruptedException {
         synchronized (sync) {
-            locksLockInterruptiblyExceptionHandler.invokeAllAndThrowAsSuppressedIfAny(() -> new InterruptedException("unable to lock interruptibly on all locks"));
+            lockInterruptiblyAllLocksHandler.invokeAllAndThrowAsSuppressedIfAny(() -> new InterruptedException("unable to lock interruptibly on all locks"));
         }
     }
 
@@ -75,7 +75,7 @@ final class MultiLock implements Lock {
     public boolean tryLock(final long time, final TimeUnit unit)
             throws InterruptedException {
         synchronized (sync) {
-            return locksTryLock.await(time, unit);
+            return waitWhileTryLockAllLocksHandle.await(time, unit);
         }
     }
 
