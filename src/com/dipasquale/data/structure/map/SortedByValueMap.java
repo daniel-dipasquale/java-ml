@@ -6,6 +6,7 @@ import com.dipasquale.data.structure.set.InsertOrderSet;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
@@ -112,16 +113,16 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
 
     @Override
     protected PutChange<? extends Entry<TKey, TValue>> putEntry(final TKey key, final TValue value) {
-        Object[] output = new Object[3];
+        PutChangeAudit audit = new PutChangeAudit();
 
         map.compute(key, (k, oldEntry) -> {
             if (oldEntry == null) {
                 Entry<TKey, TValue> entry = createEntry(key, value);
 
                 addToNavigableMap(entry);
-                output[0] = entry;
-                output[1] = null;
-                output[2] = true;
+                audit.entry = entry;
+                audit.oldValue = null;
+                audit.isNew = true;
 
                 return entry;
             }
@@ -131,39 +132,35 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
 
                 removeFromNavigableMap(oldEntry);
                 addToNavigableMap(entry);
-                output[0] = entry;
-                output[1] = oldEntry.getValue();
-                output[2] = false;
+                audit.entry = entry;
+                audit.oldValue = oldEntry.getValue();
+                audit.isNew = false;
 
                 return entry;
             }
 
-            output[0] = oldEntry;
-            output[1] = oldEntry.getValue();
-            output[2] = false;
+            audit.entry = oldEntry;
+            audit.oldValue = oldEntry.getValue();
+            audit.isNew = false;
 
             return oldEntry;
         });
 
-        Entry<TKey, TValue> entry = (Entry<TKey, TValue>) output[0];
-        TValue oldValue = (TValue) output[1];
-        boolean isNew = (boolean) output[2];
-
-        return new PutChange<Entry<TKey, TValue>>(entry, oldValue, isNew);
+        return new PutChange<Entry<TKey, TValue>>(audit.entry, audit.oldValue, audit.isNew);
     }
 
     @Override
     protected Entry<TKey, TValue> removeEntry(final TKey key) {
-        Object[] output = new Object[1];
+        RemoveEntryAudit removeEntryAudit = new RemoveEntryAudit();
 
         map.computeIfPresent(key, (k, oe) -> {
             removeFromNavigableMap(oe);
-            output[0] = oe;
+            removeEntryAudit.oldEntry = oe;
 
             return null;
         });
 
-        return (Entry<TKey, TValue>) output[0];
+        return removeEntryAudit.oldEntry;
     }
 
     @Override
@@ -301,6 +298,18 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
         public int hashCode() {
             return System.identityHashCode(key);
         }
+    }
+
+    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    private final class PutChangeAudit {
+        private Entry<TKey, TValue> entry;
+        private TValue oldValue;
+        private boolean isNew;
+    }
+
+    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    private final class RemoveEntryAudit {
+        private Entry<TKey, TValue> oldEntry;
     }
 
     @FunctionalInterface

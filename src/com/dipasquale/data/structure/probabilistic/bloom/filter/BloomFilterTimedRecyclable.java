@@ -1,9 +1,8 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
+package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.concurrent.AtomicRecyclableReference;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 
 final class BloomFilterTimedRecyclable<T> implements BloomFilter<T> {
     private final AtomicRecyclableReference<BloomFilter<T>> recyclableBloomFilter;

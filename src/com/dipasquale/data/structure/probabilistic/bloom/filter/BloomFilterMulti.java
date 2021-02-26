@@ -1,7 +1,4 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
-
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterPartitionFactory;
+package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import java.util.List;
 import java.util.stream.Collectors;

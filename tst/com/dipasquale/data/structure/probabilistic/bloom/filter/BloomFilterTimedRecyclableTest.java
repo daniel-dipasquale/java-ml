@@ -1,9 +1,8 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
+package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

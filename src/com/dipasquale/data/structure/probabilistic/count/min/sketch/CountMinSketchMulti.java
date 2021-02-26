@@ -1,7 +1,4 @@
-package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
-
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketch;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketchPartitionFactory;
+package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import java.util.List;
 import java.util.stream.Collectors;

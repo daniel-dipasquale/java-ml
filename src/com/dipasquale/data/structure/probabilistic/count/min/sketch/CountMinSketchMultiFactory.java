@@ -1,10 +1,7 @@
-package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
+package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.data.structure.probabilistic.DataStructureMultiCalculator;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketch;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketchFactory;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketchPartitionFactory;
 
 final class CountMinSketchMultiFactory implements CountMinSketchFactory {
     private final CountMinSketchPartitionFactory countMinSketchPartitionFactory;

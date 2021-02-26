@@ -1,11 +1,8 @@
-package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
+package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketch;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketchFactory;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketchPartitionFactory;
 import lombok.Builder;
 
 import java.util.Optional;

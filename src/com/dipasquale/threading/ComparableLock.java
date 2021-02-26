@@ -3,6 +3,7 @@ package com.dipasquale.threading;
 import com.dipasquale.concurrent.ConcurrentId;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.TimeUnit;
@@ -66,6 +67,7 @@ public final class ComparableLock implements Comparable<ComparableLock>, Lock {
         return concurrentId.toString();
     }
 
+    @NoArgsConstructor(access = AccessLevel.PACKAGE)
     final class UnitTest {
         public Lock getLock() {
             return lock;

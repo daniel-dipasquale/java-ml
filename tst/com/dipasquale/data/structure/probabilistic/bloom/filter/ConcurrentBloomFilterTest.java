@@ -1,10 +1,9 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
+package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.ObjectFactory;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import com.google.common.collect.Sets;
 import org.junit.AfterClass;
 import org.junit.Assert;

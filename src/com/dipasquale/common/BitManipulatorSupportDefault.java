@@ -2,6 +2,7 @@ package com.dipasquale.common;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 final class BitManipulatorSupportDefault implements BitManipulatorSupport {
     private final int bits;
@@ -46,6 +47,7 @@ final class BitManipulatorSupportDefault implements BitManipulatorSupport {
         return rawCleared | valueCappedShifted;
     }
 
+    @NoArgsConstructor(access = AccessLevel.PACKAGE)
     final class UnitTest {
         public int getBits() {
             return bits;

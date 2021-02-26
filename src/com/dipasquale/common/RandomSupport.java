@@ -49,10 +49,8 @@ public interface RandomSupport {
         return () -> ThreadLocalRandom.current().nextDouble();
     }
 
-    private static RandomSupport createGaussian(final RandomSupport randomSupport, final double limit) {
-        double limitFixed = Math.abs(limit);
-        double min = -limitFixed;
-        double max = limitFixed;
+    private static RandomSupport createGaussian(final RandomSupport randomSupport, final double max) {
+        double min = -max;
 
         return () -> {
             double value = randomSupport.next();

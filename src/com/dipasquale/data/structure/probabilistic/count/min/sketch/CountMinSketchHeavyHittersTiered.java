@@ -1,10 +1,9 @@
-package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
+package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ExceptionHandlerSupport;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketch;
 import com.dipasquale.threading.EventLoop;
 import lombok.RequiredArgsConstructor;
 

@@ -1,8 +1,7 @@
-package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
+package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.common.ExpirySupport;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketch;
 import com.dipasquale.threading.EventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;

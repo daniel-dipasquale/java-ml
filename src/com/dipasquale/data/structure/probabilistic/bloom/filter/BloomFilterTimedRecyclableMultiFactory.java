@@ -1,10 +1,7 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
+package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.common.ExpirySupport;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterFactory;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterPartitionFactory;
 
 final class BloomFilterTimedRecyclableMultiFactory implements BloomFilterFactory {
     private final BloomFilterDefaultFactory bloomFilterDefaultFactory;

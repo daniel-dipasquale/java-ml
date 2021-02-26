@@ -17,7 +17,7 @@ final class MultiFunctionHashingGuava implements MultiFunctionHashing {
     private final ThreadLocal<HashFunction> hashFunctionFactory;
     private final byte[] salt;
 
-    public MultiFunctionHashingGuava(final int maximumHashFunctions, final Algorithm algorithm, final String salt) {
+    MultiFunctionHashingGuava(final int maximumHashFunctions, final Algorithm algorithm, final String salt) {
         this.maximumHashFunctions = maximumHashFunctions;
         this.hashFunctionFactory = ThreadLocal.withInitial(() -> HASH_FUNCTIONS.get(algorithm));
         this.salt = salt.getBytes(StandardCharsets.UTF_8);

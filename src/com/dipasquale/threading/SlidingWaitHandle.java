@@ -1,5 +1,6 @@
 package com.dipasquale.threading;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -105,12 +106,13 @@ public final class SlidingWaitHandle implements SlidingWaitHandleInternal {
         boolean await() throws InterruptedException;
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class TimeUnitPair {
         private final long time;
         private final TimeUnit unit;
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class ReferenceBox<T> {
         private volatile T reference;
 
@@ -135,7 +137,7 @@ public final class SlidingWaitHandle implements SlidingWaitHandleInternal {
         }
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @ToString(onlyExplicitlyIncluded = true)
     private static final class SingleThreadSlidingWaitHandle implements SlidingWaitHandleInternal {
         @ToString.Include

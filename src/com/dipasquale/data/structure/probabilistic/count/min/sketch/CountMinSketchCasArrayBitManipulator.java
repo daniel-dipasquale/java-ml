@@ -1,10 +1,9 @@
-package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
+package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.common.BitManipulator;
 import com.dipasquale.concurrent.AtomicLongArrayBitManipulator;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
-import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketch;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

@@ -2,6 +2,7 @@ package com.dipasquale.threading;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -82,6 +83,7 @@ public final class ReusableCountDownLatch { // NOTE: based on: https://github.co
         }
     }
 
+    @NoArgsConstructor(access = AccessLevel.PACKAGE)
     final class UnitTest {
         public int getCount() {
             return sync.getCount();

@@ -5,7 +5,8 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,18 +26,18 @@ final class Species<T extends Comparable<T>> {
         this.context = context;
         this.population = population;
         this.originalOrganism = originalOrganism;
-        this.organisms = createOrganisms(originalOrganism);
+        this.organisms = createIdentitySortedByValueMap(originalOrganism, 0f);
         this.age = 1;
         this.sharedFitness = 0f;
         this.maximumFitness = 0f;
     }
 
-    private static <T extends Comparable<T>> SortedByValueMap<Organism<T>, Float> createOrganisms(final Organism<T> originalOrganism) {
-        SortedByValueMap<Organism<T>, Float> organisms = SortedByValueMap.createIdentity(Float::compareTo);
+    private static <TKey, TValue extends Comparable<TValue>> SortedByValueMap<TKey, TValue> createIdentitySortedByValueMap(final TKey key, final TValue value) {
+        SortedByValueMap<TKey, TValue> map = SortedByValueMap.createIdentity(TValue::compareTo);
 
-        organisms.put(originalOrganism, 0f);
+        map.put(key, value);
 
-        return organisms;
+        return map;
     }
 
     public boolean addIfCompatible(final Organism<T> organism) {
@@ -124,8 +125,16 @@ final class Species<T extends Comparable<T>> {
         return organismsAdded;
     }
 
+    private static <T> Set<T> createIdentitySet(final Collection<T> collection) {
+        Set<T> set = Collections.newSetFromMap(new IdentityHashMap<>());
+
+        set.addAll(collection);
+
+        return set;
+    }
+
     public Collection<Organism<T>> restart() {
-        Set<Organism<T>> organismsOld = new HashSet<>(organisms.keySet());
+        Set<Organism<T>> organismsOld = createIdentitySet(organisms.keySet());
         Organism<T> originalOrganismNew = context.random().nextItem(new ArrayList<>(organismsOld));
 
         originalOrganism = originalOrganismNew;

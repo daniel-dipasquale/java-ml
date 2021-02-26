@@ -28,11 +28,3 @@ final class BitManipulatorSupport64 implements BitManipulatorSupport {
     }
 }
 
-/*
-
-        ensureOffsetIsValid(offset);
-
-    private static void ensureOffsetIsValid(final long offset) {
-        ArgumentValidator.getInstance().ensureEqual(offset, 0L, "offset");
-    }
- */

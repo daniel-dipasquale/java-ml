@@ -1,12 +1,11 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
+package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import com.google.common.hash.Funnel;
 
 final class BloomFilterGuava<T> implements BloomFilter<T> {
     private com.google.common.hash.BloomFilter<T> bloomFilter;
 
-    public BloomFilterGuava(final int estimatedSize, final double falsePositiveRatio) {
+    BloomFilterGuava(final int estimatedSize, final double falsePositiveRatio) {
         Funnel<T> funnel = (f, i) -> i.putInt(f.hashCode());
 
         this.bloomFilter = com.google.common.hash.BloomFilter.create(funnel, estimatedSize, falsePositiveRatio);

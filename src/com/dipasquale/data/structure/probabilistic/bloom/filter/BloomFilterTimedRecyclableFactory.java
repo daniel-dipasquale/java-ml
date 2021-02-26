@@ -1,9 +1,7 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
+package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
