@@ -145,12 +145,12 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
         return connection;
     }
 
-    public Iterable<SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry> fullJoinFromExpressed(final ConnectionGeneMap<T> otherConnections) {
-        return expressed.fullJoin(otherConnections.expressed);
+    public Iterable<SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry> fullJoinFromExpressed(final ConnectionGeneMap<T> other) {
+        return expressed.fullJoin(other.expressed);
     }
 
-    public Iterable<SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry> fullJoinFromAll(final ConnectionGeneMap<T> otherConnections) {
-        return all.fullJoin(otherConnections.all);
+    public Iterable<SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry> fullJoinFromAll(final ConnectionGeneMap<T> other) {
+        return all.fullJoin(other.all);
     }
 
     @Override

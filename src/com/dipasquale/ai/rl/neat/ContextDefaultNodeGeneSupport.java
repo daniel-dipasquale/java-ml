@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class NodeGeneSupportDefault<T extends Comparable<T>> implements Context.NodeGeneSupport<T> {
+final class ContextDefaultNodeGeneSupport<T extends Comparable<T>> implements Context.NodeGeneSupport<T> {
     private final Map<NodeGene.Type, SequentialIdFactory<T>> sequentialIdFactories;
     private final BiasFactory biasFactory;
     private final ActivationFunctionFactory activationFunctionFactory;

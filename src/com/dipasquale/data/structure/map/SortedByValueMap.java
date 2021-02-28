@@ -32,6 +32,9 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
     private final NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap;
     private final ObjectFactory<InsertOrderSet<Entry<TKey, TValue>>> entriesSetFactory;
     private final EntryStrategyFactory<TKey, TValue> entryStrategyFactory;
+    private final KeySet<TKey, TValue> descendingKeySet = new KeySet<>(this, this::iteratorDescending);
+    private final Values<TKey, TValue> descendingValues = new Values<>(this, this::iteratorDescending);
+    private final EntrySet<TKey, TValue> descendingEntrySet = new EntrySet<>(this, this::iteratorDescending);
 
     private static <TKey, TValue> SortedByValueMap<TKey, TValue> create(final Comparator<TValue> comparator, final Map<TKey, Entry<TKey, TValue>> map, final EntryStrategyFactory<TKey, TValue> entryStrategyFactory) {
         NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap = new TreeMap<>(comparator);
@@ -193,6 +196,22 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
         return stream(navigableMap).iterator();
     }
 
+    protected Iterator<Entry<TKey, TValue>> iteratorDescending() {
+        return streamDescending(navigableMap).iterator();
+    }
+
+    public Set<TKey> descendingKeySet() {
+        return descendingKeySet;
+    }
+
+    public Collection<TValue> descendingValues() {
+        return descendingValues;
+    }
+
+    public Set<Entry<TKey, TValue>> descendingEntrySet() {
+        return descendingEntrySet;
+    }
+
     private static <TKey, TValue> Entry<TKey, TValue> getEntry(final Entry<TValue, InsertOrderSet<Entry<TKey, TValue>>> entry, final ElementNavigator<TKey, TValue> elementNavigator) {
         if (entry == null) {
             return null;
@@ -243,20 +262,16 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
         return getValue(tailEntry());
     }
 
-    public Stream<Entry<TKey, TValue>> between(final TValue from, final boolean fromInclusive, final TValue to, final boolean toInclusive) {
-        return stream(navigableMap.subMap(from, fromInclusive, to, toInclusive));
+    public Set<Entry<TKey, TValue>> betweenEntrySet(final TValue from, final boolean fromInclusive, final TValue to, final boolean toInclusive) {
+        return new EntrySet<>(this, stream(navigableMap.subMap(from, fromInclusive, to, toInclusive))::iterator);
     }
 
-    public Stream<Entry<TKey, TValue>> from(final TValue value, final boolean inclusive) {
-        return stream(navigableMap.tailMap(value, inclusive));
+    public Set<Entry<TKey, TValue>> fromEntrySet(final TValue value, final boolean inclusive) {
+        return new EntrySet<>(this, stream(navigableMap.tailMap(value, inclusive))::iterator);
     }
 
-    public Stream<Entry<TKey, TValue>> to(final TValue value, final boolean inclusive) {
-        return stream(navigableMap.headMap(value, inclusive));
-    }
-
-    public Stream<Entry<TKey, TValue>> descending() {
-        return streamDescending(navigableMap);
+    public Set<Entry<TKey, TValue>> toStream(final TValue value, final boolean inclusive) {
+        return new EntrySet<>(this, stream(navigableMap.headMap(value, inclusive))::iterator);
     }
 
     @FunctionalInterface

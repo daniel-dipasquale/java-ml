@@ -60,6 +60,10 @@ final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>
         nodesByType.get(node.getType()).put(node.getId(), node);
     }
 
+    public Iterable<SequentialMap<T, NodeGene<T>>.JoinEntry> fullJoinFromAll(final NodeGeneMap<T> other) {
+        return nodes.fullJoin(other.nodes);
+    }
+
     @Override
     public Iterator<NodeGene<T>> iterator() {
         return nodes.iterator();

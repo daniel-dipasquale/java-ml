@@ -9,31 +9,33 @@ interface Context<T extends Comparable<T>> {
 
     ConnectionGeneSupport<T> connections();
 
-    NeuralNetworkSupport neuralNetwork();
+    NeuralNetworkSupport<T> neuralNetwork();
 
     Random random();
 
     Mutation mutation();
 
-    CrossOver crossover();
+    CrossOver<T> crossOver();
 
     Speciation<T> speciation();
 
     interface GeneralSupport<T extends Comparable<T>> {
         int populationSize(); // 100
 
-        int maximumGenerations();
+        T createGenomeId();
 
-        String createGenomeId();
+        GenomeDefault<T> createGenesisGenome(int generation);
 
-        GenomeDefault<T> createGenesisGenome();
+        T createSpeciesId();
+
+        FitnessDeterminer createFitnessDeterminer();
 
         float calculateFitness(GenomeDefault<T> genome);
     }
 
     @FunctionalInterface
-    interface NeuralNetworkSupport {
-        NeuralNetwork create(Genome genome);
+    interface NeuralNetworkSupport<T extends Comparable<T>> {
+        NeuralNetwork create(GenomeDefault<T> genome);
     }
 
     @FunctionalInterface
@@ -97,14 +99,20 @@ interface Context<T extends Comparable<T>> {
         float changeConnectionExpressedRate(); // 0.2
     }
 
-    interface CrossOver {
+    interface CrossOver<T extends Comparable<T>> {
         float rate(); // 0.8
 
-        float disableExpressedInheritanceRate(); // 0.5
+        float enforceExpressedRate(); // 0.5
+
+        float useRandomParentWeightRate(); // 1.0
+
+        GenomeDefault<T> crossOverBySkippingUnfitDisjointOrExcess(GenomeDefault<T> fitParent, GenomeDefault<T> unfitParent);
+
+        GenomeDefault<T> crossOverByEqualTreatment(GenomeDefault<T> parent1, GenomeDefault<T> parent2);
     }
 
     interface Speciation<T extends Comparable<T>> {
-        int maximumSize();
+        int maximumGenomes();
 
         float weightDifferenceCoefficient(); // 1.0
 
@@ -112,17 +120,17 @@ interface Context<T extends Comparable<T>> {
 
         float excessCoefficient(); // 2.0
 
-        float compatibilityThreshold(int generationNumber); // 6.0 ( * compatibilityThresholdModifier ^ generationNumber )
+        float compatibilityThreshold(int generation); // 6.0 ( * compatibilityThresholdModifier ^ generation )
 
         float calculateCompatibility(GenomeDefault<T> genome1, GenomeDefault<T> genome2);
 
-        default boolean belongs(final GenomeDefault<T> genome1, final GenomeDefault<T> genome2, final int generationNumber) {
+        default boolean belongs(final GenomeDefault<T> genome1, final GenomeDefault<T> genome2, final int generation) {
             float compatibility = calculateCompatibility(genome1, genome2);
 
-            return Float.compare(compatibility, compatibilityThreshold(generationNumber)) < 0;
+            return Float.compare(compatibility, compatibilityThreshold(generation)) < 0;
         }
 
-        float survivalThreshold(); // 0.2
+        float eugenicsThreshold(); // 0.2
 
         float elitistThreshold(); // 0.01
 

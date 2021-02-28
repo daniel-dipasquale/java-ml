@@ -21,6 +21,10 @@ final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralN
                 .map(c -> new Neuron.Output<>(c.getInnovationId().getTargetNodeId(), c.getWeight()))
                 .collect(Collectors.toList());
 
+        if (node.getType() == NodeGene.Type.Hidden && inputIds.size() + outputs.size() == 0) {
+            return null;
+        }
+
         return new NeuronFeedForward<>(node, inputIds, outputs);
     }
 
@@ -29,10 +33,14 @@ final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralN
 
         if (neuronNavigator.isEmpty()) {
             for (NodeGene<T> node : genome.getNodes()) {
-                neuronNavigator.add(createNeuron(node));
+                Neuron<T> neuron = createNeuron(node);
 
-                if (node.getType() == NodeGene.Type.Input) {
-                    neuronNavigator.setValue(node, input[index++]);
+                if (neuron != null) {
+                    neuronNavigator.add(neuron);
+
+                    if (node.getType() == NodeGene.Type.Input) {
+                        neuronNavigator.setValue(node, input[index++]);
+                    }
                 }
             }
         } else {

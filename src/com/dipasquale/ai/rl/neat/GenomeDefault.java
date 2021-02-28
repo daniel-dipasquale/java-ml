@@ -8,7 +8,7 @@ import java.util.Optional;
 final class GenomeDefault<T extends Comparable<T>> implements Genome {
     private final Context<T> context;
     @Getter
-    private final String id;
+    private final T id;
     @Getter(AccessLevel.PACKAGE)
     private final NodeGeneMap<T> nodes;
     @Getter(AccessLevel.PACKAGE)
@@ -35,14 +35,14 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
 
     @Override
     public int getComplexity() {
-        return this.connections.sizeFromExpressed() + 1;
+        return connections.sizeFromExpressed() + 1;
     }
 
-    private void addNode(final NodeGene<T> node) {
+    void addNode(final NodeGene<T> node) {
         nodes.put(node);
     }
 
-    private void addConnection(final ConnectionGene<T> connection) {
+    void addConnection(final ConnectionGene<T> connection) {
         connections.put(connection);
     }
 
@@ -174,43 +174,11 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
             addNodeMutation();
         }
 
-        if (context.random().isLessThan(context.mutation().addConnectionMutationsRate())) {
+        if (connections.sizeFromExpressed() == 0 || context.random().isLessThan(context.mutation().addConnectionMutationsRate())) {
             addConnectionMutation();
         }
 
         neuralNetwork.reset();
-    }
-
-    private static <T extends Comparable<T>> GenomeDefault<T> crossoverBySkippingUnfit(final GenomeDefault<T> fitParent, final GenomeDefault<T> unfitParent) {
-        GenomeDefault<T> child = new GenomeDefault<>(fitParent.context);
-
-        fitParent.nodes.forEach(child::addNode);
-
-        for (ConnectionGene<T> fitConnection : fitParent.connections) {
-            ConnectionGene<T> unfitConnection = unfitParent.connections.getByIdFromAll(fitConnection.getInnovationId());
-
-            if (unfitConnection != null) {
-                ConnectionGene<T> parentConnection = child.context.random().isLessThan(0.5f) ? fitConnection : unfitConnection;
-                ConnectionGene<T> childConnection = parentConnection.createCopy(true);
-                boolean expressed = fitConnection.isExpressed() && unfitConnection.isExpressed();
-
-                if (!expressed && child.context.random().isLessThan(child.context.crossover().disableExpressedInheritanceRate())) {
-                    childConnection.disable();
-                }
-
-                child.addConnection(childConnection);
-            } else {
-                ConnectionGene<T> childConnection = fitConnection.createCopy(fitConnection.isExpressed());
-
-                child.addConnection(childConnection);
-            }
-        }
-
-        return child;
-    }
-
-    public static <T extends Comparable<T>> GenomeDefault<T> crossover(final GenomeDefault<T> parent1, final GenomeDefault<T> parent2) { // TODO: revise this
-        return crossoverBySkippingUnfit(parent1, parent2);
     }
 
     @Override

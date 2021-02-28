@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class RandomDefault implements Context.Random {
+final class ContextDefaultRandom implements Context.Random {
     private final RandomSupportFloat nextIndex;
     private final RandomSupportFloat next;
     private final RandomSupportFloat isAtMost;

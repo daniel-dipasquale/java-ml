@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class MutationDefault implements Context.Mutation {
+final class ContextDefaultMutation implements Context.Mutation {
     private final float addNodeMutationsRate;
     private final float addConnectionMutationsRate;
     private final float perturbConnectionWeightRate;

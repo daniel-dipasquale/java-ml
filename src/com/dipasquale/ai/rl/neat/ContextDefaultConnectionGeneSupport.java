@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ConnectionGeneSupportDefault<T extends Comparable<T>> implements Context.ConnectionGeneSupport<T> {
+final class ContextDefaultConnectionGeneSupport<T extends Comparable<T>> implements Context.ConnectionGeneSupport<T> {
     private final boolean allowRecurrentConnections;
     private final SequentialIdFactory<T> sequentialIdFactory;
     private final RandomSupportFloat randomSupportFloat;

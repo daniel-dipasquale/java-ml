@@ -1,20 +1,31 @@
 package com.dipasquale.ai.rl.neat;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
-final class Organism<T extends Comparable<T>> {
+final class Organism<T extends Comparable<T>> implements Comparable<Organism<T>> {
     private final Context<T> context;
     private final Population<T> population;
     private final GenomeDefault<T> genome;
-    @Getter
-    private float fitness = 0f;
+    private final FitnessDeterminer fitnessDeterminer;
+    private int generation;
+
+    Organism(final Context<T> context, final Population<T> population, final GenomeDefault<T> genome) {
+        this.context = context;
+        this.population = population;
+        this.genome = genome;
+        this.fitnessDeterminer = context.general().createFitnessDeterminer();
+        this.generation = -1;
+    }
 
     public float updateFitness() {
-        fitness = Math.max(context.general().calculateFitness(genome), Float.MIN_VALUE);
+        if (generation != population.getGeneration()) {
+            generation = population.getGeneration();
+            fitnessDeterminer.clear();
+        }
 
-        return fitness;
+        float fitness = Math.max(context.general().calculateFitness(genome), Float.MIN_VALUE);
+
+        fitnessDeterminer.add(fitness);
+
+        return fitnessDeterminer.get();
     }
 
     public boolean isCompatible(final Organism<T> other) {
@@ -26,14 +37,23 @@ final class Organism<T extends Comparable<T>> {
     }
 
     public Organism<T> mate(final Organism<T> other) {
-        if (Float.compare(fitness, other.fitness) >= 0) {
-            return new Organism<>(context, population, GenomeDefault.crossover(genome, other.genome));
-        }
+        int comparison = Float.compare(fitnessDeterminer.get(), other.fitnessDeterminer.get());
 
-        return new Organism<>(context, population, GenomeDefault.crossover(other.genome, genome));
+        GenomeDefault<T> genomeNew = switch (comparison) {
+            case 1 -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(genome, other.genome);
+            case 0 -> context.crossOver().crossOverByEqualTreatment(genome, other.genome);
+            default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(other.genome, genome);
+        };
+
+        return new Organism<>(context, population, genomeNew);
     }
 
     public Organism<T> createCopy() {
         return new Organism<>(context, population, genome.createCopy());
+    }
+
+    @Override
+    public int compareTo(final Organism<T> other) {
+        return Float.compare(fitnessDeterminer.get(), other.fitnessDeterminer.get());
     }
 }

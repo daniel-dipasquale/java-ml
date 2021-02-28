@@ -98,7 +98,7 @@ public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable
         private final SortedByValueMap<TKey, TValue> map;
 
         public List<TKey> retrieve() {
-            return map.descending()
+            return map.descendingStream()
                     .limit(limit)
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
