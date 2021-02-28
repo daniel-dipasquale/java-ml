@@ -21,8 +21,12 @@ final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralN
                 .map(c -> new Neuron.Output<>(c.getInnovationId().getTargetNodeId(), c.getWeight()))
                 .collect(Collectors.toList());
 
-        if (node.getType() == NodeGene.Type.Hidden && inputIds.size() + outputs.size() == 0) {
-            return null;
+        switch (node.getType()) {
+            case Bias:
+            case Hidden:
+                if (inputIds.size() + outputs.size() == 0) {
+                    return null;
+                }
         }
 
         return new NeuronFeedForward<>(node, inputIds, outputs);

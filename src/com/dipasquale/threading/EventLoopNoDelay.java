@@ -1,21 +1,19 @@
 package com.dipasquale.threading;
 
 import com.dipasquale.common.ArgumentValidator;
-import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionLogger;
 
 import java.util.LinkedList;
-import java.util.concurrent.ExecutorService;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
-final class EventLoopFifoAsap implements EventLoop {
+final class EventLoopNoDelay implements EventLoop {
     private final EventLoopDefault eventLoop;
 
-    EventLoopFifoAsap(final DateTimeSupport dateTimeSupport, final String name, final ExceptionLogger exceptionLogger, final EventLoop nextEventLoop, final ExecutorService executorService) {
-        ExclusiveQueue<EventLoop.Record> eventRecords = new ExclusiveQueueLocked<>(new ReentrantLock(), new LinkedList<>());
+    EventLoopNoDelay(final EventLoopDefault.Params params, final EventLoopDefault.EventRecordsFactory eventRecordsFactory, final String name, final EventLoop nextEventLoop) {
+        Queue<Record> queue = new LinkedList<>();
+        ExclusiveQueue<EventLoop.Record> eventRecords = eventRecordsFactory.create(queue);
 
-        this.eventLoop = new EventLoopDefault(eventRecords, dateTimeSupport, name, exceptionLogger, nextEventLoop, executorService);
+        this.eventLoop = new EventLoopDefault(eventRecords, params, name, nextEventLoop);
     }
 
     private static void ensureDelayTimeIsValid(final long delayTime) {

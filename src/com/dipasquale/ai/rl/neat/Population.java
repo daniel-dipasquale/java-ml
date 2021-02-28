@@ -137,12 +137,11 @@ final class Population<T extends Comparable<T>> {
     }
 
     public void evolve() {
-        generation++;
-
         LeastFitOrStagnantResult leastFitOrStagnantResult = removeLeastFitOrganismsOrStagnantSpecies();
 
         int organismsPreserved = preserveElitesFromAllSpecies();
 
         breedInAllSpecies(context.general().populationSize() - leastFitOrStagnantResult.organismsRemoved + organismsPreserved, leastFitOrStagnantResult.totalSharedFitnessRemaining);
+        generation++;
     }
 }

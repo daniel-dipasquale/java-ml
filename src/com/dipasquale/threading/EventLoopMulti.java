@@ -2,7 +2,6 @@ package com.dipasquale.threading;
 
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.MultiExceptionHandler;
-import com.dipasquale.common.RandomSupport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +9,17 @@ import java.util.concurrent.TimeUnit;
 
 final class EventLoopMulti implements EventLoop {
     private final List<EventLoop> eventLoops;
+    private final EventLoop.Selector eventLoopSelector;
     private final MultiWaitHandle waitUntilEmptyEventLoopsHandle;
     private final MultiExceptionHandler shutdownEventLoopsHandler;
-    private final RandomSupport randomSupport;
 
-    EventLoopMulti(final EventLoop.Factory eventLoopFactory, final int count, final DateTimeSupport dateTimeSupport, final RandomSupport randomSupport) {
-        List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, count, this);
+    EventLoopMulti(final EventLoop.Factory eventLoopFactory, final EventLoop.Selector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
+        List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, eventLoopSelector.size(), this);
 
         this.eventLoops = eventLoops;
+        this.eventLoopSelector = eventLoopSelector;
         this.waitUntilEmptyEventLoopsHandle = MultiWaitHandle.create(dateTimeSupport, a -> !isEmpty(), eventLoops, EventLoop::awaitUntilEmpty, EventLoop::awaitUntilEmpty);
         this.shutdownEventLoopsHandler = MultiExceptionHandler.create(eventLoops, EventLoop::shutdown);
-        this.randomSupport = randomSupport;
     }
 
     private static List<EventLoop> createEventLoops(final EventLoop.Factory eventLoopFactory, final int count, final EventLoopMulti eventLoop) {
@@ -34,7 +33,7 @@ final class EventLoopMulti implements EventLoop {
     }
 
     private EventLoop getNextEventLoop() {
-        int index = (int) randomSupport.next(0L, eventLoops.size());
+        int index = eventLoopSelector.next();
 
         return eventLoops.get(index);
     }

@@ -3,9 +3,11 @@ package com.dipasquale.threading;
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.ExceptionLogger;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,19 +22,19 @@ final class EventLoopDefault implements EventLoop {
     private final AtomicBoolean shutdown;
     private boolean isWaitHandleLocked;
 
-    EventLoopDefault(final ExclusiveQueue<EventLoop.Record> eventRecords, final DateTimeSupport dateTimeSupport, final String name, final ExceptionLogger exceptionLogger, final EventLoop nextEventLoop, final ExecutorService executorService) {
+    EventLoopDefault(final ExclusiveQueue<EventLoop.Record> eventRecords, final Params params, final String name, final EventLoop nextEventLoop) {
         EventLoop nextEventLoopFixed = Optional.ofNullable(nextEventLoop)
                 .orElse(this);
 
         this.eventRecords = eventRecords;
-        this.dateTimeSupport = dateTimeSupport;
+        this.dateTimeSupport = params.dateTimeSupport;
         this.isWaitHandleLocked = false;
         this.waitUntilEmptyHandle = new ReusableCountDownLatch(0);
         this.waitWhileEmptyHandle = new SlidingWaitHandle(name);
-        this.exceptionLogger = exceptionLogger;
+        this.exceptionLogger = params.exceptionLogger;
         this.nextEventLoop = nextEventLoopFixed;
         this.shutdown = new AtomicBoolean(false);
-        executorService.submit(this::handleEvent);
+        params.executorService.submit(this::handleEvent);
     }
 
     private EventRecordAudit produceNextEventRecordIfPossible() {
@@ -165,9 +167,22 @@ final class EventLoopDefault implements EventLoop {
         }
     }
 
+    @Builder(access = AccessLevel.PACKAGE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    static final class Params {
+        private final DateTimeSupport dateTimeSupport;
+        private final ExceptionLogger exceptionLogger;
+        private final ExecutorService executorService;
+    }
+
+    @FunctionalInterface
+    interface EventRecordsFactory {
+        ExclusiveQueue<EventLoop.Record> create(Queue<EventLoop.Record> queue);
+    }
+
     @FunctionalInterface
     interface FactoryProxy {
-        EventLoop create(DateTimeSupport dateTimeSupport, String name, ExceptionLogger exceptionLogger, EventLoop nextEventLoop, ExecutorService executorService);
+        EventLoop create(Params params, EventRecordsFactory eventRecordsFactory, String name, EventLoop nextEventLoop);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -98,9 +97,9 @@ public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable
         private final SortedByValueMap<TKey, TValue> map;
 
         public List<TKey> retrieve() {
-            return map.descendingStream()
+            return map.descendingKeySet()
+                    .stream()
                     .limit(limit)
-                    .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
         }
     }

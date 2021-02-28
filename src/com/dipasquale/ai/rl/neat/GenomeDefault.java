@@ -7,7 +7,6 @@ import java.util.Optional;
 
 final class GenomeDefault<T extends Comparable<T>> implements Genome {
     private final Context<T> context;
-    @Getter
     private final T id;
     @Getter(AccessLevel.PACKAGE)
     private final NodeGeneMap<T> nodes;
@@ -31,6 +30,11 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
         for (ConnectionGene<T> connection : genome.connections) {
             addConnection(connection.createCopy(connection.isExpressed()));
         }
+    }
+
+    @Override
+    public String getId() {
+        return id.toString();
     }
 
     @Override
@@ -84,32 +88,39 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
         return true;
     }
 
-    private NodeGene<T> getRandomNodeToMatch(final NodeGene.Type type) {
-        switch (type) {
-            case Input -> {
-                if (context.random().isLessThan(0.5f)) {
-                    return Optional.ofNullable(nodes.getRandom(NodeGene.Type.Hidden))
-                            .orElseGet(() -> nodes.getRandom(NodeGene.Type.Output));
-                }
-
-                return Optional.ofNullable(nodes.getRandom(NodeGene.Type.Output))
-                        .orElseGet(() -> nodes.getRandom(NodeGene.Type.Hidden));
-            }
-
-            case Hidden -> {
-                return nodes.getRandom();
-            }
-
-            default -> {
-                if (context.random().isLessThan(0.5f)) {
-                    return Optional.ofNullable(nodes.getRandom(NodeGene.Type.Hidden))
-                            .orElseGet(() -> nodes.getRandom(NodeGene.Type.Input));
-                }
-
-                return Optional.ofNullable(nodes.getRandom(NodeGene.Type.Input))
-                        .orElseGet(() -> nodes.getRandom(NodeGene.Type.Hidden));
-            }
+    private NodeGene<T> getRandomNode(final NodeGene.Type type1, final NodeGene.Type type2) {
+        if (context.random().isLessThan(0.5f)) {
+            return Optional.ofNullable(nodes.getRandom(type1))
+                    .orElseGet(() -> nodes.getRandom(type2));
         }
+
+        return Optional.ofNullable(nodes.getRandom(type2))
+                .orElseGet(() -> nodes.getRandom(type1));
+    }
+
+    private NodeGene<T> getRandomNode(final NodeGene.Type type1, final NodeGene.Type type2, final NodeGene.Type type3) {
+        if (context.random().isLessThan(1f / 3f)) {
+            return Optional.ofNullable(nodes.getRandom(type1))
+                    .orElseGet(() -> getRandomNode(type2, type3));
+        }
+
+        if (context.random().isLessThan(0.5f)) {
+            return Optional.ofNullable(nodes.getRandom(type2))
+                    .orElseGet(() -> getRandomNode(type1, type3));
+        }
+
+        return Optional.ofNullable(nodes.getRandom(type3))
+                .orElseGet(() -> getRandomNode(type1, type2));
+    }
+
+    private NodeGene<T> getRandomNodeToMatch(final NodeGene.Type type) {
+        return switch (type) {
+            case Input, Bias -> getRandomNode(NodeGene.Type.Output, NodeGene.Type.Hidden);
+
+            case Hidden -> nodes.getRandom();
+
+            default -> getRandomNode(NodeGene.Type.Input, NodeGene.Type.Bias, NodeGene.Type.Hidden);
+        };
     }
 
     private InnovationId<T> createInnovationId(final NodeGene<T> node1, final NodeGene<T> node2) {

@@ -26,6 +26,7 @@ final class NodeGene<T> {
     public enum Type {
         Input,
         Output,
+        Bias,
         Hidden
     }
 }

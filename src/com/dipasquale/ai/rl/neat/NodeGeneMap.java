@@ -18,6 +18,7 @@ final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>
 
         nodesByType.put(NodeGene.Type.Input, new SequentialMap<>());
         nodesByType.put(NodeGene.Type.Output, new SequentialMap<>());
+        nodesByType.put(NodeGene.Type.Bias, new SequentialMap<>());
         nodesByType.put(NodeGene.Type.Hidden, new SequentialMap<>());
 
         return nodesByType;

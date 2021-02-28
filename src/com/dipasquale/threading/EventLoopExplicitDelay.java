@@ -1,23 +1,18 @@
 package com.dipasquale.threading;
 
-import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionLogger;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Comparator;
 import java.util.PriorityQueue;
-import java.util.concurrent.ExecutorService;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
-@RequiredArgsConstructor
-final class EventLoopPriority implements EventLoop {
+final class EventLoopExplicitDelay implements EventLoop {
     private final EventLoopDefault eventLoop;
 
-    EventLoopPriority(final DateTimeSupport dateTimeSupport, final String name, final ExceptionLogger exceptionLogger, final EventLoop nextEventLoop, final ExecutorService executorService) {
-        ExclusiveQueue<EventLoop.Record> eventRecords = new ExclusiveQueueLocked<>(new ReentrantLock(), new PriorityQueue<>(Comparator.comparing(EventLoop.Record::getExecutionDateTime)));
+    EventLoopExplicitDelay(final EventLoopDefault.Params params, final EventLoopDefault.EventRecordsFactory eventRecordsFactory, final String name, final EventLoop nextEventLoop) {
+        Queue<Record> queue = new PriorityQueue<>(Comparator.comparing(EventLoop.Record::getExecutionDateTime));
+        ExclusiveQueue<EventLoop.Record> eventRecords = eventRecordsFactory.create(queue);
 
-        this.eventLoop = new EventLoopDefault(eventRecords, dateTimeSupport, name, exceptionLogger, nextEventLoop, executorService);
+        this.eventLoop = new EventLoopDefault(eventRecords, params, name, nextEventLoop);
     }
 
     @Override
