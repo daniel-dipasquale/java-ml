@@ -13,7 +13,7 @@ final class EventLoopMulti implements EventLoop {
     private final MultiWaitHandle waitUntilEmptyEventLoopsHandle;
     private final MultiExceptionHandler shutdownEventLoopsHandler;
 
-    EventLoopMulti(final EventLoop.Factory eventLoopFactory, final EventLoop.Selector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
+    EventLoopMulti(final EventLoopMulti.Factory eventLoopFactory, final EventLoop.Selector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
         List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, eventLoopSelector.size(), this);
 
         this.eventLoops = eventLoops;
@@ -22,11 +22,11 @@ final class EventLoopMulti implements EventLoop {
         this.shutdownEventLoopsHandler = MultiExceptionHandler.create(eventLoops, EventLoop::shutdown);
     }
 
-    private static List<EventLoop> createEventLoops(final EventLoop.Factory eventLoopFactory, final int count, final EventLoopMulti eventLoop) {
+    private static List<EventLoop> createEventLoops(final EventLoopMulti.Factory eventLoopFactory, final int count, final EventLoopMulti eventLoopOwner) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
-            eventLoops.add(eventLoopFactory.create(eventLoop));
+            eventLoops.add(eventLoopFactory.create(eventLoopOwner));
         }
 
         return eventLoops;
@@ -68,5 +68,10 @@ final class EventLoopMulti implements EventLoop {
     @Override
     public void shutdown() {
         shutdownEventLoopsHandler.invokeAllAndThrowAsSuppressedIfAny("unable to shutdown the event loops");
+    }
+
+    @FunctionalInterface
+    interface Factory {
+        EventLoop create(EventLoop nextLoop);
     }
 }

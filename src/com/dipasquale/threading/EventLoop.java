@@ -9,10 +9,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,23 +35,9 @@ public interface EventLoop {
 
     void shutdown();
 
-    private static Selector getOrCreateSelector(final Settings settings) {
+    private static Selector getOrCreateEventLoopSelector(final Settings settings) {
         return Optional.ofNullable(settings.selector)
-                .orElseGet(() -> {
-                    RandomSupport randomSupport = settings.contended ? RandomSupport.createConcurrent() : RandomSupport.create();
-
-                    return new Selector() {
-                        @Override
-                        public int next() {
-                            return (int) randomSupport.next(0L, settings.count);
-                        }
-
-                        @Override
-                        public int size() {
-                            return settings.count;
-                        }
-                    };
-                });
+                .orElseGet(() -> Selector.createRandom(settings.contended, settings.count));
     }
 
     static EventLoop create(final Settings settings) {
@@ -69,8 +58,8 @@ public interface EventLoop {
         }
 
         int[] index = new int[1];
-        EventLoop.Factory eventLoopFactory = nel -> eventLoopFactoryProxy.create(params, eventRecordsFactory, String.format("%s-%d", settings.name, ++index[0]), nel);
-        Selector eventLoopSelector = getOrCreateSelector(settings);
+        EventLoopMulti.Factory eventLoopFactory = nel -> eventLoopFactoryProxy.create(params, eventRecordsFactory, String.format("%s-%d", settings.name, ++index[0]), nel);
+        Selector eventLoopSelector = getOrCreateEventLoopSelector(settings);
 
         return new EventLoopMulti(eventLoopFactory, eventLoopSelector, settings.dateTimeSupport);
     }
@@ -81,11 +70,6 @@ public interface EventLoop {
         long getDelayTime();
 
         void handle();
-    }
-
-    @FunctionalInterface
-    interface Factory {
-        EventLoop create(EventLoop nextLoop);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
@@ -104,6 +88,28 @@ public interface EventLoop {
         int next();
 
         int size();
+
+        static Selector createRandom(final RandomSupport randomSupport, final int size) {
+            return new Selector() {
+                @Override
+                public int next() {
+                    return (int) randomSupport.next(0L, size);
+                }
+
+                @Override
+                public int size() {
+                    return size;
+                }
+            };
+        }
+
+        static Selector createRandom(final boolean contended, final int size) {
+            if (contended) {
+                return createRandom(RandomSupport.createConcurrent(), size);
+            }
+
+            return createRandom(RandomSupport.create(), size);
+        }
     }
 
     @Builder
@@ -127,7 +133,13 @@ public interface EventLoop {
         private static Map<Type, EventLoopDefault.FactoryProxy> createEventLoopFactories() {
             Map<Type, EventLoopDefault.FactoryProxy> eventLoopFactories = new EnumMap<>(Type.class);
 
-            eventLoopFactories.put(Type.EXPLICIT_DELAY, EventLoopExplicitDelay::new);
+            eventLoopFactories.put(Type.EXPLICIT_DELAY, (params, eventRecordsFactory, name, nextEventLoop) -> {
+                Queue<Record> queue = new PriorityQueue<>(Comparator.comparing(EventLoop.Record::getExecutionDateTime));
+                ExclusiveQueue<EventLoop.Record> eventRecords = eventRecordsFactory.create(queue);
+
+                return new EventLoopDefault(eventRecords, params, name, nextEventLoop);
+            });
+
             eventLoopFactories.put(Type.NO_DELAY, EventLoopNoDelay::new);
 
             return eventLoopFactories;

@@ -16,8 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<T> {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<T> {
     private final Map<T, Node> nodesMap;
     private final NodeQueue<T> nodesQueue;
 
