@@ -13,7 +13,7 @@ public final class InnovationId<T extends Comparable<T>> implements Comparable<I
     @Getter
     @EqualsAndHashCode.Include
     private final DirectedEdge<T> directedEdge;
-    private final T index;
+    private final T sequence;
 
     public T getSourceNodeId() {
         return directedEdge.getSourceNodeId();
@@ -25,6 +25,6 @@ public final class InnovationId<T extends Comparable<T>> implements Comparable<I
 
     @Override
     public int compareTo(final InnovationId<T> other) {
-        return index.compareTo(other.index);
+        return sequence.compareTo(other.sequence);
     }
 }

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
 @FunctionalInterface
-interface NodeGeneBiasFactory {
+interface FloatFactory {
     float next();
 }

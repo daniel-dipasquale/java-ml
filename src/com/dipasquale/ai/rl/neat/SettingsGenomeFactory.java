@@ -16,11 +16,11 @@ public final class SettingsGenomeFactory {
     @Builder.Default
     private final SettingsFloatNumber inputBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
-    private final SettingsInitialActivationFunction inputActivationFunction = SettingsInitialActivationFunction.Identity;
+    private final SettingsActivationFunction inputActivationFunction = SettingsActivationFunction.Identity;
     private final SettingsIntegerNumber outputs;
     private final SettingsFloatNumber outputBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
-    private final SettingsInitialActivationFunction outputActivationFunction = SettingsInitialActivationFunction.Identity;
+    private final SettingsActivationFunction outputActivationFunction = SettingsActivationFunction.Identity;
     @Builder.Default
     private final List<SettingsFloatNumber> biases = ImmutableList.of();
     @Builder.Default

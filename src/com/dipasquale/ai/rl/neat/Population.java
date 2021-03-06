@@ -15,13 +15,14 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-final class Population<T extends Comparable<T>> {
+final class Population<T extends Comparable<T>> implements NeatCollective {
     private final Context<T> context;
     private final Set<Organism<T>> organismsWithoutSpecies;
     private final NodeQueue<Species<T>> allSpecies;
     private final Comparator<Species<T>> sharedFitnessComparator;
     @Getter
     private int generation;
+    private float interspeciesMatingUnusedSpace;
 
     Population(final Context<T> context) {
         this.context = context;
@@ -73,6 +74,7 @@ final class Population<T extends Comparable<T>> {
         }
     }
 
+    @Override
     public void testFitness() {
         assignOrganismsToSpecies();
         updateFitnessInAllSpecies();
@@ -116,6 +118,26 @@ final class Population<T extends Comparable<T>> {
         return organismsSaved;
     }
 
+    private float breedInterspecies(final List<Species<T>> speciesList, final float spaceAvailable) {
+        if (speciesList.size() <= 1) {
+            return 0;
+        }
+
+        float spaceOccupied = spaceAvailable * context.speciation().interspeciesMatingRate() + interspeciesMatingUnusedSpace;
+        int spaceOccupiedFixed = (int) Math.floor(spaceOccupied);
+
+        interspeciesMatingUnusedSpace = spaceOccupied - (float) spaceOccupiedFixed;
+
+        for (int i = 0; i < spaceOccupiedFixed; i++) {
+            Species<T> species1 = context.random().nextItem(speciesList);
+            Species<T> species2 = context.random().nextItem(speciesList);
+
+            organismsWithoutSpecies.add(species1.reproduceOutcast(species2));
+        }
+
+        return (float) spaceOccupiedFixed;
+    }
+
     private void breedAndRestartAllSpecies(final int spaceAvailable, final float totalSharedFitness) {
         List<Species<T>> allSpeciesList = allSpecies.stream()
                 .map(allSpecies::getValue)
@@ -123,16 +145,7 @@ final class Population<T extends Comparable<T>> {
                 .collect(Collectors.toList());
 
         float spaceAvailableFloat = (float) spaceAvailable;
-        int spaceAvailableInterspecies = allSpecies.size() <= 1 ? 0 : (int) Math.floor(spaceAvailableFloat * context.speciation().interspeciesMatingRate());
-
-        for (int i = 0; i < spaceAvailableInterspecies; i++) {
-            Species<T> species1 = context.random().nextItem(allSpeciesList);
-            Species<T> species2 = context.random().nextItem(allSpeciesList);
-
-            organismsWithoutSpecies.add(species1.reproduceOutcast(species2));
-        }
-
-        float spaceAvailableSameSpecies = spaceAvailableFloat - (float) spaceAvailableInterspecies;
+        float spaceAvailableSameSpecies = spaceAvailableFloat - breedInterspecies(allSpeciesList, spaceAvailableFloat);
         float organismsReproducedPrevious;
         float organismsReproduced = 0f;
 
@@ -150,6 +163,7 @@ final class Population<T extends Comparable<T>> {
         }
     }
 
+    @Override
     public void evolve() {
         LeastFitOrStagnantResult leastFitOrStagnantResult = removeLeastFitOrganismsOrStagnantSpecies();
         int organismsPreserved = preserveElitesFromAllSpecies();

@@ -10,7 +10,7 @@ import java.util.Map;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultNodeGeneSupport<T extends Comparable<T>> implements Context.NodeGeneSupport<T> {
     private final Map<NodeGeneType, SequentialIdFactory<T>> sequentialIdFactories;
-    private final Map<NodeGeneType, NodeGeneBiasFactory> biasFactories;
+    private final Map<NodeGeneType, FloatFactory> biasFactories;
     private final Map<NodeGeneType, ActivationFunctionFactory> activationFunctionFactories;
 
     @Override

@@ -1,9 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ContextDefault<T extends Comparable<T>> implements Context<T> {
     private final ContextDefaultGeneralSupport<T> general;
     private final ContextDefaultNodeGeneSupport<T> nodes;

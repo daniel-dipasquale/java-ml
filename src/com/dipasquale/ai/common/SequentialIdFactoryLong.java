@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 @ToString
 public final class SequentialIdFactoryLong implements SequentialIdFactory<SequentialIdFactoryLong.Id> {
     private static final long DELTA = 1L;

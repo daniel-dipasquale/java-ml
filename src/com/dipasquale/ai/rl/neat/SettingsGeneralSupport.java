@@ -11,9 +11,9 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public final class SettingsGeneralSupport<T extends Comparable<T>> {
+public final class SettingsGeneralSupport {
     @Builder.Default
-    private final int populationSize = 100;
+    private final int populationSize = 150;
     @Builder.Default
     private final IdFactory<String> genomeIdFactory = () -> UUID.randomUUID().toString();
     private final SettingsGenomeFactory genomeFactory;
@@ -23,7 +23,7 @@ public final class SettingsGeneralSupport<T extends Comparable<T>> {
     private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
     private final Environment environment;
 
-    ContextDefaultComponentFactory<T, ContextDefaultGeneralSupport<T>> createFactory() {
+    <T extends Comparable<T>> ContextDefaultComponentFactory<T, ContextDefaultGeneralSupport<T>> createFactory() {
         return c -> new ContextDefaultGeneralSupport<>(populationSize, genomeIdFactory, genomeFactory.create(c), speciesIdFactory, fitnessDeterminerFactory, environment);
     }
 }
