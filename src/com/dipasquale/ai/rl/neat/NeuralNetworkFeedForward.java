@@ -17,8 +17,8 @@ final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralN
                 .map(DirectedEdge::getSourceNodeId)
                 .collect(Collectors.toSet());
 
-        List<Neuron.Output<T>> outputs = genome.getConnections().getOutgoingFromNodeFromExpressed(node).values().stream()
-                .map(c -> new Neuron.Output<>(c.getInnovationId().getTargetNodeId(), c.getWeight()))
+        List<NeuronOutput<T>> outputs = genome.getConnections().getOutgoingFromNodeFromExpressed(node).values().stream()
+                .map(c -> new NeuronOutput<>(c.getInnovationId().getTargetNodeId(), c.getWeight()))
                 .collect(Collectors.toList());
 
         switch (node.getType()) {
@@ -42,13 +42,13 @@ final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralN
                 if (neuron != null) {
                     neuronNavigator.add(neuron);
 
-                    if (node.getType() == NodeGene.Type.Input) {
+                    if (node.getType() == NodeGeneType.Input) {
                         neuronNavigator.setValue(node, input[index++]);
                     }
                 }
             }
         } else {
-            Iterable<NodeGene<T>> inputNodes = () -> genome.getNodes().iterator(NodeGene.Type.Input);
+            Iterable<NodeGene<T>> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.Input);
 
             for (NodeGene<T> node : inputNodes) {
                 neuronNavigator.setValue(node, input[index++]);
@@ -58,7 +58,7 @@ final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralN
 
     private void processNeuronsViaNavigator() {
         for (Neuron<T> neuron : neuronNavigator) {
-            for (Neuron.Output<T> output : neuron.getOutputs()) {
+            for (NeuronOutput<T> output : neuron.getOutputs()) {
                 neuron.addToValue(output.getNeuronId(), neuronNavigator.get(output.getNeuronId()).getValue() * output.getConnectionWeight());
             }
         }

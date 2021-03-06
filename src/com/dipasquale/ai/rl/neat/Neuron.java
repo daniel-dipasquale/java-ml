@@ -1,22 +1,19 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 
 interface Neuron<T> {
     T getId();
 
-    NodeGene.Type getType();
+    NodeGeneType getType();
 
     ActivationFunction getActivationFunction();
 
     Collection<T> getInputIds();
 
-    Collection<Output<T>> getOutputs();
+    Collection<NeuronOutput<T>> getOutputs();
 
     float getValue(ActivationFunction activationFunction);
 
@@ -29,11 +26,4 @@ interface Neuron<T> {
     void addToValue(T id, float delta);
 
     void reset();
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    @Getter
-    final class Output<T> {
-        private final T neuronId;
-        private final float connectionWeight;
-    }
 }

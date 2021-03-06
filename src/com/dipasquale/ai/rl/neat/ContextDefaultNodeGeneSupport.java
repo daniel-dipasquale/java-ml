@@ -9,26 +9,16 @@ import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultNodeGeneSupport<T extends Comparable<T>> implements Context.NodeGeneSupport<T> {
-    private final Map<NodeGene.Type, SequentialIdFactory<T>> sequentialIdFactories;
-    private final BiasFactory biasFactory;
-    private final ActivationFunctionFactory activationFunctionFactory;
+    private final Map<NodeGeneType, SequentialIdFactory<T>> sequentialIdFactories;
+    private final Map<NodeGeneType, NodeGeneBiasFactory> biasFactories;
+    private final Map<NodeGeneType, ActivationFunctionFactory> activationFunctionFactories;
 
     @Override
-    public NodeGene<T> create(final NodeGene.Type type) {
+    public NodeGene<T> create(final NodeGeneType type) {
         T id = sequentialIdFactories.get(type).next();
-        float bias = biasFactory.next();
-        ActivationFunction activationFunction = activationFunctionFactory.next();
+        float bias = biasFactories.get(type).next();
+        ActivationFunction activationFunction = activationFunctionFactories.get(type).next();
 
-        return new NodeGene<>(id, type, bias, activationFunction);
-    }
-
-    @FunctionalInterface
-    interface BiasFactory {
-        float next();
-    }
-
-    @FunctionalInterface
-    interface ActivationFunctionFactory {
-        ActivationFunction next();
+        return new NodeGene<>(id, NodeGeneType.Hidden, bias, activationFunction);
     }
 }

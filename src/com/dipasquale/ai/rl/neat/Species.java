@@ -10,9 +10,9 @@ import java.util.List;
 final class Species<T extends Comparable<T>> {
     private final Context<T> context;
     @Getter
-    private final T id;
+    private final String id;
     private final Population<T> population;
-    private Organism<T> originalOrganism;
+    private Organism<T> representativeOrganism;
     private final List<Organism<T>> organisms;
     private boolean isOrganismsSorted;
     @Getter
@@ -21,12 +21,12 @@ final class Species<T extends Comparable<T>> {
     private final int birthGeneration;
     private int ageLastImproved;
 
-    Species(final Context<T> context, final Population<T> population, final Organism<T> originalOrganism) {
+    Species(final Context<T> context, final Population<T> population, final Organism<T> representativeOrganism) {
         this.context = context;
         this.id = context.general().createSpeciesId();
         this.population = population;
-        this.originalOrganism = originalOrganism;
-        this.organisms = Arrays.asList(originalOrganism);
+        this.representativeOrganism = representativeOrganism;
+        this.organisms = Arrays.asList(representativeOrganism);
         this.isOrganismsSorted = true;
         this.sharedFitness = 0f;
         this.maximumSharedFitness = 0f;
@@ -35,7 +35,7 @@ final class Species<T extends Comparable<T>> {
     }
 
     public boolean addIfCompatible(final Organism<T> organism) {
-        if (organisms.size() < context.speciation().maximumGenomes() && originalOrganism.isCompatible(organism)) {
+        if (organisms.size() < context.speciation().maximumGenomes() && representativeOrganism.isCompatible(organism)) {
             organisms.add(organism);
             isOrganismsSorted = false;
 
@@ -85,8 +85,9 @@ final class Species<T extends Comparable<T>> {
         int size = organisms.size();
 
         if (size > 1) {
-            int keep = Math.max(1, (int) Math.floor((double) context.speciation().eugenicsThreshold() * (double) size));
-            int remove = size - keep;
+            int keep = (int) Math.floor((double) context.speciation().eugenicsThreshold() * (double) size);
+            int keepFixed = Math.max(1, keep);
+            int remove = size - keepFixed;
 
             ensureOrganismsIsSorted();
 
@@ -130,13 +131,24 @@ final class Species<T extends Comparable<T>> {
         return organismsAdded;
     }
 
+    public Organism<T> reproduceOutcast(final Species<T> other) {
+        if (organisms.size() == 0 || other.size() == 0) {
+            return null;
+        }
+
+        Organism<T> organism1 = context.random().nextItem(organisms);
+        Organism<T> organism2 = context.random().nextItem(other.organisms);
+
+        return organism1.mate(organism2);
+    }
+
     public List<Organism<T>> selectElitists() {
         List<Organism<T>> organismsSelected = new ArrayList<>();
         int size = organisms.size();
 
-        if (size > 1) {
+        if (size > 0) {
             int select = (int) Math.floor((double) context.speciation().elitistThreshold() * (double) size);
-            int selectFixed = size - Math.max(size - select, 1);
+            int selectFixed = Math.min(select, context.speciation().elitistThresholdMinimum());
 
             ensureOrganismsIsSorted();
 
@@ -151,185 +163,19 @@ final class Species<T extends Comparable<T>> {
     }
 
     public boolean shouldSurvive() {
-        return getAge() - ageLastImproved < context.speciation().dropOffAge();
+        return getAge() - ageLastImproved < context.speciation().stagnationDropOffAge();
     }
 
-    public void clear() {
-        Organism<T> originalOrganismNew = context.random().nextItem(organisms);
+    public Organism<T> restart() {
+        Organism<T> representativeOrganismNew = context.random().nextItem(organisms);
 
-        originalOrganism = originalOrganismNew;
+        representativeOrganism = representativeOrganismNew;
         organisms.clear();
-        organisms.add(originalOrganismNew);
+        organisms.add(representativeOrganismNew);
+        isOrganismsSorted = true;
         sharedFitness = 0f;
         maximumSharedFitness = 0f;
+
+        return representativeOrganismNew;
     }
 }
-
-/*
-package com.dipasquale.ai.rl.neat;
-
-import com.dipasquale.data.structure.map.SortedByValueMap;
-import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-final class Species<T extends Comparable<T>> {
-    private final Context<T> context;
-    @Getter
-    private final T id;
-    private final Population<T> population;
-    private Organism<T> originalOrganism;
-    private final SortedByValueMap<Organism<T>, Float> organisms;
-    @Getter
-    private float sharedFitness;
-    private float maximumSharedFitness;
-    private final int generationBirth;
-    private int ageLastImproved;
-
-    Species(final Context<T> context, final Population<T> population, final Organism<T> originalOrganism) {
-        this.context = context;
-        this.id = context.general().createSpeciesId();
-        this.population = population;
-        this.originalOrganism = originalOrganism;
-        this.organisms = createIdentitySortedByValueMap(originalOrganism, 0f); // TODO: ensure this data structure is not a bottle neck in performance, since it is changing so much, might not be worth using a SortedByValueMap
-        this.sharedFitness = 0f;
-        this.maximumSharedFitness = 0f;
-        this.generationBirth = population.getGeneration();
-        this.ageLastImproved = 0;
-    }
-
-    private static <TKey, TValue extends Comparable<TValue>> SortedByValueMap<TKey, TValue> createIdentitySortedByValueMap(final TKey key, final TValue value) {
-        SortedByValueMap<TKey, TValue> map = SortedByValueMap.createIdentity(TValue::compareTo);
-
-        map.put(key, value);
-
-        return map;
-    }
-
-    public boolean addIfCompatible(final Organism<T> organism) {
-        if (organisms.size() < context.speciation().maximumGenomes() && originalOrganism.isCompatible(organism)) {
-            organisms.put(organism, 0f);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public int size() {
-        return organisms.size();
-    }
-
-    private int getAge() {
-        return population.getGeneration() - generationBirth;
-    }
-
-    public float updateFitness() {
-        List<Map.Entry<Organism<T>, Float>> organismEntries = new ArrayList<>(organisms.entrySet());
-        float fitnessTotal = 0f;
-
-        for (Map.Entry<Organism<T>, Float> entry : organismEntries) {
-            float fitness = entry.getKey().updateFitness();
-
-            organisms.put(entry.getKey(), fitness);
-            fitnessTotal += fitness;
-        }
-
-        float sharedFitnessNew = fitnessTotal / organismEntries.size();
-        int age = getAge();
-        int ageLastImprovedNew = Float.compare(sharedFitnessNew, maximumSharedFitness) > 0 ? age : ageLastImproved;
-
-        sharedFitness = sharedFitnessNew;
-        maximumSharedFitness = Math.max(sharedFitnessNew, maximumSharedFitness);
-        ageLastImproved = ageLastImprovedNew;
-
-        return sharedFitness;
-    }
-
-    public List<Organism<T>> removeUnfitToReproduce() {
-        List<Organism<T>> organismsRemoved = new ArrayList<>();
-        int size = organisms.size();
-
-        if (size > 1) {
-            int keep = Math.max(1, (int) Math.floor((double) context.speciation().eugenicsThreshold() * (double) size));
-            int remove = size - keep;
-
-            for (int i = 0; i < remove; i++) {
-                Organism<T> organism = organisms.headKey();
-
-                organisms.remove(organism);
-                organismsRemoved.add(organism);
-            }
-        }
-
-        return organismsRemoved;
-    }
-
-    public List<Organism<T>> reproduceOutcast(final int count) {
-        List<Organism<T>> organismsAdded = new ArrayList<>();
-
-        if (organisms.size() > 0) {
-            List<Organism<T>> organismsToReproduce = new ArrayList<>(organisms.keySet());
-
-            for (int i = 0; i < count; i++) {
-                if (organismsToReproduce.size() > 1 && context.random().isLessThan(context.crossOver().rate())) {
-                    Organism<T> organism1 = context.random().nextItem(organismsToReproduce);
-                    Organism<T> organism2 = context.random().nextItem(organismsToReproduce);
-
-                    if (organism1 != organism2) {
-                        Organism<T> organismNew = organism1.mate(organism2);
-
-                        organismsAdded.add(organismNew);
-                    }
-                }
-
-                if (organismsAdded.size() <= i) {
-                    Organism<T> organism = context.random().nextItem(organismsToReproduce);
-                    Organism<T> organismNew = organism.createCopy();
-
-                    organismNew.mutate();
-                    organismsAdded.add(organismNew);
-                }
-            }
-        }
-
-        return organismsAdded;
-    }
-
-    public List<Organism<T>> selectElitists() {
-        List<Organism<T>> organismsSelected = new ArrayList<>();
-        int size = organisms.size();
-
-        if (size > 1) {
-            int select = (int) Math.floor((double) context.speciation().elitistThreshold() * (double) size);
-            int selectFixed = size - Math.max(size - select, 1);
-
-            for (Organism<T> organism : organisms.descendingKeySet()) {
-                organismsSelected.add(organism);
-
-                if (organismsSelected.size() == selectFixed) {
-                    return organismsSelected;
-                }
-            }
-        }
-
-        return organismsSelected;
-    }
-
-    public boolean shouldSurvive() {
-        return getAge() - ageLastImproved < context.speciation().dropOffAge();
-    }
-
-    public void restart() {
-        Organism<T> originalOrganismNew = context.random().nextItem(new ArrayList<>(organisms.keySet()));
-
-        originalOrganism = originalOrganismNew;
-        organisms.clear();
-        organisms.put(originalOrganismNew, 0f);
-        sharedFitness = 0f;
-        maximumSharedFitness = 0f;
-    }
-}
- */

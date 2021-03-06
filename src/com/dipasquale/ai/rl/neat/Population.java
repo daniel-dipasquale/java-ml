@@ -7,16 +7,19 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 final class Population<T extends Comparable<T>> {
     private final Context<T> context;
     private final Set<Organism<T>> organismsWithoutSpecies;
     private final NodeQueue<Species<T>> allSpecies;
+    private final Comparator<Species<T>> sharedFitnessComparator;
     @Getter
     private int generation;
 
@@ -24,12 +27,13 @@ final class Population<T extends Comparable<T>> {
         this.context = context;
         this.organismsWithoutSpecies = createOrganisms(context, this);
         this.allSpecies = NodeQueue.create();
+        this.sharedFitnessComparator = Comparator.comparing(Species::getSharedFitness);
         this.generation = 1;
     }
 
     private static <T extends Comparable<T>> Set<Organism<T>> createOrganisms(final Context<T> context, final Population<T> population) {
         IdentityHashMap<Organism<T>, Boolean> organismsWithoutSpecies = IntStream.range(0, context.general().populationSize())
-                .mapToObj(i -> context.general().createGenesisGenome(0))
+                .mapToObj(i -> context.general().createGenesisGenome())
                 .map(g -> new Organism<>(context, population, g))
                 .collect(Collector.of(IdentityHashMap::new, (ihm, g) -> ihm.put(g, null), (ihm1, ihm2) -> {
                     ihm1.putAll(ihm2);
@@ -88,22 +92,15 @@ final class Population<T extends Comparable<T>> {
                 totalSharedFitness += species.getSharedFitness();
                 speciesNode = allSpecies.next(speciesNode);
             } else {
-                organismsRemoved += species.size();
-
                 Node speciesNodeNext = allSpecies.next(speciesNode);
 
+                organismsRemoved += species.size();
                 allSpecies.remove(speciesNode);
                 speciesNode = speciesNodeNext;
             }
         }
 
         return new LeastFitOrStagnantResult(organismsRemoved, totalSharedFitness);
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class LeastFitOrStagnantResult {
-        private final int organismsRemoved;
-        private final float totalSharedFitnessRemaining;
     }
 
     private int preserveElitesFromAllSpecies() {
@@ -119,29 +116,52 @@ final class Population<T extends Comparable<T>> {
         return organismsSaved;
     }
 
-    private int breedInAllSpecies(final int spaceAvailable, final float totalSharedFitness) {
+    private void breedAndRestartAllSpecies(final int spaceAvailable, final float totalSharedFitness) {
+        List<Species<T>> allSpeciesList = allSpecies.stream()
+                .map(allSpecies::getValue)
+                .sorted(sharedFitnessComparator)
+                .collect(Collectors.toList());
+
         float spaceAvailableFloat = (float) spaceAvailable;
-        int organismsReproduced = 0;
+        int spaceAvailableInterspecies = allSpecies.size() <= 1 ? 0 : (int) Math.floor(spaceAvailableFloat * context.speciation().interspeciesMatingRate());
 
-        for (Node speciesNode : allSpecies) {
-            Species<T> species = allSpecies.getValue(speciesNode);
-            float reproductionFloat = Math.round(spaceAvailable * species.getSharedFitness() / totalSharedFitness);
-            int reproduction = Math.min(spaceAvailable - organismsReproduced, (int) reproductionFloat);
-            List<Organism<T>> reproducedOrganisms = species.reproduceOutcast(reproduction);
+        for (int i = 0; i < spaceAvailableInterspecies; i++) {
+            Species<T> species1 = context.random().nextItem(allSpeciesList);
+            Species<T> species2 = context.random().nextItem(allSpeciesList);
 
-            organismsReproduced += reproducedOrganisms.size();
-            organismsWithoutSpecies.addAll(reproducedOrganisms);
+            organismsWithoutSpecies.add(species1.reproduceOutcast(species2));
         }
 
-        return organismsReproduced;
+        float spaceAvailableSameSpecies = spaceAvailableFloat - (float) spaceAvailableInterspecies;
+        float organismsReproducedPrevious;
+        float organismsReproduced = 0f;
+
+        for (Species<T> species : allSpeciesList) {
+            float reproductionFloat = Math.round(spaceAvailableSameSpecies * species.getSharedFitness() / totalSharedFitness);
+
+            organismsReproducedPrevious = organismsReproduced;
+            organismsReproduced += reproductionFloat;
+
+            int reproduction = (int) organismsReproduced - (int) organismsReproducedPrevious;
+            List<Organism<T>> reproducedOrganisms = species.reproduceOutcast(reproduction);
+
+            organismsWithoutSpecies.addAll(reproducedOrganisms);
+            organismsWithoutSpecies.remove(species.restart());
+        }
     }
 
     public void evolve() {
         LeastFitOrStagnantResult leastFitOrStagnantResult = removeLeastFitOrganismsOrStagnantSpecies();
-
         int organismsPreserved = preserveElitesFromAllSpecies();
+        int spaceAvailable = context.general().populationSize() - leastFitOrStagnantResult.organismsRemoved + organismsPreserved;
 
-        breedInAllSpecies(context.general().populationSize() - leastFitOrStagnantResult.organismsRemoved + organismsPreserved, leastFitOrStagnantResult.totalSharedFitnessRemaining);
+        breedAndRestartAllSpecies(spaceAvailable, leastFitOrStagnantResult.totalSharedFitnessRemaining);
         generation++;
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class LeastFitOrStagnantResult {
+        private final int organismsRemoved;
+        private final float totalSharedFitnessRemaining;
     }
 }

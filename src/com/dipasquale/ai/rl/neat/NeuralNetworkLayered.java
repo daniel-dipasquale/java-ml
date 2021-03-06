@@ -47,7 +47,7 @@
 //    }
 //
 //    public float[] activate(final float[] input) {
-//        Layer layer = layers.computeIfAbsent(0, i -> createInitialLayer(nodes.revealByType(NodeGene.Type.Input)));
+//        Layer layer = layers.computeIfAbsent(0, i -> createInitialLayer(nodes.revealByType(NodeGeneType.Input)));
 //        float[] values = layer.forward(input);
 //
 //        connectionsCyclesAllowed.clear();

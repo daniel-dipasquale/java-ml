@@ -11,15 +11,15 @@ import java.util.Map;
 final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>> {
     private final Context<T> context;
     private final SequentialMap<T, NodeGene<T>> nodes = new SequentialMap<>();
-    private final Map<NodeGene.Type, SequentialMap<T, NodeGene<T>>> nodesByType = createNodesByType();
+    private final Map<NodeGeneType, SequentialMap<T, NodeGene<T>>> nodesByType = createNodesByType();
 
-    private static <T extends Comparable<T>> Map<NodeGene.Type, SequentialMap<T, NodeGene<T>>> createNodesByType() {
-        EnumMap<NodeGene.Type, SequentialMap<T, NodeGene<T>>> nodesByType = new EnumMap<>(NodeGene.Type.class);
+    private static <T extends Comparable<T>> Map<NodeGeneType, SequentialMap<T, NodeGene<T>>> createNodesByType() {
+        EnumMap<NodeGeneType, SequentialMap<T, NodeGene<T>>> nodesByType = new EnumMap<>(NodeGeneType.class);
 
-        nodesByType.put(NodeGene.Type.Input, new SequentialMap<>());
-        nodesByType.put(NodeGene.Type.Output, new SequentialMap<>());
-        nodesByType.put(NodeGene.Type.Bias, new SequentialMap<>());
-        nodesByType.put(NodeGene.Type.Hidden, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.Input, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.Output, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.Bias, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.Hidden, new SequentialMap<>());
 
         return nodesByType;
     }
@@ -28,7 +28,7 @@ final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>
         return nodes.size();
     }
 
-    public int size(final NodeGene.Type type) {
+    public int size(final NodeGeneType type) {
         return nodesByType.get(type).size();
     }
 
@@ -40,7 +40,7 @@ final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>
         return nodes.getByIndex(index);
     }
 
-    public NodeGene<T> getByIndex(final NodeGene.Type type, final int index) {
+    public NodeGene<T> getByIndex(final NodeGeneType type, final int index) {
         return nodesByType.get(type).getByIndex(index);
     }
 
@@ -52,7 +52,7 @@ final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>
         return context.random().nextItem(nodes);
     }
 
-    public NodeGene<T> getRandom(final NodeGene.Type type) {
+    public NodeGene<T> getRandom(final NodeGeneType type) {
         return context.random().nextItem(nodesByType.get(type));
     }
 
@@ -70,7 +70,7 @@ final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>
         return nodes.iterator();
     }
 
-    public Iterator<NodeGene<T>> iterator(final NodeGene.Type type) {
+    public Iterator<NodeGene<T>> iterator(final NodeGeneType type) {
         return nodesByType.get(type).iterator();
     }
 }

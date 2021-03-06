@@ -13,7 +13,7 @@ final class NeuronFeedForward<T> implements Neuron<T> {
     @Getter
     private final Collection<T> inputIds;
     @Getter
-    private final Collection<Neuron.Output<T>> outputs;
+    private final Collection<NeuronOutput<T>> outputs;
     private float value = 0f;
 
     @Override
@@ -22,7 +22,7 @@ final class NeuronFeedForward<T> implements Neuron<T> {
     }
 
     @Override
-    public NodeGene.Type getType() {
+    public NodeGeneType getType() {
         return node.getType();
     }
 

@@ -6,9 +6,4 @@ interface FitnessDeterminer {
     void add(float fitness);
 
     void clear();
-
-    @FunctionalInterface
-    interface Factory {
-        FitnessDeterminer create();
-    }
 }

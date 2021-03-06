@@ -7,23 +7,27 @@ import java.util.Optional;
 
 final class GenomeDefault<T extends Comparable<T>> implements Genome {
     private final Context<T> context;
-    private final T id;
+    private final String id;
     @Getter(AccessLevel.PACKAGE)
     private final NodeGeneMap<T> nodes;
     @Getter(AccessLevel.PACKAGE)
     private final ConnectionGeneMap<T> connections;
     private final NeuralNetwork neuralNetwork;
 
-    GenomeDefault(final Context<T> context) {
+    private GenomeDefault(final Context<T> context, final String id) {
         this.context = context;
-        this.id = context.general().createGenomeId();
+        this.id = id;
         this.nodes = new NodeGeneMap<>(context);
         this.connections = new ConnectionGeneMap<>();
         this.neuralNetwork = context.neuralNetwork().create(this);
     }
 
-    private GenomeDefault(final GenomeDefault<T> genome) {
-        this(genome.context);
+    GenomeDefault(final Context<T> context) {
+        this(context, context.general().createGenomeId());
+    }
+
+    private GenomeDefault(final GenomeDefault<T> genome, final String id) {
+        this(genome.context, id);
 
         genome.nodes.forEach(this::addNode);
 
@@ -77,7 +81,7 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
         ConnectionGene<T> connection = connections.disableByIndex(connectionIndex);
         NodeGene<T> inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
         NodeGene<T> outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
-        NodeGene<T> newNode = context.nodes().create(NodeGene.Type.Hidden);
+        NodeGene<T> newNode = context.nodes().create(NodeGeneType.Hidden);
         ConnectionGene<T> inToNewConnection = new ConnectionGene<>(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
         ConnectionGene<T> newToOutConnection = new ConnectionGene<>(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
 
@@ -88,7 +92,7 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
         return true;
     }
 
-    private NodeGene<T> getRandomNode(final NodeGene.Type type1, final NodeGene.Type type2) {
+    private NodeGene<T> getRandomNode(final NodeGeneType type1, final NodeGeneType type2) {
         if (context.random().isLessThan(0.5f)) {
             return Optional.ofNullable(nodes.getRandom(type1))
                     .orElseGet(() -> nodes.getRandom(type2));
@@ -98,7 +102,7 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
                 .orElseGet(() -> nodes.getRandom(type1));
     }
 
-    private NodeGene<T> getRandomNode(final NodeGene.Type type1, final NodeGene.Type type2, final NodeGene.Type type3) {
+    private NodeGene<T> getRandomNode(final NodeGeneType type1, final NodeGeneType type2, final NodeGeneType type3) {
         if (context.random().isLessThan(1f / 3f)) {
             return Optional.ofNullable(nodes.getRandom(type1))
                     .orElseGet(() -> getRandomNode(type2, type3));
@@ -113,13 +117,13 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
                 .orElseGet(() -> getRandomNode(type1, type2));
     }
 
-    private NodeGene<T> getRandomNodeToMatch(final NodeGene.Type type) {
+    private NodeGene<T> getRandomNodeToMatch(final NodeGeneType type) {
         return switch (type) {
-            case Input, Bias -> getRandomNode(NodeGene.Type.Output, NodeGene.Type.Hidden);
+            case Input, Bias -> getRandomNode(NodeGeneType.Output, NodeGeneType.Hidden);
 
             case Hidden -> nodes.getRandom();
 
-            default -> getRandomNode(NodeGene.Type.Input, NodeGene.Type.Bias, NodeGene.Type.Hidden);
+            default -> getRandomNode(NodeGeneType.Input, NodeGeneType.Bias, NodeGeneType.Hidden);
         };
     }
 
@@ -198,6 +202,10 @@ final class GenomeDefault<T extends Comparable<T>> implements Genome {
     }
 
     public GenomeDefault<T> createCopy() {
-        return new GenomeDefault<>(this);
+        return new GenomeDefault<>(this, context.general().createGenomeId());
+    }
+
+    public GenomeDefault<T> createClone() {
+        return new GenomeDefault<>(this, id);
     }
 }

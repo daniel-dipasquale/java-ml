@@ -30,7 +30,7 @@ final class NeuronNavigator<T> implements Iterable<Neuron<T>> {
     public void add(final Neuron<T> neuron) {
         neurons.put(neuron.getId(), neuron);
 
-        if (neuron.getType() == NodeGene.Type.Output) {
+        if (neuron.getType() == NodeGeneType.Output) {
             outputNeurons.add(neuron);
         }
 

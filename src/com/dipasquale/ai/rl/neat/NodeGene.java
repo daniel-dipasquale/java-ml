@@ -18,15 +18,8 @@ final class NodeGene<T> {
     @ToString.Include
     private final T id;
     @ToString.Include
-    private final Type type;
+    private final NodeGeneType type;
     @ToString.Include
     private final float bias;
     private final ActivationFunction activationFunction;
-
-    public enum Type {
-        Input,
-        Output,
-        Bias,
-        Hidden
-    }
 }

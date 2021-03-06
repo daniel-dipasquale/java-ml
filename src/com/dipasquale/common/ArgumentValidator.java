@@ -150,6 +150,30 @@ public final class ArgumentValidator {
         ensureLessThanOrEqualTo((long) number, limit, name, null);
     }
 
+    public void ensureLessThan(final long number, final long limit, final String name, final String additionalMessage) {
+        if (number >= limit) {
+            String message = String.format("%s '%d' cannot be greater than or equal to '%d'", name, number, limit);
+
+            if (!StringUtils.isBlank(additionalMessage)) {
+                message = String.format("%s, additional information: %s", message, additionalMessage);
+            }
+
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    public void ensureLessThan(final long number, final long limit, final String name) {
+        ensureLessThan(number, limit, name, null);
+    }
+
+    public void ensureLessThan(final int number, final int limit, final String name, final String additionalMessage) {
+        ensureLessThan((long) number, limit, name, additionalMessage);
+    }
+
+    public void ensureLessThan(final int number, final int limit, final String name) {
+        ensureLessThan((long) number, limit, name, null);
+    }
+
     public void ensureEqual(final long number, final long target, final String name, final String additionalMessage) {
         if (number != target) {
             String message = String.format("%s '%d' cannot differ from '%d'", name, number, target);

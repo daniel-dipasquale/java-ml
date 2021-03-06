@@ -9,11 +9,11 @@ import java.util.concurrent.TimeUnit;
 
 final class EventLoopMulti implements EventLoop {
     private final List<EventLoop> eventLoops;
-    private final EventLoop.Selector eventLoopSelector;
+    private final EventLoopSelector eventLoopSelector;
     private final MultiWaitHandle waitUntilEmptyEventLoopsHandle;
     private final MultiExceptionHandler shutdownEventLoopsHandler;
 
-    EventLoopMulti(final EventLoopMulti.Factory eventLoopFactory, final EventLoop.Selector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
+    EventLoopMulti(final EventLoopFactory eventLoopFactory, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
         List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, eventLoopSelector.size(), this);
 
         this.eventLoops = eventLoops;
@@ -22,7 +22,7 @@ final class EventLoopMulti implements EventLoop {
         this.shutdownEventLoopsHandler = MultiExceptionHandler.create(eventLoops, EventLoop::shutdown);
     }
 
-    private static List<EventLoop> createEventLoops(final EventLoopMulti.Factory eventLoopFactory, final int count, final EventLoopMulti eventLoopOwner) {
+    private static List<EventLoop> createEventLoops(final EventLoopFactory eventLoopFactory, final int count, final EventLoopMulti eventLoopOwner) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
@@ -44,7 +44,7 @@ final class EventLoopMulti implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoop.Handler handler) {
+    public void queue(final EventLoopHandler handler) {
         getNextEventLoop().queue(handler);
     }
 
@@ -68,10 +68,5 @@ final class EventLoopMulti implements EventLoop {
     @Override
     public void shutdown() {
         shutdownEventLoopsHandler.invokeAllAndThrowAsSuppressedIfAny("unable to shutdown the event loops");
-    }
-
-    @FunctionalInterface
-    interface Factory {
-        EventLoop create(EventLoop nextLoop);
     }
 }

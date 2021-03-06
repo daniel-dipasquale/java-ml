@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultSpeciation<T extends Comparable<T>> implements Context.Speciation<T> {
-    private final int maximumSize;
+    private final int maximumGenomes;
     private final float weightDifferenceCoefficient;
     private final float disjointCoefficient;
     private final float excessCoefficient;
@@ -14,11 +14,13 @@ final class ContextDefaultSpeciation<T extends Comparable<T>> implements Context
     private final GenomeCompatibilityCalculator<T> genomeCompatibilityCalculator;
     private final float survivalThreshold;
     private final float elitistThreshold;
-    private final int dropOffAge;
+    private final int elitistThresholdMinimum;
+    private final int stagnationDropOffAge;
+    private final float interspeciesMatingRate;
 
     @Override
     public int maximumGenomes() {
-        return maximumSize;
+        return maximumGenomes;
     }
 
     @Override
@@ -57,7 +59,17 @@ final class ContextDefaultSpeciation<T extends Comparable<T>> implements Context
     }
 
     @Override
-    public int dropOffAge() {
-        return dropOffAge;
+    public int elitistThresholdMinimum() {
+        return elitistThresholdMinimum;
+    }
+
+    @Override
+    public int stagnationDropOffAge() {
+        return stagnationDropOffAge;
+    }
+
+    @Override
+    public float interspeciesMatingRate() {
+        return interspeciesMatingRate;
     }
 }

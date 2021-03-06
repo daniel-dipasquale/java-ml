@@ -9,9 +9,9 @@ import java.util.concurrent.TimeUnit;
 final class EventLoopNoDelay implements EventLoop {
     private final EventLoopDefault eventLoop;
 
-    EventLoopNoDelay(final EventLoopDefault.Params params, final EventLoopDefault.EventRecordsFactory eventRecordsFactory, final String name, final EventLoop nextEventLoop) {
-        Queue<Record> queue = new LinkedList<>();
-        ExclusiveQueue<EventLoop.Record> eventRecords = eventRecordsFactory.create(queue);
+    EventLoopNoDelay(final EventLoopDefaultParams params, final EventLoopRecordQueueFactory eventRecordsFactory, final String name, final EventLoop nextEventLoop) {
+        Queue<EventLoopRecord> queue = new LinkedList<>();
+        ExclusiveQueue<EventLoopRecord> eventRecords = eventRecordsFactory.create(queue);
 
         this.eventLoop = new EventLoopDefault(eventRecords, params, name, nextEventLoop);
     }
@@ -27,10 +27,10 @@ final class EventLoopNoDelay implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoop.Handler handler) {
+    public void queue(final EventLoopHandler handler) {
         ensureDelayTimeIsValid(handler.getDelayTime());
 
-        eventLoop.queue(new EventLoop.Handler() {
+        eventLoop.queue(new EventLoopHandler() {
             @Override
             public boolean shouldReQueue() {
                 return handler.shouldReQueue();

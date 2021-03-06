@@ -2,6 +2,11 @@ package com.dipasquale.ai.common;
 
 @FunctionalInterface
 public interface ActivationFunction {
+    ActivationFunction Identity = i -> i;
+    ActivationFunction ReLU = i -> Math.max(0f, i);
+    ActivationFunction Sigmoid = i -> 1f / (1f + (float) Math.exp(-i));
+    ActivationFunction TanH = i -> (float) Math.tanh(i);
+
     float forward(float input);
 
     default float[] forward(final float[] input) {

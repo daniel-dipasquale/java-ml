@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ContextDefault<T extends Comparable<T>> implements Context<T> {
     private final ContextDefaultGeneralSupport<T> general;
     private final ContextDefaultNodeGeneSupport<T> nodes;
@@ -14,14 +14,14 @@ final class ContextDefault<T extends Comparable<T>> implements Context<T> {
     private final ContextDefaultCrossOver<T> crossOver;
     private final ContextDefaultSpeciation<T> speciation;
 
-    ContextDefault(final Factory<T, ContextDefaultGeneralSupport<T>> generalFactory,
-                   final Factory<T, ContextDefaultNodeGeneSupport<T>> nodesFactory,
-                   final Factory<T, ContextDefaultConnectionGeneSupport<T>> connectionsFactory,
-                   final Factory<T, ContextDefaultNeuralNetworkSupport<T>> neuralNetworkFactory,
-                   final Factory<T, ContextDefaultRandom> randomFactory,
-                   final Factory<T, ContextDefaultMutation> mutationFactory,
-                   final Factory<T, ContextDefaultCrossOver<T>> crossOverFactory,
-                   final Factory<T, ContextDefaultSpeciation<T>> speciationFactory) {
+    ContextDefault(final ContextDefaultComponentFactory<T, ContextDefaultGeneralSupport<T>> generalFactory,
+                   final ContextDefaultComponentFactory<T, ContextDefaultNodeGeneSupport<T>> nodesFactory,
+                   final ContextDefaultComponentFactory<T, ContextDefaultConnectionGeneSupport<T>> connectionsFactory,
+                   final ContextDefaultComponentFactory<T, ContextDefaultNeuralNetworkSupport<T>> neuralNetworkFactory,
+                   final ContextDefaultComponentFactory<T, ContextDefaultRandom> randomFactory,
+                   final ContextDefaultComponentFactory<T, ContextDefaultMutation> mutationFactory,
+                   final ContextDefaultComponentFactory<T, ContextDefaultCrossOver<T>> crossOverFactory,
+                   final ContextDefaultComponentFactory<T, ContextDefaultSpeciation<T>> speciationFactory) {
         this.general = generalFactory.create(this);
         this.nodes = nodesFactory.create(this);
         this.connections = connectionsFactory.create(this);
@@ -70,10 +70,5 @@ final class ContextDefault<T extends Comparable<T>> implements Context<T> {
     @Override
     public Speciation<T> speciation() {
         return speciation;
-    }
-
-    @FunctionalInterface
-    interface Factory<T extends Comparable<T>, R> {
-        R create(ContextDefault<T> context);
     }
 }

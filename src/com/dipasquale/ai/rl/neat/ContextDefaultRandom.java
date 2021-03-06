@@ -11,13 +11,18 @@ final class ContextDefaultRandom implements Context.Random {
     private final RandomSupportFloat isAtMost;
 
     @Override
-    public int nextIndex(final int count) {
-        return nextIndex.next(0, count);
+    public int nextIndex(final int offset, final int count) {
+        return nextIndex.next(offset, count);
     }
 
     @Override
     public float next() {
         return next.next();
+    }
+
+    @Override
+    public float next(final float min, final float max) {
+        return next.next(min, max);
     }
 
     @Override

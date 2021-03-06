@@ -1,18 +1,17 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.IdFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultGeneralSupport<T extends Comparable<T>> implements Context.GeneralSupport<T> {
     private final int populationSize;
-    private final SequentialIdFactory<T> genomeIdFactory;
-    private final ObjectFactory<GenomeDefault<T>> genesisGenomeFactory;
-    private final SequentialIdFactory<T> speciesIdFactory;
-    private final FitnessDeterminer.Factory fitnessDeterminerFactory;
-    private final FitnessCalculator fitnessCalculator;
+    private final IdFactory<String> genomeIdFactory;
+    private final GenomeDefaultFactory<T> genomeFactory;
+    private final IdFactory<String> speciesIdFactory;
+    private final FitnessDeterminerFactory fitnessDeterminerFactory;
+    private final Environment environment;
 
     @Override
     public int populationSize() {
@@ -20,22 +19,18 @@ final class ContextDefaultGeneralSupport<T extends Comparable<T>> implements Con
     }
 
     @Override
-    public T createGenomeId() {
-        return genomeIdFactory.next();
+    public String createGenomeId() {
+        return genomeIdFactory.createId();
     }
 
     @Override
-    public GenomeDefault<T> createGenesisGenome(final int generation) {
-        if (generation == 0) {
-            return null; // TODO: finish
-        }
-
-        return genesisGenomeFactory.create();
+    public GenomeDefault<T> createGenesisGenome() {
+        return genomeFactory.create();
     }
 
     @Override
-    public T createSpeciesId() {
-        return speciesIdFactory.next();
+    public String createSpeciesId() {
+        return speciesIdFactory.createId();
     }
 
     @Override
@@ -45,6 +40,6 @@ final class ContextDefaultGeneralSupport<T extends Comparable<T>> implements Con
 
     @Override
     public float calculateFitness(final GenomeDefault<T> genome) {
-        return fitnessCalculator.calculate(genome);
+        return environment.test(genome);
     }
 }

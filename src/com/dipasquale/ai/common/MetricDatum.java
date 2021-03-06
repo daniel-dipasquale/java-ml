@@ -1,6 +1,8 @@
 package com.dipasquale.ai.common;
 
 public interface MetricDatum {
+    float getLastValue();
+
     float getSum();
 
     int getCount();
@@ -12,4 +14,8 @@ public interface MetricDatum {
     float getMaximum();
 
     float getPth(float percentage);
+
+    void add(float value);
+
+    void clear();
 }

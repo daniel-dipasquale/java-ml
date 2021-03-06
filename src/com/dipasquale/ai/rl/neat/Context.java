@@ -20,13 +20,13 @@ interface Context<T extends Comparable<T>> {
     Speciation<T> speciation();
 
     interface GeneralSupport<T extends Comparable<T>> {
-        int populationSize(); // 100
+        int populationSize(); // 150
 
-        T createGenomeId();
+        String createGenomeId();
 
-        GenomeDefault<T> createGenesisGenome(int generation);
+        GenomeDefault<T> createGenesisGenome();
 
-        T createSpeciesId();
+        String createSpeciesId();
 
         FitnessDeterminer createFitnessDeterminer();
 
@@ -40,11 +40,11 @@ interface Context<T extends Comparable<T>> {
 
     @FunctionalInterface
     interface NodeGeneSupport<T extends Comparable<T>> {
-        NodeGene<T> create(NodeGene.Type type);
+        NodeGene<T> create(NodeGeneType type);
     }
 
     interface ConnectionGeneSupport<T extends Comparable<T>> {
-        boolean allowRecurrentConnections();
+        boolean allowRecurrentConnections(); // TODO: consider this to be a probability rate
 
         InnovationId<T> getOrCreateInnovationId(DirectedEdge<T> directedEdge);
 
@@ -62,16 +62,24 @@ interface Context<T extends Comparable<T>> {
     }
 
     interface Random {
-        int nextIndex(int count);
+        int nextIndex(int offset, int count);
 
-        default <T> T nextItem(final List<T> items) {
+        default int nextIndex(final int count) {
+            return nextIndex(0, count);
+        }
+
+        default <T> T nextItem(final List<T> items, final int offset) {
             int size = items.size();
 
             if (size == 0) {
                 return null;
             }
 
-            return items.get(nextIndex(size));
+            return items.get(nextIndex(offset, size));
+        }
+
+        default <T> T nextItem(final List<T> items) {
+            return nextItem(items, 0);
         }
 
         default <T> T nextItem(final SequentialMap<? extends Comparable<?>, T> items) {
@@ -85,6 +93,8 @@ interface Context<T extends Comparable<T>> {
         }
 
         float next();
+
+        float next(float min, float max);
 
         boolean isLessThan(float rate);
     }
@@ -134,6 +144,10 @@ interface Context<T extends Comparable<T>> {
 
         float elitistThreshold(); // 0.01
 
-        int dropOffAge(); // 15
+        int elitistThresholdMinimum(); // 1
+
+        int stagnationDropOffAge(); // 15
+
+        float interspeciesMatingRate(); // 0.01
     }
 }
