@@ -1,60 +1,62 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.SequentialId;
+
 import java.util.List;
 
-interface Context<T extends Comparable<T>> {
-    GeneralSupport<T> general();
+interface Context {
+    GeneralSupport general();
 
-    NodeGeneSupport<T> nodes();
+    NodeGeneSupport nodes();
 
-    ConnectionGeneSupport<T> connections();
+    ConnectionGeneSupport connections();
 
-    NeuralNetworkSupport<T> neuralNetwork();
+    NeuralNetworkSupport neuralNetwork();
 
     Random random();
 
     Mutation mutation();
 
-    CrossOver<T> crossOver();
+    CrossOver crossOver();
 
-    Speciation<T> speciation();
+    Speciation speciation();
 
-    interface GeneralSupport<T extends Comparable<T>> {
+    interface GeneralSupport {
         int populationSize(); // 150
 
         String createGenomeId();
 
-        GenomeDefault<T> createGenesisGenome();
+        GenomeDefault createGenesisGenome();
 
         String createSpeciesId();
 
         FitnessDeterminer createFitnessDeterminer();
 
-        float calculateFitness(GenomeDefault<T> genome);
+        float calculateFitness(GenomeDefault genome);
     }
 
     @FunctionalInterface
-    interface NeuralNetworkSupport<T extends Comparable<T>> {
-        NeuralNetwork create(GenomeDefault<T> genome);
+    interface NeuralNetworkSupport {
+        NeuralNetwork create(GenomeDefault genome);
     }
 
     @FunctionalInterface
-    interface NodeGeneSupport<T extends Comparable<T>> {
-        NodeGene<T> create(NodeGeneType type);
+    interface NodeGeneSupport {
+        NodeGene create(NodeGeneType type);
     }
 
-    interface ConnectionGeneSupport<T extends Comparable<T>> {
+    interface ConnectionGeneSupport {
         boolean allowRecurrentConnections(); // TODO: consider this to be a probability rate
 
-        InnovationId<T> getOrCreateInnovationId(DirectedEdge<T> directedEdge);
+        InnovationId getOrCreateInnovationId(DirectedEdge directedEdge);
 
-        default InnovationId<T> getOrCreateInnovationId(final T inNodeId, final T outNodeId) {
-            DirectedEdge<T> directedEdge = new DirectedEdge<>(inNodeId, outNodeId);
+        default InnovationId getOrCreateInnovationId(final SequentialId inNodeId, final SequentialId outNodeId) {
+            DirectedEdge directedEdge = new DirectedEdge(inNodeId, outNodeId);
 
             return getOrCreateInnovationId(directedEdge);
         }
 
-        default InnovationId<T> getOrCreateInnovationId(final NodeGene<T> inNode, final NodeGene<T> outNode) {
+        default InnovationId getOrCreateInnovationId(final NodeGene inNode, final NodeGene outNode) {
             return getOrCreateInnovationId(inNode.getId(), outNode.getId());
         }
 
@@ -109,19 +111,19 @@ interface Context<T extends Comparable<T>> {
         float changeConnectionExpressedRate(); // 0.2
     }
 
-    interface CrossOver<T extends Comparable<T>> {
+    interface CrossOver {
         float rate(); // 0.8
 
         float enforceExpressedRate(); // 0.5
 
         float useRandomParentWeightRate(); // 1.0
 
-        GenomeDefault<T> crossOverBySkippingUnfitDisjointOrExcess(GenomeDefault<T> fitParent, GenomeDefault<T> unfitParent);
+        GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(GenomeDefault fitParent, GenomeDefault unfitParent);
 
-        GenomeDefault<T> crossOverByEqualTreatment(GenomeDefault<T> parent1, GenomeDefault<T> parent2);
+        GenomeDefault crossOverByEqualTreatment(GenomeDefault parent1, GenomeDefault parent2);
     }
 
-    interface Speciation<T extends Comparable<T>> {
+    interface Speciation {
         int maximumGenomes();
 
         float weightDifferenceCoefficient(); // 1.0
@@ -132,9 +134,9 @@ interface Context<T extends Comparable<T>> {
 
         float compatibilityThreshold(int generation); // 6.0 ( * compatibilityThresholdModifier ^ generation )
 
-        float calculateCompatibility(GenomeDefault<T> genome1, GenomeDefault<T> genome2);
+        float calculateCompatibility(GenomeDefault genome1, GenomeDefault genome2);
 
-        default boolean belongs(final GenomeDefault<T> genome1, final GenomeDefault<T> genome2, final int generation) {
+        default boolean belongs(final GenomeDefault genome1, final GenomeDefault genome2, final int generation) {
             float compatibility = calculateCompatibility(genome1, genome2);
 
             return Float.compare(compatibility, compatibilityThreshold(generation)) < 0;

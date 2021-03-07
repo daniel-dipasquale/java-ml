@@ -4,27 +4,27 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class GenomeCompatibilityCalculator<T extends Comparable<T>> {
-    private final Context.Speciation<T> speciation;
+final class GenomeCompatibilityCalculator {
+    private final Context.Speciation speciation;
 
-    private static <T extends Comparable<T>> boolean isMatching(final SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry joinEntry) {
+    private static boolean isMatching(final SequentialMap<InnovationId, ConnectionGene>.JoinEntry joinEntry) {
         return joinEntry.getItem1() != null && joinEntry.getItem2() != null;
     }
 
-    private static <T extends Comparable<T>> boolean isExcess(final ConnectionGene<T> connection, final ConnectionGene<T> excessFromConnection) {
+    private static boolean isExcess(final ConnectionGene connection, final ConnectionGene excessFromConnection) {
         return connection.getInnovationId().compareTo(excessFromConnection.getInnovationId()) > 0;
     }
 
-    private static <T extends Comparable<T>> boolean isDisjoint(final SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry joinEntry, final ConnectionGene<T> excessFromConnection) {
+    private static boolean isDisjoint(final SequentialMap<InnovationId, ConnectionGene>.JoinEntry joinEntry, final ConnectionGene excessFromConnection) {
         return excessFromConnection == null || joinEntry.getItem1() != null && !isExcess(joinEntry.getItem1(), excessFromConnection) || joinEntry.getItem2() != null && !isExcess(joinEntry.getItem2(), excessFromConnection);
     }
 
-    public float calculateCompatibility(final GenomeDefault<T> genome1, final GenomeDefault<T> genome2) {
+    public float calculateCompatibility(final GenomeDefault genome1, final GenomeDefault genome2) {
         int genome1MaximumConnections = genome1.getConnections().sizeFromAll();
         int genome2MaximumConnections = genome2.getConnections().sizeFromAll();
         int maximumConnections = Math.max(genome1MaximumConnections, genome2MaximumConnections);
 
-        ConnectionGene<T> excessFromConnection = genome1MaximumConnections == maximumConnections && genome2MaximumConnections == maximumConnections
+        ConnectionGene excessFromConnection = genome1MaximumConnections == maximumConnections && genome2MaximumConnections == maximumConnections
                 ? null
                 : genome2MaximumConnections == maximumConnections
                 ? genome1.getConnections().getLastFromAll()
@@ -35,7 +35,7 @@ final class GenomeCompatibilityCalculator<T extends Comparable<T>> {
         int disjointCount = 0;
         int excessCount = 0;
 
-        for (SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry joinEntry : genome1.getConnections().fullJoinFromAll(genome2.getConnections())) {
+        for (SequentialMap<InnovationId, ConnectionGene>.JoinEntry joinEntry : genome1.getConnections().fullJoinFromAll(genome2.getConnections())) {
             if (isMatching(joinEntry)) {
                 matchingCount++;
                 weightDifference += Math.abs(joinEntry.getItem1().getWeight() - joinEntry.getItem2().getWeight());

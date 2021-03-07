@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
+import com.dipasquale.ai.common.SequentialId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,16 +9,16 @@ import lombok.RequiredArgsConstructor;
 import java.util.Collection;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class NeuronFeedForward<T> implements Neuron<T> {
-    private final NodeGene<T> node;
+final class NeuronFeedForward implements Neuron {
+    private final NodeGene node;
     @Getter
-    private final Collection<T> inputIds;
+    private final Collection<SequentialId> inputIds;
     @Getter
-    private final Collection<NeuronOutput<T>> outputs;
+    private final Collection<NeuronOutput> outputs;
     private float value = 0f;
 
     @Override
-    public T getId() {
+    public SequentialId getId() {
         return node.getId();
     }
 
@@ -46,7 +47,7 @@ final class NeuronFeedForward<T> implements Neuron<T> {
     }
 
     @Override
-    public void addToValue(final T id, final float delta) {
+    public void addToValue(final SequentialId id, final float delta) {
         value += delta;
     }
 

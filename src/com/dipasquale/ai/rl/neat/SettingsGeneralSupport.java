@@ -23,7 +23,7 @@ public final class SettingsGeneralSupport {
     private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
     private final Environment environment;
 
-    <T extends Comparable<T>> ContextDefaultComponentFactory<T, ContextDefaultGeneralSupport<T>> createFactory() {
-        return c -> new ContextDefaultGeneralSupport<>(populationSize, genomeIdFactory, genomeFactory.create(c), speciesIdFactory, fitnessDeterminerFactory, environment);
+    ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory() {
+        return c -> new ContextDefaultGeneralSupport(populationSize, genomeIdFactory, genomeFactory.create(c), speciesIdFactory, fitnessDeterminerFactory, environment);
     }
 }

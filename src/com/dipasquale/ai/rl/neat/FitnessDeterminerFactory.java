@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-
 import com.dipasquale.ai.common.MetricDatum;
 import com.dipasquale.common.ArgumentValidator;
 

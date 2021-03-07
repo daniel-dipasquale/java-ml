@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.SequentialIdFactory;
+import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.common.RandomSupportFloat;
 import com.dipasquale.concurrent.AtomicLoopSelector;
 import com.google.common.collect.ImmutableList;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SettingsNodeGeneSupport<T extends Comparable<T>> {
+public final class SettingsNodeGeneSupport {
     private static final RandomSupportFloat RANDOM_SUPPORT = RandomSupportFloat.createConcurrent();
 
     private static final Map<SettingsActivationFunction, ActivationFunction> ACTIVATION_FUNCTIONS_MAP = ImmutableMap.<SettingsActivationFunction, ActivationFunction>builder()
@@ -24,10 +25,14 @@ public final class SettingsNodeGeneSupport<T extends Comparable<T>> {
             .build();
 
     private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = ImmutableList.copyOf(ACTIVATION_FUNCTIONS_MAP.values());
-    private final SequentialIdFactory<T> inputIdFactory;
-    private final SequentialIdFactory<T> outputIdFactory;
-    private final SequentialIdFactory<T> biasIdFactory;
-    private final SequentialIdFactory<T> hiddenIdFactory;
+    @Builder.Default
+    private final SequentialIdFactory inputIdFactory = new SequentialIdFactoryLong();
+    @Builder.Default
+    private final SequentialIdFactory outputIdFactory = new SequentialIdFactoryLong();
+    @Builder.Default
+    private final SequentialIdFactory biasIdFactory = new SequentialIdFactoryLong();
+    @Builder.Default
+    private final SequentialIdFactory hiddenIdFactory = new SequentialIdFactoryLong();
     @Builder.Default
     private final SettingsFloatNumber hiddenBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
@@ -43,12 +48,12 @@ public final class SettingsNodeGeneSupport<T extends Comparable<T>> {
         return ACTIVATION_FUNCTIONS_MAP.get(activationFunction);
     }
 
-    ContextDefaultComponentFactory<T, ContextDefaultNodeGeneSupport<T>> createFactory(final SettingsGenomeFactory genomeFactory) {
-        Map<NodeGeneType, SequentialIdFactory<T>> sequentialIdFactories = ImmutableMap.<NodeGeneType, SequentialIdFactory<T>>builder()
-                .put(NodeGeneType.Input, inputIdFactory)
-                .put(NodeGeneType.Output, outputIdFactory)
-                .put(NodeGeneType.Bias, biasIdFactory)
-                .put(NodeGeneType.Hidden, hiddenIdFactory)
+    ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> createFactory(final SettingsGenomeFactory genomeFactory) {
+        Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories = ImmutableMap.<NodeGeneType, SequentialIdFactory>builder()
+                .put(NodeGeneType.Input, new SequentialIdFactoryDefault("n1-input", inputIdFactory))
+                .put(NodeGeneType.Output, new SequentialIdFactoryDefault("n4-output", outputIdFactory))
+                .put(NodeGeneType.Bias, new SequentialIdFactoryDefault("n2-output", biasIdFactory))
+                .put(NodeGeneType.Hidden, new SequentialIdFactoryDefault("n3-output", hiddenIdFactory))
                 .build();
 
         AtomicLoopSelector<SettingsFloatNumber> biasNodeBiasFactory = new AtomicLoopSelector<>(genomeFactory.getBiases()::get, 0, genomeFactory.getBiases().size(), true);
@@ -67,6 +72,6 @@ public final class SettingsNodeGeneSupport<T extends Comparable<T>> {
                 .put(NodeGeneType.Hidden, () -> getActivationFunction(hiddenActivationFunction))
                 .build();
 
-        return c -> new ContextDefaultNodeGeneSupport<>(sequentialIdFactories, biasFactories, activationFunctionFactories);
+        return c -> new ContextDefaultNodeGeneSupport(sequentialIdFactories, biasFactories, activationFunctionFactories);
     }
 }

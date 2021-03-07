@@ -4,11 +4,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ContextDefaultCrossOver<T extends Comparable<T>> implements Context.CrossOver<T> {
+final class ContextDefaultCrossOver implements Context.CrossOver {
     private final float rate;
     private final float enforceExpressedRate;
     private final float useRandomParentWeightRate;
-    private final GenomeCrossOver<T> genomeCrossOver;
+    private final GenomeCrossOver genomeCrossOver;
 
     @Override
     public float rate() {
@@ -26,12 +26,12 @@ final class ContextDefaultCrossOver<T extends Comparable<T>> implements Context.
     }
 
     @Override
-    public GenomeDefault<T> crossOverBySkippingUnfitDisjointOrExcess(final GenomeDefault<T> fitParent, final GenomeDefault<T> unfitParent) {
+    public GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final GenomeDefault fitParent, final GenomeDefault unfitParent) {
         return genomeCrossOver.crossOverBySkippingUnfitDisjointOrExcess(fitParent, unfitParent);
     }
 
     @Override
-    public GenomeDefault<T> crossOverByEqualTreatment(final GenomeDefault<T> parent1, final GenomeDefault<T> parent2) {
+    public GenomeDefault crossOverByEqualTreatment(final GenomeDefault parent1, final GenomeDefault parent2) {
         return genomeCrossOver.crossOverByEqualTreatment(parent1, parent2);
     }
 }

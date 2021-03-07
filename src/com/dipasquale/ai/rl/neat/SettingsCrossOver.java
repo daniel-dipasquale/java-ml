@@ -14,7 +14,7 @@ public final class SettingsCrossOver {
     @Builder.Default
     private final SettingsFloatNumber useRandomParentWeightRate = SettingsFloatNumber.literal(1f);
 
-    <T extends Comparable<T>> ContextDefaultComponentFactory<T, ContextDefaultCrossOver<T>> createFactory() {
-        return c -> new ContextDefaultCrossOver<>(rate.get(), enforceExpressedRate.get(), useRandomParentWeightRate.get(), new GenomeCrossOver<>(c));
+    ContextDefaultComponentFactory<ContextDefaultCrossOver> createFactory() {
+        return c -> new ContextDefaultCrossOver(rate.get(), enforceExpressedRate.get(), useRandomParentWeightRate.get(), new GenomeCrossOver(c));
     }
 }

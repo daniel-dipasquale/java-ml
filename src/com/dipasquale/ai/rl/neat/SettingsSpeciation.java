@@ -19,7 +19,11 @@ public final class SettingsSpeciation {
     private final SettingsIntegerNumber stagnationDropOffAge;
     private final SettingsFloatNumber interspeciesMatingRate;
 
-    <T extends Comparable<T>> ContextDefaultComponentFactory<T, ContextDefaultSpeciation<T>> createFactory() {
-        return c -> new ContextDefaultSpeciation<>(maximumGenomes.get(), weightDifferenceCoefficient.get(), disjointCoefficient.get(), excessCoefficient.get(), compatibilityThreshold.get(), compatibilityThresholdModifier.get(), new GenomeCompatibilityCalculator<>(c.speciation()), survivalThreshold.get(), elitistThreshold.get(), elitistThresholdMinimum.get(), stagnationDropOffAge.get(), interspeciesMatingRate.get());
+    ContextDefaultComponentFactory<ContextDefaultSpeciation> createFactory() {
+        return c -> {
+            GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(c.speciation());
+
+            return new ContextDefaultSpeciation(maximumGenomes.get(), weightDifferenceCoefficient.get(), disjointCoefficient.get(), excessCoefficient.get(), compatibilityThreshold.get(), compatibilityThresholdModifier.get(), genomeCompatibilityCalculator, survivalThreshold.get(), elitistThreshold.get(), elitistThresholdMinimum.get(), stagnationDropOffAge.get(), interspeciesMatingRate.get());
+        };
     }
 }

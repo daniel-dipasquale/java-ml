@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
+import com.dipasquale.ai.common.SequentialId;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -13,10 +14,10 @@ import lombok.ToString;
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-final class NodeGene<T> {
+final class NodeGene {
     @EqualsAndHashCode.Include
     @ToString.Include
-    private final T id;
+    private final SequentialId id;
     @ToString.Include
     private final NodeGeneType type;
     @ToString.Include

@@ -16,7 +16,7 @@ public final class SettingsMutation {
     @Builder.Default
     private final SettingsFloatNumber changeConnectionExpressedRate = SettingsFloatNumber.literal(0.2f);
 
-    <T extends Comparable<T>> ContextDefaultComponentFactory<T, ContextDefaultMutation> createFactory() {
+    ContextDefaultComponentFactory<ContextDefaultMutation> createFactory() {
         return c -> new ContextDefaultMutation(addNodeMutationsRate.get(), addConnectionMutationsRate.get(), perturbConnectionWeightRate.get(), changeConnectionExpressedRate.get());
     }
 }

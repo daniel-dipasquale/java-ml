@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
 @FunctionalInterface
-interface NeuralNetworkFactory<T extends Comparable<T>> {
-    NeuralNetwork create(GenomeDefault<T> genome);
+interface NeuralNetworkFactory {
+    NeuralNetwork create(GenomeDefault genome);
 }

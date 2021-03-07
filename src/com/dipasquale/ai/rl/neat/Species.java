@@ -7,13 +7,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-final class Species<T extends Comparable<T>> {
-    private final Context<T> context;
+final class Species {
+    private final Context context;
     @Getter
     private final String id;
-    private final Population<T> population;
-    private Organism<T> representativeOrganism;
-    private final List<Organism<T>> organisms;
+    private final Population population;
+    private Organism representativeOrganism;
+    private final List<Organism> organisms;
     private boolean isOrganismsSorted;
     @Getter
     private float sharedFitness;
@@ -21,7 +21,7 @@ final class Species<T extends Comparable<T>> {
     private final int birthGeneration;
     private int ageLastImproved;
 
-    Species(final Context<T> context, final Population<T> population, final Organism<T> representativeOrganism) {
+    Species(final Context context, final Population population, final Organism representativeOrganism) {
         this.context = context;
         this.id = context.general().createSpeciesId();
         this.population = population;
@@ -34,7 +34,7 @@ final class Species<T extends Comparable<T>> {
         this.ageLastImproved = 0;
     }
 
-    public boolean addIfCompatible(final Organism<T> organism) {
+    public boolean addIfCompatible(final Organism organism) {
         if (organisms.size() < context.speciation().maximumGenomes() && representativeOrganism.isCompatible(organism)) {
             organisms.add(organism);
             isOrganismsSorted = false;
@@ -56,7 +56,7 @@ final class Species<T extends Comparable<T>> {
     public float updateFitness() {
         float fitnessTotal = 0f;
 
-        for (Organism<T> organism : organisms) {
+        for (Organism organism : organisms) {
             float fitness = organism.updateFitness();
 
             fitnessTotal += fitness;
@@ -80,8 +80,8 @@ final class Species<T extends Comparable<T>> {
         }
     }
 
-    public List<Organism<T>> removeUnfitToReproduce() {
-        List<Organism<T>> organismsRemoved = new ArrayList<>();
+    public List<Organism> removeUnfitToReproduce() {
+        List<Organism> organismsRemoved = new ArrayList<>();
         int size = organisms.size();
 
         if (size > 1) {
@@ -92,7 +92,7 @@ final class Species<T extends Comparable<T>> {
             ensureOrganismsIsSorted();
 
             for (int i = 0; i < remove; i++) {
-                Organism<T> organism = organisms.remove(0);
+                Organism organism = organisms.remove(0);
 
                 organismsRemoved.add(organism);
             }
@@ -101,26 +101,26 @@ final class Species<T extends Comparable<T>> {
         return organismsRemoved;
     }
 
-    public List<Organism<T>> reproduceOutcast(final int count) {
-        List<Organism<T>> organismsAdded = new ArrayList<>();
+    public List<Organism> reproduceOutcast(final int count) {
+        List<Organism> organismsAdded = new ArrayList<>();
         int size = organisms.size();
 
         if (size > 0) {
             for (int i = 0; i < count; i++) {
                 if (size > 1 && context.random().isLessThan(context.crossOver().rate())) {
-                    Organism<T> organism1 = context.random().nextItem(organisms);
-                    Organism<T> organism2 = context.random().nextItem(organisms);
+                    Organism organism1 = context.random().nextItem(organisms);
+                    Organism organism2 = context.random().nextItem(organisms);
 
                     if (organism1 != organism2) {
-                        Organism<T> organismNew = organism1.mate(organism2);
+                        Organism organismNew = organism1.mate(organism2);
 
                         organismsAdded.add(organismNew);
                     }
                 }
 
                 if (organismsAdded.size() <= i) {
-                    Organism<T> organism = context.random().nextItem(organisms);
-                    Organism<T> organismNew = organism.createCopy();
+                    Organism organism = context.random().nextItem(organisms);
+                    Organism organismNew = organism.createCopy();
 
                     organismNew.mutate();
                     organismsAdded.add(organismNew);
@@ -131,19 +131,19 @@ final class Species<T extends Comparable<T>> {
         return organismsAdded;
     }
 
-    public Organism<T> reproduceOutcast(final Species<T> other) {
+    public Organism reproduceOutcast(final Species other) {
         if (organisms.size() == 0 || other.size() == 0) {
             return null;
         }
 
-        Organism<T> organism1 = context.random().nextItem(organisms);
-        Organism<T> organism2 = context.random().nextItem(other.organisms);
+        Organism organism1 = context.random().nextItem(organisms);
+        Organism organism2 = context.random().nextItem(other.organisms);
 
         return organism1.mate(organism2);
     }
 
-    public List<Organism<T>> selectElitists() {
-        List<Organism<T>> organismsSelected = new ArrayList<>();
+    public List<Organism> selectElitists() {
+        List<Organism> organismsSelected = new ArrayList<>();
         int size = organisms.size();
 
         if (size > 0) {
@@ -153,7 +153,7 @@ final class Species<T extends Comparable<T>> {
             ensureOrganismsIsSorted();
 
             for (int i = 0, endIndex = size - 1; i < selectFixed; i++) {
-                Organism<T> organism = organisms.get(endIndex - i);
+                Organism organism = organisms.get(endIndex - i);
 
                 organismsSelected.add(organism);
             }
@@ -166,8 +166,8 @@ final class Species<T extends Comparable<T>> {
         return getAge() - ageLastImproved < context.speciation().stagnationDropOffAge();
     }
 
-    public Organism<T> restart() {
-        Organism<T> representativeOrganismNew = context.random().nextItem(organisms);
+    public Organism restart() {
+        Organism representativeOrganismNew = context.random().nextItem(organisms);
 
         representativeOrganism = representativeOrganismNew;
         organisms.clear();

@@ -11,7 +11,7 @@ public final class SettingsRandom {
     @Builder.Default
     private final RandomSupportFloat randomSupport = RandomSupportFloat.createConcurrent();
 
-    <T extends Comparable<T>> ContextDefaultComponentFactory<T, ContextDefaultRandom> createFactory() {
+    ContextDefaultComponentFactory<ContextDefaultRandom> createFactory() {
         return c -> new ContextDefaultRandom(randomSupport, randomSupport, randomSupport);
     }
 }

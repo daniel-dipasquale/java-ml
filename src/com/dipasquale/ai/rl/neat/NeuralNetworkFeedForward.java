@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.SequentialId;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -8,17 +9,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralNetwork {
-    private final GenomeDefault<T> genome;
-    private final NeuronNavigator<T> neuronNavigator = new NeuronNavigator<>();
+final class NeuralNetworkFeedForward implements NeuralNetwork {
+    private final GenomeDefault genome;
+    private final NeuronNavigator neuronNavigator = new NeuronNavigator();
 
-    private Neuron<T> createNeuron(final NodeGene<T> node) {
-        Set<T> inputIds = genome.getConnections().getIncomingToNodeFromExpressed(node).keySet().stream()
+    private Neuron createNeuron(final NodeGene node) {
+        Set<SequentialId> inputIds = genome.getConnections().getIncomingToNodeFromExpressed(node).keySet().stream()
                 .map(DirectedEdge::getSourceNodeId)
                 .collect(Collectors.toSet());
 
-        List<NeuronOutput<T>> outputs = genome.getConnections().getOutgoingFromNodeFromExpressed(node).values().stream()
-                .map(c -> new NeuronOutput<>(c.getInnovationId().getTargetNodeId(), c.getWeight()))
+        List<NeuronOutput> outputs = genome.getConnections().getOutgoingFromNodeFromExpressed(node).values().stream()
+                .map(c -> new NeuronOutput(c.getInnovationId().getTargetNodeId(), c.getWeight()))
                 .collect(Collectors.toList());
 
         switch (node.getType()) {
@@ -29,15 +30,15 @@ final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralN
                 }
         }
 
-        return new NeuronFeedForward<>(node, inputIds, outputs);
+        return new NeuronFeedForward(node, inputIds, outputs);
     }
 
     private void initializeNeuronNavigator(final float[] input) {
         int index = 0;
 
         if (neuronNavigator.isEmpty()) {
-            for (NodeGene<T> node : genome.getNodes()) {
-                Neuron<T> neuron = createNeuron(node);
+            for (NodeGene node : genome.getNodes()) {
+                Neuron neuron = createNeuron(node);
 
                 if (neuron != null) {
                     neuronNavigator.add(neuron);
@@ -48,17 +49,17 @@ final class NeuralNetworkFeedForward<T extends Comparable<T>> implements NeuralN
                 }
             }
         } else {
-            Iterable<NodeGene<T>> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.Input);
+            Iterable<NodeGene> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.Input);
 
-            for (NodeGene<T> node : inputNodes) {
+            for (NodeGene node : inputNodes) {
                 neuronNavigator.setValue(node, input[index++]);
             }
         }
     }
 
     private void processNeuronsViaNavigator() {
-        for (Neuron<T> neuron : neuronNavigator) {
-            for (NeuronOutput<T> output : neuron.getOutputs()) {
+        for (Neuron neuron : neuronNavigator) {
+            for (NeuronOutput output : neuron.getOutputs()) {
                 neuron.addToValue(output.getNeuronId(), neuronNavigator.get(output.getNeuronId()).getValue() * output.getConnectionWeight());
             }
         }

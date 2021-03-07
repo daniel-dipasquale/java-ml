@@ -5,10 +5,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ContextDefaultGeneralSupport<T extends Comparable<T>> implements Context.GeneralSupport<T> {
+final class ContextDefaultGeneralSupport implements Context.GeneralSupport {
     private final int populationSize;
     private final IdFactory<String> genomeIdFactory;
-    private final GenomeDefaultFactory<T> genomeFactory;
+    private final GenomeDefaultFactory genomeFactory;
     private final IdFactory<String> speciesIdFactory;
     private final FitnessDeterminerFactory fitnessDeterminerFactory;
     private final Environment environment;
@@ -24,7 +24,7 @@ final class ContextDefaultGeneralSupport<T extends Comparable<T>> implements Con
     }
 
     @Override
-    public GenomeDefault<T> createGenesisGenome() {
+    public GenomeDefault createGenesisGenome() {
         return genomeFactory.create();
     }
 
@@ -39,7 +39,7 @@ final class ContextDefaultGeneralSupport<T extends Comparable<T>> implements Con
     }
 
     @Override
-    public float calculateFitness(final GenomeDefault<T> genome) {
+    public float calculateFitness(final GenomeDefault genome) {
         return environment.test(genome);
     }
 }

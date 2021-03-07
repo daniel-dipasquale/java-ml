@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.SequentialId;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -8,13 +9,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>> {
-    private final Context<T> context;
-    private final SequentialMap<T, NodeGene<T>> nodes = new SequentialMap<>();
-    private final Map<NodeGeneType, SequentialMap<T, NodeGene<T>>> nodesByType = createNodesByType();
+final class NodeGeneMap implements Iterable<NodeGene> {
+    private final Context context;
+    private final SequentialMap<SequentialId, NodeGene> nodes = new SequentialMap<>();
+    private final Map<NodeGeneType, SequentialMap<SequentialId, NodeGene>> nodesByType = createNodesByType();
 
-    private static <T extends Comparable<T>> Map<NodeGeneType, SequentialMap<T, NodeGene<T>>> createNodesByType() {
-        EnumMap<NodeGeneType, SequentialMap<T, NodeGene<T>>> nodesByType = new EnumMap<>(NodeGeneType.class);
+    private static Map<NodeGeneType, SequentialMap<SequentialId, NodeGene>> createNodesByType() {
+        EnumMap<NodeGeneType, SequentialMap<SequentialId, NodeGene>> nodesByType = new EnumMap<>(NodeGeneType.class);
 
         nodesByType.put(NodeGeneType.Input, new SequentialMap<>());
         nodesByType.put(NodeGeneType.Output, new SequentialMap<>());
@@ -36,41 +37,41 @@ final class NodeGeneMap<T extends Comparable<T>> implements Iterable<NodeGene<T>
         return nodes.isEmpty();
     }
 
-    public NodeGene<T> getByIndex(final int index) {
+    public NodeGene getByIndex(final int index) {
         return nodes.getByIndex(index);
     }
 
-    public NodeGene<T> getByIndex(final NodeGeneType type, final int index) {
+    public NodeGene getByIndex(final NodeGeneType type, final int index) {
         return nodesByType.get(type).getByIndex(index);
     }
 
-    public NodeGene<T> getById(final T id) {
+    public NodeGene getById(final SequentialId id) {
         return nodes.getById(id);
     }
 
-    public NodeGene<T> getRandom() {
+    public NodeGene getRandom() {
         return context.random().nextItem(nodes);
     }
 
-    public NodeGene<T> getRandom(final NodeGeneType type) {
+    public NodeGene getRandom(final NodeGeneType type) {
         return context.random().nextItem(nodesByType.get(type));
     }
 
-    public void put(final NodeGene<T> node) {
+    public void put(final NodeGene node) {
         nodes.put(node.getId(), node);
         nodesByType.get(node.getType()).put(node.getId(), node);
     }
 
-    public Iterable<SequentialMap<T, NodeGene<T>>.JoinEntry> fullJoinFromAll(final NodeGeneMap<T> other) {
+    public Iterable<SequentialMap<SequentialId, NodeGene>.JoinEntry> fullJoinFromAll(final NodeGeneMap other) {
         return nodes.fullJoin(other.nodes);
     }
 
     @Override
-    public Iterator<NodeGene<T>> iterator() {
+    public Iterator<NodeGene> iterator() {
         return nodes.iterator();
     }
 
-    public Iterator<NodeGene<T>> iterator(final NodeGeneType type) {
+    public Iterator<NodeGene> iterator(final NodeGeneType type) {
         return nodesByType.get(type).iterator();
     }
 }

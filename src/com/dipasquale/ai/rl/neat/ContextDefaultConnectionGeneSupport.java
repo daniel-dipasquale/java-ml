@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ContextDefaultConnectionGeneSupport<T extends Comparable<T>> implements Context.ConnectionGeneSupport<T> {
+final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGeneSupport {
     private final boolean allowRecurrentConnections;
-    private final SequentialIdFactory<T> innovationIdFactory;
+    private final SequentialIdFactory innovationIdFactory;
     private final ConnectionGeneWeightFactory weightFactory;
-    private final Map<DirectedEdge<T>, InnovationId<T>> innovationIds;
-    private final Set<DirectedEdge<T>> innovationIdsNotAllowed;
+    private final Map<DirectedEdge, InnovationId> innovationIds;
+    private final Set<DirectedEdge> innovationIdsNotAllowed;
 
     @Override
     public boolean allowRecurrentConnections() {
@@ -21,9 +21,9 @@ final class ContextDefaultConnectionGeneSupport<T extends Comparable<T>> impleme
     }
 
     @Override
-    public InnovationId<T> getOrCreateInnovationId(final DirectedEdge<T> directedEdge) {
+    public InnovationId getOrCreateInnovationId(final DirectedEdge directedEdge) {
         if (allowRecurrentConnections) {
-            return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId<>(de, innovationIdFactory.next()));
+            return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId(de, innovationIdFactory.next()));
         }
 
         if (innovationIdsNotAllowed.contains(directedEdge)) {
@@ -32,7 +32,7 @@ final class ContextDefaultConnectionGeneSupport<T extends Comparable<T>> impleme
 
         innovationIdsNotAllowed.add(directedEdge.createReversed());
 
-        return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId<>(de, innovationIdFactory.next()));
+        return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId(de, innovationIdFactory.next()));
     }
 
     @Override

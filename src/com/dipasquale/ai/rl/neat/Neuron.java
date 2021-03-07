@@ -1,19 +1,20 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
+import com.dipasquale.ai.common.SequentialId;
 
 import java.util.Collection;
 
-interface Neuron<T> {
-    T getId();
+interface Neuron {
+    SequentialId getId();
 
     NodeGeneType getType();
 
     ActivationFunction getActivationFunction();
 
-    Collection<T> getInputIds();
+    Collection<SequentialId> getInputIds();
 
-    Collection<NeuronOutput<T>> getOutputs();
+    Collection<NeuronOutput> getOutputs();
 
     float getValue(ActivationFunction activationFunction);
 
@@ -23,7 +24,7 @@ interface Neuron<T> {
 
     void forceValue(float newValue);
 
-    void addToValue(T id, float delta);
+    void addToValue(SequentialId id, float delta);
 
     void reset();
 }

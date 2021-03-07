@@ -1,23 +1,23 @@
 package com.dipasquale.ai.rl.neat;
 
-final class ContextDefault<T extends Comparable<T>> implements Context<T> {
-    private final ContextDefaultGeneralSupport<T> general;
-    private final ContextDefaultNodeGeneSupport<T> nodes;
-    private final ContextDefaultConnectionGeneSupport<T> connections;
-    private final ContextDefaultNeuralNetworkSupport<T> neuralNetwork;
+final class ContextDefault implements Context {
+    private final ContextDefaultGeneralSupport general;
+    private final ContextDefaultNodeGeneSupport nodes;
+    private final ContextDefaultConnectionGeneSupport connections;
+    private final ContextDefaultNeuralNetworkSupport neuralNetwork;
     private final ContextDefaultRandom random;
     private final ContextDefaultMutation mutation;
-    private final ContextDefaultCrossOver<T> crossOver;
-    private final ContextDefaultSpeciation<T> speciation;
+    private final ContextDefaultCrossOver crossOver;
+    private final ContextDefaultSpeciation speciation;
 
-    ContextDefault(final ContextDefaultComponentFactory<T, ContextDefaultGeneralSupport<T>> generalFactory,
-                   final ContextDefaultComponentFactory<T, ContextDefaultNodeGeneSupport<T>> nodesFactory,
-                   final ContextDefaultComponentFactory<T, ContextDefaultConnectionGeneSupport<T>> connectionsFactory,
-                   final ContextDefaultComponentFactory<T, ContextDefaultNeuralNetworkSupport<T>> neuralNetworkFactory,
-                   final ContextDefaultComponentFactory<T, ContextDefaultRandom> randomFactory,
-                   final ContextDefaultComponentFactory<T, ContextDefaultMutation> mutationFactory,
-                   final ContextDefaultComponentFactory<T, ContextDefaultCrossOver<T>> crossOverFactory,
-                   final ContextDefaultComponentFactory<T, ContextDefaultSpeciation<T>> speciationFactory) {
+    ContextDefault(final ContextDefaultComponentFactory<ContextDefaultGeneralSupport> generalFactory,
+                   final ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> nodesFactory,
+                   final ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory,
+                   final ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory,
+                   final ContextDefaultComponentFactory<ContextDefaultRandom> randomFactory,
+                   final ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory,
+                   final ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory,
+                   final ContextDefaultComponentFactory<ContextDefaultSpeciation> speciationFactory) {
         this.general = generalFactory.create(this);
         this.nodes = nodesFactory.create(this);
         this.connections = connectionsFactory.create(this);
@@ -29,22 +29,22 @@ final class ContextDefault<T extends Comparable<T>> implements Context<T> {
     }
 
     @Override
-    public GeneralSupport<T> general() {
+    public GeneralSupport general() {
         return general;
     }
 
     @Override
-    public NodeGeneSupport<T> nodes() {
+    public NodeGeneSupport nodes() {
         return nodes;
     }
 
     @Override
-    public ConnectionGeneSupport<T> connections() {
+    public ConnectionGeneSupport connections() {
         return connections;
     }
 
     @Override
-    public NeuralNetworkSupport<T> neuralNetwork() {
+    public NeuralNetworkSupport neuralNetwork() {
         return neuralNetwork;
     }
 
@@ -59,12 +59,12 @@ final class ContextDefault<T extends Comparable<T>> implements Context<T> {
     }
 
     @Override
-    public CrossOver<T> crossOver() {
+    public CrossOver crossOver() {
         return crossOver;
     }
 
     @Override
-    public Speciation<T> speciation() {
+    public Speciation speciation() {
         return speciation;
     }
 }

@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.SequentialId;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,16 +8,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
-public final class DirectedEdge<T> {
-    private final T sourceNodeId;
-    private final T targetNodeId;
+public final class DirectedEdge {
+    private final SequentialId sourceNodeId;
+    private final SequentialId targetNodeId;
 
-    DirectedEdge(final NodeGene<T> inNode, final NodeGene<T> outNode) {
+    DirectedEdge(final NodeGene inNode, final NodeGene outNode) {
         this.sourceNodeId = inNode.getId();
         this.targetNodeId = outNode.getId();
     }
 
-    DirectedEdge<T> createReversed() {
-        return new DirectedEdge<>(targetNodeId, sourceNodeId);
+    DirectedEdge createReversed() {
+        return new DirectedEdge(targetNodeId, sourceNodeId);
     }
 }

@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.SequentialId;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,11 @@ import java.util.Map;
 import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<ConnectionGene<T>> {
-    private final SequentialMap<InnovationId<T>, ConnectionGene<T>> all = new SequentialMap<>();
-    private final SequentialMap<InnovationId<T>, ConnectionGene<T>> expressed = new SequentialMap<>();
-    private final Map<T, Map<DirectedEdge<T>, ConnectionGene<T>>> incomingToNodeId = new HashMap<>();
-    private final Map<T, Map<DirectedEdge<T>, ConnectionGene<T>>> outgoingFromNodeId = new HashMap<>();
+final class ConnectionGeneMap implements Iterable<ConnectionGene> {
+    private final SequentialMap<InnovationId, ConnectionGene> all = new SequentialMap<>();
+    private final SequentialMap<InnovationId, ConnectionGene> expressed = new SequentialMap<>();
+    private final Map<SequentialId, Map<DirectedEdge, ConnectionGene>> incomingToNodeId = new HashMap<>();
+    private final Map<SequentialId, Map<DirectedEdge, ConnectionGene>> outgoingFromNodeId = new HashMap<>();
 
     public int sizeFromAll() {
         return all.size();
@@ -33,41 +34,41 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
         return expressed.isEmpty();
     }
 
-    public ConnectionGene<T> getByIdFromAll(final InnovationId<T> innovationId) {
+    public ConnectionGene getByIdFromAll(final InnovationId innovationId) {
         return all.getById(innovationId);
     }
 
-    public ConnectionGene<T> getByIdFromExpressed(final InnovationId<T> innovationId) {
+    public ConnectionGene getByIdFromExpressed(final InnovationId innovationId) {
         return expressed.getById(innovationId);
     }
 
-    public Map<DirectedEdge<T>, ConnectionGene<T>> getIncomingToNodeIdFromExpressed(final T nodeId) {
+    public Map<DirectedEdge, ConnectionGene> getIncomingToNodeIdFromExpressed(final SequentialId nodeId) {
         return Optional.ofNullable(incomingToNodeId.get(nodeId))
                 .orElseGet(ImmutableMap::of);
     }
 
-    public Map<DirectedEdge<T>, ConnectionGene<T>> getIncomingToNodeFromExpressed(final NodeGene<T> node) {
+    public Map<DirectedEdge, ConnectionGene> getIncomingToNodeFromExpressed(final NodeGene node) {
         return getIncomingToNodeIdFromExpressed(node.getId());
     }
 
-    public Map<DirectedEdge<T>, ConnectionGene<T>> getOutgoingFromNodeIdFromExpressed(final T nodeId) {
+    public Map<DirectedEdge, ConnectionGene> getOutgoingFromNodeIdFromExpressed(final SequentialId nodeId) {
         return Optional.ofNullable(outgoingFromNodeId.get(nodeId))
                 .orElseGet(ImmutableMap::of);
     }
 
-    public Map<DirectedEdge<T>, ConnectionGene<T>> getOutgoingFromNodeFromExpressed(final NodeGene<T> node) {
+    public Map<DirectedEdge, ConnectionGene> getOutgoingFromNodeFromExpressed(final NodeGene node) {
         return getOutgoingFromNodeIdFromExpressed(node.getId());
     }
 
-    public ConnectionGene<T> getLastFromAll() {
+    public ConnectionGene getLastFromAll() {
         return all.getLast();
     }
 
-    public ConnectionGene<T> getLastFromExpressed() {
+    public ConnectionGene getLastFromExpressed() {
         return expressed.getLast();
     }
 
-    private void addToExpressed(final ConnectionGene<T> connection) {
+    private void addToExpressed(final ConnectionGene connection) {
         expressed.put(connection.getInnovationId(), connection);
 
         incomingToNodeId.computeIfAbsent(connection.getInnovationId().getTargetNodeId(), ni -> new LinkedHashMap<>())
@@ -77,7 +78,7 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
                 .put(connection.getInnovationId().getDirectedEdge(), connection);
     }
 
-    public boolean put(final ConnectionGene<T> connection) {
+    public boolean put(final ConnectionGene connection) {
         all.put(connection.getInnovationId(), connection);
 
         if (connection.isExpressed()) {
@@ -89,7 +90,7 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
         return false;
     }
 
-    private void removeFromExpressedIncomingAndOutgoing(final ConnectionGene<T> connection) {
+    private void removeFromExpressedIncomingAndOutgoing(final ConnectionGene connection) {
         incomingToNodeId.computeIfPresent(connection.getInnovationId().getTargetNodeId(), (k, oic) -> {
             oic.remove(connection.getInnovationId().getDirectedEdge());
 
@@ -111,8 +112,8 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
         });
     }
 
-    public ConnectionGene<T> disableByIndex(final int index) {
-        ConnectionGene<T> connection = expressed.removeByIndex(index);
+    public ConnectionGene disableByIndex(final int index) {
+        ConnectionGene connection = expressed.removeByIndex(index);
 
         if (connection == null) {
             return null;
@@ -124,7 +125,7 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
         return connection;
     }
 
-    void toggleExpressed(final ConnectionGene<T> connection) {
+    void toggleExpressed(final ConnectionGene connection) {
         if (connection == null) {
             return;
         }
@@ -137,24 +138,24 @@ final class ConnectionGeneMap<T extends Comparable<T>> implements Iterable<Conne
         }
     }
 
-    public ConnectionGene<T> toggleExpressedById(final InnovationId<T> innovationId) {
-        ConnectionGene<T> connection = all.getById(innovationId);
+    public ConnectionGene toggleExpressedById(final InnovationId innovationId) {
+        ConnectionGene connection = all.getById(innovationId);
 
         toggleExpressed(connection);
 
         return connection;
     }
 
-    public Iterable<SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry> fullJoinFromExpressed(final ConnectionGeneMap<T> other) {
+    public Iterable<SequentialMap<InnovationId, ConnectionGene>.JoinEntry> fullJoinFromExpressed(final ConnectionGeneMap other) {
         return expressed.fullJoin(other.expressed);
     }
 
-    public Iterable<SequentialMap<InnovationId<T>, ConnectionGene<T>>.JoinEntry> fullJoinFromAll(final ConnectionGeneMap<T> other) {
+    public Iterable<SequentialMap<InnovationId, ConnectionGene>.JoinEntry> fullJoinFromAll(final ConnectionGeneMap other) {
         return all.fullJoin(other.all);
     }
 
     @Override
-    public Iterator<ConnectionGene<T>> iterator() {
+    public Iterator<ConnectionGene> iterator() {
         return all.iterator();
     }
 }

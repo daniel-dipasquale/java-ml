@@ -7,14 +7,14 @@ import lombok.Setter;
 
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-public final class ConnectionGene<T extends Comparable<T>> {
-    private final InnovationId<T> innovationId;
+public final class ConnectionGene {
+    private final InnovationId innovationId;
     @Setter
     private float weight;
     private int cyclesAllowed;
     private boolean expressed;
 
-    ConnectionGene(final InnovationId<T> innovationId, final float weight) {
+    ConnectionGene(final InnovationId innovationId, final float weight) {
         this.innovationId = innovationId;
         this.weight = weight;
         this.cyclesAllowed = 1;
@@ -33,7 +33,7 @@ public final class ConnectionGene<T extends Comparable<T>> {
         return expressed = !expressed;
     }
 
-    public ConnectionGene<T> createCopy(final boolean expressed) {
-        return new ConnectionGene<>(innovationId, weight, cyclesAllowed, expressed); // TODO: review the cycles allowed replication
+    public ConnectionGene createCopy(final boolean expressed) {
+        return new ConnectionGene(innovationId, weight, cyclesAllowed, expressed); // TODO: review the cycles allowed replication
     }
 }

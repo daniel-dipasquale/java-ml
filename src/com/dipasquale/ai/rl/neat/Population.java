@@ -15,16 +15,16 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-final class Population<T extends Comparable<T>> implements NeatCollective {
-    private final Context<T> context;
-    private final Set<Organism<T>> organismsWithoutSpecies;
-    private final NodeQueue<Species<T>> allSpecies;
-    private final Comparator<Species<T>> sharedFitnessComparator;
+final class Population implements NeatCollective {
+    private final Context context;
+    private final Set<Organism> organismsWithoutSpecies;
+    private final NodeQueue<Species> allSpecies;
+    private final Comparator<Species> sharedFitnessComparator;
     @Getter
     private int generation;
     private float interspeciesMatingUnusedSpace;
 
-    Population(final Context<T> context) {
+    Population(final Context context) {
         this.context = context;
         this.organismsWithoutSpecies = createOrganisms(context, this);
         this.allSpecies = NodeQueue.create();
@@ -32,10 +32,10 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
         this.generation = 1;
     }
 
-    private static <T extends Comparable<T>> Set<Organism<T>> createOrganisms(final Context<T> context, final Population<T> population) {
-        IdentityHashMap<Organism<T>, Boolean> organismsWithoutSpecies = IntStream.range(0, context.general().populationSize())
+    private static Set<Organism> createOrganisms(final Context context, final Population population) {
+        IdentityHashMap<Organism, Boolean> organismsWithoutSpecies = IntStream.range(0, context.general().populationSize())
                 .mapToObj(i -> context.general().createGenesisGenome())
-                .map(g -> new Organism<>(context, population, g))
+                .map(g -> new Organism(context, population, g))
                 .collect(Collector.of(IdentityHashMap::new, (ihm, g) -> ihm.put(g, null), (ihm1, ihm2) -> {
                     ihm1.putAll(ihm2);
 
@@ -45,11 +45,11 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
         return Collections.newSetFromMap(organismsWithoutSpecies);
     }
 
-    private Species<T> createSpecies(final Organism<T> organism) {
-        return new Species<>(context, this, organism);
+    private Species createSpecies(final Organism organism) {
+        return new Species(context, this, organism);
     }
 
-    private Node addSpecies(final Species<T> species) {
+    private Node addSpecies(final Species species) {
         Node speciesNode = allSpecies.createUnbound(species);
 
         allSpecies.add(speciesNode);
@@ -58,7 +58,7 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
     }
 
     private void assignOrganismsToSpecies() {
-        for (Organism<T> organism : organismsWithoutSpecies) {
+        for (Organism organism : organismsWithoutSpecies) {
             allSpecies.stream()
                     .filter(n -> allSpecies.getValue(n).addIfCompatible(organism))
                     .findFirst()
@@ -85,10 +85,10 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
         float totalSharedFitness = 0f;
 
         for (Node speciesNode = allSpecies.first(); speciesNode != null; ) {
-            Species<T> species = allSpecies.getValue(speciesNode);
+            Species species = allSpecies.getValue(speciesNode);
 
             if (species.shouldSurvive()) {
-                List<Organism<T>> unfitOrganisms = species.removeUnfitToReproduce();
+                List<Organism> unfitOrganisms = species.removeUnfitToReproduce();
 
                 organismsRemoved += unfitOrganisms.size();
                 totalSharedFitness += species.getSharedFitness();
@@ -109,7 +109,7 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
         int organismsSaved = 0;
 
         for (Node speciesNode : allSpecies) {
-            List<Organism<T>> eliteOrganisms = allSpecies.getValue(speciesNode).selectElitists();
+            List<Organism> eliteOrganisms = allSpecies.getValue(speciesNode).selectElitists();
 
             organismsSaved += eliteOrganisms.size();
             organismsWithoutSpecies.addAll(eliteOrganisms);
@@ -118,7 +118,7 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
         return organismsSaved;
     }
 
-    private float breedInterspecies(final List<Species<T>> speciesList, final float spaceAvailable) {
+    private float breedInterspecies(final List<Species> speciesList, final float spaceAvailable) {
         if (speciesList.size() <= 1) {
             return 0;
         }
@@ -129,8 +129,8 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
         interspeciesMatingUnusedSpace = spaceOccupied - (float) spaceOccupiedFixed;
 
         for (int i = 0; i < spaceOccupiedFixed; i++) {
-            Species<T> species1 = context.random().nextItem(speciesList);
-            Species<T> species2 = context.random().nextItem(speciesList);
+            Species species1 = context.random().nextItem(speciesList);
+            Species species2 = context.random().nextItem(speciesList);
 
             organismsWithoutSpecies.add(species1.reproduceOutcast(species2));
         }
@@ -139,7 +139,7 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
     }
 
     private void breedAndRestartAllSpecies(final int spaceAvailable, final float totalSharedFitness) {
-        List<Species<T>> allSpeciesList = allSpecies.stream()
+        List<Species> allSpeciesList = allSpecies.stream()
                 .map(allSpecies::getValue)
                 .sorted(sharedFitnessComparator)
                 .collect(Collectors.toList());
@@ -149,14 +149,14 @@ final class Population<T extends Comparable<T>> implements NeatCollective {
         float organismsReproducedPrevious;
         float organismsReproduced = 0f;
 
-        for (Species<T> species : allSpeciesList) {
+        for (Species species : allSpeciesList) {
             float reproductionFloat = Math.round(spaceAvailableSameSpecies * species.getSharedFitness() / totalSharedFitness);
 
             organismsReproducedPrevious = organismsReproduced;
             organismsReproduced += reproductionFloat;
 
             int reproduction = (int) organismsReproduced - (int) organismsReproducedPrevious;
-            List<Organism<T>> reproducedOrganisms = species.reproduceOutcast(reproduction);
+            List<Organism> reproducedOrganisms = species.reproduceOutcast(reproduction);
 
             organismsWithoutSpecies.addAll(reproducedOrganisms);
             organismsWithoutSpecies.remove(species.restart());

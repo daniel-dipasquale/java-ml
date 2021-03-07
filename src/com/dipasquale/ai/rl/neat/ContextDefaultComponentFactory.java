@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
 @FunctionalInterface
-interface ContextDefaultComponentFactory<T extends Comparable<T>, R> {
-    R create(ContextDefault<T> context);
+interface ContextDefaultComponentFactory<T> {
+    T create(ContextDefault context);
 }

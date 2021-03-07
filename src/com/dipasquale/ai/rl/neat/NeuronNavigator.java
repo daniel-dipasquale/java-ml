@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.SequentialId;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,20 +15,20 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
-final class NeuronNavigator<T> implements Iterable<Neuron<T>> {
-    private final Map<T, Neuron<T>> neurons = new HashMap<>();
-    private final List<Neuron<T>> outputNeurons = new ArrayList<>();
-    private Queue<Neuron<T>> neuronsOrdered = null;
+final class NeuronNavigator implements Iterable<Neuron> {
+    private final Map<SequentialId, Neuron> neurons = new HashMap<>();
+    private final List<Neuron> outputNeurons = new ArrayList<>();
+    private Queue<Neuron> neuronsOrdered = null;
 
     public boolean isEmpty() {
         return neurons.isEmpty();
     }
 
-    public Neuron<T> get(final T id) {
+    public Neuron get(final SequentialId id) {
         return neurons.get(id);
     }
 
-    public void add(final Neuron<T> neuron) {
+    public void add(final Neuron neuron) {
         neurons.put(neuron.getId(), neuron);
 
         if (neuron.getType() == NodeGeneType.Output) {
@@ -37,28 +38,28 @@ final class NeuronNavigator<T> implements Iterable<Neuron<T>> {
         neuronsOrdered = null;
     }
 
-    public void setValue(final NodeGene<T> node, final float value) {
+    public void setValue(final NodeGene node, final float value) {
         neurons.get(node.getId()).forceValue(value);
     }
 
-    private Queue<Neuron<T>> createOrdered() { // NOTE: great idea from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
-        LinkedList<Neuron<T>> ordered = new LinkedList<>();
-        Set<T> visited = new HashSet<>();
-        Stack<Traversal<T>> stack = new Stack<>();
+    private Queue<Neuron> createOrdered() { // NOTE: great idea from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
+        LinkedList<Neuron> ordered = new LinkedList<>();
+        Set<SequentialId> visited = new HashSet<>();
+        Stack<Traversal> stack = new Stack<>();
 
-        for (Neuron<T> neuron : outputNeurons) {
+        for (Neuron neuron : outputNeurons) {
             if (visited.add(neuron.getId())) {
-                stack.push(new Traversal<>(neuron, false));
+                stack.push(new Traversal(neuron, false));
 
                 while (!stack.isEmpty()) {
-                    Traversal<T> traversal = stack.pop();
+                    Traversal traversal = stack.pop();
 
                     if (!traversal.ready) {
-                        stack.push(new Traversal<>(traversal.neuron, true));
+                        stack.push(new Traversal(traversal.neuron, true));
 
-                        for (T id : traversal.neuron.getInputIds()) {
+                        for (SequentialId id : traversal.neuron.getInputIds()) {
                             if (visited.add(id)) {
-                                stack.push(new Traversal<>(neurons.get(id), false));
+                                stack.push(new Traversal(neurons.get(id), false));
                             }
                         }
                     } else {
@@ -81,7 +82,7 @@ final class NeuronNavigator<T> implements Iterable<Neuron<T>> {
         float[] outputValues = new float[outputNeurons.size()];
         int index = 0;
 
-        for (Neuron<T> neuron : outputNeurons) {
+        for (Neuron neuron : outputNeurons) {
             outputValues[index++] = neuron.getValue();
         }
 
@@ -95,15 +96,15 @@ final class NeuronNavigator<T> implements Iterable<Neuron<T>> {
     }
 
     @Override
-    public Iterator<Neuron<T>> iterator() {
+    public Iterator<Neuron> iterator() {
         ensureOrderedIsInitialized();
 
         return neuronsOrdered.iterator();
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class Traversal<T> {
-        private final Neuron<T> neuron;
+    private static final class Traversal {
+        private final Neuron neuron;
         private final boolean ready;
     }
 }

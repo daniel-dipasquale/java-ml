@@ -1,13 +1,13 @@
 package com.dipasquale.ai.rl.neat;
 
-final class Organism<T extends Comparable<T>> implements Comparable<Organism<T>> {
-    private final Context<T> context;
-    private final Population<T> population;
-    private final GenomeDefault<T> genome;
+final class Organism implements Comparable<Organism> {
+    private final Context context;
+    private final Population population;
+    private final GenomeDefault genome;
     private final FitnessDeterminer fitnessDeterminer;
     private int generation;
 
-    Organism(final Context<T> context, final Population<T> population, final GenomeDefault<T> genome) {
+    Organism(final Context context, final Population population, final GenomeDefault genome) {
         this.context = context;
         this.population = population;
         this.genome = genome;
@@ -28,7 +28,7 @@ final class Organism<T extends Comparable<T>> implements Comparable<Organism<T>>
         return fitnessDeterminer.get();
     }
 
-    public boolean isCompatible(final Organism<T> other) {
+    public boolean isCompatible(final Organism other) {
         return context.speciation().belongs(genome, other.genome, population.getGeneration());
     }
 
@@ -36,24 +36,24 @@ final class Organism<T extends Comparable<T>> implements Comparable<Organism<T>>
         genome.mutate();
     }
 
-    public Organism<T> mate(final Organism<T> other) {
+    public Organism mate(final Organism other) {
         int comparison = Float.compare(fitnessDeterminer.get(), other.fitnessDeterminer.get());
 
-        GenomeDefault<T> genomeNew = switch (comparison) {
+        GenomeDefault genomeNew = switch (comparison) {
             case 1 -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(genome, other.genome);
             case 0 -> context.crossOver().crossOverByEqualTreatment(genome, other.genome);
             default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(other.genome, genome);
         };
 
-        return new Organism<>(context, population, genomeNew);
+        return new Organism(context, population, genomeNew);
     }
 
-    public Organism<T> createCopy() {
-        return new Organism<>(context, population, genome.createCopy());
+    public Organism createCopy() {
+        return new Organism(context, population, genome.createCopy());
     }
 
     @Override
-    public int compareTo(final Organism<T> other) {
+    public int compareTo(final Organism other) {
         return Float.compare(fitnessDeterminer.get(), other.fitnessDeterminer.get());
     }
 }

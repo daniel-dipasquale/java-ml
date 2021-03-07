@@ -1,43 +1,47 @@
 package com.dipasquale.ai.common;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@RequiredArgsConstructor
-@ToString
-public final class SequentialIdFactoryLong implements SequentialIdFactory<SequentialIdFactoryLong.Id> {
-    private static final long DELTA = 1L;
-    private final String name;
+public final class SequentialIdFactoryLong implements SequentialIdFactory {
     private long current = 0L;
 
     @Override
-    public SequentialIdFactoryLong.Id next() {
-        current += DELTA;
-
-        if (current < 0L) {
-            String message = String.format("CounterLong has ran out of ids to dispatch: %d", current);
-
-            throw new IllegalStateException(message);
+    public SequentialId next() {
+        if (current == Long.MAX_VALUE) {
+            throw new IllegalStateException("SequentialId reach its end");
         }
 
-        return new Id(name, current);
+        long value = ++current;
+
+        return new SequentialIdLong(value);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static final class Id implements Comparable<Id> {
-        private final String name;
-        private final long number;
+    @EqualsAndHashCode
+    @ToString
+    private static final class SequentialIdLong implements SequentialId {
+        private final long value;
+
+        private int compareTo(final SequentialIdLong other) {
+            return Long.compare(value, other.value);
+        }
 
         @Override
-        public int compareTo(final Id id) {
-            int comparison = name.compareTo(id.name);
+        public int compareTo(final SequentialId other) {
+            if (other instanceof SequentialIdLong) {
+                return compareTo((SequentialIdLong) other);
+            }
+
+            int comparison = Integer.compare(System.identityHashCode(getClass()), System.identityHashCode(other.getClass()));
 
             if (comparison != 0) {
                 return comparison;
             }
 
-            return Long.compare(number, id.number);
+            return -1;
         }
     }
 }

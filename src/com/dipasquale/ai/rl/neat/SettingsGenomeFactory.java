@@ -35,7 +35,7 @@ public final class SettingsGenomeFactory {
                 .build();
     }
 
-    private <T extends Comparable<T>> SettingsFloatNumber createWeightSettings(final ContextDefault<T> context) {
+    private SettingsFloatNumber createWeightSettings(final ContextDefault context) {
         if (initialWeightType == SettingsInitialWeightType.SAME) {
             return SettingsFloatNumber.literal(context.connections().nextWeight());
         }
@@ -43,13 +43,13 @@ public final class SettingsGenomeFactory {
         return SettingsFloatNumber.strategy(() -> context.connections().nextWeight());
     }
 
-    public <T extends Comparable<T>> GenomeDefaultFactory<T> create(final ContextDefault<T> context) {
-        SettingsGenomeFactoryNoConnections<T> genomeFactoryNoConnections = new SettingsGenomeFactoryNoConnections<>(context, inputs.get(), outputs.get(), biases.size());
+    public GenomeDefaultFactory create(final ContextDefault context) {
+        SettingsGenomeFactoryNoConnections genomeFactoryNoConnections = new SettingsGenomeFactoryNoConnections(context, inputs.get(), outputs.get(), biases.size());
 
         return switch (initialConnectionType) {
-            case ALL_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs<>(context, genomeFactoryNoConnections, createWeightSettings(context), true);
+            case ALL_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, createWeightSettings(context), true);
 
-            case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs<>(context, genomeFactoryNoConnections, createWeightSettings(context), false);
+            case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, createWeightSettings(context), false);
 
             default -> throw new IllegalStateException("InitialConnectionType.RANDOM needs to be implemented");
         };
