@@ -46,7 +46,7 @@ interface Context {
     }
 
     interface ConnectionGeneSupport {
-        boolean allowRecurrentConnections(); // TODO: consider this to be a probability rate
+        boolean recurrentConnectionsAllowed(); // TODO: consider this to be a probability rate
 
         InnovationId getOrCreateInnovationId(DirectedEdge directedEdge);
 

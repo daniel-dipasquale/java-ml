@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class GenomeCompatibilityCalculator {
-    private final Context.Speciation speciation;
+    private final Context context;
 
     private static boolean isMatching(final SequentialMap<InnovationId, ConnectionGene>.JoinEntry joinEntry) {
         return joinEntry.getItem1() != null && joinEntry.getItem2() != null;
@@ -46,9 +46,9 @@ final class GenomeCompatibilityCalculator {
             }
         }
 
-        float c1 = speciation.excessCoefficient();
-        float c2 = speciation.disjointCoefficient();
-        float c3 = speciation.weightDifferenceCoefficient();
+        float c1 = context.speciation().excessCoefficient();
+        float c2 = context.speciation().disjointCoefficient();
+        float c3 = context.speciation().weightDifferenceCoefficient();
         int n = maximumConnections < 20 ? 1 : maximumConnections;
         float averageWeightDifference = matchingCount == 0 ? 0 : weightDifference / (float) matchingCount;
 

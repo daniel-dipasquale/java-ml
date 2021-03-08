@@ -16,6 +16,7 @@ final class NeuronFeedForward implements Neuron {
     @Getter
     private final Collection<NeuronOutput> outputs;
     private float value = 0f;
+    private boolean resetValue = false;
 
     @Override
     public SequentialId getId() {
@@ -34,25 +35,30 @@ final class NeuronFeedForward implements Neuron {
 
     @Override
     public float getValue(final ActivationFunction activationFunction) {
-        if (activationFunction == null) {
-            return node.getActivationFunction().forward(value + node.getBias());
-        }
+        try {
+            if (activationFunction == null) {
+                return node.getActivationFunction().forward(value + node.getBias());
+            }
 
-        return activationFunction.forward(value + node.getBias());
+            return activationFunction.forward(value + node.getBias());
+        } finally {
+            resetValue = true;
+        }
     }
 
     @Override
     public void forceValue(final float newValue) {
         value = newValue;
+        resetValue = false;
     }
 
     @Override
     public void addToValue(final SequentialId id, final float delta) {
-        value += delta;
-    }
+        if (resetValue) {
+            value = 0f;
+            resetValue = false;
+        }
 
-    @Override
-    public void reset() {
-        value = 0f;
+        value += delta;
     }
 }

@@ -5,7 +5,6 @@ import com.dipasquale.ai.common.SequentialIdFactory;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SequentialIdFactoryDefault implements SequentialIdFactory {
@@ -27,7 +26,6 @@ final class SequentialIdFactoryDefault implements SequentialIdFactory {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
-    @ToString
     private static final class SequentialIdInternal implements SequentialId {
         private final String name;
         private final SequentialId sequentialId;
@@ -48,13 +46,14 @@ final class SequentialIdFactoryDefault implements SequentialIdFactory {
                 return compareTo((SequentialIdInternal) other);
             }
 
-            int comparison = Integer.compare(System.identityHashCode(getClass()), System.identityHashCode(other.getClass()));
+            String message = String.format("unable to compare incompatible sequential ids, x: %s, y: %s", getClass().getTypeName(), other == null ? null : other.getClass().getTypeName());
 
-            if (comparison != 0) {
-                return comparison;
-            }
+            throw new IllegalStateException(message);
+        }
 
-            return -1;
+        @Override
+        public String toString() {
+            return String.format("%s:%s", name, sequentialId);
         }
     }
 }

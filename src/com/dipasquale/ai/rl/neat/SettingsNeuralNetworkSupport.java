@@ -11,9 +11,9 @@ public final class SettingsNeuralNetworkSupport {
     @Builder.Default
     private final SettingsNeuralNetworkType type = SettingsNeuralNetworkType.Default;
 
-    ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> createFactory() {
+    ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> createFactory(final SettingsConnectionGeneSupport connections) {
         return c -> {
-            ArgumentValidator.getInstance().ensureFalse(c.connections().allowRecurrentConnections(), "connections.allowRecurrentConnections", "is not support yet");
+            ArgumentValidator.getInstance().ensureFalse(connections.isRecurrentConnectionsAllowed(), "connections.allowRecurrentConnections", "is not support yet");
 
             return new ContextDefaultNeuralNetworkSupport(NeuralNetworkFeedForward::new);
         };

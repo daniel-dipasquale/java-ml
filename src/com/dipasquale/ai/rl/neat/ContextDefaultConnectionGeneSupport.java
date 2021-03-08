@@ -9,20 +9,20 @@ import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGeneSupport {
-    private final boolean allowRecurrentConnections;
+    private final boolean recurrentConnectionsAllowed;
     private final SequentialIdFactory innovationIdFactory;
     private final ConnectionGeneWeightFactory weightFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
     private final Set<DirectedEdge> innovationIdsNotAllowed;
 
     @Override
-    public boolean allowRecurrentConnections() {
-        return allowRecurrentConnections;
+    public boolean recurrentConnectionsAllowed() {
+        return recurrentConnectionsAllowed;
     }
 
     @Override
     public InnovationId getOrCreateInnovationId(final DirectedEdge directedEdge) {
-        if (allowRecurrentConnections) {
+        if (recurrentConnectionsAllowed) {
             return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId(de, innovationIdFactory.next()));
         }
 

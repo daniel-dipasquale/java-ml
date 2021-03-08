@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -24,15 +26,22 @@ public final class SettingsGenomeFactory {
     @Builder.Default
     private final List<SettingsFloatNumber> biases = ImmutableList.of();
     @Builder.Default
-    private final SettingsInitialConnectionType initialConnectionType = SettingsInitialConnectionType.ALL_TO_ALL_OUTPUTS;
+    private final SettingsInitialConnectionType initialConnectionType = SettingsInitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS;
     @Builder.Default
     private final SettingsInitialWeightType initialWeightType = SettingsInitialWeightType.RANDOM;
 
-    public static SettingsGenomeFactory createDefault(final int inputs, final int outputs) {
+    public static SettingsGenomeFactory createDefault(final int inputs, final int outputs, final float[] bias) {
         return SettingsGenomeFactory.builder()
                 .inputs(SettingsIntegerNumber.literal(inputs))
                 .outputs(SettingsIntegerNumber.literal(outputs))
+                .biases(IntStream.range(0, bias.length)
+                        .mapToObj(i -> SettingsFloatNumber.literal(bias[i]))
+                        .collect(Collectors.toList()))
                 .build();
+    }
+
+    public static SettingsGenomeFactory createDefault(final int inputs, final int outputs) {
+        return createDefault(inputs, outputs, new float[0]);
     }
 
     private SettingsFloatNumber createWeightSettings(final ContextDefault context) {
@@ -47,7 +56,7 @@ public final class SettingsGenomeFactory {
         SettingsGenomeFactoryNoConnections genomeFactoryNoConnections = new SettingsGenomeFactoryNoConnections(context, inputs.get(), outputs.get(), biases.size());
 
         return switch (initialConnectionType) {
-            case ALL_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, createWeightSettings(context), true);
+            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, createWeightSettings(context), true);
 
             case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, createWeightSettings(context), false);
 

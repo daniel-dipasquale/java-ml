@@ -25,6 +25,4 @@ interface Neuron {
     void forceValue(float newValue);
 
     void addToValue(SequentialId id, float delta);
-
-    void reset();
 }

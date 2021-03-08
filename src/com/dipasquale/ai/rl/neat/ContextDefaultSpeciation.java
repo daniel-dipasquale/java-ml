@@ -12,7 +12,7 @@ final class ContextDefaultSpeciation implements Context.Speciation {
     private final float compatibilityThreshold;
     private final float compatibilityThresholdModifier;
     private final GenomeCompatibilityCalculator genomeCompatibilityCalculator;
-    private final float survivalThreshold;
+    private final float eugenicsThreshold;
     private final float elitistThreshold;
     private final int elitistThresholdMinimum;
     private final int stagnationDropOffAge;
@@ -50,7 +50,7 @@ final class ContextDefaultSpeciation implements Context.Speciation {
 
     @Override
     public float eugenicsThreshold() {
-        return survivalThreshold;
+        return eugenicsThreshold;
     }
 
     @Override

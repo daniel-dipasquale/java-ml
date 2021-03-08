@@ -59,7 +59,6 @@ final class NeuronRecurrent implements Neuron {
         }
     }
 
-    @Override
     public void reset() {
         inputValues.clear();
         value = 0f;

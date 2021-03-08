@@ -11,15 +11,14 @@ import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 final class Population implements NeatCollective {
+    private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
     private final NodeQueue<Species> allSpecies;
-    private final Comparator<Species> sharedFitnessComparator;
     @Getter
     private int generation;
     private float interspeciesMatingUnusedSpace;
@@ -28,21 +27,19 @@ final class Population implements NeatCollective {
         this.context = context;
         this.organismsWithoutSpecies = createOrganisms(context, this);
         this.allSpecies = NodeQueue.create();
-        this.sharedFitnessComparator = Comparator.comparing(Species::getSharedFitness);
         this.generation = 1;
+        this.interspeciesMatingUnusedSpace = 0f;
     }
 
     private static Set<Organism> createOrganisms(final Context context, final Population population) {
-        IdentityHashMap<Organism, Boolean> organismsWithoutSpecies = IntStream.range(0, context.general().populationSize())
+        Set<Organism> organismsWithoutSpecies = Collections.newSetFromMap(new IdentityHashMap<>());
+
+        IntStream.range(0, context.general().populationSize())
                 .mapToObj(i -> context.general().createGenesisGenome())
                 .map(g -> new Organism(context, population, g))
-                .collect(Collector.of(IdentityHashMap::new, (ihm, g) -> ihm.put(g, null), (ihm1, ihm2) -> {
-                    ihm1.putAll(ihm2);
+                .forEach(organismsWithoutSpecies::add);
 
-                    return ihm1;
-                }));
-
-        return Collections.newSetFromMap(organismsWithoutSpecies);
+        return organismsWithoutSpecies;
     }
 
     private Species createSpecies(final Organism organism) {
@@ -75,6 +72,16 @@ final class Population implements NeatCollective {
     }
 
     @Override
+    public int generation() {
+        return generation;
+    }
+
+    @Override
+    public int species() {
+        return allSpecies.size();
+    }
+
+    @Override
     public void testFitness() {
         assignOrganismsToSpecies();
         updateFitnessInAllSpecies();
@@ -90,7 +97,7 @@ final class Population implements NeatCollective {
             if (species.shouldSurvive()) {
                 List<Organism> unfitOrganisms = species.removeUnfitToReproduce();
 
-                organismsRemoved += unfitOrganisms.size();
+                organismsRemoved += unfitOrganisms.size() + species.size() - 1;
                 totalSharedFitness += species.getSharedFitness();
                 speciesNode = allSpecies.next(speciesNode);
             } else {
@@ -141,7 +148,7 @@ final class Population implements NeatCollective {
     private void breedAndRestartAllSpecies(final int spaceAvailable, final float totalSharedFitness) {
         List<Species> allSpeciesList = allSpecies.stream()
                 .map(allSpecies::getValue)
-                .sorted(sharedFitnessComparator)
+                .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 
         float spaceAvailableFloat = (float) spaceAvailable;
@@ -159,7 +166,8 @@ final class Population implements NeatCollective {
             List<Organism> reproducedOrganisms = species.reproduceOutcast(reproduction);
 
             organismsWithoutSpecies.addAll(reproducedOrganisms);
-            organismsWithoutSpecies.remove(species.restart());
+            species.restart();
+            organismsWithoutSpecies.remove(species.getRepresentative());
         }
     }
 
@@ -167,7 +175,7 @@ final class Population implements NeatCollective {
     public void evolve() {
         LeastFitOrStagnantResult leastFitOrStagnantResult = removeLeastFitOrganismsOrStagnantSpecies();
         int organismsPreserved = preserveElitesFromAllSpecies();
-        int spaceAvailable = context.general().populationSize() - leastFitOrStagnantResult.organismsRemoved + organismsPreserved;
+        int spaceAvailable = leastFitOrStagnantResult.organismsRemoved - organismsPreserved;
 
         breedAndRestartAllSpecies(spaceAvailable, leastFitOrStagnantResult.totalSharedFitnessRemaining);
         generation++;

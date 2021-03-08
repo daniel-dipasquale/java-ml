@@ -1,9 +1,10 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,7 +14,7 @@ final class Species {
     private final String id;
     private final Population population;
     private Organism representativeOrganism;
-    private final List<Organism> organisms;
+    private List<Organism> organisms;
     private boolean isOrganismsSorted;
     @Getter
     private float sharedFitness;
@@ -26,7 +27,7 @@ final class Species {
         this.id = context.general().createSpeciesId();
         this.population = population;
         this.representativeOrganism = representativeOrganism;
-        this.organisms = Arrays.asList(representativeOrganism);
+        this.organisms = Lists.newArrayList(representativeOrganism);
         this.isOrganismsSorted = true;
         this.sharedFitness = 0f;
         this.maximumSharedFitness = 0f;
@@ -43,6 +44,10 @@ final class Species {
         }
 
         return false;
+    }
+
+    Organism getRepresentative() {
+        return representativeOrganism;
     }
 
     public int size() {
@@ -81,7 +86,6 @@ final class Species {
     }
 
     public List<Organism> removeUnfitToReproduce() {
-        List<Organism> organismsRemoved = new ArrayList<>();
         int size = organisms.size();
 
         if (size > 1) {
@@ -89,16 +93,18 @@ final class Species {
             int keepFixed = Math.max(1, keep);
             int remove = size - keepFixed;
 
-            ensureOrganismsIsSorted();
+            if (remove > 0) {
+                ensureOrganismsIsSorted();
 
-            for (int i = 0; i < remove; i++) {
-                Organism organism = organisms.remove(0);
+                List<Organism> organismsRemoved = organisms.subList(0, remove);
 
-                organismsRemoved.add(organism);
+                organisms = organisms.subList(remove, size);
+
+                return organismsRemoved;
             }
         }
 
-        return organismsRemoved;
+        return ImmutableList.of();
     }
 
     public List<Organism> reproduceOutcast(final int count) {
@@ -143,39 +149,36 @@ final class Species {
     }
 
     public List<Organism> selectElitists() {
-        List<Organism> organismsSelected = new ArrayList<>();
         int size = organisms.size();
 
         if (size > 0) {
             int select = (int) Math.floor((double) context.speciation().elitistThreshold() * (double) size);
-            int selectFixed = Math.min(select, context.speciation().elitistThresholdMinimum());
+            int selectFixed = Math.max(select, context.speciation().elitistThresholdMinimum());
 
-            ensureOrganismsIsSorted();
+            if (selectFixed > 0) {
+                ensureOrganismsIsSorted();
 
-            for (int i = 0, endIndex = size - 1; i < selectFixed; i++) {
-                Organism organism = organisms.get(endIndex - i);
-
-                organismsSelected.add(organism);
+                return organisms.subList(size - selectFixed, size);
             }
         }
 
-        return organismsSelected;
+        return ImmutableList.of();
     }
 
     public boolean shouldSurvive() {
         return getAge() - ageLastImproved < context.speciation().stagnationDropOffAge();
     }
 
-    public Organism restart() {
+    public List<Organism> restart() {
+        List<Organism> organismsOld = organisms;
         Organism representativeOrganismNew = context.random().nextItem(organisms);
 
         representativeOrganism = representativeOrganismNew;
-        organisms.clear();
-        organisms.add(representativeOrganismNew);
+        organisms = Lists.newArrayList(representativeOrganismNew);
         isOrganismsSorted = true;
         sharedFitness = 0f;
         maximumSharedFitness = 0f;
 
-        return representativeOrganismNew;
+        return organismsOld;
     }
 }

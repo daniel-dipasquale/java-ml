@@ -167,7 +167,7 @@ final class GenomeDefault implements Genome {
                 return true;
             }
 
-            if (context.connections().allowRecurrentConnections()) {
+            if (context.connections().recurrentConnectionsAllowed()) {
                 connection.increaseCyclesAllowed();
 
                 return true;

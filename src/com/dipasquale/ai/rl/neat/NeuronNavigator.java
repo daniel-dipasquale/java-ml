@@ -38,10 +38,6 @@ final class NeuronNavigator implements Iterable<Neuron> {
         neuronsOrdered = null;
     }
 
-    public void setValue(final NodeGene node, final float value) {
-        neurons.get(node.getId()).forceValue(value);
-    }
-
     private Queue<Neuron> createOrdered() { // NOTE: great idea from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
         LinkedList<Neuron> ordered = new LinkedList<>();
         Set<SequentialId> visited = new HashSet<>();

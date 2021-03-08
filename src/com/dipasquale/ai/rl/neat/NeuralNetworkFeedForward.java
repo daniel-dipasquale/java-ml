@@ -43,8 +43,8 @@ final class NeuralNetworkFeedForward implements NeuralNetwork {
                 if (neuron != null) {
                     neuronNavigator.add(neuron);
 
-                    if (node.getType() == NodeGeneType.Input) {
-                        neuronNavigator.setValue(node, input[index++]);
+                    if (neuron.getType() == NodeGeneType.Input) {
+                        neuron.forceValue(input[index++]);
                     }
                 }
             }
@@ -52,7 +52,7 @@ final class NeuralNetworkFeedForward implements NeuralNetwork {
             Iterable<NodeGene> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.Input);
 
             for (NodeGene node : inputNodes) {
-                neuronNavigator.setValue(node, input[index++]);
+                neuronNavigator.get(node.getId()).forceValue(input[index++]);
             }
         }
     }
@@ -60,7 +60,7 @@ final class NeuralNetworkFeedForward implements NeuralNetwork {
     private void processNeuronsViaNavigator() {
         for (Neuron neuron : neuronNavigator) {
             for (NeuronOutput output : neuron.getOutputs()) {
-                neuron.addToValue(output.getNeuronId(), neuronNavigator.get(output.getNeuronId()).getValue() * output.getConnectionWeight());
+                neuronNavigator.get(output.getNeuronId()).addToValue(neuron.getId(), neuron.getValue() * output.getConnectionWeight());
             }
         }
     }

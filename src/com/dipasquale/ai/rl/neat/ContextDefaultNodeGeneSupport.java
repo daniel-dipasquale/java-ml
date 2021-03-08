@@ -20,6 +20,6 @@ final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupport {
         float bias = biasFactories.get(type).next();
         ActivationFunction activationFunction = activationFunctionFactories.get(type).next();
 
-        return new NodeGene(id, NodeGeneType.Hidden, bias, activationFunction);
+        return new NodeGene(id, type, bias, activationFunction);
     }
 }

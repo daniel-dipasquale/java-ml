@@ -108,8 +108,13 @@ final class SequentialMap<TId extends Comparable<TId>, TItem> implements Iterabl
         public TId next() {
             if (moveNext) {
                 moveNext = false;
-                entry = iterator.next();
-                hasNext = iterator.hasNext();
+
+                if (hasNext) {
+                    entry = iterator.next();
+                    hasNext = iterator.hasNext();
+                } else {
+                    entry = null;
+                }
             }
 
             if (entry == null) {
@@ -168,7 +173,7 @@ final class SequentialMap<TId extends Comparable<TId>, TItem> implements Iterabl
                 return nextUsingIterator2();
             }
 
-            if (id1 == null) {
+            if (id1 != null) {
                 return nextUsingIterator1();
             }
 

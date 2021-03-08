@@ -21,7 +21,7 @@
 //
 //    private Layer createInitialLayer(final SequentialMap<T, NodeGene<T>> nodes) {
 //        List<NeuralNetworkLayered<T>.NodeConnectionEntry> inputEntries = StreamSupport.stream(nodes.spliterator(), false)
-//                .map(n -> new NeuralNetworkLayered<T>.NodeConnectionEntry(n, Arrays.asList(context.connections().createDirectedEdge(n, n))))
+//                .map(n -> new NeuralNetworkLayered<T>.NodeConnectionEntry(n, Lists.newArrayList(context.connections().createDirectedEdge(n, n))))
 //                .collect(Collectors.toList());
 //
 //        List<NodeConnectionEntry> outputEntries = StreamSupport.stream(nodes.spliterator(), false)
