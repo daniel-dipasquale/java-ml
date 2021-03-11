@@ -11,18 +11,18 @@ public final class ConnectionGene {
     private final InnovationId innovationId;
     @Setter
     private float weight;
-    private int cyclesAllowed;
+    private int recurrentCyclesAllowed;
     private boolean expressed;
 
     ConnectionGene(final InnovationId innovationId, final float weight) {
         this.innovationId = innovationId;
         this.weight = weight;
-        this.cyclesAllowed = 1;
+        this.recurrentCyclesAllowed = 0;
         this.expressed = true;
     }
 
     void increaseCyclesAllowed() {
-        cyclesAllowed++;
+        recurrentCyclesAllowed++;
     }
 
     void disable() {
@@ -34,6 +34,6 @@ public final class ConnectionGene {
     }
 
     public ConnectionGene createCopy(final boolean expressed) {
-        return new ConnectionGene(innovationId, weight, cyclesAllowed, expressed); // TODO: review the cycles allowed replication
+        return new ConnectionGene(innovationId, weight, recurrentCyclesAllowed, expressed);
     }
 }

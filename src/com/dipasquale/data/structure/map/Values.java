@@ -11,26 +11,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
 final class Values<TKey, TValue> extends AbstractCollection<TValue> {
-    private final Map<TKey, TValue> map;
-    private final Iterable<Map.Entry<TKey, TValue>> iterable;
-
-    private static Set<?> ensureSet(final Collection<?> collection) {
-        if (collection instanceof Set<?>) {
-            return (Set<?>) collection;
-        }
-
-        return new HashSet<>(collection);
-    }
-
-    private Stream<Map.Entry<TKey, TValue>> streamFromIterable() {
-        return StreamSupport.stream(iterable.spliterator(), false);
-    }
+    private final MapBase<TKey, TValue> map;
 
     @Override
     public final int size() {
@@ -38,8 +27,19 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    private Stream<Map.Entry<TKey, TValue>> streamFromMap() {
+        Spliterator<Map.Entry<TKey, TValue>> entries = Spliterators.spliteratorUnknownSize(map.iterator(), 0);
+
+        return StreamSupport.stream(entries, false);
+    }
+
+    @Override
     public final boolean contains(final Object value) {
-        return streamFromIterable().anyMatch(e -> Objects.equals(e.getValue(), value));
+        return streamFromMap().anyMatch(e -> Objects.equals(e.getValue(), value));
     }
 
     @Override
@@ -54,7 +54,7 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
 
     @Override
     public final boolean remove(final Object value) {
-        Optional<Map.Entry<TKey, TValue>> entryToRemove = streamFromIterable()
+        Optional<Map.Entry<TKey, TValue>> entryToRemove = streamFromMap()
                 .filter(e -> Objects.equals(e.getValue(), value))
                 .findFirst();
 
@@ -63,11 +63,19 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
         return entryToRemove.isPresent();
     }
 
+    private static Set<?> ensureSet(final Collection<?> collection) {
+        if (collection instanceof Set<?>) {
+            return (Set<?>) collection;
+        }
+
+        return new HashSet<>(collection);
+    }
+
     @Override
     public final boolean removeAll(final Collection<?> values) {
         Set<?> valuesToRemove = ensureSet(values);
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = streamFromIterable()
+        List<Map.Entry<TKey, TValue>> entriesToRemove = streamFromMap()
                 .filter(e -> valuesToRemove.contains(e.getValue()))
                 .collect(Collectors.toList());
 
@@ -80,7 +88,7 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
     public final boolean retainAll(final Collection<?> values) {
         Set<?> valuesToRetain = ensureSet(values);
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = streamFromIterable()
+        List<Map.Entry<TKey, TValue>> entriesToRemove = streamFromMap()
                 .filter(e -> !valuesToRetain.contains(e.getValue()))
                 .collect(Collectors.toList());
 
@@ -96,7 +104,7 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
 
     @Override
     public Iterator<TValue> iterator() {
-        return streamFromIterable()
+        return streamFromMap()
                 .map(Map.Entry::getValue)
                 .iterator();
     }

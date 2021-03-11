@@ -4,6 +4,7 @@ import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.SequentialId;
 
 import java.util.Collection;
+import java.util.Set;
 
 interface Neuron {
     SequentialId getId();
@@ -12,7 +13,7 @@ interface Neuron {
 
     ActivationFunction getActivationFunction();
 
-    Collection<SequentialId> getInputIds();
+    Set<SequentialId> getInputIds();
 
     Collection<NeuronOutput> getOutputs();
 

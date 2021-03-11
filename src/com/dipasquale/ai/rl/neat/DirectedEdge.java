@@ -20,4 +20,9 @@ public final class DirectedEdge {
     DirectedEdge createReversed() {
         return new DirectedEdge(targetNodeId, sourceNodeId);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s-%s", sourceNodeId, targetNodeId);
+    }
 }

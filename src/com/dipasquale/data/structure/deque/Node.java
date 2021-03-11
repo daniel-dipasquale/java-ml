@@ -1,4 +1,4 @@
-package com.dipasquale.data.structure.queue;
+package com.dipasquale.data.structure.deque;
 
 @FunctionalInterface
 public interface Node {

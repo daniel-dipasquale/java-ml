@@ -1,5 +1,7 @@
-package com.dipasquale.data.structure.map;
+package com.experimental.data.structure.map;
 
+import com.dipasquale.data.structure.map.MapBase;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -13,10 +15,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
     private final TrieKeyTokenizer<TKey> keyTokenizer;
-    private final InternalEntry rootEntry = new InternalEntry(null);
+    private final EntryInternal rootEntry = new EntryInternal(null);
     private int size = 0;
 
-    protected Map<Object, InternalEntry> createMap() {
+    protected Map<Object, EntryInternal> createMap() {
         return new HashMap<>();
     }
 
@@ -25,8 +27,8 @@ public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
         return size;
     }
 
-    private InternalEntry getTrieEntry(final TKey key) {
-        InternalEntry entry = rootEntry;
+    private EntryInternal getTrieEntry(final TKey key) {
+        EntryInternal entry = rootEntry;
 
         for (Object tokenizedKey : keyTokenizer.tokenize(key)) {
             entry = entry.entries.get(tokenizedKey);
@@ -46,7 +48,7 @@ public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
 
     @Override
     public TValue get(final Object key) {
-        InternalEntry entry = getTrieEntry((TKey) key);
+        EntryInternal entry = getTrieEntry((TKey) key);
 
         if (entry == null) {
             return null;
@@ -55,11 +57,12 @@ public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
         return entry.value;
     }
 
-    private PutChange<InternalEntry> putTrieEntry(final TKey key, final TValue value) {
-        InternalEntry entry = rootEntry;
+    @Override
+    public TValue put(final TKey key, final TValue value) {
+        EntryInternal entry = rootEntry;
 
         for (Object tokenizedKey : keyTokenizer.tokenize(key)) {
-            entry = entry.entries.computeIfAbsent(tokenizedKey, InternalEntry::new);
+            entry = entry.entries.computeIfAbsent(tokenizedKey, EntryInternal::new);
         }
 
         TValue oldValue = entry.value;
@@ -68,19 +71,15 @@ public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
         entry.value = value;
         size++;
 
-        return new PutChange<InternalEntry>(entry, oldValue, oldValue == null);
+        return oldValue;
     }
 
     @Override
-    protected PutChange<? extends Entry<TKey, TValue>> putEntry(final TKey key, final TValue value) {
-        return putTrieEntry(key, value);
-    }
+    public TValue remove(final Object key) {
+        Stack<EntryInternal> entries = new Stack<>();
+        EntryInternal entry = rootEntry;
 
-    private InternalEntry removeTrieEntry(final TKey key) {
-        Stack<InternalEntry> entries = new Stack<>();
-        InternalEntry entry = rootEntry;
-
-        for (Object tokenizedKey : keyTokenizer.tokenize(key)) {
+        for (Object tokenizedKey : keyTokenizer.tokenize((TKey) key)) {
             entries.push(entry);
             entry = entry.entries.get(tokenizedKey);
 
@@ -93,14 +92,14 @@ public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
             return null;
         }
 
-        InternalEntry entryRemoved = new InternalEntry(null);
+        EntryInternal entryRemoved = new EntryInternal(null);
 
         entryRemoved.key = entry.key;
         entryRemoved.value = entry.value;
         entry.key = null;
         entry.value = null;
 
-        InternalEntry entryPrevious = entries.pop();
+        EntryInternal entryPrevious = entries.pop();
 
         while (entryPrevious != null && entryPrevious.entries.size() == 1 && entryPrevious.value == null) {
             entryPrevious.entries = null;
@@ -114,12 +113,7 @@ public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
 
         size--;
 
-        return entryRemoved;
-    }
-
-    @Override
-    protected Entry<TKey, TValue> removeEntry(final TKey key) {
-        return removeTrieEntry(key);
+        return entryRemoved.value;
     }
 
     @Override
@@ -128,7 +122,7 @@ public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
         size = 0;
     }
 
-    private Stream<Entry<TKey, TValue>> stream(final InternalEntry entry) {
+    private Stream<Entry<TKey, TValue>> stream(final EntryInternal entry) {
         Stream<Entry<TKey, TValue>> streamSingle = Optional.of(entry)
                 .filter(e -> e.value != null)
                 .map(e -> (Entry<TKey, TValue>) e)
@@ -144,14 +138,14 @@ public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
     }
 
     @Override
-    public Iterator<Entry<TKey, TValue>> iterator() {
+    protected Iterator<? extends Entry<TKey, TValue>> iterator() {
         return stream(rootEntry).iterator();
     }
 
-    @RequiredArgsConstructor
-    private final class InternalEntry implements Entry<TKey, TValue> {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private final class EntryInternal implements Entry<TKey, TValue> {
         private final Object tokenizedKey;
-        private Map<Object, InternalEntry> entries = createMap();
+        private Map<Object, EntryInternal> entries = createMap();
         @Getter
         private TKey key;
         @Getter

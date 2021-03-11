@@ -3,6 +3,7 @@ package com.dipasquale.data.structure.map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -11,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable<TValue>> {
     private final Comparator<TValue> comparator;
@@ -97,10 +97,7 @@ public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable
         private final SortedByValueMap<TKey, TValue> map;
 
         public List<TKey> retrieve() {
-            return map.descendingKeySet()
-                    .stream()
-                    .limit(limit)
-                    .collect(Collectors.toList());
+            return new ArrayList<>(map.descendingKeySet());
         }
     }
 }

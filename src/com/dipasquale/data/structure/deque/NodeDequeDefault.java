@@ -1,4 +1,4 @@
-package com.dipasquale.data.structure.queue;
+package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
@@ -13,13 +13,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue<T> {
-    protected Object membership;
-    protected NodeDefault<T> start;
-    protected NodeDefault<T> end;
+final class NodeDequeDefault<T> extends AbstractQueue<Node> implements NodeDeque<T> {
+    private Object membership;
+    private NodeDefault<T> start;
+    private NodeDefault<T> end;
     private int size;
 
-    NodeQueueDefault() {
+    NodeDequeDefault() {
         initialize();
     }
 
@@ -60,15 +60,15 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
 
     @Override
     public boolean contains(final Object object) {
-        if (!(object instanceof Node)) {
-            return false;
+        if (object instanceof Node) {
+            return hasMembership((Node) object) && !canBeAdded((NodeDefault<T>) object);
         }
 
-        return hasMembership((Node) object) && !canBeAdded((NodeDefault<T>) object);
+        return false;
     }
 
     @Override
-    public final Node first() {
+    public Node peekFirst() {
         if (start.next == end) {
             return null;
         }
@@ -77,7 +77,7 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
     }
 
     @Override
-    public Node last() {
+    public Node peekLast() {
         if (end.previous == start) {
             return null;
         }
@@ -85,7 +85,7 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
         return end.previous;
     }
 
-    private NodeDefault<T> previous(final NodeDefault<T> node) {
+    private NodeDefault<T> peekPrevious(final NodeDefault<T> node) {
         if (node.previous == start) {
             return null;
         }
@@ -94,15 +94,15 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
     }
 
     @Override
-    public Node previous(final Node node) {
+    public Node peekPrevious(final Node node) {
         if (!hasMembership(node)) {
             return null;
         }
 
-        return previous((NodeDefault<T>) node);
+        return peekPrevious((NodeDefault<T>) node);
     }
 
-    private NodeDefault<T> next(final NodeDefault<T> node) {
+    private NodeDefault<T> peekNext(final NodeDefault<T> node) {
         if (node.next == end) {
             return null;
         }
@@ -111,58 +111,25 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
     }
 
     @Override
-    public Node next(final Node node) {
+    public Node peekNext(final Node node) {
         if (!hasMembership(node)) {
             return null;
         }
 
-        return next((NodeDefault<T>) node);
+        return peekNext((NodeDefault<T>) node);
     }
 
     private T getValue(final NodeDefault<T> node) {
         return node.value;
     }
 
+    @Override
     public T getValue(final Node node) {
         if (!hasMembership(node)) {
             return null;
         }
 
         return getValue((NodeDefault<T>) node);
-    }
-
-    private void ensureHasMembership(final Node node) {
-        ArgumentValidator.getInstance().ensureTrue(hasMembership(node), "node", "was not created by this queue");
-    }
-
-    private boolean add(final NodeDefault<T> node) {
-        if (!canBeAdded(node)) {
-            return false;
-        }
-
-        node.previous = end.previous;
-        node.next = end;
-        end.previous.next = node;
-        end.previous = node;
-        size++;
-
-        return true;
-    }
-
-    @Override
-    public boolean add(final Node node) {
-        ensureHasMembership(node);
-
-        if (add((NodeDefault<T>) node)) {
-            return true;
-        }
-
-        throw new IllegalArgumentException("node was already added");
-    }
-
-    @Override
-    public boolean offer(final Node node) {
-        return hasMembership(node) && add((NodeDefault<T>) node);
     }
 
     private boolean canBeRemoved(final NodeDefault<T> node) {
@@ -177,6 +144,68 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
         size--;
 
         return node;
+    }
+
+    private void offerFirst(final NodeDefault<T> node) {
+        if (canBeRemoved(node)) {
+            remove(node);
+        }
+
+        node.previous = start;
+        node.next = start.next;
+        start.next.previous = node;
+        start.next = node;
+        size++;
+    }
+
+    @Override
+    public boolean offerFirst(final Node node) {
+        if (!hasMembership(node)) {
+            return false;
+        }
+
+        offerFirst((NodeDefault<T>) node);
+
+        return true;
+    }
+
+    private void offerLast(final NodeDefault<T> node) {
+        if (canBeRemoved(node)) {
+            remove(node);
+        }
+
+        node.previous = end.previous;
+        node.next = end;
+        end.previous.next = node;
+        end.previous = node;
+        size++;
+    }
+
+    @Override
+    public boolean offerLast(final Node node) {
+        if (!hasMembership(node)) {
+            return false;
+        }
+
+        offerLast((NodeDefault<T>) node);
+
+        return true;
+    }
+
+    private void ensureHasMembership(final Node node) {
+        ArgumentValidator.getInstance().ensureTrue(hasMembership(node), "node", "was not created by this queue");
+    }
+
+    @Override
+    public void addFirst(final Node node) {
+        ensureHasMembership(node);
+        offerFirst(node);
+    }
+
+    @Override
+    public void addLast(final Node node) {
+        ensureHasMembership(node);
+        offerLast(node);
     }
 
     private boolean remove(final Node node) {
@@ -196,40 +225,30 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
     }
 
     @Override
-    public final boolean remove(final Object object) {
-        if (!(object instanceof Node)) {
-            return false;
+    public final boolean remove(final Object node) {
+        if (node instanceof Node) {
+            return remove((Node) node);
         }
 
-        return remove((Node) object);
-    }
-
-    private boolean reoffer(final NodeDefault<T> node) {
-        if (!canBeRemoved(node)) {
-            return false;
-        }
-
-        remove(node);
-
-        return add(node);
+        return false;
     }
 
     @Override
-    public boolean reoffer(final Node node) {
-        if (!hasMembership(node)) {
-            return false;
-        }
-
-        return reoffer((NodeDefault<T>) node);
-    }
-
-    @Override
-    public Node poll() {
+    public Node removeFirst() {
         if (start.next == end) {
             return null;
         }
 
         return remove(start.next);
+    }
+
+    @Override
+    public Node removeLast() {
+        if (end.previous == start) {
+            return null;
+        }
+
+        return remove(end.previous);
     }
 
     @Override
@@ -245,7 +264,7 @@ final class NodeQueueDefault<T> extends AbstractQueue<Node> implements NodeQueue
     }
 
     @Override
-    public Iterator<Node> iteratorDescending() {
+    public Iterator<Node> descendingIterator() {
         return LinkedIterator.createStream(end.previous, e -> e.previous, e -> e != start)
                 .map(e -> (Node) e)
                 .iterator();

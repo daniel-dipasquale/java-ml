@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialId;
+import com.dipasquale.common.CircularVersionInt;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -9,9 +10,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class NeuralNetworkFeedForward implements NeuralNetwork {
+final class NeuralNetworkDefault implements NeuralNetwork {
     private final GenomeDefault genome;
-    private final NeuronNavigator neuronNavigator = new NeuronNavigator();
+    private final NeuronNavigator<NeuronDefault> neuronNavigator = new NeuronNavigator<>(NeuronDefault::createRecurrentSingleMemory);
+    private final CircularVersionInt activationNumber = new CircularVersionInt(0, Integer.MAX_VALUE);
 
     private Neuron createNeuron(final NodeGene node) {
         Set<SequentialId> inputIds = genome.getConnections().getIncomingToNodeFromExpressed(node).keySet().stream()
@@ -19,7 +21,7 @@ final class NeuralNetworkFeedForward implements NeuralNetwork {
                 .collect(Collectors.toSet());
 
         List<NeuronOutput> outputs = genome.getConnections().getOutgoingFromNodeFromExpressed(node).values().stream()
-                .map(c -> new NeuronOutput(c.getInnovationId().getTargetNodeId(), c.getWeight()))
+                .map(c -> new NeuronOutput(c.getInnovationId().getTargetNodeId(), c.getWeight(), c.getRecurrentCyclesAllowed()))
                 .collect(Collectors.toList());
 
         switch (node.getType()) {
@@ -30,7 +32,7 @@ final class NeuralNetworkFeedForward implements NeuralNetwork {
                 }
         }
 
-        return new NeuronFeedForward(node, inputIds, outputs);
+        return new NeuronDefault(node, inputIds, outputs, activationNumber);
     }
 
     private void initializeNeuronNavigator(final float[] input) {
@@ -67,6 +69,7 @@ final class NeuralNetworkFeedForward implements NeuralNetwork {
 
     @Override
     public float[] activate(final float[] input) {
+        activationNumber.next();
         initializeNeuronNavigator(input);
         processNeuronsViaNavigator();
 
@@ -78,18 +81,3 @@ final class NeuralNetworkFeedForward implements NeuralNetwork {
         neuronNavigator.clear();
     }
 }
-
-/*
-if (context.connections().allowCyclicConnections()) {
-    Set<T> outputNodeIds = outputs.stream()
-            .map(Neuron.Output::getId)
-            .collect(Collectors.toSet());
-
-    Set<T> mandatoryInputIds = genome.getConnections().getIncomingToNodeFromExpressed(node).keySet().stream()
-            .map(DirectedEdge::getSourceNodeId)
-            .filter(nid -> !outputNodeIds.contains(nid))
-            .collect(Collectors.toSet());
-
-    return new Neuron<>(node, mandatoryInputIds, outputs);
-}
- */

@@ -5,11 +5,9 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString
 public final class InnovationId implements Comparable<InnovationId> {
     @Getter
     @EqualsAndHashCode.Include
@@ -27,5 +25,10 @@ public final class InnovationId implements Comparable<InnovationId> {
     @Override
     public int compareTo(final InnovationId other) {
         return sequentialId.compareTo(other.sequentialId);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s:%s", directedEdge, sequentialId);
     }
 }

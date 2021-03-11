@@ -15,7 +15,7 @@ public final class SettingsNeuralNetworkSupport {
         return c -> {
             ArgumentValidator.getInstance().ensureFalse(connections.isRecurrentConnectionsAllowed(), "connections.allowRecurrentConnections", "is not support yet");
 
-            return new ContextDefaultNeuralNetworkSupport(NeuralNetworkFeedForward::new);
+            return new ContextDefaultNeuralNetworkSupport(NeuralNetworkDefault::new);
         };
     }
 }

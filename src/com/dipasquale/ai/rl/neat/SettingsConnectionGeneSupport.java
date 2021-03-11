@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Builder
@@ -25,7 +24,7 @@ public final class SettingsConnectionGeneSupport {
         return c -> {
             SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
 
-            return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, sequentialIdFactory, weight::get, new ConcurrentHashMap<>(), Collections.newSetFromMap(new ConcurrentHashMap<>()));
+            return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, sequentialIdFactory, weight::get, new ConcurrentHashMap<>());
         };
     }
 }

@@ -1,7 +1,9 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialId;
+import com.dipasquale.data.structure.map.InsertOrderMap;
 import lombok.AccessLevel;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
@@ -13,11 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 
-final class NeuronNavigator implements Iterable<Neuron> {
-    private final Map<SequentialId, Neuron> neurons = new HashMap<>();
-    private final List<Neuron> outputNeurons = new ArrayList<>();
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class NeuronNavigator<T extends Neuron> implements Iterable<Neuron> {
+    private final NeuronPromoter<T> neuronPromoter;
+    private final Map<SequentialId, NeuronStrategy<T>> neurons = new HashMap<>();
+    private final List<NeuronStrategy<T>> outputNeurons = new ArrayList<>();
     private Queue<Neuron> neuronsOrdered = null;
 
     public boolean isEmpty() {
@@ -29,38 +32,45 @@ final class NeuronNavigator implements Iterable<Neuron> {
     }
 
     public void add(final Neuron neuron) {
-        neurons.put(neuron.getId(), neuron);
+        NeuronStrategy<T> neuronStrategy = new NeuronStrategy<>(neuronPromoter, neuron);
+
+        neurons.put(neuron.getId(), neuronStrategy);
 
         if (neuron.getType() == NodeGeneType.Output) {
-            outputNeurons.add(neuron);
+            outputNeurons.add(neuronStrategy);
         }
 
         neuronsOrdered = null;
     }
 
-    private Queue<Neuron> createOrdered() { // NOTE: great idea from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
+    private Queue<Neuron> createOrdered() {
         LinkedList<Neuron> ordered = new LinkedList<>();
-        Set<SequentialId> visited = new HashSet<>();
-        Stack<Traversal> stack = new Stack<>();
+        Set<SequentialId> orderedAlready = new HashSet<>();
+        InsertOrderMap<SequentialId, Navigation<T>> stack = new InsertOrderMap<>();
 
-        for (Neuron neuron : outputNeurons) {
-            if (visited.add(neuron.getId())) {
-                stack.push(new Traversal(neuron, false));
+        for (NeuronStrategy<T> neuron : outputNeurons) {
+            stack.put(neuron.getId(), new Navigation<>(neuron, false));
 
-                while (!stack.isEmpty()) {
-                    Traversal traversal = stack.pop();
+            while (!stack.isEmpty()) {
+                Navigation<T> navigation = stack.removeLast();
 
-                    if (!traversal.ready) {
-                        stack.push(new Traversal(traversal.neuron, true));
+                if (!navigation.ready) {
+                    stack.put(navigation.neuron.getId(), new Navigation<>(navigation.neuron, true));
 
-                        for (SequentialId id : traversal.neuron.getInputIds()) {
-                            if (visited.add(id)) {
-                                stack.push(new Traversal(neurons.get(id), false));
-                            }
+                    for (SequentialId id : navigation.neuron.getInputIds()) {
+                        Navigation<T> navigationOld = stack.get(id);
+
+                        if (navigationOld != null && !navigationOld.ready) {
+                            stack.putLast(id, navigationOld);
+                        } else if (navigationOld == null && !orderedAlready.contains(id)) {
+                            stack.put(id, new Navigation<>(neurons.get(id), false));
+                        } else {
+                            navigation.neuron.promoteToRecurrent();
                         }
-                    } else {
-                        ordered.add(traversal.neuron);
                     }
+                } else {
+                    orderedAlready.add(navigation.neuron.getId());
+                    ordered.add(navigation.neuron);
                 }
             }
         }
@@ -98,18 +108,16 @@ final class NeuronNavigator implements Iterable<Neuron> {
         return neuronsOrdered.iterator();
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class Traversal {
-        private final Neuron neuron;
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class Navigation<T extends Neuron> {
+        private final NeuronStrategy<T> neuron;
         private final boolean ready;
+
+        @Generated
+        @Override
+        public String toString() {
+            return String.format("%s:%b", neuron.getId(), ready);
+        }
     }
 }
 
-/*
-    private final Map<DirectedEdge<T>, DirectedEdgePermission<T>> cyclesAllowed = new HashMap<>();
-
-    private boolean isCycleAllowed(final ConnectionGene<T> connection) {
-        return !context.connections().allowCyclicConnections()
-                || cyclesAllowed.computeIfAbsent(connection.getInnovationId().getDirectedEdge(), de -> new DirectedEdgePermission<>(de, connection.getCyclesAllowed())).isCycleAllowed();
-    }
- */

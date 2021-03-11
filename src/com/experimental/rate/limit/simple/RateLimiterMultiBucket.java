@@ -1,8 +1,8 @@
 package com.experimental.rate.limit.simple;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.data.structure.queue.Node;
-import com.dipasquale.data.structure.queue.NodeQueue;
+import com.dipasquale.data.structure.deque.Node;
+import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.threading.WaitHandle;
 import com.experimental.rate.limit.RateLimitChecker;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ final class RateLimiterMultiBucket {
     private final DateTimeSupport dateTimeSupport;
     private final WaitHandle waitHandle;
     private final Map<String, Node> rateLimitersMap;
-    private final NodeQueue<Bucket> rateLimitersQueue;
+    private final NodeDeque<Bucket> rateLimitersQueue;
 
     public RateLimiterMultiBucket(final RateLimitSlidingWindow slidingWindow, final RateLimitChecker checker, final DateTimeSupport dateTimeSupport, final WaitHandle waitHandle, final int initialCapacity, final float loadFactor, final int concurrencyLevel) {
         this.slidingWindow = slidingWindow;
@@ -24,7 +24,7 @@ final class RateLimiterMultiBucket {
         this.dateTimeSupport = dateTimeSupport;
         this.waitHandle = waitHandle;
         this.rateLimitersMap = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
-        this.rateLimitersQueue = NodeQueue.create(); // TODO: this won't work
+        this.rateLimitersQueue = NodeDeque.create(); // TODO: this won't work
     }
 
     private void clearOldRateLimiters() {
@@ -39,7 +39,7 @@ final class RateLimiterMultiBucket {
         }
 
         if (bucket != null) {
-            rateLimitersQueue.reoffer(node);
+            rateLimitersQueue.offerLast(node);
         }
     }
 
@@ -57,7 +57,7 @@ final class RateLimiterMultiBucket {
                 return nodeNew;
             }
 
-            rateLimitersQueue.reoffer(nl);
+            rateLimitersQueue.offerLast(nl);
 
             return nl;
         });

@@ -9,13 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
 class KeySet<TKey, TValue> extends AbstractSet<TKey> {
-    private final Map<TKey, TValue> map;
-    private final Iterable<Map.Entry<TKey, TValue>> iterable;
+    private final MapBase<TKey, TValue> map;
 
     private static Set<?> ensureSet(final Collection<?> collection) {
         if (collection instanceof Set<?>) {
@@ -28,6 +29,11 @@ class KeySet<TKey, TValue> extends AbstractSet<TKey> {
     @Override
     public final int size() {
         return map.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
     }
 
     @Override
@@ -74,7 +80,9 @@ class KeySet<TKey, TValue> extends AbstractSet<TKey> {
 
     @Override
     public Iterator<TKey> iterator() {
-        return StreamSupport.stream(iterable.spliterator(), false)
+        Spliterator<Map.Entry<TKey, TValue>> entries = Spliterators.spliteratorUnknownSize(map.iterator(), 0);
+
+        return StreamSupport.stream(entries, false)
                 .map(Map.Entry::getKey)
                 .iterator();
     }

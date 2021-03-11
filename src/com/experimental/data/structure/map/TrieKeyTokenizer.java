@@ -1,4 +1,4 @@
-package com.dipasquale.data.structure.map;
+package com.experimental.data.structure.map;
 
 @FunctionalInterface
 public interface TrieKeyTokenizer<T> {

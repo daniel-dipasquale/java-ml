@@ -2,8 +2,8 @@ package com.dipasquale.data.structure.set;
 
 import com.dipasquale.common.test.ThrowableComparer;
 import com.dipasquale.data.structure.collection.test.CollectionAsserter;
-import com.dipasquale.data.structure.queue.Node;
-import com.dipasquale.data.structure.queue.NodeQueue;
+import com.dipasquale.data.structure.deque.Node;
+import com.dipasquale.data.structure.deque.NodeDeque;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 
 public final class InsertOrderSetDefaultTest {
     private static final Map<String, Node> NODES_MAP = new HashMap<>();
-    private static final NodeQueue<String> NODES_QUEUE = NodeQueue.create();
+    private static final NodeDeque<String> NODES_QUEUE = NodeDeque.create();
     private static final InsertOrderSetDefault<String> TEST = new InsertOrderSetDefault<>(NODES_MAP, NODES_QUEUE);
 
     @Before

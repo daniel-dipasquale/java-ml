@@ -19,6 +19,8 @@ import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -27,14 +29,12 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> {
+public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> { // TODO: should implement NavigableMap
     private final Map<TKey, Entry<TKey, TValue>> map;
     private final NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap;
     private final ObjectFactory<InsertOrderSet<Entry<TKey, TValue>>> entriesSetFactory;
     private final EntryStrategyFactory<TKey, TValue> entryStrategyFactory;
-    private final KeySet<TKey, TValue> descendingKeySet = new KeySet<>(this, this::iteratorDescending);
-    private final Values<TKey, TValue> descendingValues = new Values<>(this, this::iteratorDescending);
-    private final EntrySet<TKey, TValue> descendingEntrySet = new EntrySet<>(this, this::iteratorDescending);
+    private final KeySet<TKey, TValue> descendingKeySet = new KeySetCustomIterable<>(this, this::iteratorDescending);
 
     private static <TKey, TValue> SortedByValueMap<TKey, TValue> create(final Comparator<TValue> comparator, final Map<TKey, Entry<TKey, TValue>> map, final EntryStrategyFactory<TKey, TValue> entryStrategyFactory) {
         NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap = new TreeMap<>(comparator);
@@ -115,55 +115,49 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
     }
 
     @Override
-    protected PutChange<? extends Entry<TKey, TValue>> putEntry(final TKey key, final TValue value) {
-        PutChangeAudit audit = new PutChangeAudit();
+    public TValue put(final TKey key, final TValue value) {
+        ChangeAudit audit = new ChangeAudit();
 
-        map.compute(key, (k, oldEntry) -> {
-            if (oldEntry == null) {
+        map.compute(key, (k, oe) -> {
+            if (oe == null) {
                 Entry<TKey, TValue> entry = createEntry(key, value);
 
                 addToNavigableMap(entry);
-                audit.entry = entry;
                 audit.oldValue = null;
-                audit.isNew = true;
 
                 return entry;
             }
 
-            if (!Objects.equals(oldEntry, value)) {
+            if (!Objects.equals(oe.getValue(), value)) {
                 Entry<TKey, TValue> entry = createEntry(key, value);
 
-                removeFromNavigableMap(oldEntry);
+                removeFromNavigableMap(oe);
                 addToNavigableMap(entry);
-                audit.entry = entry;
-                audit.oldValue = oldEntry.getValue();
-                audit.isNew = false;
+                audit.oldValue = oe.getValue();
 
                 return entry;
             }
 
-            audit.entry = oldEntry;
-            audit.oldValue = oldEntry.getValue();
-            audit.isNew = false;
+            audit.oldValue = oe.getValue();
 
-            return oldEntry;
+            return oe;
         });
 
-        return new PutChange<Entry<TKey, TValue>>(audit.entry, audit.oldValue, audit.isNew);
+        return audit.oldValue;
     }
 
     @Override
-    protected Entry<TKey, TValue> removeEntry(final TKey key) {
-        RemoveEntryAudit removeEntryAudit = new RemoveEntryAudit();
+    public TValue remove(final Object key) {
+        ChangeAudit audit = new ChangeAudit();
 
-        map.computeIfPresent(key, (k, oe) -> {
+        map.computeIfPresent((TKey) key, (k, oe) -> {
             removeFromNavigableMap(oe);
-            removeEntryAudit.oldEntry = oe;
+            audit.oldValue = oe.getValue();
 
             return null;
         });
 
-        return removeEntryAudit.oldEntry;
+        return audit.oldValue;
     }
 
     @Override
@@ -183,16 +177,16 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
 
     private static <TKey, TValue> Stream<Entry<TKey, TValue>> streamDescending(final NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap) {
         Function<InsertOrderSet<Entry<TKey, TValue>>, Stream<Entry<TKey, TValue>>> flatMapper = ios -> {
-            Iterable<Entry<TKey, TValue>> iterable = ios::iteratorDescending;
+            Spliterator<Entry<TKey, TValue>> spliterator = Spliterators.spliteratorUnknownSize(ios.iteratorDescending(), 0);
 
-            return StreamSupport.stream(iterable.spliterator(), false);
+            return StreamSupport.stream(spliterator, false);
         };
 
         return stream(navigableMap.descendingMap(), flatMapper);
     }
 
     @Override
-    protected Iterator<Entry<TKey, TValue>> iterator() {
+    protected Iterator<? extends Entry<TKey, TValue>> iterator() {
         return stream(navigableMap).iterator();
     }
 
@@ -202,14 +196,6 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
 
     public Set<TKey> descendingKeySet() {
         return descendingKeySet;
-    }
-
-    public Collection<TValue> descendingValues() {
-        return descendingValues;
-    }
-
-    public Set<Entry<TKey, TValue>> descendingEntrySet() {
-        return descendingEntrySet;
     }
 
     private static <TKey, TValue> Entry<TKey, TValue> getEntry(final Entry<TValue, InsertOrderSet<Entry<TKey, TValue>>> entry, final ElementNavigator<TKey, TValue> elementNavigator) {
@@ -262,18 +248,6 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
         return getValue(tailEntry());
     }
 
-    public Set<Entry<TKey, TValue>> betweenEntrySet(final TValue from, final boolean fromInclusive, final TValue to, final boolean toInclusive) {
-        return new EntrySet<>(this, stream(navigableMap.subMap(from, fromInclusive, to, toInclusive))::iterator);
-    }
-
-    public Set<Entry<TKey, TValue>> fromEntrySet(final TValue value, final boolean inclusive) {
-        return new EntrySet<>(this, stream(navigableMap.tailMap(value, inclusive))::iterator);
-    }
-
-    public Set<Entry<TKey, TValue>> toStream(final TValue value, final boolean inclusive) {
-        return new EntrySet<>(this, stream(navigableMap.headMap(value, inclusive))::iterator);
-    }
-
     @FunctionalInterface
     private interface EntryStrategyFactory<TKey, TValue> {
         Entry<TKey, TValue> create(TKey key, TValue value);
@@ -316,15 +290,8 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
     }
 
     @NoArgsConstructor(access = AccessLevel.PACKAGE)
-    private final class PutChangeAudit {
-        private Entry<TKey, TValue> entry;
+    private final class ChangeAudit {
         private TValue oldValue;
-        private boolean isNew;
-    }
-
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
-    private final class RemoveEntryAudit {
-        private Entry<TKey, TValue> oldEntry;
     }
 
     @FunctionalInterface

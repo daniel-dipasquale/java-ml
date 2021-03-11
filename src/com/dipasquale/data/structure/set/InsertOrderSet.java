@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.set;
 
-import com.dipasquale.data.structure.queue.Node;
-import com.dipasquale.data.structure.queue.NodeQueue;
+import com.dipasquale.data.structure.deque.Node;
+import com.dipasquale.data.structure.deque.NodeDeque;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,18 +25,20 @@ public interface InsertOrderSet<T> extends Set<T>, Queue<T> {
         return add(value);
     }
 
+    T pop();
+
     Iterator<T> iteratorDescending();
 
     static <T> InsertOrderSet<T> create() {
         Map<T, Node> nodesMap = new HashMap<>();
-        NodeQueue<T> nodesQueue = NodeQueue.create();
+        NodeDeque<T> nodesQueue = NodeDeque.create();
 
         return new InsertOrderSetDefault<>(nodesMap, nodesQueue);
     }
 
     static <T> InsertOrderSet<T> create(final int initialCapacity) {
         Map<T, Node> nodesMap = new HashMap<>(initialCapacity);
-        NodeQueue<T> nodesQueue = NodeQueue.create();
+        NodeDeque<T> nodesQueue = NodeDeque.create();
 
         return new InsertOrderSetDefault<>(nodesMap, nodesQueue);
     }
@@ -55,14 +57,14 @@ public interface InsertOrderSet<T> extends Set<T>, Queue<T> {
 
     static <T> InsertOrderSet<T> createConcurrent() {
         Map<T, Node> nodesMap = new ConcurrentHashMap<>();
-        NodeQueue<T> nodesQueue = NodeQueue.createSynchronized();
+        NodeDeque<T> nodesQueue = NodeDeque.createSynchronized();
 
         return new InsertOrderSetDefault<>(nodesMap, nodesQueue);
     }
 
     static <T> InsertOrderSet<T> createConcurrent(final int initialCapacity, final float loadFactor, final int numberOfThreads) {
         Map<T, Node> nodesMap = new ConcurrentHashMap<>(initialCapacity, loadFactor, numberOfThreads);
-        NodeQueue<T> nodesQueue = NodeQueue.createSynchronized();
+        NodeDeque<T> nodesQueue = NodeDeque.createSynchronized();
 
         return new InsertOrderSetDefault<>(nodesMap, nodesQueue);
     }

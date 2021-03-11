@@ -25,7 +25,7 @@ final class GenomeCrossOver {
         }
 
         float weight = (parent1Connection.getWeight() + parent2Connection.getWeight()) / 2f;
-        int cyclesAllowed = randomParentConnection.getCyclesAllowed();
+        int cyclesAllowed = randomParentConnection.getRecurrentCyclesAllowed();
 
         return new ConnectionGene(parent1Connection.getInnovationId(), weight, cyclesAllowed, expressed);
     }

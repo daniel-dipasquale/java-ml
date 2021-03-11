@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.set;
 
-import com.dipasquale.data.structure.queue.Node;
-import com.dipasquale.data.structure.queue.NodeQueue;
+import com.dipasquale.data.structure.deque.Node;
+import com.dipasquale.data.structure.deque.NodeDeque;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +19,7 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrderSet<T> {
     private final Map<T, Node> nodesMap;
-    private final NodeQueue<T> nodesQueue;
+    private final NodeDeque<T> nodesQueue;
 
     @Override
     public int size() {
@@ -38,17 +38,17 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
 
     @Override
     public T first() {
-        return nodesQueue.getValue(nodesQueue.first());
+        return nodesQueue.getValue(nodesQueue.peekFirst());
     }
 
     @Override
     public T last() {
-        return nodesQueue.getValue(nodesQueue.last());
+        return nodesQueue.getValue(nodesQueue.peekLast());
     }
 
     @Override
     public T element() {
-        Node node = nodesQueue.first();
+        Node node = nodesQueue.peekFirst();
 
         if (node == null) {
             throw new NoSuchElementException();
@@ -84,39 +84,49 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
         return nodesQueue.remove(node);
     }
 
-    private Node removeNode() {
-        Node node = nodesQueue.first();
-
-        if (node == null) {
-            return null;
-        }
-
-        nodesMap.remove(nodesQueue.getValue(node));
-        nodesQueue.remove(node);
-
-        return node;
-    }
-
     @Override
     public T remove() {
-        Node node = removeNode();
+        Node node = nodesQueue.peekFirst();
 
         if (node == null) {
             throw new NoSuchElementException();
         }
 
-        return nodesQueue.getValue(node);
+        T value = nodesQueue.getValue(node);
+
+        remove(value);
+
+        return value;
     }
 
     @Override
     public T poll() {
-        Node node = removeNode();
+        Node node = nodesQueue.peekFirst();
 
         if (node == null) {
             return null;
         }
 
-        return nodesQueue.getValue(node);
+        T value = nodesQueue.getValue(node);
+
+        remove(value);
+
+        return value;
+    }
+
+    @Override
+    public T pop() {
+        Node node = nodesQueue.peekLast();
+
+        if (node == null) {
+            return null;
+        }
+
+        T value = nodesQueue.getValue(node);
+
+        remove(value);
+
+        return value;
     }
 
     @Override
@@ -134,7 +144,7 @@ final class InsertOrderSetDefault<T> extends AbstractSet<T> implements InsertOrd
 
     @Override
     public Iterator<T> iteratorDescending() {
-        Iterable<Node> iterable = nodesQueue::iteratorDescending;
+        Iterable<Node> iterable = nodesQueue::descendingIterator;
 
         return StreamSupport.stream(iterable.spliterator(), false)
                 .map(nodesQueue::getValue)

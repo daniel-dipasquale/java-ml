@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
-import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGeneSupport {
@@ -13,7 +12,6 @@ final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGen
     private final SequentialIdFactory innovationIdFactory;
     private final ConnectionGeneWeightFactory weightFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
-    private final Set<DirectedEdge> innovationIdsNotAllowed;
 
     @Override
     public boolean recurrentConnectionsAllowed() {
@@ -26,11 +24,11 @@ final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGen
             return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId(de, innovationIdFactory.next()));
         }
 
-        if (innovationIdsNotAllowed.contains(directedEdge)) {
+        int comparison = directedEdge.getSourceNodeId().compareTo(directedEdge.getTargetNodeId());
+
+        if (comparison >= 0) {
             return null;
         }
-
-        innovationIdsNotAllowed.add(directedEdge.createReversed());
 
         return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId(de, innovationIdFactory.next()));
     }

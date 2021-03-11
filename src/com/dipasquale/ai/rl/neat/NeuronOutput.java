@@ -10,4 +10,5 @@ import lombok.RequiredArgsConstructor;
 final class NeuronOutput {
     private final SequentialId neuronId;
     private final float connectionWeight;
+    private final int recurrentCyclesAllowed;
 }

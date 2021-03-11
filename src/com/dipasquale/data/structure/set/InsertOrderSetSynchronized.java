@@ -95,6 +95,13 @@ final class InsertOrderSetSynchronized<T> implements InsertOrderSet<T> {
     }
 
     @Override
+    public T pop() {
+        synchronized (insertOrderSet) {
+            return insertOrderSet.pop();
+        }
+    }
+
+    @Override
     public void clear() {
         synchronized (insertOrderSet) {
             insertOrderSet.clear();

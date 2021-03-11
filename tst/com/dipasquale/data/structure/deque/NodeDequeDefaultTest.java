@@ -1,4 +1,4 @@
-package com.dipasquale.data.structure.queue;
+package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.test.ThrowableComparer;
 import com.dipasquale.data.structure.collection.test.CollectionAsserter;
@@ -9,8 +9,8 @@ import org.junit.Test;
 
 import java.util.NoSuchElementException;
 
-public final class NodeQueueDefaultTest {
-    private static final NodeQueue<String> TEST = new NodeQueueDefault<>();
+public final class NodeDequeDefaultTest {
+    private static final NodeDeque<String> TEST = new NodeDequeDefault<>();
 
     @Before
     public void before() {
@@ -44,8 +44,8 @@ public final class NodeQueueDefaultTest {
         assertEmptyState();
         Assert.assertFalse(TEST.contains(value));
         Assert.assertFalse(TEST.contains(node));
-        Assert.assertNull(TEST.previous(node));
-        Assert.assertNull(TEST.next(node));
+        Assert.assertNull(TEST.peekPrevious(node));
+        Assert.assertNull(TEST.peekNext(node));
         Assert.assertEquals(value, TEST.getValue(node));
     }
 
@@ -70,8 +70,8 @@ public final class NodeQueueDefaultTest {
         Assert.assertEquals(node, TEST.peek());
         Assert.assertEquals(node, TEST.element());
         Assert.assertEquals(node, TEST.last());
-        Assert.assertNull(TEST.previous(node));
-        Assert.assertNull(TEST.next(node));
+        Assert.assertNull(TEST.peekPrevious(node));
+        Assert.assertNull(TEST.peekNext(node));
         Assert.assertEquals("item-1", TEST.getValue(node));
     }
 
@@ -143,13 +143,13 @@ public final class NodeQueueDefaultTest {
         Assert.assertTrue(TEST.add(node2));
         Assert.assertTrue(TEST.add(node3));
         Assert.assertEquals(node1, TEST.first());
-        Assert.assertEquals(node2, TEST.next(node1));
-        Assert.assertEquals(node2, TEST.previous(node3));
+        Assert.assertEquals(node2, TEST.peekNext(node1));
+        Assert.assertEquals(node2, TEST.peekPrevious(node3));
         Assert.assertEquals(node3, TEST.last());
-        Assert.assertTrue(TEST.reoffer(node2));
+        Assert.assertTrue(TEST.offerLast(node2));
         Assert.assertEquals(node1, TEST.first());
-        Assert.assertEquals(node3, TEST.next(node1));
-        Assert.assertEquals(node3, TEST.previous(node2));
+        Assert.assertEquals(node3, TEST.peekNext(node1));
+        Assert.assertEquals(node3, TEST.peekPrevious(node2));
         Assert.assertEquals(node2, TEST.last());
     }
 
@@ -157,7 +157,7 @@ public final class NodeQueueDefaultTest {
     public void TEST_9() {
         Node node = TEST.createUnbound("item-1");
 
-        Assert.assertFalse(TEST.reoffer(node));
+        Assert.assertTrue(TEST.offerLast(node));
     }
 
     @Test
@@ -172,8 +172,8 @@ public final class NodeQueueDefaultTest {
         Assert.assertEquals(node1, TEST.peek());
         Assert.assertEquals(node1, TEST.element());
         Assert.assertEquals(node2, TEST.last());
-        Assert.assertEquals(node1, TEST.previous(node2));
-        Assert.assertEquals(node2, TEST.next(node1));
+        Assert.assertEquals(node1, TEST.peekPrevious(node2));
+        Assert.assertEquals(node2, TEST.peekNext(node1));
     }
 
     @Test
@@ -188,8 +188,8 @@ public final class NodeQueueDefaultTest {
         Assert.assertEquals(node2, TEST.peek());
         Assert.assertEquals(node2, TEST.element());
         Assert.assertEquals(node2, TEST.last());
-        Assert.assertNull(TEST.previous(node2));
-        Assert.assertNull(TEST.next(node2));
+        Assert.assertNull(TEST.peekPrevious(node2));
+        Assert.assertNull(TEST.peekNext(node2));
     }
 
     @Test
@@ -204,15 +204,15 @@ public final class NodeQueueDefaultTest {
         Assert.assertEquals(node1, TEST.peek());
         Assert.assertEquals(node1, TEST.element());
         Assert.assertEquals(node1, TEST.last());
-        Assert.assertNull(TEST.previous(node1));
-        Assert.assertNull(TEST.next(node1));
+        Assert.assertNull(TEST.peekPrevious(node1));
+        Assert.assertNull(TEST.peekNext(node1));
     }
 
     private static void assertClearedState(final Node node) {
         assertEmptyState();
         Assert.assertFalse(TEST.contains(node));
-        Assert.assertNull(TEST.previous(node));
-        Assert.assertNull(TEST.next(node));
+        Assert.assertNull(TEST.peekPrevious(node));
+        Assert.assertNull(TEST.peekNext(node));
         Assert.assertNull(TEST.getValue(node));
     }
 
@@ -255,7 +255,7 @@ public final class NodeQueueDefaultTest {
         Assert.assertTrue(TEST.add(node));
         TEST.clear();
         Assert.assertFalse(TEST.remove(node));
-        Assert.assertFalse(TEST.reoffer(node));
+        Assert.assertFalse(TEST.offerLast(node));
     }
 
     @Test

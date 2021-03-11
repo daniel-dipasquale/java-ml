@@ -137,10 +137,6 @@ final class GenomeDefault implements Genome {
         NodeGene node1 = nodes.getByIndex(context.random().nextIndex(nodes.size()));
         NodeGene node2 = getRandomNodeToMatch(node1.getType());
 
-        if (node1 == node2) {
-            return null;
-        }
-
         return switch (node1.getType()) {
             case Input -> createInnovationId(node1, node2);
 
