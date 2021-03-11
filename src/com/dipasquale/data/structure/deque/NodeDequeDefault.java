@@ -3,17 +3,18 @@ package com.dipasquale.data.structure.deque;
 import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 
-import java.util.AbstractQueue;
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-final class NodeDequeDefault<T> extends AbstractQueue<Node> implements NodeDeque<T> {
+final class NodeDequeDefault<T> implements NodeDeque<T> {
     private Object membership;
     private NodeDefault<T> start;
     private NodeDefault<T> end;
@@ -48,6 +49,11 @@ final class NodeDequeDefault<T> extends AbstractQueue<Node> implements NodeDeque
     @Override
     public int size() {
         return size;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
     }
 
     private boolean hasMembership(final Node node) {
@@ -193,7 +199,7 @@ final class NodeDequeDefault<T> extends AbstractQueue<Node> implements NodeDeque
     }
 
     private void ensureHasMembership(final Node node) {
-        ArgumentValidator.getInstance().ensureTrue(hasMembership(node), "node", "was not created by this queue");
+        ArgumentValidator.getInstance().ensureTrue(hasMembership(node), "node", "was not created by this deque");
     }
 
     @Override
@@ -268,6 +274,62 @@ final class NodeDequeDefault<T> extends AbstractQueue<Node> implements NodeDeque
         return LinkedIterator.createStream(end.previous, e -> e.previous, e -> e != start)
                 .map(e -> (Node) e)
                 .iterator();
+    }
+
+    @Override
+    public Object[] toArray() {
+        Object[] array = new Object[size];
+        int i = 0;
+
+        for (Node node : this) {
+            array[i++] = node;
+        }
+
+        return array;
+    }
+
+    @Override
+    public <R> R[] toArray(final R[] array) {
+        R[] arrayFixed = array.length < size
+                ? (R[]) Array.newInstance(array.getClass().getComponentType(), size)
+                : array;
+
+        int i = 0;
+
+        for (Node node : this) {
+            arrayFixed[i++] = (R) node;
+        }
+
+        return arrayFixed;
+    }
+
+    @Override
+    public <R> R[] toArray(final IntFunction<R[]> generator) {
+        return toArray(generator.apply(size));
+    }
+
+    @Override
+    public boolean containsAll(final Collection<?> collection) {
+        for (Object node : collection) {
+            if (!contains(node)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean addAll(final Collection<? extends Node> collection) {
+        boolean modified = false;
+
+        for (Node node : collection) {
+            if (add(node)) {
+                modified = true;
+            }
+        }
+
+        return modified;
     }
 
     private static Set<?> ensureSet(final Collection<?> collection) {

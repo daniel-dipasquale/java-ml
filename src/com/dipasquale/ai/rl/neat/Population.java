@@ -91,7 +91,7 @@ final class Population implements NeatCollective {
         int organismsRemoved = 0;
         float totalSharedFitness = 0f;
 
-        for (Node speciesNode = allSpecies.first(); speciesNode != null; ) {
+        for (Node speciesNode = allSpecies.peekFirst(); speciesNode != null; ) {
             Species species = allSpecies.getValue(speciesNode);
 
             if (species.shouldSurvive()) {

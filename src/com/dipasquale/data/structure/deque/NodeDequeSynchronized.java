@@ -41,9 +41,30 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
-    public boolean remove(final Object node) {
+    public Node peekFirst() {
         synchronized (nodeDeque) {
-            return nodeDeque.remove(node);
+            return nodeDeque.peekFirst();
+        }
+    }
+
+    @Override
+    public Node peekLast() {
+        synchronized (nodeDeque) {
+            return nodeDeque.peekLast();
+        }
+    }
+
+    @Override
+    public Node getFirst() {
+        synchronized (nodeDeque) {
+            return nodeDeque.getFirst();
+        }
+    }
+
+    @Override
+    public Node getLast() {
+        synchronized (nodeDeque) {
+            return nodeDeque.getLast();
         }
     }
 
@@ -76,44 +97,9 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
-    public Node peekFirst() {
-        synchronized (nodeDeque) {
-            return nodeDeque.peekFirst();
-        }
-    }
-
-    @Override
-    public Node peekLast() {
-        synchronized (nodeDeque) {
-            return nodeDeque.peekLast();
-        }
-    }
-
-    @Override
-    public Node getFirst() {
-        synchronized (nodeDeque) {
-            return nodeDeque.getFirst();
-        }
-    }
-
-    @Override
-    public Node getLast() {
-        synchronized (nodeDeque) {
-            return nodeDeque.getLast();
-        }
-    }
-
-    @Override
     public T getValue(final Node node) {
         synchronized (nodeDeque) {
             return nodeDeque.getValue(node);
-        }
-    }
-
-    @Override
-    public boolean add(final Node node) {
-        synchronized (nodeDeque) {
-            return nodeDeque.add(node);
         }
     }
 
@@ -125,9 +111,9 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
-    public boolean offer(final Node node) {
+    public boolean add(final Node node) {
         synchronized (nodeDeque) {
-            return nodeDeque.offer(node);
+            return nodeDeque.add(node);
         }
     }
 
@@ -146,6 +132,13 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
+    public boolean offer(final Node node) {
+        synchronized (nodeDeque) {
+            return nodeDeque.offer(node);
+        }
+    }
+
+    @Override
     public boolean offerFirst(final Node node) {
         synchronized (nodeDeque) {
             return nodeDeque.offerFirst(node);
@@ -156,6 +149,13 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     public boolean offerLast(final Node node) {
         synchronized (nodeDeque) {
             return nodeDeque.offerLast(node);
+        }
+    }
+
+    @Override
+    public boolean remove(final Object node) {
+        synchronized (nodeDeque) {
+            return nodeDeque.remove(node);
         }
     }
 

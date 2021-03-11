@@ -20,8 +20,9 @@ public final class NodeDequeDefaultTest {
     private static void assertEmptyState() {
         Assert.assertEquals(0, TEST.size());
         Assert.assertTrue(TEST.isEmpty());
-        Assert.assertNull(TEST.first());
         Assert.assertNull(TEST.peek());
+        Assert.assertNull(TEST.peekFirst());
+        Assert.assertNull(TEST.getFirst());
 
         try {
             TEST.element();
@@ -29,10 +30,12 @@ public final class NodeDequeDefaultTest {
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableComparer.builder()
                     .type(NoSuchElementException.class)
+                    .message("the node deque is empty")
                     .build(), ThrowableComparer.create(e));
         }
 
-        Assert.assertNull(TEST.last());
+        Assert.assertNull(TEST.peekLast());
+        Assert.assertNull(TEST.getLast());
     }
 
     @Test
@@ -66,10 +69,11 @@ public final class NodeDequeDefaultTest {
         Assert.assertFalse(TEST.isEmpty());
         Assert.assertFalse(TEST.contains("item-1"));
         Assert.assertTrue(TEST.contains(node));
-        Assert.assertEquals(node, TEST.first());
+        Assert.assertEquals(node, TEST.peekFirst());
         Assert.assertEquals(node, TEST.peek());
         Assert.assertEquals(node, TEST.element());
-        Assert.assertEquals(node, TEST.last());
+        Assert.assertEquals(node, TEST.peekLast());
+        Assert.assertEquals(node, TEST.getLast());
         Assert.assertNull(TEST.peekPrevious(node));
         Assert.assertNull(TEST.peekNext(node));
         Assert.assertEquals("item-1", TEST.getValue(node));
@@ -80,18 +84,8 @@ public final class NodeDequeDefaultTest {
         Node node = TEST.createUnbound("item-1");
 
         Assert.assertTrue(TEST.add(node));
-
-        try {
-            TEST.add(node);
-            Assert.fail();
-        } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
-                    .type(IllegalArgumentException.class)
-                    .message("node was already added")
-                    .build(), ThrowableComparer.create(e));
-        }
-
-        Assert.assertFalse(TEST.offer(node));
+        Assert.assertTrue(TEST.add(node));
+        Assert.assertTrue(TEST.offer(node));
     }
 
     @Test
@@ -99,17 +93,8 @@ public final class NodeDequeDefaultTest {
         Node node = TEST.createUnbound("item-1");
 
         Assert.assertTrue(TEST.offer(node));
-        Assert.assertFalse(TEST.offer(node));
-
-        try {
-            TEST.add(node);
-            Assert.fail();
-        } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
-                    .type(IllegalArgumentException.class)
-                    .message("node was already added")
-                    .build(), ThrowableComparer.create(e));
-        }
+        Assert.assertTrue(TEST.offer(node));
+        Assert.assertTrue(TEST.add(node));
     }
 
     @Test
@@ -142,15 +127,19 @@ public final class NodeDequeDefaultTest {
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
         Assert.assertTrue(TEST.add(node3));
-        Assert.assertEquals(node1, TEST.first());
+        Assert.assertEquals(node1, TEST.peekFirst());
+        Assert.assertEquals(node1, TEST.getFirst());
         Assert.assertEquals(node2, TEST.peekNext(node1));
         Assert.assertEquals(node2, TEST.peekPrevious(node3));
-        Assert.assertEquals(node3, TEST.last());
+        Assert.assertEquals(node3, TEST.peekLast());
+        Assert.assertEquals(node3, TEST.getLast());
         Assert.assertTrue(TEST.offerLast(node2));
-        Assert.assertEquals(node1, TEST.first());
+        Assert.assertEquals(node1, TEST.peekFirst());
+        Assert.assertEquals(node1, TEST.getFirst());
         Assert.assertEquals(node3, TEST.peekNext(node1));
         Assert.assertEquals(node3, TEST.peekPrevious(node2));
-        Assert.assertEquals(node2, TEST.last());
+        Assert.assertEquals(node2, TEST.peekLast());
+        Assert.assertEquals(node2, TEST.getLast());
     }
 
     @Test
@@ -168,10 +157,12 @@ public final class NodeDequeDefaultTest {
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
         Assert.assertEquals(2, TEST.size());
-        Assert.assertEquals(node1, TEST.first());
         Assert.assertEquals(node1, TEST.peek());
+        Assert.assertEquals(node1, TEST.peekFirst());
+        Assert.assertEquals(node1, TEST.getFirst());
         Assert.assertEquals(node1, TEST.element());
-        Assert.assertEquals(node2, TEST.last());
+        Assert.assertEquals(node2, TEST.peekLast());
+        Assert.assertEquals(node2, TEST.getLast());
         Assert.assertEquals(node1, TEST.peekPrevious(node2));
         Assert.assertEquals(node2, TEST.peekNext(node1));
     }
@@ -184,10 +175,12 @@ public final class NodeDequeDefaultTest {
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
         Assert.assertTrue(TEST.remove(node1));
-        Assert.assertEquals(node2, TEST.first());
         Assert.assertEquals(node2, TEST.peek());
+        Assert.assertEquals(node2, TEST.peekFirst());
+        Assert.assertEquals(node2, TEST.getFirst());
         Assert.assertEquals(node2, TEST.element());
-        Assert.assertEquals(node2, TEST.last());
+        Assert.assertEquals(node2, TEST.peekLast());
+        Assert.assertEquals(node2, TEST.getLast());
         Assert.assertNull(TEST.peekPrevious(node2));
         Assert.assertNull(TEST.peekNext(node2));
     }
@@ -200,10 +193,12 @@ public final class NodeDequeDefaultTest {
         Assert.assertTrue(TEST.add(node1));
         Assert.assertTrue(TEST.add(node2));
         Assert.assertTrue(TEST.remove(node2));
-        Assert.assertEquals(node1, TEST.first());
         Assert.assertEquals(node1, TEST.peek());
+        Assert.assertEquals(node1, TEST.peekFirst());
+        Assert.assertEquals(node1, TEST.getFirst());
         Assert.assertEquals(node1, TEST.element());
-        Assert.assertEquals(node1, TEST.last());
+        Assert.assertEquals(node1, TEST.peekLast());
+        Assert.assertEquals(node1, TEST.getLast());
         Assert.assertNull(TEST.peekPrevious(node1));
         Assert.assertNull(TEST.peekNext(node1));
     }
@@ -241,7 +236,7 @@ public final class NodeDequeDefaultTest {
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableComparer.builder()
                     .type(IllegalArgumentException.class)
-                    .message("node was not created by this queue")
+                    .message("node was not created by this deque")
                     .build(), ThrowableComparer.create(e));
         }
 
@@ -289,7 +284,7 @@ public final class NodeDequeDefaultTest {
                 .add(node3)
                 .add(node2)
                 .add(node1)
-                .build(), ImmutableList.copyOf(TEST::iteratorDescending));
+                .build(), ImmutableList.copyOf(TEST::descendingIterator));
     }
 
     @Test

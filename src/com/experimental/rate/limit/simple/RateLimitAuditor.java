@@ -79,7 +79,7 @@ final class RateLimitAuditor {
         }
 
         long currentTimeFrame = getTimeFrame(currentTime, 0);
-        long timeFrame = timeFrames.getValue(timeFrames.last());
+        long timeFrame = timeFrames.getValue(timeFrames.peekLast());
         int index = (int) ((currentTimeFrame - timeFrame) / slidingWindow.getMilliseconds());
 
         return index >= slidingWindow.getBuckets();

@@ -16,7 +16,7 @@ public interface NodeDeque<T> extends Deque<Node> {
         Node node = peekFirst();
 
         if (node == null) {
-            throw new NoSuchElementException("the node dequeue is empty");
+            throw new NoSuchElementException("the node deque is empty");
         }
 
         return node;
