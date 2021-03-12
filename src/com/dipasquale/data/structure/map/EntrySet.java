@@ -1,21 +1,19 @@
 package com.dipasquale.data.structure.map;
 
+import com.dipasquale.data.structure.collection.CollectionExtensions;
+import com.dipasquale.data.structure.set.SetExtended;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-@RequiredArgsConstructor
-final class EntrySet<TKey, TValue> extends AbstractSet<Map.Entry<TKey, TValue>> {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class EntrySet<TKey, TValue> implements SetExtended<Map.Entry<TKey, TValue>> {
     private final MapBase<TKey, TValue> map;
 
     @Override
@@ -64,28 +62,13 @@ final class EntrySet<TKey, TValue> extends AbstractSet<Map.Entry<TKey, TValue>> 
     }
 
     @Override
-    public final boolean removeAll(final Collection<?> entries) {
-        long removed = entries.stream()
-                .filter(this::remove)
-                .count();
-
-        return removed > 0;
-    }
-
-    private Stream<Map.Entry<TKey, TValue>> streamFromMap() {
-        Spliterator<Map.Entry<TKey, TValue>> entries = Spliterators.spliteratorUnknownSize(map.iterator(), 0);
-
-        return StreamSupport.stream(entries, false);
-    }
-
-    @Override
     public final boolean retainAll(final Collection<?> entries) {
         Map<TKey, TValue> entriesToRetain = entries.stream()
                 .filter(e -> e instanceof Map.Entry)
                 .map(e -> (Map.Entry<TKey, TValue>) e)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = streamFromMap()
+        List<Map.Entry<TKey, TValue>> entriesToRemove = map.stream()
                 .filter(e -> !entriesToRetain.containsKey(e.getKey()) || !Objects.equals(entriesToRetain.get(e.getKey()), e.getValue()))
                 .collect(Collectors.toList());
 
@@ -101,6 +84,23 @@ final class EntrySet<TKey, TValue> extends AbstractSet<Map.Entry<TKey, TValue>> 
 
     @Override
     public Iterator<Map.Entry<TKey, TValue>> iterator() {
-        return streamFromMap().iterator();
+        return map.stream()
+                .map(e -> (Map.Entry<TKey, TValue>) e)
+                .iterator();
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        return CollectionExtensions.equals(this, other);
+    }
+
+    @Override
+    public int hashCode() {
+        return CollectionExtensions.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return CollectionExtensions.toString(this);
     }
 }

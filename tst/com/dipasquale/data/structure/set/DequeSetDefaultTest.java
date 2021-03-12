@@ -1,6 +1,5 @@
 package com.dipasquale.data.structure.set;
 
-import com.dipasquale.common.test.ThrowableComparer;
 import com.dipasquale.data.structure.collection.test.CollectionAsserter;
 import com.dipasquale.data.structure.deque.Node;
 import com.dipasquale.data.structure.deque.NodeDeque;
@@ -11,12 +10,11 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
-public final class InsertOrderSetDefaultTest {
+public final class DequeSetDefaultTest { // TODO: redo these test cases
     private static final Map<String, Node> NODES_MAP = new HashMap<>();
     private static final NodeDeque<String> NODES_QUEUE = NodeDeque.create();
-    private static final InsertOrderSetDefault<String> TEST = new InsertOrderSetDefault<>(NODES_MAP, NODES_QUEUE);
+    private static final DequeSetDefault<String> TEST = new DequeSetDefault<>(NODES_MAP, NODES_QUEUE);
 
     @Before
     public void before() {
@@ -28,8 +26,8 @@ public final class InsertOrderSetDefaultTest {
         Assert.assertEquals(0, TEST.size());
         Assert.assertTrue(TEST.isEmpty());
         Assert.assertFalse(TEST.contains("item-1"));
-        Assert.assertNull(TEST.first());
-        Assert.assertNull(TEST.last());
+        Assert.assertNull(TEST.getFirst());
+        Assert.assertNull(TEST.getLast());
     }
 
     @Test
@@ -38,38 +36,27 @@ public final class InsertOrderSetDefaultTest {
         Assert.assertEquals(1, TEST.size());
         Assert.assertFalse(TEST.isEmpty());
         Assert.assertTrue(TEST.contains("item-1"));
-        Assert.assertEquals("item-1", TEST.first());
-        Assert.assertEquals("item-1", TEST.last());
+        Assert.assertEquals("item-1", TEST.getFirst());
+        Assert.assertEquals("item-1", TEST.getLast());
         Assert.assertFalse(TEST.add("item-1"));
         Assert.assertEquals(1, TEST.size());
         Assert.assertFalse(TEST.isEmpty());
         Assert.assertTrue(TEST.contains("item-1"));
-        Assert.assertEquals("item-1", TEST.first());
-        Assert.assertEquals("item-1", TEST.last());
+        Assert.assertEquals("item-1", TEST.getFirst());
+        Assert.assertEquals("item-1", TEST.getLast());
     }
 
     @Test
     public void TEST_3() {
-        Assert.assertTrue(TEST.offer("item-1"));
+        Assert.assertTrue(TEST.addLast("item-1"));
         Assert.assertFalse(TEST.add("item-1"));
     }
 
     @Test
     public void TEST_4() {
-        try {
-            TEST.element();
-            Assert.fail();
-        } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
-                    .type(NoSuchElementException.class)
-                    .build(), ThrowableComparer.create(e));
-        }
-
-        Assert.assertNull(TEST.peek());
+        Assert.assertNull(TEST.getFirst());
         Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertEquals("item-1", TEST.first());
-        Assert.assertEquals("item-1", TEST.element());
-        Assert.assertEquals("item-1", TEST.peek());
+        Assert.assertEquals("item-1", TEST.getFirst());
     }
 
     @Test
@@ -82,20 +69,11 @@ public final class InsertOrderSetDefaultTest {
 
     @Test
     public void TEST_6() {
-        try {
-            TEST.remove();
-            Assert.fail();
-        } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
-                    .type(NoSuchElementException.class)
-                    .build(), ThrowableComparer.create(e));
-        }
-
-        Assert.assertNull(TEST.poll());
+        Assert.assertNull(TEST.removeFirst());
         Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertEquals("item-1", TEST.remove());
+        Assert.assertEquals("item-1", TEST.removeFirst());
         Assert.assertTrue(TEST.add("item-1"));
-        Assert.assertEquals("item-1", TEST.poll());
+        Assert.assertEquals("item-1", TEST.removeLast());
         Assert.assertTrue(TEST.add("item-1"));
     }
 
@@ -148,7 +126,7 @@ public final class InsertOrderSetDefaultTest {
                 .add("item-3")
                 .add("item-2")
                 .add("item-1")
-                .build(), ImmutableList.copyOf(TEST::iteratorDescending));
+                .build(), ImmutableList.copyOf(TEST::descendingIterator));
     }
 
     @Test
@@ -163,7 +141,7 @@ public final class InsertOrderSetDefaultTest {
                 .add("item-2")
                 .add("item-3")
                 .add("item-1")
-                .build(), ImmutableList.copyOf(TEST::iteratorDescending));
+                .build(), ImmutableList.copyOf(TEST::descendingIterator));
     }
 
     @Test

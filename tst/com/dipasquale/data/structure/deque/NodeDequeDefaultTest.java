@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import java.util.NoSuchElementException;
 
-public final class NodeDequeDefaultTest {
+public final class NodeDequeDefaultTest { // TODO: redo these test cases
     private static final NodeDeque<String> TEST = new NodeDequeDefault<>();
 
     @Before
@@ -22,7 +22,27 @@ public final class NodeDequeDefaultTest {
         Assert.assertTrue(TEST.isEmpty());
         Assert.assertNull(TEST.peek());
         Assert.assertNull(TEST.peekFirst());
-        Assert.assertNull(TEST.getFirst());
+        Assert.assertNull(TEST.peekLast());
+
+        try {
+            TEST.getFirst();
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableComparer.builder()
+                    .type(NoSuchElementException.class)
+                    .message("the deque is empty")
+                    .build(), ThrowableComparer.create(e));
+        }
+
+        try {
+            TEST.getLast();
+            Assert.fail();
+        } catch (Throwable e) {
+            Assert.assertEquals(ThrowableComparer.builder()
+                    .type(NoSuchElementException.class)
+                    .message("the deque is empty")
+                    .build(), ThrowableComparer.create(e));
+        }
 
         try {
             TEST.element();
@@ -30,12 +50,9 @@ public final class NodeDequeDefaultTest {
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableComparer.builder()
                     .type(NoSuchElementException.class)
-                    .message("the node deque is empty")
+                    .message("the deque is empty")
                     .build(), ThrowableComparer.create(e));
         }
-
-        Assert.assertNull(TEST.peekLast());
-        Assert.assertNull(TEST.getLast());
     }
 
     @Test

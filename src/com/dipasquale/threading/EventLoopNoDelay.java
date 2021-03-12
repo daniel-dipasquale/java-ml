@@ -17,7 +17,7 @@ final class EventLoopNoDelay implements EventLoop {
     }
 
     private static void ensureDelayTimeIsValid(final long delayTime) {
-        ArgumentValidator.getInstance().ensureEqual(delayTime, 0L, "delayTime", "must be 0 for FIFO ASAP event loops");
+        ArgumentValidator.ensureEqual(delayTime, 0L, "delayTime", "must be 0 for FIFO ASAP event loops");
     }
 
     @Override

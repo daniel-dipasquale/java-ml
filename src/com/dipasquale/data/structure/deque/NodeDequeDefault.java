@@ -1,18 +1,10 @@
 package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.data.structure.collection.CollectionExtensions;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.function.IntFunction;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 final class NodeDequeDefault<T> implements NodeDeque<T> {
     private Object membership;
@@ -46,6 +38,23 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
         return createUnlinkedTyped(value);
     }
 
+    private boolean hasMembership(final Node node) {
+        return node != null && node.getMembership() == membership;
+    }
+
+    private T getValue(final NodeDefault<T> node) {
+        return node.value;
+    }
+
+    @Override
+    public T getValue(final Node node) {
+        if (!hasMembership(node)) {
+            return null;
+        }
+
+        return getValue((NodeDefault<T>) node);
+    }
+
     @Override
     public int size() {
         return size;
@@ -54,10 +63,6 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
     @Override
     public boolean isEmpty() {
         return size == 0;
-    }
-
-    private boolean hasMembership(final Node node) {
-        return node != null && node.getMembership() == membership;
     }
 
     private boolean canBeAdded(final NodeDefault<T> node) {
@@ -71,24 +76,6 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
         }
 
         return false;
-    }
-
-    @Override
-    public Node peekFirst() {
-        if (start.next == end) {
-            return null;
-        }
-
-        return start.next;
-    }
-
-    @Override
-    public Node peekLast() {
-        if (end.previous == start) {
-            return null;
-        }
-
-        return end.previous;
     }
 
     private NodeDefault<T> peekPrevious(final NodeDefault<T> node) {
@@ -125,17 +112,14 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
         return peekNext((NodeDefault<T>) node);
     }
 
-    private T getValue(final NodeDefault<T> node) {
-        return node.value;
+    @Override
+    public Node peekFirst() {
+        return peekNext(start);
     }
 
     @Override
-    public T getValue(final Node node) {
-        if (!hasMembership(node)) {
-            return null;
-        }
-
-        return getValue((NodeDefault<T>) node);
+    public Node peekLast() {
+        return peekPrevious(end);
     }
 
     private boolean canBeRemoved(final NodeDefault<T> node) {
@@ -152,16 +136,50 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
         return node;
     }
 
-    private void offerFirst(final NodeDefault<T> node) {
+    private void offerBefore(final NodeDefault<T> node, final NodeDefault<T> previousToNode) {
         if (canBeRemoved(node)) {
             remove(node);
         }
 
-        node.previous = start;
-        node.next = start.next;
-        start.next.previous = node;
-        start.next = node;
+        node.previous = previousToNode.previous;
+        node.next = previousToNode;
+        previousToNode.previous.next = node;
+        previousToNode.previous = node;
         size++;
+    }
+
+    @Override
+    public boolean offerBefore(final Node node, final Node previousToNode) {
+        if (!hasMembership(node) || !hasMembership(previousToNode)) {
+            return false;
+        }
+
+        offerBefore((NodeDefault<T>) node, (NodeDefault<T>) previousToNode);
+
+        return true;
+    }
+
+    private void offerAfter(final NodeDefault<T> node, final NodeDefault<T> nextToNode) {
+        if (canBeRemoved(node)) {
+            remove(node);
+        }
+
+        node.previous = nextToNode;
+        node.next = nextToNode.next;
+        nextToNode.next.previous = node;
+        nextToNode.next = node;
+        size++;
+    }
+
+    @Override
+    public boolean offerAfter(final Node node, final Node nextToNode) {
+        if (!hasMembership(node) || !hasMembership(nextToNode)) {
+            return false;
+        }
+
+        offerAfter((NodeDefault<T>) node, (NodeDefault<T>) nextToNode);
+
+        return true;
     }
 
     @Override
@@ -170,21 +188,9 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
             return false;
         }
 
-        offerFirst((NodeDefault<T>) node);
+        offerAfter((NodeDefault<T>) node, start);
 
         return true;
-    }
-
-    private void offerLast(final NodeDefault<T> node) {
-        if (canBeRemoved(node)) {
-            remove(node);
-        }
-
-        node.previous = end.previous;
-        node.next = end;
-        end.previous.next = node;
-        end.previous = node;
-        size++;
     }
 
     @Override
@@ -193,13 +199,27 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
             return false;
         }
 
-        offerLast((NodeDefault<T>) node);
+        offerBefore((NodeDefault<T>) node, end);
 
         return true;
     }
 
     private void ensureHasMembership(final Node node) {
-        ArgumentValidator.getInstance().ensureTrue(hasMembership(node), "node", "was not created by this deque");
+        ArgumentValidator.ensureTrue(hasMembership(node), "node", "was not created by this deque");
+    }
+
+    @Override
+    public void addBefore(final Node node, final Node previousToNode) {
+        ensureHasMembership(node);
+        ensureHasMembership(previousToNode);
+        offerBefore(node, previousToNode);
+    }
+
+    @Override
+    public void addAfter(final Node node, final Node nextToNode) {
+        ensureHasMembership(node);
+        ensureHasMembership(nextToNode);
+        offerAfter(node, nextToNode);
     }
 
     @Override
@@ -277,88 +297,17 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
     }
 
     @Override
-    public Object[] toArray() {
-        Object[] array = new Object[size];
-        int i = 0;
-
-        for (Node node : this) {
-            array[i++] = node;
-        }
-
-        return array;
+    public boolean equals(final Object other) {
+        return CollectionExtensions.equals(this, other);
     }
 
     @Override
-    public <R> R[] toArray(final R[] array) {
-        R[] arrayFixed = array.length < size
-                ? (R[]) Array.newInstance(array.getClass().getComponentType(), size)
-                : array;
-
-        int i = 0;
-
-        for (Node node : this) {
-            arrayFixed[i++] = (R) node;
-        }
-
-        return arrayFixed;
+    public int hashCode() {
+        return CollectionExtensions.hashCode(this);
     }
 
     @Override
-    public <R> R[] toArray(final IntFunction<R[]> generator) {
-        return toArray(generator.apply(size));
-    }
-
-    @Override
-    public boolean containsAll(final Collection<?> collection) {
-        for (Object node : collection) {
-            if (!contains(node)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean addAll(final Collection<? extends Node> collection) {
-        boolean modified = false;
-
-        for (Node node : collection) {
-            if (add(node)) {
-                modified = true;
-            }
-        }
-
-        return modified;
-    }
-
-    private static Set<?> ensureSet(final Collection<?> collection) {
-        Set<Object> set = Collections.newSetFromMap(new IdentityHashMap<>());
-
-        set.addAll(collection);
-
-        return set;
-    }
-
-    @Override
-    public boolean retainAll(final Collection<?> collection) {
-        Set<?> nodesToRetain = ensureSet(collection);
-
-        List<Node> nodesToRemove = StreamSupport.stream(spliterator(), false)
-                .filter(k -> !nodesToRetain.contains(k))
-                .collect(Collectors.toList());
-
-        nodesToRemove.forEach(this::remove);
-
-        return !nodesToRemove.isEmpty();
-    }
-
-    @Override
-    public boolean removeAll(final Collection<?> collection) {
-        long removed = collection.stream()
-                .filter(this::remove)
-                .count();
-
-        return removed > 0L;
+    public String toString() {
+        return CollectionExtensions.toString(this);
     }
 }

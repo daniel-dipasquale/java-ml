@@ -4,7 +4,7 @@ import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.IdFactory;
 import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.RandomSupport;
-import com.dipasquale.data.structure.set.InsertOrderSet;
+import com.dipasquale.data.structure.set.DequeSet;
 import com.experimental.cliff.data.structure.map.NonBlockingHashMap;
 import com.experimental.metrics.MetricData;
 import com.experimental.metrics.MetricDataCollector;
@@ -122,7 +122,7 @@ public final class Main {
                 .executorService(EXECUTOR_SERVICE)
                 .collections(ImmutableList.<Collection<Integer>>builder()
                         .add(Collections.synchronizedSet(new HashSet<>()))
-                        .add(InsertOrderSet.createSynchronized())
+                        .add(DequeSet.createSynchronized())
                         .add(new ConcurrentSkipListSet<>())
                         .add(new ConcurrentLinkedQueue<>())
                         .build())
@@ -141,7 +141,7 @@ public final class Main {
                 .executorService(EXECUTOR_SERVICE)
                 .sets(ImmutableList.<Set<Integer>>builder()
                         .add(Collections.synchronizedSet(new HashSet<>()))
-                        .add(InsertOrderSet.createSynchronized())
+                        .add(DequeSet.createSynchronized())
                         .add(new ConcurrentSkipListSet<>())
                         .build())
                 .dataGenerator(dataGenerator)

@@ -13,7 +13,7 @@ public final class SettingsNeuralNetworkSupport {
 
     ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> createFactory(final SettingsConnectionGeneSupport connections) {
         return c -> {
-            ArgumentValidator.getInstance().ensureFalse(connections.isRecurrentConnectionsAllowed(), "connections.allowRecurrentConnections", "is not support yet");
+            ArgumentValidator.ensureFalse(connections.isRecurrentConnectionsAllowed(), "connections.allowRecurrentConnections", "is not support yet");
 
             return new ContextDefaultNeuralNetworkSupport(NeuralNetworkDefault::new);
         };

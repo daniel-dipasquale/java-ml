@@ -1,8 +1,10 @@
 package com.dipasquale.data.structure.map;
 
+import com.dipasquale.data.structure.collection.CollectionExtended;
+import com.dipasquale.data.structure.collection.CollectionExtensions;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,14 +13,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-@RequiredArgsConstructor
-final class Values<TKey, TValue> extends AbstractCollection<TValue> {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class Values<TKey, TValue> implements CollectionExtended<TValue> {
     private final MapBase<TKey, TValue> map;
 
     @Override
@@ -31,15 +29,9 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
         return map.isEmpty();
     }
 
-    private Stream<Map.Entry<TKey, TValue>> streamFromMap() {
-        Spliterator<Map.Entry<TKey, TValue>> entries = Spliterators.spliteratorUnknownSize(map.iterator(), 0);
-
-        return StreamSupport.stream(entries, false);
-    }
-
     @Override
     public final boolean contains(final Object value) {
-        return streamFromMap().anyMatch(e -> Objects.equals(e.getValue(), value));
+        return map.containsValue(value);
     }
 
     @Override
@@ -48,19 +40,20 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
     }
 
     @Override
-    public final boolean addAll(final Collection<? extends TValue> values) {
-        throw new UnsupportedOperationException();
+    public final boolean remove(final Object value) {
+        Optional<TKey> keyToRemove = map.stream()
+                .filter(e -> Objects.equals(e.getValue(), value))
+                .map(Map.Entry::getKey)
+                .findFirst();
+
+        keyToRemove.ifPresent(map::remove);
+
+        return keyToRemove.isPresent();
     }
 
     @Override
-    public final boolean remove(final Object value) {
-        Optional<Map.Entry<TKey, TValue>> entryToRemove = streamFromMap()
-                .filter(e -> Objects.equals(e.getValue(), value))
-                .findFirst();
-
-        entryToRemove.map(Map.Entry::getKey).ifPresent(map::remove);
-
-        return entryToRemove.isPresent();
+    public final boolean addAll(final Collection<? extends TValue> values) {
+        throw new UnsupportedOperationException();
     }
 
     private static Set<?> ensureSet(final Collection<?> collection) {
@@ -75,7 +68,7 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
     public final boolean removeAll(final Collection<?> values) {
         Set<?> valuesToRemove = ensureSet(values);
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = streamFromMap()
+        List<Map.Entry<TKey, TValue>> entriesToRemove = map.stream()
                 .filter(e -> valuesToRemove.contains(e.getValue()))
                 .collect(Collectors.toList());
 
@@ -88,7 +81,7 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
     public final boolean retainAll(final Collection<?> values) {
         Set<?> valuesToRetain = ensureSet(values);
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = streamFromMap()
+        List<Map.Entry<TKey, TValue>> entriesToRemove = map.stream()
                 .filter(e -> !valuesToRetain.contains(e.getValue()))
                 .collect(Collectors.toList());
 
@@ -104,8 +97,23 @@ final class Values<TKey, TValue> extends AbstractCollection<TValue> {
 
     @Override
     public Iterator<TValue> iterator() {
-        return streamFromMap()
+        return map.stream()
                 .map(Map.Entry::getValue)
                 .iterator();
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        return CollectionExtensions.equals(this, other);
+    }
+
+    @Override
+    public int hashCode() {
+        return CollectionExtensions.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return CollectionExtensions.toString(this);
     }
 }

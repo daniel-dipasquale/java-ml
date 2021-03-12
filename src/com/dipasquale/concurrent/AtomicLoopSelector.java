@@ -11,8 +11,8 @@ public final class AtomicLoopSelector<T> {
     private final boolean restart;
 
     public AtomicLoopSelector(final ByIndex<T> items, final int offset, final int count, final boolean restart) {
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(offset, "offset");
-        ArgumentValidator.getInstance().ensureLessThan(offset, count, "offset");
+        ArgumentValidator.ensureGreaterThanOrEqualToZero(offset, "offset");
+        ArgumentValidator.ensureLessThan(offset, count, "offset");
 
         this.items = items;
         this.indexCas = new AtomicInteger(offset);

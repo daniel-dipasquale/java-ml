@@ -8,7 +8,7 @@ final class BloomFilterMultiFactory implements BloomFilterFactory {
     private final int count;
 
     BloomFilterMultiFactory(final BloomFilterPartitionFactory bloomFilterPartitionFactory, final int count) {
-        ArgumentValidator.getInstance().ensureGreaterThanZero(count, "count");
+        ArgumentValidator.ensureGreaterThanZero(count, "count");
         this.bloomFilterPartitionFactory = bloomFilterPartitionFactory;
         this.count = count;
     }

@@ -58,7 +58,7 @@ final class CountMinSketchCasArrayBitManipulator<T> implements CountMinSketch<T>
 
     @Override
     public long put(final T item, final long count) {
-        ArgumentValidator.getInstance().ensureFalse(dataBitManipulators.get(0).isOutOfBounds(count), "count", "is out of bounds");
+        ArgumentValidator.ensureFalse(dataBitManipulators.get(0).isOutOfBounds(count), "count", "is out of bounds");
 
         return selectOrUpdateData(item, (bm, i) -> bm.getAndAdd(i, count));
     }

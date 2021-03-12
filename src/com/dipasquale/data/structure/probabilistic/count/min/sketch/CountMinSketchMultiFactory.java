@@ -8,7 +8,7 @@ final class CountMinSketchMultiFactory implements CountMinSketchFactory {
     private final int count;
 
     CountMinSketchMultiFactory(final CountMinSketchPartitionFactory countMinSketchPartitionFactory, final int count) {
-        ArgumentValidator.getInstance().ensureGreaterThanZero(count, "count");
+        ArgumentValidator.ensureGreaterThanZero(count, "count");
         this.countMinSketchPartitionFactory = countMinSketchPartitionFactory;
         this.count = count;
     }

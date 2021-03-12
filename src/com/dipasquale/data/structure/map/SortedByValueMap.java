@@ -2,7 +2,7 @@ package com.dipasquale.data.structure.map;
 
 import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.common.ObjectFactory;
-import com.dipasquale.data.structure.set.InsertOrderSet;
+import com.dipasquale.data.structure.set.DequeSet;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,36 +31,36 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> { // TODO: should implement NavigableMap
     private final Map<TKey, Entry<TKey, TValue>> map;
-    private final NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap;
-    private final ObjectFactory<InsertOrderSet<Entry<TKey, TValue>>> entriesSetFactory;
+    private final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap;
+    private final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory;
     private final EntryStrategyFactory<TKey, TValue> entryStrategyFactory;
     private final KeySet<TKey, TValue> descendingKeySet = new KeySetCustomIterable<>(this, this::iteratorDescending);
 
     private static <TKey, TValue> SortedByValueMap<TKey, TValue> create(final Comparator<TValue> comparator, final Map<TKey, Entry<TKey, TValue>> map, final EntryStrategyFactory<TKey, TValue> entryStrategyFactory) {
-        NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap = new TreeMap<>(comparator);
-        ObjectFactory<InsertOrderSet<Entry<TKey, TValue>>> entriesSetFactory = InsertOrderSet::create;
+        NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap = new TreeMap<>(comparator);
+        ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory = DequeSet::create;
 
         return new SortedByValueMap<>(map, navigableMap, entriesSetFactory, entryStrategyFactory);
     }
 
     public static <TKey, TValue> SortedByValueMap<TKey, TValue> createHash(final Comparator<TValue> comparator) {
-        ArgumentValidator.getInstance().ensureNotNull(comparator, "comparator");
+        ArgumentValidator.ensureNotNull(comparator, "comparator");
 
         return create(comparator, new HashMap<>(), EntryHash::new);
     }
 
     public static <TKey, TValue> SortedByValueMap<TKey, TValue> createIdentity(final Comparator<TValue> comparator) {
-        ArgumentValidator.getInstance().ensureNotNull(comparator, "comparator");
+        ArgumentValidator.ensureNotNull(comparator, "comparator");
 
         return create(comparator, new IdentityHashMap<>(), EntryIdentity::new);
     }
 
     public static <TKey, TValue> SortedByValueMap<TKey, TValue> createHashConcurrent(final Comparator<TValue> comparator) {
-        ArgumentValidator.getInstance().ensureNotNull(comparator, "comparator");
+        ArgumentValidator.ensureNotNull(comparator, "comparator");
 
         Map<TKey, Entry<TKey, TValue>> map = new ConcurrentHashMap<>();
-        NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap = new ConcurrentSkipListMap<>(comparator);
-        ObjectFactory<InsertOrderSet<Entry<TKey, TValue>>> entriesSetFactory = InsertOrderSet::createSynchronized;
+        NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap = new ConcurrentSkipListMap<>(comparator);
+        ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory = DequeSet::createSynchronized;
         EntryStrategyFactory<TKey, TValue> entryStrategyFactory = EntryHash::new;
 
         return new SortedByValueMap<>(map, navigableMap, entriesSetFactory, entryStrategyFactory);
@@ -166,18 +166,18 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
         navigableMap.clear();
     }
 
-    private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap, final Function<InsertOrderSet<Entry<TKey, TValue>>, Stream<Entry<TKey, TValue>>> flatMapper) {
+    private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap, final Function<DequeSet<Entry<TKey, TValue>>, Stream<Entry<TKey, TValue>>> flatMapper) {
         return navigableMap.values().stream()
                 .flatMap(flatMapper);
     }
 
-    private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap) {
+    private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap) {
         return stream(navigableMap, Collection::stream);
     }
 
-    private static <TKey, TValue> Stream<Entry<TKey, TValue>> streamDescending(final NavigableMap<TValue, InsertOrderSet<Entry<TKey, TValue>>> navigableMap) {
-        Function<InsertOrderSet<Entry<TKey, TValue>>, Stream<Entry<TKey, TValue>>> flatMapper = ios -> {
-            Spliterator<Entry<TKey, TValue>> spliterator = Spliterators.spliteratorUnknownSize(ios.iteratorDescending(), 0);
+    private static <TKey, TValue> Stream<Entry<TKey, TValue>> streamDescending(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap) {
+        Function<DequeSet<Entry<TKey, TValue>>, Stream<Entry<TKey, TValue>>> flatMapper = ios -> {
+            Spliterator<Entry<TKey, TValue>> spliterator = Spliterators.spliteratorUnknownSize(ios.descendingIterator(), 0);
 
             return StreamSupport.stream(spliterator, false);
         };
@@ -198,12 +198,12 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
         return descendingKeySet;
     }
 
-    private static <TKey, TValue> Entry<TKey, TValue> getEntry(final Entry<TValue, InsertOrderSet<Entry<TKey, TValue>>> entry, final ElementNavigator<TKey, TValue> elementNavigator) {
+    private static <TKey, TValue> Entry<TKey, TValue> getEntry(final Entry<TValue, DequeSet<Entry<TKey, TValue>>> entry, final ElementNavigator<TKey, TValue> elementNavigator) {
         if (entry == null) {
             return null;
         }
 
-        InsertOrderSet<Entry<TKey, TValue>> keys = entry.getValue();
+        DequeSet<Entry<TKey, TValue>> keys = entry.getValue();
 
         return elementNavigator.navigate(keys);
     }
@@ -225,7 +225,7 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
     }
 
     public Entry<TKey, TValue> headEntry() {
-        return getEntry(navigableMap.firstEntry(), InsertOrderSet::first);
+        return getEntry(navigableMap.firstEntry(), DequeSet::getFirst);
     }
 
     public TKey headKey() {
@@ -237,7 +237,7 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
     }
 
     public Entry<TKey, TValue> tailEntry() {
-        return getEntry(navigableMap.lastEntry(), InsertOrderSet::last);
+        return getEntry(navigableMap.lastEntry(), DequeSet::getLast);
     }
 
     public TKey tailKey() {
@@ -296,6 +296,6 @@ public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> 
 
     @FunctionalInterface
     private interface ElementNavigator<TKey, TValue> {
-        Entry<TKey, TValue> navigate(InsertOrderSet<Entry<TKey, TValue>> set);
+        Entry<TKey, TValue> navigate(DequeSet<Entry<TKey, TValue>> set);
     }
 }

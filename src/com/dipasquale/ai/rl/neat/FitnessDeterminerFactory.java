@@ -28,8 +28,8 @@ interface FitnessDeterminerFactory {
     }
 
     static FitnessDeterminerFactory createPthFactory(final float percentage) {
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualTo(percentage, 0f, "percentage");
-        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(percentage, 1f, "percentage");
+        ArgumentValidator.ensureGreaterThanOrEqualTo(percentage, 0f, "percentage");
+        ArgumentValidator.ensureLessThanOrEqualTo(percentage, 1f, "percentage");
 
         return () -> new FitnessDeterminerMetricDatum(md -> md.getPth(percentage));
     }

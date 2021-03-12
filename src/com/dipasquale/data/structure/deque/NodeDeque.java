@@ -1,94 +1,21 @@
 package com.dipasquale.data.structure.deque;
 
-import java.util.Deque;
-import java.util.NoSuchElementException;
-
-public interface NodeDeque<T> extends Deque<Node> {
+public interface NodeDeque<T> extends DequeExtended<Node> {
     Node createUnbound(T value);
 
-    @Override
-    default Node peek() {
-        return peekFirst();
-    }
-
-    @Override
-    default Node element() {
-        Node node = peekFirst();
-
-        if (node == null) {
-            throw new NoSuchElementException("the node deque is empty");
-        }
-
-        return node;
-    }
+    T getValue(Node node);
 
     Node peekPrevious(Node node);
 
     Node peekNext(Node node);
 
-    T getValue(Node node);
+    boolean offerBefore(Node node, Node previousToNode);
 
-    @Override
-    default boolean add(final Node node) {
-        addLast(node);
+    boolean offerAfter(Node node, Node nextToNode);
 
-        return true;
-    }
+    void addBefore(Node node, Node previousToNode);
 
-    @Override
-    default void push(final Node node) {
-        offerFirst(node);
-    }
-
-    @Override
-    default boolean offer(final Node node) {
-        return offerLast(node);
-    }
-
-    @Override
-    default Node getFirst() {
-        return peekFirst();
-    }
-
-    @Override
-    default Node getLast() {
-        return peekLast();
-    }
-
-    @Override
-    default Node remove() {
-        return removeFirst();
-    }
-
-    @Override
-    default Node pollFirst() {
-        return removeFirst();
-    }
-
-    @Override
-    default Node pollLast() {
-        return removeLast();
-    }
-
-    @Override
-    default Node poll() {
-        return removeFirst();
-    }
-
-    @Override
-    default Node pop() {
-        return removeLast();
-    }
-
-    @Override
-    default boolean removeFirstOccurrence(final Object node) {
-        return remove(node);
-    }
-
-    @Override
-    default boolean removeLastOccurrence(final Object node) {
-        return remove(node);
-    }
+    void addAfter(Node node, Node nextToNode);
 
     static <T> NodeDeque<T> create() {
         return new NodeDequeDefault<>();

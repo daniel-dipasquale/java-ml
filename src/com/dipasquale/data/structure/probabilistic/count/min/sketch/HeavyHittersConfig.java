@@ -58,7 +58,7 @@ public final class HeavyHittersConfig<T> {
         }
 
         static <T> AggregatePredicate<T> afterAggregating(final int times) {
-            ArgumentValidator.getInstance().ensureGreaterThanZero(times, "times");
+            ArgumentValidator.ensureGreaterThanZero(times, "times");
 
             int[] count = new int[1];
 
@@ -76,7 +76,7 @@ public final class HeavyHittersConfig<T> {
         }
 
         static <T> AggregatePredicate<T> afterEvery(final long expiryTime) {
-            ArgumentValidator.getInstance().ensureGreaterThanZero(expiryTime, "expiryTime");
+            ArgumentValidator.ensureGreaterThanZero(expiryTime, "expiryTime");
 
             long[] lastRecycledDateTime = new long[]{Long.MIN_VALUE};
 
@@ -100,7 +100,7 @@ public final class HeavyHittersConfig<T> {
         }
 
         static <T> AggregatePredicate<T> afterMinimumCountOf(final long minimumCount) {
-            ArgumentValidator.getInstance().ensureGreaterThanZero(minimumCount, "minimumCount");
+            ArgumentValidator.ensureGreaterThanZero(minimumCount, "minimumCount");
 
             return new AggregatePredicate<>() {
                 @Override

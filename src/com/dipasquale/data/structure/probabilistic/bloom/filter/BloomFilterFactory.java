@@ -4,7 +4,7 @@ import com.dipasquale.common.ArgumentValidator;
 import com.dipasquale.common.BitManipulatorSupport;
 import com.dipasquale.common.ObjectFactory;
 
-public interface BloomFilterFactory {
+public interface BloomFilterFactory { // TODO: enclose parameters to single object
     int getMaximumHashFunctions();
 
     default int getSizePerRecord() {
@@ -31,12 +31,12 @@ public interface BloomFilterFactory {
     }
 
     private <T> BloomFilter<T> createEstimatedIfValid(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size) {
-        ArgumentValidator.getInstance().ensureGreaterThanZero(estimatedSize, "estimatedSize");
-        ArgumentValidator.getInstance().ensureGreaterThanZero(hashFunctions, "hashFunctions");
-        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(hashFunctions, getMaximumHashFunctions(), "hashFunctions");
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(falsePositiveRatio, "falsePositiveRatio");
-        ArgumentValidator.getInstance().ensureLessThanOrEqualTo(falsePositiveRatio, 1D, "falsePositiveRatio");
-        ArgumentValidator.getInstance().ensureGreaterThanZero(size, "size", String.format("estimatedSize '%d', hashFunctions '%d' and falsePositiveRatio '%f' yields a size lesser than 0", estimatedSize, hashFunctions, falsePositiveRatio));
+        ArgumentValidator.ensureGreaterThanZero(estimatedSize, "estimatedSize");
+        ArgumentValidator.ensureGreaterThanZero(hashFunctions, "hashFunctions");
+        ArgumentValidator.ensureLessThanOrEqualTo(hashFunctions, getMaximumHashFunctions(), "hashFunctions");
+        ArgumentValidator.ensureGreaterThanOrEqualToZero(falsePositiveRatio, "falsePositiveRatio");
+        ArgumentValidator.ensureLessThanOrEqualTo(falsePositiveRatio, 1D, "falsePositiveRatio");
+        ArgumentValidator.ensureGreaterThanZero(size, "size", String.format("estimatedSize '%d', hashFunctions '%d' and falsePositiveRatio '%f' yields a size lesser than 0", estimatedSize, hashFunctions, falsePositiveRatio));
 
         double sizeStep1 = (double) size / (double) getSizePerRecord();
         long sizeFixed = (long) Math.ceil(sizeStep1);

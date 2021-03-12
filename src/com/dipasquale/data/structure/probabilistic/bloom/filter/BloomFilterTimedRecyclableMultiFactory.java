@@ -9,15 +9,15 @@ final class BloomFilterTimedRecyclableMultiFactory implements BloomFilterFactory
     private final int partitions;
 
     BloomFilterTimedRecyclableMultiFactory(final BloomFilterDefaultFactory bloomFilterDefaultFactory, final ExpirySupport.Factory expirySupportFactory, final long expiryTime, final int partitions) {
-        ArgumentValidator.getInstance().ensureGreaterThanZero(expiryTime, "expiryTime");
-        ArgumentValidator.getInstance().ensureGreaterThanZero(partitions, "partitions");
+        ArgumentValidator.ensureGreaterThanZero(expiryTime, "expiryTime");
+        ArgumentValidator.ensureGreaterThanZero(partitions, "partitions");
         this.bloomFilterDefaultFactory = bloomFilterDefaultFactory;
         this.expirySupportProvider = i -> expirySupportFactory.create(expiryTime * (long) partitions, expiryTime * (long) i);
         this.partitions = partitions;
     }
 
     BloomFilterTimedRecyclableMultiFactory(final BloomFilterDefaultFactory bloomFilterDefaultFactory, final ExpirySupport expirySupport, final int partitions) {
-        ArgumentValidator.getInstance().ensureGreaterThanZero(partitions, "partitions");
+        ArgumentValidator.ensureGreaterThanZero(partitions, "partitions");
         this.bloomFilterDefaultFactory = bloomFilterDefaultFactory;
         this.expirySupportProvider = i -> expirySupport;
         this.partitions = partitions;

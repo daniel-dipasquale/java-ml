@@ -5,10 +5,10 @@ public interface ExpirySupport {
     ExpiryRecord next();
 
     private static ExpirySupport create(final DateTimeSupport dateTimeSupport, final long expiryTime, final long offset, final double slider) {
-        ArgumentValidator.getInstance().ensureNotNull(dateTimeSupport, "dateTimeSupport");
-        ArgumentValidator.getInstance().ensureGreaterThanZero(expiryTime, "expiryTime");
-        ArgumentValidator.getInstance().ensureGreaterThanOrEqualToZero(offset, "offset");
-        ArgumentValidator.getInstance().ensureGreaterThan(expiryTime, offset, "expiryTime");
+        ArgumentValidator.ensureNotNull(dateTimeSupport, "dateTimeSupport");
+        ArgumentValidator.ensureGreaterThanZero(expiryTime, "expiryTime");
+        ArgumentValidator.ensureGreaterThanOrEqualToZero(offset, "offset");
+        ArgumentValidator.ensureGreaterThan(expiryTime, offset, "expiryTime");
 
         double expiryTimeDouble = (double) expiryTime;
 

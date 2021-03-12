@@ -1,11 +1,15 @@
 package com.dipasquale.data.structure.map;
 
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public abstract class MapBase<TKey, TValue> extends AbstractMap<TKey, TValue> {
+public abstract class MapBase<TKey, TValue> implements MapExtended<TKey, TValue> {
     private final KeySet<TKey, TValue> keySet = new KeySet<>(this);
     private final Values<TKey, TValue> values = new Values<>(this);
     private final EntrySet<TKey, TValue> entrySet = new EntrySet<>(this);
@@ -18,7 +22,7 @@ public abstract class MapBase<TKey, TValue> extends AbstractMap<TKey, TValue> {
 
     @Override
     public boolean containsValue(final Object value) {
-        return values().contains(value);
+        return stream().anyMatch(e -> Objects.equals(e.getValue(), value));
     }
 
     @Override
@@ -49,4 +53,25 @@ public abstract class MapBase<TKey, TValue> extends AbstractMap<TKey, TValue> {
     }
 
     protected abstract Iterator<? extends Entry<TKey, TValue>> iterator();
+
+    Stream<? extends Entry<TKey, TValue>> stream() {
+        Spliterator<Entry<TKey, TValue>> entries = Spliterators.spliteratorUnknownSize(iterator(), 0);
+
+        return StreamSupport.stream(entries, false);
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        return MapExtensions.equals(this, other);
+    }
+
+    @Override
+    public int hashCode() {
+        return MapExtensions.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return MapExtensions.toString(this);
+    }
 }
