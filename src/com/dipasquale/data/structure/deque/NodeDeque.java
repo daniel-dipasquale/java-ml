@@ -1,6 +1,8 @@
 package com.dipasquale.data.structure.deque;
 
-public interface NodeDeque<T> extends DequeExtended<Node> {
+import java.util.Deque;
+
+public interface NodeDeque<T> extends Deque<Node> {
     Node createUnbound(T value);
 
     T getValue(Node node);

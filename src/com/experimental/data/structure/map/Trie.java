@@ -1,6 +1,6 @@
 package com.experimental.data.structure.map;
 
-import com.dipasquale.data.structure.map.MapBase;
+import com.dipasquale.data.structure.map.AbstractMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.Stack;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public final class Trie<TKey, TValue> extends MapBase<TKey, TValue> {
+public final class Trie<TKey, TValue> extends AbstractMap<TKey, TValue> {
     private final TrieKeyTokenizer<TKey> keyTokenizer;
     private final EntryInternal rootEntry = new EntryInternal(null);
     private int size = 0;

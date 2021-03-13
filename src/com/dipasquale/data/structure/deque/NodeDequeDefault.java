@@ -1,12 +1,11 @@
 package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.ArgumentValidator;
-import com.dipasquale.data.structure.collection.CollectionExtensions;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 
 import java.util.Iterator;
 
-final class NodeDequeDefault<T> implements NodeDeque<T> {
+final class NodeDequeDefault<T> extends AbstractDeque<Node> implements NodeDeque<T> {
     private Object membership;
     private NodeDefault<T> start;
     private NodeDefault<T> end;
@@ -294,20 +293,5 @@ final class NodeDequeDefault<T> implements NodeDeque<T> {
         return LinkedIterator.createStream(end.previous, e -> e.previous, e -> e != start)
                 .map(e -> (Node) e)
                 .iterator();
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        return CollectionExtensions.equals(this, other);
-    }
-
-    @Override
-    public int hashCode() {
-        return CollectionExtensions.hashCode(this);
-    }
-
-    @Override
-    public String toString() {
-        return CollectionExtensions.toString(this);
     }
 }

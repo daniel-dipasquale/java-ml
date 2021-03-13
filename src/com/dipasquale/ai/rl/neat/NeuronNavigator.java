@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialId;
-import com.dipasquale.data.structure.map.InsertOrderMap;
+import com.dipasquale.data.structure.map.DequeMap;
 import lombok.AccessLevel;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ final class NeuronNavigator<T extends Neuron> implements Iterable<Neuron> {
     private Queue<Neuron> createOrdered() {
         LinkedList<Neuron> ordered = new LinkedList<>();
         Set<SequentialId> orderedAlready = new HashSet<>();
-        InsertOrderMap<SequentialId, Navigation<T>> stack = new InsertOrderMap<>();
+        DequeMap<SequentialId, Navigation<T>> stack = new DequeMap<>();
 
         for (NeuronStrategy<T> neuron : outputNeurons) {
             stack.put(neuron.getId(), new Navigation<>(neuron, false));

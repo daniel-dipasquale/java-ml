@@ -1,7 +1,6 @@
 package com.dipasquale.data.structure.map;
 
-import com.dipasquale.data.structure.collection.CollectionExtended;
-import com.dipasquale.data.structure.collection.CollectionExtensions;
+import com.dipasquale.data.structure.collection.AbstractCollection;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -16,8 +15,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class Values<TKey, TValue> implements CollectionExtended<TValue> {
-    private final MapBase<TKey, TValue> map;
+final class Values<TKey, TValue> extends AbstractCollection<TValue> {
+    private final AbstractMap<TKey, TValue> map;
 
     @Override
     public final int size() {
@@ -100,20 +99,5 @@ final class Values<TKey, TValue> implements CollectionExtended<TValue> {
         return map.stream()
                 .map(Map.Entry::getValue)
                 .iterator();
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        return CollectionExtensions.equals(this, other);
-    }
-
-    @Override
-    public int hashCode() {
-        return CollectionExtensions.hashCode(this);
-    }
-
-    @Override
-    public String toString() {
-        return CollectionExtensions.toString(this);
     }
 }

@@ -327,15 +327,16 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
 
     @Override
     public boolean equals(final Object other) {
-        synchronized (nodeDeque) {
-            return nodeDeque.equals(other);
-        }
+        return nodeDeque.equals(other);
     }
 
     @Override
     public int hashCode() {
-        synchronized (nodeDeque) {
-            return nodeDeque.hashCode();
-        }
+        return nodeDeque.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return nodeDeque.toString();
     }
 }

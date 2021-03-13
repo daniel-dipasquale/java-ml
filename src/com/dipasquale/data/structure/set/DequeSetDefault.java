@@ -1,5 +1,6 @@
 package com.dipasquale.data.structure.set;
 
+import com.dipasquale.data.structure.collection.AbstractCollection;
 import com.dipasquale.data.structure.deque.Node;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import java.util.Map;
 import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class DequeSetDefault<T> implements DequeSet<T> {
+final class DequeSetDefault<T> extends AbstractCollection<T> implements DequeSet<T> {
     private final Map<T, Node> nodesMap;
     private final NodeDeque<T> nodesQueue;
 
@@ -111,6 +112,11 @@ final class DequeSetDefault<T> implements DequeSet<T> {
     @Override
     public boolean addLast(final T value) {
         return add(value, nodesQueue::offerLast);
+    }
+
+    @Override
+    public boolean add(final T value) {
+        return addLast(value);
     }
 
     @Override

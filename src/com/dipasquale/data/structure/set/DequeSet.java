@@ -1,24 +1,15 @@
 package com.dipasquale.data.structure.set;
 
-import com.dipasquale.data.structure.collection.CollectionExtensions;
 import com.dipasquale.data.structure.deque.Node;
 import com.dipasquale.data.structure.deque.NodeDeque;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.IntFunction;
-import java.util.function.Predicate;
 
 public interface DequeSet<T> extends Set<T> {
-    @Override
-    default boolean isEmpty() {
-        return CollectionExtensions.isEmpty(this);
-    }
-
     T getPrevious(T value);
 
     T getNext(T value);
@@ -35,11 +26,6 @@ public interface DequeSet<T> extends Set<T> {
 
     boolean addLast(T value);
 
-    @Override
-    default boolean add(final T value) {
-        return addLast(value);
-    }
-
     T removePrevious(T previousToValue);
 
     T removeNext(T nextToValue);
@@ -49,46 +35,6 @@ public interface DequeSet<T> extends Set<T> {
     T removeLast();
 
     Iterator<T> descendingIterator();
-
-    @Override
-    default Object[] toArray() {
-        return CollectionExtensions.toArray(this);
-    }
-
-    @Override
-    default <R> R[] toArray(final R[] array) {
-        return CollectionExtensions.toArray(this, array);
-    }
-
-    @Override
-    default <R> R[] toArray(final IntFunction<R[]> generator) {
-        return CollectionExtensions.toArray(this, generator);
-    }
-
-    @Override
-    default boolean containsAll(final Collection<?> collection) {
-        return CollectionExtensions.containsAll(this, collection);
-    }
-
-    @Override
-    default boolean addAll(final Collection<? extends T> collection) {
-        return CollectionExtensions.addAll(this, collection);
-    }
-
-    @Override
-    default boolean removeAll(final Collection<?> collection) {
-        return CollectionExtensions.removeAll(this, collection);
-    }
-
-    @Override
-    default boolean removeIf(final Predicate<? super T> filter) {
-        return CollectionExtensions.removeIf(this, filter);
-    }
-
-    @Override
-    default boolean retainAll(final Collection<?> collection) {
-        return CollectionExtensions.retainAll(this, collection);
-    }
 
     static <T> DequeSet<T> create() {
         Map<T, Node> nodesMap = new HashMap<>();

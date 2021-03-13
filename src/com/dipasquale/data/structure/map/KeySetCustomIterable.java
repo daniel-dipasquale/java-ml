@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Spliterator;
 import java.util.stream.StreamSupport;
 
-final class KeySetCustomIterable<TKey, TValue> extends KeySet<TKey, TValue> {
+final class KeySetCustomIterable<TKey, TValue> extends KeySet<TKey, TValue> { // TODO: consider this as a temporary solution
     private final Iterable<Map.Entry<TKey, TValue>> iterable;
 
-    KeySetCustomIterable(final MapBase<TKey, TValue> map, final Iterable<Map.Entry<TKey, TValue>> iterable) {
+    KeySetCustomIterable(final AbstractMap<TKey, TValue> map, final Iterable<Map.Entry<TKey, TValue>> iterable) {
         super(map);
         this.iterable = iterable;
     }

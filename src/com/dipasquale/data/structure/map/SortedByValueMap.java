@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SortedByValueMap<TKey, TValue> extends MapBase<TKey, TValue> { // TODO: should implement NavigableMap
+public final class SortedByValueMap<TKey, TValue> extends AbstractMap<TKey, TValue> { // TODO: should implement NavigableMap
     private final Map<TKey, Entry<TKey, TValue>> map;
     private final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap;
     private final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory;

@@ -10,16 +10,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class InsertOrderMap<TKey, TValue> extends MapBase<TKey, TValue> {
+public final class DequeMap<TKey, TValue> extends AbstractMap<TKey, TValue> {
     private final Map<TKey, Node> nodesMap;
     private final NodeDeque<Entry<TKey, TValue>> nodesQueue;
 
-    public InsertOrderMap() {
+    public DequeMap() {
         this.nodesMap = new HashMap<>();
         this.nodesQueue = NodeDeque.create();
     }
 
-    public InsertOrderMap(final int initialCapacity) {
+    public DequeMap(final int initialCapacity) {
         this.nodesMap = new HashMap<>(initialCapacity);
         this.nodesQueue = NodeDeque.create();
     }

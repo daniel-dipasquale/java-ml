@@ -6,28 +6,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface MapExtended<TKey, TValue> extends Map<TKey, TValue> {
-    @Override
-    default boolean isEmpty() {
-        return size() == 0;
-    }
-
-    @Override
-    default TValue getOrDefault(final Object key, final TValue defaultValue) {
-        TValue value = get(key);
-
-        if (value != null) {
-            return value;
-        }
-
-        return defaultValue;
-    }
-
-    @Override
-    default void putAll(final Map<? extends TKey, ? extends TValue> other) {
-        for (Entry<? extends TKey, ? extends TValue> entry : other.entrySet()) {
-            put(entry.getKey(), entry.getValue());
-        }
-    }
 
     @Override
     default boolean replace(final TKey key, final TValue oldValue, final TValue newValue) {

@@ -2,9 +2,6 @@ package com.dipasquale.data.structure.collection;
 
 import com.dipasquale.data.structure.iterator.ZipIterator;
 import com.google.common.collect.ImmutableList;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -18,25 +15,27 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CollectionExtensions {
-    public static <T> boolean isEmpty(final Collection<T> collection) {
-        return collection.size() == 0;
+public abstract class AbstractCollection<T> implements Collection<T> {
+    @Override
+    public boolean isEmpty() {
+        return size() == 0;
     }
 
-    public static <T> Object[] toArray(final Collection<T> collection) {
-        Object[] array = new Object[collection.size()];
+    @Override
+    public Object[] toArray() {
+        Object[] array = new Object[size()];
         int i = 0;
 
-        for (T item : collection) {
+        for (T item : this) {
             array[i++] = item;
         }
 
         return array;
     }
 
-    public static <T, R> R[] toArray(final Collection<T> collection, final R[] array) {
-        int size = collection.size();
+    @Override
+    public <R> R[] toArray(final R[] array) {
+        int size = size();
 
         R[] arrayFixed = array.length < size
                 ? (R[]) Array.newInstance(array.getClass().getComponentType(), size)
@@ -44,20 +43,22 @@ public final class CollectionExtensions {
 
         int i = 0;
 
-        for (T item : collection) {
+        for (T item : this) {
             arrayFixed[i++] = (R) item;
         }
 
         return arrayFixed;
     }
 
-    public static <T, R> R[] toArray(final Collection<T> collection, final IntFunction<R[]> generator) {
-        return toArray(collection, generator.apply(collection.size()));
+    @Override
+    public <R> R[] toArray(final IntFunction<R[]> generator) {
+        return toArray(generator.apply(size()));
     }
 
-    public static <T> boolean containsAll(final Collection<T> collection, final Collection<?> items) {
+    @Override
+    public boolean containsAll(final Collection<?> items) {
         for (Object item : items) {
-            if (!collection.contains(item)) {
+            if (!contains(item)) {
                 return false;
             }
         }
@@ -65,11 +66,12 @@ public final class CollectionExtensions {
         return true;
     }
 
-    public static <T> boolean addAll(final Collection<T> collection, final Collection<? extends T> items) {
+    @Override
+    public boolean addAll(final Collection<? extends T> items) {
         boolean modified = false;
 
         for (T item : items) {
-            if (collection.add(item)) {
+            if (add(item)) {
                 modified = true;
             }
         }
@@ -77,20 +79,22 @@ public final class CollectionExtensions {
         return modified;
     }
 
-    public static <T> boolean removeAll(final Collection<T> collection, final Collection<?> items) {
+    @Override
+    public boolean removeAll(final Collection<?> items) {
         long removed = items.stream()
-                .filter(collection::remove)
+                .filter(this::remove)
                 .count();
 
         return removed > 0L;
     }
 
-    public static <T> boolean removeIf(final Collection<T> collection, final Predicate<? super T> filter) {
-        List<T> itemsToRemove = collection.stream()
+    @Override
+    public boolean removeIf(final Predicate<? super T> filter) {
+        List<T> itemsToRemove = stream()
                 .filter(filter)
                 .collect(Collectors.toList());
 
-        itemsToRemove.forEach(collection::remove);
+        itemsToRemove.forEach(this::remove);
 
         return !itemsToRemove.isEmpty();
     }
@@ -103,11 +107,12 @@ public final class CollectionExtensions {
         return set;
     }
 
-    public static <T> boolean retainAll(final Collection<T> collection, final Collection<?> items) {
+    @Override
+    public boolean retainAll(final Collection<?> items) {
         Set<?> itemsToRetain = ensureSet(items);
 
         if (!itemsToRetain.isEmpty()) {
-            List<T> itemsToRemove = collection.stream()
+            List<T> itemsToRemove = stream()
                     .filter(k -> !itemsToRetain.contains(k))
                     .collect(Collectors.toList());
 
@@ -115,22 +120,22 @@ public final class CollectionExtensions {
                 return false;
             }
 
-            itemsToRemove.forEach(collection::remove);
+            itemsToRemove.forEach(this::remove);
         } else {
-            collection.clear();
+            clear();
         }
 
         return true;
     }
 
-    private static <T> boolean equals(final Collection<T> collection1, final Collection<T> collection2) {
-        if (collection1.size() != collection2.size()) {
+    private boolean equals(final Collection<T> other) {
+        if (size() != other.size()) {
             return false;
         }
 
         List<Iterator<T>> iterators = ImmutableList.<Iterator<T>>builder()
-                .add(collection1.iterator())
-                .add(collection2.iterator())
+                .add(iterator())
+                .add(other.iterator())
                 .build();
 
         ZipIterator<T> iterator = new ZipIterator<>(iterators);
@@ -146,14 +151,15 @@ public final class CollectionExtensions {
         return true;
     }
 
-    public static <T> boolean equals(final Collection<T> collection, final Object other) {
-        if (collection == other) {
+    @Override
+    public boolean equals(final Object other) {
+        if (this == other) {
             return true;
         }
 
         if (other instanceof Collection) {
             try {
-                return equals(collection, (Collection<T>) other);
+                return equals((Collection<T>) other);
             } catch (Exception e) {
                 return false;
             }
@@ -162,17 +168,43 @@ public final class CollectionExtensions {
         return false;
     }
 
-    public static <T> int hashCode(final Collection<T> collection) {
+    @Override
+    public int hashCode() {
         int hashCode = 0;
 
-        for (T item : collection) {
+        for (T item : this) {
             hashCode += item.hashCode();
         }
 
         return hashCode;
     }
 
-    public static <T> String toString(final Collection<T> collection) {
-        throw new NotImplementedException("fix this"); // TODO: fix this
+    @Override
+    public String toString() {
+        Iterator<T> iterator = iterator();
+
+        if (!iterator.hasNext()) {
+            return "[]";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int items = 0;
+
+        sb.append('[');
+
+        do {
+            if (items++ > 0) {
+                sb.append(',');
+                sb.append(' ');
+            }
+
+            T item = iterator.next();
+
+            sb.append(item == this ? "(this Collection)" : item);
+        } while (iterator.hasNext());
+
+        sb.append(']');
+
+        return sb.toString();
     }
 }

@@ -1,16 +1,16 @@
 package com.dipasquale.data.structure.map;
 
-import com.dipasquale.data.structure.collection.CollectionExtensions;
-import com.dipasquale.data.structure.set.SetExtended;
+import com.dipasquale.data.structure.collection.AbstractCollection;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class KeySet<TKey, TValue> implements SetExtended<TKey> {
-    private final MapBase<TKey, TValue> map;
+class KeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TKey> {
+    private final AbstractMap<TKey, TValue> map;
 
     @Override
     public final int size() {
@@ -47,20 +47,5 @@ class KeySet<TKey, TValue> implements SetExtended<TKey> {
         return map.stream()
                 .map(Map.Entry::getKey)
                 .iterator();
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        return CollectionExtensions.equals(this, other);
-    }
-
-    @Override
-    public int hashCode() {
-        return CollectionExtensions.hashCode(this);
-    }
-
-    @Override
-    public String toString() {
-        return CollectionExtensions.toString(this);
     }
 }
