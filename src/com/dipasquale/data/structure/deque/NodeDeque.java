@@ -2,30 +2,24 @@ package com.dipasquale.data.structure.deque;
 
 import java.util.Deque;
 
-public interface NodeDeque<T> extends Deque<Node> {
-    Node createUnbound(T value);
+public interface NodeDeque<TValue, TNode extends Node> extends Deque<TNode> {
+    TNode createUnbound(TValue value);
 
-    T getValue(Node node);
+    TValue getValue(TNode node);
 
-    Node peekPrevious(Node node);
+    TNode peekPrevious(TNode node);
 
-    Node peekNext(Node node);
+    TNode peekNext(TNode node);
 
-    boolean offerBefore(Node node, Node previousToNode);
+    boolean offerBefore(TNode node, TNode previousToNode);
 
-    boolean offerAfter(Node node, Node nextToNode);
+    boolean offerAfter(TNode node, TNode nextToNode);
 
-    void addBefore(Node node, Node previousToNode);
+    void addBefore(TNode node, TNode previousToNode);
 
-    void addAfter(Node node, Node nextToNode);
+    void addAfter(TNode node, TNode nextToNode);
 
-    static <T> NodeDeque<T> create() {
-        return new NodeDequeDefault<>();
-    }
-
-    static <T> NodeDeque<T> createSynchronized() {
-        NodeDeque<T> queue = create();
-
-        return new NodeDequeSynchronized<>(queue);
+    static <TValue, TNode extends Node> NodeDeque<TValue, TNode> createSynchronized(final NodeDeque<TValue, TNode> nodeDeque) {
+        return new NodeDequeSynchronized<>(nodeDeque);
     }
 }

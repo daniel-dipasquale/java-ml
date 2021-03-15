@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import java.util.AbstractMap;
 
-public final class SortedByValueMapTest {
-    private static final SortedByValueMap<String, Long> TEST = SortedByValueMap.createHash(Long::compareTo);
+public final class HashSortedByValueMapTest {
+    private static final HashSortedByValueMap<String, Long> TEST = new HashSortedByValueMap<>(Long::compareTo); // TODO: make test cases for interfaces and reusable
 
     @Before
     public void before() {

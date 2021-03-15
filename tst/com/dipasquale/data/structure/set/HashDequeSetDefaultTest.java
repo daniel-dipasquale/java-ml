@@ -1,20 +1,13 @@
 package com.dipasquale.data.structure.set;
 
 import com.dipasquale.data.structure.collection.test.CollectionAsserter;
-import com.dipasquale.data.structure.deque.Node;
-import com.dipasquale.data.structure.deque.NodeDeque;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public final class DequeSetDefaultTest { // TODO: redo these test cases
-    private static final Map<String, Node> NODES_MAP = new HashMap<>();
-    private static final NodeDeque<String> NODES_QUEUE = NodeDeque.create();
-    private static final DequeSetDefault<String> TEST = new DequeSetDefault<>(NODES_MAP, NODES_QUEUE);
+public final class HashDequeSetDefaultTest { // TODO: redo these test cases
+    private static final HashDequeSet<String> TEST = new HashDequeSet<>();
 
     @Before
     public void before() {

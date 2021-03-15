@@ -6,8 +6,8 @@ import org.junit.Test;
 public final class DequeSetTest {
     @Test
     public void TEST_1() {
-        DequeSet<String> test = DequeSet.create();
+        DequeSet<String> test = DequeSet.createSynchronized(new HashDequeSet<>());
 
-        Assert.assertTrue(test instanceof DequeSet<String>);
+        Assert.assertTrue(test instanceof DequeSetSynchronized<String>);
     }
 }

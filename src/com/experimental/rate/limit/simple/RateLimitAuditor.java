@@ -1,6 +1,8 @@
 package com.experimental.rate.limit.simple;
 
 import com.dipasquale.data.structure.deque.NodeDeque;
+import com.dipasquale.data.structure.deque.SimpleNode;
+import com.dipasquale.data.structure.deque.SimpleNodeDeque;
 import com.experimental.rate.limit.RateLimitChecker;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,7 @@ final class RateLimitAuditor {
     private final RateLimitSlidingWindow slidingWindow;
     private final RateLimitChecker checker;
     private final Map<Long, Counter> timeFrameCounters = new HashMap<>();
-    private final NodeDeque<Long> timeFrames = NodeDeque.create();
+    private final NodeDeque<Long, SimpleNode<Long>> timeFrames = new SimpleNodeDeque<>();
     private int transactions = 0;
 
     private long getTimeFrame(final long currentTime, final int index) {

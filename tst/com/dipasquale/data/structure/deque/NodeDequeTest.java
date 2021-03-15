@@ -6,8 +6,8 @@ import org.junit.Test;
 public final class NodeDequeTest {
     @Test
     public void TEST_1() {
-        NodeDeque<String> test = NodeDeque.create();
+        NodeDeque<String, SimpleNode<String>> result = NodeDeque.createSynchronized(new SimpleNodeDeque<>());
 
-        Assert.assertTrue(test instanceof NodeDequeDefault<String>);
+        Assert.assertTrue(result instanceof NodeDequeSynchronized<String, SimpleNode<String>>);
     }
 }

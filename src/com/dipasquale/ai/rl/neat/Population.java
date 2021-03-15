@@ -1,7 +1,8 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.data.structure.deque.Node;
 import com.dipasquale.data.structure.deque.NodeDeque;
+import com.dipasquale.data.structure.deque.SimpleNode;
+import com.dipasquale.data.structure.deque.SimpleNodeDeque;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ final class Population implements NeatCollective {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
-    private final NodeDeque<Species> allSpecies;
+    private final NodeDeque<Species, SimpleNode<Species>> allSpecies;
     @Getter
     private int generation;
     private float interspeciesMatingUnusedSpace;
@@ -26,7 +27,7 @@ final class Population implements NeatCollective {
     Population(final Context context) {
         this.context = context;
         this.organismsWithoutSpecies = createOrganisms(context, this);
-        this.allSpecies = NodeDeque.create();
+        this.allSpecies = new SimpleNodeDeque<>();
         this.generation = 1;
         this.interspeciesMatingUnusedSpace = 0f;
     }
@@ -46,8 +47,8 @@ final class Population implements NeatCollective {
         return new Species(context, this, organism);
     }
 
-    private Node addSpecies(final Species species) {
-        Node speciesNode = allSpecies.createUnbound(species);
+    private SimpleNode<Species> addSpecies(final Species species) {
+        SimpleNode<Species> speciesNode = allSpecies.createUnbound(species);
 
         allSpecies.add(speciesNode);
 
@@ -66,7 +67,7 @@ final class Population implements NeatCollective {
     }
 
     private void updateFitnessInAllSpecies() {
-        for (Node speciesNode : allSpecies) {
+        for (SimpleNode<Species> speciesNode : allSpecies) {
             allSpecies.getValue(speciesNode).updateFitness();
         }
     }
@@ -91,7 +92,7 @@ final class Population implements NeatCollective {
         int organismsRemoved = 0;
         float totalSharedFitness = 0f;
 
-        for (Node speciesNode = allSpecies.peekFirst(); speciesNode != null; ) {
+        for (SimpleNode<Species> speciesNode = allSpecies.peekFirst(); speciesNode != null; ) {
             Species species = allSpecies.getValue(speciesNode);
 
             if (species.shouldSurvive()) {
@@ -101,7 +102,7 @@ final class Population implements NeatCollective {
                 totalSharedFitness += species.getSharedFitness();
                 speciesNode = allSpecies.peekNext(speciesNode);
             } else {
-                Node speciesNodeNext = allSpecies.peekNext(speciesNode);
+                SimpleNode<Species> speciesNodeNext = allSpecies.peekNext(speciesNode);
 
                 organismsRemoved += species.size();
                 allSpecies.remove(speciesNode);
@@ -115,7 +116,7 @@ final class Population implements NeatCollective {
     private int preserveElitesFromAllSpecies() {
         int organismsSaved = 0;
 
-        for (Node speciesNode : allSpecies) {
+        for (SimpleNode<Species> speciesNode : allSpecies) {
             List<Organism> eliteOrganisms = allSpecies.getValue(speciesNode).selectElitists();
 
             organismsSaved += eliteOrganisms.size();

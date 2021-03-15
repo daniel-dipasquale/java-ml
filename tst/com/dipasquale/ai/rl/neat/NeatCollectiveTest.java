@@ -30,7 +30,7 @@ public final class NeatCollectiveTest {
                         })
                         .build())
                 .connections(SettingsConnectionGeneSupport.builder()
-                        .recurrentConnectionsAllowed(false)
+                        .multipleRecurrentCyclesAllowed(false)
                         .weight(SettingsFloatNumber.randomGaussian(-1f, 1f))
                         .build())
                 .build());

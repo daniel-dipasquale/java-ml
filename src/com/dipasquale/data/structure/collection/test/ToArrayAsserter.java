@@ -12,10 +12,10 @@ import java.util.List;
 final class ToArrayAsserter<T> extends AsserterBase<T> {
     private static final int ITEM_COUNT = 5;
     private final Collection<T> collection;
-    private final Class<T> itemType;
+    private final Class<?> itemType;
     private final AssertEquals equalsAsserter;
 
-    ToArrayAsserter(final TestCaseCollectionRunner<T> testCaseRunner, final Collection<T> collection, final Class<T> itemType, final AssertEquals equalsAsserter) {
+    ToArrayAsserter(final TestCaseCollectionRunner<T> testCaseRunner, final Collection<T> collection, final Class<? super T> itemType, final AssertEquals equalsAsserter) {
         super(testCaseRunner, ITEM_COUNT);
         this.collection = collection;
         this.itemType = itemType;

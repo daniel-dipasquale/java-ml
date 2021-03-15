@@ -13,10 +13,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable<TValue>> {
+public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable<TValue>> { // TODO: redo this
     private final Comparator<TValue> comparator;
     private final Factory<TKey, TValue> mapFactory;
-    private SortedByValueMap<TKey, TValue> map;
+    private AbstractSortedByValueMap<TKey, TValue> map;
     @Getter
     private Set<TKey> keys;
     private final TValue initialExtremeValue;
@@ -26,7 +26,7 @@ public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable
     private final ReadWriteLock lock;
 
     private SortedByValueRankedAggregator(final Comparator<TValue> comparator, final Factory<TKey, TValue> mapFactory, final TValue initialExtremeValue, final int limit) {
-        SortedByValueMap<TKey, TValue> map = mapFactory.create(comparator);
+        AbstractSortedByValueMap<TKey, TValue> map = mapFactory.create(comparator);
 
         this.comparator = comparator;
         this.mapFactory = mapFactory;
@@ -41,7 +41,7 @@ public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable
 
     public static <T> SortedByValueRankedAggregator<T, Long> createHighestRankedConcurrent(final int limit) {
         Comparator<Long> comparator = Long::compare;
-        Factory<T, Long> mapFactory = SortedByValueMap::createHashConcurrent;
+        Factory<T, Long> mapFactory = ConcurrentSortedByValueMap::new;
         long initialExtremeValue = 0L;
 
         return new SortedByValueRankedAggregator<>(comparator, mapFactory, initialExtremeValue, limit);
@@ -89,12 +89,12 @@ public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable
 
     @FunctionalInterface
     private interface Factory<TKey, TValue> {
-        SortedByValueMap<TKey, TValue> create(Comparator<TValue> comparator);
+        AbstractSortedByValueMap<TKey, TValue> create(Comparator<TValue> comparator);
     }
 
     @RequiredArgsConstructor
     public final class ClearResult {
-        private final SortedByValueMap<TKey, TValue> map;
+        private final AbstractSortedByValueMap<TKey, TValue> map;
 
         public List<TKey> retrieve() {
             return new ArrayList<>(map.descendingKeySet());

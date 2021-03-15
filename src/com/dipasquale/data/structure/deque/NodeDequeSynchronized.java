@@ -9,18 +9,18 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class NodeDequeSynchronized<T> implements NodeDeque<T> {
-    private final NodeDeque<T> nodeDeque;
+final class NodeDequeSynchronized<TValue, TNode extends Node> implements NodeDeque<TValue, TNode> {
+    private final NodeDeque<TValue, TNode> nodeDeque;
 
     @Override
-    public Node createUnbound(final T value) {
+    public TNode createUnbound(final TValue value) {
         synchronized (nodeDeque) {
             return nodeDeque.createUnbound(value);
         }
     }
 
     @Override
-    public T getValue(final Node node) {
+    public TValue getValue(final TNode node) {
         synchronized (nodeDeque) {
             return nodeDeque.getValue(node);
         }
@@ -48,133 +48,133 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
-    public Node peekPrevious(final Node node) {
+    public TNode peekPrevious(final TNode node) {
         synchronized (nodeDeque) {
             return nodeDeque.peekPrevious(node);
         }
     }
 
     @Override
-    public Node peekNext(final Node node) {
+    public TNode peekNext(final TNode node) {
         synchronized (nodeDeque) {
             return nodeDeque.peekNext(node);
         }
     }
 
     @Override
-    public Node peekFirst() {
+    public TNode peekFirst() {
         synchronized (nodeDeque) {
             return nodeDeque.peekFirst();
         }
     }
 
     @Override
-    public Node peekLast() {
+    public TNode peekLast() {
         synchronized (nodeDeque) {
             return nodeDeque.peekLast();
         }
     }
 
     @Override
-    public Node peek() {
+    public TNode peek() {
         synchronized (nodeDeque) {
             return nodeDeque.peek();
         }
     }
 
     @Override
-    public Node getFirst() {
+    public TNode getFirst() {
         synchronized (nodeDeque) {
             return nodeDeque.getFirst();
         }
     }
 
     @Override
-    public Node getLast() {
+    public TNode getLast() {
         synchronized (nodeDeque) {
             return nodeDeque.getLast();
         }
     }
 
     @Override
-    public Node element() {
+    public TNode element() {
         synchronized (nodeDeque) {
             return nodeDeque.element();
         }
     }
 
     @Override
-    public boolean offer(final Node node) {
+    public boolean offer(final TNode node) {
         synchronized (nodeDeque) {
             return nodeDeque.offer(node);
         }
     }
 
     @Override
-    public boolean offerBefore(final Node node, final Node previousToNode) {
+    public boolean offerBefore(final TNode node, final TNode previousToNode) {
         synchronized (nodeDeque) {
             return nodeDeque.offerBefore(node, previousToNode);
         }
     }
 
     @Override
-    public boolean offerAfter(final Node node, final Node nextToNode) {
+    public boolean offerAfter(final TNode node, final TNode nextToNode) {
         synchronized (nodeDeque) {
             return nodeDeque.offerAfter(node, nextToNode);
         }
     }
 
     @Override
-    public boolean offerFirst(final Node node) {
+    public boolean offerFirst(final TNode node) {
         synchronized (nodeDeque) {
             return nodeDeque.offerFirst(node);
         }
     }
 
     @Override
-    public boolean offerLast(final Node node) {
+    public boolean offerLast(final TNode node) {
         synchronized (nodeDeque) {
             return nodeDeque.offerLast(node);
         }
     }
 
     @Override
-    public boolean add(final Node node) {
+    public boolean add(final TNode node) {
         synchronized (nodeDeque) {
             return nodeDeque.add(node);
         }
     }
 
     @Override
-    public void addBefore(final Node node, final Node previousToNode) {
+    public void addBefore(final TNode node, final TNode previousToNode) {
         synchronized (nodeDeque) {
             nodeDeque.addBefore(node, previousToNode);
         }
     }
 
     @Override
-    public void addAfter(final Node node, final Node nextToNode) {
+    public void addAfter(final TNode node, final TNode nextToNode) {
         synchronized (nodeDeque) {
             nodeDeque.addAfter(node, nextToNode);
         }
     }
 
     @Override
-    public void addFirst(final Node node) {
+    public void addFirst(final TNode node) {
         synchronized (nodeDeque) {
             nodeDeque.addFirst(node);
         }
     }
 
     @Override
-    public void addLast(final Node node) {
+    public void addLast(final TNode node) {
         synchronized (nodeDeque) {
             nodeDeque.addLast(node);
         }
     }
 
     @Override
-    public void push(final Node node) {
+    public void push(final TNode node) {
         synchronized (nodeDeque) {
             nodeDeque.push(node);
         }
@@ -188,49 +188,49 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
-    public Node removeFirst() {
+    public TNode removeFirst() {
         synchronized (nodeDeque) {
             return nodeDeque.removeFirst();
         }
     }
 
     @Override
-    public Node removeLast() {
+    public TNode removeLast() {
         synchronized (nodeDeque) {
             return nodeDeque.removeLast();
         }
     }
 
     @Override
-    public Node remove() {
+    public TNode remove() {
         synchronized (nodeDeque) {
             return nodeDeque.remove();
         }
     }
 
     @Override
-    public Node pollFirst() {
+    public TNode pollFirst() {
         synchronized (nodeDeque) {
             return nodeDeque.pollFirst();
         }
     }
 
     @Override
-    public Node pollLast() {
+    public TNode pollLast() {
         synchronized (nodeDeque) {
             return nodeDeque.pollLast();
         }
     }
 
     @Override
-    public Node poll() {
+    public TNode poll() {
         synchronized (nodeDeque) {
             return nodeDeque.poll();
         }
     }
 
     @Override
-    public Node pop() {
+    public TNode pop() {
         synchronized (nodeDeque) {
             return nodeDeque.pop();
         }
@@ -251,7 +251,7 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
-    public boolean removeIf(final Predicate<? super Node> filter) {
+    public boolean removeIf(final Predicate<? super TNode> filter) {
         synchronized (nodeDeque) {
             return nodeDeque.removeIf(filter);
         }
@@ -265,14 +265,14 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
-    public Iterator<Node> iterator() {
+    public Iterator<TNode> iterator() {
         synchronized (nodeDeque) {
             return nodeDeque.iterator();
         }
     }
 
     @Override
-    public Iterator<Node> descendingIterator() {
+    public Iterator<TNode> descendingIterator() {
         return nodeDeque.descendingIterator();
     }
 
@@ -284,7 +284,7 @@ final class NodeDequeSynchronized<T> implements NodeDeque<T> {
     }
 
     @Override
-    public boolean addAll(final Collection<? extends Node> collection) {
+    public boolean addAll(final Collection<? extends TNode> collection) {
         synchronized (nodeDeque) {
             return nodeDeque.addAll(collection);
         }

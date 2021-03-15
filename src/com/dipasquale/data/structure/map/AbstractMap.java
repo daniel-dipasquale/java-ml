@@ -7,10 +7,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public abstract class AbstractMap<TKey, TValue> implements MapExtended<TKey, TValue> {
+public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue> {
     private final KeySet<TKey, TValue> keySet = new KeySet<>(this);
     private final Values<TKey, TValue> values = new Values<>(this);
     private final EntrySet<TKey, TValue> entrySet = new EntrySet<>(this);
@@ -53,7 +55,97 @@ public abstract class AbstractMap<TKey, TValue> implements MapExtended<TKey, TVa
     }
 
     @Override
+    public boolean replace(final TKey key, final TValue oldValue, final TValue newValue) {
+        Object currentValue = get(key);
+
+        if (currentValue == null || !Objects.equals(currentValue, oldValue)) {
+            return false;
+        }
+
+        put(key, newValue);
+
+        return true;
+    }
+
+    @Override
+    public TValue replace(final TKey key, final TValue value) {
+        if (containsKey(key)) {
+            return put(key, value);
+        }
+
+        return null;
+    }
+
+    @Override
     public abstract TValue remove(Object key);
+
+    @Override
+    public TValue computeIfAbsent(final TKey key, Function<? super TKey, ? extends TValue> mapper) {
+        TValue oldValue = get(key);
+
+        if (oldValue == null) {
+            TValue newValue = mapper.apply(key);
+
+            if (newValue != null) {
+                put(key, newValue);
+
+                return newValue;
+            }
+        }
+
+        return oldValue;
+    }
+
+    @Override
+    public TValue computeIfPresent(final TKey key, final BiFunction<? super TKey, ? super TValue, ? extends TValue> mapper) {
+        TValue oldValue = get(key);
+
+        if (oldValue != null) {
+            TValue newValue = mapper.apply(key, oldValue);
+
+            if (newValue != null) {
+                put(key, newValue);
+
+                return newValue;
+            }
+
+            remove(key);
+        }
+
+        return null;
+    }
+
+    @Override
+    public TValue compute(final TKey key, final BiFunction<? super TKey, ? super TValue, ? extends TValue> mapper) {
+        TValue oldValue = get(key);
+        TValue newValue = mapper.apply(key, oldValue);
+
+        if (newValue == null) {
+            if (oldValue != null) {
+                remove(key);
+            }
+
+            return null;
+        }
+
+        put(key, newValue);
+
+        return newValue;
+    }
+
+    @Override
+    public TValue merge(final TKey key, final TValue value, final BiFunction<? super TValue, ? super TValue, ? extends TValue> mapper) {
+        TValue oldValue = get(key);
+        TValue newValue = oldValue == null ? value : mapper.apply(oldValue, value);
+
+        if (newValue == null) {
+            remove(key);
+        } else {
+            put(key, newValue);
+        }
+
+        return newValue;
+    }
 
     @Override
     public abstract void clear();
