@@ -2,18 +2,21 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.common.CircularVersionInt;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class NeuralNetworkDefault implements NeuralNetwork {
     private final GenomeDefault genome;
-    private final NeuronNavigator<NeuronDefault> neuronNavigator = new NeuronNavigator<>(NeuronDefault::createRecurrentSingleMemory);
-    private final CircularVersionInt activationNumber = new CircularVersionInt(0, Integer.MAX_VALUE);
+    private final NeuronNavigator neuronNavigator;
+    private final CircularVersionInt activationNumber;
+
+    NeuralNetworkDefault(final GenomeDefault genome, final NeuronPathBuilder neuronPathBuilder) {
+        this.genome = genome;
+        this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
+        this.activationNumber = new CircularVersionInt(0, Integer.MAX_VALUE);
+    }
 
     private Neuron createNeuron(final NodeGene node) {
         Set<SequentialId> inputIds = genome.getConnections().getIncomingToNodeFromExpressed(node).keySet().stream()

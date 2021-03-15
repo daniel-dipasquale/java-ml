@@ -13,9 +13,9 @@ public final class SettingsNeuralNetworkSupport {
 
     ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> createFactory(final SettingsConnectionGeneSupport connections) {
         return c -> {
-            ArgumentValidator.ensureFalse(connections.isMultipleRecurrentCyclesAllowed(), "connections.allowRecurrentConnections", "is not support yet");
+            ArgumentValidator.ensureFalse(connections.isRecurrentConnectionsAllowed(), "connections.allowRecurrentConnections", "is not support yet");
 
-            return new ContextDefaultNeuralNetworkSupport(NeuralNetworkDefault::new);
+            return new ContextDefaultNeuralNetworkSupport(g -> new NeuralNetworkDefault(g, new NeuronPathBuilderDefault()));
         };
     }
 }

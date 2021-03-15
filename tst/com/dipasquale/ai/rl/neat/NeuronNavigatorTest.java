@@ -84,7 +84,7 @@ public final class NeuronNavigatorTest {
                         .build())
                 .build();
 
-        NeuronNavigator<NeuronDefault> test = new NeuronNavigator<>(NeuronDefault::createRecurrentSingleMemory);
+        NeuronNavigator test = new NeuronNavigator(new NeuronPathBuilderDefault());
 
         neurons.forEach(test::add);
 
@@ -174,7 +174,7 @@ public final class NeuronNavigatorTest {
                         .build())
                 .build();
 
-        NeuronNavigator<NeuronDefault> test = new NeuronNavigator<>(NeuronDefault::createRecurrentSingleMemory);
+        NeuronNavigator test = new NeuronNavigator(new NeuronPathBuilderDefault());
 
         neurons.forEach(test::add);
 

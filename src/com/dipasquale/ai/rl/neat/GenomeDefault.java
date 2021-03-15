@@ -159,15 +159,11 @@ final class GenomeDefault implements Genome {
 
             if (connection == null) {
                 addConnection(new ConnectionGene(innovationId, context.connections().nextWeight()));
-
-                return true;
-            }
-
-            if (context.connections().multipleRecurrentCyclesAllowed()) {
+            } else {
                 connection.increaseCyclesAllowed();
-
-                return true;
             }
+
+            return true;
         }
 
         return false;

@@ -8,14 +8,14 @@ import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGeneSupport {
-    private final boolean multipleRecurrentCyclesAllowed;
+    private final boolean recurrentConnectionsAllowed;
     private final SequentialIdFactory innovationIdFactory;
     private final ConnectionGeneWeightFactory weightFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
 
     @Override
-    public boolean multipleRecurrentCyclesAllowed() {
-        return multipleRecurrentCyclesAllowed;
+    public boolean recurrentConnectionsAllowed() {
+        return recurrentConnectionsAllowed;
     }
 
     @Override

@@ -46,7 +46,7 @@ interface Context {
     }
 
     interface ConnectionGeneSupport {
-        boolean multipleRecurrentCyclesAllowed();
+        boolean recurrentConnectionsAllowed();
 
         InnovationId getOrCreateInnovationId(DirectedEdge directedEdge);
 

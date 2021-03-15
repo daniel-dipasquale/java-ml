@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public final class SettingsConnectionGeneSupport {
     @Builder.Default
-    private final boolean multipleRecurrentCyclesAllowed = true;
+    private final boolean recurrentConnectionsAllowed = true;
     @Builder.Default
     private final SequentialIdFactory innovationIdFactory = new SequentialIdFactoryLong();
     @Builder.Default
@@ -24,7 +24,7 @@ public final class SettingsConnectionGeneSupport {
         return c -> {
             SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
 
-            return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, sequentialIdFactory, weight::get, new ConcurrentHashMap<>());
+            return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, sequentialIdFactory, weight::get, new ConcurrentHashMap<>());
         };
     }
 }
