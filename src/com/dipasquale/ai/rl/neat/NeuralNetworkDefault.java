@@ -1,41 +1,41 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.common.CircularVersionInt;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 final class NeuralNetworkDefault implements NeuralNetwork {
     private final GenomeDefault genome;
     private final NeuronNavigator neuronNavigator;
     private final CircularVersionInt activationNumber;
+    private final NeuronFactory neuronFactory;
 
-    NeuralNetworkDefault(final GenomeDefault genome, final NeuronPathBuilder neuronPathBuilder) {
+    NeuralNetworkDefault(final GenomeDefault genome, final NeuronPathBuilder neuronPathBuilder, final NeuronFactory neuronFactory) {
         this.genome = genome;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
         this.activationNumber = new CircularVersionInt(0, Integer.MAX_VALUE);
+        this.neuronFactory = neuronFactory;
     }
 
     private Neuron createNeuron(final NodeGene node) {
-        Set<SequentialId> inputIds = genome.getConnections().getIncomingToNodeFromExpressed(node).keySet().stream()
-                .map(DirectedEdge::getSourceNodeId)
-                .collect(Collectors.toSet());
+        List<NeuronInput> inputs = genome.getConnections().getIncomingToNodeFromExpressed(node).values().stream()
+                .map(c -> new NeuronInput(c.getInnovationId().getSourceNodeId(), c.getRecurrentCyclesAllowed()))
+                .collect(Collectors.toList());
 
         List<NeuronOutput> outputs = genome.getConnections().getOutgoingFromNodeFromExpressed(node).values().stream()
-                .map(c -> new NeuronOutput(c.getInnovationId().getTargetNodeId(), c.getWeight(), c.getRecurrentCyclesAllowed()))
+                .map(c -> new NeuronOutput(c.getInnovationId().getTargetNodeId(), c.getWeight()))
                 .collect(Collectors.toList());
 
         switch (node.getType()) {
             case Bias:
             case Hidden:
-                if (inputIds.size() + outputs.size() == 0) {
+                if (inputs.size() + outputs.size() == 0) {
                     return null;
                 }
         }
 
-        return new NeuronDefault(node, inputIds, outputs, activationNumber);
+        return neuronFactory.create(node, inputs, outputs, activationNumber);
     }
 
     private void initializeNeuronNavigator(final float[] input) {
@@ -49,7 +49,7 @@ final class NeuralNetworkDefault implements NeuralNetwork {
                     neuronNavigator.add(neuron);
 
                     if (neuron.getType() == NodeGeneType.Input) {
-                        neuron.forceValue(input[index++]);
+                        neuron.setValue(input[index++]);
                     }
                 }
             }
@@ -57,7 +57,7 @@ final class NeuralNetworkDefault implements NeuralNetwork {
             Iterable<NodeGene> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.Input);
 
             for (NodeGene node : inputNodes) {
-                neuronNavigator.get(node.getId()).forceValue(input[index++]);
+                neuronNavigator.get(node.getId()).setValue(input[index++]);
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public final class NeatCollectiveTest {
@@ -30,14 +31,25 @@ public final class NeatCollectiveTest {
                         })
                         .build())
                 .connections(SettingsConnectionGeneSupport.builder()
-                        .recurrentConnectionsAllowed(false)
-                        .weight(SettingsFloatNumber.randomGaussian(-1f, 1f))
                         .build())
                 .build());
 
-        for (int i = 0, c = 30; i < c; i++) {
+        NeatCollectiveClient neatClient = neat.getMostFit();
+        boolean success = false;
+
+        for (int i1 = 0, c = 90; i1 < c && !success; i1++) {
+            success = true;
+
+            for (int i2 = 0; i2 < inputs.length; i2++) {
+                float[] output = neatClient.activate(inputs[i2]);
+
+                success &= Float.compare(outputExpected[i2], (float) Math.round(output[0])) == 0;
+            }
+
             neat.testFitness();
             neat.evolve();
         }
+
+        Assert.assertTrue(success);
     }
 }

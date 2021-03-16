@@ -6,18 +6,16 @@ import com.dipasquale.common.CircularVersionInt;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class NeuronRecurrentSingleMemory implements Neuron {
     private final NodeGene node;
     @Getter
-    private final Set<SequentialId> inputIds;
+    private final Collection<NeuronInput> inputs;
     @Getter
     private final Collection<NeuronOutput> outputs;
     private final CircularVersionInt activationNumber;
@@ -44,19 +42,21 @@ final class NeuronRecurrentSingleMemory implements Neuron {
     @Override
     public float getValue(final ActivationFunction activationFunction) {
         if (valueOutdated) {
-            valueOutdated = false;
-
             value = values.values().stream()
                     .map(v -> v.value)
                     .reduce(0f, Float::sum);
+
+            valueOutdated = false;
         }
 
         return activationFunction.forward(value + node.getBias());
     }
 
     @Override
-    public void forceValue(final float newValue) {
-        throw new NotImplementedException("cannot force value on recurrent neurons");
+    public void setValue(final float newValue) {
+        values.computeIfAbsent(node.getId(), k -> new Value()).value = newValue;
+        value = newValue;
+        valueOutdated = false;
     }
 
     @Override
@@ -65,16 +65,19 @@ final class NeuronRecurrentSingleMemory implements Neuron {
             valueActivationNumber = activationNumber.current();
             values.clear();
             value = 0f;
-            valueOutdated = false;
         }
 
-        values.computeIfAbsent(id, Value::new).value = delta;
+        values.computeIfAbsent(id, k -> new Value()).value = delta;
         valueOutdated = true;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Value {
-        private final SequentialId id;
         private float value;
+    }
+
+    @Override
+    public String toString() {
+        return node.toString();
     }
 }

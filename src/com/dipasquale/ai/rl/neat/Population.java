@@ -3,9 +3,8 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
-import lombok.AccessLevel;
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,21 +14,43 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-final class Population implements NeatCollective {
+final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
     private final NodeDeque<Species, SimpleNode<Species>> allSpecies;
     @Getter
+    private final OrganismCollectiveStrategy mostFitCollectiveStrategy;
+    private final List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
+    private final List<SpeciesBreedStrategy> speciesBreedStrategies;
+    private SpeciesBreedContext speciesBreedContext;
+    @Getter
     private int generation;
-    private float interspeciesMatingUnusedSpace;
 
     Population(final Context context) {
+        Set<Organism> organismsWithoutSpecies = createOrganisms(context, this);
+        OrganismCollectiveStrategy mostFitCollectiveStrategy = new OrganismCollectiveStrategy(organismsWithoutSpecies.iterator().next());
+
+        List<SpeciesEvolutionStrategy> speciesEvolutionStrategies = ImmutableList.<SpeciesEvolutionStrategy>builder()
+                .add(new SpeciesEvolutionStrategyRemoveLeastFit())
+                .add(new SpeciesEvolutionStrategyTotalSharedFitness())
+                .add(new SpeciesEvolutionStrategySelectElitists(organismsWithoutSpecies))
+                .add(new SpeciesEvolutionStrategySelectChampion(organismsWithoutSpecies, mostFitCollectiveStrategy))
+                .build();
+
+        List<SpeciesBreedStrategy> speciesBreedStrategies = ImmutableList.<SpeciesBreedStrategy>builder()
+                .add(new SpeciesBreedStrategyInterSpecies(context, organismsWithoutSpecies))
+                .add(new SpeciesBreedStrategyCrossSpecies(organismsWithoutSpecies))
+                .add(new SpeciesBreedStrategyGenesis(organismsWithoutSpecies))
+                .build();
+
         this.context = context;
-        this.organismsWithoutSpecies = createOrganisms(context, this);
+        this.organismsWithoutSpecies = organismsWithoutSpecies;
         this.allSpecies = new SimpleNodeDeque<>();
+        this.mostFitCollectiveStrategy = mostFitCollectiveStrategy;
+        this.speciesEvolutionStrategies = speciesEvolutionStrategies;
+        this.speciesBreedStrategies = speciesBreedStrategies;
         this.generation = 1;
-        this.interspeciesMatingUnusedSpace = 0f;
     }
 
     private static Set<Organism> createOrganisms(final Context context, final Population population) {
@@ -56,7 +77,7 @@ final class Population implements NeatCollective {
     }
 
     private void assignOrganismsToSpecies() {
-        for (Organism organism : organismsWithoutSpecies) {
+        for (Organism organism : organismsWithoutSpecies) { // TODO: shuffle species distribution
             allSpecies.stream()
                     .filter(n -> allSpecies.getValue(n).addIfCompatible(organism))
                     .findFirst()
@@ -72,119 +93,60 @@ final class Population implements NeatCollective {
         }
     }
 
-    @Override
-    public int generation() {
-        return generation;
-    }
-
-    @Override
     public int species() {
         return allSpecies.size();
     }
 
-    @Override
     public void testFitness() {
         assignOrganismsToSpecies();
         updateFitnessInAllSpecies();
     }
 
-    private LeastFitOrStagnantResult removeLeastFitOrganismsOrStagnantSpecies() {
-        int organismsRemoved = 0;
-        float totalSharedFitness = 0f;
-
+    private void prepareAllSpeciesForEvolution(final SpeciesEvolutionContext context) {
         for (SimpleNode<Species> speciesNode = allSpecies.peekFirst(); speciesNode != null; ) {
             Species species = allSpecies.getValue(speciesNode);
 
-            if (species.shouldSurvive()) {
-                List<Organism> unfitOrganisms = species.removeUnfitToReproduce();
+            for (SpeciesEvolutionStrategy speciesEvolutionStrategy : speciesEvolutionStrategies) {
+                speciesEvolutionStrategy.process(context, species);
+            }
 
-                organismsRemoved += unfitOrganisms.size() + species.size() - 1;
-                totalSharedFitness += species.getSharedFitness();
-                speciesNode = allSpecies.peekNext(speciesNode);
-            } else {
+            if (!species.shouldSurvive()) {
                 SimpleNode<Species> speciesNodeNext = allSpecies.peekNext(speciesNode);
 
-                organismsRemoved += species.size();
                 allSpecies.remove(speciesNode);
                 speciesNode = speciesNodeNext;
+            } else {
+                speciesNode = allSpecies.peekNext(speciesNode);
             }
         }
 
-        return new LeastFitOrStagnantResult(organismsRemoved, totalSharedFitness);
+        for (SpeciesEvolutionStrategy speciesEvolutionStrategy : speciesEvolutionStrategies) {
+            speciesEvolutionStrategy.postProcess(context);
+        }
     }
 
-    private int preserveElitesFromAllSpecies() {
-        int organismsSaved = 0;
-
-        for (SimpleNode<Species> speciesNode : allSpecies) {
-            List<Organism> eliteOrganisms = allSpecies.getValue(speciesNode).selectElitists();
-
-            organismsSaved += eliteOrganisms.size();
-            organismsWithoutSpecies.addAll(eliteOrganisms);
+    private void breedThroughAllSpecies(final SpeciesEvolutionContext context) {
+        if (speciesBreedContext == null) {
+            speciesBreedContext = new SpeciesBreedContext(context);
+        } else {
+            speciesBreedContext = new SpeciesBreedContext(context, speciesBreedContext.getInterSpeciesBreedingLeftOverRatio());
         }
 
-        return organismsSaved;
-    }
-
-    private float breedInterspecies(final List<Species> speciesList, final float spaceAvailable) {
-        if (speciesList.size() <= 1) {
-            return 0;
-        }
-
-        float spaceOccupied = spaceAvailable * context.speciation().interspeciesMatingRate() + interspeciesMatingUnusedSpace;
-        int spaceOccupiedFixed = (int) Math.floor(spaceOccupied);
-
-        interspeciesMatingUnusedSpace = spaceOccupied - (float) spaceOccupiedFixed;
-
-        for (int i = 0; i < spaceOccupiedFixed; i++) {
-            Species species1 = context.random().nextItem(speciesList);
-            Species species2 = context.random().nextItem(speciesList);
-
-            organismsWithoutSpecies.add(species1.reproduceOutcast(species2));
-        }
-
-        return (float) spaceOccupiedFixed;
-    }
-
-    private void breedAndRestartAllSpecies(final int spaceAvailable, final float totalSharedFitness) {
         List<Species> allSpeciesList = allSpecies.stream()
                 .map(allSpecies::getValue)
                 .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 
-        float spaceAvailableFloat = (float) spaceAvailable;
-        float spaceAvailableSameSpecies = spaceAvailableFloat - breedInterspecies(allSpeciesList, spaceAvailableFloat);
-        float organismsReproducedPrevious;
-        float organismsReproduced = 0f;
-
-        for (Species species : allSpeciesList) {
-            float reproductionFloat = Math.round(spaceAvailableSameSpecies * species.getSharedFitness() / totalSharedFitness);
-
-            organismsReproducedPrevious = organismsReproduced;
-            organismsReproduced += reproductionFloat;
-
-            int reproduction = (int) organismsReproduced - (int) organismsReproducedPrevious;
-            List<Organism> reproducedOrganisms = species.reproduceOutcast(reproduction);
-
-            organismsWithoutSpecies.addAll(reproducedOrganisms);
-            species.restart();
-            organismsWithoutSpecies.remove(species.getRepresentative());
+        for (SpeciesBreedStrategy speciesBreedStrategy : speciesBreedStrategies) {
+            speciesBreedStrategy.process(speciesBreedContext, allSpeciesList);
         }
     }
 
-    @Override
     public void evolve() {
-        LeastFitOrStagnantResult leastFitOrStagnantResult = removeLeastFitOrganismsOrStagnantSpecies();
-        int organismsPreserved = preserveElitesFromAllSpecies();
-        int spaceAvailable = leastFitOrStagnantResult.organismsRemoved - organismsPreserved;
+        SpeciesEvolutionContext context = new SpeciesEvolutionContext();
 
-        breedAndRestartAllSpecies(spaceAvailable, leastFitOrStagnantResult.totalSharedFitnessRemaining);
+        prepareAllSpeciesForEvolution(context);
+        breedThroughAllSpecies(context);
         generation++;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class LeastFitOrStagnantResult {
-        private final int organismsRemoved;
-        private final float totalSharedFitnessRemaining;
     }
 }

@@ -4,7 +4,6 @@ import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.SequentialId;
 
 import java.util.Collection;
-import java.util.Set;
 
 final class NeuronStrategy<T extends Neuron> implements Neuron {
     private final NeuronPromoter<T> neuronPromoter;
@@ -33,8 +32,8 @@ final class NeuronStrategy<T extends Neuron> implements Neuron {
     }
 
     @Override
-    public Set<SequentialId> getInputIds() {
-        return neuron.getInputIds();
+    public Collection<NeuronInput> getInputs() {
+        return neuron.getInputs();
     }
 
     @Override
@@ -48,8 +47,8 @@ final class NeuronStrategy<T extends Neuron> implements Neuron {
     }
 
     @Override
-    public void forceValue(final float newValue) {
-        neuron.forceValue(newValue);
+    public void setValue(final float newValue) {
+        neuron.setValue(newValue);
     }
 
     @Override
@@ -64,5 +63,10 @@ final class NeuronStrategy<T extends Neuron> implements Neuron {
 
         isRecurrent = true;
         neuron = neuronPromoter.promote((T) neuron);
+    }
+
+    @Override
+    public String toString() {
+        return neuron.toString();
     }
 }

@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 @NoArgsConstructor
-public final class MetricDatumDefault implements MetricDatum {
+public final class MetricDatumReadAfterWriting implements MetricDatum {
     private final List<Float> values = new ArrayList<>();
     private boolean isValuesSorted = true;
     @Getter
@@ -22,7 +22,7 @@ public final class MetricDatumDefault implements MetricDatum {
     @Getter
     private float maximum = 0f;
 
-    private void ensureValuesIsSorted() {
+    private void ensureValuesIsSorted() { // TODO: provide an implementation where the values are sorted upon insert
         if (!isValuesSorted) {
             isValuesSorted = true;
             Collections.sort(values);

@@ -8,12 +8,11 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Collection;
-import java.util.Set;
 
 final class NeuronDefault implements Neuron {
     private final NodeGene node;
     @Getter
-    private final Set<SequentialId> inputIds;
+    private final Collection<NeuronInput> inputs;
     @Getter
     private final Collection<NeuronOutput> outputs;
     private final CircularVersionInt activationNumber;
@@ -21,9 +20,9 @@ final class NeuronDefault implements Neuron {
     private float value;
 
     @Builder(access = AccessLevel.PACKAGE)
-    NeuronDefault(final NodeGene node, final Set<SequentialId> inputIds, final Collection<NeuronOutput> outputs, final CircularVersionInt activationNumber) {
+    NeuronDefault(final NodeGene node, final Collection<NeuronInput> inputs, final Collection<NeuronOutput> outputs, final CircularVersionInt activationNumber) {
         this.node = node;
-        this.inputIds = inputIds;
+        this.inputs = inputs;
         this.outputs = outputs;
         this.activationNumber = activationNumber;
         this.valueActivationNumber = -1;
@@ -51,7 +50,7 @@ final class NeuronDefault implements Neuron {
     }
 
     @Override
-    public void forceValue(final float newValue) {
+    public void setValue(final float newValue) {
         valueActivationNumber = activationNumber.current();
         value = newValue;
     }
@@ -67,7 +66,12 @@ final class NeuronDefault implements Neuron {
     }
 
     public Neuron createRecurrentSingleMemory() {
-        return new NeuronRecurrentSingleMemory(node, inputIds, outputs, activationNumber);
+        return new NeuronRecurrentSingleMemory(node, inputs, outputs, activationNumber);
+    }
+
+    @Override
+    public String toString() {
+        return node.toString();
     }
 }
 

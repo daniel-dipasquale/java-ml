@@ -21,7 +21,7 @@ final class Organism implements Comparable<Organism> {
             fitnessDeterminer.clear();
         }
 
-        float fitness = Math.max(context.general().calculateFitness(genome), Float.MIN_VALUE);
+        float fitness = Math.max(context.general().calculateFitness(genome), Float.MIN_VALUE); // TODO: rely on a loss function like soft_max
 
         fitnessDeterminer.add(fitness);
 
@@ -36,24 +36,30 @@ final class Organism implements Comparable<Organism> {
         genome.mutate();
     }
 
+    @Override
+    public int compareTo(final Organism other) {
+        return Float.compare(fitnessDeterminer.get(), other.fitnessDeterminer.get());
+    }
+
     public Organism mate(final Organism other) {
-        int comparison = Float.compare(fitnessDeterminer.get(), other.fitnessDeterminer.get());
+        int comparison = compareTo(other);
 
         GenomeDefault genomeNew = switch (comparison) {
             case 1 -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(genome, other.genome);
+
             case 0 -> context.crossOver().crossOverByEqualTreatment(genome, other.genome);
+
             default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(other.genome, genome);
         };
 
         return new Organism(context, population, genomeNew);
     }
 
-    public Organism createCopy() {
-        return new Organism(context, population, genome.createCopy());
+    public float[] activate(final float[] inputs) {
+        return genome.activate(inputs);
     }
 
-    @Override
-    public int compareTo(final Organism other) {
-        return Float.compare(fitnessDeterminer.get(), other.fitnessDeterminer.get());
+    public Organism createCopy() {
+        return new Organism(context, population, genome.createCopy());
     }
 }

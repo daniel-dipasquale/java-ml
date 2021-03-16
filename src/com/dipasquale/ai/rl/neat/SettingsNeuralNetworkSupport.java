@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.ArgumentValidator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +12,21 @@ public final class SettingsNeuralNetworkSupport {
 
     ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> createFactory(final SettingsConnectionGeneSupport connections) {
         return c -> {
-            ArgumentValidator.ensureFalse(connections.isRecurrentConnectionsAllowed(), "connections.allowRecurrentConnections", "is not support yet");
+            NeuronFactory neuronFactory = NeuronDefault::new;
 
-            return new ContextDefaultNeuralNetworkSupport(g -> new NeuralNetworkDefault(g, new NeuronPathBuilderDefault()));
+            if (connections.isRecurrentConnectionsAllowed()) {
+                return new ContextDefaultNeuralNetworkSupport(g -> {
+                    NeuronPathBuilder neuronPathBuilder = new NeuronPathBuilderRecurrent<>(NeuronDefault::createRecurrentSingleMemory);
+
+                    return new NeuralNetworkDefault(g, neuronPathBuilder, neuronFactory);
+                });
+            }
+
+            return new ContextDefaultNeuralNetworkSupport(g -> {
+                NeuronPathBuilder neuronPathBuilder = new NeuronPathBuilderDefault();
+
+                return new NeuralNetworkDefault(g, neuronPathBuilder, neuronFactory);
+            });
         };
     }
 }

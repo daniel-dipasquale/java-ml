@@ -111,26 +111,24 @@ final class Species {
         List<Organism> organismsAdded = new ArrayList<>();
         int size = organisms.size();
 
-        if (size > 0) {
-            for (int i = 0; i < count; i++) {
-                if (size > 1 && context.random().isLessThan(context.crossOver().rate())) {
-                    Organism organism1 = context.random().nextItem(organisms);
-                    Organism organism2 = context.random().nextItem(organisms);
+        for (int i = 0; i < count; i++) {
+            if (size > 1 && context.random().isLessThan(context.crossOver().rate())) {
+                Organism organism1 = context.random().nextItem(organisms);
+                Organism organism2 = context.random().nextItem(organisms);
 
-                    if (organism1 != organism2) {
-                        Organism organismNew = organism1.mate(organism2);
+                if (organism1 != organism2) {
+                    Organism organismNew = organism1.mate(organism2);
 
-                        organismsAdded.add(organismNew);
-                    }
-                }
-
-                if (organismsAdded.size() <= i) {
-                    Organism organism = context.random().nextItem(organisms);
-                    Organism organismNew = organism.createCopy();
-
-                    organismNew.mutate();
                     organismsAdded.add(organismNew);
                 }
+            }
+
+            if (organismsAdded.size() <= i) {
+                Organism organism = context.random().nextItem(organisms);
+                Organism organismNew = organism.createCopy();
+
+                organismNew.mutate();
+                organismsAdded.add(organismNew);
             }
         }
 
@@ -148,21 +146,24 @@ final class Species {
         return organism1.mate(organism2);
     }
 
+    public Organism selectChampion() {
+        ensureOrganismsIsSorted();
+
+        return organisms.get(organisms.size() - 1);
+    }
+
     public List<Organism> selectElitists() {
         int size = organisms.size();
+        int select = (int) Math.floor((double) context.speciation().elitistThreshold() * (double) size);
+        int selectFixed = Math.max(select, context.speciation().elitistThresholdMinimum());
 
-        if (size > 0) {
-            int select = (int) Math.floor((double) context.speciation().elitistThreshold() * (double) size);
-            int selectFixed = Math.max(select, context.speciation().elitistThresholdMinimum());
-
-            if (selectFixed > 0) {
-                ensureOrganismsIsSorted();
-
-                return organisms.subList(size - selectFixed, size);
-            }
+        if (selectFixed == 0) {
+            return ImmutableList.of();
         }
 
-        return ImmutableList.of();
+        ensureOrganismsIsSorted();
+
+        return organisms.subList(size - selectFixed, size);
     }
 
     public boolean shouldSurvive() {

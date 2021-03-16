@@ -89,7 +89,11 @@ final class GenomeDefault implements Genome {
     }
 
     private NodeGene getRandomNode(final NodeGeneType type1, final NodeGeneType type2) {
-        if (context.random().isLessThan(0.5f)) {
+        float size1 = (float) nodes.size(type1);
+        float size2 = (float) nodes.size(type2);
+        float size = size1 + size2;
+
+        if (context.random().isLessThan(size1 / size)) {
             return Optional.ofNullable(nodes.getRandom(type1))
                     .orElseGet(() -> nodes.getRandom(type2));
         }
@@ -99,12 +103,17 @@ final class GenomeDefault implements Genome {
     }
 
     private NodeGene getRandomNode(final NodeGeneType type1, final NodeGeneType type2, final NodeGeneType type3) {
-        if (context.random().isLessThan(1f / 3f)) {
+        float size1 = (float) nodes.size(type1);
+        float size2 = (float) nodes.size(type2);
+        float size3 = (float) nodes.size(type3);
+        float size = size1 + size2 + size3;
+
+        if (context.random().isLessThan(size1 / size)) {
             return Optional.ofNullable(nodes.getRandom(type1))
                     .orElseGet(() -> getRandomNode(type2, type3));
         }
 
-        if (context.random().isLessThan(0.5f)) {
+        if (context.random().isLessThan(size2 / size)) {
             return Optional.ofNullable(nodes.getRandom(type2))
                     .orElseGet(() -> getRandomNode(type1, type3));
         }
@@ -138,15 +147,14 @@ final class GenomeDefault implements Genome {
         NodeGene node2 = getRandomNodeToMatch(node1.getType());
 
         return switch (node1.getType()) {
-            case Input -> createInnovationId(node1, node2);
+            case Input, Bias -> createInnovationId(node1, node2);
 
             case Output -> createInnovationId(node2, node1);
 
             default -> switch (node2.getType()) {
-                case Input -> createInnovationId(node2, node1);
+                case Input, Bias -> createInnovationId(node2, node1);
 
-                default -> Optional.ofNullable(createInnovationId(node1, node2))
-                        .orElseGet(() -> createInnovationId(node2, node1));
+                default -> createInnovationId(node1, node2);
             };
         };
     }
@@ -159,11 +167,15 @@ final class GenomeDefault implements Genome {
 
             if (connection == null) {
                 addConnection(new ConnectionGene(innovationId, context.connections().nextWeight()));
-            } else {
-                connection.increaseCyclesAllowed();
+
+                return true;
             }
 
-            return true;
+            if (context.connections().multipleRecurrentCyclesAllowed()) {
+                connection.increaseCyclesAllowed();
+
+                return true;
+            }
         }
 
         return false;

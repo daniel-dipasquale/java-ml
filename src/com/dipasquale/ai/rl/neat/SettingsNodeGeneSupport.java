@@ -50,10 +50,10 @@ public final class SettingsNodeGeneSupport {
 
     ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> createFactory(final SettingsGenomeFactory genomeFactory) {
         Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories = ImmutableMap.<NodeGeneType, SequentialIdFactory>builder()
-                .put(NodeGeneType.Input, new SequentialIdFactoryDefault("n1-input", inputIdFactory))
-                .put(NodeGeneType.Output, new SequentialIdFactoryDefault("n4-output", outputIdFactory))
-                .put(NodeGeneType.Bias, new SequentialIdFactoryDefault("n2-output", biasIdFactory))
-                .put(NodeGeneType.Hidden, new SequentialIdFactoryDefault("n3-output", hiddenIdFactory))
+                .put(NodeGeneType.Input, new SequentialIdFactoryDefault("n1_input", inputIdFactory))
+                .put(NodeGeneType.Output, new SequentialIdFactoryDefault("n4_output", outputIdFactory))
+                .put(NodeGeneType.Bias, new SequentialIdFactoryDefault("n2_bias", biasIdFactory))
+                .put(NodeGeneType.Hidden, new SequentialIdFactoryDefault("n3_hidden", hiddenIdFactory))
                 .build();
 
         AtomicLoopSelector<SettingsFloatNumber> biasNodeBiasFactory = new AtomicLoopSelector<>(genomeFactory.getBiases()::get, 0, genomeFactory.getBiases().size(), true);

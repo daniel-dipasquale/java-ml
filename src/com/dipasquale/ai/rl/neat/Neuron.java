@@ -4,7 +4,6 @@ import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.SequentialId;
 
 import java.util.Collection;
-import java.util.Set;
 
 interface Neuron {
     SequentialId getId();
@@ -13,7 +12,7 @@ interface Neuron {
 
     ActivationFunction getActivationFunction();
 
-    Set<SequentialId> getInputIds();
+    Collection<NeuronInput> getInputs();
 
     Collection<NeuronOutput> getOutputs();
 
@@ -23,7 +22,7 @@ interface Neuron {
         return getValue(getActivationFunction());
     }
 
-    void forceValue(float newValue);
+    void setValue(float newValue);
 
     void addToValue(SequentialId id, float delta);
 }

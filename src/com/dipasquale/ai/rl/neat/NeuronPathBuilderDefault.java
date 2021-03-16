@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
@@ -38,29 +39,28 @@ final class NeuronPathBuilderDefault implements NeuronPathBuilder {
 
     @Override
     public void addPathLeadingTo(final Neuron neuron) {
-        HashDequeMap<SequentialId, Pitstop> deque = new HashDequeMap<>();
+        HashDequeMap<SequentialId, NeuronOrder> deque = new HashDequeMap<>();
 
-        deque.putLast(neuron.getId(), new Pitstop(neuron, false));
+        deque.putLast(neuron.getId(), new NeuronOrder(neuron, false));
 
         while (!deque.isEmpty()) {
-            Pitstop pitstop = deque.removeLast();
+            NeuronOrder neuronOrder = deque.removeLast();
 
-            if (!pitstop.ready) {
-                deque.putLast(pitstop.neuron.getId(), new Pitstop(pitstop.neuron, true));
+            if (!neuronOrder.ordered) {
+                deque.putLast(neuronOrder.neuron.getId(), new NeuronOrder(neuronOrder.neuron, true));
 
-                for (SequentialId id : pitstop.neuron.getInputIds()) {
-                    Pitstop pitstopOld = deque.get(id);
+                for (NeuronInput input : neuronOrder.neuron.getInputs()) {
+                    NeuronOrder neuronOrderOld = deque.get(input.getNeuronId());
 
-                    if ((pitstopOld == null || !pitstopOld.ready) && !alreadyOrdered.contains(id)) {
-                        if (pitstopOld == null) {
-                            deque.putLast(id, new Pitstop(neurons.get(id), false));
-                        } else {
-                            deque.putLast(id, pitstopOld);
-                        }
+                    if ((neuronOrderOld == null || !neuronOrderOld.ordered) && !alreadyOrdered.contains(input.getNeuronId())) {
+                        NeuronOrder neuronOrderNew = Optional.ofNullable(neuronOrderOld)
+                                .orElseGet(() -> new NeuronOrder(neurons.get(input.getNeuronId()), false));
+
+                        deque.putLast(input.getNeuronId(), neuronOrderNew);
                     }
                 }
-            } else if (alreadyOrdered.add(pitstop.neuron.getId())) {
-                ordered.add(pitstop.neuron);
+            } else if (alreadyOrdered.add(neuronOrder.neuron.getId())) {
+                ordered.add(neuronOrder.neuron);
             }
         }
     }
@@ -78,13 +78,13 @@ final class NeuronPathBuilderDefault implements NeuronPathBuilder {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class Pitstop {
+    private static final class NeuronOrder {
         private final Neuron neuron;
-        private final boolean ready;
+        private final boolean ordered;
 
         @Override
         public String toString() {
-            return String.format("%s:%b", neuron.getId(), ready);
+            return String.format("%s:%b", neuron.getId(), ordered);
         }
     }
 }

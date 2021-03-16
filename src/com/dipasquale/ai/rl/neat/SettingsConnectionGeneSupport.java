@@ -16,6 +16,8 @@ public final class SettingsConnectionGeneSupport {
     @Builder.Default
     private final boolean recurrentConnectionsAllowed = true;
     @Builder.Default
+    private final boolean multipleRecurrentCyclesAllowed = false;
+    @Builder.Default
     private final SequentialIdFactory innovationIdFactory = new SequentialIdFactoryLong();
     @Builder.Default
     private final SettingsFloatNumber weight = SettingsFloatNumber.randomGaussian(-2f, 2f);
@@ -24,7 +26,7 @@ public final class SettingsConnectionGeneSupport {
         return c -> {
             SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
 
-            return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, sequentialIdFactory, weight::get, new ConcurrentHashMap<>());
+            return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, recurrentConnectionsAllowed && multipleRecurrentCyclesAllowed, sequentialIdFactory, weight::get, new ConcurrentHashMap<>());
         };
     }
 }

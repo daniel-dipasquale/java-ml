@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-final class NeuronOutput {
+final class NeuronInput {
     private final SequentialId neuronId;
-    private final float connectionWeight;
+    private final int recurrentCyclesAllowed;
 }

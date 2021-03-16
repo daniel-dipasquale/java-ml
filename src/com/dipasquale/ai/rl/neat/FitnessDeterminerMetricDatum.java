@@ -1,12 +1,12 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.MetricDatum;
-import com.dipasquale.ai.common.MetricDatumDefault;
+import com.dipasquale.ai.common.MetricDatumReadAfterWriting;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 final class FitnessDeterminerMetricDatum implements FitnessDeterminer {
-    private final MetricDatum metricDatum = new MetricDatumDefault();
+    private final MetricDatum metricDatum = new MetricDatumReadAfterWriting(); // TODO: replace with MetricDatumReadWhileWriting
     private final Selector selector;
 
     @Override

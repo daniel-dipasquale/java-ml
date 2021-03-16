@@ -8,4 +8,6 @@ public interface NeatCollective {
     void testFitness();
 
     void evolve();
+
+    NeatCollectiveClient getMostFit();
 }
