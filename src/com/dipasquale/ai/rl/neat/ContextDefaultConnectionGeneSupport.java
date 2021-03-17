@@ -11,8 +11,9 @@ final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGen
     private final boolean recurrentConnectionsAllowed;
     private final boolean multipleRecurrentCyclesAllowed;
     private final SequentialIdFactory innovationIdFactory;
-    private final ConnectionGeneWeightFactory weightFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
+    private final ConnectionGeneWeightFactory weightFactory;
+    private final ConnectionGeneWeightPerturber weightPerturber;
 
     @Override
     public boolean recurrentConnectionsAllowed() {
@@ -32,5 +33,10 @@ final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGen
     @Override
     public float nextWeight() {
         return weightFactory.next();
+    }
+
+    @Override
+    public float perturbWeight(final float weight) {
+        return weightPerturber.next(weight);
     }
 }

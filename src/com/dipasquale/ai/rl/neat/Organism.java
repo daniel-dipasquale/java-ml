@@ -5,23 +5,23 @@ final class Organism implements Comparable<Organism> {
     private final Population population;
     private final GenomeDefault genome;
     private final FitnessDeterminer fitnessDeterminer;
-    private int generation;
+    private int fitnessGeneration;
 
     Organism(final Context context, final Population population, final GenomeDefault genome) {
         this.context = context;
         this.population = population;
         this.genome = genome;
         this.fitnessDeterminer = context.general().createFitnessDeterminer();
-        this.generation = -1;
+        this.fitnessGeneration = -1;
     }
 
     public float updateFitness() {
-        if (generation != population.getGeneration()) {
-            generation = population.getGeneration();
+        if (fitnessGeneration != population.getGeneration()) {
+            fitnessGeneration = population.getGeneration();
             fitnessDeterminer.clear();
         }
 
-        float fitness = Math.max(context.general().calculateFitness(genome), Float.MIN_VALUE); // TODO: rely on a loss function like soft_max
+        float fitness = Math.max(context.general().calculateFitness(genome), 0f); // TODO: rely on a configurable function
 
         fitnessDeterminer.add(fitness);
 
@@ -29,7 +29,7 @@ final class Organism implements Comparable<Organism> {
     }
 
     public boolean isCompatible(final Organism other) {
-        return context.speciation().belongs(genome, other.genome, population.getGeneration());
+        return context.speciation().belongs(genome, other.genome, population.getGeneration()); // TODO: is this the general population generation or the species or the genome?
     }
 
     public void mutate() {

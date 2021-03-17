@@ -20,8 +20,9 @@ public final class SettingsNodeGeneSupport {
     private static final RandomSupportFloat RANDOM_SUPPORT = RandomSupportFloat.createConcurrent();
 
     private static final Map<SettingsActivationFunction, ActivationFunction> ACTIVATION_FUNCTIONS_MAP = ImmutableMap.<SettingsActivationFunction, ActivationFunction>builder()
-            .put(SettingsActivationFunction.Identity, ActivationFunction.Identity)
-            .put(SettingsActivationFunction.ReLU, ActivationFunction.ReLU)
+            .put(SettingsActivationFunction.Identity, ActivationFunction.IDENTITY)
+            .put(SettingsActivationFunction.ReLU, ActivationFunction.RELU)
+            .put(SettingsActivationFunction.Sigmoid, ActivationFunction.SIGMOID)
             .build();
 
     private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = ImmutableList.copyOf(ACTIVATION_FUNCTIONS_MAP.values());
@@ -48,6 +49,18 @@ public final class SettingsNodeGeneSupport {
         return ACTIVATION_FUNCTIONS_MAP.get(activationFunction);
     }
 
+    private static FloatFactory createBiasFactoryForBiasNode(final SettingsGenomeFactory genomeFactory) {
+        if (genomeFactory.getBiases().size() == 0) {
+            return () -> {
+                throw new IllegalStateException("there are no biases allowed in this genome");
+            };
+        }
+
+        AtomicLoopSelector<SettingsFloatNumber> biasNodeBiasFactory = new AtomicLoopSelector<>(genomeFactory.getBiases()::get, 0, genomeFactory.getBiases().size(), true);
+
+        return () -> biasNodeBiasFactory.next().get();
+    }
+
     ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> createFactory(final SettingsGenomeFactory genomeFactory) {
         Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories = ImmutableMap.<NodeGeneType, SequentialIdFactory>builder()
                 .put(NodeGeneType.Input, new SequentialIdFactoryDefault("n1_input", inputIdFactory))
@@ -56,19 +69,17 @@ public final class SettingsNodeGeneSupport {
                 .put(NodeGeneType.Hidden, new SequentialIdFactoryDefault("n3_hidden", hiddenIdFactory))
                 .build();
 
-        AtomicLoopSelector<SettingsFloatNumber> biasNodeBiasFactory = new AtomicLoopSelector<>(genomeFactory.getBiases()::get, 0, genomeFactory.getBiases().size(), true);
-
         Map<NodeGeneType, FloatFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatFactory>builder()
                 .put(NodeGeneType.Input, genomeFactory.getInputBias()::get)
                 .put(NodeGeneType.Output, genomeFactory.getOutputBias()::get)
-                .put(NodeGeneType.Bias, () -> biasNodeBiasFactory.next().get())
+                .put(NodeGeneType.Bias, createBiasFactoryForBiasNode(genomeFactory))
                 .put(NodeGeneType.Hidden, hiddenBias::get)
                 .build();
 
         Map<NodeGeneType, ActivationFunctionFactory> activationFunctionFactories = ImmutableMap.<NodeGeneType, ActivationFunctionFactory>builder()
                 .put(NodeGeneType.Input, () -> getActivationFunction(genomeFactory.getInputActivationFunction()))
                 .put(NodeGeneType.Output, () -> getActivationFunction(genomeFactory.getOutputActivationFunction()))
-                .put(NodeGeneType.Bias, () -> ActivationFunction.Identity)
+                .put(NodeGeneType.Bias, () -> ActivationFunction.IDENTITY)
                 .put(NodeGeneType.Hidden, () -> getActivationFunction(hiddenActivationFunction))
                 .build();
 

@@ -12,13 +12,13 @@ final class GenomeCrossOver {
         return context.random().isLessThan(0.5f) ? item1 : item2;
     }
 
-    private boolean shouldEnforceExpressed() {
-        return context.random().isLessThan(context.crossOver().enforceExpressedRate());
+    private boolean shouldOverrideExpressed() {
+        return context.random().isLessThan(context.crossOver().overrideExpressedRate());
     }
 
     private ConnectionGene createChildConnection(final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
         ConnectionGene randomParentConnection = getRandom(parent1Connection, parent2Connection);
-        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || shouldEnforceExpressed();
+        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || shouldOverrideExpressed();
 
         if (context.random().isLessThan(context.crossOver().useRandomParentWeightRate())) {
             return randomParentConnection.createCopy(expressed);
@@ -42,7 +42,7 @@ final class GenomeCrossOver {
             if (unfitConnection != null) {
                 childConnection = createChildConnection(fitConnection, unfitConnection);
             } else {
-                childConnection = fitConnection.createCopy(fitConnection.isExpressed() || shouldEnforceExpressed());
+                childConnection = fitConnection.createCopy(fitConnection.isExpressed() || shouldOverrideExpressed());
             }
 
             child.addConnection(childConnection);
@@ -70,11 +70,11 @@ final class GenomeCrossOver {
 
                 child.addConnection(childConnection);
             } else if (joinEntry.getItem1() != null) {
-                ConnectionGene childConnection = joinEntry.getItem1().createCopy(joinEntry.getItem1().isExpressed() || shouldEnforceExpressed());
+                ConnectionGene childConnection = joinEntry.getItem1().createCopy(joinEntry.getItem1().isExpressed() || shouldOverrideExpressed());
 
                 child.addConnection(childConnection);
             } else {
-                ConnectionGene childConnection = joinEntry.getItem2().createCopy(joinEntry.getItem2().isExpressed() || shouldEnforceExpressed());
+                ConnectionGene childConnection = joinEntry.getItem2().createCopy(joinEntry.getItem2().isExpressed() || shouldOverrideExpressed());
 
                 child.addConnection(childConnection);
             }

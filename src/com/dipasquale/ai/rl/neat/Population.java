@@ -81,7 +81,15 @@ final class Population {
             allSpecies.stream()
                     .filter(n -> allSpecies.getValue(n).addIfCompatible(organism))
                     .findFirst()
-                    .orElseGet(() -> addSpecies(createSpecies(organism)));
+                    .orElseGet(() -> {
+                        if (allSpecies.size() < context.speciation().maximumSpecies()) {
+                            return addSpecies(createSpecies(organism));
+                        }
+
+                        String message = String.format("cannot have more species than %d, consider reviewing some parameters or for an easy fix increase the speciation.compatibilityThresholdModifier", context.speciation().maximumSpecies());
+
+                        throw new IllegalStateException(message);
+                    });
         }
 
         organismsWithoutSpecies.clear();

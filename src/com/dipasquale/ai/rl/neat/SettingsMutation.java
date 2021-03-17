@@ -14,9 +14,11 @@ public final class SettingsMutation {
     @Builder.Default
     private final SettingsFloatNumber perturbConnectionWeightRate = SettingsFloatNumber.literal(0.9f);
     @Builder.Default
-    private final SettingsFloatNumber changeConnectionExpressedRate = SettingsFloatNumber.literal(0.2f);
+    private final SettingsFloatNumber replaceConnectionWeightRate = SettingsFloatNumber.literal(0.75f);
+    @Builder.Default
+    private final SettingsFloatNumber disableConnectionExpressedRate = SettingsFloatNumber.literal(0.2f);
 
     ContextDefaultComponentFactory<ContextDefaultMutation> createFactory() {
-        return c -> new ContextDefaultMutation(addNodeMutationsRate.get(), addConnectionMutationsRate.get(), perturbConnectionWeightRate.get(), changeConnectionExpressedRate.get());
+        return c -> new ContextDefaultMutation(addNodeMutationsRate.get(), addConnectionMutationsRate.get(), perturbConnectionWeightRate.get(), replaceConnectionWeightRate.get(), disableConnectionExpressedRate.get());
     }
 }

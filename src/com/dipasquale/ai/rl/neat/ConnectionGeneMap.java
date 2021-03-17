@@ -42,6 +42,10 @@ final class ConnectionGeneMap implements Iterable<ConnectionGene> {
         return expressed.getById(innovationId);
     }
 
+    public ConnectionGene getByIndexFromExpressed(final int index) {
+        return expressed.getByIndex(index);
+    }
+
     public Map<DirectedEdge, ConnectionGene> getIncomingToNodeIdFromExpressed(final SequentialId nodeId) {
         return Optional.ofNullable(incomingToNodeId.get(nodeId))
                 .orElseGet(ImmutableMap::of);

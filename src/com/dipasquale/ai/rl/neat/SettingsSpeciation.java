@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.common.ArgumentValidator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import java.util.Optional;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SettingsSpeciation {
+    private final SettingsIntegerNumber maximumSpecies;
     private final SettingsIntegerNumber maximumGenomes;
     @Builder.Default
     private final SettingsFloatNumber weightDifferenceCoefficient = SettingsFloatNumber.literal(1f);
@@ -29,16 +31,27 @@ public final class SettingsSpeciation {
     @Builder.Default
     private final SettingsIntegerNumber stagnationDropOffAge = SettingsIntegerNumber.literal(15);
     @Builder.Default
-    private final SettingsFloatNumber interspeciesMatingRate = SettingsFloatNumber.literal(0.001f);
+    private final SettingsFloatNumber interSpeciesMatingRate = SettingsFloatNumber.literal(0.01f);
 
     ContextDefaultComponentFactory<ContextDefaultSpeciation> createFactory(final SettingsGeneralSupport general) {
         return c -> {
-            SettingsIntegerNumber maximumGenomesFixed = Optional.ofNullable(maximumGenomes)
-                    .orElseGet(() -> SettingsIntegerNumber.literal(general.getPopulationSize() / 2));
+            int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
+                    .map(SettingsIntegerNumber::get)
+                    .orElseGet(() -> general.getPopulationSize() / 8);
+
+            ArgumentValidator.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
+            ArgumentValidator.ensureLessThan(maximumSpeciesFixed, general.getPopulationSize(), "maximumSpecies");
+
+            int maximumGenomesFixed = Optional.ofNullable(maximumGenomes)
+                    .map(SettingsIntegerNumber::get)
+                    .orElseGet(() -> general.getPopulationSize() / 2);
+
+            ArgumentValidator.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
+            ArgumentValidator.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
 
             GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(c);
 
-            return new ContextDefaultSpeciation(maximumGenomesFixed.get(), weightDifferenceCoefficient.get(), disjointCoefficient.get(), excessCoefficient.get(), compatibilityThreshold.get(), compatibilityThresholdModifier.get(), genomeCompatibilityCalculator, eugenicsThreshold.get(), elitistThreshold.get(), elitistThresholdMinimum.get(), stagnationDropOffAge.get(), interspeciesMatingRate.get());
+            return new ContextDefaultSpeciation(maximumSpeciesFixed, maximumGenomesFixed, weightDifferenceCoefficient.get(), disjointCoefficient.get(), excessCoefficient.get(), compatibilityThreshold.get(), compatibilityThresholdModifier.get(), genomeCompatibilityCalculator, eugenicsThreshold.get(), elitistThreshold.get(), elitistThresholdMinimum.get(), stagnationDropOffAge.get(), interSpeciesMatingRate.get());
         };
     }
 }

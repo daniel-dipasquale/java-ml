@@ -123,7 +123,7 @@ final class Species {
                 }
             }
 
-            if (organismsAdded.size() <= i) {
+            if (organismsAdded.size() <= i) { // TODO: the paper implies this is also left out to chance
                 Organism organism = context.random().nextItem(organisms);
                 Organism organismNew = organism.createCopy();
 
@@ -178,7 +178,6 @@ final class Species {
         organisms = Lists.newArrayList(representativeOrganismNew);
         isOrganismsSorted = true;
         sharedFitness = 0f;
-        maximumSharedFitness = 0f;
 
         return organismsOld;
     }

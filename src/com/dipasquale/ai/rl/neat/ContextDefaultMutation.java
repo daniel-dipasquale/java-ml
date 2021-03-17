@@ -8,7 +8,8 @@ final class ContextDefaultMutation implements Context.Mutation {
     private final float addNodeMutationsRate;
     private final float addConnectionMutationsRate;
     private final float perturbConnectionWeightRate;
-    private final float changeConnectionExpressedRate;
+    private final float replaceConnectionWeightRate;
+    private final float disableConnectionExpressedRate;
 
     @Override
     public float addNodeMutationsRate() {
@@ -26,7 +27,12 @@ final class ContextDefaultMutation implements Context.Mutation {
     }
 
     @Override
-    public float changeConnectionExpressedRate() {
-        return changeConnectionExpressedRate;
+    public float replaceConnectionWeightRate() {
+        return replaceConnectionWeightRate;
+    }
+
+    @Override
+    public float disableConnectionExpressedRate() {
+        return disableConnectionExpressedRate;
     }
 }

@@ -17,7 +17,7 @@ final class SpeciesBreedStrategyInterSpecies implements SpeciesBreedStrategy {
             return;
         }
 
-        float organismsToReproduce = (float) context.getOrganismsNeeded() * neatContext.speciation().interspeciesMatingRate() + context.getInterSpeciesBreedingLeftOverRatio();
+        float organismsToReproduce = (float) context.getOrganismsNeeded() * neatContext.speciation().interSpeciesMatingRate() + context.getInterSpeciesBreedingLeftOverRatio();
         int organismsToReproduceFixed = (int) Math.floor(organismsToReproduce);
 
         context.setInterSpeciesBreedingLeftOverRatio(organismsToReproduce - (float) organismsToReproduceFixed); // TODO: revisit this algorithm

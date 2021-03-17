@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultCrossOver implements Context.CrossOver {
     private final float rate;
-    private final float enforceExpressedRate;
+    private final float overrideExpressedRate;
     private final float useRandomParentWeightRate;
     private final GenomeCrossOver genomeCrossOver;
 
@@ -16,8 +16,8 @@ final class ContextDefaultCrossOver implements Context.CrossOver {
     }
 
     @Override
-    public float enforceExpressedRate() {
-        return enforceExpressedRate;
+    public float overrideExpressedRate() {
+        return overrideExpressedRate;
     }
 
     @Override

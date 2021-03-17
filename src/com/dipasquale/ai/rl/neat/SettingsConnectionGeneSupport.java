@@ -20,13 +20,16 @@ public final class SettingsConnectionGeneSupport {
     @Builder.Default
     private final SequentialIdFactory innovationIdFactory = new SequentialIdFactoryLong();
     @Builder.Default
-    private final SettingsFloatNumber weight = SettingsFloatNumber.randomGaussian(-2f, 2f);
+    private final SettingsFloatNumber weightFactory = SettingsFloatNumber.randomGaussian(-2f, 2f);
+    @Builder.Default
+    private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.randomGaussian(0f, 1f);
 
     ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory() {
         return c -> {
+            boolean multipleRecurrentCyclesAllowedFixed = recurrentConnectionsAllowed && multipleRecurrentCyclesAllowed;
             SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
 
-            return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, recurrentConnectionsAllowed && multipleRecurrentCyclesAllowed, sequentialIdFactory, weight::get, new ConcurrentHashMap<>());
+            return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, multipleRecurrentCyclesAllowedFixed, sequentialIdFactory, new ConcurrentHashMap<>(), weightFactory::get, w -> weightPerturber.get() * w);
         };
     }
 }

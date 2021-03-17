@@ -63,6 +63,8 @@ interface Context {
         }
 
         float nextWeight(); // next() * 4 - 2
+
+        float perturbWeight(float weight);
     }
 
     interface Random {
@@ -104,21 +106,23 @@ interface Context {
     }
 
     interface Mutation {
-        float addNodeMutationsRate(); // 0.1
+        float addNodeMutationsRate();
 
-        float addConnectionMutationsRate(); // 0.1
+        float addConnectionMutationsRate();
 
-        float perturbConnectionWeightRate(); // 0.9
+        float perturbConnectionWeightRate();
 
-        float changeConnectionExpressedRate(); // 0.2
+        float replaceConnectionWeightRate();
+
+        float disableConnectionExpressedRate();
     }
 
     interface CrossOver {
-        float rate(); // 0.8
+        float rate();
 
-        float enforceExpressedRate(); // 0.5
+        float overrideExpressedRate();
 
-        float useRandomParentWeightRate(); // 1.0
+        float useRandomParentWeightRate();
 
         GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(GenomeDefault fitParent, GenomeDefault unfitParent);
 
@@ -126,15 +130,17 @@ interface Context {
     }
 
     interface Speciation {
+        int maximumSpecies();
+
         int maximumGenomes();
 
-        float weightDifferenceCoefficient(); // 1.0
+        float weightDifferenceCoefficient(); // c3
 
-        float disjointCoefficient(); // 2.0
+        float disjointCoefficient(); // c2
 
-        float excessCoefficient(); // 2.0
+        float excessCoefficient(); // c1
 
-        float compatibilityThreshold(int generation); // 6.0 ( * compatibilityThresholdModifier ^ generation )
+        float compatibilityThreshold(int generation); // (compatibilityThreshold) ( * compatibilityThresholdModifier ^ generation )
 
         float calculateCompatibility(GenomeDefault genome1, GenomeDefault genome2);
 
@@ -152,6 +158,6 @@ interface Context {
 
         int stagnationDropOffAge(); // 15
 
-        float interspeciesMatingRate(); // 0.01
+        float interSpeciesMatingRate(); // 0.01
     }
 }

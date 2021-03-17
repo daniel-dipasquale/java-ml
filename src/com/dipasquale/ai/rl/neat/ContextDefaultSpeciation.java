@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextDefaultSpeciation implements Context.Speciation {
+    private final int maximumSpecies;
     private final int maximumGenomes;
     private final float weightDifferenceCoefficient;
     private final float disjointCoefficient;
@@ -16,7 +17,12 @@ final class ContextDefaultSpeciation implements Context.Speciation {
     private final float elitistThreshold;
     private final int elitistThresholdMinimum;
     private final int stagnationDropOffAge;
-    private final float interspeciesMatingRate;
+    private final float interSpeciesMatingRate;
+
+    @Override
+    public int maximumSpecies() {
+        return maximumSpecies;
+    }
 
     @Override
     public int maximumGenomes() {
@@ -69,7 +75,7 @@ final class ContextDefaultSpeciation implements Context.Speciation {
     }
 
     @Override
-    public float interspeciesMatingRate() {
-        return interspeciesMatingRate;
+    public float interSpeciesMatingRate() {
+        return interSpeciesMatingRate;
     }
 }

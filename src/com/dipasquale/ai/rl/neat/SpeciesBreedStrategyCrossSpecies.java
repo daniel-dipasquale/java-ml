@@ -17,7 +17,7 @@ final class SpeciesBreedStrategyCrossSpecies implements SpeciesBreedStrategy {
         float organismsReproduced = 0f;
 
         for (Species species : speciesList) {
-            float reproductionFloat = Math.round(organismsNeeded * species.getSharedFitness() / context.getTotalSharedFitness());
+            float reproductionFloat = organismsNeeded * species.getSharedFitness() / context.getTotalSharedFitness();
 
             organismsReproducedPrevious = organismsReproduced;
             organismsReproduced += reproductionFloat;
