@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ArgumentValidator {
+public final class ArgumentValidatorUtils {
     public static void ensureNotNull(final Object object, final String name) {
         if (object == null) {
             String message = String.format("%s cannot be null", name);

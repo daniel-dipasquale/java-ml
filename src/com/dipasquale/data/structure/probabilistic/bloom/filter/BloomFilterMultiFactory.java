@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
-import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.data.structure.probabilistic.DataStructureMultiCalculator;
 
 final class BloomFilterMultiFactory implements BloomFilterFactory {
@@ -8,7 +8,7 @@ final class BloomFilterMultiFactory implements BloomFilterFactory {
     private final int count;
 
     BloomFilterMultiFactory(final BloomFilterPartitionFactory bloomFilterPartitionFactory, final int count) {
-        ArgumentValidator.ensureGreaterThanZero(count, "count");
+        ArgumentValidatorUtils.ensureGreaterThanZero(count, "count");
         this.bloomFilterPartitionFactory = bloomFilterPartitionFactory;
         this.count = count;
     }

@@ -49,31 +49,33 @@ public interface RandomSupport {
         return () -> ThreadLocalRandom.current().nextDouble();
     }
 
-    private static RandomSupport createGaussian(final RandomSupport randomSupport, final double max) {
-        double min = -max;
-        double maxFixed = Math.nextDown(1D);
+    private static RandomSupport createMeanDistribution(final RandomSupport randomSupport, final int concentration) {
+        double multiplier = 1D / (double) concentration; // clever idea from: https://stackoverflow.com/questions/30492259/get-a-random-number-focused-on-center
 
         return () -> {
-            double value = randomSupport.next();
-            double valueFixed = (value - min) * (max - min) / 100D;
+            double random = 0D;
 
-            return Math.min(Math.max(valueFixed, 0D), maxFixed);
+            for (int i = 0; i < concentration; i++) {
+                random += randomSupport.next() * multiplier;
+            }
+
+            return random;
         };
     }
 
-    static RandomSupport createGaussian() {
-        return createGaussian(new Random()::nextGaussian, 5D);
+    static RandomSupport createMeanDistribution(final int concentration) {
+        return createMeanDistribution(new Random()::nextDouble, concentration);
     }
 
-    static RandomSupport createGaussianConcurrent() {
-        return createGaussian(() -> ThreadLocalRandom.current().nextGaussian(), 5D);
+    static RandomSupport createMeanDistribution() {
+        return createMeanDistribution(5);
     }
 
-    static RandomSupport createGaussianUnbounded() {
-        return new Random()::nextGaussian;
+    static RandomSupport createMeanDistributionConcurrent(final int concentration) {
+        return createMeanDistribution(() -> ThreadLocalRandom.current().nextDouble(), concentration);
     }
 
-    static RandomSupport createGaussianConcurrentUnbounded() {
-        return () -> ThreadLocalRandom.current().nextGaussian();
+    static RandomSupport createMeanDistributionConcurrent() {
+        return createMeanDistribution(5);
     }
 }

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.MetricDatum;
-import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.common.ArgumentValidatorUtils;
 
 @FunctionalInterface
 interface FitnessDeterminerFactory {
@@ -28,8 +28,8 @@ interface FitnessDeterminerFactory {
     }
 
     static FitnessDeterminerFactory createPthFactory(final float percentage) {
-        ArgumentValidator.ensureGreaterThanOrEqualTo(percentage, 0f, "percentage");
-        ArgumentValidator.ensureLessThanOrEqualTo(percentage, 1f, "percentage");
+        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(percentage, 0f, "percentage");
+        ArgumentValidatorUtils.ensureLessThanOrEqualTo(percentage, 1f, "percentage");
 
         return () -> new FitnessDeterminerMetricDatum(md -> md.getPth(percentage));
     }

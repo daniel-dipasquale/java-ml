@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
-import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.common.ExpirySupport;
 
 final class BloomFilterTimedRecyclableMultiFactory implements BloomFilterFactory {
@@ -9,15 +9,15 @@ final class BloomFilterTimedRecyclableMultiFactory implements BloomFilterFactory
     private final int partitions;
 
     BloomFilterTimedRecyclableMultiFactory(final BloomFilterDefaultFactory bloomFilterDefaultFactory, final ExpirySupport.Factory expirySupportFactory, final long expiryTime, final int partitions) {
-        ArgumentValidator.ensureGreaterThanZero(expiryTime, "expiryTime");
-        ArgumentValidator.ensureGreaterThanZero(partitions, "partitions");
+        ArgumentValidatorUtils.ensureGreaterThanZero(expiryTime, "expiryTime");
+        ArgumentValidatorUtils.ensureGreaterThanZero(partitions, "partitions");
         this.bloomFilterDefaultFactory = bloomFilterDefaultFactory;
         this.expirySupportProvider = i -> expirySupportFactory.create(expiryTime * (long) partitions, expiryTime * (long) i);
         this.partitions = partitions;
     }
 
     BloomFilterTimedRecyclableMultiFactory(final BloomFilterDefaultFactory bloomFilterDefaultFactory, final ExpirySupport expirySupport, final int partitions) {
-        ArgumentValidator.ensureGreaterThanZero(partitions, "partitions");
+        ArgumentValidatorUtils.ensureGreaterThanZero(partitions, "partitions");
         this.bloomFilterDefaultFactory = bloomFilterDefaultFactory;
         this.expirySupportProvider = i -> expirySupport;
         this.partitions = partitions;

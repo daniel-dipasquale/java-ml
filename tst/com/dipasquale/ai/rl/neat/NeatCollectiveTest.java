@@ -50,7 +50,7 @@ public final class NeatCollectiveTest {
                         .recurrentConnectionsAllowed(true)
                         .multipleRecurrentCyclesAllowed(false)
                         .innovationIdFactory(new SequentialIdFactoryLong())
-                        .weightFactory(SettingsFloatNumber.randomGaussian(-1f, 1f))
+                        .weightFactory(SettingsFloatNumber.randomMeanDistribution(-1f, 1f))
                         .weightPerturber(SettingsFloatNumber.literal(2.5f))
                         .build())
                 .neuralNetwork(SettingsNeuralNetworkSupport.builder()

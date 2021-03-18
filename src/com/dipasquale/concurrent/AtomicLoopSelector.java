@@ -1,6 +1,6 @@
 package com.dipasquale.concurrent;
 
-import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.common.ArgumentValidatorUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,8 +11,8 @@ public final class AtomicLoopSelector<T> {
     private final boolean restart;
 
     public AtomicLoopSelector(final ByIndex<T> items, final int offset, final int count, final boolean restart) {
-        ArgumentValidator.ensureGreaterThanOrEqualToZero(offset, "offset");
-        ArgumentValidator.ensureLessThan(offset, count, "offset");
+        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(offset, "offset");
+        ArgumentValidatorUtils.ensureLessThan(offset, count, "offset");
 
         this.items = items;
         this.indexCas = new AtomicInteger(offset);

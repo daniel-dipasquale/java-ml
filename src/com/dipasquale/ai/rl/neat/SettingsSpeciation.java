@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.common.ArgumentValidatorUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,15 +39,15 @@ public final class SettingsSpeciation {
                     .map(SettingsIntegerNumber::get)
                     .orElseGet(() -> general.getPopulationSize() / 8);
 
-            ArgumentValidator.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
-            ArgumentValidator.ensureLessThan(maximumSpeciesFixed, general.getPopulationSize(), "maximumSpecies");
+            ArgumentValidatorUtils.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
+            ArgumentValidatorUtils.ensureLessThan(maximumSpeciesFixed, general.getPopulationSize(), "maximumSpecies");
 
             int maximumGenomesFixed = Optional.ofNullable(maximumGenomes)
                     .map(SettingsIntegerNumber::get)
                     .orElseGet(() -> general.getPopulationSize() / 2);
 
-            ArgumentValidator.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
-            ArgumentValidator.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
+            ArgumentValidatorUtils.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
+            ArgumentValidatorUtils.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
 
             GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(c);
 

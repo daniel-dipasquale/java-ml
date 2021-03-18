@@ -1,6 +1,6 @@
 package com.dipasquale.threading;
 
-import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.common.ArgumentValidatorUtils;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -17,7 +17,7 @@ final class EventLoopNoDelay implements EventLoop {
     }
 
     private static void ensureDelayTimeIsValid(final long delayTime) {
-        ArgumentValidator.ensureEqual(delayTime, 0L, "delayTime", "must be 0 for FIFO ASAP event loops");
+        ArgumentValidatorUtils.ensureEqual(delayTime, 0L, "delayTime", "must be 0 for FIFO ASAP event loops");
     }
 
     @Override

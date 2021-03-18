@@ -20,9 +20,9 @@ public final class SettingsConnectionGeneSupport {
     @Builder.Default
     private final SequentialIdFactory innovationIdFactory = new SequentialIdFactoryLong();
     @Builder.Default
-    private final SettingsFloatNumber weightFactory = SettingsFloatNumber.randomGaussian(-2f, 2f);
+    private final SettingsFloatNumber weightFactory = SettingsFloatNumber.randomMeanDistribution(-2f, 2f);
     @Builder.Default
-    private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.randomGaussian(0f, 1f);
+    private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.randomMeanDistribution(0f, 1f);
 
     ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory() {
         return c -> {

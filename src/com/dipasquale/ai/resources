@@ -69,3 +69,36 @@ options
 phenotype
 population
 species
+
+
+getMostFit from species
+redo gaussian stuff
+
+//        return () -> -Math.log(1D - (1D - Math.exp(-5D)) * randomSupport.next()) / 5D; // -> negative exponential
+//        return () -> Math.log(1D - randomSupport.next()) / -5D; // -> exponential
+https://stackoverflow.com/questions/8739851/drawing-random-number-from-a-standard-normal-distribution-using-the-standard-ran
+http://www.cs.technion.ac.il/~azlotnik/RandomNumberGenerator.java.html
+https://stackoverflow.com/questions/30492259/get-a-random-number-focused-on-center
+http://www.mathematik.uni-ulm.de/stochastik/lehre/ss06/markov/BoxMuller.java
+
+//        double min = -5D;
+//        double max = 5D;
+//        double maxFixed = Math.nextDown(1D);
+//
+//        return () -> {
+//            double value = randomSupport.next();
+//            double valueFixed = (value - min) * (max - min) / 100D;
+//
+//            return Math.min(Math.max(valueFixed, 0D), maxFixed);
+//        };
+
+        return () -> {
+            double u1 = 1D - randomSupport.next();
+            double u2 = 1D - randomSupport.next();
+            double r = Math.sqrt(-2D * Math.log(u1));
+            double t = 2D * Math.PI * u2;
+            double x = r * Math.cos(t);
+            double y = r * Math.sin(t);
+
+            return x * y;
+        };

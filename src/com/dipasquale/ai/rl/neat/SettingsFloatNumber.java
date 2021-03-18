@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.RandomSupport;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SettingsFloatNumber {
     private static final RandomSupportFloat RANDOM_SUPPORT = RandomSupportFloat.createConcurrent();
-    private static final RandomSupport RANDOM_SUPPORT_GAUSSIAN = RandomSupport.createGaussianConcurrent();
+    private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTION = RandomSupportFloat.createMeanDistributionConcurrent();
     private final Supplier supplier;
 
     public static SettingsFloatNumber literal(final float number) {
@@ -19,8 +18,8 @@ public final class SettingsFloatNumber {
         return new SettingsFloatNumber(() -> RANDOM_SUPPORT.next(min, max));
     }
 
-    public static SettingsFloatNumber randomGaussian(final float min, final float max) {
-        return new SettingsFloatNumber(() -> (float) RANDOM_SUPPORT_GAUSSIAN.next(min, max));
+    public static SettingsFloatNumber randomMeanDistribution(final float min, final float max) {
+        return new SettingsFloatNumber(() -> RANDOM_SUPPORT_MEAN_DISTRIBUTION.next(min, max));
     }
 
     public static SettingsFloatNumber strategy(final Supplier supplier) {

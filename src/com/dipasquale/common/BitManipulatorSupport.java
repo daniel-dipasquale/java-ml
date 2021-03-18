@@ -66,8 +66,8 @@ public interface BitManipulatorSupport {
     }
 
     static BitManipulatorSupport create(final int bits) {
-        ArgumentValidator.ensureGreaterThanZero(bits, "bits");
-        ArgumentValidator.ensureLessThanOrEqualTo(bits, MAXIMUM_BITS, "bits");
+        ArgumentValidatorUtils.ensureGreaterThanZero(bits, "bits");
+        ArgumentValidatorUtils.ensureLessThanOrEqualTo(bits, MAXIMUM_BITS, "bits");
 
         if (bits == MAXIMUM_BITS) {
             return new BitManipulatorSupport64();

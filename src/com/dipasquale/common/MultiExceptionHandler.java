@@ -8,7 +8,6 @@ import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MultiExceptionHandler {
-    private static final ExceptionHandlerSupport EXCEPTION_HANDLER_SUPPORT = ExceptionHandlerSupport.getInstance();
     private final List<?> items;
     private final ItemHandler<?> itemHandler;
 
@@ -20,7 +19,7 @@ public final class MultiExceptionHandler {
         return (T) object;
     }
 
-    public <T extends Exception> void invokeAllAndThrowAsSuppressedIfAny(final ExceptionHandlerSupport.Factory<T> exceptionFactory)
+    public <T extends Exception> void invokeAllAndThrowAsSuppressedIfAny(final ExceptionHandlerUtils.Factory<T> exceptionFactory)
             throws T {
         List<Throwable> suppressed = new ArrayList<>();
 
@@ -32,7 +31,7 @@ public final class MultiExceptionHandler {
             }
         }
 
-        EXCEPTION_HANDLER_SUPPORT.throwAsSuppressedIfAny(exceptionFactory, suppressed);
+        ExceptionHandlerUtils.throwAsSuppressedIfAny(exceptionFactory, suppressed);
     }
 
     public void invokeAllAndThrowAsSuppressedIfAny(final String message) {

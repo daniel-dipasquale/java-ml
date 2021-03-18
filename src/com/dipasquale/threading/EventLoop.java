@@ -1,6 +1,6 @@
 package com.dipasquale.threading;
 
-import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.common.ArgumentValidatorUtils;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +24,7 @@ public interface EventLoop {
     }
 
     static EventLoop create(final EventLoopSettings settings) {
-        ArgumentValidator.ensureGreaterThanZero(settings.getCount(), "count");
+        ArgumentValidatorUtils.ensureGreaterThanZero(settings.getCount(), "count");
 
         EventLoopDefaultParams params = EventLoopDefaultParams.builder()
                 .dateTimeSupport(settings.getDateTimeSupport())

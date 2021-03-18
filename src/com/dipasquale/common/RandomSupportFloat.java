@@ -48,4 +48,34 @@ public interface RandomSupportFloat {
     static RandomSupportFloat createConcurrent() {
         return () -> ThreadLocalRandom.current().nextFloat();
     }
+
+    private static RandomSupportFloat createMeanDistribution(final RandomSupport randomSupport, final int concentration) {
+        float multiplier = 1f / (float) concentration; // clever idea from: https://stackoverflow.com/questions/30492259/get-a-random-number-focused-on-center
+
+        return () -> {
+            float random = 0f;
+
+            for (int i = 0; i < concentration; i++) {
+                random += randomSupport.next() * multiplier;
+            }
+
+            return random;
+        };
+    }
+
+    static RandomSupportFloat createMeanDistribution(final int concentration) {
+        return createMeanDistribution(new Random()::nextFloat, concentration);
+    }
+
+    static RandomSupportFloat createMeanDistribution() {
+        return createMeanDistribution(5);
+    }
+
+    static RandomSupportFloat createMeanDistributionConcurrent(final int concentration) {
+        return createMeanDistribution(() -> ThreadLocalRandom.current().nextFloat(), concentration);
+    }
+
+    static RandomSupportFloat createMeanDistributionConcurrent() {
+        return createMeanDistribution(5);
+    }
 }

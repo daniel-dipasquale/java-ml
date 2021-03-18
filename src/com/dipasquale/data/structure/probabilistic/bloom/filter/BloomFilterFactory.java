@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
-import com.dipasquale.common.ArgumentValidator;
+import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.common.BitManipulatorSupport;
 import com.dipasquale.common.ObjectFactory;
 
@@ -31,12 +31,12 @@ public interface BloomFilterFactory { // TODO: enclose parameters to single obje
     }
 
     private <T> BloomFilter<T> createEstimatedIfValid(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size) {
-        ArgumentValidator.ensureGreaterThanZero(estimatedSize, "estimatedSize");
-        ArgumentValidator.ensureGreaterThanZero(hashFunctions, "hashFunctions");
-        ArgumentValidator.ensureLessThanOrEqualTo(hashFunctions, getMaximumHashFunctions(), "hashFunctions");
-        ArgumentValidator.ensureGreaterThanOrEqualToZero(falsePositiveRatio, "falsePositiveRatio");
-        ArgumentValidator.ensureLessThanOrEqualTo(falsePositiveRatio, 1D, "falsePositiveRatio");
-        ArgumentValidator.ensureGreaterThanZero(size, "size", String.format("estimatedSize '%d', hashFunctions '%d' and falsePositiveRatio '%f' yields a size lesser than 0", estimatedSize, hashFunctions, falsePositiveRatio));
+        ArgumentValidatorUtils.ensureGreaterThanZero(estimatedSize, "estimatedSize");
+        ArgumentValidatorUtils.ensureGreaterThanZero(hashFunctions, "hashFunctions");
+        ArgumentValidatorUtils.ensureLessThanOrEqualTo(hashFunctions, getMaximumHashFunctions(), "hashFunctions");
+        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(falsePositiveRatio, "falsePositiveRatio");
+        ArgumentValidatorUtils.ensureLessThanOrEqualTo(falsePositiveRatio, 1D, "falsePositiveRatio");
+        ArgumentValidatorUtils.ensureGreaterThanZero(size, "size", String.format("estimatedSize '%d', hashFunctions '%d' and falsePositiveRatio '%f' yields a size lesser than 0", estimatedSize, hashFunctions, falsePositiveRatio));
 
         double sizeStep1 = (double) size / (double) getSizePerRecord();
         long sizeFixed = (long) Math.ceil(sizeStep1);
