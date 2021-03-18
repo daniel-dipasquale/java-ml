@@ -72,7 +72,7 @@ public final class NeatCollectiveTest {
                         .useRandomParentWeightRate(SettingsFloatNumber.literal(0.6f))
                         .build())
                 .speciation(SettingsSpeciation.builder()
-                        .maximumSpecies(SettingsIntegerNumber.literal(20))
+                        .maximumSpecies(SettingsIntegerNumber.literal(40))
                         .maximumGenomes(SettingsIntegerNumber.literal(20))
                         .weightDifferenceCoefficient(SettingsFloatNumber.literal(0.4f))
                         .disjointCoefficient(SettingsFloatNumber.literal(1f))
@@ -87,7 +87,7 @@ public final class NeatCollectiveTest {
                         .build())
                 .build());
 
-        NeatCollectiveClient neatClient = neat.getMostFit(); // TODO: population size is still flactuating
+        NeatCollectiveClient neatClient = neat.getMostFit(); // TODO: population size is still flactuating, champion is poorly selected
         boolean success = false;
 
         for (int i1 = 0, c = 100; i1 < c && !success; i1++) {

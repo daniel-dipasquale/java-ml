@@ -3,6 +3,7 @@ package com.dipasquale.common;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+@FunctionalInterface
 public interface RandomSupportFloat {
     float next();
 

@@ -51,33 +51,26 @@ public interface RandomSupport {
 
     private static RandomSupport createGaussian(final RandomSupport randomSupport, final double max) {
         double min = -max;
+        double maxFixed = Math.nextDown(1D);
 
         return () -> {
             double value = randomSupport.next();
             double valueFixed = (value - min) * (max - min) / 100D;
 
-            return Math.min(Math.max(valueFixed, 0D), 1D);
+            return Math.min(Math.max(valueFixed, 0D), maxFixed);
         };
     }
 
-    static RandomSupport createGaussian(final double limit) {
-        return createGaussian(new Random()::nextGaussian, limit);
+    static RandomSupport createGaussian() {
+        return createGaussian(new Random()::nextGaussian, 5D);
     }
 
-    static RandomSupport createGaussian() {
-        return createGaussian(5D);
+    static RandomSupport createGaussianConcurrent() {
+        return createGaussian(() -> ThreadLocalRandom.current().nextGaussian(), 5D);
     }
 
     static RandomSupport createGaussianUnbounded() {
         return new Random()::nextGaussian;
-    }
-
-    static RandomSupport createGaussianConcurrent(final double limit) {
-        return createGaussian(() -> ThreadLocalRandom.current().nextGaussian(), limit);
-    }
-
-    static RandomSupport createGaussianConcurrent() {
-        return createGaussianConcurrent(5D);
     }
 
     static RandomSupport createGaussianConcurrentUnbounded() {

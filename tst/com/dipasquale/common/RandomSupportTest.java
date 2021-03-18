@@ -1,13 +1,20 @@
 package com.dipasquale.common;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AtomicDouble;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public final class RandomSupportTest {
     private static final AtomicDouble RANDOM_SEED = new AtomicDouble();
     private static final RandomSupport TEST = RANDOM_SEED::get;
+    private static final int RANDOM_TEST_COUNT = 1_000_000;
 
     @Before
     public void before() {
@@ -15,12 +22,12 @@ public final class RandomSupportTest {
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_generating_a_random_number_THEN_generate_a_random_number() {
+    public void GIVEN_a_random_number_generator_WHEN_getting_a_random_number_THEN_get_the_number() {
         Assert.assertEquals(RANDOM_SEED.get(), TEST.next(), 0D);
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_generating_a_bounded_random_number_THEN_generate_a_bounded_random_number() {
+    public void GIVEN_a_random_number_generator_WHEN_getting_a_random_number_bounded_by_an_arbitrary_limit_THEN_get_the_number_within_the_limits() {
         Assert.assertEquals(0D, TEST.next(0D, 1D), 0D);
         Assert.assertEquals(0.2D, TEST.next(0.2D, 0.8D), 0D);
         Assert.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
@@ -43,7 +50,7 @@ public final class RandomSupportTest {
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_generating_a_bounded_random_whole_number_THEN_generate_a_bounded_random_whole_number_by_assigning_the_domain_of_numbers_an_equal_distribution() {
+    public void GIVEN_a_random_number_generator_WHEN_getting_a_random_whole_number_bounded_by_an_arbitrary_limit_THEN_get_the_number_within_the_limits() {
         Assert.assertEquals(0L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.19D);
         Assert.assertEquals(0L, TEST.next(0L, 5L));
@@ -66,12 +73,12 @@ public final class RandomSupportTest {
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_generating_a_bounded_random_whole_number_with_a_domain_of_zero_numbers_THEN_short_circuit_the_generation_and_provide_the_min_and_max_as_the_generated_number() {
+    public void GIVEN_a_random_number_generator_WHEN_getting_a_random_whole_number_bounded_by_the_same_minimum_and_maximum_THEN_get_the_minimum_number() {
         Assert.assertEquals(1L, TEST.next(1L, 1L));
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_creating_a_permanent_bounded_random_number_generator_THEN_use_the_random_number_generator_permanently_bound_to_the_range_it_was_created_with() {
+    public void GIVEN_a_random_number_generator_WHEN_creating_a_random_number_generator_bounded_by_an_arbitrary_limit_THEN_use_the_random_generator_instance_to_get_the_next_number_bounded_by_the_arbitrary_limit() {
         RandomSupport test = TEST.bounded(0.2D, 0.8D);
 
         Assert.assertEquals(0.2D, test.next(), 0);
@@ -85,7 +92,7 @@ public final class RandomSupportTest {
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_determining_if_the_random_number_is_within_an_expected_boundary_THEN_indicate_true_if_within_and_false_otherwise() {
+    public void GIVEN_a_random_number_generator_WHEN_determining_if_the_next_random_number_is_within_an_expected_boundary_THEN_indicate_true_if_within_and_false_otherwise() {
         Assert.assertTrue(TEST.isBetween(0D, Double.MIN_VALUE));
         Assert.assertTrue(TEST.isBetween(0D, 0.25D));
         RANDOM_SEED.set(0.25D);
@@ -93,94 +100,167 @@ public final class RandomSupportTest {
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_determining_if_the_random_number_is_within_0_and_some_maximum_boundary_THEN_indicate_true_if_within_and_false_otherwise() {
+    public void GIVEN_a_random_number_generator_WHEN_determining_if_the_next_random_number_is_within_0_and_some_maximum_boundary_THEN_indicate_true_if_within_and_false_otherwise() {
         Assert.assertFalse(TEST.isLessThan(0D));
         Assert.assertTrue(TEST.isLessThan(0.5D));
         RANDOM_SEED.set(0.5D);
         Assert.assertFalse(TEST.isLessThan(0.5D));
     }
 
+    private static boolean isNextLongIsEquallyDistributed(final RandomSupport randomSupport) {
+        long max = 10L;
+        Map<Long, AtomicInteger> distribution = new HashMap<>();
+
+        for (int i = 0; i < RANDOM_TEST_COUNT; i++) {
+            long result = randomSupport.next(0L, max);
+
+            distribution.computeIfAbsent(result, k -> new AtomicInteger()).incrementAndGet();
+        }
+
+        if (max != distribution.size()) {
+            return false;
+        }
+
+        for (long i1 = 0L; i1 < max; i1++) {
+            for (long i2 = i1 + 1L; i2 < max; i2++) {
+                double ratio = (double) distribution.get(i1).get() / (double) distribution.get(i2).get();
+
+                if (Double.compare(ratio, 0.9D) < 0 || Double.compare(ratio, 1.1D) > 0) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     @Test
-    public void GIVEN_a_random_number_generator_that_is_thread_unsafe_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+    public void GIVEN_a_random_number_generator_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
         RandomSupport test = RandomSupport.create();
-        double result = test.next();
 
-        Assert.assertTrue(Double.compare(result, 0D) >= 0);
-        Assert.assertTrue(Double.compare(result, 1D) <= 0);
+        Assert.assertTrue(isNextLongIsEquallyDistributed(test));
+    }
+
+    private static boolean isNextDoubleIsBounded(final RandomSupport randomSupport) {
+        for (int i = 0; i < RANDOM_TEST_COUNT; i++) {
+            double result = randomSupport.next();
+
+            if (Double.compare(result, 0D) < 0 || Double.compare(result, 1D) >= 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+    public void GIVEN_a_random_number_generator_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
+        RandomSupport test = RandomSupport.create();
+
+        Assert.assertTrue(isNextDoubleIsBounded(test));
+    }
+
+    @Test
+    public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
         RandomSupport test = RandomSupport.createConcurrent();
-        double result = test.next();
 
-        Assert.assertTrue(Double.compare(result, 0D) >= 0);
-        Assert.assertTrue(Double.compare(result, 1D) <= 0);
+        Assert.assertTrue(isNextLongIsEquallyDistributed(test));
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_that_is_thread_unsafe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+    public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
+        RandomSupport test = RandomSupport.createConcurrent();
+
+        Assert.assertTrue(isNextDoubleIsBounded(test));
+    }
+
+    private static boolean isNextLongIsGaussianDistributed(final RandomSupport randomSupport) {
+        long max = 10L;
+        Map<Long, AtomicInteger> distribution = new HashMap<>();
+
+        for (int i = 0; i < RANDOM_TEST_COUNT; i++) {
+            long result = randomSupport.next(0L, max);
+
+            distribution.computeIfAbsent(result, k -> new AtomicInteger()).incrementAndGet();
+        }
+
+        if (max != distribution.size()) {
+            return false;
+        }
+
+        List<Double> marginOfErrors = ImmutableList.<Double>builder()
+                .add(0.5D)
+                .add(0.25D)
+                .add(0.1D)
+                .add(0.1D)
+                .add(0.1D)
+                .build();
+
+        for (long i = 0L, c = max / 2; i < c; i++) {
+            double ratio = (double) distribution.get(i).get() / (double) distribution.get(max - 1L - i).get();
+            double marginOfError = marginOfErrors.get((int) i);
+
+            if (Double.compare(ratio, 1D - marginOfError) < 0 || Double.compare(ratio, 1D + marginOfError) > 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Test
+    public void GIVEN_a_random_number_generator_that_is_gaussian_based_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
         RandomSupport test = RandomSupport.createGaussian();
-        double result = test.next();
 
-        Assert.assertTrue(Double.compare(result, 0D) >= 0);
-        Assert.assertTrue(Double.compare(result, 1D) <= 0);
+        Assert.assertTrue(isNextLongIsGaussianDistributed(test));
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_that_is_thread_unsafe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_with_a_specific_limit_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
-        RandomSupport test = RandomSupport.createGaussian(24D);
-        double result = test.next();
+    public void GIVEN_a_random_number_generator_that_is_gaussian_based_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
+        RandomSupport test = RandomSupport.createGaussian();
 
-        Assert.assertTrue(Double.compare(result, 0D) >= 0);
-        Assert.assertTrue(Double.compare(result, 1D) <= 0);
+        Assert.assertTrue(isNextDoubleIsBounded(test));
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_that_is_thread_unsafe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_without_limits_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+    public void GIVEN_a_random_number_generator_that_is_gaussian_based_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_gaussian_distributed_through_out() {
+        RandomSupport test = RandomSupport.createGaussianConcurrent();
+
+        Assert.assertTrue(isNextLongIsGaussianDistributed(test));
+    }
+
+    @Test
+    public void GIVEN_a_random_number_generator_that_is_gaussian_based_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
+        RandomSupport test = RandomSupport.createGaussianConcurrent();
+
+        Assert.assertTrue(isNextDoubleIsBounded(test));
+    }
+
+    @Test
+    public void GIVEN_a_random_number_generator_that_is_gaussian_based_and_unbounded_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_not_gaussian_distributed_through_out() {
         RandomSupport test = RandomSupport.createGaussianUnbounded();
 
-        for (int i = 0; i < 100_000; i++) {
-            double result = test.next();
-
-            if (Double.compare(result, 0D) < 0 || Double.compare(result, 1D) > 0) {
-                return;
-            }
-        }
-
-        Assert.fail();
+        Assert.assertFalse(isNextLongIsGaussianDistributed(test));
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_that_is_thread_safe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
-        RandomSupport test = RandomSupport.createGaussianConcurrent();
-        double result = test.next();
+    public void GIVEN_a_random_number_generator_that_is_gaussian_based_and_unbounded_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_beyond_from_0_inclusively_to_1_exclusively() {
+        RandomSupport test = RandomSupport.createGaussianUnbounded();
 
-        Assert.assertTrue(Double.compare(result, 0D) >= 0);
-        Assert.assertTrue(Double.compare(result, 1D) <= 0);
+        Assert.assertFalse(isNextDoubleIsBounded(test));
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_that_is_thread_safe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_with_a_specific_limit_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
-        RandomSupport test = RandomSupport.createGaussianConcurrent(24D);
-        double result = test.next();
-
-        Assert.assertTrue(Double.compare(result, 0D) >= 0);
-        Assert.assertTrue(Double.compare(result, 1D) <= 0);
-    }
-
-    @Test
-    public void GIVEN_a_random_number_generator_that_is_thread_safe_and_tends_to_generate_random_numbers_based_on_a_bell_curve_distribution_without_limits_WHEN_generating_a_random_number_THEN_generate_the_random_number_between_0_and_1() {
+    public void GIVEN_a_random_number_generator_that_is_gaussian_based_and_unbounded_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_not_gaussian_distributed_through_out() {
         RandomSupport test = RandomSupport.createGaussianConcurrentUnbounded();
 
-        for (int i = 0; i < 100_000; i++) {
-            double result = test.next();
+        Assert.assertFalse(isNextLongIsGaussianDistributed(test));
+    }
 
-            if (Double.compare(result, 0D) < 0 || Double.compare(result, 1D) > 0) {
-                return;
-            }
-        }
+    @Test
+    public void GIVEN_a_random_number_generator_that_is_gaussian_based_and_unbounded_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_beyond_from_0_inclusively_to_1_exclusively() {
+        RandomSupport test = RandomSupport.createGaussianConcurrentUnbounded();
 
-        Assert.fail();
+        Assert.assertFalse(isNextDoubleIsBounded(test));
     }
 }
