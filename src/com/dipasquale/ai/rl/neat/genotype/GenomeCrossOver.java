@@ -54,7 +54,7 @@ public final class GenomeCrossOver {
     public GenomeDefault crossOverByEqualTreatment(final GenomeDefault parent1, final GenomeDefault parent2) {
         GenomeDefault child = new GenomeDefault(context);
 
-        for (JointItems<NodeGene> jointItems : parent1.getNodes().fullJoinFromAll(parent2.getNodes())) {
+        for (JointItems<NodeGene> jointItems : parent1.getNodes().fullJoin(parent2.getNodes())) {
             if (jointItems.getItem1() != null && jointItems.getItem2() != null) {
                 child.addNode(getRandom(jointItems.getItem1(), jointItems.getItem2()));
             } else if (jointItems.getItem1() != null) {

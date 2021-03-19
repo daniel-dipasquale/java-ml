@@ -65,7 +65,7 @@ public final class NodeGeneMap implements Iterable<NodeGene> {
         nodesByType.get(node.getType()).put(node.getId(), node);
     }
 
-    public Iterable<JointItems<NodeGene>> fullJoinFromAll(final NodeGeneMap other) {
+    public Iterable<JointItems<NodeGene>> fullJoin(final NodeGeneMap other) {
         return nodes.fullJoin(other.nodes);
     }
 
