@@ -69,18 +69,6 @@ public final class GenomeDefault implements Genome {
         connections.put(connection);
     }
 
-    private boolean disableRandomConnection() {
-        int size = connections.sizeFromExpressed();
-
-        if (size == 0) {
-            return false;
-        }
-
-        connections.disableByIndex(context.random().nextIndex(size));
-
-        return true;
-    }
-
     private boolean mutateConnectionWeights() {
         boolean mutated = false;
 
@@ -95,6 +83,40 @@ public final class GenomeDefault implements Genome {
         }
 
         return mutated;
+    }
+
+    private boolean disableRandomConnection() {
+        int size = connections.sizeFromExpressed();
+
+        if (size == 0) {
+            return false;
+        }
+
+        connections.disableByIndex(context.random().nextIndex(size));
+
+        return true;
+    }
+
+    private boolean addRandomNodeMutation() {
+        int size = connections.sizeFromExpressed();
+
+        if (size == 0) {
+            return false;
+        }
+
+        int index = context.random().nextIndex(size);
+        ConnectionGene connection = connections.disableByIndex(index);
+        NodeGene inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
+        NodeGene outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
+        NodeGene newNode = context.nodes().create(NodeGeneType.Hidden);
+        ConnectionGene inToNewConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
+        ConnectionGene newToOutConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
+
+        addNode(newNode);
+        addConnection(inToNewConnection);
+        addConnection(newToOutConnection);
+
+        return true;
     }
 
     private boolean addRandomConnectionMutation() {
@@ -123,28 +145,6 @@ public final class GenomeDefault implements Genome {
         }
 
         return false;
-    }
-
-    private boolean addRandomNodeMutation() {
-        int size = connections.sizeFromExpressed();
-
-        if (size == 0) {
-            return false;
-        }
-
-        int index = context.random().nextIndex(size);
-        ConnectionGene connection = connections.disableByIndex(index);
-        NodeGene inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
-        NodeGene outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
-        NodeGene newNode = context.nodes().create(NodeGeneType.Hidden);
-        ConnectionGene inToNewConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
-        ConnectionGene newToOutConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
-
-        addNode(newNode);
-        addConnection(inToNewConnection);
-        addConnection(newToOutConnection);
-
-        return true;
     }
 
     private NodeGene getRandomNode(final NodeGeneType type1, final NodeGeneType type2) {
@@ -221,25 +221,23 @@ public final class GenomeDefault implements Genome {
     public void mutate() {
         ensureNotFrozen();
 
-        boolean mutated = false;
+        boolean mutated = mutateConnectionWeights();
 
-        for (int i = 0; i < 30 && !mutated; i++) {
-            if (context.random().isLessThan(context.mutation().disableConnectionExpressedRate())) {
-                mutated = disableRandomConnection();
-            }
-
-            mutated |= mutateConnectionWeights();
-
-            if (connections.sizeFromExpressed() == 0 || context.random().isLessThan(context.mutation().addConnectionMutationsRate())) {
-                mutated |= addRandomConnectionMutation(); // TODO: find a better way to determine random connections
-            }
-
-            if (context.random().isLessThan(context.mutation().addNodeMutationsRate())) {
-                mutated |= addRandomNodeMutation();
-            }
+        if (context.random().isLessThan(context.mutation().disableConnectionExpressedRate())) {
+            mutated |= disableRandomConnection();
         }
 
-        neuralNetwork.reset();
+        if (context.random().isLessThan(context.mutation().addNodeMutationsRate())) {
+            mutated |= addRandomNodeMutation();
+        }
+
+        if (connections.sizeFromExpressed() == 0 || context.random().isLessThan(context.mutation().addConnectionMutationsRate())) {
+            mutated |= addRandomConnectionMutation(); // TODO: find a better way to determine random connections
+        }
+
+        if (mutated) {
+            neuralNetwork.reset();
+        }
     }
 
     public void freeze() {

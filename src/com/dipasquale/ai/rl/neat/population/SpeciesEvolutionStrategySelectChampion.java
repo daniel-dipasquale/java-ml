@@ -29,6 +29,6 @@ final class SpeciesEvolutionStrategySelectChampion implements SpeciesEvolutionSt
             context.addOrganismsNeeded(-1);
         }
 
-        mostFitCollectiveStrategy.setOrganism(organismMostFit); // TODO: this is assuming elitist are being saved
+        mostFitCollectiveStrategy.setOrganism(organismMostFit);
     }
 }

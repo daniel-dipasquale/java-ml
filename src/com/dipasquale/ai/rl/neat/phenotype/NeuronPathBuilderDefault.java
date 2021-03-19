@@ -38,7 +38,7 @@ public final class NeuronPathBuilderDefault implements NeuronPathBuilder {
     }
 
     @Override
-    public void addPathLeadingTo(final Neuron neuron) {
+    public void addPathLeadingTo(final Neuron neuron) { // inspired from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
         HashDequeMap<SequentialId, NeuronOrder> deque = new HashDequeMap<>();
 
         deque.putLast(neuron.getId(), new NeuronOrder(neuron, false));

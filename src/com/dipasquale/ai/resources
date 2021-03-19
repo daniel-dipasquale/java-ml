@@ -56,24 +56,12 @@ issues:
 fix the way disconnected nodes are persisted
 fix the context properties, maybe implement a few to realize what's over done
 fix the speciation and evolution
-fix the way the classes are organized
 provide a way to save the genomes
 
 topological sort:
 http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
 
-organize packages:
-fitness
-genotype
-options
-phenotype
-population
-species
-
-
-getMostFit from species
-redo gaussian stuff
-
+random:
 //        return () -> -Math.log(1D - (1D - Math.exp(-5D)) * randomSupport.next()) / 5D; // -> negative exponential
 //        return () -> Math.log(1D - randomSupport.next()) / -5D; // -> exponential
 https://stackoverflow.com/questions/8739851/drawing-random-number-from-a-standard-normal-distribution-using-the-standard-ran
