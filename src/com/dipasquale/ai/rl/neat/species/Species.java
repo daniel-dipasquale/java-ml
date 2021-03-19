@@ -149,13 +149,13 @@ public final class Species {
         return organism1.mate(organism2);
     }
 
-    public Organism selectChampion() {
+    public Organism selectMostElite() {
         ensureOrganismsIsSorted();
 
         return organisms.get(organisms.size() - 1);
     }
 
-    public List<Organism> selectElitists() {
+    public List<Organism> selectMostElites() {
         int size = organisms.size();
         int select = (int) Math.floor((double) context.speciation().elitistThreshold() * (double) size);
         int selectFixed = Math.max(select, context.speciation().elitistThresholdMinimum());

@@ -8,11 +8,13 @@ import java.util.Collection;
 
 final class NeuronStrategy<T extends Neuron> implements Neuron {
     private final NeuronPromoter<T> neuronPromoter;
+    private final T originalNeuron;
     private Neuron neuron;
     private boolean isRecurrent;
 
-    NeuronStrategy(final NeuronPromoter<T> neuronPromoter, final Neuron neuron) {
+    NeuronStrategy(final NeuronPromoter<T> neuronPromoter, final T neuron) {
         this.neuronPromoter = neuronPromoter;
+        this.originalNeuron = neuron;
         this.neuron = neuron;
         this.isRecurrent = false;
     }
@@ -63,7 +65,7 @@ final class NeuronStrategy<T extends Neuron> implements Neuron {
         }
 
         isRecurrent = true;
-        neuron = neuronPromoter.promote((T) neuron);
+        neuron = neuronPromoter.promote(originalNeuron);
     }
 
     @Override

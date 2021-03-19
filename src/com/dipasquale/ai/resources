@@ -41,6 +41,10 @@ examples (activation):
 https://github.com/colgreen/sharpneat-refactor/tree/master/src/SharpNeat/NeuralNets/Double/ActivationFunctions
 https://github.com/wagenaartje/neataptic/blob/master/src/methods/activation.js
 
+examples (simulations):
+https://www.reddit.com/r/learnmachinelearning/comments/avjwza/neatpython_problem_neuroevolution_of_augmenting/
+- https://pastebin.com/XAptFhZj
+
 examples (articles):
 https://medium.com/@yashwanthgajji/offline-multiplayer-game-bot-using-the-neat-algorithm-6b2a31afba7f
 

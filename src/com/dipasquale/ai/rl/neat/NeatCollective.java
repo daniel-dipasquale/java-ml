@@ -9,5 +9,5 @@ public interface NeatCollective {
 
     void evolve();
 
-    NeatCollectiveClient getMostFit();
+    float[] activate(float[] input);
 }

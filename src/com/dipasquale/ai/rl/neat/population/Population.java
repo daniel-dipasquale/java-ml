@@ -22,8 +22,7 @@ public final class Population {
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
     private final NodeDeque<Species, SimpleNode<Species>> allSpecies;
-    @Getter
-    private final OrganismCollectiveStrategy mostFitCollectiveStrategy;
+    private final OrganismActivator mostFitOrganismActivator;
     private final List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
     private final List<SpeciesBreedStrategy> speciesBreedStrategies;
     private SpeciesBreedContext speciesBreedContext;
@@ -32,13 +31,13 @@ public final class Population {
 
     public Population(final Context context) {
         Set<Organism> organismsWithoutSpecies = createOrganisms(context, this);
-        OrganismCollectiveStrategy mostFitCollectiveStrategy = new OrganismCollectiveStrategy(organismsWithoutSpecies.iterator().next());
+        OrganismActivator mostFitOrganismActivator = new OrganismActivator(organismsWithoutSpecies.iterator().next());
 
         List<SpeciesEvolutionStrategy> speciesEvolutionStrategies = ImmutableList.<SpeciesEvolutionStrategy>builder()
                 .add(new SpeciesEvolutionStrategyRemoveLeastFit())
                 .add(new SpeciesEvolutionStrategyTotalSharedFitness())
-                .add(new SpeciesEvolutionStrategySelectElitists(organismsWithoutSpecies))
-                .add(new SpeciesEvolutionStrategySelectChampion(organismsWithoutSpecies, mostFitCollectiveStrategy))
+                .add(new SpeciesEvolutionStrategySelectMostElites(organismsWithoutSpecies))
+                .add(new SpeciesEvolutionStrategySelectMostElite(organismsWithoutSpecies, mostFitOrganismActivator))
                 .build();
 
         List<SpeciesBreedStrategy> speciesBreedStrategies = ImmutableList.<SpeciesBreedStrategy>builder()
@@ -50,7 +49,7 @@ public final class Population {
         this.context = context;
         this.organismsWithoutSpecies = organismsWithoutSpecies;
         this.allSpecies = new SimpleNodeDeque<>();
-        this.mostFitCollectiveStrategy = mostFitCollectiveStrategy;
+        this.mostFitOrganismActivator = mostFitOrganismActivator;
         this.speciesEvolutionStrategies = speciesEvolutionStrategies;
         this.speciesBreedStrategies = speciesBreedStrategies;
         this.generation = 1;
@@ -104,7 +103,7 @@ public final class Population {
         }
     }
 
-    public int species() {
+    public int getSpeciesCount() {
         return allSpecies.size();
     }
 
@@ -159,5 +158,9 @@ public final class Population {
         prepareAllSpeciesForEvolution(context);
         breedThroughAllSpecies(context);
         generation++;
+    }
+
+    public float[] activate(final float[] input) {
+        return mostFitOrganismActivator.activate(input);
     }
 }

@@ -44,7 +44,7 @@ public final class NeatCollectiveTest {
                         .outputIdFactory(new SequentialIdFactoryLong())
                         .biasIdFactory(new SequentialIdFactoryLong())
                         .hiddenIdFactory(new SequentialIdFactoryLong())
-                        .hiddenBias(SettingsFloatNumber.literal(0f))
+                        .hiddenBias(SettingsFloatNumber.randomMeanDistribution(-1f, 1f))
                         .hiddenActivationFunction(SettingsActivationFunction.Sigmoid)
                         .build())
                 .connections(SettingsConnectionGeneSupport.builder()
@@ -88,14 +88,13 @@ public final class NeatCollectiveTest {
                         .build())
                 .build());
 
-        NeatCollectiveClient neatClient = neat.getMostFit(); // TODO: population size is still flactuating, champion is poorly selected
-        boolean success = false;
+        boolean success = false; // TODO: population size is still flactuating, champion is poorly selected
 
         for (int i1 = 0, c = 120; i1 < c && !success; i1++) {
             success = true;
 
             for (int i2 = 0; i2 < inputs.length && success; i2++) {
-                float[] output = neatClient.activate(inputs[i2]);
+                float[] output = neat.activate(inputs[i2]);
 
                 success = Float.compare(outputExpected[i2], (float) Math.round(output[0])) == 0;
             }

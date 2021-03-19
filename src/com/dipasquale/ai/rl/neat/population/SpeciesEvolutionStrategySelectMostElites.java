@@ -5,12 +5,12 @@ import com.dipasquale.ai.rl.neat.species.Species;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SpeciesEvolutionStrategySelectChampion implements SpeciesEvolutionStrategy {
+final class SpeciesEvolutionStrategySelectMostElites implements SpeciesEvolutionStrategy {
     private final Set<Organism> organismsWithoutSpecies;
-    private final OrganismCollectiveStrategy mostFitCollectiveStrategy;
 
     @Override
     public void process(final SpeciesEvolutionContext context, final Species species) {
@@ -18,17 +18,16 @@ final class SpeciesEvolutionStrategySelectChampion implements SpeciesEvolutionSt
             return;
         }
 
-        context.replaceOrganismIfMoreFit(species.selectChampion());
+        List<Organism> eliteOrganisms = species.selectMostElites();
+
+        int organismsPreserved = (int) eliteOrganisms.stream()
+                .filter(organismsWithoutSpecies::add)
+                .count();
+
+        context.addOrganismsNeeded(-organismsPreserved);
     }
 
     @Override
     public void postProcess(final SpeciesEvolutionContext context) {
-        Organism organismMostFit = context.getOrganismMostFit();
-
-        if (organismsWithoutSpecies.add(organismMostFit)) {
-            context.addOrganismsNeeded(-1);
-        }
-
-        mostFitCollectiveStrategy.setOrganism(organismMostFit);
     }
 }

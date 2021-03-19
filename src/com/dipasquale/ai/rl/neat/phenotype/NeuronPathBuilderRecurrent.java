@@ -34,7 +34,7 @@ public final class NeuronPathBuilderRecurrent<T extends Neuron> implements Neuro
 
     @Override
     public Neuron add(final Neuron neuron) {
-        NeuronStrategy<T> neuronStrategy = new NeuronStrategy<>(neuronPromoter, neuron);
+        NeuronStrategy<T> neuronStrategy = new NeuronStrategy<>(neuronPromoter, (T) neuron);
 
         neurons.put(neuron.getId(), neuronStrategy);
 
@@ -48,13 +48,13 @@ public final class NeuronPathBuilderRecurrent<T extends Neuron> implements Neuro
         deque.putLast(new CompositeId(neuron.getId(), 0), new NeuronOrder(neuron, false));
 
         while (!deque.isEmpty()) {
-            Map.Entry<CompositeId, NeuronOrder> pitstopEntry = deque.withdrawLast();
+            Map.Entry<CompositeId, NeuronOrder> entry = deque.withdrawLast();
 
-            if (!pitstopEntry.getValue().ordered) {
-                deque.putLast(pitstopEntry.getKey(), new NeuronOrder(pitstopEntry.getValue().neuron, true));
+            if (!entry.getValue().ordered) {
+                deque.putLast(entry.getKey(), new NeuronOrder(entry.getValue().neuron, true));
 
-                for (NeuronInput input : pitstopEntry.getValue().neuron.getInputs()) {
-                    CompositeId compositeId = new CompositeId(input.getNeuronId(), pitstopEntry.getKey().cycle);
+                for (NeuronInput input : entry.getValue().neuron.getInputs()) {
+                    CompositeId compositeId = new CompositeId(input.getNeuronId(), entry.getKey().cycle);
                     NeuronOrder neuronOrderOld = deque.get(compositeId);
 
                     if ((neuronOrderOld == null || !neuronOrderOld.ordered) && !alreadyOrdered.contains(compositeId)) {
@@ -69,8 +69,8 @@ public final class NeuronPathBuilderRecurrent<T extends Neuron> implements Neuro
                         }
                     }
                 }
-            } else if (alreadyOrdered.add(pitstopEntry.getKey())) {
-                ordered.add(pitstopEntry.getValue().neuron);
+            } else if (alreadyOrdered.add(entry.getKey())) {
+                ordered.add(entry.getValue().neuron);
             }
         }
     }
