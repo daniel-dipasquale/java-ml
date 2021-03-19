@@ -1,5 +1,8 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultSpeciation;
+import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.common.ArgumentValidatorUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -1,5 +1,8 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOver;
+import com.dipasquale.ai.rl.neat.genotype.GenomeCrossOver;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +18,6 @@ public final class SettingsCrossOver {
     private final SettingsFloatNumber useRandomParentWeightRate = SettingsFloatNumber.literal(1f);
 
     ContextDefaultComponentFactory<ContextDefaultCrossOver> createFactory() {
-        return c -> new ContextDefaultCrossOver(rate.get(), overrideExpressedRate.get(), useRandomParentWeightRate.get(), new GenomeCrossOver(c));
+        return context -> new ContextDefaultCrossOver(rate.get(), overrideExpressedRate.get(), useRandomParentWeightRate.get(), new GenomeCrossOver(context));
     }
 }

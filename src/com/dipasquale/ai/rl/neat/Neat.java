@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.rl.neat.population.Population;
+
 public interface Neat {
     static NeatCollective createCollective(final SettingsCollective settings) {
         Population population = new Population(settings.createContext());

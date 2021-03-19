@@ -36,6 +36,14 @@ public final class MetricDatumReadAfterWriting implements MetricDatum {
 
     @Override
     public float getPth(final float percentage) {
+        if (Float.compare(percentage, 0f) <= 0) {
+            return minimum;
+        }
+
+        if (Float.compare(percentage, 1f) >= 0) {
+            return maximum;
+        }
+
         ensureValuesIsSorted();
 
         int index = Math.max((int) (percentage * values.size()), values.size() - 1);

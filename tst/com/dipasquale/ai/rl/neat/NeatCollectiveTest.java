@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.common.RandomSupportFloat;
 import org.junit.Assert;
@@ -72,13 +73,13 @@ public final class NeatCollectiveTest {
                         .useRandomParentWeightRate(SettingsFloatNumber.literal(0.6f))
                         .build())
                 .speciation(SettingsSpeciation.builder()
-                        .maximumSpecies(SettingsIntegerNumber.literal(40))
+                        .maximumSpecies(SettingsIntegerNumber.literal(20))
                         .maximumGenomes(SettingsIntegerNumber.literal(20))
                         .weightDifferenceCoefficient(SettingsFloatNumber.literal(0.4f))
                         .disjointCoefficient(SettingsFloatNumber.literal(1f))
                         .excessCoefficient(SettingsFloatNumber.literal(1f))
                         .compatibilityThreshold(SettingsFloatNumber.literal(3f))
-                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.28f))
+                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.33f))
                         .eugenicsThreshold(SettingsFloatNumber.literal(0.2f))
                         .elitistThreshold(SettingsFloatNumber.literal(0.01f))
                         .elitistThresholdMinimum(SettingsIntegerNumber.literal(1))
@@ -90,7 +91,7 @@ public final class NeatCollectiveTest {
         NeatCollectiveClient neatClient = neat.getMostFit(); // TODO: population size is still flactuating, champion is poorly selected
         boolean success = false;
 
-        for (int i1 = 0, c = 100; i1 < c && !success; i1++) {
+        for (int i1 = 0, c = 120; i1 < c && !success; i1++) {
             success = true;
 
             for (int i2 = 0; i2 < inputs.length && success; i2++) {
@@ -105,6 +106,8 @@ public final class NeatCollectiveTest {
             }
         }
 
+        System.out.printf("generation: %d%n", neat.generation());
+        System.out.printf("species: %d%n", neat.species());
         Assert.assertTrue(success);
     }
 }

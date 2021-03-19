@@ -1,8 +1,13 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
+import com.dipasquale.ai.common.ActivationFunctionFactory;
+import com.dipasquale.ai.common.FloatFactory;
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryLong;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultNodeGeneSupport;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.RandomSupportFloat;
 import com.dipasquale.concurrent.AtomicLoopSelector;
 import com.google.common.collect.ImmutableList;
@@ -83,6 +88,6 @@ public final class SettingsNodeGeneSupport {
                 .put(NodeGeneType.Hidden, () -> getActivationFunction(hiddenActivationFunction))
                 .build();
 
-        return c -> new ContextDefaultNodeGeneSupport(sequentialIdFactories, biasFactories, activationFunctionFactories);
+        return context -> new ContextDefaultNodeGeneSupport(sequentialIdFactories, biasFactories, activationFunctionFactories);
     }
 }

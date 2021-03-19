@@ -1,5 +1,8 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.FitnessDeterminerFactory;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
 import com.dipasquale.common.IdFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +27,6 @@ public final class SettingsGeneralSupport {
     private final Environment environment;
 
     ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory() {
-        return c -> new ContextDefaultGeneralSupport(populationSize, genomeIdFactory, genomeFactory.create(c), speciesIdFactory, fitnessDeterminerFactory, environment);
+        return context -> new ContextDefaultGeneralSupport(populationSize, genomeIdFactory, genomeFactory.create(context), speciesIdFactory, fitnessDeterminerFactory, environment);
     }
 }

@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultRandom;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,6 +14,6 @@ public final class SettingsRandom {
     private final RandomSupportFloat randomSupport = RandomSupportFloat.createConcurrent();
 
     ContextDefaultComponentFactory<ContextDefaultRandom> createFactory() {
-        return c -> new ContextDefaultRandom(randomSupport, randomSupport, randomSupport);
+        return context -> new ContextDefaultRandom(randomSupport, randomSupport, randomSupport);
     }
 }

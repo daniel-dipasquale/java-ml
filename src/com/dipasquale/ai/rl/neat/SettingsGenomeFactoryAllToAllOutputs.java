@@ -1,5 +1,12 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.rl.neat.context.ContextDefault;
+import com.dipasquale.ai.rl.neat.genotype.ConnectionGene;
+import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
+import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
+import com.dipasquale.ai.rl.neat.genotype.InnovationId;
+import com.dipasquale.ai.rl.neat.genotype.NodeGene;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.concurrent.AtomicLazyReference;
 
 final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory {
@@ -18,11 +25,9 @@ final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory
     @Override
     public GenomeDefault create() {
         GenomeDefault genome = genesisGenome.reference().createClone();
-        Iterable<NodeGene> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.Input);
-        Iterable<NodeGene> outputNodes = () -> genome.getNodes().iterator(NodeGeneType.Output);
 
-        for (NodeGene inputNode : inputNodes) {
-            for (NodeGene outputNode : outputNodes) {
+        for (NodeGene inputNode : genome.getNodes(NodeGeneType.Input)) {
+            for (NodeGene outputNode : genome.getNodes(NodeGeneType.Output)) {
                 InnovationId innovationId = context.connections().getOrCreateInnovationId(inputNode, outputNode);
                 ConnectionGene connection = new ConnectionGene(innovationId, weight.get());
 
@@ -31,10 +36,8 @@ final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory
         }
 
         if (shouldConnectBiasNodes) {
-            Iterable<NodeGene> biasNodes = () -> genome.getNodes().iterator(NodeGeneType.Bias);
-
-            for (NodeGene biasNode : biasNodes) {
-                for (NodeGene outputNode : outputNodes) {
+            for (NodeGene biasNode : genome.getNodes(NodeGeneType.Bias)) {
+                for (NodeGene outputNode : genome.getNodes(NodeGeneType.Output)) {
                     InnovationId innovationId = context.connections().getOrCreateInnovationId(biasNode, outputNode);
                     ConnectionGene connection = new ConnectionGene(innovationId, 1f);
 

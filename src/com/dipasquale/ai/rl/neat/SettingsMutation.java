@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultMutation;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +21,6 @@ public final class SettingsMutation {
     private final SettingsFloatNumber disableConnectionExpressedRate = SettingsFloatNumber.literal(0.2f);
 
     ContextDefaultComponentFactory<ContextDefaultMutation> createFactory() {
-        return c -> new ContextDefaultMutation(addNodeMutationsRate.get(), addConnectionMutationsRate.get(), perturbConnectionWeightRate.get(), replaceConnectionWeightRate.get(), disableConnectionExpressedRate.get());
+        return context -> new ContextDefaultMutation(addNodeMutationsRate.get(), addConnectionMutationsRate.get(), perturbConnectionWeightRate.get(), replaceConnectionWeightRate.get(), disableConnectionExpressedRate.get());
     }
 }

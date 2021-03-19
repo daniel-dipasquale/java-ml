@@ -1,5 +1,10 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.rl.neat.context.ContextDefault;
+import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
+import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
+import com.dipasquale.ai.rl.neat.genotype.NodeGene;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

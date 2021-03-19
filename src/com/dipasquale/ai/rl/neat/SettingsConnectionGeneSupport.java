@@ -2,6 +2,8 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryLong;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultConnectionGeneSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +27,7 @@ public final class SettingsConnectionGeneSupport {
     private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.randomMeanDistribution(0f, 1f);
 
     ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory() {
-        return c -> {
+        return context -> {
             boolean multipleRecurrentCyclesAllowedFixed = recurrentConnectionsAllowed && multipleRecurrentCyclesAllowed;
             SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
 
