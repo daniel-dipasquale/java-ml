@@ -11,6 +11,9 @@ https://neat-python.readthedocs.io/en/latest/ctrnn.html
 
 to review:
 https://github.com/CodeReclaimers/neat-python/issues/124
+https://stackoverflow.com/questions/4493554/neural-network-always-produces-same-similar-outputs-for-any-input
+https://www.researchgate.net/publication/323131150_The_importance_of_the_activation_function_in_NeuroEvolution_with_FS-NEAT_and_FD-NEAT
+https://arxiv.org/pdf/1703.07122.pdf
 
 other stuff:
 http://nn.cs.utexas.edu/downloads/papers/AdityaRawalThesis.pdf

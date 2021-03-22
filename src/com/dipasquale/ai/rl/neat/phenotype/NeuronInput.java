@@ -10,4 +10,9 @@ import lombok.RequiredArgsConstructor;
 public final class NeuronInput {
     private final SequentialId neuronId;
     private final int recurrentCyclesAllowed;
+
+    @Override
+    public String toString() {
+        return String.format("%s (%d)", neuronId, recurrentCyclesAllowed);
+    }
 }

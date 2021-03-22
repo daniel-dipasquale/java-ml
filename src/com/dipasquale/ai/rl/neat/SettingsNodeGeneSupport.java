@@ -42,7 +42,7 @@ public final class SettingsNodeGeneSupport {
     @Builder.Default
     private final SettingsFloatNumber hiddenBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
-    private final SettingsActivationFunction hiddenActivationFunction = SettingsActivationFunction.ReLU;
+    private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.ReLU);
 
     private static ActivationFunction getActivationFunction(final SettingsActivationFunction activationFunction) {
         if (activationFunction == SettingsActivationFunction.Random) {
@@ -52,6 +52,34 @@ public final class SettingsNodeGeneSupport {
         }
 
         return ACTIVATION_FUNCTIONS_MAP.get(activationFunction);
+    }
+
+    private static ActivationFunction getActivationFunction(final SettingsEnum<SettingsActivationFunction> activationFunction) {
+        SettingsActivationFunction activationFunctionFixed = activationFunction.get();
+
+        if (activationFunctionFixed == SettingsActivationFunction.Random) {
+            int index = RANDOM_SUPPORT.next(0, ACTIVATION_FUNCTIONS.size());
+
+            return ACTIVATION_FUNCTIONS.get(index);
+        }
+
+        return ACTIVATION_FUNCTIONS_MAP.get(activationFunctionFixed);
+    }
+
+    private static ActivationFunction getActivationFunction(final SettingsEnum<SettingsOutputActivationFunction> outputActivationFunction, final SettingsEnum<SettingsActivationFunction> activationFunction) {
+        SettingsOutputActivationFunction outputActivationFunctionFixed = outputActivationFunction.get();
+
+        return switch (outputActivationFunctionFixed) {
+            case Random -> getActivationFunction(SettingsActivationFunction.Random);
+
+            case Identity -> getActivationFunction(SettingsActivationFunction.Identity);
+
+            case ReLU -> getActivationFunction(SettingsActivationFunction.ReLU);
+
+            case Sigmoid -> getActivationFunction(SettingsActivationFunction.Sigmoid);
+
+            default -> getActivationFunction(activationFunction);
+        };
     }
 
     private static FloatFactory createBiasFactoryForBiasNode(final SettingsGenomeFactory genomeFactory) {
@@ -83,7 +111,7 @@ public final class SettingsNodeGeneSupport {
 
         Map<NodeGeneType, ActivationFunctionFactory> activationFunctionFactories = ImmutableMap.<NodeGeneType, ActivationFunctionFactory>builder()
                 .put(NodeGeneType.Input, () -> getActivationFunction(genomeFactory.getInputActivationFunction()))
-                .put(NodeGeneType.Output, () -> getActivationFunction(genomeFactory.getOutputActivationFunction()))
+                .put(NodeGeneType.Output, () -> getActivationFunction(genomeFactory.getOutputActivationFunction(), hiddenActivationFunction))
                 .put(NodeGeneType.Bias, () -> ActivationFunction.IDENTITY)
                 .put(NodeGeneType.Hidden, () -> getActivationFunction(hiddenActivationFunction))
                 .build();

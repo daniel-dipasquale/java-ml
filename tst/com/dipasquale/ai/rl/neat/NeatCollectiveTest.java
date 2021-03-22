@@ -45,7 +45,7 @@ public final class NeatCollectiveTest {
                         .biasIdFactory(new SequentialIdFactoryLong())
                         .hiddenIdFactory(new SequentialIdFactoryLong())
                         .hiddenBias(SettingsFloatNumber.randomMeanDistribution(-1f, 1f))
-                        .hiddenActivationFunction(SettingsActivationFunction.Sigmoid)
+                        .hiddenActivationFunction(SettingsEnum.literal(SettingsActivationFunction.ReLU))
                         .build())
                 .connections(SettingsConnectionGeneSupport.builder()
                         .recurrentConnectionsAllowed(true)
@@ -79,7 +79,7 @@ public final class NeatCollectiveTest {
                         .disjointCoefficient(SettingsFloatNumber.literal(1f))
                         .excessCoefficient(SettingsFloatNumber.literal(1f))
                         .compatibilityThreshold(SettingsFloatNumber.literal(3f))
-                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.33f))
+                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.2f))
                         .eugenicsThreshold(SettingsFloatNumber.literal(0.2f))
                         .elitistThreshold(SettingsFloatNumber.literal(0.01f))
                         .elitistThresholdMinimum(SettingsIntegerNumber.literal(1))
@@ -88,9 +88,9 @@ public final class NeatCollectiveTest {
                         .build())
                 .build());
 
-        boolean success = false; // TODO: population size is still flactuating, champion is poorly selected
+        boolean success = false; // TODO: population size is still flactuating
 
-        for (int i1 = 0, c = 120; i1 < c && !success; i1++) {
+        for (int i1 = 0, c = 1000; i1 < c && !success; i1++) {
             success = true;
 
             for (int i2 = 0; i2 < inputs.length && success; i2++) {

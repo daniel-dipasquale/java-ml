@@ -20,17 +20,17 @@ public final class SettingsGenomeFactory {
     @Builder.Default
     private final SettingsFloatNumber inputBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
-    private final SettingsActivationFunction inputActivationFunction = SettingsActivationFunction.Identity;
+    private final SettingsEnum<SettingsActivationFunction> inputActivationFunction = SettingsEnum.literal(SettingsActivationFunction.Identity);
     private final SettingsIntegerNumber outputs;
     private final SettingsFloatNumber outputBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
-    private final SettingsActivationFunction outputActivationFunction = SettingsActivationFunction.Identity;
+    private final SettingsEnum<SettingsOutputActivationFunction> outputActivationFunction = SettingsEnum.literal(SettingsOutputActivationFunction.CopyFromHidden);
     @Builder.Default
     private final List<SettingsFloatNumber> biases = ImmutableList.of();
     @Builder.Default
     private final SettingsInitialConnectionType initialConnectionType = SettingsInitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS;
     @Builder.Default
-    private final SettingsInitialWeightType initialWeightType = SettingsInitialWeightType.RANDOM;
+    private final SettingsInitialWeightType initialWeightType = SettingsInitialWeightType.Random;
 
     public static SettingsGenomeFactory createDefault(final int inputs, final int outputs, final float[] bias) {
         return SettingsGenomeFactory.builder()
@@ -47,7 +47,7 @@ public final class SettingsGenomeFactory {
     }
 
     private SettingsFloatNumber createWeightSettings(final ContextDefault context) {
-        if (initialWeightType == SettingsInitialWeightType.SAME) {
+        if (initialWeightType == SettingsInitialWeightType.FirstRandomSubsequentCopy) {
             return SettingsFloatNumber.literal(context.connections().nextWeight());
         }
 

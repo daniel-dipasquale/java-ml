@@ -1,13 +1,10 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SettingsFloatNumber {
-    private static final RandomSupportFloat RANDOM_SUPPORT = RandomSupportFloat.createConcurrent();
-    private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTION = RandomSupportFloat.createMeanDistributionConcurrent();
     private final Supplier supplier;
 
     public static SettingsFloatNumber literal(final float number) {
@@ -15,11 +12,11 @@ public final class SettingsFloatNumber {
     }
 
     public static SettingsFloatNumber random(final float min, final float max) {
-        return new SettingsFloatNumber(() -> RANDOM_SUPPORT.next(min, max));
+        return new SettingsFloatNumber(() -> RandomConstants.UNIFORM_CONCURRENT.next(min, max));
     }
 
     public static SettingsFloatNumber randomMeanDistribution(final float min, final float max) {
-        return new SettingsFloatNumber(() -> RANDOM_SUPPORT_MEAN_DISTRIBUTION.next(min, max));
+        return new SettingsFloatNumber(() -> RandomConstants.MEAN_DISTRIBUTED_CONCURRENT.next(min, max));
     }
 
     public static SettingsFloatNumber strategy(final Supplier supplier) {
