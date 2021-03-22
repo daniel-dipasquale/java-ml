@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
 public enum SettingsInitialWeightType {
-    Random,
-    FirstRandomSubsequentCopy
+    RANDOM,
+    FIRST_RANDOM_SUBSEQUENT_COPY
 }

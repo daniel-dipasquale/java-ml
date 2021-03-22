@@ -30,19 +30,19 @@ public final class NeuronNavigatorTest {
         List<NodeGene> nodes = new ArrayList<>();
 
         IntStream.range(0, inputBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(i), NodeGeneType.Input, inputBiases.get(i), ActivationFunction.IDENTITY))
+                .mapToObj(i -> new NodeGene(ids.get(i), NodeGeneType.INPUT, inputBiases.get(i), ActivationFunction.IDENTITY))
                 .forEach(nodes::add);
 
         IntStream.range(0, outputBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + i), NodeGeneType.Output, outputBiases.get(i), ActivationFunction.IDENTITY))
+                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + i), NodeGeneType.OUTPUT, outputBiases.get(i), ActivationFunction.IDENTITY))
                 .forEach(nodes::add);
 
         IntStream.range(0, biasBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + i), NodeGeneType.Bias, biasBiases.get(i), ActivationFunction.IDENTITY))
+                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + i), NodeGeneType.BIAS, biasBiases.get(i), ActivationFunction.IDENTITY))
                 .forEach(nodes::add);
 
         IntStream.range(0, hiddenBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + biasBiases.size() + i), NodeGeneType.Hidden, hiddenBiases.get(i), ActivationFunction.IDENTITY))
+                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + biasBiases.size() + i), NodeGeneType.HIDDEN, hiddenBiases.get(i), ActivationFunction.IDENTITY))
                 .forEach(nodes::add);
 
         return nodes;

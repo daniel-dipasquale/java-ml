@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 @NoArgsConstructor
-public final class MetricDatumReadAfterWriting implements MetricDatum {
+public final class MetricDatumSortPthBeforeRead implements MetricDatum {
     private final List<Float> values = new ArrayList<>();
     private boolean isValuesSorted = true;
     @Getter

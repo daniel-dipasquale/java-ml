@@ -38,7 +38,6 @@ public final class Organism implements Comparable<Organism> {
 
     public void mutate() {
         genome.mutate();
-        genome.freeze();
     }
 
     @Override
@@ -57,9 +56,11 @@ public final class Organism implements Comparable<Organism> {
             default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(other.genome, genome);
         };
 
-        genomeNew.freeze();
-
         return new Organism(context, population, genomeNew);
+    }
+
+    public void freeze() {
+        genome.freeze();
     }
 
     public float[] activate(final float[] inputs) {

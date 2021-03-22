@@ -20,10 +20,10 @@ public final class NodeGeneMap implements Iterable<NodeGene> {
     private static Map<NodeGeneType, SequentialMap<SequentialId, NodeGene>> createNodesByType() {
         EnumMap<NodeGeneType, SequentialMap<SequentialId, NodeGene>> nodesByType = new EnumMap<>(NodeGeneType.class);
 
-        nodesByType.put(NodeGeneType.Input, new SequentialMap<>());
-        nodesByType.put(NodeGeneType.Output, new SequentialMap<>());
-        nodesByType.put(NodeGeneType.Bias, new SequentialMap<>());
-        nodesByType.put(NodeGeneType.Hidden, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.INPUT, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.OUTPUT, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.BIAS, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.HIDDEN, new SequentialMap<>());
 
         return nodesByType;
     }

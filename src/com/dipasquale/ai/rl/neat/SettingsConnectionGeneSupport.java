@@ -16,19 +16,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public final class SettingsConnectionGeneSupport {
     @Builder.Default
-    private final boolean recurrentConnectionsAllowed = true;
-    @Builder.Default
-    private final boolean multipleRecurrentCyclesAllowed = false;
-    @Builder.Default
     private final SequentialIdFactory innovationIdFactory = new SequentialIdFactoryLong();
     @Builder.Default
     private final SettingsFloatNumber weightFactory = SettingsFloatNumber.randomMeanDistribution(-2f, 2f);
     @Builder.Default
     private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.randomMeanDistribution(0f, 1f);
 
-    ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory() {
+    ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory(final SettingsNeuralNetworkSupport neuralNetwork) {
         return context -> {
-            boolean multipleRecurrentCyclesAllowedFixed = recurrentConnectionsAllowed && multipleRecurrentCyclesAllowed;
+            boolean recurrentConnectionsAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.RECURRENT || neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
+            boolean multipleRecurrentCyclesAllowedFixed = recurrentConnectionsAllowed && neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
             SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
 
             return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, multipleRecurrentCyclesAllowedFixed, sequentialIdFactory, new ConcurrentHashMap<>(), weightFactory::get, w -> weightPerturber.get() * w);

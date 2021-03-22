@@ -91,7 +91,9 @@ public interface Context {
                 return null;
             }
 
-            return items.get(nextIndex(offset, size));
+            int index = nextIndex(offset, size);
+
+            return items.get(index);
         }
 
         default <T> T nextItem(final List<T> items) {
@@ -105,34 +107,36 @@ public interface Context {
                 return null;
             }
 
-            return items.getByIndex(nextIndex(size));
+            int index = nextIndex(size);
+
+            return items.getByIndex(index);
         }
-
-        float next();
-
-        float next(float min, float max);
 
         boolean isLessThan(float rate);
     }
 
     interface Mutation {
-        float addNodeMutationsRate();
+        boolean shouldAddNodeMutation();
 
-        float addConnectionMutationsRate();
+        boolean shouldAddConnectionMutation();
 
-        float perturbConnectionWeightRate();
+        boolean shouldPerturbConnectionWeight();
 
-        float replaceConnectionWeightRate();
+        boolean shouldReplaceConnectionWeight();
 
-        float disableConnectionExpressedRate();
+        boolean shouldDisableConnectionExpressed();
     }
 
     interface CrossOver {
-        float rate();
+        boolean shouldMateAndMutate();
 
-        float overrideExpressedRate();
+        boolean shouldMateOnly();
 
-        float useRandomParentWeightRate();
+        boolean shouldMutateOnly();
+
+        boolean shouldOverrideConnectionExpressed();
+
+        boolean shouldUseRandomParentConnectionWeight();
 
         GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(GenomeDefault fitParent, GenomeDefault unfitParent);
 
@@ -160,14 +164,26 @@ public interface Context {
             return Float.compare(compatibility, compatibilityThreshold(generation)) < 0;
         }
 
-        float eugenicsThreshold(); // 0.2
+        float eugenicsThreshold();
 
-        float elitistThreshold(); // 0.01
+        default int getFitCountToReproduce(final int size) {
+            int count = (int) Math.floor((double) eugenicsThreshold() * (double) size);
 
-        int elitistThresholdMinimum(); // 1
+            return Math.max(count, 1);
+        }
 
-        int stagnationDropOffAge(); // 15
+        float elitistThreshold();
 
-        float interSpeciesMatingRate(); // 0.01
+        int elitistThresholdMinimum();
+
+        default int getEliteCountToPreserve(final int size) {
+            int count = (int) Math.floor((double) elitistThreshold() * (double) size);
+
+            return Math.max(count, elitistThresholdMinimum());
+        }
+
+        int stagnationDropOffAge();
+
+        float interSpeciesMatingRate();
     }
 }

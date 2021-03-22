@@ -20,19 +20,19 @@ final class SettingsGenomeFactoryNoConnections implements GenomeDefaultFactory {
         GenomeDefault genome = new GenomeDefault(context);
 
         for (int i = 0; i < inputs; i++) {
-            NodeGene node = context.nodes().create(NodeGeneType.Input);
+            NodeGene node = context.nodes().create(NodeGeneType.INPUT);
 
             genome.addNode(node);
         }
 
         for (int i = 0; i < outputs; i++) {
-            NodeGene node = context.nodes().create(NodeGeneType.Output);
+            NodeGene node = context.nodes().create(NodeGeneType.OUTPUT);
 
             genome.addNode(node);
         }
 
         for (int i = 0; i < biases; i++) {
-            NodeGene node = context.nodes().create(NodeGeneType.Bias);
+            NodeGene node = context.nodes().create(NodeGeneType.BIAS);
 
             genome.addNode(node);
         }

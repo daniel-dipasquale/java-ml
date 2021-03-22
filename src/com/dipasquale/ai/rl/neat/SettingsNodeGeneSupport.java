@@ -25,9 +25,9 @@ public final class SettingsNodeGeneSupport {
     private static final RandomSupportFloat RANDOM_SUPPORT = RandomSupportFloat.createConcurrent();
 
     private static final Map<SettingsActivationFunction, ActivationFunction> ACTIVATION_FUNCTIONS_MAP = ImmutableMap.<SettingsActivationFunction, ActivationFunction>builder()
-            .put(SettingsActivationFunction.Identity, ActivationFunction.IDENTITY)
-            .put(SettingsActivationFunction.ReLU, ActivationFunction.RELU)
-            .put(SettingsActivationFunction.Sigmoid, ActivationFunction.SIGMOID)
+            .put(SettingsActivationFunction.IDENTITY, ActivationFunction.IDENTITY)
+            .put(SettingsActivationFunction.RE_LU, ActivationFunction.RELU)
+            .put(SettingsActivationFunction.SIGMOID, ActivationFunction.SIGMOID)
             .build();
 
     private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = ImmutableList.copyOf(ACTIVATION_FUNCTIONS_MAP.values());
@@ -42,10 +42,10 @@ public final class SettingsNodeGeneSupport {
     @Builder.Default
     private final SettingsFloatNumber hiddenBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
-    private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.ReLU);
+    private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.RE_LU);
 
     private static ActivationFunction getActivationFunction(final SettingsActivationFunction activationFunction) {
-        if (activationFunction == SettingsActivationFunction.Random) {
+        if (activationFunction == SettingsActivationFunction.RANDOM) {
             int index = RANDOM_SUPPORT.next(0, ACTIVATION_FUNCTIONS.size());
 
             return ACTIVATION_FUNCTIONS.get(index);
@@ -57,7 +57,7 @@ public final class SettingsNodeGeneSupport {
     private static ActivationFunction getActivationFunction(final SettingsEnum<SettingsActivationFunction> activationFunction) {
         SettingsActivationFunction activationFunctionFixed = activationFunction.get();
 
-        if (activationFunctionFixed == SettingsActivationFunction.Random) {
+        if (activationFunctionFixed == SettingsActivationFunction.RANDOM) {
             int index = RANDOM_SUPPORT.next(0, ACTIVATION_FUNCTIONS.size());
 
             return ACTIVATION_FUNCTIONS.get(index);
@@ -70,13 +70,13 @@ public final class SettingsNodeGeneSupport {
         SettingsOutputActivationFunction outputActivationFunctionFixed = outputActivationFunction.get();
 
         return switch (outputActivationFunctionFixed) {
-            case Random -> getActivationFunction(SettingsActivationFunction.Random);
+            case RANDOM -> getActivationFunction(SettingsActivationFunction.RANDOM);
 
-            case Identity -> getActivationFunction(SettingsActivationFunction.Identity);
+            case IDENTITY -> getActivationFunction(SettingsActivationFunction.IDENTITY);
 
-            case ReLU -> getActivationFunction(SettingsActivationFunction.ReLU);
+            case RE_LU -> getActivationFunction(SettingsActivationFunction.RE_LU);
 
-            case Sigmoid -> getActivationFunction(SettingsActivationFunction.Sigmoid);
+            case SIGMOID -> getActivationFunction(SettingsActivationFunction.SIGMOID);
 
             default -> getActivationFunction(activationFunction);
         };
@@ -96,24 +96,24 @@ public final class SettingsNodeGeneSupport {
 
     ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> createFactory(final SettingsGenomeFactory genomeFactory) {
         Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories = ImmutableMap.<NodeGeneType, SequentialIdFactory>builder()
-                .put(NodeGeneType.Input, new SequentialIdFactoryDefault("n1_input", inputIdFactory))
-                .put(NodeGeneType.Output, new SequentialIdFactoryDefault("n4_output", outputIdFactory))
-                .put(NodeGeneType.Bias, new SequentialIdFactoryDefault("n2_bias", biasIdFactory))
-                .put(NodeGeneType.Hidden, new SequentialIdFactoryDefault("n3_hidden", hiddenIdFactory))
+                .put(NodeGeneType.INPUT, new SequentialIdFactoryDefault("n1_input", inputIdFactory))
+                .put(NodeGeneType.OUTPUT, new SequentialIdFactoryDefault("n4_output", outputIdFactory))
+                .put(NodeGeneType.BIAS, new SequentialIdFactoryDefault("n2_bias", biasIdFactory))
+                .put(NodeGeneType.HIDDEN, new SequentialIdFactoryDefault("n3_hidden", hiddenIdFactory))
                 .build();
 
         Map<NodeGeneType, FloatFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatFactory>builder()
-                .put(NodeGeneType.Input, genomeFactory.getInputBias()::get)
-                .put(NodeGeneType.Output, genomeFactory.getOutputBias()::get)
-                .put(NodeGeneType.Bias, createBiasFactoryForBiasNode(genomeFactory))
-                .put(NodeGeneType.Hidden, hiddenBias::get)
+                .put(NodeGeneType.INPUT, genomeFactory.getInputBias()::get)
+                .put(NodeGeneType.OUTPUT, genomeFactory.getOutputBias()::get)
+                .put(NodeGeneType.BIAS, createBiasFactoryForBiasNode(genomeFactory))
+                .put(NodeGeneType.HIDDEN, hiddenBias::get)
                 .build();
 
         Map<NodeGeneType, ActivationFunctionFactory> activationFunctionFactories = ImmutableMap.<NodeGeneType, ActivationFunctionFactory>builder()
-                .put(NodeGeneType.Input, () -> getActivationFunction(genomeFactory.getInputActivationFunction()))
-                .put(NodeGeneType.Output, () -> getActivationFunction(genomeFactory.getOutputActivationFunction(), hiddenActivationFunction))
-                .put(NodeGeneType.Bias, () -> ActivationFunction.IDENTITY)
-                .put(NodeGeneType.Hidden, () -> getActivationFunction(hiddenActivationFunction))
+                .put(NodeGeneType.INPUT, () -> getActivationFunction(genomeFactory.getInputActivationFunction()))
+                .put(NodeGeneType.OUTPUT, () -> getActivationFunction(genomeFactory.getOutputActivationFunction(), hiddenActivationFunction))
+                .put(NodeGeneType.BIAS, () -> ActivationFunction.IDENTITY)
+                .put(NodeGeneType.HIDDEN, () -> getActivationFunction(hiddenActivationFunction))
                 .build();
 
         return context -> new ContextDefaultNodeGeneSupport(sequentialIdFactories, biasFactories, activationFunctionFactories);

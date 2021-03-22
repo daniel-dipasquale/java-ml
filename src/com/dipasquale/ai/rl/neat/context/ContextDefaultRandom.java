@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class ContextDefaultRandom implements Context.Random {
     private final RandomSupportFloat nextIndex;
-    private final RandomSupportFloat next;
-    private final RandomSupportFloat isAtMost;
+    private final RandomSupportFloat isLessThan;
 
     @Override
     public int nextIndex(final int offset, final int count) {
@@ -15,17 +14,7 @@ public final class ContextDefaultRandom implements Context.Random {
     }
 
     @Override
-    public float next() {
-        return next.next();
-    }
-
-    @Override
-    public float next(final float min, final float max) {
-        return next.next(min, max);
-    }
-
-    @Override
     public boolean isLessThan(final float rate) {
-        return isAtMost.isLessThan(rate);
+        return isLessThan.isLessThan(rate);
     }
 }

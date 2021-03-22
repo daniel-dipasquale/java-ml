@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 final class FitnessDeterminerMetricDatum implements FitnessDeterminer {
-    private final MetricDatum metricDatum = new MetricDatumReadAfterWriting(); // TODO: replace with MetricDatumReadWhileWriting
+    private final MetricDatum metricDatum = new MetricDatumSortPthBeforeRead(); // TODO: replace with MetricDatumReadWhileWriting
     private final Selector selector;
 
     @Override

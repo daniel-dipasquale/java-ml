@@ -4,34 +4,39 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class ContextDefaultMutation implements Context.Mutation {
-    private final float addNodeMutationsRate;
-    private final float addConnectionMutationsRate;
-    private final float perturbConnectionWeightRate;
-    private final float replaceConnectionWeightRate;
-    private final float disableConnectionExpressedRate;
+    private final Supplier shouldAddNodeMutation;
+    private final Supplier shouldAddConnectionMutation;
+    private final Supplier shouldPerturbConnectionWeight;
+    private final Supplier shouldReplaceConnectionWeight;
+    private final Supplier shouldDisableConnectionExpressed;
 
     @Override
-    public float addNodeMutationsRate() {
-        return addNodeMutationsRate;
+    public boolean shouldAddNodeMutation() {
+        return shouldAddNodeMutation.get();
     }
 
     @Override
-    public float addConnectionMutationsRate() {
-        return addConnectionMutationsRate;
+    public boolean shouldAddConnectionMutation() {
+        return shouldAddConnectionMutation.get();
     }
 
     @Override
-    public float perturbConnectionWeightRate() {
-        return perturbConnectionWeightRate;
+    public boolean shouldPerturbConnectionWeight() {
+        return shouldPerturbConnectionWeight.get();
     }
 
     @Override
-    public float replaceConnectionWeightRate() {
-        return replaceConnectionWeightRate;
+    public boolean shouldReplaceConnectionWeight() {
+        return shouldReplaceConnectionWeight.get();
     }
 
     @Override
-    public float disableConnectionExpressedRate() {
-        return disableConnectionExpressedRate;
+    public boolean shouldDisableConnectionExpressed() {
+        return shouldDisableConnectionExpressed.get();
+    }
+
+    @FunctionalInterface
+    public interface Supplier {
+        boolean get();
     }
 }

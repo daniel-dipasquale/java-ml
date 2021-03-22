@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 public enum SettingsNeuralNetworkType {
-    Default
+    FEED_FORWARD,
+    RECURRENT,
+    MULTI_CYCLE_RECURRENT
 }

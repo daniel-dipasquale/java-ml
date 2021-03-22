@@ -4,7 +4,6 @@ import com.dipasquale.ai.common.SequentialId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter

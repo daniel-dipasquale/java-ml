@@ -21,6 +21,7 @@ final class SpeciesBreedStrategyGenesis implements SpeciesBreedStrategy {
                 Organism organismNew = species.getRepresentative().createCopy();
 
                 organismNew.mutate();
+                organismNew.freeze();
                 organismsWithoutSpecies.add(organismNew);
             }
         }

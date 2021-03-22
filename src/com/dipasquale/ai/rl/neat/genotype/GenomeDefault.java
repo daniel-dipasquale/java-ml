@@ -73,10 +73,10 @@ public final class GenomeDefault implements Genome {
         boolean mutated = false;
 
         for (ConnectionGene connection : connections) {
-            if (context.random().isLessThan(context.mutation().perturbConnectionWeightRate())) {
+            if (context.mutation().shouldPerturbConnectionWeight()) {
                 connection.setWeight(context.connections().perturbWeight(connection.getWeight()));
                 mutated = true;
-            } else if (context.random().isLessThan(context.mutation().replaceConnectionWeightRate())) {
+            } else if (context.mutation().shouldReplaceConnectionWeight()) {
                 connection.setWeight(context.connections().nextWeight());
                 mutated = true;
             }
@@ -108,7 +108,7 @@ public final class GenomeDefault implements Genome {
         ConnectionGene connection = connections.disableByIndex(index);
         NodeGene inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
         NodeGene outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
-        NodeGene newNode = context.nodes().create(NodeGeneType.Hidden);
+        NodeGene newNode = context.nodes().create(NodeGeneType.HIDDEN);
         ConnectionGene inToNewConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
         ConnectionGene newToOutConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
 
@@ -183,11 +183,11 @@ public final class GenomeDefault implements Genome {
 
     private NodeGene getRandomNodeToMatch(final NodeGeneType type) {
         return switch (type) {
-            case Input, Bias -> getRandomNode(NodeGeneType.Output, NodeGeneType.Hidden);
+            case INPUT, BIAS -> getRandomNode(NodeGeneType.OUTPUT, NodeGeneType.HIDDEN);
 
-            case Hidden -> nodes.getRandom();
+            case HIDDEN -> nodes.getRandom();
 
-            default -> getRandomNode(NodeGeneType.Input, NodeGeneType.Bias, NodeGeneType.Hidden);
+            default -> getRandomNode(NodeGeneType.INPUT, NodeGeneType.BIAS, NodeGeneType.HIDDEN);
         };
     }
 
@@ -206,12 +206,12 @@ public final class GenomeDefault implements Genome {
         NodeGene node2 = getRandomNodeToMatch(node1.getType());
 
         return switch (node1.getType()) {
-            case Input, Bias -> createInnovationId(node1, node2);
+            case INPUT, BIAS -> createInnovationId(node1, node2);
 
-            case Output -> createInnovationId(node2, node1);
+            case OUTPUT -> createInnovationId(node2, node1);
 
             default -> switch (node2.getType()) {
-                case Input, Bias -> createInnovationId(node2, node1);
+                case INPUT, BIAS -> createInnovationId(node2, node1);
 
                 default -> createInnovationId(node1, node2);
             };
@@ -223,15 +223,15 @@ public final class GenomeDefault implements Genome {
 
         boolean mutated = mutateConnectionWeights();
 
-        if (context.random().isLessThan(context.mutation().disableConnectionExpressedRate())) {
+        if (context.mutation().shouldDisableConnectionExpressed()) {
             mutated |= disableRandomConnection();
         }
 
-        if (context.random().isLessThan(context.mutation().addNodeMutationsRate())) {
+        if (context.mutation().shouldAddNodeMutation()) {
             mutated |= addRandomNodeMutation();
         }
 
-        if (connections.sizeFromExpressed() == 0 || context.random().isLessThan(context.mutation().addConnectionMutationsRate())) {
+        if (connections.sizeFromExpressed() == 0 || context.mutation().shouldAddConnectionMutation()) {
             mutated |= addRandomConnectionMutation(); // TODO: find a better way to determine random connections
         }
 

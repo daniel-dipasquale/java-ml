@@ -92,9 +92,8 @@ public final class Species {
         int size = organisms.size();
 
         if (size > 1) {
-            int keep = (int) Math.floor((double) context.speciation().eugenicsThreshold() * (double) size);
-            int keepFixed = Math.max(1, keep);
-            int remove = size - keepFixed;
+            int keep = context.speciation().getFitCountToReproduce(size);
+            int remove = size - keep;
 
             if (remove > 0) {
                 ensureOrganismsIsSorted();
@@ -115,22 +114,40 @@ public final class Species {
         int size = organisms.size();
 
         for (int i = 0; i < count; i++) {
-            if (size > 1 && context.random().isLessThan(context.crossOver().rate())) {
-                Organism organism1 = context.random().nextItem(organisms);
-                Organism organism2 = context.random().nextItem(organisms);
+            boolean shouldMateAndMutate = context.crossOver().shouldMateAndMutate();
+            boolean shouldMate = shouldMateAndMutate || context.crossOver().shouldMateOnly();
+            boolean shouldMutate = shouldMateAndMutate || !shouldMate && context.crossOver().shouldMutateOnly();
+
+            if (size > 1 && shouldMate) {
+                Organism organism1;
+                Organism organism2;
+
+                if (size == 2) {
+                    organism1 = organisms.get(0);
+                    organism2 = organisms.get(1);
+                } else {
+                    organism1 = context.random().nextItem(organisms);
+                    organism2 = context.random().nextItem(organisms);
+                }
 
                 if (organism1 != organism2) {
                     Organism organismNew = organism1.mate(organism2);
 
+                    if (shouldMutate) {
+                        organismNew.mutate();
+                    }
+
+                    organismNew.freeze();
                     organismsAdded.add(organismNew);
                 }
             }
 
-            if (organismsAdded.size() <= i) { // TODO: the paper implies this is also left out to chance
+            if (organismsAdded.size() <= i) {
                 Organism organism = context.random().nextItem(organisms);
                 Organism organismNew = organism.createCopy();
 
                 organismNew.mutate();
+                organismNew.freeze();
                 organismsAdded.add(organismNew);
             }
         }
@@ -145,8 +162,11 @@ public final class Species {
 
         Organism organism1 = context.random().nextItem(organisms);
         Organism organism2 = context.random().nextItem(other.organisms);
+        Organism organismNew = organism1.mate(organism2);
 
-        return organism1.mate(organism2);
+        organismNew.freeze();
+
+        return organismNew;
     }
 
     public Organism selectMostElite() {
@@ -157,16 +177,15 @@ public final class Species {
 
     public List<Organism> selectMostElites() {
         int size = organisms.size();
-        int select = (int) Math.floor((double) context.speciation().elitistThreshold() * (double) size);
-        int selectFixed = Math.max(select, context.speciation().elitistThresholdMinimum());
+        int select = context.speciation().getEliteCountToPreserve(size);
 
-        if (selectFixed == 0) {
+        if (select == 0) {
             return ImmutableList.of();
         }
 
         ensureOrganismsIsSorted();
 
-        return organisms.subList(size - selectFixed, size);
+        return organisms.subList(size - select, size);
     }
 
     public boolean shouldSurvive() {

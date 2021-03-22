@@ -12,28 +12,31 @@ public final class GenomeCrossOver {
         return context.random().isLessThan(0.5f) ? item1 : item2;
     }
 
-    private boolean shouldOverrideExpressed() {
-        return context.random().isLessThan(context.crossOver().overrideExpressedRate());
-    }
-
     private ConnectionGene createChildConnection(final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
         ConnectionGene randomParentConnection = getRandom(parent1Connection, parent2Connection);
-        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || shouldOverrideExpressed();
+        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || context.crossOver().shouldOverrideConnectionExpressed();
 
-        if (context.random().isLessThan(context.crossOver().useRandomParentWeightRate())) {
+        if (context.crossOver().shouldUseRandomParentConnectionWeight()) {
             return randomParentConnection.createCopy(expressed);
         }
 
+        InnovationId innovationId = randomParentConnection.getInnovationId();
         float weight = (parent1Connection.getWeight() + parent2Connection.getWeight()) / 2f;
         int cyclesAllowed = randomParentConnection.getRecurrentCyclesAllowed();
 
-        return new ConnectionGene(parent1Connection.getInnovationId(), weight, cyclesAllowed, expressed);
+        return new ConnectionGene(innovationId, weight, cyclesAllowed, expressed);
     }
 
     public GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final GenomeDefault fitParent, final GenomeDefault unfitParent) {
         GenomeDefault child = new GenomeDefault(context);
 
-        fitParent.getNodes().forEach(child::addNode);
+        for (JointItems<NodeGene> jointItems : fitParent.getNodes().fullJoin(unfitParent.getNodes())) {
+            if (jointItems.getItem1() != null && jointItems.getItem2() != null) {
+                child.addNode(getRandom(jointItems.getItem1(), jointItems.getItem2()));
+            } else if (jointItems.getItem1() != null) {
+                child.addNode(jointItems.getItem1());
+            }
+        }
 
         for (ConnectionGene fitConnection : fitParent.getConnections()) {
             ConnectionGene unfitConnection = unfitParent.getConnections().getByIdFromAll(fitConnection.getInnovationId());
@@ -42,7 +45,7 @@ public final class GenomeCrossOver {
             if (unfitConnection != null) {
                 childConnection = createChildConnection(fitConnection, unfitConnection);
             } else {
-                childConnection = fitConnection.createCopy(fitConnection.isExpressed() || shouldOverrideExpressed());
+                childConnection = fitConnection.createCopy(fitConnection.isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
             }
 
             child.addConnection(childConnection);
@@ -70,11 +73,11 @@ public final class GenomeCrossOver {
 
                 child.addConnection(childConnection);
             } else if (jointItems.getItem1() != null) {
-                ConnectionGene childConnection = jointItems.getItem1().createCopy(jointItems.getItem1().isExpressed() || shouldOverrideExpressed());
+                ConnectionGene childConnection = jointItems.getItem1().createCopy(jointItems.getItem1().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
 
                 child.addConnection(childConnection);
             } else {
-                ConnectionGene childConnection = jointItems.getItem2().createCopy(jointItems.getItem2().isExpressed() || shouldOverrideExpressed());
+                ConnectionGene childConnection = jointItems.getItem2().createCopy(jointItems.getItem2().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
 
                 child.addConnection(childConnection);
             }

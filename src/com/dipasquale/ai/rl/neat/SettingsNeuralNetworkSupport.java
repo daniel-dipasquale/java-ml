@@ -12,12 +12,22 @@ import com.dipasquale.ai.rl.neat.phenotype.NeuronPathBuilderRecurrent;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter(AccessLevel.PACKAGE)
 public final class SettingsNeuralNetworkSupport {
     @Builder.Default
-    private final SettingsNeuralNetworkType type = SettingsNeuralNetworkType.Default;
+    private final SettingsNeuralNetworkType type = SettingsNeuralNetworkType.FEED_FORWARD;
+
+    private static NeuralNetworkFactory createFeedForwardNeuralNetworkFactory(final NeuronFactory neuronFactory) {
+        return (genome, nodes, connections) -> {
+            NeuronPathBuilder neuronPathBuilder = new NeuronPathBuilderDefault();
+
+            return new NeuralNetworkDefault(genome, nodes, connections, neuronPathBuilder, neuronFactory);
+        };
+    }
 
     private static NeuralNetworkFactory createRecurrentNeuralNetworkFactory(final NeuronFactory neuronFactory) {
         return (genome, nodes, connections) -> {
@@ -27,23 +37,15 @@ public final class SettingsNeuralNetworkSupport {
         };
     }
 
-    private static NeuralNetworkFactory createDefaultNeuralNetworkFactory(final NeuronFactory neuronFactory) {
-        return (genome, nodes, connections) -> {
-            NeuronPathBuilder neuronPathBuilder = new NeuronPathBuilderDefault();
-
-            return new NeuralNetworkDefault(genome, nodes, connections, neuronPathBuilder, neuronFactory);
-        };
-    }
-
-    ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> createFactory(final SettingsConnectionGeneSupport connections) {
+    ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> createFactory() {
         return context -> {
             NeuronFactory neuronFactory = NeuronDefault::new;
 
-            if (connections.isRecurrentConnectionsAllowed()) {
-                return new ContextDefaultNeuralNetworkSupport(createRecurrentNeuralNetworkFactory(neuronFactory));
-            }
+            return switch (type) {
+                case FEED_FORWARD -> new ContextDefaultNeuralNetworkSupport(createFeedForwardNeuralNetworkFactory(neuronFactory));
 
-            return new ContextDefaultNeuralNetworkSupport(createDefaultNeuralNetworkFactory(neuronFactory));
+                default -> new ContextDefaultNeuralNetworkSupport(createRecurrentNeuralNetworkFactory(neuronFactory));
+            };
         };
     }
 }

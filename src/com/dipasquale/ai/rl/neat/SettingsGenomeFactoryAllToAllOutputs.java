@@ -26,8 +26,8 @@ final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory
     public GenomeDefault create() {
         GenomeDefault genome = genesisGenome.reference().createClone();
 
-        for (NodeGene inputNode : genome.getNodes(NodeGeneType.Input)) {
-            for (NodeGene outputNode : genome.getNodes(NodeGeneType.Output)) {
+        for (NodeGene inputNode : genome.getNodes(NodeGeneType.INPUT)) {
+            for (NodeGene outputNode : genome.getNodes(NodeGeneType.OUTPUT)) {
                 InnovationId innovationId = context.connections().getOrCreateInnovationId(inputNode, outputNode);
                 ConnectionGene connection = new ConnectionGene(innovationId, weight.get());
 
@@ -36,8 +36,8 @@ final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory
         }
 
         if (shouldConnectBiasNodes) {
-            for (NodeGene biasNode : genome.getNodes(NodeGeneType.Bias)) {
-                for (NodeGene outputNode : genome.getNodes(NodeGeneType.Output)) {
+            for (NodeGene biasNode : genome.getNodes(NodeGeneType.BIAS)) {
+                for (NodeGene outputNode : genome.getNodes(NodeGeneType.OUTPUT)) {
                     InnovationId innovationId = context.connections().getOrCreateInnovationId(biasNode, outputNode);
                     ConnectionGene connection = new ConnectionGene(innovationId, 1f);
 

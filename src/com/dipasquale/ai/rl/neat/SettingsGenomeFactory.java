@@ -20,17 +20,17 @@ public final class SettingsGenomeFactory {
     @Builder.Default
     private final SettingsFloatNumber inputBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
-    private final SettingsEnum<SettingsActivationFunction> inputActivationFunction = SettingsEnum.literal(SettingsActivationFunction.Identity);
+    private final SettingsEnum<SettingsActivationFunction> inputActivationFunction = SettingsEnum.literal(SettingsActivationFunction.IDENTITY);
     private final SettingsIntegerNumber outputs;
     private final SettingsFloatNumber outputBias = SettingsFloatNumber.literal(0f);
     @Builder.Default
-    private final SettingsEnum<SettingsOutputActivationFunction> outputActivationFunction = SettingsEnum.literal(SettingsOutputActivationFunction.CopyFromHidden);
+    private final SettingsEnum<SettingsOutputActivationFunction> outputActivationFunction = SettingsEnum.literal(SettingsOutputActivationFunction.COPY_FROM_HIDDEN);
     @Builder.Default
     private final List<SettingsFloatNumber> biases = ImmutableList.of();
     @Builder.Default
     private final SettingsInitialConnectionType initialConnectionType = SettingsInitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS;
     @Builder.Default
-    private final SettingsInitialWeightType initialWeightType = SettingsInitialWeightType.Random;
+    private final SettingsInitialWeightType initialWeightType = SettingsInitialWeightType.RANDOM;
 
     public static SettingsGenomeFactory createDefault(final int inputs, final int outputs, final float[] bias) {
         return SettingsGenomeFactory.builder()
@@ -47,7 +47,7 @@ public final class SettingsGenomeFactory {
     }
 
     private SettingsFloatNumber createWeightSettings(final ContextDefault context) {
-        if (initialWeightType == SettingsInitialWeightType.FirstRandomSubsequentCopy) {
+        if (initialWeightType == SettingsInitialWeightType.FIRST_RANDOM_SUBSEQUENT_COPY) {
             return SettingsFloatNumber.literal(context.connections().nextWeight());
         }
 
@@ -62,7 +62,7 @@ public final class SettingsGenomeFactory {
 
             case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, createWeightSettings(context), false);
 
-            default -> throw new IllegalStateException("InitialConnectionType.RANDOM needs to be implemented");
+            default -> throw new IllegalStateException("SettingsInitialConnectionType.Random needs to be implemented");
         };
     }
 }

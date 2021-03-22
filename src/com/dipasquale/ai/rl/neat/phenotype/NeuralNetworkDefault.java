@@ -37,8 +37,8 @@ public final class NeuralNetworkDefault implements NeuralNetwork {
                 .collect(Collectors.toList());
 
         switch (node.getType()) {
-            case Bias:
-            case Hidden:
+            case BIAS:
+            case HIDDEN:
                 if (inputs.size() + outputs.size() == 0) {
                     return null;
                 }
@@ -57,13 +57,13 @@ public final class NeuralNetworkDefault implements NeuralNetwork {
                 if (neuron != null) {
                     neuronNavigator.add(neuron);
 
-                    if (neuron.getType() == NodeGeneType.Input) {
+                    if (neuron.getType() == NodeGeneType.INPUT) {
                         neuron.setValue(input[index++]);
                     }
                 }
             }
         } else {
-            Iterable<NodeGene> inputNodes = () -> nodes.iterator(NodeGeneType.Input);
+            Iterable<NodeGene> inputNodes = () -> nodes.iterator(NodeGeneType.INPUT);
 
             for (NodeGene node : inputNodes) {
                 neuronNavigator.get(node.getId()).setValue(input[index++]);

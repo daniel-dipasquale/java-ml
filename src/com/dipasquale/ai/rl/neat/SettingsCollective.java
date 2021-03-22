@@ -51,11 +51,11 @@ public final class SettingsCollective {
     Context createContext() {
         ContextDefaultComponentFactory<ContextDefaultGeneralSupport> generalFactory = general.createFactory();
         ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> nodesFactory = nodes.createFactory(general.getGenomeFactory());
-        ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory = connections.createFactory();
-        ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory = neuralNetwork.createFactory(connections);
+        ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory = connections.createFactory(neuralNetwork);
+        ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory = neuralNetwork.createFactory();
         ContextDefaultComponentFactory<ContextDefaultRandom> randomFactory = random.createFactory();
-        ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory = mutation.createFactory();
-        ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory = crossOver.createFactory();
+        ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory = mutation.createFactory(random.isLessThanRandomSupport);
+        ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory = crossOver.createFactory(random.isLessThanRandomSupport);
         ContextDefaultComponentFactory<ContextDefaultSpeciation> speciationFactory = speciation.createFactory(general);
 
         return new ContextDefault(generalFactory, nodesFactory, connectionsFactory, neuralNetworkFactory, randomFactory, mutationFactory, crossOverFactory, speciationFactory);
