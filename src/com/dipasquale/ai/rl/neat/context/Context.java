@@ -32,7 +32,7 @@ public interface Context {
     Speciation speciation();
 
     interface GeneralSupport {
-        int populationSize(); // 150
+        int populationSize();
 
         String createGenomeId();
 
