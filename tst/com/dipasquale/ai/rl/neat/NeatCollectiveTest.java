@@ -90,7 +90,7 @@ public final class NeatCollectiveTest {
                         .disjointCoefficient(SettingsFloatNumber.literal(1f))
                         .excessCoefficient(SettingsFloatNumber.literal(1f))
                         .compatibilityThreshold(SettingsFloatNumber.literal(3f))
-                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.123f))
+                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.2f))
                         .eugenicsThreshold(SettingsFloatNumber.literal(0.2f))
                         .elitistThreshold(SettingsFloatNumber.literal(0.01f))
                         .elitistThresholdMinimum(SettingsIntegerNumber.literal(2))

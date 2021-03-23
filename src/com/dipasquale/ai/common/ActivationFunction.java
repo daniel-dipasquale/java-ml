@@ -6,7 +6,7 @@ public interface ActivationFunction {
     ActivationFunction RELU = i -> Math.max(0f, i);
 
     ActivationFunction SIGMOID = i -> {
-        float x = Float.compare(i, 0f) >= 0 ? Math.max(i, 100f) : Math.max(i, -100f);
+        float x = Float.compare(i, 0f) >= 0 ? Math.min(i, 100f) : Math.max(i, -100f);
 
         return 1f / (1f + (float) Math.exp(-x));
     };
