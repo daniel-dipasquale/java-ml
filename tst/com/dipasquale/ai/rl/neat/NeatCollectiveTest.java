@@ -60,9 +60,9 @@ public final class NeatCollectiveTest {
                         .isLessThanRandomSupport(RandomSupportFloat.create())
                         .build())
                 .mutation(SettingsMutation.builder()
-                        .addNodeMutationRate(SettingsFloatNumber.literal(0.03f))
-                        .addConnectionMutationRate(SettingsFloatNumber.literal(0.05f))
-                        .perturbConnectionsWeightRate(SettingsFloatNumber.literal(0.5f))
+                        .addNodeMutationRate(SettingsFloatNumber.literal(0.05f))
+                        .addConnectionMutationRate(SettingsFloatNumber.literal(0.1f))
+                        .perturbConnectionsWeightRate(SettingsFloatNumber.literal(0.75f))
                         .replaceConnectionsWeightRate(SettingsFloatNumber.literal(0.5f))
                         .disableConnectionExpressedRate(SettingsFloatNumber.literal(0.05f))
                         .build())
@@ -79,7 +79,7 @@ public final class NeatCollectiveTest {
                         .disjointCoefficient(SettingsFloatNumber.literal(1f))
                         .excessCoefficient(SettingsFloatNumber.literal(1f))
                         .compatibilityThreshold(SettingsFloatNumber.literal(3f))
-                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.2f))
+                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.1f))
                         .eugenicsThreshold(SettingsFloatNumber.literal(0.2f))
                         .elitistThreshold(SettingsFloatNumber.literal(0.01f))
                         .elitistThresholdMinimum(SettingsIntegerNumber.literal(2))
@@ -90,7 +90,7 @@ public final class NeatCollectiveTest {
 
         boolean success = false;
 
-        for (int i1 = 0, c = 2000; i1 < c && !success; i1++) {
+        for (int i1 = 0, c = 5_000; i1 < c && !success; i1++) {
             success = true;
 
             for (int i2 = 0; i2 < inputs.length && success; i2++) {
