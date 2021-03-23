@@ -9,17 +9,11 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 public final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGeneSupport {
-    private final boolean recurrentConnectionsAllowed;
     private final boolean multipleRecurrentCyclesAllowed;
     private final SequentialIdFactory innovationIdFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
     private final ConnectionGeneWeightFactory weightFactory;
     private final ConnectionGeneWeightPerturber weightPerturber;
-
-    @Override
-    public boolean recurrentConnectionsAllowed() {
-        return recurrentConnectionsAllowed;
-    }
 
     @Override
     public boolean multipleRecurrentCyclesAllowed() {

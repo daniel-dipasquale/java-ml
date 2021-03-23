@@ -24,11 +24,10 @@ public final class SettingsConnectionGeneSupport {
 
     ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory(final SettingsNeuralNetworkSupport neuralNetwork) {
         return context -> {
-            boolean recurrentConnectionsAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.RECURRENT || neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
-            boolean multipleRecurrentCyclesAllowedFixed = recurrentConnectionsAllowed && neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
+            boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
             SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
 
-            return new ContextDefaultConnectionGeneSupport(recurrentConnectionsAllowed, multipleRecurrentCyclesAllowedFixed, sequentialIdFactory, new ConcurrentHashMap<>(), weightFactory::get, w -> weightPerturber.get() * w);
+            return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, sequentialIdFactory, new ConcurrentHashMap<>(), weightFactory::get, w -> weightPerturber.get() * w);
         };
     }
 }

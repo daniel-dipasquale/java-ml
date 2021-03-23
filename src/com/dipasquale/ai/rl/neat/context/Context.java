@@ -56,8 +56,6 @@ public interface Context {
     }
 
     interface ConnectionGeneSupport {
-        boolean recurrentConnectionsAllowed();
-
         boolean multipleRecurrentCyclesAllowed();
 
         InnovationId getOrCreateInnovationId(DirectedEdge directedEdge);
@@ -72,7 +70,7 @@ public interface Context {
             return getOrCreateInnovationId(inNode.getId(), outNode.getId());
         }
 
-        float nextWeight(); // next() * 4 - 2
+        float nextWeight();
 
         float perturbWeight(float weight);
     }
