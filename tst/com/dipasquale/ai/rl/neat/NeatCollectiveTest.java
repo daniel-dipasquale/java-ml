@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.common.RandomSupportFloat;
+import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 public final class NeatCollectiveTest {
     @Test
-    public void TEST_1() {
+    public void GIVEN_a_neat_as_a_collective_WHEN_finding_the_solution_for_xor_THEN_find_the_solution() {
         float[][] inputs = new float[][]{
                 new float[]{1f, 1f}, // 0f
                 new float[]{1f, 0f}, // 1f
@@ -24,7 +25,17 @@ public final class NeatCollectiveTest {
                 .general(SettingsGeneralSupport.builder()
                         .populationSize(150)
                         .genomeIdFactory(() -> UUID.randomUUID().toString())
-                        .genomeFactory(SettingsGenomeFactory.createDefault(2, 1))
+                        .genomeFactory(SettingsGenomeFactory.builder()
+                                .inputs(SettingsIntegerNumber.literal(2))
+                                .inputBias(SettingsFloatNumber.literal(0f))
+                                .inputActivationFunction(SettingsEnum.literal(SettingsActivationFunction.IDENTITY))
+                                .outputs(SettingsIntegerNumber.literal(1))
+                                .outputBias(SettingsFloatNumber.random(-1f, 1f))
+                                .outputActivationFunction(SettingsEnum.literal(SettingsOutputActivationFunction.COPY_FROM_HIDDEN))
+                                .biases(ImmutableList.of())
+                                .initialConnectionType(SettingsInitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
+                                .initialWeightType(SettingsInitialWeightType.RANDOM)
+                                .build())
                         .speciesIdFactory(() -> UUID.randomUUID().toString())
                         .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValueFactory())
                         .environment(genome -> {

@@ -22,7 +22,8 @@ public final class SettingsGenomeFactory {
     @Builder.Default
     private final SettingsEnum<SettingsActivationFunction> inputActivationFunction = SettingsEnum.literal(SettingsActivationFunction.IDENTITY);
     private final SettingsIntegerNumber outputs;
-    private final SettingsFloatNumber outputBias = SettingsFloatNumber.literal(0f);
+    @Builder.Default
+    private final SettingsFloatNumber outputBias = SettingsFloatNumber.random(-1f, 1f);
     @Builder.Default
     private final SettingsEnum<SettingsOutputActivationFunction> outputActivationFunction = SettingsEnum.literal(SettingsOutputActivationFunction.COPY_FROM_HIDDEN);
     @Builder.Default
