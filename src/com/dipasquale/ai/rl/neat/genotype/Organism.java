@@ -28,15 +28,16 @@ public final class Organism implements Comparable<Organism> {
 
     public boolean isCompatible(final Species species) {
         double compatibility = context.speciation().calculateCompatibility(genome, species.getRepresentative().genome);
+        double compatibilityFixed = Double.isFinite(compatibility) ? compatibility : Double.MAX_VALUE;
 
-        if (mostCompatibleSpecies == null || Double.compare(minimumCompatibility, compatibility) > 0) {
-            minimumCompatibility = compatibility;
+        if (Double.compare(minimumCompatibility, compatibilityFixed) > 0) {
+            minimumCompatibility = compatibilityFixed;
             mostCompatibleSpecies = species;
         }
 
         double compatibilityThreshold = context.speciation().compatibilityThreshold(population.getGeneration());
 
-        return Double.compare(compatibility, compatibilityThreshold) < 0;
+        return Double.compare(compatibilityFixed, compatibilityThreshold) < 0;
     }
 
     public void setMostCompatibleSpecies(final Species species) {
