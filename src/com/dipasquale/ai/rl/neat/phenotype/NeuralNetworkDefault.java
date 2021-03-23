@@ -1,7 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
-import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
@@ -11,15 +10,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class NeuralNetworkDefault implements NeuralNetwork {
-    private final GenomeDefault genome;
     private final NodeGeneMap nodes;
     private final ConnectionGeneMap connections;
     private final NeuronNavigator neuronNavigator;
     private final CircularVersionInt activationNumber;
     private final NeuronFactory neuronFactory;
 
-    public NeuralNetworkDefault(final GenomeDefault genome, final NodeGeneMap nodes, final ConnectionGeneMap connections, final NeuronPathBuilder neuronPathBuilder, final NeuronFactory neuronFactory) {
-        this.genome = genome;
+    public NeuralNetworkDefault(final NodeGeneMap nodes, final ConnectionGeneMap connections, final NeuronPathBuilder neuronPathBuilder, final NeuronFactory neuronFactory) {
         this.nodes = nodes;
         this.connections = connections;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);

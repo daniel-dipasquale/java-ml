@@ -25,7 +25,7 @@ public final class SettingsNeuralNetworkSupport {
         return (genome, nodes, connections) -> {
             NeuronPathBuilder neuronPathBuilder = new NeuronPathBuilderDefault();
 
-            return new NeuralNetworkDefault(genome, nodes, connections, neuronPathBuilder, neuronFactory);
+            return new NeuralNetworkDefault(nodes, connections, neuronPathBuilder, neuronFactory);
         };
     }
 
@@ -33,7 +33,7 @@ public final class SettingsNeuralNetworkSupport {
         return (genome, nodes, connections) -> {
             NeuronPathBuilder neuronPathBuilder = new NeuronPathBuilderRecurrent<>(NeuronDefault::createRecurrentSingleMemory);
 
-            return new NeuralNetworkDefault(genome, nodes, connections, neuronPathBuilder, neuronFactory);
+            return new NeuralNetworkDefault(nodes, connections, neuronPathBuilder, neuronFactory);
         };
     }
 
@@ -41,11 +41,13 @@ public final class SettingsNeuralNetworkSupport {
         return context -> {
             NeuronFactory neuronFactory = NeuronDefault::new;
 
-            return switch (type) {
-                case FEED_FORWARD -> new ContextDefaultNeuralNetworkSupport(createFeedForwardNeuralNetworkFactory(neuronFactory));
+            NeuralNetworkFactory neuralNetworkFactory = switch (type) {
+                case FEED_FORWARD -> createFeedForwardNeuralNetworkFactory(neuronFactory);
 
-                default -> new ContextDefaultNeuralNetworkSupport(createRecurrentNeuralNetworkFactory(neuronFactory));
+                default -> createRecurrentNeuralNetworkFactory(neuronFactory);
             };
+
+            return new ContextDefaultNeuralNetworkSupport(neuralNetworkFactory);
         };
     }
 }
