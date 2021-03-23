@@ -42,10 +42,10 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
     }
 
     @Override
-    public float calculateCompatibility(final GenomeDefault genome1, final GenomeDefault genome2) {
+    public double calculateCompatibility(final GenomeDefault genome1, final GenomeDefault genome2) {
         ConnectionGene excessFromConnection = getExcessConnection(genome1, genome2);
         int matchingCount = 0;
-        float weightDifference = 0f;
+        double weightDifference = 0D;
         int disjointCount = 0;
         int excessCount = 0;
 
@@ -60,13 +60,13 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
             }
         }
 
-        float c1 = context.speciation().excessCoefficient();
-        float c2 = context.speciation().disjointCoefficient();
-        float c3 = context.speciation().weightDifferenceCoefficient();
+        double c1 = context.speciation().excessCoefficient();
+        double c2 = context.speciation().disjointCoefficient();
+        double c3 = context.speciation().weightDifferenceCoefficient();
         int maximumNodes = Math.max(genome1.getNodes().size(), genome2.getNodes().size());
-        int n = maximumNodes < 20 ? 1 : maximumNodes;
-        float averageWeightDifference = matchingCount == 0 ? 0 : weightDifference / (float) matchingCount;
+        double n = maximumNodes < 20 ? 1D : (double) maximumNodes;
+        double averageWeightDifference = matchingCount == 0 ? 0D : weightDifference / (double) matchingCount;
 
-        return c1 * excessCount / n + c2 * disjointCount / n + c3 * averageWeightDifference;
+        return c1 * (double) excessCount / n + c2 * (double) disjointCount / n + c3 * averageWeightDifference;
     }
 }

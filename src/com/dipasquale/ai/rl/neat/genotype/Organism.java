@@ -3,11 +3,16 @@ package com.dipasquale.ai.rl.neat.genotype;
 import com.dipasquale.ai.common.FitnessDeterminer;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.population.Population;
+import com.dipasquale.ai.rl.neat.species.Species;
+import lombok.Getter;
 
 public final class Organism implements Comparable<Organism> {
     private final Context context;
     private final Population population;
     private final GenomeDefault genome;
+    private double minimumCompatibility;
+    @Getter
+    private Species mostCompatibleSpecies;
     private final FitnessDeterminer fitnessDeterminer;
     private int fitnessGeneration;
 
@@ -15,8 +20,32 @@ public final class Organism implements Comparable<Organism> {
         this.context = context;
         this.population = population;
         this.genome = genome;
+        this.minimumCompatibility = Double.POSITIVE_INFINITY;
+        this.mostCompatibleSpecies = null;
         this.fitnessDeterminer = context.general().createFitnessDeterminer();
         this.fitnessGeneration = -1;
+    }
+
+    public boolean isCompatible(final Species species) {
+        double compatibility = context.speciation().calculateCompatibility(genome, species.getRepresentative().genome);
+
+        if (mostCompatibleSpecies == null || Double.compare(minimumCompatibility, compatibility) > 0) {
+            minimumCompatibility = compatibility;
+            mostCompatibleSpecies = species;
+        }
+
+        double compatibilityThreshold = context.speciation().compatibilityThreshold(population.getGeneration());
+
+        return Double.compare(compatibility, compatibilityThreshold) < 0;
+    }
+
+    public void setMostCompatibleSpecies(final Species species) {
+        minimumCompatibility = Double.POSITIVE_INFINITY;
+        mostCompatibleSpecies = species;
+    }
+
+    public float getFitness() {
+        return fitnessDeterminer.get();
     }
 
     public float updateFitness() {
@@ -25,15 +54,12 @@ public final class Organism implements Comparable<Organism> {
             fitnessDeterminer.clear();
         }
 
-        float fitness = Math.max(context.general().calculateFitness(genome), 0f); // TODO: rely on a configurable function
+        float fitness = context.general().calculateFitness(genome);
+        float fitnessFixed = Float.isFinite(fitness) ? Math.max(fitness, 0f) : 0f;
 
-        fitnessDeterminer.add(fitness);
+        fitnessDeterminer.add(fitnessFixed);
 
         return fitnessDeterminer.get();
-    }
-
-    public boolean isCompatible(final Organism other) {
-        return context.speciation().belongs(genome, other.genome, population.getGeneration());
     }
 
     public void mutate() {

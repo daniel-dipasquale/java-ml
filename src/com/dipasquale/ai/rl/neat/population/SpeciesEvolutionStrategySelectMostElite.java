@@ -13,8 +13,8 @@ final class SpeciesEvolutionStrategySelectMostElite implements SpeciesEvolutionS
     private final OrganismActivator mostFitOrganismActivator;
 
     @Override
-    public void process(final SpeciesEvolutionContext context, final Species species) {
-        if (!species.shouldSurvive()) {
+    public void process(final SpeciesEvolutionContext context, final Species species, boolean speciesSurvives) {
+        if (!speciesSurvives) {
             return;
         }
 

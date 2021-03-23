@@ -78,20 +78,25 @@ public final class Population {
         return speciesNode;
     }
 
+    private boolean addOrganismToMostCompatibleSpecies(final Organism organism) {
+        for (SimpleNode<Species> speciesNode : allSpecies) {
+            if (allSpecies.getValue(speciesNode).addIfCompatible(organism)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void assignOrganismsToSpecies() {
-        for (Organism organism : organismsWithoutSpecies) { // TODO: shuffle species distribution
-            allSpecies.stream()
-                    .filter(n -> allSpecies.getValue(n).addIfCompatible(organism))
-                    .findFirst()
-                    .orElseGet(() -> {
-                        if (allSpecies.size() < context.speciation().maximumSpecies()) {
-                            return addSpecies(createSpecies(organism));
-                        }
-
-                        String message = String.format("cannot have more species than %d, consider reviewing some parameters or for an easy fix increase the speciation.compatibilityThresholdModifier", context.speciation().maximumSpecies());
-
-                        throw new IllegalStateException(message);
-                    });
+        for (Organism organism : organismsWithoutSpecies) {
+            if (!addOrganismToMostCompatibleSpecies(organism)) {
+                if (allSpecies.size() < context.speciation().maximumSpecies()) {
+                    addSpecies(createSpecies(organism));
+                } else {
+                    organism.getMostCompatibleSpecies().add(organism); // TODO: this fails somehow, sleep on it
+                }
+            }
         }
 
         organismsWithoutSpecies.clear();
@@ -115,12 +120,13 @@ public final class Population {
     private void prepareAllSpeciesForEvolution(final SpeciesEvolutionContext context) {
         for (SimpleNode<Species> speciesNode = allSpecies.peekFirst(); speciesNode != null; ) {
             Species species = allSpecies.getValue(speciesNode);
+            boolean shouldSurvive = allSpecies.size() <= 2 || species.shouldSurvive();
 
             for (SpeciesEvolutionStrategy speciesEvolutionStrategy : speciesEvolutionStrategies) {
-                speciesEvolutionStrategy.process(context, species);
+                speciesEvolutionStrategy.process(context, species, shouldSurvive);
             }
 
-            if (!species.shouldSurvive()) {
+            if (!shouldSurvive) {
                 SimpleNode<Species> speciesNodeNext = allSpecies.peekNext(speciesNode);
 
                 allSpecies.remove(speciesNode);
@@ -162,5 +168,9 @@ public final class Population {
 
     public float[] activate(final float[] input) {
         return mostFitOrganismActivator.activate(input);
+    }
+
+    public float getMaximumFitness() {
+        return mostFitOrganismActivator.getFitness();
     }
 }

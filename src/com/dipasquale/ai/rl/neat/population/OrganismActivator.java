@@ -1,14 +1,22 @@
 package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.genotype.Organism;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Setter;
+import lombok.Getter;
 
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
-@Setter(AccessLevel.PACKAGE)
 final class OrganismActivator {
     private Organism organism;
+    @Getter
+    private float fitness;
+
+    OrganismActivator(final Organism organism) {
+        this.organism = organism;
+        this.fitness = 0f;
+    }
+
+    public void setOrganism(final Organism organism) {
+        this.organism = organism;
+        this.fitness = organism.getFitness();
+    }
 
     public float[] activate(final float[] inputs) {
         return organism.activate(inputs);

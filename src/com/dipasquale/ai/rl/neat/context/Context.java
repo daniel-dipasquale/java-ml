@@ -154,15 +154,9 @@ public interface Context {
 
         float excessCoefficient(); // c1
 
-        float compatibilityThreshold(int generation); // (compatibilityThreshold) ( * compatibilityThresholdModifier ^ generation )
+        double compatibilityThreshold(int generation);
 
-        float calculateCompatibility(GenomeDefault genome1, GenomeDefault genome2);
-
-        default boolean belongs(final GenomeDefault genome1, final GenomeDefault genome2, final int generation) {
-            float compatibility = calculateCompatibility(genome1, genome2);
-
-            return Float.compare(compatibility, compatibilityThreshold(generation)) < 0;
-        }
+        double calculateCompatibility(GenomeDefault genome1, GenomeDefault genome2);
 
         float eugenicsThreshold();
 

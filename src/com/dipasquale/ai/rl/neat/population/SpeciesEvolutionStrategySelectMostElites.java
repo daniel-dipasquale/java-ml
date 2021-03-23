@@ -13,8 +13,8 @@ final class SpeciesEvolutionStrategySelectMostElites implements SpeciesEvolution
     private final Set<Organism> organismsWithoutSpecies;
 
     @Override
-    public void process(final SpeciesEvolutionContext context, final Species species) {
-        if (!species.shouldSurvive()) {
+    public void process(final SpeciesEvolutionContext context, final Species species, boolean speciesSurvives) {
+        if (!speciesSurvives) {
             return;
         }
 

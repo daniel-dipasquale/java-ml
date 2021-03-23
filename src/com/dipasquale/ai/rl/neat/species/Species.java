@@ -26,6 +26,8 @@ public final class Species {
     private int ageLastImproved;
 
     public Species(final Context context, final Population population, final Organism representativeOrganism) {
+        representativeOrganism.setMostCompatibleSpecies(this);
+
         this.context = context;
         this.id = context.general().createSpeciesId();
         this.population = population;
@@ -39,7 +41,8 @@ public final class Species {
     }
 
     public boolean addIfCompatible(final Organism organism) {
-        if (organisms.size() < context.speciation().maximumGenomes() && representativeOrganism.isCompatible(organism)) {
+        if (organisms.size() < context.speciation().maximumGenomes() && organism.isCompatible(this)) {
+            organism.setMostCompatibleSpecies(this);
             organisms.add(organism);
             isOrganismsSorted = false;
 
@@ -47,6 +50,14 @@ public final class Species {
         }
 
         return false;
+    }
+
+    public void add(final Organism organism) {
+        if (organisms.size() < context.speciation().maximumGenomes()) {
+            organism.setMostCompatibleSpecies(this);
+            organisms.add(organism);
+            isOrganismsSorted = false;
+        }
     }
 
     public Organism getRepresentative() {

@@ -4,7 +4,13 @@ package com.dipasquale.ai.common;
 public interface ActivationFunction {
     ActivationFunction IDENTITY = i -> i;
     ActivationFunction RELU = i -> Math.max(0f, i);
-    ActivationFunction SIGMOID = i -> 1f / (1f + (float) Math.exp(-i));
+
+    ActivationFunction SIGMOID = i -> {
+        float x = Float.compare(i, 0f) >= 0 ? Math.max(i, 100f) : Math.max(i, -100f);
+
+        return 1f / (1f + (float) Math.exp(-x));
+    };
+
     ActivationFunction TAN_H = i -> (float) Math.tanh(i);
 
     float forward(float input);

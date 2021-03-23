@@ -46,12 +46,12 @@ public final class ContextDefaultSpeciation implements Context.Speciation {
     }
 
     @Override
-    public float compatibilityThreshold(final int generation) {
-        return compatibilityThreshold * (float) Math.pow(compatibilityThresholdModifier, generation);
+    public double compatibilityThreshold(final int generation) {
+        return compatibilityThreshold * Math.pow(compatibilityThresholdModifier, generation);
     }
 
     @Override
-    public float calculateCompatibility(final GenomeDefault genome1, final GenomeDefault genome2) {
+    public double calculateCompatibility(final GenomeDefault genome1, final GenomeDefault genome2) {
         return genomeCompatibilityCalculator.calculateCompatibility(genome1, genome2);
     }
 

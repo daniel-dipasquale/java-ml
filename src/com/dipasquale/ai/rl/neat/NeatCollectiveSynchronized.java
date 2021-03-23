@@ -11,14 +11,14 @@ final class NeatCollectiveSynchronized implements NeatCollective {
     }
 
     @Override
-    public int generation() {
+    public int getGeneration() {
         synchronized (population) {
             return population.getGeneration();
         }
     }
 
     @Override
-    public int species() {
+    public int getSpeciesCount() {
         synchronized (population) {
             return population.getSpeciesCount();
         }
@@ -42,6 +42,13 @@ final class NeatCollectiveSynchronized implements NeatCollective {
     public float[] activate(final float[] input) {
         synchronized (population) {
             return population.activate(input);
+        }
+    }
+
+    @Override
+    public float getMaximumFitness() {
+        synchronized (population) {
+            return population.getMaximumFitness();
         }
     }
 }

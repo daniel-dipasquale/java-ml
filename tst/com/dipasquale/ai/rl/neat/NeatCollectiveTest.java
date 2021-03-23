@@ -27,11 +27,11 @@ public final class NeatCollectiveTest {
                         .genomeFactory(SettingsGenomeFactory.createDefault(2, 1, new float[]{1f}))
                         .speciesIdFactory(() -> UUID.randomUUID().toString())
                         .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValueFactory())
-                        .environment(g -> {
+                        .environment(genome -> {
                             float temporary = 0f;
 
                             for (int i = 0; i < inputs.length; i++) {
-                                float[] output = g.activate(inputs[i]);
+                                float[] output = genome.activate(inputs[i]);
 
                                 temporary += (float) Math.pow(outputExpected[i] - output[0], 2D);
                             }
@@ -79,7 +79,7 @@ public final class NeatCollectiveTest {
                         .disjointCoefficient(SettingsFloatNumber.literal(1f))
                         .excessCoefficient(SettingsFloatNumber.literal(1f))
                         .compatibilityThreshold(SettingsFloatNumber.literal(3f))
-                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.5f))
+                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.2f))
                         .eugenicsThreshold(SettingsFloatNumber.literal(0.2f))
                         .elitistThreshold(SettingsFloatNumber.literal(0.01f))
                         .elitistThresholdMinimum(SettingsIntegerNumber.literal(2))
@@ -105,8 +105,9 @@ public final class NeatCollectiveTest {
             }
         }
 
-        System.out.printf("generation: %d%n", neat.generation());
-        System.out.printf("species: %d%n", neat.species());
+        System.out.printf("generation: %d%n", neat.getGeneration());
+        System.out.printf("species: %d%n", neat.getSpeciesCount());
+        System.out.printf("fitness: %f%n", neat.getMaximumFitness());
         Assert.assertTrue(success);
     }
 }
