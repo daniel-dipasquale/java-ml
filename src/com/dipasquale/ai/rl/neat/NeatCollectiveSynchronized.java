@@ -6,7 +6,7 @@ import com.dipasquale.ai.rl.neat.population.Population;
 final class NeatCollectiveSynchronized implements NeatCollective {
     private final Population population;
 
-    public NeatCollectiveSynchronized(final Context context) {
+    NeatCollectiveSynchronized(final Context context) {
         this.population = new Population(context);
     }
 
