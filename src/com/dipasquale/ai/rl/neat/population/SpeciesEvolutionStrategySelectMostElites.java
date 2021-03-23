@@ -20,11 +20,7 @@ final class SpeciesEvolutionStrategySelectMostElites implements SpeciesEvolution
 
         List<Organism> eliteOrganisms = species.selectMostElites();
 
-        int organismsPreserved = (int) eliteOrganisms.stream()
-                .filter(organismsWithoutSpecies::add)
-                .count();
-
-        context.addOrganismsNeeded(-organismsPreserved);
+        organismsWithoutSpecies.addAll(eliteOrganisms);
     }
 
     @Override

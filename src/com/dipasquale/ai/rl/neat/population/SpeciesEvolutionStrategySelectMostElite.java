@@ -25,10 +25,7 @@ final class SpeciesEvolutionStrategySelectMostElite implements SpeciesEvolutionS
     public void postProcess(final SpeciesEvolutionContext context) {
         Organism organismMostFit = context.getOrganismMostFit();
 
-        if (organismsWithoutSpecies.add(organismMostFit)) {
-            context.addOrganismsNeeded(-1);
-        }
-
+        organismsWithoutSpecies.add(organismMostFit);
         mostFitOrganismActivator.setOrganism(organismMostFit);
     }
 }

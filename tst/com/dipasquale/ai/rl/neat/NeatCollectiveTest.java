@@ -45,7 +45,7 @@ public final class NeatCollectiveTest {
                         .biasIdFactory(new SequentialIdFactoryLong())
                         .hiddenIdFactory(new SequentialIdFactoryLong())
                         .hiddenBias(SettingsFloatNumber.randomMeanDistribution(-1f, 1f))
-                        .hiddenActivationFunction(SettingsEnum.literal(SettingsActivationFunction.RE_LU))
+                        .hiddenActivationFunction(SettingsEnum.literal(SettingsActivationFunction.SIGMOID))
                         .build())
                 .connections(SettingsConnectionGeneSupport.builder()
                         .innovationIdFactory(new SequentialIdFactoryLong())
@@ -75,22 +75,22 @@ public final class NeatCollectiveTest {
                 .speciation(SettingsSpeciation.builder()
                         .maximumSpecies(SettingsIntegerNumber.literal(20))
                         .maximumGenomes(SettingsIntegerNumber.literal(20))
-                        .weightDifferenceCoefficient(SettingsFloatNumber.literal(0.4f))
+                        .weightDifferenceCoefficient(SettingsFloatNumber.literal(0.5f))
                         .disjointCoefficient(SettingsFloatNumber.literal(1f))
                         .excessCoefficient(SettingsFloatNumber.literal(1f))
                         .compatibilityThreshold(SettingsFloatNumber.literal(3f))
-                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.25f))
+                        .compatibilityThresholdModifier(SettingsFloatNumber.literal(1.5f))
                         .eugenicsThreshold(SettingsFloatNumber.literal(0.2f))
                         .elitistThreshold(SettingsFloatNumber.literal(0.01f))
-                        .elitistThresholdMinimum(SettingsIntegerNumber.literal(1))
+                        .elitistThresholdMinimum(SettingsIntegerNumber.literal(2))
                         .interSpeciesMatingRate(SettingsFloatNumber.literal(0.001f))
                         .stagnationDropOffAge(SettingsIntegerNumber.literal(15))
                         .build())
                 .build());
 
-        boolean success = false; // TODO: population size is still flactuating
+        boolean success = false;
 
-        for (int i1 = 0, c = 1000; i1 < c && !success; i1++) {
+        for (int i1 = 0, c = 2000; i1 < c && !success; i1++) {
             success = true;
 
             for (int i2 = 0; i2 < inputs.length && success; i2++) {
