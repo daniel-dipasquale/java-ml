@@ -26,7 +26,7 @@ public final class SettingsNodeGeneSupport {
 
     private static final Map<SettingsActivationFunction, ActivationFunction> ACTIVATION_FUNCTIONS_MAP = ImmutableMap.<SettingsActivationFunction, ActivationFunction>builder()
             .put(SettingsActivationFunction.IDENTITY, ActivationFunction.IDENTITY)
-            .put(SettingsActivationFunction.RE_LU, ActivationFunction.RELU)
+            .put(SettingsActivationFunction.RE_LU, ActivationFunction.RE_LU)
             .put(SettingsActivationFunction.SIGMOID, ActivationFunction.SIGMOID)
             .build();
 

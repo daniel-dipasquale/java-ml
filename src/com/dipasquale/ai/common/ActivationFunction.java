@@ -2,16 +2,10 @@ package com.dipasquale.ai.common;
 
 @FunctionalInterface
 public interface ActivationFunction {
-    ActivationFunction IDENTITY = i -> i;
-    ActivationFunction RELU = i -> Math.max(0f, i);
-
-    ActivationFunction SIGMOID = i -> {
-        float x = Float.compare(i, 0f) >= 0 ? Math.min(i, 100f) : Math.max(i, -100f);
-
-        return 1f / (1f + (float) Math.exp(-x));
-    };
-
-    ActivationFunction TAN_H = i -> (float) Math.tanh(i);
+    ActivationFunction IDENTITY = new ActivationFunctionIdentity();
+    ActivationFunction RE_LU = new ActivationFunctionReLU();
+    ActivationFunction SIGMOID = new ActivationFunctionSigmoid();
+    ActivationFunction TAN_H = new ActivationFunctionTanH();
 
     float forward(float input);
 

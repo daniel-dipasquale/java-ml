@@ -15,6 +15,10 @@ https://stackoverflow.com/questions/4493554/neural-network-always-produces-same-
 https://www.researchgate.net/publication/323131150_The_importance_of_the_activation_function_in_NeuroEvolution_with_FS-NEAT_and_FD-NEAT
 https://arxiv.org/pdf/1703.07122.pdf
 
+cart pole:
+https://www.youtube.com/watch?v=PqZsEUBm_4g
+https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py
+
 other stuff:
 http://nn.cs.utexas.edu/downloads/papers/AdityaRawalThesis.pdf
 https://dev.to/n8python/attempting-and-sort-of-succeeding-to-implement-neat-in-javascript-2ea6
