@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ActivationFunctionSigmoid implements ActivationFunction {
+final class ActivationFunctionSigmoid implements ActivationFunction {
     @Override
     public float forward(final float input) {
         float inputFixed = Float.compare(input, 0f) >= 0

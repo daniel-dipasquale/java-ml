@@ -1,6 +1,5 @@
 package com.dipasquale.ai.common;
 
-@FunctionalInterface
 public interface ActivationFunction {
     ActivationFunction IDENTITY = new ActivationFunctionIdentity();
     ActivationFunction RE_LU = new ActivationFunctionReLU();
@@ -30,4 +29,6 @@ public interface ActivationFunction {
 
         return output;
     }
+
+    String toString();
 }

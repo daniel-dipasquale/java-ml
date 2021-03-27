@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ActivationFunctionReLU implements ActivationFunction {
+final class ActivationFunctionReLU implements ActivationFunction {
     @Override
     public float forward(final float input) {
         return Math.max(0f, input);
