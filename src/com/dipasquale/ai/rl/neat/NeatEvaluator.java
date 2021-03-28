@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-public interface NeatCollective {
+public interface NeatEvaluator {
     int getGeneration();
 
     int getSpeciesCount();

@@ -18,7 +18,7 @@ public final class SettingsGeneralSupport {
     @Builder.Default
     private final int populationSize = 150;
     @Builder.Default
-    private final IdFactory<String> genomeIdFactory = () -> UUID.randomUUID().toString();
+    private final IdFactory<String> genomeIdFactory = () -> UUID.randomUUID().toString(); // TODO: consider reusing IDS, since population sizes are fixed, reusable ids are more useful
     private final SettingsGenomeFactory genomeFactory;
     @Builder.Default
     private final IdFactory<String> speciesIdFactory = () -> UUID.randomUUID().toString();

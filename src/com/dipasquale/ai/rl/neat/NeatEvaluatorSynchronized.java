@@ -3,10 +3,10 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.population.Population;
 
-final class NeatCollectiveSynchronized implements NeatCollective {
+final class NeatEvaluatorSynchronized implements NeatEvaluator {
     private final Population population;
 
-    NeatCollectiveSynchronized(final Context context) {
+    NeatEvaluatorSynchronized(final Context context) {
         this.population = new Population(context);
     }
 

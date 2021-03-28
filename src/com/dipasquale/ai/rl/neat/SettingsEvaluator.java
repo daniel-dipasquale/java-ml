@@ -17,7 +17,7 @@ import lombok.Builder;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SettingsCollective {
+public final class SettingsEvaluator {
     private final SettingsGeneralSupport general;
 
     @Builder.Default

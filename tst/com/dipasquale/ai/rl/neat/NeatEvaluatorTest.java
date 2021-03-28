@@ -9,9 +9,9 @@ import org.junit.Test;
 
 import java.util.UUID;
 
-public final class NeatCollectiveTest {
+public final class NeatEvaluatorTest {
     @Test
-    public void GIVEN_a_neat_as_a_collective_WHEN_finding_the_solution_for_xor_THEN_find_the_solution() {
+    public void GIVEN_a_neat_evaluator_WHEN_finding_the_solution_for_xor_THEN_find_the_solution() {
         float[][] inputs = new float[][]{
                 new float[]{1f, 1f}, // 0f
                 new float[]{1f, 0f}, // 1f
@@ -21,7 +21,7 @@ public final class NeatCollectiveTest {
 
         float[] outputExpected = new float[]{0f, 1f, 1f, 0f};
 
-        NeatCollective neat = Neat.createCollective(SettingsCollective.builder()
+        NeatEvaluator neat = Neat.createEvaluator(SettingsEvaluator.builder()
                 .general(SettingsGeneralSupport.builder()
                         .populationSize(150)
                         .genomeIdFactory(() -> UUID.randomUUID().toString())
