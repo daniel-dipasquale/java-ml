@@ -16,6 +16,7 @@ https://www.researchgate.net/publication/323131150_The_importance_of_the_activat
 https://arxiv.org/pdf/1703.07122.pdf
 
 cart pole:
+https://github.com/CodeReclaimers/neat-python/blob/master/examples/single-pole-balancing/cart_pole.py
 https://www.youtube.com/watch?v=PqZsEUBm_4g
 https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py
 
@@ -69,8 +70,28 @@ fix the context properties, maybe implement a few to realize what's over done
 fix the speciation and evolution
 provide a way to save the genomes
 
+compared to others:
+https://ai.stackexchange.com/questions/10965/why-would-someone-use-neat-over-other-machine-learning-algorithms
+
 topological sort:
 http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
+
+ddpg:
+https://stackoverflow.com/questions/43794279/ddpg-policy-gradient-using-deeplearning4j
+https://github.com/EunjuYang/RLAngryBird
+
+RL's:
+https://medium.datadriveninvestor.com/which-reinforcement-learning-rl-algorithm-to-use-where-when-and-in-what-scenario-e3e7617fb0b1
+https://github.com/Rafael1s/Deep-Reinforcement-Learning-Algorithms
+https://github.com/chen0040/java-reinforcement-learning
+
+sac:
+https://towardsdatascience.com/soft-actor-critic-demystified-b8427df61665
+https://arxiv.org/abs/1812.05905
+https://www.youtube.com/watch?v=ioidsRlf79o
+
+nn using gpu in java:
+https://github.com/ivan-vasilev/neuralnetworks
 
 random:
 //        return () -> -Math.log(1D - (1D - Math.exp(-5D)) * randomSupport.next()) / 5D; // -> negative exponential
