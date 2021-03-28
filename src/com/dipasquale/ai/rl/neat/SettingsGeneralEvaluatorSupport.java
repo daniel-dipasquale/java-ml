@@ -14,7 +14,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public final class SettingsGeneralSupport {
+public final class SettingsGeneralEvaluatorSupport {
     @Builder.Default
     private final int populationSize = 150;
     @Builder.Default
@@ -22,11 +22,11 @@ public final class SettingsGeneralSupport {
     private final SettingsGenomeFactory genomeFactory;
     @Builder.Default
     private final IdFactory<String> speciesIdFactory = () -> UUID.randomUUID().toString();
-    @Builder.Default
-    private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
     private final Environment environment;
 
     ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory() {
+        FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
+
         return context -> new ContextDefaultGeneralSupport(populationSize, genomeIdFactory, genomeFactory.create(context), speciesIdFactory, fitnessDeterminerFactory, environment);
     }
 }

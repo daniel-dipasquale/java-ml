@@ -36,7 +36,7 @@ public final class SettingsSpeciation {
     @Builder.Default
     private final SettingsFloatNumber interSpeciesMatingRate = SettingsFloatNumber.literal(0.01f);
 
-    ContextDefaultComponentFactory<ContextDefaultSpeciation> createFactory(final SettingsGeneralSupport general) {
+    ContextDefaultComponentFactory<ContextDefaultSpeciation> createFactory(final SettingsGeneralEvaluatorSupport general) {
         return c -> {
             int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
                     .map(SettingsIntegerNumber::get)
