@@ -132,7 +132,7 @@ public final class NeatEvaluatorTest {
     }
 
     @Test
-    public void GIVEN_a_neat_evaluator_WHEN_finding_the_solution_the_cart_pole_problem_in_a_discrete_environment_THEN_find_the_solution() {
+    public void GIVEN_a_neat_evaluator_WHEN_finding_the_solution_the_cart_single_pole_problem_in_a_discrete_environment_THEN_find_the_solution() {
         double timeSpentGoal = 60D;
 
         NeatEvaluator neat = Neat.createEvaluator(SettingsEvaluator.builder()
