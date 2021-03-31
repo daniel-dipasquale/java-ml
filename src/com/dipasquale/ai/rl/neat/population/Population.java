@@ -23,16 +23,14 @@ public final class Population {
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
     private final NodeDeque<Species, SimpleNode<Species>> allSpecies;
-    private final OrganismActivator mostFitOrganismActivator;
     private final List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
     private final List<SpeciesBreedStrategy> speciesBreedStrategies;
     private SpeciesBreedContext speciesBreedContext;
     @Getter
     private int generation;
 
-    public Population(final Context context) {
+    public Population(final Context context, final OrganismActivator mostFitOrganismActivator) {
         Set<Organism> organismsWithoutSpecies = createOrganisms(context, this);
-        OrganismActivator mostFitOrganismActivator = new OrganismActivator(organismsWithoutSpecies.iterator().next());
 
         List<SpeciesEvolutionStrategy> speciesEvolutionStrategies = ImmutableList.<SpeciesEvolutionStrategy>builder()
                 .add(new SpeciesEvolutionStrategyRemoveLeastFit())
@@ -47,10 +45,10 @@ public final class Population {
                 .add(new SpeciesBreedStrategyGenesis(organismsWithoutSpecies))
                 .build();
 
+        mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.iterator().next());
         this.context = context;
         this.organismsWithoutSpecies = organismsWithoutSpecies;
         this.allSpecies = new SimpleNodeDeque<>();
-        this.mostFitOrganismActivator = mostFitOrganismActivator;
         this.speciesEvolutionStrategies = speciesEvolutionStrategies;
         this.speciesBreedStrategies = speciesBreedStrategies;
         this.generation = 1;
@@ -113,7 +111,7 @@ public final class Population {
         return allSpecies.size();
     }
 
-    public void testFitness() {
+    public void updateFitness() {
         assignOrganismsToSpecies();
         updateFitnessInAllSpecies();
     }
@@ -165,13 +163,5 @@ public final class Population {
         prepareAllSpeciesForEvolution(context);
         breedThroughAllSpecies(context);
         generation++;
-    }
-
-    public float[] activate(final float[] input) {
-        return mostFitOrganismActivator.activate(input);
-    }
-
-    public float getMaximumFitness() {
-        return mostFitOrganismActivator.getFitness();
     }
 }

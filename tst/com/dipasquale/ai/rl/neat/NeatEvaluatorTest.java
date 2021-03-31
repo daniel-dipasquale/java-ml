@@ -110,7 +110,7 @@ public final class NeatEvaluatorTest {
             }
 
             if (!success) {
-                neat.testFitness();
+                neat.evaluateFitness();
                 neat.evolve();
             }
         }
@@ -244,7 +244,7 @@ public final class NeatEvaluatorTest {
             }
 
             if (!success) {
-                neat.testFitness();
+                neat.evaluateFitness();
                 neat.evolve();
             }
         }

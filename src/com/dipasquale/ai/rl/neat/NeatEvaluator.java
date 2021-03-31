@@ -5,11 +5,11 @@ public interface NeatEvaluator {
 
     int getSpeciesCount();
 
-    void testFitness();
+    void evaluateFitness();
 
     void evolve();
 
-    float[] activate(float[] input);
-
     float getMaximumFitness();
+
+    float[] activate(float[] input);
 }

@@ -1,13 +1,19 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.population.OrganismActivator;
+import com.dipasquale.ai.rl.neat.population.OrganismActivatorSynchronized;
 import com.dipasquale.ai.rl.neat.population.Population;
 
 final class NeatEvaluatorSynchronized implements NeatEvaluator {
     private final Population population;
+    private final OrganismActivator mostFitOrganismActivator;
 
     NeatEvaluatorSynchronized(final Context context) {
-        this.population = new Population(context);
+        OrganismActivator mostFitOrganismActivator = new OrganismActivatorSynchronized();
+
+        this.population = new Population(context, mostFitOrganismActivator);
+        this.mostFitOrganismActivator = mostFitOrganismActivator;
     }
 
     @Override
@@ -25,9 +31,9 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
     }
 
     @Override
-    public void testFitness() {
+    public void evaluateFitness() {
         synchronized (population) {
-            population.testFitness();
+            population.updateFitness();
         }
     }
 
@@ -39,16 +45,12 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
     }
 
     @Override
-    public float[] activate(final float[] input) {
-        synchronized (population) {
-            return population.activate(input);
-        }
+    public float getMaximumFitness() {
+        return mostFitOrganismActivator.getFitness();
     }
 
     @Override
-    public float getMaximumFitness() {
-        synchronized (population) {
-            return population.getMaximumFitness();
-        }
+    public float[] activate(final float[] input) {
+        return mostFitOrganismActivator.activate(input);
     }
 }

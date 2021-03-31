@@ -97,4 +97,8 @@ public final class Organism implements Comparable<Organism> {
     public Organism createCopy() {
         return new Organism(context, population, genome.createCopy());
     }
+
+    public Organism createClone() {
+        return new Organism(context, population, genome.createClone());
+    }
 }
