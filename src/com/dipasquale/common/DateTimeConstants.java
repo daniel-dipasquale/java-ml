@@ -47,13 +47,13 @@ final class DateTimeConstants {
 
     private static Map<Unit<Duration>, TimeUnit> createUnits() {
         return ImmutableMap.<Unit<Duration>, TimeUnit>builder()
-                .put(TIME_UNITS.get(TimeUnit.NANOSECONDS), TimeUnit.NANOSECONDS)
-                .put(TIME_UNITS.get(TimeUnit.MICROSECONDS), TimeUnit.MICROSECONDS)
-                .put(TIME_UNITS.get(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS)
-                .put(TIME_UNITS.get(TimeUnit.SECONDS), TimeUnit.SECONDS)
-                .put(TIME_UNITS.get(TimeUnit.MINUTES), TimeUnit.MINUTES)
-                .put(TIME_UNITS.get(TimeUnit.HOURS), TimeUnit.HOURS)
-                .put(TIME_UNITS.get(TimeUnit.DAYS), TimeUnit.DAYS)
+                .put(SI.NANO(SI.SECOND), TimeUnit.NANOSECONDS)
+                .put(SI.MICRO(SI.SECOND), TimeUnit.MICROSECONDS)
+                .put(SI.MILLI(SI.SECOND), TimeUnit.MILLISECONDS)
+                .put(SI.SECOND, TimeUnit.SECONDS)
+                .put(NonSI.MINUTE, TimeUnit.MINUTES)
+                .put(NonSI.HOUR, TimeUnit.HOURS)
+                .put(NonSI.DAY, TimeUnit.DAYS)
                 .build();
     }
 }
