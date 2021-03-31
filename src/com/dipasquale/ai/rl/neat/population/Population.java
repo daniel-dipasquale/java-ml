@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.population;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.species.Species;
+import com.dipasquale.ai.rl.neat.species.SpeciesDefault;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
@@ -67,7 +68,7 @@ public final class Population {
     }
 
     private Species createSpecies(final Organism organism) {
-        return new Species(context, this, organism);
+        return new SpeciesDefault(context, this, organism);
     }
 
     private SimpleNode<Species> addSpecies(final Species species) {
@@ -94,7 +95,7 @@ public final class Population {
                 if (allSpecies.size() < context.speciation().maximumSpecies()) {
                     addSpecies(createSpecies(organism));
                 } else {
-                    organism.getMostCompatibleSpecies().add(organism); // TODO: this fails somehow, sleep on it
+                    organism.getMostCompatibleSpecies().add(organism);
                 }
             }
         }
