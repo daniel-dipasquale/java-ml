@@ -9,8 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public final class SettingsCrossOver {
     @Builder.Default
     private final SettingsFloatNumber mateOnlyFloatNumber = SettingsFloatNumber.literal(0.2f);

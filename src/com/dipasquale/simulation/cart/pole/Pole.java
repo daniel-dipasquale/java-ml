@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter(AccessLevel.PACKAGE)
 public final class Pole {
     @Builder.Default

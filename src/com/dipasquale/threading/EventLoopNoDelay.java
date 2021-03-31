@@ -1,6 +1,7 @@
 package com.dipasquale.threading;
 
 import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.DateTimeSupport;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -13,7 +14,13 @@ final class EventLoopNoDelay implements EventLoop {
         Queue<EventLoopRecord> queue = new LinkedList<>();
         ExclusiveQueue<EventLoopRecord> eventRecords = eventRecordsFactory.create(queue);
 
-        this.eventLoop = new EventLoopDefault(name, eventRecords, params, nextEventLoop);
+        EventLoopDefaultParams paramsFixed = EventLoopDefaultParams.builder()
+                .dateTimeSupport(DateTimeSupport.create(() -> 0L, params.getDateTimeSupport().unit()))
+                .exceptionLogger(params.getExceptionLogger())
+                .executorService(params.getExecutorService())
+                .build();
+
+        this.eventLoop = new EventLoopDefault(name, eventRecords, paramsFixed, nextEventLoop);
     }
 
     @Override

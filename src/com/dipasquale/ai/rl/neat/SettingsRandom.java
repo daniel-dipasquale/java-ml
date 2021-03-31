@@ -7,8 +7,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public final class SettingsRandom {
     @Builder.Default
     private final RandomSupportFloat nextIndexRandomSupport = RandomConstants.UNIFORM_CONCURRENT;

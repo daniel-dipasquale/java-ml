@@ -54,7 +54,8 @@ final class EventLoopMulti implements EventLoop {
 
     @Override
     public boolean isEmpty() {
-        return eventLoops.stream().allMatch(EventLoop::isEmpty);
+        return eventLoops.stream()
+                .allMatch(EventLoop::isEmpty);
     }
 
     @Override

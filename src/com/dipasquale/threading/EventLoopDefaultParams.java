@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.ExecutorService;
 
-@Builder(access = AccessLevel.PACKAGE)
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@Builder(access = AccessLevel.PACKAGE)
 @Getter
 final class EventLoopDefaultParams {
     private final DateTimeSupport dateTimeSupport;

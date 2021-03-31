@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.Set;
 
-@Builder
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 public final class HeavyHittersConfig<T> {
     private final ExpirySupport expirySupport;
@@ -125,8 +125,8 @@ public final class HeavyHittersConfig<T> {
         <T> CountMinSketch<T> create(HeavyHittersCollector<T> heavyHittersCollector);
     }
 
-    @Builder
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
     @Getter
     public static final class AggregateConfig<T> {
         private final Integer estimatedSizeOverride;

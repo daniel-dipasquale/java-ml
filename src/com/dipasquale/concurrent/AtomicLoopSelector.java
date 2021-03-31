@@ -13,7 +13,6 @@ public final class AtomicLoopSelector<T> {
     public AtomicLoopSelector(final ByIndex<T> items, final int offset, final int count, final boolean restart) {
         ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(offset, "offset");
         ArgumentValidatorUtils.ensureLessThan(offset, count, "offset");
-
         this.items = items;
         this.indexCas = new AtomicInteger(offset);
         this.count = count;

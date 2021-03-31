@@ -33,8 +33,8 @@ public final class DataStructureMultiCalculator {
         return new Result(countFixed, estimatedSizeFixed, sizeFixed);
     }
 
-    @Builder(access = AccessLevel.PACKAGE)
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PACKAGE)
     @Getter
     @EqualsAndHashCode
     @ToString

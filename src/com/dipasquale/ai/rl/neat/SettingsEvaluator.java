@@ -15,8 +15,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public final class SettingsEvaluator {
     private final SettingsGeneralEvaluatorSupport general;
 

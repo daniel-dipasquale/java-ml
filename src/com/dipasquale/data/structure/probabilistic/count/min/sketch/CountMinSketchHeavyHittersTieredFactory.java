@@ -16,13 +16,18 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
         ArgumentValidatorUtils.ensureNotNull(countMinSketchHeavyHittersConfig.getCollector(), "countMinSketchHeavyHittersConfig.collector");
         ArgumentValidatorUtils.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getTopLimit(), "countMinSketchHeavyHittersConfig.topLimit");
         ArgumentValidatorUtils.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getPartitions(), "countMinSketchHeavyHittersConfig.partitions");
-        ArgumentValidatorUtils.ensureTrue(countMinSketchHeavyHittersConfig.getAggregates().stream().allMatch(a -> a.getFlushPredicate() != null), "countMinSketchHeavyHittersConfig.aggregates[...].flushPredicate", "cannot be null");
+        ArgumentValidatorUtils.ensureTrue(areAllFlushPredicatesAvailable(countMinSketchHeavyHittersConfig), "countMinSketchHeavyHittersConfig.aggregates[...].flushPredicate", "cannot be null");
         this.countMinSketchDefaultFactory = countMinSketchDefaultFactory;
         this.countMinSketchHeavyHittersConfig = countMinSketchHeavyHittersConfig;
     }
 
     CountMinSketchHeavyHittersTieredFactory(final MultiFunctionHashing multiFunctionHashing, final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig) {
         this(new CountMinSketchDefaultFactory(multiFunctionHashing), countMinSketchHeavyHittersConfig);
+    }
+
+    private static boolean areAllFlushPredicatesAvailable(final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig) {
+        return countMinSketchHeavyHittersConfig.getAggregates().stream()
+                .allMatch(a -> a.getFlushPredicate() != null);
     }
 
     @Override

@@ -15,12 +15,12 @@ final class EventLoopDefault implements EventLoop {
     private final String name;
     private final ExclusiveQueue<EventLoopRecord> eventRecords;
     private final DateTimeSupport dateTimeSupport;
+    private boolean isWaitUntilEmptyHandleLocked;
     private final ReusableCountDownLatch waitUntilEmptyHandle;
     private final SlidingWaitHandle waitWhileEmptyHandle;
     private final ExceptionLogger exceptionLogger;
     private final EventLoop nextEventLoop;
     private final AtomicBoolean shutdown;
-    private boolean isWaitHandleLocked;
 
     EventLoopDefault(final String name, final ExclusiveQueue<EventLoopRecord> eventRecords, final EventLoopDefaultParams params, final EventLoop nextEventLoop) {
         EventLoop nextEventLoopFixed = Optional.ofNullable(nextEventLoop)
@@ -29,7 +29,7 @@ final class EventLoopDefault implements EventLoop {
         this.name = name;
         this.eventRecords = eventRecords;
         this.dateTimeSupport = params.getDateTimeSupport();
-        this.isWaitHandleLocked = false;
+        this.isWaitUntilEmptyHandleLocked = false;
         this.waitUntilEmptyHandle = new ReusableCountDownLatch(0);
         this.waitWhileEmptyHandle = new SlidingWaitHandle(name);
         this.exceptionLogger = params.getExceptionLogger();
@@ -58,18 +58,18 @@ final class EventLoopDefault implements EventLoop {
         return Math.max(eventRecord.getExecutionDateTime() - dateTimeSupport.now(), 0L);
     }
 
-    private void releaseWaitHandleIfEmpty() {
-        if (eventRecords.isEmpty() && isWaitHandleLocked) {
-            isWaitHandleLocked = false;
+    private void releaseWaitUntilEmptyHandleIfEmpty() {
+        if (eventRecords.isEmpty() && isWaitUntilEmptyHandleLocked) {
+            isWaitUntilEmptyHandleLocked = false;
             waitUntilEmptyHandle.countDown();
         }
     }
 
-    private void releaseWaitHandleConcurrentlyIfEmpty() {
+    private void releaseWaitUntilEmptyHandleIfEmptyButThreadSafe() {
         eventRecords.lock();
 
         try {
-            releaseWaitHandleIfEmpty();
+            releaseWaitUntilEmptyHandleIfEmpty();
         } finally {
             eventRecords.unlock();
         }
@@ -81,7 +81,7 @@ final class EventLoopDefault implements EventLoop {
 
             if (eventRecordAudit.polled == null) {
                 try {
-                    releaseWaitHandleConcurrentlyIfEmpty();
+                    releaseWaitUntilEmptyHandleIfEmptyButThreadSafe();
 
                     if (eventRecordAudit.peeked != null) {
                         waitWhileEmptyHandle.await(getDelayTime(eventRecordAudit.peeked), dateTimeSupport.timeUnit());
@@ -99,7 +99,7 @@ final class EventLoopDefault implements EventLoop {
                 } catch (Throwable e) {
                     exceptionLogger.log(e);
                 } finally {
-                    releaseWaitHandleConcurrentlyIfEmpty();
+                    releaseWaitUntilEmptyHandleIfEmptyButThreadSafe();
                 }
             }
         }
@@ -112,8 +112,8 @@ final class EventLoopDefault implements EventLoop {
             eventRecords.push(eventRecord);
             waitWhileEmptyHandle.changeAwait(getDelayTime(eventRecords.peek()), dateTimeSupport.timeUnit());
 
-            if (!isWaitHandleLocked) {
-                isWaitHandleLocked = true;
+            if (!isWaitUntilEmptyHandleLocked) {
+                isWaitUntilEmptyHandleLocked = true;
                 waitUntilEmptyHandle.countUp();
             }
         } finally {
@@ -161,7 +161,8 @@ final class EventLoopDefault implements EventLoop {
 
             try {
                 eventRecords.clear();
-                releaseWaitHandleIfEmpty();
+                releaseWaitUntilEmptyHandleIfEmpty();
+                waitWhileEmptyHandle.release();
             } finally {
                 eventRecords.unlock();
             }

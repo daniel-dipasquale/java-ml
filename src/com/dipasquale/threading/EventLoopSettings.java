@@ -16,8 +16,8 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Builder
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 public final class EventLoopSettings {
     private static final Map<EventLoopType, EventLoopFactoryProxy> EVENT_LOOP_FACTORY_PROXIES = createEventLoopFactoryProxies();

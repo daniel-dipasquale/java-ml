@@ -26,7 +26,7 @@ public interface EventLoop {
     }
 
     static EventLoop create(final EventLoopSettings settings) {
-        ArgumentValidatorUtils.ensureGreaterThanZero(settings.getCount(), "count");
+        ArgumentValidatorUtils.ensureGreaterThanZero(settings.getCount(), "settings.count");
 
         EventLoopDefaultParams params = EventLoopDefaultParams.builder()
                 .dateTimeSupport(settings.getDateTimeSupport())

@@ -19,8 +19,8 @@ import lombok.Builder;
 import java.util.List;
 import java.util.Map;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public final class SettingsNodeGeneSupport {
     private static final RandomSupportFloat RANDOM_SUPPORT = RandomSupportFloat.createConcurrent();
 

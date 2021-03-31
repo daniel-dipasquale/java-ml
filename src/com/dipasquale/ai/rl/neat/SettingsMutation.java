@@ -8,8 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public final class SettingsMutation {
     @Builder.Default
     private final SettingsFloatNumber addNodeMutationRate = SettingsFloatNumber.literal(0.1f);

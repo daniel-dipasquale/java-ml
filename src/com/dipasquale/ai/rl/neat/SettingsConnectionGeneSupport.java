@@ -11,8 +11,8 @@ import lombok.Getter;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 public final class SettingsConnectionGeneSupport {
     @Builder.Default

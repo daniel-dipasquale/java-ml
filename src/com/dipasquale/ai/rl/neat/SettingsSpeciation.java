@@ -10,8 +10,8 @@ import lombok.Builder;
 
 import java.util.Optional;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public final class SettingsSpeciation {
     private final SettingsIntegerNumber maximumSpecies;
     private final SettingsIntegerNumber maximumGenomes;

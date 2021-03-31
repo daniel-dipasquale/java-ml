@@ -11,8 +11,8 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 public final class SettingsGeneralEvaluatorSupport {
     @Builder.Default
