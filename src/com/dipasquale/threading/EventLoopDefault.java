@@ -3,6 +3,7 @@ package com.dipasquale.threading;
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.ExceptionLogger;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -10,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 final class EventLoopDefault implements EventLoop {
+    @Getter
+    private final String name;
     private final ExclusiveQueue<EventLoopRecord> eventRecords;
     private final DateTimeSupport dateTimeSupport;
     private final ReusableCountDownLatch waitUntilEmptyHandle;
@@ -19,10 +22,11 @@ final class EventLoopDefault implements EventLoop {
     private final AtomicBoolean shutdown;
     private boolean isWaitHandleLocked;
 
-    EventLoopDefault(final ExclusiveQueue<EventLoopRecord> eventRecords, final EventLoopDefaultParams params, final String name, final EventLoop nextEventLoop) {
+    EventLoopDefault(final String name, final ExclusiveQueue<EventLoopRecord> eventRecords, final EventLoopDefaultParams params, final EventLoop nextEventLoop) {
         EventLoop nextEventLoopFixed = Optional.ofNullable(nextEventLoop)
                 .orElse(this);
 
+        this.name = name;
         this.eventRecords = eventRecords;
         this.dateTimeSupport = params.getDateTimeSupport();
         this.isWaitHandleLocked = false;
@@ -91,7 +95,7 @@ final class EventLoopDefault implements EventLoop {
                 }
             } else {
                 try {
-                    eventRecordAudit.polled.getHandler().run();
+                    eventRecordAudit.polled.getHandler().handle(name);
                 } catch (Throwable e) {
                     exceptionLogger.log(e);
                 } finally {
@@ -118,12 +122,12 @@ final class EventLoopDefault implements EventLoop {
     }
 
     @Override
-    public void queue(final Runnable handler, final long delayTime) {
+    public void queue(final EventLoopHandler handler, final long delayTime) {
         queue(new EventLoopRecord(handler, dateTimeSupport.now() + delayTime));
     }
 
     @Override
-    public void queue(final EventLoopHandler handler) {
+    public void queue(final EventLoopQueueableHandler handler) {
         queue(new EventLoopHandlerProxy(handler), handler.getDelayTime());
     }
 
@@ -164,6 +168,11 @@ final class EventLoopDefault implements EventLoop {
         }
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class EventLoopRecordAudit {
         private final EventLoopRecord peeked;
@@ -171,12 +180,12 @@ final class EventLoopDefault implements EventLoop {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class EventLoopHandlerProxy implements Runnable {
-        private final EventLoopHandler handler;
+    private final class EventLoopHandlerProxy implements EventLoopHandler {
+        private final EventLoopQueueableHandler handler;
 
         @Override
-        public void run() {
-            handler.handle();
+        public void handle(final String name) {
+            handler.handle(name);
 
             if (handler.shouldReQueue()) {
                 nextEventLoop.queue(handler);

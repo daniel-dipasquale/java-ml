@@ -2,7 +2,6 @@ package com.dipasquale.threading;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import java.util.concurrent.TimeUnit;
 
@@ -77,6 +76,11 @@ public final class SlidingWaitHandle implements SlidingWaitHandleInternal {
         firstThreadWaitHandle.release();
     }
 
+    @Override
+    public String toString() {
+        return firstThreadWaitHandle.toString();
+    }
+
     @FunctionalInterface
     private interface AwaitHandler {
         static AwaitHandler proxy(final SingleThreadSlidingWaitHandle awaitHandle) {
@@ -138,9 +142,7 @@ public final class SlidingWaitHandle implements SlidingWaitHandleInternal {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    @ToString(onlyExplicitlyIncluded = true)
     private static final class SingleThreadSlidingWaitHandle implements SlidingWaitHandleInternal {
-        @ToString.Include
         private final String name;
         private final ReusableCountDownLatch mainWaitHandle = new ReusableCountDownLatch(0);
         private final ReferenceBox<TimeUnitPair> swapWaitParams = new ReferenceBox<>();
@@ -244,6 +246,11 @@ public final class SlidingWaitHandle implements SlidingWaitHandleInternal {
         @Override
         public void release() {
             ensureUnlocked();
+        }
+
+        @Override
+        public String toString() {
+            return name;
         }
     }
 }

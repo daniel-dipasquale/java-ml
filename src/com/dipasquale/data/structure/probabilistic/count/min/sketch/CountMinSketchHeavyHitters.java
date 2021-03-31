@@ -30,7 +30,7 @@ final class CountMinSketchHeavyHitters<T> implements CountMinSketch<T> {
         CollectRecycledHandler collectRecycledHandler = new CollectRecycledHandler(countMinSketch, expiryDateTime, heavyHittersRankedAggregator.clear());
 
         if (eventLoop != null) {
-            eventLoop.queue(collectRecycledHandler, 0L);
+            eventLoop.queue(n -> collectRecycledHandler.run(), 0L);
         } else {
             collectRecycledHandler.run();
         }

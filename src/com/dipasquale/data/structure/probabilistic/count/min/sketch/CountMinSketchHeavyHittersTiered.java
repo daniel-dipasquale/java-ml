@@ -50,7 +50,7 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
                 CollectHeavyHittersHandler collectHeavyHittersHandler = new CollectHeavyHittersHandler(aggregatedCountMinSketch, expiryDateTime, heavyHittersRankedAggregator.clear());
 
                 if (eventLoop != null) {
-                    eventLoop.queue(collectHeavyHittersHandler, 0L);
+                    eventLoop.queue(n -> collectHeavyHittersHandler.run(), 0L);
                 } else {
                     collectHeavyHittersHandler.run();
                 }

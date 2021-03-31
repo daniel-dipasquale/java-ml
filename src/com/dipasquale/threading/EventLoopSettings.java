@@ -38,11 +38,11 @@ public final class EventLoopSettings {
     private static Map<EventLoopType, EventLoopFactoryProxy> createEventLoopFactoryProxies() {
         Map<EventLoopType, EventLoopFactoryProxy> eventLoopFactories = new EnumMap<>(EventLoopType.class);
 
-        eventLoopFactories.put(EventLoopType.EXPLICIT_DELAY, (params, eventRecordsFactory, name, nextEventLoop) -> {
+        eventLoopFactories.put(EventLoopType.EXPLICIT_DELAY, (name, eventRecordsFactory, params, nextEventLoop) -> {
             Queue<EventLoopRecord> queue = new PriorityQueue<>(Comparator.comparing(EventLoopRecord::getExecutionDateTime));
             ExclusiveQueue<EventLoopRecord> eventRecords = eventRecordsFactory.create(queue);
 
-            return new EventLoopDefault(eventRecords, params, name, nextEventLoop);
+            return new EventLoopDefault(name, eventRecords, params, nextEventLoop);
         });
 
         eventLoopFactories.put(EventLoopType.NO_DELAY, EventLoopNoDelay::new);

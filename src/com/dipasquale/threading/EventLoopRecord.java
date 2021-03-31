@@ -7,6 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 final class EventLoopRecord {
-    private final Runnable handler;
+    private final EventLoopHandler handler;
     private final long executionDateTime;
 }

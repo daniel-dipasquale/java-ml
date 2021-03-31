@@ -2,20 +2,24 @@ package com.dipasquale.threading;
 
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.MultiExceptionHandler;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 final class EventLoopMulti implements EventLoop {
+    @Getter
+    private final String name;
     private final List<EventLoop> eventLoops;
     private final EventLoopSelector eventLoopSelector;
     private final MultiWaitHandle waitUntilEmptyEventLoopsHandle;
     private final MultiExceptionHandler shutdownEventLoopsHandler;
 
-    EventLoopMulti(final EventLoopFactory eventLoopFactory, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
+    EventLoopMulti(final String name, final EventLoopFactory eventLoopFactory, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
         List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, eventLoopSelector.size(), this);
 
+        this.name = name;
         this.eventLoops = eventLoops;
         this.eventLoopSelector = eventLoopSelector;
         this.waitUntilEmptyEventLoopsHandle = MultiWaitHandle.create(dateTimeSupport, a -> !isEmpty(), eventLoops, EventLoop::awaitUntilEmpty, EventLoop::awaitUntilEmpty);
@@ -39,12 +43,12 @@ final class EventLoopMulti implements EventLoop {
     }
 
     @Override
-    public void queue(final Runnable handler, final long delayTime) {
+    public void queue(final EventLoopHandler handler, final long delayTime) {
         getNextEventLoop().queue(handler, delayTime);
     }
 
     @Override
-    public void queue(final EventLoopHandler handler) {
+    public void queue(final EventLoopQueueableHandler handler) {
         getNextEventLoop().queue(handler);
     }
 
@@ -68,5 +72,10 @@ final class EventLoopMulti implements EventLoop {
     @Override
     public void shutdown() {
         shutdownEventLoopsHandler.invokeAllAndThrowAsSuppressedIfAny("unable to shutdown the event loops");
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

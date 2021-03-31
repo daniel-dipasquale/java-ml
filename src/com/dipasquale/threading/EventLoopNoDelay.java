@@ -9,11 +9,16 @@ import java.util.concurrent.TimeUnit;
 final class EventLoopNoDelay implements EventLoop {
     private final EventLoopDefault eventLoop;
 
-    EventLoopNoDelay(final EventLoopDefaultParams params, final EventLoopRecordQueueFactory eventRecordsFactory, final String name, final EventLoop nextEventLoop) {
+    EventLoopNoDelay(final String name, final EventLoopRecordQueueFactory eventRecordsFactory, final EventLoopDefaultParams params, final EventLoop nextEventLoop) {
         Queue<EventLoopRecord> queue = new LinkedList<>();
         ExclusiveQueue<EventLoopRecord> eventRecords = eventRecordsFactory.create(queue);
 
-        this.eventLoop = new EventLoopDefault(eventRecords, params, name, nextEventLoop);
+        this.eventLoop = new EventLoopDefault(name, eventRecords, params, nextEventLoop);
+    }
+
+    @Override
+    public String getName() {
+        return eventLoop.getName();
     }
 
     private static void ensureDelayTimeIsValid(final long delayTime) {
@@ -21,16 +26,16 @@ final class EventLoopNoDelay implements EventLoop {
     }
 
     @Override
-    public void queue(final Runnable handler, final long delayTime) {
+    public void queue(final EventLoopHandler handler, final long delayTime) {
         ensureDelayTimeIsValid(delayTime);
         eventLoop.queue(handler, 0L);
     }
 
     @Override
-    public void queue(final EventLoopHandler handler) {
+    public void queue(final EventLoopQueueableHandler handler) {
         ensureDelayTimeIsValid(handler.getDelayTime());
 
-        eventLoop.queue(new EventLoopHandler() {
+        eventLoop.queue(new EventLoopQueueableHandler() {
             @Override
             public boolean shouldReQueue() {
                 return handler.shouldReQueue();
@@ -44,8 +49,8 @@ final class EventLoopNoDelay implements EventLoop {
             }
 
             @Override
-            public void handle() {
-                handler.handle();
+            public void handle(final String name) {
+                handler.handle(name);
             }
         });
     }
@@ -70,5 +75,10 @@ final class EventLoopNoDelay implements EventLoop {
     @Override
     public void shutdown() {
         eventLoop.shutdown();
+    }
+
+    @Override
+    public String toString() {
+        return eventLoop.toString();
     }
 }

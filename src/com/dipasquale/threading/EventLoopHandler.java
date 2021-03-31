@@ -1,9 +1,6 @@
 package com.dipasquale.threading;
 
+@FunctionalInterface
 public interface EventLoopHandler {
-    boolean shouldReQueue();
-
-    long getDelayTime();
-
-    void handle();
+    void handle(String name);
 }

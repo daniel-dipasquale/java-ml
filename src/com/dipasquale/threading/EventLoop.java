@@ -6,9 +6,11 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public interface EventLoop {
-    void queue(Runnable handler, long delayTime);
+    String getName();
 
-    void queue(EventLoopHandler handler);
+    void queue(EventLoopHandler handler, long delayTime);
+
+    void queue(EventLoopQueueableHandler handler);
 
     boolean isEmpty();
 
@@ -33,13 +35,14 @@ public interface EventLoop {
                 .build();
 
         if (settings.getCount() == 1) {
-            return settings.getFactoryProxy().create(params, settings.getEventRecordsFactory(), settings.getName(), null);
+            return settings.getFactoryProxy().create(settings.getName(), settings.getEventRecordsFactory(), params, null);
         }
 
+        String name = String.format("%s-multi", settings.getName());
         int[] index = new int[1];
-        EventLoopFactory eventLoopFactory = nel -> settings.getFactoryProxy().create(params, settings.getEventRecordsFactory(), String.format("%s-%d", settings.getName(), ++index[0]), nel);
+        EventLoopFactory eventLoopFactory = nel -> settings.getFactoryProxy().create(String.format("%s-%d", settings.getName(), ++index[0]), settings.getEventRecordsFactory(), params, nel);
         EventLoopSelector eventLoopSelector = getOrCreateEventLoopSelector(settings);
 
-        return new EventLoopMulti(eventLoopFactory, eventLoopSelector, settings.getDateTimeSupport());
+        return new EventLoopMulti(name, eventLoopFactory, eventLoopSelector, settings.getDateTimeSupport());
     }
 }
