@@ -136,7 +136,7 @@ final class EventLoopDefault implements EventLoop {
         eventRecords.lock();
 
         try {
-            return eventRecords.isEmpty();
+            return !isWaitUntilEmptyHandleLocked;
         } finally {
             eventRecords.unlock();
         }

@@ -45,4 +45,8 @@ public interface EventLoop {
 
         return new EventLoopMulti(name, eventLoopFactory, eventLoopSelector, settings.getDateTimeSupport());
     }
+
+    static EventLoopStream createStream(final EventLoopStreamSettings settings) {
+        return new EventLoopStream(settings);
+    }
 }
