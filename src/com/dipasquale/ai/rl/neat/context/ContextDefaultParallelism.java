@@ -32,6 +32,11 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
         parallelism.waitUntilDone();
     }
 
+    @Override
+    public void shutdown() {
+        parallelism.shutdown();
+    }
+
     public static final class SingleThread implements Context.Parallelism {
         @Override
         public boolean isEnabled() {
@@ -50,6 +55,10 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
 
         @Override
         public void waitUntilDone() {
+        }
+
+        @Override
+        public void shutdown() {
         }
     }
 
@@ -104,6 +113,11 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
                     failButAddAsSuppressedAllUncaughtExceptions(e);
                 }
             }
+        }
+
+        @Override
+        public void shutdown() {
+            eventLoopStream.shutdown();
         }
     }
 }

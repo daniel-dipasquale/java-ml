@@ -33,30 +33,13 @@ public final class Population {
     public Population(final Context context, final OrganismActivator mostFitOrganismActivator) {
         Set<Organism> organismsWithoutSpecies = createOrganisms(context, this);
 
-        List<SpeciesFitnessStrategy> speciesFitnessStrategies = ImmutableList.<SpeciesFitnessStrategy>builder()
-                .add(new SpeciesFitnessStrategyDefault())
-                .build();
-
-        List<SpeciesEvolutionStrategy> speciesEvolutionStrategies = ImmutableList.<SpeciesEvolutionStrategy>builder()
-                .add(new SpeciesEvolutionStrategyRemoveLeastFit())
-                .add(new SpeciesEvolutionStrategyTotalSharedFitness())
-                .add(new SpeciesEvolutionStrategySelectMostElites(organismsWithoutSpecies))
-                .add(new SpeciesEvolutionStrategySelectMostElite(organismsWithoutSpecies, mostFitOrganismActivator))
-                .build();
-
-        List<SpeciesBreedStrategy> speciesBreedStrategies = ImmutableList.<SpeciesBreedStrategy>builder()
-                .add(new SpeciesBreedStrategyInterSpecies(context, organismsWithoutSpecies))
-                .add(new SpeciesBreedStrategyCrossSpecies(context, organismsWithoutSpecies))
-                .add(new SpeciesBreedStrategyGenesis(organismsWithoutSpecies))
-                .build();
-
         mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.iterator().next());
         this.context = context;
         this.organismsWithoutSpecies = organismsWithoutSpecies;
         this.allSpecies = new SimpleNodeDeque<>();
-        this.speciesFitnessStrategies = speciesFitnessStrategies;
-        this.speciesEvolutionStrategies = speciesEvolutionStrategies;
-        this.speciesBreedStrategies = speciesBreedStrategies;
+        this.speciesFitnessStrategies = createSpeciesFitnessStrategies(context);
+        this.speciesEvolutionStrategies = createSpeciesEvolutionStrategies(organismsWithoutSpecies, mostFitOrganismActivator);
+        this.speciesBreedStrategies = createSpeciesBreedStrategies(context, organismsWithoutSpecies);
         this.generation = 1;
     }
 
@@ -69,6 +52,36 @@ public final class Population {
                 .forEach(organismsWithoutSpecies::add);
 
         return organismsWithoutSpecies;
+    }
+
+    private static List<SpeciesFitnessStrategy> createSpeciesFitnessStrategies(final Context context) {
+        if (!context.parallelism().isEnabled()) {
+            return ImmutableList.<SpeciesFitnessStrategy>builder()
+                    .add(new SpeciesFitnessStrategyDefault())
+                    .build();
+        }
+
+        return ImmutableList.<SpeciesFitnessStrategy>builder()
+                .add(new SpeciesFitnessStrategyUpdateOrganisms(context))
+                .add(new SpeciesFitnessStrategyUpdateSpecies())
+                .build();
+    }
+
+    private static List<SpeciesEvolutionStrategy> createSpeciesEvolutionStrategies(final Set<Organism> organismsWithoutSpecies, final OrganismActivator mostFitOrganismActivator) {
+        return ImmutableList.<SpeciesEvolutionStrategy>builder()
+                .add(new SpeciesEvolutionStrategyRemoveLeastFit())
+                .add(new SpeciesEvolutionStrategyTotalSharedFitness())
+                .add(new SpeciesEvolutionStrategySelectMostElites(organismsWithoutSpecies))
+                .add(new SpeciesEvolutionStrategySelectMostElite(organismsWithoutSpecies, mostFitOrganismActivator))
+                .build();
+    }
+
+    private static List<SpeciesBreedStrategy> createSpeciesBreedStrategies(final Context context, final Set<Organism> organismsWithoutSpecies) {
+        return ImmutableList.<SpeciesBreedStrategy>builder()
+                .add(new SpeciesBreedStrategyInterSpecies(context, organismsWithoutSpecies))
+                .add(new SpeciesBreedStrategyCrossSpecies(context, organismsWithoutSpecies))
+                .add(new SpeciesBreedStrategyGenesis(organismsWithoutSpecies))
+                .build();
     }
 
     private Species createSpecies(final Organism organism) {

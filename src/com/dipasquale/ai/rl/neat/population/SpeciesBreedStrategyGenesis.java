@@ -17,7 +17,7 @@ final class SpeciesBreedStrategyGenesis implements SpeciesBreedStrategy {
         for (Species species : speciesList) {
             species.restart();
 
-            if (organismsWithoutSpecies.remove(species.getRepresentative())) { // TODO: figure out how this should work
+            if (organismsWithoutSpecies.remove(species.getRepresentative())) { // TODO: figure out a better way of doing this
                 Organism organismNew = species.getRepresentative().createCopy();
 
                 organismNew.mutate();

@@ -6,12 +6,14 @@ import com.dipasquale.ai.rl.neat.population.OrganismActivatorSynchronized;
 import com.dipasquale.ai.rl.neat.population.Population;
 
 final class NeatEvaluatorSynchronized implements NeatEvaluator {
+    private final Context context;
     private final Population population;
     private final OrganismActivator mostFitOrganismActivator;
 
     NeatEvaluatorSynchronized(final Context context) {
         OrganismActivator mostFitOrganismActivator = new OrganismActivatorSynchronized();
 
+        this.context = context;
         this.population = new Population(context, mostFitOrganismActivator);
         this.mostFitOrganismActivator = mostFitOrganismActivator;
     }
@@ -52,5 +54,10 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
     @Override
     public float[] activate(final float[] input) {
         return mostFitOrganismActivator.activate(input);
+    }
+
+    @Override
+    public void shutdown() {
+        context.parallelism().shutdown();
     }
 }

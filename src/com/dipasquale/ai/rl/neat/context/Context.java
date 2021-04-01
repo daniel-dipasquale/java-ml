@@ -125,6 +125,8 @@ public interface Context {
         <T> void foreach(Stream<T> stream, Consumer<T> action);
 
         void waitUntilDone() throws InterruptedException;
+
+        void shutdown();
     }
 
     interface Mutation {

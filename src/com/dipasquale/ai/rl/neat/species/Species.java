@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.genotype.Organism;
 
 import java.util.List;
 
-public interface Species {
+public interface Species { // TODO: this interface might not be needed, merge it back to the class if that's the case
     String getId();
 
     Organism getRepresentative();
