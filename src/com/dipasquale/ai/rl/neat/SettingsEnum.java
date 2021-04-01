@@ -18,11 +18,13 @@ public final class SettingsEnum<T extends Enum<T>> {
         List<T> values = Lists.newArrayList(constants);
         int size = values.size();
 
-        return new SettingsEnum<>(() -> {
-            int index = RandomConstants.UNIFORM.next(0, size);
+        Supplier<T> supplier = () -> {
+            int index = SettingsConstants.RANDOM_SUPPORT_UNIFORM.next(0, size);
 
             return values.get(index);
-        });
+        };
+
+        return new SettingsEnum<>(supplier);
     }
 
     public static <T extends Enum<T>> SettingsEnum<T> random(final Class<T> type) {

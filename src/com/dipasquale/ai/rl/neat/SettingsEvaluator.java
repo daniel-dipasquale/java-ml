@@ -9,6 +9,7 @@ import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultMutation;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultNeuralNetworkSupport;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultNodeGeneSupport;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelism;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultRandom;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultSpeciation;
 import lombok.AccessLevel;
@@ -37,6 +38,10 @@ public final class SettingsEvaluator {
             .build();
 
     @Builder.Default
+    private final SettingsParallelism parallelism = SettingsParallelism.builder()
+            .build();
+
+    @Builder.Default
     private final SettingsMutation mutation = SettingsMutation.builder()
             .build();
 
@@ -51,13 +56,14 @@ public final class SettingsEvaluator {
     Context createContext() {
         ContextDefaultComponentFactory<ContextDefaultGeneralSupport> generalFactory = general.createFactory();
         ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> nodesFactory = nodes.createFactory(general.getGenomeFactory());
-        ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory = connections.createFactory(neuralNetwork);
+        ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory = connections.createFactory(neuralNetwork, parallelism);
         ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory = neuralNetwork.createFactory();
         ContextDefaultComponentFactory<ContextDefaultRandom> randomFactory = random.createFactory();
+        ContextDefaultComponentFactory<ContextDefaultParallelism> parallelismFactory = parallelism.createFactory();
         ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory = mutation.createFactory(random.isLessThanRandomSupport);
         ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory = crossOver.createFactory(random.isLessThanRandomSupport);
         ContextDefaultComponentFactory<ContextDefaultSpeciation> speciationFactory = speciation.createFactory(general);
 
-        return new ContextDefault(generalFactory, nodesFactory, connectionsFactory, neuralNetworkFactory, randomFactory, mutationFactory, crossOverFactory, speciationFactory);
+        return new ContextDefault(generalFactory, nodesFactory, connectionsFactory, neuralNetworkFactory, randomFactory, parallelismFactory, mutationFactory, crossOverFactory, speciationFactory);
     }
 }

@@ -13,6 +13,8 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public interface Context {
     GeneralSupport general();
@@ -22,6 +24,8 @@ public interface Context {
     ConnectionGeneSupport connections();
 
     NeuralNetworkSupport neuralNetwork();
+
+    Parallelism parallelism();
 
     Random random();
 
@@ -111,6 +115,16 @@ public interface Context {
         }
 
         boolean isLessThan(float rate);
+    }
+
+    interface Parallelism {
+        boolean isEnabled();
+
+        int numberOfThreads();
+
+        <T> void foreach(Stream<T> stream, Consumer<T> action);
+
+        void waitUntilDone() throws InterruptedException;
     }
 
     interface Mutation {

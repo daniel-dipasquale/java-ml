@@ -23,6 +23,7 @@ public final class Population {
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
     private final NodeDeque<Species, SimpleNode<Species>> allSpecies;
+    private final List<SpeciesFitnessStrategy> speciesFitnessStrategies;
     private final List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
     private final List<SpeciesBreedStrategy> speciesBreedStrategies;
     private SpeciesBreedContext speciesBreedContext;
@@ -31,6 +32,10 @@ public final class Population {
 
     public Population(final Context context, final OrganismActivator mostFitOrganismActivator) {
         Set<Organism> organismsWithoutSpecies = createOrganisms(context, this);
+
+        List<SpeciesFitnessStrategy> speciesFitnessStrategies = ImmutableList.<SpeciesFitnessStrategy>builder()
+                .add(new SpeciesFitnessStrategyDefault())
+                .build();
 
         List<SpeciesEvolutionStrategy> speciesEvolutionStrategies = ImmutableList.<SpeciesEvolutionStrategy>builder()
                 .add(new SpeciesEvolutionStrategyRemoveLeastFit())
@@ -49,6 +54,7 @@ public final class Population {
         this.context = context;
         this.organismsWithoutSpecies = organismsWithoutSpecies;
         this.allSpecies = new SimpleNodeDeque<>();
+        this.speciesFitnessStrategies = speciesFitnessStrategies;
         this.speciesEvolutionStrategies = speciesEvolutionStrategies;
         this.speciesBreedStrategies = speciesBreedStrategies;
         this.generation = 1;
@@ -102,8 +108,8 @@ public final class Population {
     }
 
     private void updateFitnessInAllSpecies() {
-        for (SimpleNode<Species> speciesNode : allSpecies) {
-            allSpecies.getValue(speciesNode).updateFitness();
+        for (SpeciesFitnessStrategy speciesFitnessStrategy : speciesFitnessStrategies) {
+            speciesFitnessStrategy.process(allSpecies);
         }
     }
 

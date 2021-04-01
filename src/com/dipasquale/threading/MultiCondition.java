@@ -1,6 +1,5 @@
 package com.dipasquale.threading;
 
-import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.MultiExceptionHandler;
 
 import javax.measure.converter.UnitConverter;
@@ -11,16 +10,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
 final class MultiCondition implements Condition {
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createNanoseconds();
-    private static final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(DATE_TIME_SUPPORT.unit());
-    private static final TimeUnit NS_TIME_UNIT = DATE_TIME_SUPPORT.timeUnit();
+    private static final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(ThreadingConstants.DATE_TIME_SUPPORT_NANOSECONDS.unit());
+    private static final TimeUnit NS_TIME_UNIT = ThreadingConstants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit();
     private final List<Condition> conditions;
     private final MultiWaitHandle waitConditionsHandle;
     private final MultiExceptionHandler awaitConditionsHandler;
 
     MultiCondition(final List<Condition> conditions) {
         this.conditions = conditions;
-        this.waitConditionsHandle = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, conditions, null, Condition::await);
+        this.waitConditionsHandle = MultiWaitHandle.createSinglePass(ThreadingConstants.DATE_TIME_SUPPORT_NANOSECONDS, conditions, null, Condition::await);
         this.awaitConditionsHandler = MultiExceptionHandler.create(conditions, Condition::await);
     }
 
@@ -38,11 +36,11 @@ final class MultiCondition implements Condition {
     @Override
     public long awaitNanos(final long nanosTimeout)
             throws InterruptedException {
-        long startDateTime = DATE_TIME_SUPPORT.now();
+        long startDateTime = ThreadingConstants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
         waitConditionsHandle.await(nanosTimeout, NS_TIME_UNIT);
 
-        return nanosTimeout - DATE_TIME_SUPPORT.now() + startDateTime;
+        return nanosTimeout - ThreadingConstants.DATE_TIME_SUPPORT_NANOSECONDS.now() + startDateTime;
     }
 
     @Override
@@ -55,7 +53,7 @@ final class MultiCondition implements Condition {
     public boolean awaitUntil(final Date deadline)
             throws InterruptedException {
         long deadlineDateTime = (long) FROM_MS_TO_NS_UNIT_CONVERTER.convert((double) deadline.getTime());
-        long currentDateTime = DATE_TIME_SUPPORT.now();
+        long currentDateTime = ThreadingConstants.DATE_TIME_SUPPORT_NANOSECONDS.now();
         long time = Math.max(deadlineDateTime - currentDateTime, 0L);
 
         return waitConditionsHandle.await(time, NS_TIME_UNIT);

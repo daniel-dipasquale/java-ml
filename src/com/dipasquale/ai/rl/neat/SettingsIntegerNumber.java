@@ -12,11 +12,11 @@ public final class SettingsIntegerNumber {
     }
 
     public static SettingsIntegerNumber random(final int min, final int max) {
-        return new SettingsIntegerNumber(() -> RandomConstants.UNIFORM_CONCURRENT.next(min, max));
+        return new SettingsIntegerNumber(() -> SettingsConstants.RANDOM_SUPPORT_UNIFORM.next(min, max));
     }
 
     public static SettingsIntegerNumber randomMeanDistribution(final int min, final int max) {
-        return new SettingsIntegerNumber(() -> RandomConstants.MEAN_DISTRIBUTED_CONCURRENT.next(min, max));
+        return new SettingsIntegerNumber(() -> SettingsConstants.RANDOM_SUPPORT_MEAN_DISTRIBUTED.next(min, max));
     }
 
     int get() {

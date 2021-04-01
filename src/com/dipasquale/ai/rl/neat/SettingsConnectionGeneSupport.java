@@ -4,11 +4,15 @@ import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultConnectionGeneSupport;
+import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
+import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -22,12 +26,17 @@ public final class SettingsConnectionGeneSupport {
     @Builder.Default
     private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.randomMeanDistribution(0f, 1f);
 
-    ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory(final SettingsNeuralNetworkSupport neuralNetwork) {
+    ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory(final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
         return context -> {
             boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
             SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
+            int numberOfThreads = parallelism.getNumberOfThreads();
 
-            return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, sequentialIdFactory, new ConcurrentHashMap<>(), weightFactory::get, w -> weightPerturber.get() * w);
+            Map<DirectedEdge, InnovationId> innovationIds = numberOfThreads == 1
+                    ? new HashMap<>()
+                    : new ConcurrentHashMap<>(16, 0.75f, numberOfThreads);
+
+            return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, sequentialIdFactory, innovationIds, weightFactory::get, w -> weightPerturber.get() * w);
         };
     }
 }

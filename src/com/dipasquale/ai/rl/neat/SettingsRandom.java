@@ -11,9 +11,9 @@ import lombok.Builder;
 @Builder
 public final class SettingsRandom {
     @Builder.Default
-    private final RandomSupportFloat nextIndexRandomSupport = RandomConstants.UNIFORM_CONCURRENT;
+    private final RandomSupportFloat nextIndexRandomSupport = SettingsConstants.RANDOM_SUPPORT_UNIFORM;
     @Builder.Default
-    final RandomSupportFloat isLessThanRandomSupport = RandomConstants.UNIFORM_CONCURRENT;
+    final RandomSupportFloat isLessThanRandomSupport = SettingsConstants.RANDOM_SUPPORT_UNIFORM;
 
     ContextDefaultComponentFactory<ContextDefaultRandom> createFactory() {
         return context -> new ContextDefaultRandom(nextIndexRandomSupport, isLessThanRandomSupport);

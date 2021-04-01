@@ -6,6 +6,7 @@ public final class ContextDefault implements Context {
     private final ContextDefaultConnectionGeneSupport connections;
     private final ContextDefaultNeuralNetworkSupport neuralNetwork;
     private final ContextDefaultRandom random;
+    private final ContextDefaultParallelism parallelism;
     private final ContextDefaultMutation mutation;
     private final ContextDefaultCrossOver crossOver;
     private final ContextDefaultSpeciation speciation;
@@ -15,6 +16,7 @@ public final class ContextDefault implements Context {
                           final ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory,
                           final ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory,
                           final ContextDefaultComponentFactory<ContextDefaultRandom> randomFactory,
+                          final ContextDefaultComponentFactory<ContextDefaultParallelism> parallelismFactory,
                           final ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory,
                           final ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory,
                           final ContextDefaultComponentFactory<ContextDefaultSpeciation> speciationFactory) {
@@ -23,6 +25,7 @@ public final class ContextDefault implements Context {
         this.connections = connectionsFactory.create(this);
         this.neuralNetwork = neuralNetworkFactory.create(this);
         this.random = randomFactory.create(this);
+        this.parallelism = parallelismFactory.create(this);
         this.mutation = mutationFactory.create(this);
         this.crossOver = crossOverFactory.create(this);
         this.speciation = speciationFactory.create(this);
@@ -51,6 +54,11 @@ public final class ContextDefault implements Context {
     @Override
     public Random random() {
         return random;
+    }
+
+    @Override
+    public Parallelism parallelism() {
+        return parallelism;
     }
 
     @Override

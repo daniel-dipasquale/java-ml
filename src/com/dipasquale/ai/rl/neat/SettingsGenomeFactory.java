@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Getter
+@Getter(AccessLevel.PACKAGE)
 public final class SettingsGenomeFactory {
     private final SettingsIntegerNumber inputs;
     @Builder.Default

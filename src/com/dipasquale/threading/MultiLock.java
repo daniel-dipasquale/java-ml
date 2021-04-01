@@ -1,6 +1,5 @@
 package com.dipasquale.threading;
 
-import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.MultiExceptionHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class MultiLock implements Lock {
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createNanoseconds();
     private final List<ComparableLock> locks;
     private final MultiWaitHandle waitWhileTryLockAllLocksHandle;
     private final MultiExceptionHandler lockInterruptiblyAllLocksHandler;
@@ -26,7 +24,7 @@ final class MultiLock implements Lock {
                 .sorted()
                 .collect(Collectors.toList());
 
-        MultiWaitHandle locksTryLock = MultiWaitHandle.createSinglePass(DATE_TIME_SUPPORT, sortedLocks, null, Lock::tryLock);
+        MultiWaitHandle locksTryLock = MultiWaitHandle.createSinglePass(ThreadingConstants.DATE_TIME_SUPPORT_NANOSECONDS, sortedLocks, null, Lock::tryLock);
         MultiExceptionHandler locksLockInterruptiblyExceptionHandler = MultiExceptionHandler.create(sortedLocks, ComparableLock::lockInterruptibly);
         Object sync = new Object();
 

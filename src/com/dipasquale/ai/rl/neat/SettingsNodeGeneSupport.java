@@ -8,7 +8,6 @@ import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultNodeGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.RandomSupportFloat;
 import com.dipasquale.concurrent.AtomicLoopSelector;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -22,8 +21,6 @@ import java.util.Map;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public final class SettingsNodeGeneSupport {
-    private static final RandomSupportFloat RANDOM_SUPPORT = RandomSupportFloat.createConcurrent();
-
     private static final Map<SettingsActivationFunction, ActivationFunction> ACTIVATION_FUNCTIONS_MAP = ImmutableMap.<SettingsActivationFunction, ActivationFunction>builder()
             .put(SettingsActivationFunction.IDENTITY, ActivationFunction.IDENTITY)
             .put(SettingsActivationFunction.RE_LU, ActivationFunction.RE_LU)
@@ -46,7 +43,7 @@ public final class SettingsNodeGeneSupport {
 
     private static ActivationFunction getActivationFunction(final SettingsActivationFunction activationFunction) {
         if (activationFunction == SettingsActivationFunction.RANDOM) {
-            int index = RANDOM_SUPPORT.next(0, ACTIVATION_FUNCTIONS.size());
+            int index = SettingsConstants.RANDOM_SUPPORT_UNIFORM.next(0, ACTIVATION_FUNCTIONS.size());
 
             return ACTIVATION_FUNCTIONS.get(index);
         }
@@ -58,7 +55,7 @@ public final class SettingsNodeGeneSupport {
         SettingsActivationFunction activationFunctionFixed = activationFunction.get();
 
         if (activationFunctionFixed == SettingsActivationFunction.RANDOM) {
-            int index = RANDOM_SUPPORT.next(0, ACTIVATION_FUNCTIONS.size());
+            int index = SettingsConstants.RANDOM_SUPPORT_UNIFORM.next(0, ACTIVATION_FUNCTIONS.size());
 
             return ACTIVATION_FUNCTIONS.get(index);
         }

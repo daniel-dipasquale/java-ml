@@ -12,11 +12,11 @@ public final class SettingsFloatNumber {
     }
 
     public static SettingsFloatNumber random(final float min, final float max) {
-        return new SettingsFloatNumber(() -> RandomConstants.UNIFORM_CONCURRENT.next(min, max));
+        return new SettingsFloatNumber(() -> SettingsConstants.RANDOM_SUPPORT_UNIFORM.next(min, max));
     }
 
     public static SettingsFloatNumber randomMeanDistribution(final float min, final float max) {
-        return new SettingsFloatNumber(() -> RandomConstants.MEAN_DISTRIBUTED_CONCURRENT.next(min, max));
+        return new SettingsFloatNumber(() -> SettingsConstants.RANDOM_SUPPORT_MEAN_DISTRIBUTED.next(min, max));
     }
 
     public static SettingsFloatNumber strategy(final Supplier supplier) {
