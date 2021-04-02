@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class Population { // TODO: still have a problem with population flactuating
+public final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
@@ -153,13 +153,13 @@ public final class Population { // TODO: still have a problem with population fl
         updateFitnessInAllSpecies();
     }
 
-    private void prepareAllSpeciesForEvolution(final SpeciesEvolutionContext context) {
+    private void prepareAllSpeciesForEvolution(final SpeciesEvolutionContext evolutionContext) {
         for (SimpleNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
             Species species = speciesNodes.getValue(speciesNode);
             boolean shouldSurvive = speciesNodes.size() <= 2 || species.shouldSurvive();
 
             for (SpeciesEvolutionStrategy speciesEvolutionStrategy : speciesEvolutionStrategies) {
-                speciesEvolutionStrategy.process(context, species, shouldSurvive);
+                speciesEvolutionStrategy.process(evolutionContext, species, shouldSurvive);
             }
 
             if (!shouldSurvive) {
@@ -173,15 +173,15 @@ public final class Population { // TODO: still have a problem with population fl
         }
 
         for (SpeciesEvolutionStrategy speciesEvolutionStrategy : speciesEvolutionStrategies) {
-            speciesEvolutionStrategy.postProcess(context);
+            speciesEvolutionStrategy.postProcess(evolutionContext);
         }
     }
 
-    private void breedThroughAllSpecies(final SpeciesEvolutionContext context) {
+    private void breedThroughAllSpecies(final SpeciesEvolutionContext evolutionContext) {
         if (speciesBreedContext == null) {
-            speciesBreedContext = new SpeciesBreedContext(context);
+            speciesBreedContext = new SpeciesBreedContext(evolutionContext);
         } else {
-            speciesBreedContext = new SpeciesBreedContext(context, speciesBreedContext.getInterSpeciesBreedingLeftOverRatio());
+            speciesBreedContext = new SpeciesBreedContext(evolutionContext, speciesBreedContext.getInterSpeciesBreedingLeftOverRatio());
         }
 
         List<Species> speciesList = speciesNodes.stream()
@@ -195,10 +195,10 @@ public final class Population { // TODO: still have a problem with population fl
     }
 
     public void evolve() {
-        SpeciesEvolutionContext context = new SpeciesEvolutionContext();
+        SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
 
-        prepareAllSpeciesForEvolution(context);
-        breedThroughAllSpecies(context);
+        prepareAllSpeciesForEvolution(evolutionContext);
+        breedThroughAllSpecies(evolutionContext);
         generation++;
     }
 

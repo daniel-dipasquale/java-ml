@@ -13,8 +13,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,7 +39,7 @@ public final class NeatEvaluatorTest {
 
         EnvironmentContainer environmentContainer = EnvironmentContainer.builder()
                 .populationSize(populationSize)
-                .genomeIds(new HashSet<>())
+                .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
                     float temporary = 0f;
 
@@ -151,9 +153,9 @@ public final class NeatEvaluatorTest {
             neat.shutdown();
         }
 
-        System.out.printf("=====================%n");
-        System.out.printf("XOR:%n");
-        System.out.printf("=====================%n");
+        System.out.printf("=========================================%n");
+        System.out.printf("XOR (%s):%n", shouldUseParallelism ? "parallel" : "single");
+        System.out.printf("=========================================%n");
         System.out.printf("generation: %d%n", neat.getGeneration());
         System.out.printf("species: %d%n", neat.getSpeciesCount());
         System.out.printf("fitness: %f%n", neat.getMaximumFitness());
@@ -186,7 +188,7 @@ public final class NeatEvaluatorTest {
 
         EnvironmentContainer environmentContainer = EnvironmentContainer.builder()
                 .populationSize(populationSize)
-                .genomeIds(new HashSet<>())
+                .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
                     float minimumTimeSpent = Float.MAX_VALUE;
 
@@ -313,9 +315,9 @@ public final class NeatEvaluatorTest {
             neat.shutdown();
         }
 
-        System.out.printf("=====================%n");
-        System.out.printf("Single Pole Balancing%n");
-        System.out.printf("=====================%n");
+        System.out.printf("=========================================%n");
+        System.out.printf("Single Pole Balancing (%s)%n", shouldUseParallelism ? "parallel" : "single");
+        System.out.printf("=========================================%n");
         System.out.printf("generation: %d%n", neat.getGeneration());
         System.out.printf("species: %d%n", neat.getSpeciesCount());
         System.out.printf("fitness: %f%n", neat.getMaximumFitness());
@@ -334,11 +336,19 @@ public final class NeatEvaluatorTest {
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
-    @Builder(access = AccessLevel.PRIVATE)
     private static final class EnvironmentContainer implements Environment {
         private final int populationSize;
         private final Set<String> genomeIds;
         private final Environment environment;
+
+        @Builder(access = AccessLevel.PRIVATE)
+        public static EnvironmentContainer create(final int populationSize, final boolean shouldUseParallelism, final Environment environment) {
+            Set<String> genomeIds = !shouldUseParallelism
+                    ? new HashSet<>()
+                    : Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+            return new EnvironmentContainer(populationSize, genomeIds, environment);
+        }
 
         @Override
         public float test(final Genome genome) {

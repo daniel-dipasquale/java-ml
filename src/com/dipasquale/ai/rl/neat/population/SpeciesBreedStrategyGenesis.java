@@ -19,7 +19,9 @@ final class SpeciesBreedStrategyGenesis implements SpeciesBreedStrategy {
     @Override
     public void process(final SpeciesBreedContext breedContext, final List<Species> speciesList) {
         for (Species species : speciesList) {
-            species.restart().forEach(Organism::kill);
+            species.restart().stream()
+                    .filter(o -> !organismsWithoutSpecies.contains(o))
+                    .forEach(Organism::kill);
 
             if (organismsWithoutSpecies.remove(species.getRepresentative())) { // TODO: figure out a better way of doing this
                 organismsToBirth.add(new OrganismFactoryMutation(species.getRepresentative()));

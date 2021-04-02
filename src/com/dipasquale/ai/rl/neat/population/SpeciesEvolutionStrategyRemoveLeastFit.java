@@ -10,10 +10,10 @@ final class SpeciesEvolutionStrategyRemoveLeastFit implements SpeciesEvolutionSt
     @Override
     public void process(final SpeciesEvolutionContext evolutionContext, final Species species, boolean speciesSurvives) {
         if (!speciesSurvives) {
-            return;
+            species.getOrganisms().forEach(Organism::kill);
+        } else {
+            species.removeUnfitToReproduce().forEach(Organism::kill);
         }
-
-        species.removeUnfitToReproduce().forEach(Organism::kill);
     }
 
     @Override
