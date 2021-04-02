@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SpeciesBreedStrategyCrossSpecies implements SpeciesBreedStrategy {
+final class SpeciesBreedStrategyWithinSpecies implements SpeciesBreedStrategy {
     private final Context neatContext;
     private final Set<Organism> organismsWithoutSpecies;
 

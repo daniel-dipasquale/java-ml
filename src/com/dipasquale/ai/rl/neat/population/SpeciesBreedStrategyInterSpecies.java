@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.population;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.species.Species;
+import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -11,26 +12,25 @@ import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SpeciesBreedStrategyInterSpecies implements SpeciesBreedStrategy {
-    private final Context neatContext;
+    private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
 
     @Override
-    public void process(final SpeciesBreedContext context, final List<Species> speciesList) {
-        if (speciesList.size() <= 1) {
-            return;
-        }
-
-        float organismsNeeded = (float) (neatContext.general().populationSize() - speciesList.size() - organismsWithoutSpecies.size());
-        float organismsToReproduce = organismsNeeded * neatContext.speciation().interSpeciesMatingRate() + context.getInterSpeciesBreedingLeftOverRatio();
+    public void process(final SpeciesBreedContext breedContext, final List<Species> speciesList) {
+        int size = speciesList.size();
+        float organismsNeeded = (float) (context.general().populationSize() - size - organismsWithoutSpecies.size());
+        float organismsToReproduce = organismsNeeded * context.speciation().interSpeciesMatingRate() + breedContext.getInterSpeciesBreedingLeftOverRatio();
         int organismsToReproduceFixed = (int) Math.floor(organismsToReproduce);
 
-        context.setInterSpeciesBreedingLeftOverRatio(organismsToReproduce - (float) organismsToReproduceFixed); // TODO: revisit this algorithm
+        breedContext.setInterSpeciesBreedingLeftOverRatio(organismsToReproduce - (float) organismsToReproduceFixed); // TODO: revisit this algorithm
 
-        for (int i = 0; i < organismsToReproduceFixed; i++) {
-            Species species1 = neatContext.random().nextItem(speciesList);
-            Species species2 = neatContext.random().nextItem(speciesList);
+        if (size >= 2) {
+            for (int i = 0; i < organismsToReproduceFixed; i++) {
+                Pair<Species> speciesPair = context.random().nextUniquePair(speciesList);
+                Organism organism = speciesPair.getItem1().reproduceOutcast(speciesPair.getItem2());
 
-            organismsWithoutSpecies.add(species1.reproduceOutcast(species2));
+                organismsWithoutSpecies.add(organism);
+            }
         }
     }
 }

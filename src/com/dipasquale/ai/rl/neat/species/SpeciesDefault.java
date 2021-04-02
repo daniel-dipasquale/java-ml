@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.species;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.population.Population;
+import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import lombok.Getter;
@@ -152,27 +153,15 @@ public final class SpeciesDefault implements Species {
             boolean shouldMutate = shouldMateAndMutate || !shouldMate && context.crossOver().shouldMutateOnly();
 
             if (size > 1 && shouldMate) {
-                Organism organism1;
-                Organism organism2;
+                Pair<Organism> organismPair = context.random().nextUniquePair(organisms);
+                Organism organismNew = organismPair.getItem1().mate(organismPair.getItem2());
 
-                if (size == 2) {
-                    organism1 = organisms.get(0);
-                    organism2 = organisms.get(1);
-                } else {
-                    organism1 = context.random().nextItem(organisms);
-                    organism2 = context.random().nextItem(organisms);
+                if (shouldMutate) {
+                    organismNew.mutate();
                 }
 
-                if (organism1 != organism2) {
-                    Organism organismNew = organism1.mate(organism2);
-
-                    if (shouldMutate) {
-                        organismNew.mutate();
-                    }
-
-                    organismNew.freeze();
-                    organismsAdded.add(organismNew);
-                }
+                organismNew.freeze();
+                organismsAdded.add(organismNew);
             }
 
             if (organismsAdded.size() <= i) {
@@ -231,9 +220,11 @@ public final class SpeciesDefault implements Species {
 
     @Override
     public List<Organism> restart() {
+        int index = context.random().nextIndex(organisms.size());
+        Organism representativeOrganismNew = organisms.get(index);
         List<Organism> organismsOld = organisms;
-        Organism representativeOrganismNew = context.random().nextItem(organisms);
 
+        organisms.remove(index);
         representativeOrganism = representativeOrganismNew;
         setOrganisms(Lists.newArrayList(representativeOrganismNew));
         isOrganismsSorted = true;

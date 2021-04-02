@@ -20,7 +20,7 @@ final class SpeciesFitnessStrategyUpdateOrganisms implements SpeciesFitnessStrat
                 .map(species::getValue)
                 .flatMap(s -> s.getOrganisms().stream());
 
-        context.parallelism().foreach(organisms, Organism::updateFitness);
+        context.parallelism().forEach(organisms, Organism::updateFitness);
 
         try {
             context.parallelism().waitUntilDone();

@@ -11,6 +11,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
+import com.dipasquale.common.Pair;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -102,19 +103,49 @@ public interface Context {
             return nextItem(items, 0);
         }
 
-        default <T> T nextItem(final SequentialMap<? extends Comparable<?>, T> items) {
+        boolean isLessThan(float rate);
+
+        default <T> Pair<T> nextUniquePair(final List<T> items, final int offset) {
+            int size = items.size();
+
+            if (size <= 1) {
+                return null;
+            }
+
+            if (size == 2) {
+                return new Pair<>(items.get(0), items.get(1));
+            }
+
+            int index1 = nextIndex(offset, size);
+            float first = (float) (index1 - offset);
+            float total = (float) (size - 1 - offset);
+
+            int index2 = isLessThan(first / total)
+                    ? nextIndex(offset, index1)
+                    : nextIndex(index1 + 1, size);
+
+            return new Pair<>(items.get(index1), items.get(index2));
+        }
+
+        default <T> Pair<T> nextUniquePair(final List<T> items) {
+            return nextUniquePair(items, 0);
+        }
+
+        default <T> T nextItem(final SequentialMap<? extends Comparable<?>, T> items, final int offset) {
             int size = items.size();
 
             if (size == 0) {
                 return null;
             }
 
-            int index = nextIndex(size);
+            int index = nextIndex(offset, size);
 
             return items.getByIndex(index);
         }
 
-        boolean isLessThan(float rate);
+        default <T> T nextItem(final SequentialMap<? extends Comparable<?>, T> items) {
+            return nextItem(items, 0);
+        }
     }
 
     interface Parallelism {
@@ -122,7 +153,7 @@ public interface Context {
 
         int numberOfThreads();
 
-        <T> void foreach(Stream<T> stream, Consumer<T> action);
+        <T> void forEach(Stream<T> stream, Consumer<T> action);
 
         void waitUntilDone() throws InterruptedException;
 

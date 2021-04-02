@@ -262,7 +262,7 @@ public final class NeatEvaluatorTest {
         boolean success = false;
 
         try {
-            for (int i1 = 0, c = 500; i1 < c && !success; i1++) {
+            for (int i1 = 0, c = 750; i1 < c && !success; i1++) {
                 success = true;
 
                 for (int i2 = 0, attempts = 10; i2 < attempts && success; i2++) {

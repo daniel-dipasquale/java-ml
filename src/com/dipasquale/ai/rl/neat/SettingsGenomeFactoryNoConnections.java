@@ -5,37 +5,43 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import com.dipasquale.concurrent.AtomicLazyReference;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+import java.util.ArrayList;
+import java.util.List;
+
 final class SettingsGenomeFactoryNoConnections implements GenomeDefaultFactory {
     private final ContextDefault context;
-    private final int inputs;
-    private final int outputs;
-    private final int biases;
+    private final AtomicLazyReference<List<NodeGene>> inputNodes;
+    private final AtomicLazyReference<List<NodeGene>> outputNodes;
+    private final AtomicLazyReference<List<NodeGene>> biasNodes;
+
+    SettingsGenomeFactoryNoConnections(final ContextDefault context, final int inputs, final int outputs, final int biases) {
+        this.context = context;
+        this.inputNodes = new AtomicLazyReference<>(() -> createNodes(context, inputs, NodeGeneType.INPUT));
+        this.outputNodes = new AtomicLazyReference<>(() -> createNodes(context, outputs, NodeGeneType.OUTPUT));
+        this.biasNodes = new AtomicLazyReference<>(() -> createNodes(context, biases, NodeGeneType.BIAS));
+    }
+
+    private static List<NodeGene> createNodes(final ContextDefault context, final int count, final NodeGeneType type) {
+        List<NodeGene> nodes = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            NodeGene node = context.nodes().create(type);
+
+            nodes.add(node);
+        }
+
+        return nodes;
+    }
 
     @Override
     public GenomeDefault create() {
         GenomeDefault genome = new GenomeDefault(context);
 
-        for (int i = 0; i < inputs; i++) {
-            NodeGene node = context.nodes().create(NodeGeneType.INPUT);
-
-            genome.addNode(node);
-        }
-
-        for (int i = 0; i < outputs; i++) {
-            NodeGene node = context.nodes().create(NodeGeneType.OUTPUT);
-
-            genome.addNode(node);
-        }
-
-        for (int i = 0; i < biases; i++) {
-            NodeGene node = context.nodes().create(NodeGeneType.BIAS);
-
-            genome.addNode(node);
-        }
+        inputNodes.reference().forEach(genome::addNode);
+        outputNodes.reference().forEach(genome::addNode);
+        biasNodes.reference().forEach(genome::addNode);
 
         return genome;
     }

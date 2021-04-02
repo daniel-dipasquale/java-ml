@@ -79,7 +79,7 @@ public final class Population {
     private static List<SpeciesBreedStrategy> createSpeciesBreedStrategies(final Context context, final Set<Organism> organismsWithoutSpecies) {
         return ImmutableList.<SpeciesBreedStrategy>builder()
                 .add(new SpeciesBreedStrategyInterSpecies(context, organismsWithoutSpecies))
-                .add(new SpeciesBreedStrategyCrossSpecies(context, organismsWithoutSpecies))
+                .add(new SpeciesBreedStrategyWithinSpecies(context, organismsWithoutSpecies))
                 .add(new SpeciesBreedStrategyGenesis(organismsWithoutSpecies))
                 .build();
     }

@@ -7,24 +7,19 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.concurrent.AtomicLazyReference;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory {
     private final ContextDefault context;
-    private final AtomicLazyReference<GenomeDefault> genesisGenome;
+    private final SettingsGenomeFactoryNoConnections genomeFactoryNoConnections;
     private final SettingsFloatNumber weight;
     private final boolean shouldConnectBiasNodes;
 
-    SettingsGenomeFactoryAllToAllOutputs(final ContextDefault context, final SettingsGenomeFactoryNoConnections genomeFactoryNoConnections, final SettingsFloatNumber weight, final boolean shouldConnectBiasNodes) {
-        this.context = context;
-        this.genesisGenome = new AtomicLazyReference<>(genomeFactoryNoConnections::create);
-        this.weight = weight;
-        this.shouldConnectBiasNodes = shouldConnectBiasNodes;
-    }
-
     @Override
     public GenomeDefault create() {
-        GenomeDefault genome = genesisGenome.reference().createClone();
+        GenomeDefault genome = genomeFactoryNoConnections.create();
 
         for (NodeGene inputNode : genome.getNodes(NodeGeneType.INPUT)) {
             for (NodeGene outputNode : genome.getNodes(NodeGeneType.OUTPUT)) {

@@ -4,7 +4,8 @@ import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.CircularVersionInt;
+import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.RecyclableVersion;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,14 +14,14 @@ public final class NeuralNetworkDefault implements NeuralNetwork {
     private final NodeGeneMap nodes;
     private final ConnectionGeneMap connections;
     private final NeuronNavigator neuronNavigator;
-    private final CircularVersionInt activationNumber;
+    private final RecyclableVersion activationNumber;
     private final NeuronFactory neuronFactory;
 
     public NeuralNetworkDefault(final NodeGeneMap nodes, final ConnectionGeneMap connections, final NeuronPathBuilder neuronPathBuilder, final NeuronFactory neuronFactory) {
         this.nodes = nodes;
         this.connections = connections;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
-        this.activationNumber = new CircularVersionInt(0, Integer.MAX_VALUE);
+        this.activationNumber = new RecyclableVersion(0, Integer.MAX_VALUE);
         this.neuronFactory = neuronFactory;
     }
 
@@ -78,6 +79,7 @@ public final class NeuralNetworkDefault implements NeuralNetwork {
 
     @Override
     public float[] activate(final float[] input) {
+        ArgumentValidatorUtils.ensureEqual(input.length, nodes.size(NodeGeneType.INPUT), "input.length");
         activationNumber.next();
         initializeNeuronNavigator(input);
         processNeuronsViaNavigator();

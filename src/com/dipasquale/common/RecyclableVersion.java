@@ -3,7 +3,7 @@ package com.dipasquale.common;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class CircularVersionInt {
+public final class RecyclableVersion {
     private int value = 0;
     private final int offset;
     private final int max;

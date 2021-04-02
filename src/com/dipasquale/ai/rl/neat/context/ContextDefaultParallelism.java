@@ -22,8 +22,8 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
     }
 
     @Override
-    public <T> void foreach(final Stream<T> stream, final Consumer<T> action) {
-        parallelism.foreach(stream, action);
+    public <T> void forEach(final Stream<T> stream, final Consumer<T> action) {
+        parallelism.forEach(stream, action);
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
         }
 
         @Override
-        public <T> void foreach(final Stream<T> stream, final Consumer<T> action) {
+        public <T> void forEach(final Stream<T> stream, final Consumer<T> action) {
             stream.forEach(action);
         }
 
@@ -95,7 +95,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
         }
 
         @Override
-        public <T> void foreach(final Stream<T> stream, final Consumer<T> action) {
+        public <T> void forEach(final Stream<T> stream, final Consumer<T> action) {
             synchronized (eventLoopStream) {
                 failIfThereAreUncaughtExceptions();
                 eventLoopStream.queue(stream, action::accept);
