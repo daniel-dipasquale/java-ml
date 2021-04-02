@@ -15,9 +15,9 @@ final class SpeciesFitnessStrategyUpdateOrganisms implements SpeciesFitnessStrat
     private final Context context;
 
     @Override
-    public <T extends Node> void process(final NodeDeque<Species, T> species) {
-        Stream<Organism> organisms = species.stream()
-                .map(species::getValue)
+    public <T extends Node> void process(final NodeDeque<Species, T> speciesNodes) {
+        Stream<Organism> organisms = speciesNodes.stream()
+                .map(speciesNodes::getValue)
                 .flatMap(s -> s.getOrganisms().stream());
 
         context.parallelism().forEach(organisms, Organism::updateFitness);

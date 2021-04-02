@@ -6,9 +6,9 @@ import com.dipasquale.data.structure.deque.NodeDeque;
 
 final class SpeciesFitnessStrategyDefault implements SpeciesFitnessStrategy {
     @Override
-    public <T extends Node> void process(final NodeDeque<Species, T> species) {
-        for (T speciesNode : species) {
-            species.getValue(speciesNode).updateFitness();
+    public <T extends Node> void process(final NodeDeque<Species, T> speciesNodes) {
+        for (T speciesNode : speciesNodes) {
+            speciesNodes.getValue(speciesNode).updateFitness();
         }
     }
 }

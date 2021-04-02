@@ -22,7 +22,7 @@ public final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
-    private final NodeDeque<Species, SimpleNode<Species>> allSpecies;
+    private final NodeDeque<Species, SimpleNode<Species>> speciesNodes;
     private final List<SpeciesFitnessStrategy> speciesFitnessStrategies;
     private final List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
     private final List<SpeciesBreedStrategy> speciesBreedStrategies;
@@ -36,7 +36,7 @@ public final class Population {
         mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.iterator().next());
         this.context = context;
         this.organismsWithoutSpecies = organismsWithoutSpecies;
-        this.allSpecies = new SimpleNodeDeque<>();
+        this.speciesNodes = new SimpleNodeDeque<>();
         this.speciesFitnessStrategies = createSpeciesFitnessStrategies(context);
         this.speciesEvolutionStrategies = createSpeciesEvolutionStrategies(organismsWithoutSpecies, mostFitOrganismActivator);
         this.speciesBreedStrategies = createSpeciesBreedStrategies(context, organismsWithoutSpecies);
@@ -84,21 +84,9 @@ public final class Population {
                 .build();
     }
 
-    private Species createSpecies(final Organism organism) {
-        return new SpeciesDefault(context, this, organism);
-    }
-
-    private SimpleNode<Species> addSpecies(final Species species) {
-        SimpleNode<Species> speciesNode = allSpecies.createUnbound(species);
-
-        allSpecies.add(speciesNode);
-
-        return speciesNode;
-    }
-
-    private boolean addOrganismToMostCompatibleSpecies(final Organism organism) {
-        for (SimpleNode<Species> speciesNode : allSpecies) {
-            if (allSpecies.getValue(speciesNode).addIfCompatible(organism)) {
+    private boolean addOrganismToFirstCompatibleSpecies(final Organism organism) {
+        for (SimpleNode<Species> speciesNode : speciesNodes) {
+            if (speciesNodes.getValue(speciesNode).addIfCompatible(organism)) {
                 return true;
             }
         }
@@ -106,10 +94,22 @@ public final class Population {
         return false;
     }
 
+    private Species createSpecies(final Organism organism) {
+        return new SpeciesDefault(context, this, organism);
+    }
+
+    private SimpleNode<Species> addSpecies(final Species species) {
+        SimpleNode<Species> speciesNode = speciesNodes.createUnbound(species);
+
+        speciesNodes.add(speciesNode);
+
+        return speciesNode;
+    }
+
     private void assignOrganismsToSpecies() {
         for (Organism organism : organismsWithoutSpecies) {
-            if (!addOrganismToMostCompatibleSpecies(organism)) {
-                if (allSpecies.size() < context.speciation().maximumSpecies()) {
+            if (!addOrganismToFirstCompatibleSpecies(organism)) {
+                if (speciesNodes.size() < context.speciation().maximumSpecies()) {
                     addSpecies(createSpecies(organism));
                 } else {
                     organism.getMostCompatibleSpecies().add(organism);
@@ -122,12 +122,12 @@ public final class Population {
 
     private void updateFitnessInAllSpecies() {
         for (SpeciesFitnessStrategy speciesFitnessStrategy : speciesFitnessStrategies) {
-            speciesFitnessStrategy.process(allSpecies);
+            speciesFitnessStrategy.process(speciesNodes);
         }
     }
 
     public int getSpeciesCount() {
-        return allSpecies.size();
+        return speciesNodes.size();
     }
 
     public void updateFitness() {
@@ -136,21 +136,21 @@ public final class Population {
     }
 
     private void prepareAllSpeciesForEvolution(final SpeciesEvolutionContext context) {
-        for (SimpleNode<Species> speciesNode = allSpecies.peekFirst(); speciesNode != null; ) {
-            Species species = allSpecies.getValue(speciesNode);
-            boolean shouldSurvive = allSpecies.size() <= 2 || species.shouldSurvive();
+        for (SimpleNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
+            Species species = speciesNodes.getValue(speciesNode);
+            boolean shouldSurvive = speciesNodes.size() <= 2 || species.shouldSurvive();
 
             for (SpeciesEvolutionStrategy speciesEvolutionStrategy : speciesEvolutionStrategies) {
                 speciesEvolutionStrategy.process(context, species, shouldSurvive);
             }
 
             if (!shouldSurvive) {
-                SimpleNode<Species> speciesNodeNext = allSpecies.peekNext(speciesNode);
+                SimpleNode<Species> speciesNodeNext = speciesNodes.peekNext(speciesNode);
 
-                allSpecies.remove(speciesNode);
+                speciesNodes.remove(speciesNode);
                 speciesNode = speciesNodeNext;
             } else {
-                speciesNode = allSpecies.peekNext(speciesNode);
+                speciesNode = speciesNodes.peekNext(speciesNode);
             }
         }
 
@@ -166,8 +166,8 @@ public final class Population {
             speciesBreedContext = new SpeciesBreedContext(context, speciesBreedContext.getInterSpeciesBreedingLeftOverRatio());
         }
 
-        List<Species> allSpeciesList = allSpecies.stream()
-                .map(allSpecies::getValue)
+        List<Species> allSpeciesList = speciesNodes.stream()
+                .map(speciesNodes::getValue)
                 .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 

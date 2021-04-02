@@ -6,5 +6,5 @@ import com.dipasquale.data.structure.deque.NodeDeque;
 
 @FunctionalInterface
 interface SpeciesFitnessStrategy {
-    <T extends Node> void process(NodeDeque<Species, T> species);
+    <T extends Node> void process(NodeDeque<Species, T> speciesNodes);
 }
