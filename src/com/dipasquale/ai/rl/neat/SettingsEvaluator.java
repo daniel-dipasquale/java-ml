@@ -55,7 +55,7 @@ public final class SettingsEvaluator {
 
     Context createContext() {
         ContextDefaultComponentFactory<ContextDefaultGeneralSupport> generalFactory = general.createFactory(parallelism);
-        ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> nodesFactory = nodes.createFactory(general.getGenomeFactory());
+        ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> nodesFactory = nodes.createFactory(general.getGenomeFactory(), parallelism);
         ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory = connections.createFactory(neuralNetwork, parallelism);
         ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory = neuralNetwork.createFactory();
         ContextDefaultComponentFactory<ContextDefaultRandom> randomFactory = random.createFactory(parallelism);

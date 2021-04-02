@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
@@ -75,7 +74,6 @@ public final class NeatEvaluatorTest {
                                 .hiddenActivationFunction(SettingsEnum.literal(SettingsActivationFunction.SIGMOID))
                                 .build())
                         .connections(SettingsConnectionGeneSupport.builder()
-                                .innovationIdFactory(new SequentialIdFactoryLong())
                                 .weightFactory(SettingsFloatNumber.random(-1f, 1f))
                                 .weightPerturber(SettingsFloatNumber.literal(2.5f))
                                 .build())
@@ -237,7 +235,6 @@ public final class NeatEvaluatorTest {
                                 .hiddenActivationFunction(SettingsEnum.literal(SettingsActivationFunction.SIGMOID))
                                 .build())
                         .connections(SettingsConnectionGeneSupport.builder()
-                                .innovationIdFactory(new SequentialIdFactoryLong())
                                 .weightFactory(SettingsFloatNumber.random(-1f, 1f))
                                 .weightPerturber(SettingsFloatNumber.literal(1.8f))
                                 .build())

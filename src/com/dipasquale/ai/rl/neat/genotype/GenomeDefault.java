@@ -187,7 +187,7 @@ public final class GenomeDefault implements Genome {
 
             case HIDDEN -> nodes.getRandom();
 
-            default -> getRandomNode(NodeGeneType.INPUT, NodeGeneType.BIAS, NodeGeneType.HIDDEN);
+            case OUTPUT -> getRandomNode(NodeGeneType.INPUT, NodeGeneType.BIAS, NodeGeneType.HIDDEN);
         };
     }
 
@@ -210,10 +210,10 @@ public final class GenomeDefault implements Genome {
 
             case OUTPUT -> createInnovationId(node2, node1);
 
-            default -> switch (node2.getType()) {
+            case HIDDEN -> switch (node2.getType()) {
                 case INPUT, BIAS -> createInnovationId(node2, node1);
 
-                default -> createInnovationId(node1, node2);
+                case OUTPUT, HIDDEN -> createInnovationId(node1, node2);
             };
         };
     }
