@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.species;
 
 import com.dipasquale.ai.rl.neat.genotype.Organism;
+import com.dipasquale.common.ObjectFactory;
 
 import java.util.List;
 
@@ -23,9 +24,9 @@ public interface Species { // TODO: this interface might not be needed, merge it
 
     List<Organism> removeUnfitToReproduce();
 
-    List<Organism> reproduceOutcast(int count);
+    List<ObjectFactory<Organism>> getOrganismsToBirth(int count);
 
-    Organism reproduceOutcast(Species other);
+    ObjectFactory<Organism> getOrganismToBirth(Species other);
 
     Organism selectMostElite();
 

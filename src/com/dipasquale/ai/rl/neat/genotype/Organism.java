@@ -101,4 +101,7 @@ public final class Organism implements Comparable<Organism> {
     public Organism createClone() {
         return new Organism(context, population, genome.createClone());
     }
+
+    public void kill() {
+    }
 }

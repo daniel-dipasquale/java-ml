@@ -13,7 +13,7 @@ final class SpeciesEvolutionStrategySelectMostElites implements SpeciesEvolution
     private final Set<Organism> organismsWithoutSpecies;
 
     @Override
-    public void process(final SpeciesEvolutionContext context, final Species species, boolean speciesSurvives) {
+    public void process(final SpeciesEvolutionContext evolutionContext, final Species species, boolean speciesSurvives) {
         if (!speciesSurvives) {
             return;
         }
@@ -24,6 +24,6 @@ final class SpeciesEvolutionStrategySelectMostElites implements SpeciesEvolution
     }
 
     @Override
-    public void postProcess(final SpeciesEvolutionContext context) {
+    public void postProcess(final SpeciesEvolutionContext evolutionContext) {
     }
 }

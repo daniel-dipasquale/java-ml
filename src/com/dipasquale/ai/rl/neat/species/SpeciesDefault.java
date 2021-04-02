@@ -2,7 +2,10 @@ package com.dipasquale.ai.rl.neat.species;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
+import com.dipasquale.ai.rl.neat.genotype.OrganismFactoryMating;
+import com.dipasquale.ai.rl.neat.genotype.OrganismFactoryMutation;
 import com.dipasquale.ai.rl.neat.population.Population;
+import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -143,8 +146,8 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public List<Organism> reproduceOutcast(final int count) {
-        List<Organism> organismsAdded = new ArrayList<>();
+    public List<ObjectFactory<Organism>> getOrganismsToBirth(final int count) {
+        List<ObjectFactory<Organism>> organismsToBirth = new ArrayList<>();
         int size = organisms.size();
 
         for (int i = 0; i < count; i++) {
@@ -154,42 +157,28 @@ public final class SpeciesDefault implements Species {
 
             if (size > 1 && shouldMate) {
                 Pair<Organism> organismPair = context.random().nextUniquePair(organisms);
-                Organism organismNew = organismPair.getItem1().mate(organismPair.getItem2());
 
-                if (shouldMutate) {
-                    organismNew.mutate();
-                }
-
-                organismNew.freeze();
-                organismsAdded.add(organismNew);
-            }
-
-            if (organismsAdded.size() <= i) {
+                organismsToBirth.add(new OrganismFactoryMating(organismPair.getItem1(), organismPair.getItem2(), shouldMutate));
+            } else {
                 Organism organism = context.random().nextItem(organisms);
-                Organism organismNew = organism.createCopy();
 
-                organismNew.mutate();
-                organismNew.freeze();
-                organismsAdded.add(organismNew);
+                organismsToBirth.add(new OrganismFactoryMutation(organism));
             }
         }
 
-        return organismsAdded;
+        return organismsToBirth;
     }
 
     @Override
-    public Organism reproduceOutcast(final Species other) {
+    public ObjectFactory<Organism> getOrganismToBirth(final Species other) {
         if (organisms.size() == 0 || other.getOrganisms().size() == 0) {
             return null;
         }
 
         Organism organism1 = context.random().nextItem(organisms);
         Organism organism2 = context.random().nextItem(other.getOrganisms());
-        Organism organismNew = organism1.mate(organism2);
 
-        organismNew.freeze();
-
-        return organismNew;
+        return new OrganismFactoryMating(organism1, organism2, false);
     }
 
     @Override

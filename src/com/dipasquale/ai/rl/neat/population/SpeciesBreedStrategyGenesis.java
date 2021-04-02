@@ -1,28 +1,28 @@
 package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.genotype.Organism;
+import com.dipasquale.ai.rl.neat.genotype.OrganismFactoryMutation;
 import com.dipasquale.ai.rl.neat.species.Species;
+import com.dipasquale.common.ObjectFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SpeciesBreedStrategyGenesis implements SpeciesBreedStrategy {
     private final Set<Organism> organismsWithoutSpecies;
+    private final Queue<ObjectFactory<Organism>> organismsToBirth;
 
     @Override
-    public void process(final SpeciesBreedContext context, final List<Species> speciesList) {
+    public void process(final SpeciesBreedContext breedContext, final List<Species> speciesList) {
         for (Species species : speciesList) {
-            species.restart();
+            species.restart().forEach(Organism::kill);
 
             if (organismsWithoutSpecies.remove(species.getRepresentative())) { // TODO: figure out a better way of doing this
-                Organism organismNew = species.getRepresentative().createCopy();
-
-                organismNew.mutate();
-                organismNew.freeze();
-                organismsWithoutSpecies.add(organismNew);
+                organismsToBirth.add(new OrganismFactoryMutation(species.getRepresentative()));
             }
         }
     }

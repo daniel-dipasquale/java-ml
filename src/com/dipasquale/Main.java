@@ -2,7 +2,7 @@ package com.dipasquale;
 
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.IdFactory;
-import com.dipasquale.common.JvmWarmup;
+import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.common.RandomSupport;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.dipasquale.data.structure.set.HashDequeSet;

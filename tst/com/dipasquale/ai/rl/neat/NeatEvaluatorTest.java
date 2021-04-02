@@ -1,11 +1,13 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialIdFactoryLong;
+import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.common.RandomSupportFloat;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.google.common.collect.ImmutableList;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -15,6 +17,11 @@ import java.util.concurrent.Executors;
 public final class NeatEvaluatorTest {
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+
+    @BeforeClass
+    public static void beforeClass() {
+        JvmWarmup.start(250_000);
+    }
 
     @AfterClass
     public static void afterClass() {
@@ -262,7 +269,7 @@ public final class NeatEvaluatorTest {
         boolean success = false;
 
         try {
-            for (int i1 = 0, c = 750; i1 < c && !success; i1++) {
+            for (int i1 = 0, c = 2_000; i1 < c && !success; i1++) {
                 success = true;
 
                 for (int i2 = 0, attempts = 10; i2 < attempts && success; i2++) {

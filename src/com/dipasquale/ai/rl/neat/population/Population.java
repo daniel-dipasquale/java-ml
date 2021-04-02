@@ -4,16 +4,20 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.species.Species;
 import com.dipasquale.ai.rl.neat.species.SpeciesDefault;
+import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import lombok.Getter;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,6 +26,7 @@ public final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
+    private final Queue<ObjectFactory<Organism>> organismsToBirth;
     private final NodeDeque<Species, SimpleNode<Species>> speciesNodes;
     private final List<SpeciesFitnessStrategy> speciesFitnessStrategies;
     private final List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
@@ -32,14 +37,16 @@ public final class Population {
 
     public Population(final Context context, final OrganismActivator mostFitOrganismActivator) {
         Set<Organism> organismsWithoutSpecies = createOrganisms(context, this);
+        Queue<ObjectFactory<Organism>> organismsToBirth = new LinkedList<>();
 
         mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.iterator().next());
         this.context = context;
         this.organismsWithoutSpecies = organismsWithoutSpecies;
+        this.organismsToBirth = organismsToBirth;
         this.speciesNodes = new SimpleNodeDeque<>();
         this.speciesFitnessStrategies = createSpeciesFitnessStrategies(context);
         this.speciesEvolutionStrategies = createSpeciesEvolutionStrategies(organismsWithoutSpecies, mostFitOrganismActivator);
-        this.speciesBreedStrategies = createSpeciesBreedStrategies(context, organismsWithoutSpecies);
+        this.speciesBreedStrategies = createSpeciesBreedStrategies(context, organismsWithoutSpecies, organismsToBirth);
         this.generation = 1;
     }
 
@@ -76,11 +83,11 @@ public final class Population {
                 .build();
     }
 
-    private static List<SpeciesBreedStrategy> createSpeciesBreedStrategies(final Context context, final Set<Organism> organismsWithoutSpecies) {
+    private static List<SpeciesBreedStrategy> createSpeciesBreedStrategies(final Context context, final Set<Organism> organismsWithoutSpecies, final Queue<ObjectFactory<Organism>> organismsToBirth) {
         return ImmutableList.<SpeciesBreedStrategy>builder()
-                .add(new SpeciesBreedStrategyInterSpecies(context, organismsWithoutSpecies))
-                .add(new SpeciesBreedStrategyWithinSpecies(context, organismsWithoutSpecies))
-                .add(new SpeciesBreedStrategyGenesis(organismsWithoutSpecies))
+                .add(new SpeciesBreedStrategyInterSpecies(context, organismsWithoutSpecies, organismsToBirth))
+                .add(new SpeciesBreedStrategyWithinSpecies(context, organismsWithoutSpecies, organismsToBirth))
+                .add(new SpeciesBreedStrategyGenesis(organismsWithoutSpecies, organismsToBirth))
                 .build();
     }
 
@@ -107,7 +114,11 @@ public final class Population {
     }
 
     private void assignOrganismsToSpecies() {
-        for (Organism organism : organismsWithoutSpecies) {
+        Iterable<Organism> organismsNew = organismsToBirth.stream()
+                .map(ObjectFactory::create)
+                ::iterator;
+
+        for (Organism organism : Iterables.concat(organismsWithoutSpecies, organismsNew)) {
             if (!addOrganismToFirstCompatibleSpecies(organism)) {
                 if (speciesNodes.size() < context.speciation().maximumSpecies()) {
                     addSpecies(createSpecies(organism));
@@ -118,6 +129,7 @@ public final class Population {
         }
 
         organismsWithoutSpecies.clear();
+        organismsToBirth.clear();
     }
 
     private void updateFitnessInAllSpecies() {

@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.test;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

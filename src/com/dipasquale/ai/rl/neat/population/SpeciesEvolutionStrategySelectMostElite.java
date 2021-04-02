@@ -13,17 +13,17 @@ final class SpeciesEvolutionStrategySelectMostElite implements SpeciesEvolutionS
     private final OrganismActivator mostFitOrganismActivator;
 
     @Override
-    public void process(final SpeciesEvolutionContext context, final Species species, boolean speciesSurvives) {
+    public void process(final SpeciesEvolutionContext evolutionContext, final Species species, boolean speciesSurvives) {
         if (!speciesSurvives) {
             return;
         }
 
-        context.replaceOrganismIfMoreFit(species.selectMostElite());
+        evolutionContext.replaceOrganismIfMoreFit(species.selectMostElite());
     }
 
     @Override
-    public void postProcess(final SpeciesEvolutionContext context) {
-        Organism organismMostFit = context.getOrganismMostFit();
+    public void postProcess(final SpeciesEvolutionContext evolutionContext) {
+        Organism organismMostFit = evolutionContext.getOrganismMostFit();
 
         organismsWithoutSpecies.add(organismMostFit);
         mostFitOrganismActivator.setOrganism(organismMostFit);

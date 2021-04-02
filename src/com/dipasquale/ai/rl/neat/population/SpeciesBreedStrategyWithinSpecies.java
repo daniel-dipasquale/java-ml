@@ -3,44 +3,45 @@ package com.dipasquale.ai.rl.neat.population;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.species.Species;
+import com.dipasquale.common.ObjectFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SpeciesBreedStrategyWithinSpecies implements SpeciesBreedStrategy {
-    private final Context neatContext;
+    private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
+    private final Queue<ObjectFactory<Organism>> organismsToBirth;
 
     @Override
-    public void process(final SpeciesBreedContext context, final List<Species> speciesList) {
-        int populationSize = neatContext.general().populationSize();
+    public void process(final SpeciesBreedContext breedContext, final List<Species> speciesList) {
+        int populationSize = context.general().populationSize();
         int speciesSize = speciesList.size();
-        float organismsNeeded = (float) (populationSize - speciesSize - organismsWithoutSpecies.size());
+        float organismsNeeded = (float) (populationSize - speciesSize - organismsWithoutSpecies.size() - organismsToBirth.size());
         float organismsReproducedPrevious;
         float organismsReproduced = 0f;
 
         for (Species species : speciesList) {
-            float reproductionFloat = organismsNeeded * species.getSharedFitness() / context.getTotalSharedFitness();
+            float reproductionFloat = organismsNeeded * species.getSharedFitness() / breedContext.getTotalSharedFitness();
 
             organismsReproducedPrevious = organismsReproduced;
             organismsReproduced += reproductionFloat;
 
             int reproduction = (int) organismsReproduced - (int) organismsReproducedPrevious;
-            List<Organism> reproducedOrganisms = species.reproduceOutcast(reproduction);
 
-            organismsWithoutSpecies.addAll(reproducedOrganisms);
+            organismsToBirth.addAll(species.getOrganismsToBirth(reproduction));
         }
 
-        int organismsNeededStill = populationSize - speciesSize - organismsWithoutSpecies.size();
+        int organismsNeededStill = populationSize - speciesSize - organismsWithoutSpecies.size() - organismsToBirth.size();
 
         if (organismsNeededStill > 0) { // NOTE: floating point problem
             Species species = speciesList.get(speciesList.size() - 1);
-            List<Organism> reproducedOrganisms = species.reproduceOutcast(organismsNeededStill);
 
-            organismsWithoutSpecies.addAll(reproducedOrganisms);
+            organismsToBirth.addAll(species.getOrganismsToBirth(organismsNeededStill));
         }
     }
 }
