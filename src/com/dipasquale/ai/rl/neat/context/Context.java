@@ -48,6 +48,8 @@ public interface Context {
         FitnessDeterminer createFitnessDeterminer();
 
         float calculateFitness(GenomeDefault genome);
+
+        void discardGenome(GenomeDefault genome);
     }
 
     @FunctionalInterface

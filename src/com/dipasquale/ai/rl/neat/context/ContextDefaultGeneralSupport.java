@@ -8,6 +8,8 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import com.dipasquale.common.IdFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Deque;
+
 @RequiredArgsConstructor
 public final class ContextDefaultGeneralSupport implements Context.GeneralSupport {
     private final int populationSize;
@@ -16,6 +18,7 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
     private final IdFactory<String> speciesIdFactory;
     private final FitnessDeterminerFactory fitnessDeterminerFactory;
     private final Environment environment;
+    private final Deque<String> genomeIdsDiscarded;
 
     @Override
     public int populationSize() {
@@ -24,6 +27,12 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
 
     @Override
     public String createGenomeId() {
+        String id = genomeIdsDiscarded.pollFirst();
+
+        if (id != null) {
+            return id;
+        }
+
         return genomeIdFactory.createId();
     }
 
@@ -45,5 +54,10 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
     @Override
     public float calculateFitness(final GenomeDefault genome) {
         return environment.test(genome);
+    }
+
+    @Override
+    public void discardGenome(final GenomeDefault genome) {
+        genomeIdsDiscarded.add(genome.getId());
     }
 }

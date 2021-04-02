@@ -210,10 +210,9 @@ public final class SpeciesDefault implements Species {
     @Override
     public List<Organism> restart() {
         int index = context.random().nextIndex(organisms.size());
-        Organism representativeOrganismNew = organisms.get(index);
+        Organism representativeOrganismNew = organisms.remove(index);
         List<Organism> organismsOld = organisms;
 
-        organisms.remove(index);
         representativeOrganism = representativeOrganismNew;
         setOrganisms(Lists.newArrayList(representativeOrganismNew));
         isOrganismsSorted = true;

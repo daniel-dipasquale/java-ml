@@ -47,6 +47,13 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
     }
 
     @Override
+    public void restart() {
+        synchronized (population) {
+            population.restart();
+        }
+    }
+
+    @Override
     public float getMaximumFitness() {
         return mostFitOrganismActivator.getFitness();
     }

@@ -103,5 +103,6 @@ public final class Organism implements Comparable<Organism> {
     }
 
     public void kill() {
+        context.general().discardGenome(genome);
     }
 }

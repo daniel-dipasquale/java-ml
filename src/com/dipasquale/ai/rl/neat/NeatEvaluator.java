@@ -9,6 +9,8 @@ public interface NeatEvaluator {
 
     void evolve();
 
+    void restart();
+
     float getMaximumFitness();
 
     float[] activate(float[] input);

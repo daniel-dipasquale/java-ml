@@ -22,16 +22,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class Population {
+public final class Population { // TODO: still have a problem with population flactuating
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
     private final Queue<ObjectFactory<Organism>> organismsToBirth;
     private final NodeDeque<Species, SimpleNode<Species>> speciesNodes;
+    private final OrganismActivator mostFitOrganismActivator;
+    private SpeciesBreedContext speciesBreedContext;
     private final List<SpeciesFitnessStrategy> speciesFitnessStrategies;
     private final List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
     private final List<SpeciesBreedStrategy> speciesBreedStrategies;
-    private SpeciesBreedContext speciesBreedContext;
     @Getter
     private int generation;
 
@@ -39,24 +40,29 @@ public final class Population {
         Set<Organism> organismsWithoutSpecies = createOrganisms(context, this);
         Queue<ObjectFactory<Organism>> organismsToBirth = new LinkedList<>();
 
-        mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.iterator().next());
         this.context = context;
         this.organismsWithoutSpecies = organismsWithoutSpecies;
         this.organismsToBirth = organismsToBirth;
         this.speciesNodes = new SimpleNodeDeque<>();
+        this.mostFitOrganismActivator = mostFitOrganismActivator;
+        mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.iterator().next());
+        this.generation = 1;
         this.speciesFitnessStrategies = createSpeciesFitnessStrategies(context);
         this.speciesEvolutionStrategies = createSpeciesEvolutionStrategies(organismsWithoutSpecies, mostFitOrganismActivator);
         this.speciesBreedStrategies = createSpeciesBreedStrategies(context, organismsWithoutSpecies, organismsToBirth);
-        this.generation = 1;
+    }
+
+    private static void fillWithGenesisOrganisms(final Set<Organism> organisms, final Context context, final Population population) {
+        IntStream.range(0, context.general().populationSize())
+                .mapToObj(i -> context.general().createGenesisGenome())
+                .map(g -> new Organism(context, population, g))
+                .forEach(organisms::add);
     }
 
     private static Set<Organism> createOrganisms(final Context context, final Population population) {
         Set<Organism> organismsWithoutSpecies = Collections.newSetFromMap(new IdentityHashMap<>());
 
-        IntStream.range(0, context.general().populationSize())
-                .mapToObj(i -> context.general().createGenesisGenome())
-                .map(g -> new Organism(context, population, g))
-                .forEach(organismsWithoutSpecies::add);
+        fillWithGenesisOrganisms(organismsWithoutSpecies, context, population);
 
         return organismsWithoutSpecies;
     }
@@ -178,13 +184,13 @@ public final class Population {
             speciesBreedContext = new SpeciesBreedContext(context, speciesBreedContext.getInterSpeciesBreedingLeftOverRatio());
         }
 
-        List<Species> allSpeciesList = speciesNodes.stream()
+        List<Species> speciesList = speciesNodes.stream()
                 .map(speciesNodes::getValue)
                 .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 
         for (SpeciesBreedStrategy speciesBreedStrategy : speciesBreedStrategies) {
-            speciesBreedStrategy.process(speciesBreedContext, allSpeciesList);
+            speciesBreedStrategy.process(speciesBreedContext, speciesList);
         }
     }
 
@@ -194,5 +200,14 @@ public final class Population {
         prepareAllSpeciesForEvolution(context);
         breedThroughAllSpecies(context);
         generation++;
+    }
+
+    public void restart() {
+        organismsWithoutSpecies.clear();
+        fillWithGenesisOrganisms(organismsWithoutSpecies, context, this);
+        organismsToBirth.clear();
+        speciesNodes.clear();
+        mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.iterator().next());
+        generation = 1;
     }
 }
