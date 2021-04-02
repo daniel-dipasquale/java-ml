@@ -37,7 +37,7 @@ public final class SettingsSpeciation {
     private final SettingsFloatNumber interSpeciesMatingRate = SettingsFloatNumber.literal(0.01f);
 
     ContextDefaultComponentFactory<ContextDefaultSpeciation> createFactory(final SettingsGeneralEvaluatorSupport general) {
-        return c -> {
+        return context -> {
             int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
                     .map(SettingsIntegerNumber::get)
                     .orElseGet(() -> general.getPopulationSize() / 8);
@@ -52,7 +52,7 @@ public final class SettingsSpeciation {
             ArgumentValidatorUtils.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
             ArgumentValidatorUtils.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
 
-            GenomeCompatibilityCalculatorDefault genomeCompatibilityCalculator = new GenomeCompatibilityCalculatorDefault(c);
+            GenomeCompatibilityCalculatorDefault genomeCompatibilityCalculator = new GenomeCompatibilityCalculatorDefault(context);
 
             return new ContextDefaultSpeciation(maximumSpeciesFixed, maximumGenomesFixed, weightDifferenceCoefficient.get(), disjointCoefficient.get(), excessCoefficient.get(), compatibilityThreshold.get(), compatibilityThresholdModifier.get(), genomeCompatibilityCalculator, eugenicsThreshold.get(), elitistThreshold.get(), elitistThresholdMinimum.get(), stagnationDropOffAge.get(), interSpeciesMatingRate.get());
         };
