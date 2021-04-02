@@ -11,11 +11,40 @@ import lombok.Builder;
 @Builder
 public final class SettingsRandom {
     @Builder.Default
-    private final RandomSupportFloat nextIndexRandomSupport = SettingsConstants.RANDOM_SUPPORT_UNIFORM;
+    private final SettingsRandomType nextIndex = SettingsRandomType.UNIFORM;
     @Builder.Default
-    final RandomSupportFloat isLessThanRandomSupport = SettingsConstants.RANDOM_SUPPORT_UNIFORM;
+    private final SettingsRandomType isLessThan = SettingsRandomType.UNIFORM;
 
-    ContextDefaultComponentFactory<ContextDefaultRandom> createFactory() {
-        return context -> new ContextDefaultRandom(nextIndexRandomSupport, isLessThanRandomSupport);
+    private static RandomSupportFloat getRandomSupport(final SettingsParallelism parallelism, final SettingsRandomType type) {
+        if (!parallelism.isEnabled()) {
+            return switch (type) {
+                case UNIFORM -> SettingsConstants.RANDOM_SUPPORT_UNIFORM;
+
+                case MEAN_DISTRIBUTED -> SettingsConstants.RANDOM_SUPPORT_MEAN_DISTRIBUTED;
+            };
+        }
+
+        return switch (type) {
+            case UNIFORM -> SettingsConstants.RANDOM_SUPPORT_UNIFORM_CONCURRENT;
+
+            case MEAN_DISTRIBUTED -> SettingsConstants.RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT;
+        };
+    }
+
+    RandomSupportFloat getNextIndexRandomSupport(final SettingsParallelism parallelism) {
+        return getRandomSupport(parallelism, nextIndex);
+    }
+
+    RandomSupportFloat getIsLessThanRandomSupport(final SettingsParallelism parallelism) {
+        return getRandomSupport(parallelism, isLessThan);
+    }
+
+    ContextDefaultComponentFactory<ContextDefaultRandom> createFactory(final SettingsParallelism parallelism) {
+        return context -> {
+            RandomSupportFloat nextIndexRandomSupport = getNextIndexRandomSupport(parallelism);
+            RandomSupportFloat isLessThanRandomSupport = getIsLessThanRandomSupport(parallelism);
+
+            return new ContextDefaultRandom(nextIndexRandomSupport, isLessThanRandomSupport);
+        };
     }
 }

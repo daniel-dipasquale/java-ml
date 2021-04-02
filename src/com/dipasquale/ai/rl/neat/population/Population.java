@@ -203,6 +203,9 @@ public final class Population { // TODO: still have a problem with population fl
     }
 
     public void restart() {
+        context.general().reset();
+        context.nodes().reset();
+        context.connections().reset();
         organismsWithoutSpecies.clear();
         fillWithGenesisOrganisms(organismsWithoutSpecies, context, this);
         organismsToBirth.clear();

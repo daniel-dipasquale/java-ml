@@ -29,12 +29,11 @@ public final class SettingsConnectionGeneSupport {
     ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory(final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
         return context -> {
             boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
-            SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault("innovation-id", innovationIdFactory);
-            int numberOfThreads = parallelism.getNumberOfThreads();
+            SequentialIdFactory sequentialIdFactory = new SequentialIdFactorySynchronized("innovation-id", innovationIdFactory);
 
-            Map<DirectedEdge, InnovationId> innovationIds = numberOfThreads == 1
+            Map<DirectedEdge, InnovationId> innovationIds = !parallelism.isEnabled()
                     ? new HashMap<>()
-                    : new ConcurrentHashMap<>(16, 0.75f, numberOfThreads);
+                    : new ConcurrentHashMap<>(16, 0.75f, parallelism.getNumberOfThreads());
 
             return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, sequentialIdFactory, innovationIds, weightFactory::get, w -> weightPerturber.get() * w);
         };

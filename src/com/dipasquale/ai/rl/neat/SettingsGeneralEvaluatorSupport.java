@@ -6,7 +6,6 @@ import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
-import com.dipasquale.common.IdFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,20 +24,18 @@ public final class SettingsGeneralEvaluatorSupport {
     private final SettingsGenomeFactory genomeFactory;
     private final Environment environment;
 
-    ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory(final SettingsParallelism parallelism) {
+    ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory(final SettingsParallelism parallelism) { // TODO: avoid creating SequentialIdFactorySynchronized if parallism is not on
         return context -> {
-            SequentialIdFactory genomeIdFactory = new SequentialIdFactoryDefault("genome", new SequentialIdFactoryLong());
-            IdFactory<String> genomeIdFactoryFixed = () -> genomeIdFactory.next().toString();
+            SequentialIdFactory genomeIdFactory = new SequentialIdFactorySynchronized("genome", new SequentialIdFactoryLong());
             GenomeDefaultFactory genomeFactoryFixed = genomeFactory.create(context);
+            SequentialIdFactory speciesIdFactory = new SequentialIdFactorySynchronized("species", new SequentialIdFactoryLong());
             FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
-            SequentialIdFactory speciesIdFactory = new SequentialIdFactoryDefault("species", new SequentialIdFactoryLong());
-            IdFactory<String> speciesIdFactoryFixed = () -> speciesIdFactory.next().toString();
 
-            Deque<String> discardedGenomeIds = parallelism.getNumberOfThreads() == 1
+            Deque<String> discardedGenomeIds = !parallelism.isEnabled()
                     ? new LinkedList<>()
                     : new ConcurrentLinkedDeque<>();
 
-            return new ContextDefaultGeneralSupport(populationSize, genomeIdFactoryFixed, genomeFactoryFixed, speciesIdFactoryFixed, fitnessDeterminerFactory, environment, discardedGenomeIds);
+            return new ContextDefaultGeneralSupport(populationSize, genomeIdFactory, genomeFactoryFixed, speciesIdFactory, fitnessDeterminerFactory, environment, discardedGenomeIds);
         };
     }
 }

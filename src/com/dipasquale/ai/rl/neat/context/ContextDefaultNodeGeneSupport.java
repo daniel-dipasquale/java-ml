@@ -25,4 +25,9 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
 
         return new NodeGene(id, type, bias, activationFunction);
     }
+
+    @Override
+    public void reset() {
+        sequentialIdFactories.values().forEach(SequentialIdFactory::reset);
+    }
 }

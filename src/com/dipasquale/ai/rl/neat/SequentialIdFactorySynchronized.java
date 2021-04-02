@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SequentialIdFactoryDefault implements SequentialIdFactory {
+final class SequentialIdFactorySynchronized implements SequentialIdFactory {
     private final String name;
     private final SequentialIdFactory sequentialIdFactory;
 
@@ -22,6 +22,13 @@ final class SequentialIdFactoryDefault implements SequentialIdFactory {
         SequentialId sequentialId = createSequentialId();
 
         return new SequentialIdInternal(name, sequentialId);
+    }
+
+    @Override
+    public void reset() {
+        synchronized (sequentialIdFactory) {
+            sequentialIdFactory.reset();
+        }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

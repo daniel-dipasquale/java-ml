@@ -21,6 +21,10 @@ public final class SettingsParallelism {
     private final ExecutorService executorService;
     private final int numberOfThreads;
 
+    boolean isEnabled() {
+        return executorService != null;
+    }
+
     int getNumberOfThreads() {
         if (executorService == null) {
             return 1;
@@ -35,7 +39,7 @@ public final class SettingsParallelism {
 
     ContextDefaultComponentFactory<ContextDefaultParallelism> createFactory() {
         return context -> {
-            if (executorService == null) {
+            if (!isEnabled()) {
                 Context.Parallelism parallelism = new ContextDefaultParallelism.SingleThread();
 
                 return new ContextDefaultParallelism(parallelism);

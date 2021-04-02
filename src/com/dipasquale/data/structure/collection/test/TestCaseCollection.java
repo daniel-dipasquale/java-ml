@@ -4,8 +4,8 @@ import lombok.Generated;
 
 import java.util.List;
 
-@Generated // TODO: should the testing tool be tested? I'm feeling like it should be
-interface TestCaseCollection<T> {
+@Generated
+interface TestCaseCollection<T> { // TODO: should the testing tool be tested? I'm feeling like it should be
     boolean shouldFillCollection();
 
     void run(List<T> items);

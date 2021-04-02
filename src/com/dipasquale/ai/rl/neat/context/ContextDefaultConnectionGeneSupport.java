@@ -34,4 +34,10 @@ public final class ContextDefaultConnectionGeneSupport implements Context.Connec
     public float perturbWeight(final float weight) {
         return weightPerturber.next(weight);
     }
+
+    @Override
+    public void reset() {
+        innovationIdFactory.reset();
+        innovationIds.clear();
+    }
 }

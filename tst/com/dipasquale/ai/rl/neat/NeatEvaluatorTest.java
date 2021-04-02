@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.common.RandomSupportFloat;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.google.common.collect.ImmutableList;
@@ -72,10 +71,6 @@ public final class NeatEvaluatorTest {
                                 .environment(environmentContainer)
                                 .build())
                         .nodes(SettingsNodeGeneSupport.builder()
-                                .inputIdFactory(new SequentialIdFactoryLong())
-                                .outputIdFactory(new SequentialIdFactoryLong())
-                                .biasIdFactory(new SequentialIdFactoryLong())
-                                .hiddenIdFactory(new SequentialIdFactoryLong())
                                 .hiddenBias(SettingsFloatNumber.random(-1f, 1f))
                                 .hiddenActivationFunction(SettingsEnum.literal(SettingsActivationFunction.SIGMOID))
                                 .build())
@@ -88,8 +83,8 @@ public final class NeatEvaluatorTest {
                                 .type(SettingsNeuralNetworkType.FEED_FORWARD)
                                 .build())
                         .random(SettingsRandom.builder()
-                                .nextIndexRandomSupport(RandomSupportFloat.createConcurrent())
-                                .isLessThanRandomSupport(RandomSupportFloat.createConcurrent())
+                                .nextIndex(SettingsRandomType.UNIFORM)
+                                .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
                                 .executorService(shouldUseParallelism ? EXECUTOR_SERVICE : null)
@@ -238,10 +233,6 @@ public final class NeatEvaluatorTest {
                                 .environment(environmentContainer)
                                 .build())
                         .nodes(SettingsNodeGeneSupport.builder()
-                                .inputIdFactory(new SequentialIdFactoryLong())
-                                .outputIdFactory(new SequentialIdFactoryLong())
-                                .biasIdFactory(new SequentialIdFactoryLong())
-                                .hiddenIdFactory(new SequentialIdFactoryLong())
                                 .hiddenBias(SettingsFloatNumber.random(-1f, 1f))
                                 .hiddenActivationFunction(SettingsEnum.literal(SettingsActivationFunction.SIGMOID))
                                 .build())
@@ -254,8 +245,8 @@ public final class NeatEvaluatorTest {
                                 .type(SettingsNeuralNetworkType.FEED_FORWARD)
                                 .build())
                         .random(SettingsRandom.builder()
-                                .nextIndexRandomSupport(RandomSupportFloat.createConcurrent())
-                                .isLessThanRandomSupport(RandomSupportFloat.createConcurrent())
+                                .nextIndex(SettingsRandomType.UNIFORM)
+                                .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
                                 .executorService(shouldUseParallelism ? EXECUTOR_SERVICE : null)

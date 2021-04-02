@@ -18,6 +18,11 @@ public final class SequentialIdFactoryLong implements SequentialIdFactory {
         return new SequentialIdLong(value);
     }
 
+    @Override
+    public void reset() {
+        current = 0L;
+    }
+
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
     private static final class SequentialIdLong implements SequentialId {

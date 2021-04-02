@@ -50,6 +50,8 @@ public interface Context {
         float calculateFitness(GenomeDefault genome);
 
         void discardGenome(GenomeDefault genome);
+
+        void reset();
     }
 
     @FunctionalInterface
@@ -57,9 +59,10 @@ public interface Context {
         NeuralNetwork create(GenomeDefault genome, NodeGeneMap nodes, ConnectionGeneMap connections);
     }
 
-    @FunctionalInterface
     interface NodeGeneSupport {
         NodeGene create(NodeGeneType type);
+
+        void reset();
     }
 
     interface ConnectionGeneSupport {
@@ -80,6 +83,8 @@ public interface Context {
         float nextWeight();
 
         float perturbWeight(float weight);
+
+        void reset();
     }
 
     interface Random {
@@ -89,25 +94,21 @@ public interface Context {
             return nextIndex(0, count);
         }
 
-        default <T> T nextItem(final List<T> items, final int offset) {
+        default <T> T nextItem(final List<T> items) {
             int size = items.size();
 
             if (size == 0) {
                 return null;
             }
 
-            int index = nextIndex(offset, size);
+            int index = nextIndex(size);
 
             return items.get(index);
         }
 
-        default <T> T nextItem(final List<T> items) {
-            return nextItem(items, 0);
-        }
-
         boolean isLessThan(float rate);
 
-        default <T> Pair<T> nextUniquePair(final List<T> items, final int offset) {
+        default <T> Pair<T> nextUniquePair(final List<T> items) {
             int size = items.size();
 
             if (size <= 1) {
@@ -118,35 +119,27 @@ public interface Context {
                 return new Pair<>(items.get(0), items.get(1));
             }
 
-            int index1 = nextIndex(offset, size);
-            float first = (float) (index1 - offset);
-            float total = (float) (size - 1 - offset);
+            int index1 = nextIndex(size);
+            float first = (float) index1;
+            float total = (float) (size - 1);
 
             int index2 = isLessThan(first / total)
-                    ? nextIndex(offset, index1)
+                    ? nextIndex(index1)
                     : nextIndex(index1 + 1, size);
 
             return new Pair<>(items.get(index1), items.get(index2));
         }
 
-        default <T> Pair<T> nextUniquePair(final List<T> items) {
-            return nextUniquePair(items, 0);
-        }
-
-        default <T> T nextItem(final SequentialMap<? extends Comparable<?>, T> items, final int offset) {
+        default <T> T nextItem(final SequentialMap<? extends Comparable<?>, T> items) {
             int size = items.size();
 
             if (size == 0) {
                 return null;
             }
 
-            int index = nextIndex(offset, size);
+            int index = nextIndex(size);
 
             return items.getByIndex(index);
-        }
-
-        default <T> T nextItem(final SequentialMap<? extends Comparable<?>, T> items) {
-            return nextItem(items, 0);
         }
     }
 
