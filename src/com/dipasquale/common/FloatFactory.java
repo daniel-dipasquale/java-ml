@@ -1,6 +1,6 @@
-package com.dipasquale.ai.common;
+package com.dipasquale.common;
 
 @FunctionalInterface
 public interface FloatFactory {
-    float next();
+    float create();
 }

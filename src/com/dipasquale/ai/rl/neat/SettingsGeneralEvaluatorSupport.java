@@ -17,18 +17,18 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Getter
+@Getter(AccessLevel.PACKAGE)
 public final class SettingsGeneralEvaluatorSupport {
     @Builder.Default
     private final int populationSize = 150;
     private final SettingsGenomeFactory genomeFactory;
     private final Environment environment;
 
-    ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory(final SettingsParallelism parallelism) { // TODO: avoid creating SequentialIdFactorySynchronized if parallism is not on
+    ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory(final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) { // TODO: avoid creating SequentialIdFactorySynchronized if parallism is not on
         return context -> {
-            SequentialIdFactory genomeIdFactory = new SequentialIdFactorySynchronized("genome", new SequentialIdFactoryLong());
-            GenomeDefaultFactory genomeFactoryFixed = genomeFactory.create(context);
-            SequentialIdFactory speciesIdFactory = new SequentialIdFactorySynchronized("species", new SequentialIdFactoryLong());
+            SequentialIdFactory genomeIdFactory = parallelism.createSequentialIdFactory("genome", new SequentialIdFactoryLong());
+            GenomeDefaultFactory genomeFactoryFixed = genomeFactory.create(context, connections, parallelism);
+            SequentialIdFactory speciesIdFactory = parallelism.createSequentialIdFactory("species", new SequentialIdFactoryLong());
             FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
 
             Deque<String> discardedGenomeIds = !parallelism.isEnabled()

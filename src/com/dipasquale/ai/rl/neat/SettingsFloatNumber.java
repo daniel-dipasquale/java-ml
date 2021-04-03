@@ -1,34 +1,58 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.common.FloatFactory;
+import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SettingsFloatNumber {
-    private final Supplier supplier;
+    private final FloatFactoryCreator factoryCreator;
+
+    static SettingsFloatNumber strategy(final FloatFactoryCreator factoryCreator) {
+        return new SettingsFloatNumber(factoryCreator);
+    }
 
     public static SettingsFloatNumber literal(final float number) {
-        return new SettingsFloatNumber(() -> number);
+        FloatFactoryCreator factoryCreator = sp -> new LiteralFloatFactory(number);
+
+        return strategy(factoryCreator);
     }
 
-    public static SettingsFloatNumber random(final float min, final float max) {
-        return new SettingsFloatNumber(() -> SettingsConstants.RANDOM_SUPPORT_UNIFORM.next(min, max));
+    public static SettingsFloatNumber random(final SettingsRandomType type, final float min, final float max) {
+        FloatFactoryCreator factoryCreator = sp -> new RandomFloatFactory(sp.getRandomSupport(type), min, max);
+
+        return strategy(factoryCreator);
     }
 
-    public static SettingsFloatNumber randomMeanDistribution(final float min, final float max) {
-        return new SettingsFloatNumber(() -> SettingsConstants.RANDOM_SUPPORT_MEAN_DISTRIBUTED.next(min, max));
-    }
-
-    public static SettingsFloatNumber strategy(final Supplier supplier) {
-        return new SettingsFloatNumber(supplier);
-    }
-
-    float get() {
-        return supplier.get();
+    FloatFactory createFactory(final SettingsParallelism parallelism) {
+        return factoryCreator.create(parallelism);
     }
 
     @FunctionalInterface
-    public interface Supplier {
-        float get();
+    interface FloatFactoryCreator {
+        FloatFactory create(SettingsParallelism parallelism);
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class LiteralFloatFactory implements FloatFactory {
+        private final float number;
+
+        @Override
+        public float create() {
+            return number;
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class RandomFloatFactory implements FloatFactory {
+        private final RandomSupportFloat randomSupport;
+        private final float min;
+        private final float max;
+
+        @Override
+        public float create() {
+            return randomSupport.next(min, max);
+        }
     }
 }

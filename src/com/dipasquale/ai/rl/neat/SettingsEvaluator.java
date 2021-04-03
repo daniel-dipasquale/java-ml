@@ -54,15 +54,15 @@ public final class SettingsEvaluator {
             .build();
 
     Context createContext() {
-        ContextDefaultComponentFactory<ContextDefaultGeneralSupport> generalFactory = general.createFactory(parallelism);
+        ContextDefaultComponentFactory<ContextDefaultGeneralSupport> generalFactory = general.createFactory(connections, parallelism);
         ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> nodesFactory = nodes.createFactory(general.getGenomeFactory(), parallelism);
         ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory = connections.createFactory(neuralNetwork, parallelism);
         ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory = neuralNetwork.createFactory();
         ContextDefaultComponentFactory<ContextDefaultRandom> randomFactory = random.createFactory(parallelism);
         ContextDefaultComponentFactory<ContextDefaultParallelism> parallelismFactory = parallelism.createFactory();
-        ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory = mutation.createFactory(random.getIsLessThanRandomSupport(parallelism));
-        ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory = crossOver.createFactory(random.getIsLessThanRandomSupport(parallelism));
-        ContextDefaultComponentFactory<ContextDefaultSpeciation> speciationFactory = speciation.createFactory(general);
+        ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory = mutation.createFactory(parallelism, random);
+        ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory = crossOver.createFactory(parallelism, random);
+        ContextDefaultComponentFactory<ContextDefaultSpeciation> speciationFactory = speciation.createFactory(general, parallelism);
 
         return new ContextDefault(generalFactory, nodesFactory, connectionsFactory, neuralNetworkFactory, randomFactory, parallelismFactory, mutationFactory, crossOverFactory, speciationFactory);
     }

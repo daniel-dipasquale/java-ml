@@ -1,7 +1,9 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.rl.neat.context.ConnectionGeneWeightFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
+import com.dipasquale.common.FloatFactory;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,7 +25,7 @@ public final class SettingsGenomeFactory {
     private final SettingsEnum<SettingsActivationFunction> inputActivationFunction = SettingsEnum.literal(SettingsActivationFunction.IDENTITY);
     private final SettingsIntegerNumber outputs;
     @Builder.Default
-    private final SettingsFloatNumber outputBias = SettingsFloatNumber.random(-1f, 1f);
+    private final SettingsFloatNumber outputBias = SettingsFloatNumber.random(SettingsRandomType.UNIFORM, -1f, 1f);
     @Builder.Default
     private final SettingsEnum<SettingsOutputActivationFunction> outputActivationFunction = SettingsEnum.literal(SettingsOutputActivationFunction.COPY_FROM_HIDDEN);
     @Builder.Default
@@ -47,21 +49,27 @@ public final class SettingsGenomeFactory {
         return createDefault(inputs, outputs, new float[0]);
     }
 
-    private SettingsFloatNumber createWeightSettings(final ContextDefault context) {
+    private FloatFactory createWeightSettings(final ConnectionGeneWeightFactory weightFactory) {
         if (initialWeightType == SettingsInitialWeightType.FIRST_RANDOM_SUBSEQUENT_COPY) {
-            return SettingsFloatNumber.literal(context.connections().nextWeight());
+            float weight = weightFactory.next();
+
+            return () -> weight;
         }
 
-        return SettingsFloatNumber.strategy(() -> context.connections().nextWeight());
+        return weightFactory::next;
     }
 
-    public GenomeDefaultFactory create(final ContextDefault context) {
-        SettingsGenomeFactoryNoConnections genomeFactoryNoConnections = new SettingsGenomeFactoryNoConnections(context, inputs.get(), outputs.get(), biases.size());
+    public GenomeDefaultFactory create(final ContextDefault context, final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) {
+        int inputsFixed = inputs.createFactory(parallelism).create();
+        int outputsFixed = outputs.createFactory(parallelism).create();
+        int biasesFixed = biases.size();
+        SettingsGenomeFactoryNoConnections genomeFactoryNoConnections = new SettingsGenomeFactoryNoConnections(context, inputsFixed, outputsFixed, biasesFixed);
+        FloatFactory weightFactory = createWeightSettings(connections.createWeightFactory(parallelism));
 
         return switch (initialConnectionType) {
-            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, createWeightSettings(context), true);
+            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, weightFactory, true);
 
-            case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, createWeightSettings(context), false);
+            case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, weightFactory, false);
 
             default -> throw new IllegalStateException("SettingsInitialConnectionType.Random needs to be implemented");
         };

@@ -7,6 +7,7 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import com.dipasquale.common.FloatFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory {
     private final ContextDefault context;
     private final SettingsGenomeFactoryNoConnections genomeFactoryNoConnections;
-    private final SettingsFloatNumber weight;
+    private final FloatFactory weightFactory;
     private final boolean shouldConnectBiasNodes;
 
     @Override
@@ -24,7 +25,7 @@ final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory
         for (NodeGene inputNode : genome.getNodes(NodeGeneType.INPUT)) {
             for (NodeGene outputNode : genome.getNodes(NodeGeneType.OUTPUT)) {
                 InnovationId innovationId = context.connections().getOrCreateInnovationId(inputNode, outputNode);
-                ConnectionGene connection = new ConnectionGene(innovationId, weight.get());
+                ConnectionGene connection = new ConnectionGene(innovationId, weightFactory.create());
 
                 genome.addConnection(connection);
             }

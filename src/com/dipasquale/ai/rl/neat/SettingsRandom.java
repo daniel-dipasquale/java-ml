@@ -16,11 +16,11 @@ public final class SettingsRandom {
     private final SettingsRandomType isLessThan = SettingsRandomType.UNIFORM;
 
     RandomSupportFloat getNextIndexRandomSupport(final SettingsParallelism parallelism) {
-        return SettingsConstants.getRandomSupport(parallelism, nextIndex);
+        return parallelism.getRandomSupport(nextIndex);
     }
 
     RandomSupportFloat getIsLessThanRandomSupport(final SettingsParallelism parallelism) {
-        return SettingsConstants.getRandomSupport(parallelism, isLessThan);
+        return parallelism.getRandomSupport(isLessThan);
     }
 
     ContextDefaultComponentFactory<ContextDefaultRandom> createFactory(final SettingsParallelism parallelism) {

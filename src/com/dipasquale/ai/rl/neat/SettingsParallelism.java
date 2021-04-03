@@ -1,8 +1,10 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelism;
+import com.dipasquale.common.RandomSupportFloat;
 import com.dipasquale.threading.EventLoop;
 import com.dipasquale.threading.EventLoopStream;
 import com.dipasquale.threading.EventLoopStreamSettings;
@@ -18,6 +20,10 @@ import java.util.concurrent.ExecutorService;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public final class SettingsParallelism {
+    private static final RandomSupportFloat RANDOM_SUPPORT_UNIFORM = RandomSupportFloat.create();
+    private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTED = RandomSupportFloat.createMeanDistribution();
+    private static final RandomSupportFloat RANDOM_SUPPORT_UNIFORM_CONCURRENT = RandomSupportFloat.createConcurrent();
+    private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT = RandomSupportFloat.createMeanDistributionConcurrent();
     private final ExecutorService executorService;
     private final int numberOfThreads;
 
@@ -59,5 +65,29 @@ public final class SettingsParallelism {
 
             return new ContextDefaultParallelism(parallelism);
         };
+    }
+
+    RandomSupportFloat getRandomSupport(final SettingsRandomType type) {
+        if (!isEnabled()) {
+            return switch (type) {
+                case UNIFORM -> RANDOM_SUPPORT_UNIFORM;
+
+                case MEAN_DISTRIBUTED -> RANDOM_SUPPORT_MEAN_DISTRIBUTED;
+            };
+        }
+
+        return switch (type) {
+            case UNIFORM -> RANDOM_SUPPORT_UNIFORM_CONCURRENT;
+
+            case MEAN_DISTRIBUTED -> RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT;
+        };
+    }
+
+    SequentialIdFactory createSequentialIdFactory(final String name, final SequentialIdFactory sequentialIdFactory) {
+        if (!isEnabled()) {
+            return new SequentialIdFactoryDefault(name, sequentialIdFactory);
+        }
+
+        return new SequentialIdFactorySynchronized(name, sequentialIdFactory);
     }
 }

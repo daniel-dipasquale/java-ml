@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultMutation;
+import com.dipasquale.common.FloatFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,15 +23,15 @@ public final class SettingsMutation {
     @Builder.Default
     private final SettingsFloatNumber disableConnectionExpressedRate = SettingsFloatNumber.literal(0.2f);
 
-    private static ContextDefaultMutation.Supplier createSupplier(final RandomSupportFloat randomSupport, final SettingsFloatNumber floatNumber) {
-        float rate = floatNumber.get();
+    private static ContextDefaultMutation.Supplier createSupplier(final RandomSupportFloat randomSupport, final FloatFactory rateFactory) {
+        float rate = rateFactory.create();
 
         return () -> randomSupport.isLessThan(rate);
     }
 
-    private static ConnectionWeightSuppliers createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final SettingsFloatNumber perturbFloatNumber, final SettingsFloatNumber replaceFloatNumber) {
-        float perturbRate = perturbFloatNumber.get();
-        float replaceRate = replaceFloatNumber.get();
+    private static ConnectionWeightSuppliers createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final FloatFactory perturbFactory, final FloatFactory replaceFactory) {
+        float perturbRate = perturbFactory.create();
+        float replaceRate = replaceFactory.create();
         float rate = (float) Math.ceil(perturbRate + replaceRate);
 
         if (Float.compare(rate, 0f) == 0) {
@@ -43,12 +44,13 @@ public final class SettingsMutation {
         return new ConnectionWeightSuppliers(() -> randomSupport.isLessThan(perturbRateFixed), () -> randomSupport.isLessThan(replaceRateFixed));
     }
 
-    ContextDefaultComponentFactory<ContextDefaultMutation> createFactory(final RandomSupportFloat randomSupport) {
+    ContextDefaultComponentFactory<ContextDefaultMutation> createFactory(final SettingsParallelism parallelism, final SettingsRandom random) {
         return context -> {
-            ContextDefaultMutation.Supplier shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate);
-            ContextDefaultMutation.Supplier shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate);
-            ConnectionWeightSuppliers connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate, replaceConnectionsWeightRate);
-            ContextDefaultMutation.Supplier shouldDisableConnectionExpressed = createSupplier(randomSupport, disableConnectionExpressedRate);
+            RandomSupportFloat randomSupport = random.getIsLessThanRandomSupport(parallelism);
+            ContextDefaultMutation.Supplier shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate.createFactory(parallelism));
+            ContextDefaultMutation.Supplier shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate.createFactory(parallelism));
+            ConnectionWeightSuppliers connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));
+            ContextDefaultMutation.Supplier shouldDisableConnectionExpressed = createSupplier(randomSupport, disableConnectionExpressedRate.createFactory(parallelism));
 
             return new ContextDefaultMutation(shouldAddNodeMutation, shouldAddConnectionMutation, connectionsWeight.perturb, connectionsWeight.replace, shouldDisableConnectionExpressed);
         };
