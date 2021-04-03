@@ -6,6 +6,7 @@ import com.dipasquale.ai.common.SequentialIdFactoryLong;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
+import com.dipasquale.common.ArgumentValidatorUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,13 +20,14 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 @Builder
 @Getter(AccessLevel.PACKAGE)
 public final class SettingsGeneralEvaluatorSupport {
-    @Builder.Default
-    private final int populationSize = 150;
+    private final int populationSize;
     private final SettingsGenomeFactory genomeFactory;
     private final Environment environment;
 
     ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory(final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) { // TODO: avoid creating SequentialIdFactorySynchronized if parallism is not on
         return context -> {
+            ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
+
             SequentialIdFactory genomeIdFactory = parallelism.createSequentialIdFactory("genome", new SequentialIdFactoryLong());
             GenomeDefaultFactory genomeFactoryFixed = genomeFactory.create(context, connections, parallelism);
             SequentialIdFactory speciesIdFactory = parallelism.createSequentialIdFactory("species", new SequentialIdFactoryLong());

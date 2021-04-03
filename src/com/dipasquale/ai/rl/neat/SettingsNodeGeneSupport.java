@@ -42,8 +42,8 @@ public final class SettingsNodeGeneSupport {
         return new ActivationFunctionFactoryUnknown(activationFunctionFactory.create(), randomSupport);
     }
 
-    private static ActivationFunctionFactory createActivationFunctionFactory(final EnumFactory<SettingsOutputActivationFunction> outputActivationFunction, final EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory, final RandomSupportFloat randomSupport) {
-        SettingsOutputActivationFunction outputActivationFunctionFixed = outputActivationFunction.create();
+    private static ActivationFunctionFactory createActivationFunctionFactory(final EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory, final EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory, final RandomSupportFloat randomSupport) {
+        SettingsOutputActivationFunction outputActivationFunctionFixed = outputActivationFunctionFactory.create();
 
         return switch (outputActivationFunctionFixed) {
             case RANDOM -> new ActivationFunctionFactoryUnknown(SettingsActivationFunction.RANDOM, randomSupport);
