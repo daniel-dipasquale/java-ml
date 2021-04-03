@@ -37,8 +37,7 @@ public final class SettingsConnectionGeneSupport {
     ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory(final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
         return context -> {
             boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
-            SequentialIdFactory innovationIdFactory = new SequentialIdFactoryLong();
-            SequentialIdFactory innovationIdFactoryFixed = parallelism.createSequentialIdFactory("innovation-id", innovationIdFactory);
+            SequentialIdFactory innovationIdFactory = parallelism.createSequentialIdFactory("innovation-id", new SequentialIdFactoryLong());
 
             Map<DirectedEdge, InnovationId> innovationIds = !parallelism.isEnabled()
                     ? new HashMap<>()
@@ -47,7 +46,7 @@ public final class SettingsConnectionGeneSupport {
             ConnectionGeneWeightFactory weightFactoryFixed = createWeightFactory(parallelism);
             ConnectionGeneWeightPerturber weightPerturberFixed = createWeightPerturber(parallelism);
 
-            return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, innovationIdFactoryFixed, innovationIds, weightFactoryFixed, weightPerturberFixed);
+            return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, innovationIdFactory, innovationIds, weightFactoryFixed, weightPerturberFixed);
         };
     }
 

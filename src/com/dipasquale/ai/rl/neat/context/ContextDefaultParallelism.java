@@ -78,7 +78,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
             return numberOfThreads;
         }
 
-        private <T extends Exception> void failButAddAsSuppressedAllUncaughtExceptions(final T exception)
+        private <T extends Exception> void failButAddAllUncaughtExceptionsAsSuppressed(final T exception)
                 throws T {
             exceptions.forEach(exception::addSuppressed);
             exceptions.clear();
@@ -91,7 +91,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
                 return;
             }
 
-            failButAddAsSuppressedAllUncaughtExceptions(new IllegalStateException("exceptions were encountered in parallelism"));
+            failButAddAllUncaughtExceptionsAsSuppressed(new IllegalStateException("exceptions were encountered in parallelism"));
         }
 
         @Override
@@ -110,7 +110,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
                     eventLoopStream.awaitUntilDone();
                     failIfThereAreUncaughtExceptions();
                 } catch (InterruptedException e) {
-                    failButAddAsSuppressedAllUncaughtExceptions(e);
+                    failButAddAllUncaughtExceptionsAsSuppressed(e);
                 }
             }
         }

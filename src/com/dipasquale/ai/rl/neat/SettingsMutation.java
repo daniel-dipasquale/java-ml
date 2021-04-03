@@ -29,9 +29,9 @@ public final class SettingsMutation {
         return () -> randomSupport.isLessThan(rate);
     }
 
-    private static ConnectionWeightSuppliers createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final FloatFactory perturbFactory, final FloatFactory replaceFactory) {
-        float perturbRate = perturbFactory.create();
-        float replaceRate = replaceFactory.create();
+    private static ConnectionWeightSuppliers createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final FloatFactory perturbRateFactory, final FloatFactory replaceRateFactory) {
+        float perturbRate = perturbRateFactory.create();
+        float replaceRate = replaceRateFactory.create();
         float rate = (float) Math.ceil(perturbRate + replaceRate);
 
         if (Float.compare(rate, 0f) == 0) {
