@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
@@ -69,6 +70,7 @@ public final class NeatEvaluatorTest {
                                         .initialConnectionType(SettingsInitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                         .initialWeightType(SettingsInitialWeightType.RANDOM)
                                         .build())
+                                .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValueFactory())
                                 .environment(environmentContainer)
                                 .build())
                         .nodes(SettingsNodeGeneSupport.builder()
@@ -114,8 +116,8 @@ public final class NeatEvaluatorTest {
                                 .eugenicsThreshold(SettingsFloatNumber.literal(0.2f))
                                 .elitistThreshold(SettingsFloatNumber.literal(0.01f))
                                 .elitistThresholdMinimum(SettingsIntegerNumber.literal(2))
-                                .interSpeciesMatingRate(SettingsFloatNumber.literal(0.001f))
                                 .stagnationDropOffAge(SettingsIntegerNumber.literal(15))
+                                .interSpeciesMatingRate(SettingsFloatNumber.literal(0.001f))
                                 .build())
                         .build())
                 .build();
@@ -230,6 +232,7 @@ public final class NeatEvaluatorTest {
                                         .initialConnectionType(SettingsInitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                         .initialWeightType(SettingsInitialWeightType.RANDOM)
                                         .build())
+                                .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValueFactory())
                                 .environment(environmentContainer)
                                 .build())
                         .nodes(SettingsNodeGeneSupport.builder()
@@ -275,8 +278,8 @@ public final class NeatEvaluatorTest {
                                 .eugenicsThreshold(SettingsFloatNumber.literal(0.4f))
                                 .elitistThreshold(SettingsFloatNumber.literal(0.01f))
                                 .elitistThresholdMinimum(SettingsIntegerNumber.literal(2))
-                                .interSpeciesMatingRate(SettingsFloatNumber.literal(0.001f))
                                 .stagnationDropOffAge(SettingsIntegerNumber.literal(15))
+                                .interSpeciesMatingRate(SettingsFloatNumber.literal(0.001f))
                                 .build())
                         .build())
                 .build();

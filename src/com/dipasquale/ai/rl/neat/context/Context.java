@@ -49,7 +49,7 @@ public interface Context {
 
         float calculateFitness(GenomeDefault genome);
 
-        void discardGenome(GenomeDefault genome);
+        void markToKill(GenomeDefault genome);
 
         void reset();
     }

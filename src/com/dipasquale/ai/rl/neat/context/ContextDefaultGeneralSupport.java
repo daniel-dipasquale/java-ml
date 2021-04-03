@@ -6,6 +6,7 @@ import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.rl.neat.Environment;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Deque;
@@ -18,7 +19,8 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
     private final SequentialIdFactory speciesIdFactory;
     private final FitnessDeterminerFactory fitnessDeterminerFactory;
     private final Environment environment;
-    private final Deque<String> genomeIdsDiscarded;
+    @Getter
+    private final Deque<String> genomeIdsKilled;
 
     @Override
     public int populationSize() {
@@ -27,7 +29,7 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
 
     @Override
     public String createGenomeId() {
-        String id = genomeIdsDiscarded.pollFirst();
+        String id = genomeIdsKilled.pollFirst();
 
         if (id != null) {
             return id;
@@ -57,14 +59,14 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
     }
 
     @Override
-    public void discardGenome(final GenomeDefault genome) {
-        genomeIdsDiscarded.add(genome.getId());
+    public void markToKill(final GenomeDefault genome) {
+        genomeIdsKilled.add(genome.getId());
     }
 
     @Override
     public void reset() {
         genomeIdFactory.reset();
         speciesIdFactory.reset();
-        genomeIdsDiscarded.clear();
+        genomeIdsKilled.clear();
     }
 }

@@ -24,7 +24,7 @@ public final class SettingsConnectionGeneSupport {
     @Builder.Default
     private final SettingsFloatNumber weightFactory = SettingsFloatNumber.random(SettingsRandomType.UNIFORM, -1f, 1f);
     @Builder.Default
-    private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.random(SettingsRandomType.UNIFORM, 0f, 1f);
+    private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.literal(2.5f);
 
     ConnectionGeneWeightFactory createWeightFactory(final SettingsParallelism parallelism) {
         return new ConnectionGeneWeightFactoryDefault(weightFactory.createFactory(parallelism));

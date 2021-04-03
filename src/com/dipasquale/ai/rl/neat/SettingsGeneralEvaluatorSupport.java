@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public final class SettingsGeneralEvaluatorSupport {
     private final int populationSize;
     private final SettingsGenomeFactory genomeFactory;
+    private final FitnessDeterminerFactory fitnessDeterminerFactory;
     private final Environment environment;
 
     ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory(final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) { // TODO: avoid creating SequentialIdFactorySynchronized if parallism is not on
@@ -31,7 +32,6 @@ public final class SettingsGeneralEvaluatorSupport {
             SequentialIdFactory genomeIdFactory = parallelism.createSequentialIdFactory("genome", new SequentialIdFactoryLong());
             GenomeDefaultFactory genomeFactoryFixed = genomeFactory.create(context, connections, parallelism);
             SequentialIdFactory speciesIdFactory = parallelism.createSequentialIdFactory("species", new SequentialIdFactoryLong());
-            FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
 
             Deque<String> discardedGenomeIds = !parallelism.isEnabled()
                     ? new LinkedList<>()

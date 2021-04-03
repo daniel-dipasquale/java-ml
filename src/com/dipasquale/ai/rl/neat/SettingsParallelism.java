@@ -24,8 +24,10 @@ public final class SettingsParallelism {
     private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTED = RandomSupportFloat.createMeanDistribution();
     private static final RandomSupportFloat RANDOM_SUPPORT_UNIFORM_CONCURRENT = RandomSupportFloat.createConcurrent();
     private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT = RandomSupportFloat.createMeanDistributionConcurrent();
-    private final ExecutorService executorService;
-    private final int numberOfThreads;
+    @Builder.Default
+    private final ExecutorService executorService = null;
+    @Builder.Default
+    private final int numberOfThreads = 1;
 
     boolean isEnabled() {
         return executorService != null;

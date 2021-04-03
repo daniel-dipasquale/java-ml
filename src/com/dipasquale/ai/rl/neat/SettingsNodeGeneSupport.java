@@ -34,9 +34,9 @@ public final class SettingsNodeGeneSupport {
 
     private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = ImmutableList.copyOf(ACTIVATION_FUNCTIONS_MAP.values());
     @Builder.Default
-    private final SettingsFloatNumber hiddenBias = SettingsFloatNumber.literal(0f);
+    private final SettingsFloatNumber hiddenBias = SettingsFloatNumber.random(SettingsRandomType.UNIFORM, -1f, 1f);
     @Builder.Default
-    private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.RE_LU);
+    private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.SIGMOID);
 
     private static ActivationFunctionFactory createActivationFunctionFactory(final EnumFactory<SettingsActivationFunction> activationFunctionFactory, final RandomSupportFloat randomSupport) {
         return new ActivationFunctionFactoryUnknown(activationFunctionFactory.create(), randomSupport);

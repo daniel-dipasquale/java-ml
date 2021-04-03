@@ -13,15 +13,15 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public final class SettingsMutation {
     @Builder.Default
-    private final SettingsFloatNumber addNodeMutationRate = SettingsFloatNumber.literal(0.1f);
+    private final SettingsFloatNumber addNodeMutationRate = SettingsFloatNumber.literal(0.05f);
     @Builder.Default
     private final SettingsFloatNumber addConnectionMutationRate = SettingsFloatNumber.literal(0.1f);
     @Builder.Default
-    private final SettingsFloatNumber perturbConnectionsWeightRate = SettingsFloatNumber.literal(0.9f);
+    private final SettingsFloatNumber perturbConnectionsWeightRate = SettingsFloatNumber.literal(0.75f);
     @Builder.Default
-    private final SettingsFloatNumber replaceConnectionsWeightRate = SettingsFloatNumber.literal(0.75f);
+    private final SettingsFloatNumber replaceConnectionsWeightRate = SettingsFloatNumber.literal(0.5f);
     @Builder.Default
-    private final SettingsFloatNumber disableConnectionExpressedRate = SettingsFloatNumber.literal(0.2f);
+    private final SettingsFloatNumber disableConnectionExpressedRate = SettingsFloatNumber.literal(0.05f);
 
     private static ContextDefaultMutation.Supplier createSupplier(final RandomSupportFloat randomSupport, final FloatFactory rateFactory) {
         float rate = rateFactory.create();
@@ -46,7 +46,7 @@ public final class SettingsMutation {
 
     ContextDefaultComponentFactory<ContextDefaultMutation> createFactory(final SettingsParallelism parallelism, final SettingsRandom random) {
         return context -> {
-            RandomSupportFloat randomSupport = random.getIsLessThanRandomSupport(parallelism);
+            RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
             ContextDefaultMutation.Supplier shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate.createFactory(parallelism));
             ContextDefaultMutation.Supplier shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate.createFactory(parallelism));
             ConnectionWeightSuppliers connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));

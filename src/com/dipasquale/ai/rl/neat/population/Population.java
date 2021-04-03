@@ -1,9 +1,11 @@
 package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.species.Species;
 import com.dipasquale.ai.rl.neat.species.SpeciesDefault;
+import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
@@ -194,12 +196,39 @@ public final class Population {
         }
     }
 
+    private static int countOrganismsInSpecies(final NodeDeque<Species, SimpleNode<Species>> speciesNodes) {
+        return speciesNodes.stream()
+                .map(speciesNodes::getValue)
+                .map(Species::getOrganisms)
+                .map(List::size)
+                .reduce(0, Integer::sum);
+    }
+
+    private static int countOrganismsEverywhere(final Set<Organism> organismsWithoutSpecies, final Queue<ObjectFactory<Organism>> organismsToBirth, final NodeDeque<Species, SimpleNode<Species>> speciesNodes) {
+        return organismsWithoutSpecies.size() + organismsToBirth.size() + countOrganismsInSpecies(speciesNodes);
+    }
+
+    private static int countOrganismsKilled(final Context context) {
+        ArgumentValidatorUtils.ensureTrue(context.general() instanceof ContextDefaultGeneralSupport, "context.general", "is not an instanceof ContextDefaultGeneralSupport");
+
+        return ((ContextDefaultGeneralSupport) context.general()).getGenomeIdsKilled().size();
+    }
+
     public void evolve() {
         SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
 
+        assert context.general().populationSize() == countOrganismsEverywhere(organismsWithoutSpecies, organismsToBirth, speciesNodes);
+        assert organismsToBirth.isEmpty() && countOrganismsKilled(context) == organismsToBirth.size();
+
         prepareAllSpeciesForEvolution(evolutionContext);
+
+        assert organismsToBirth.isEmpty();
+
         breedThroughAllSpecies(evolutionContext);
         generation++;
+
+        assert context.general().populationSize() == countOrganismsEverywhere(organismsWithoutSpecies, organismsToBirth, speciesNodes);
+        assert countOrganismsKilled(context) == organismsToBirth.size();
     }
 
     public void restart() {

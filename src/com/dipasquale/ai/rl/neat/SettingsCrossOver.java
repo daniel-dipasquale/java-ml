@@ -20,7 +20,7 @@ public final class SettingsCrossOver {
     @Builder.Default
     private final SettingsFloatNumber overrideConnectionExpressedRate = SettingsFloatNumber.literal(0.5f);
     @Builder.Default
-    private final SettingsFloatNumber useRandomParentConnectionWeightRate = SettingsFloatNumber.literal(1f);
+    private final SettingsFloatNumber useRandomParentConnectionWeightRate = SettingsFloatNumber.literal(0.6f);
 
     private static CrossOverSuppliers createCrossOverSuppliers(final RandomSupportFloat randomSupport, final FloatFactory mateOnlyRateFactory, final FloatFactory mutateOnlyRateFactory) {
         float mateOnlyRate = mateOnlyRateFactory.create();
@@ -46,7 +46,7 @@ public final class SettingsCrossOver {
 
     ContextDefaultComponentFactory<ContextDefaultCrossOver> createFactory(final SettingsParallelism parallelism, final SettingsRandom random) {
         return context -> {
-            RandomSupportFloat randomSupport = random.getIsLessThanRandomSupport(parallelism);
+            RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
             CrossOverSuppliers crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
             ContextDefaultCrossOver.Supplier shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
             ContextDefaultCrossOver.Supplier shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));

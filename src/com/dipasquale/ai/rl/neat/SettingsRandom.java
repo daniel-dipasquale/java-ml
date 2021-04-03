@@ -15,20 +15,20 @@ public final class SettingsRandom {
     @Builder.Default
     private final SettingsRandomType isLessThan = SettingsRandomType.UNIFORM;
 
-    RandomSupportFloat getNextIndexRandomSupport(final SettingsParallelism parallelism) {
+    RandomSupportFloat getNextIndexSupport(final SettingsParallelism parallelism) {
         return parallelism.getRandomSupport(nextIndex);
     }
 
-    RandomSupportFloat getIsLessThanRandomSupport(final SettingsParallelism parallelism) {
+    RandomSupportFloat getIsLessThanSupport(final SettingsParallelism parallelism) {
         return parallelism.getRandomSupport(isLessThan);
     }
 
     ContextDefaultComponentFactory<ContextDefaultRandom> createFactory(final SettingsParallelism parallelism) {
         return context -> {
-            RandomSupportFloat nextIndexRandomSupport = getNextIndexRandomSupport(parallelism);
-            RandomSupportFloat isLessThanRandomSupport = getIsLessThanRandomSupport(parallelism);
+            RandomSupportFloat nextIndex = getNextIndexSupport(parallelism);
+            RandomSupportFloat isLessThan = getIsLessThanSupport(parallelism);
 
-            return new ContextDefaultRandom(nextIndexRandomSupport, isLessThanRandomSupport);
+            return new ContextDefaultRandom(nextIndex, isLessThan);
         };
     }
 }
