@@ -14,8 +14,10 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public final class SettingsSpeciation {
-    private final SettingsIntegerNumber maximumSpecies;
-    private final SettingsIntegerNumber maximumGenomes;
+    @Builder.Default
+    private final SettingsIntegerNumber maximumSpecies = null;
+    @Builder.Default
+    private final SettingsIntegerNumber maximumGenomes = null;
     @Builder.Default
     private final SettingsFloatNumber weightDifferenceCoefficient = SettingsFloatNumber.literal(0.5f);
     @Builder.Default
