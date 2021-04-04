@@ -13,9 +13,9 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public final class SettingsMutation {
     @Builder.Default
-    private final SettingsFloatNumber addNodeMutationRate = SettingsFloatNumber.literal(0.05f);
+    private final SettingsFloatNumber addNodeMutationRate = SettingsFloatNumber.literal(0.1f);
     @Builder.Default
-    private final SettingsFloatNumber addConnectionMutationRate = SettingsFloatNumber.literal(0.1f);
+    private final SettingsFloatNumber addConnectionMutationRate = SettingsFloatNumber.literal(0.2f);
     @Builder.Default
     private final SettingsFloatNumber perturbConnectionsWeightRate = SettingsFloatNumber.literal(0.75f);
     @Builder.Default
