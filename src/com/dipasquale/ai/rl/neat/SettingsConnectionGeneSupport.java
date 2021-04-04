@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.common.SequentialIdFactoryLong;
+import com.dipasquale.ai.common.SequentialIdFactoryDefault;
 import com.dipasquale.ai.rl.neat.context.ConnectionGeneWeightFactory;
 import com.dipasquale.ai.rl.neat.context.ConnectionGeneWeightPerturber;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
@@ -37,7 +37,7 @@ public final class SettingsConnectionGeneSupport {
     ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory(final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
         return context -> {
             boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
-            SequentialIdFactory innovationIdFactory = parallelism.createSequentialIdFactory("innovation-id", new SequentialIdFactoryLong());
+            SequentialIdFactory innovationIdFactory = parallelism.createSequentialIdFactory("innovation-id", new SequentialIdFactoryDefault());
 
             Map<DirectedEdge, InnovationId> innovationIds = !parallelism.isEnabled()
                     ? new HashMap<>()

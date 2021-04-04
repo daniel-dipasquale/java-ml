@@ -1,6 +1,8 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialIdFactory;
+import com.dipasquale.ai.common.SequentialIdFactoryStrategy;
+import com.dipasquale.ai.common.SequentialIdFactoryStrategySynchronized;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelism;
@@ -87,9 +89,9 @@ public final class SettingsParallelism {
 
     SequentialIdFactory createSequentialIdFactory(final String name, final SequentialIdFactory sequentialIdFactory) {
         if (!isEnabled()) {
-            return new SequentialIdFactoryDefault(name, sequentialIdFactory);
+            return new SequentialIdFactoryStrategy(name, sequentialIdFactory);
         }
 
-        return new SequentialIdFactorySynchronized(name, sequentialIdFactory);
+        return new SequentialIdFactoryStrategySynchronized(name, sequentialIdFactory);
     }
 }

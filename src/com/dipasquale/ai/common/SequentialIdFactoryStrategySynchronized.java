@@ -1,12 +1,9 @@
-package com.dipasquale.ai.rl.neat;
+package com.dipasquale.ai.common;
 
-import com.dipasquale.ai.common.SequentialId;
-import com.dipasquale.ai.common.SequentialIdFactory;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SequentialIdFactorySynchronized implements SequentialIdFactory {
+@RequiredArgsConstructor
+public final class SequentialIdFactoryStrategySynchronized implements SequentialIdFactory {
     private final String name;
     private final SequentialIdFactory sequentialIdFactory;
 

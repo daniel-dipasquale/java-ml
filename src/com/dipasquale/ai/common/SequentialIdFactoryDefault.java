@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-public final class SequentialIdFactoryLong implements SequentialIdFactory {
+public final class SequentialIdFactoryDefault implements SequentialIdFactory {
     private long current = 0L;
 
     @Override

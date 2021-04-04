@@ -9,7 +9,6 @@ import java.io.Serial;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-@RequiredArgsConstructor
 public final class ReusableCountDownLatch { // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
     private final Sync sync;
     @Getter(AccessLevel.PACKAGE)

@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.SequentialId;
-import com.dipasquale.ai.common.SequentialIdFactoryLong;
+import com.dipasquale.ai.common.SequentialIdFactoryDefault;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.RecyclableVersion;
@@ -18,7 +18,7 @@ import java.util.stream.StreamSupport;
 
 public final class NeuronNavigatorTest {
     private static List<SequentialId> createNodeIds(final int count) {
-        SequentialIdFactoryLong nodeIdFactory = new SequentialIdFactoryLong();
+        SequentialIdFactoryDefault nodeIdFactory = new SequentialIdFactoryDefault();
 
         return IntStream.range(0, count)
                 .mapToObj(i -> nodeIdFactory.next())

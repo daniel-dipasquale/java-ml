@@ -38,7 +38,7 @@ public final class NeatEvaluatorTest {
     private static NeatTest createXorEvaluatorTest(final float[][] inputs, final float[] expectedOutputs, final boolean shouldUseParallelism) {
         int populationSize = 150;
 
-        EnvironmentContainer environmentContainer = EnvironmentContainer.builder()
+        NeatEnvironmentContainer environmentContainer = NeatEnvironmentContainer.builder()
                 .populationSize(populationSize)
                 .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
@@ -188,7 +188,7 @@ public final class NeatEvaluatorTest {
     private static NeatTest createSinglePoleBalancingTest(final double timeSpentGoal, final boolean shouldUseParallelism) {
         int populationSize = 150;
 
-        EnvironmentContainer environmentContainer = EnvironmentContainer.builder()
+        NeatEnvironmentContainer environmentContainer = NeatEnvironmentContainer.builder()
                 .populationSize(populationSize)
                 .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
@@ -339,18 +339,18 @@ public final class NeatEvaluatorTest {
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class EnvironmentContainer implements Environment {
+    private static final class NeatEnvironmentContainer implements NeatEnvironment {
         private final int populationSize;
         private final Set<String> genomeIds;
-        private final Environment environment;
+        private final NeatEnvironment environment;
 
         @Builder(access = AccessLevel.PRIVATE)
-        public static EnvironmentContainer create(final int populationSize, final boolean shouldUseParallelism, final Environment environment) {
+        public static NeatEnvironmentContainer create(final int populationSize, final boolean shouldUseParallelism, final NeatEnvironment environment) {
             Set<String> genomeIds = !shouldUseParallelism
                     ? new HashSet<>()
                     : Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-            return new EnvironmentContainer(populationSize, genomeIds, environment);
+            return new NeatEnvironmentContainer(populationSize, genomeIds, environment);
         }
 
         @Override
@@ -364,7 +364,7 @@ public final class NeatEvaluatorTest {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
     private static final class NeatTest {
-        private final EnvironmentContainer environment;
+        private final NeatEnvironmentContainer environment;
         private final SettingsEvaluator settings;
     }
 }

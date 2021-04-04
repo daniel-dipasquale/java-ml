@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.FitnessDeterminer;
 import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.rl.neat.Environment;
+import com.dipasquale.ai.rl.neat.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
     private final GenomeDefaultFactory genomeFactory;
     private final SequentialIdFactory speciesIdFactory;
     private final FitnessDeterminerFactory fitnessDeterminerFactory;
-    private final Environment environment;
+    private final NeatEnvironment environment;
     @Getter
     private final Deque<String> genomeIdsKilled;
 

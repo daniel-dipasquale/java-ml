@@ -1,13 +1,11 @@
-package com.dipasquale.ai.rl.neat;
+package com.dipasquale.ai.common;
 
-import com.dipasquale.ai.common.SequentialId;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 @EqualsAndHashCode
-final class SequentialIdStrategy implements SequentialId {
+public final class SequentialIdStrategy implements SequentialId {
     private final String name;
     private final SequentialId sequentialId;
 

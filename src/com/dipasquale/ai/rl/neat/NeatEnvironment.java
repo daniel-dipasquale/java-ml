@@ -3,6 +3,6 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 
 @FunctionalInterface
-public interface Environment {
+public interface NeatEnvironment {
     float test(Genome genome);
 }

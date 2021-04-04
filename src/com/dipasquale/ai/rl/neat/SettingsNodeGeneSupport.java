@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.ActivationFunctionFactory;
 import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.common.SequentialIdFactoryLong;
+import com.dipasquale.ai.common.SequentialIdFactoryDefault;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultNodeGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
@@ -77,10 +77,10 @@ public final class SettingsNodeGeneSupport {
     ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> createFactory(final SettingsGenomeFactory genomeFactory, final SettingsParallelism parallelism) {
         return context -> {
             Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories = ImmutableMap.<NodeGeneType, SequentialIdFactory>builder()
-                    .put(NodeGeneType.INPUT, parallelism.createSequentialIdFactory("n1_input", new SequentialIdFactoryLong()))
-                    .put(NodeGeneType.OUTPUT, parallelism.createSequentialIdFactory("n4_output", new SequentialIdFactoryLong()))
-                    .put(NodeGeneType.BIAS, parallelism.createSequentialIdFactory("n2_bias", new SequentialIdFactoryLong()))
-                    .put(NodeGeneType.HIDDEN, parallelism.createSequentialIdFactory("n3_hidden", new SequentialIdFactoryLong()))
+                    .put(NodeGeneType.INPUT, parallelism.createSequentialIdFactory("n1_input", new SequentialIdFactoryDefault()))
+                    .put(NodeGeneType.OUTPUT, parallelism.createSequentialIdFactory("n4_output", new SequentialIdFactoryDefault()))
+                    .put(NodeGeneType.BIAS, parallelism.createSequentialIdFactory("n2_bias", new SequentialIdFactoryDefault()))
+                    .put(NodeGeneType.HIDDEN, parallelism.createSequentialIdFactory("n3_hidden", new SequentialIdFactoryDefault()))
                     .build();
 
             Map<NodeGeneType, FloatFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatFactory>builder()
