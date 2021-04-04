@@ -5,6 +5,7 @@ import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.species.Species;
 import com.dipasquale.data.structure.deque.Node;
 import com.dipasquale.data.structure.deque.NodeDeque;
+import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -20,10 +21,10 @@ final class SpeciesFitnessStrategyUpdateOrganisms implements SpeciesFitnessStrat
                 .map(speciesNodes::getValue)
                 .flatMap(s -> s.getOrganisms().stream());
 
-        context.parallelism().forEach(organisms, Organism::updateFitness);
+        WaitHandle waitHandle = context.parallelism().forEach(organisms, Organism::updateFitness);
 
         try {
-            context.parallelism().waitUntilDone();
+            waitHandle.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 

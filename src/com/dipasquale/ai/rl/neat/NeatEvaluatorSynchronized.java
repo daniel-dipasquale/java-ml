@@ -62,9 +62,4 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
     public float[] activate(final float[] input) {
         return mostFitOrganismActivator.activate(input);
     }
-
-    @Override
-    public void shutdown() {
-        context.parallelism().shutdown();
-    }
 }

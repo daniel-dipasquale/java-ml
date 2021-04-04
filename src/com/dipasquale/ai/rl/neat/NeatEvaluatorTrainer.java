@@ -12,6 +12,4 @@ public interface NeatEvaluatorTrainer {
     float getMaximumFitness();
 
     float[] activate(float[] input);
-
-    void shutdown();
 }

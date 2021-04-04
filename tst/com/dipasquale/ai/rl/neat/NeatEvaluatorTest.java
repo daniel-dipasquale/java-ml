@@ -2,8 +2,12 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
+import com.dipasquale.threading.event.loop.EventLoop;
+import com.dipasquale.threading.event.loop.EventLoopStream;
+import com.dipasquale.threading.event.loop.EventLoopStreamSettings;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,8 +18,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +30,14 @@ import java.util.concurrent.Executors;
 public final class NeatEvaluatorTest {
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
+
+    private static final EventLoopStream EVENT_LOOP_STREAM = EventLoop.createStream(EventLoopStreamSettings.builder()
+            .executorService(EXECUTOR_SERVICE)
+            .numberOfThreads(NUMBER_OF_THREADS)
+            .exceptionLogger(EXCEPTIONS::add)
+            .dateTimeSupport(DateTimeSupport.createMilliseconds())
+            .build());
 
     @BeforeClass
     public static void beforeClass() {
@@ -32,6 +46,7 @@ public final class NeatEvaluatorTest {
 
     @AfterClass
     public static void afterClass() {
+        EVENT_LOOP_STREAM.shutdown();
         EXECUTOR_SERVICE.shutdown();
     }
 
@@ -89,8 +104,7 @@ public final class NeatEvaluatorTest {
                                 .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
-                                .executorService(shouldUseParallelism ? EXECUTOR_SERVICE : null)
-                                .numberOfThreads(shouldUseParallelism ? NUMBER_OF_THREADS : 1)
+                                .eventLoopStream(shouldUseParallelism ? EVENT_LOOP_STREAM : null)
                                 .build())
                         .mutation(SettingsMutation.builder()
                                 .addNodeMutationRate(SettingsFloatNumber.literal(0.05f))
@@ -136,23 +150,19 @@ public final class NeatEvaluatorTest {
         NeatEvaluator neat = Neat.createEvaluator(neatTest.settings);
         boolean success = false;
 
-        try {
-            for (int i1 = 0, c = 500; i1 < c && !success; i1++) {
-                success = true;
+        for (int i1 = 0, c = 500; i1 < c && !success; i1++) {
+            success = true;
 
-                for (int i2 = 0; i2 < inputs.length && success; i2++) {
-                    float[] output = neat.activate(inputs[i2]);
+            for (int i2 = 0; i2 < inputs.length && success; i2++) {
+                float[] output = neat.activate(inputs[i2]);
 
-                    success = Float.compare(expectedOutputs[i2], (float) Math.round(output[0])) == 0;
-                }
-
-                if (!success) {
-                    neat.evaluateFitness();
-                    neat.evolve();
-                }
+                success = Float.compare(expectedOutputs[i2], (float) Math.round(output[0])) == 0;
             }
-        } finally {
-            neat.shutdown();
+
+            if (!success) {
+                neat.evaluateFitness();
+                neat.evolve();
+            }
         }
 
         System.out.printf("=========================================%n");
@@ -251,8 +261,7 @@ public final class NeatEvaluatorTest {
                                 .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
-                                .executorService(shouldUseParallelism ? EXECUTOR_SERVICE : null)
-                                .numberOfThreads(shouldUseParallelism ? NUMBER_OF_THREADS : 1)
+                                .eventLoopStream(shouldUseParallelism ? EVENT_LOOP_STREAM : null)
                                 .build())
                         .mutation(SettingsMutation.builder()
                                 .addNodeMutationRate(SettingsFloatNumber.literal(0.01f))
@@ -291,31 +300,27 @@ public final class NeatEvaluatorTest {
         NeatEvaluator neat = Neat.createEvaluator(neatTest.settings);
         boolean success = false;
 
-        try {
-            for (int i1 = 0, c = 2_000; i1 < c && !success; i1++) {
-                success = true;
+        for (int i1 = 0, c = 2_000; i1 < c && !success; i1++) {
+            success = true;
 
-                for (int i2 = 0, attempts = 10; i2 < attempts && success; i2++) {
-                    CartPoleEnvironment environment = CartPoleEnvironment.builder()
-                            .build();
+            for (int i2 = 0, attempts = 10; i2 < attempts && success; i2++) {
+                CartPoleEnvironment environment = CartPoleEnvironment.builder()
+                        .build();
 
-                    while (!environment.isLimitHit() && Double.compare(environment.getTimeSpent(), timeSpentGoal) < 0) {
-                        float[] input = convertToFloat(environment.getState());
-                        float[] output = neat.activate(input);
+                while (!environment.isLimitHit() && Double.compare(environment.getTimeSpent(), timeSpentGoal) < 0) {
+                    float[] input = convertToFloat(environment.getState());
+                    float[] output = neat.activate(input);
 
-                        environment.stepInDiscrete(output[0]);
-                    }
-
-                    success = Double.compare(environment.getTimeSpent(), timeSpentGoal) >= 0;
+                    environment.stepInDiscrete(output[0]);
                 }
 
-                if (!success) {
-                    neat.evaluateFitness();
-                    neat.evolve();
-                }
+                success = Double.compare(environment.getTimeSpent(), timeSpentGoal) >= 0;
             }
-        } finally {
-            neat.shutdown();
+
+            if (!success) {
+                neat.evaluateFitness();
+                neat.evolve();
+            }
         }
 
         System.out.printf("=========================================%n");

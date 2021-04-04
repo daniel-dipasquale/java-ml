@@ -1,12 +1,14 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.DateTimeSupport;
+import com.dipasquale.common.ExceptionLogger;
 import com.dipasquale.common.MultiExceptionHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 final class EventLoopMulti implements EventLoop {
@@ -14,8 +16,8 @@ final class EventLoopMulti implements EventLoop {
     private final String name;
     private final List<EventLoop> eventLoops;
     private final EventLoopSelector eventLoopSelector;
-    private final MultiWaitHandle waitUntilEmptyEventLoopsHandle;
-    private final MultiExceptionHandler shutdownEventLoopsHandler;
+    private final MultiWaitHandle waitUntilEmptyHandler;
+    private final MultiExceptionHandler<EventLoop> shutdownHandler;
 
     EventLoopMulti(final String name, final EventLoopFactory eventLoopFactory, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
         List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, eventLoopSelector.size(), this);
@@ -23,8 +25,8 @@ final class EventLoopMulti implements EventLoop {
         this.name = name;
         this.eventLoops = eventLoops;
         this.eventLoopSelector = eventLoopSelector;
-        this.waitUntilEmptyEventLoopsHandle = MultiWaitHandle.create(dateTimeSupport, a -> !isEmpty(), eventLoops, EventLoop::awaitUntilEmpty, EventLoop::awaitUntilEmpty);
-        this.shutdownEventLoopsHandler = MultiExceptionHandler.create(eventLoops, EventLoop::shutdown);
+        this.waitUntilEmptyHandler = new MultiWaitHandle(dateTimeSupport, a -> !isEmpty(), EventLoopWaitHandle.translate(eventLoops));
+        this.shutdownHandler = new MultiExceptionHandler<>(eventLoops, EventLoop::shutdown);
     }
 
     private static List<EventLoop> createEventLoops(final EventLoopFactory eventLoopFactory, final int count, final EventLoopMulti eventLoopOwner) {
@@ -49,8 +51,18 @@ final class EventLoopMulti implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopQueueableHandler handler) {
-        getNextEventLoop().queue(handler);
+    public void queue(final EventLoopQueueableHandler handler, final long delayTime) {
+        getNextEventLoop().queue(handler, delayTime);
+    }
+
+    @Override
+    public void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
+        getNextEventLoop().queue(handler, delayTime, countDownLatch);
+    }
+
+    @Override
+    public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+        getNextEventLoop().queue(handler, delayTime, exceptionLogger, countDownLatch);
     }
 
     @Override
@@ -62,18 +74,18 @@ final class EventLoopMulti implements EventLoop {
     @Override
     public void awaitUntilEmpty()
             throws InterruptedException {
-        waitUntilEmptyEventLoopsHandle.await();
+        waitUntilEmptyHandler.await();
     }
 
     @Override
     public boolean awaitUntilEmpty(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return waitUntilEmptyEventLoopsHandle.await(timeout, unit);
+        return waitUntilEmptyHandler.await(timeout, unit);
     }
 
     @Override
     public void shutdown() {
-        shutdownEventLoopsHandler.invokeAllAndThrowAsSuppressedIfAny("unable to shutdown the event loops");
+        shutdownHandler.invokeAllAndReportAsSuppressed("unable to shutdown the event loops");
     }
 
     @Override

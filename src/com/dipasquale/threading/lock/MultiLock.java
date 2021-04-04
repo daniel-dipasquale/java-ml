@@ -2,8 +2,6 @@ package com.dipasquale.threading.lock;
 
 import com.dipasquale.common.MultiExceptionHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,28 +11,24 @@ import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class MultiLock implements Lock {
     private final List<ComparableLock> locks;
-    private final MultiWaitHandle waitWhileTryLockAllLocksHandle;
-    private final MultiExceptionHandler lockInterruptiblyAllLocksHandler;
-    private final Object sync;
+    private final MultiExceptionHandler<ComparableLock> lockInterruptiblyHandler;
+    private final MultiWaitHandle tryLockHandler;
 
-    public static Lock create(final Iterable<ComparableLock> locks) {
-        List<ComparableLock> sortedLocks = StreamSupport.stream(locks.spliterator(), false)
+    public MultiLock(final Iterable<ComparableLock> locks) {
+        List<ComparableLock> locksFixed = StreamSupport.stream(locks.spliterator(), false)
                 .sorted()
                 .collect(Collectors.toList());
 
-        MultiWaitHandle locksTryLock = MultiWaitHandle.createSinglePass(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS, sortedLocks, null, Lock::tryLock);
-        MultiExceptionHandler locksLockInterruptiblyExceptionHandler = MultiExceptionHandler.create(sortedLocks, ComparableLock::lockInterruptibly);
-        Object sync = new Object();
-
-        return new MultiLock(sortedLocks, locksTryLock, locksLockInterruptiblyExceptionHandler, sync);
+        this.locks = locksFixed;
+        this.lockInterruptiblyHandler = new MultiExceptionHandler<>(locksFixed, ComparableLock::lockInterruptibly);
+        this.tryLockHandler = new MultiWaitHandle(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS, LockWaitHandle.translate(locksFixed));
     }
 
     @Override
     public void lock() {
-        synchronized (sync) {
+        synchronized (locks) {
             locks.forEach(ComparableLock::lock);
         }
     }
@@ -42,14 +36,14 @@ final class MultiLock implements Lock {
     @Override
     public void lockInterruptibly()
             throws InterruptedException {
-        synchronized (sync) {
-            lockInterruptiblyAllLocksHandler.invokeAllAndThrowAsSuppressedIfAny(() -> new InterruptedException("unable to lock interruptibly on all locks"));
+        synchronized (locks) {
+            lockInterruptiblyHandler.invokeAllAndReportAsSuppressed(() -> new InterruptedException("unable to lock interruptibly on all locks"));
         }
     }
 
     @Override
     public boolean tryLock() {
-        synchronized (sync) {
+        synchronized (locks) {
             List<Lock> locked = new ArrayList<>();
 
             for (Lock lock : locks) {
@@ -73,8 +67,8 @@ final class MultiLock implements Lock {
     @Override
     public boolean tryLock(final long time, final TimeUnit unit)
             throws InterruptedException {
-        synchronized (sync) {
-            return waitWhileTryLockAllLocksHandle.await(time, unit);
+        synchronized (locks) {
+            return tryLockHandler.await(time, unit);
         }
     }
 

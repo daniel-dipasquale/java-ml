@@ -1,9 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
 public interface EventLoopQueueableHandler {
-    boolean shouldReQueue();
-
-    long getDelayTime();
+    boolean shouldQueue();
 
     void handle(String name);
 }

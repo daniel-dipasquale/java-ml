@@ -1,31 +1,22 @@
 package com.dipasquale.common;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class MultiExceptionHandler {
-    private final List<?> items;
-    private final ItemHandler<?> itemHandler;
+@RequiredArgsConstructor
+public final class MultiExceptionHandler<T> {
+    private final List<T> items;
+    private final ItemHandler<T> handler;
 
-    public static <T> MultiExceptionHandler create(final List<T> items, final ItemHandler<T> itemHandler) {
-        return new MultiExceptionHandler(items, itemHandler);
-    }
-
-    private static <T> T ensureType(final Object object) {
-        return (T) object;
-    }
-
-    public <T extends Exception> void invokeAllAndThrowAsSuppressedIfAny(final ExceptionHandlerUtils.Factory<T> exceptionFactory)
-            throws T {
+    public <E extends Exception> void invokeAllAndReportAsSuppressed(final ExceptionHandlerUtils.Factory<E> exceptionFactory)
+            throws E {
         List<Throwable> suppressed = new ArrayList<>();
 
-        for (Object item : items) {
+        for (T item : items) {
             try {
-                itemHandler.handle(ensureType(item));
+                handler.handle(item);
             } catch (Throwable e) {
                 suppressed.add(e);
             }
@@ -34,8 +25,8 @@ public final class MultiExceptionHandler {
         ExceptionHandlerUtils.throwAsSuppressedIfAny(exceptionFactory, suppressed);
     }
 
-    public void invokeAllAndThrowAsSuppressedIfAny(final String message) {
-        invokeAllAndThrowAsSuppressedIfAny(() -> new RuntimeException(message));
+    public void invokeAllAndReportAsSuppressed(final String message) {
+        invokeAllAndReportAsSuppressed(() -> new RuntimeException(message));
     }
 
     @FunctionalInterface

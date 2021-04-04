@@ -46,13 +46,19 @@ public final class ContextDefaultSpeciation implements Context.Speciation {
     }
 
     @Override
-    public double compatibilityThreshold(final int generation) {
+    public double compatibilityThreshold(final int generation) { // TODO: check if this needs a boundary check as well
         return compatibilityThreshold * Math.pow(compatibilityThresholdModifier, generation);
     }
 
     @Override
     public double calculateCompatibility(final GenomeDefault genome1, final GenomeDefault genome2) {
-        return genomeCompatibilityCalculator.calculateCompatibility(genome1, genome2);
+        double compatibility = genomeCompatibilityCalculator.calculateCompatibility(genome1, genome2);
+
+        if (Double.isFinite(compatibility)) {
+            return compatibility;
+        }
+
+        return Double.MAX_VALUE;
     }
 
     @Override

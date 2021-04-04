@@ -80,11 +80,6 @@ final class NeatEvaluatorTrainerSynchronized implements NeatEvaluatorTrainer {
         return evaluator.activate(input);
     }
 
-    @Override
-    public void shutdown() {
-        evaluator.shutdown();
-    }
-
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class NeatActivatorDefault implements NeatActivator {
         private final NeatEvaluator evaluator;

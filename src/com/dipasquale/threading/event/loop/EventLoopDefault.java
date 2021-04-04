@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -99,7 +100,9 @@ final class EventLoopDefault implements EventLoop {
                 try {
                     eventRecordAudit.polled.getHandler().handle(name);
                 } catch (Throwable e) {
-                    exceptionLogger.log(e);
+                    if (exceptionLogger != null) {
+                        exceptionLogger.log(e);
+                    }
                 } finally {
                     releaseWaitUntilEmptyHandleIfEmptyButThreadSafe();
                 }
@@ -112,7 +115,7 @@ final class EventLoopDefault implements EventLoop {
 
         try {
             eventRecords.push(eventRecord);
-            waitWhileEmptyHandle.changeAwait(getDelayTime(eventRecords.peek()), dateTimeSupport.timeUnit());
+            waitWhileEmptyHandle.changeTimeout(getDelayTime(eventRecords.peek()), dateTimeSupport.timeUnit());
 
             if (!isWaitUntilEmptyHandleLocked) {
                 isWaitUntilEmptyHandleLocked = true;
@@ -125,12 +128,30 @@ final class EventLoopDefault implements EventLoop {
 
     @Override
     public void queue(final EventLoopHandler handler, final long delayTime) {
-        queue(new EventLoopRecord(handler, dateTimeSupport.now() + delayTime));
+        EventLoopRecord eventRecord = new EventLoopRecord(handler, dateTimeSupport.now() + delayTime);
+
+        queue(eventRecord);
     }
 
     @Override
-    public void queue(final EventLoopQueueableHandler handler) {
-        queue(new EventLoopHandlerProxy(handler), handler.getDelayTime());
+    public void queue(final EventLoopQueueableHandler handler, final long delayTime) {
+        EventLoopHandler handlerFixed = new EventLoopHandlerProxyQueueable(handler, delayTime);
+
+        queue(handlerFixed, delayTime);
+    }
+
+    @Override
+    public void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
+        EventLoopHandler handlerFixed = new EventLoopHandlerProxyWaitHandle(handler, null, countDownLatch);
+
+        queue(handlerFixed, delayTime);
+    }
+
+    @Override
+    public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+        EventLoopHandler handlerFixed = new EventLoopHandlerProxyWaitHandle(handler, exceptionLogger, countDownLatch);
+
+        queue(handlerFixed, delayTime);
     }
 
     @Override
@@ -183,15 +204,38 @@ final class EventLoopDefault implements EventLoop {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class EventLoopHandlerProxy implements EventLoopHandler {
+    private final class EventLoopHandlerProxyQueueable implements EventLoopHandler {
         private final EventLoopQueueableHandler handler;
+        private final long delayTime;
 
         @Override
         public void handle(final String name) {
             handler.handle(name);
 
-            if (handler.shouldReQueue()) {
-                nextEventLoop.queue(handler);
+            if (handler.shouldQueue()) {
+                nextEventLoop.queue(handler, delayTime);
+            }
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class EventLoopHandlerProxyWaitHandle implements EventLoopHandler {
+        private final EventLoopHandler handler;
+        private final ExceptionLogger exceptionLogger;
+        private final CountDownLatch countDownLatch;
+
+        @Override
+        public void handle(final String name) {
+            try {
+                handler.handle(name);
+            } catch (Throwable e) {
+                if (exceptionLogger == null) {
+                    throw e;
+                }
+
+                exceptionLogger.log(e);
+            } finally {
+                countDownLatch.countDown();
             }
         }
     }

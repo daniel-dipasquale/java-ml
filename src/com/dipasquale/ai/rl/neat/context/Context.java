@@ -12,6 +12,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.common.Pair;
+import com.dipasquale.threading.wait.handle.WaitHandle;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -148,11 +149,7 @@ public interface Context {
 
         int numberOfThreads();
 
-        <T> void forEach(Stream<T> stream, Consumer<T> action);
-
-        void waitUntilDone() throws InterruptedException;
-
-        void shutdown();
+        <T> WaitHandle forEach(Stream<T> stream, Consumer<T> action);
     }
 
     interface Mutation {

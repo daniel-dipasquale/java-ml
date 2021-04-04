@@ -2,6 +2,7 @@ package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.common.DateTimeSupport;
+import com.dipasquale.common.ExceptionLogger;
 import com.google.common.collect.ImmutableMap;
 
 import javax.measure.quantity.Duration;
@@ -11,6 +12,7 @@ import javax.measure.unit.Unit;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 final class EventLoopNoDelay implements EventLoop {
@@ -55,27 +57,21 @@ final class EventLoopNoDelay implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopQueueableHandler handler) {
-        ensureDelayTimeIsValid(handler.getDelayTime());
+    public void queue(final EventLoopQueueableHandler handler, final long delayTime) {
+        ensureDelayTimeIsValid(delayTime);
+        eventLoop.queue(handler, 0L);
+    }
 
-        eventLoop.queue(new EventLoopQueueableHandler() {
-            @Override
-            public boolean shouldReQueue() {
-                return handler.shouldReQueue();
-            }
+    @Override
+    public void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
+        ensureDelayTimeIsValid(delayTime);
+        eventLoop.queue(handler, 0L, countDownLatch);
+    }
 
-            @Override
-            public long getDelayTime() {
-                ensureDelayTimeIsValid(handler.getDelayTime());
-
-                return 0L;
-            }
-
-            @Override
-            public void handle(final String name) {
-                handler.handle(name);
-            }
-        });
+    @Override
+    public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+        ensureDelayTimeIsValid(delayTime);
+        eventLoop.queue(handler, 0L, exceptionLogger, countDownLatch);
     }
 
     @Override

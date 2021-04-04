@@ -8,7 +8,7 @@ import java.io.Serial;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-public final class ReusableCountDownLatch { // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
+public final class ReusableCountDownLatch implements WaitHandle { // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
     private final Sync sync;
     @Getter(AccessLevel.PACKAGE)
     private final UnitTest unitTest;
@@ -18,11 +18,13 @@ public final class ReusableCountDownLatch { // NOTE: based on: https://github.co
         this.unitTest = new UnitTest();
     }
 
+    @Override
     public void await()
             throws InterruptedException {
         sync.acquireSharedInterruptibly(1);
     }
 
+    @Override
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
         return sync.tryAcquireSharedNanos(1, unit.toNanos(timeout));

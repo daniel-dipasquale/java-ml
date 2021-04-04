@@ -2,12 +2,8 @@ package com.dipasquale.threading.wait.handle;
 
 import java.util.concurrent.TimeUnit;
 
-interface SlidingWaitHandleInternal {
-    void await() throws InterruptedException;
-
-    boolean await(long timeout, TimeUnit unit) throws InterruptedException;
-
-    void changeAwait(long timeout, TimeUnit unit);
+interface SlidingWaitHandleInternal extends WaitHandle {
+    void changeTimeout(long timeout, TimeUnit unit);
 
     void release();
 }

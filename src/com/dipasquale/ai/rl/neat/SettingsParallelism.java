@@ -7,17 +7,10 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelism;
 import com.dipasquale.common.RandomSupportFloat;
-import com.dipasquale.threading.event.loop.EventLoop;
 import com.dipasquale.threading.event.loop.EventLoopStream;
-import com.dipasquale.threading.event.loop.EventLoopStreamSettings;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -27,24 +20,18 @@ public final class SettingsParallelism {
     private static final RandomSupportFloat RANDOM_SUPPORT_UNIFORM_CONCURRENT = RandomSupportFloat.createConcurrent();
     private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT = RandomSupportFloat.createMeanDistributionConcurrent();
     @Builder.Default
-    private final ExecutorService executorService = null;
-    @Builder.Default
-    private final int numberOfThreads = 1;
+    private final EventLoopStream eventLoopStream = null;
 
     boolean isEnabled() {
-        return executorService != null;
+        return eventLoopStream != null;
     }
 
     int getNumberOfThreads() {
-        if (executorService == null) {
+        if (eventLoopStream == null) {
             return 1;
         }
 
-        if (numberOfThreads > 0) {
-            return numberOfThreads;
-        }
-
-        return Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+        return eventLoopStream.getConcurrencyLevel();
     }
 
     ContextDefaultComponentFactory<ContextDefaultParallelism> createFactory() {
@@ -55,17 +42,7 @@ public final class SettingsParallelism {
                 return new ContextDefaultParallelism(parallelism);
             }
 
-            List<Throwable> exceptions = Collections.unmodifiableList(new ArrayList<>());
-
-            EventLoopStreamSettings settings = EventLoopStreamSettings.builder()
-                    .executorService(executorService)
-                    .numberOfThreads(getNumberOfThreads())
-                    .exceptionLogger(exceptions::add)
-                    .dateTimeSupport(SettingsConstants.DATE_TIME_SUPPORT_MILLISECONDS)
-                    .build();
-
-            EventLoopStream eventLoopStream = EventLoop.createStream(settings);
-            Context.Parallelism parallelism = new ContextDefaultParallelism.MultiThread(eventLoopStream, settings.getNumberOfThreads(), exceptions);
+            Context.Parallelism parallelism = new ContextDefaultParallelism.MultiThread(eventLoopStream);
 
             return new ContextDefaultParallelism(parallelism);
         };

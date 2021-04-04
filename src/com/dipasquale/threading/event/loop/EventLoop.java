@@ -1,8 +1,10 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ExceptionLogger;
 
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public interface EventLoop {
@@ -10,7 +12,11 @@ public interface EventLoop {
 
     void queue(EventLoopHandler handler, long delayTime);
 
-    void queue(EventLoopQueueableHandler handler);
+    void queue(EventLoopQueueableHandler handler, long delayTime);
+
+    void queue(EventLoopHandler handler, long delayTime, CountDownLatch countDownLatch);
+
+    void queue(EventLoopHandler handler, long delayTime, ExceptionLogger exceptionLogger, CountDownLatch countDownLatch);
 
     boolean isEmpty();
 

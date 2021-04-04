@@ -1,19 +1,21 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ExceptionLogger;
 import com.dipasquale.common.MultiExceptionHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 public final class EventLoopStream {
     private static final EventLoopRecordQueueFactory EVENT_RECORDS_FACTORY = q -> new ExclusiveQueueLocked<>(new ReentrantLock(), q);
     private final List<EventLoop> eventLoops;
-    private final MultiWaitHandle waitUntilEmptyEventLoopsHandle;
-    private final MultiExceptionHandler shutdownEventLoopsHandler;
+    private final MultiWaitHandle waitUntilDoneHandler;
+    private final MultiExceptionHandler<EventLoop> shutdownHandler;
 
     EventLoopStream(final EventLoopStreamSettings settings) {
         ArgumentValidatorUtils.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.numberOfThreads");
@@ -21,8 +23,8 @@ public final class EventLoopStream {
         List<EventLoop> eventLoops = createEventLoops(settings);
 
         this.eventLoops = eventLoops;
-        this.waitUntilEmptyEventLoopsHandle = MultiWaitHandle.create(settings.getDateTimeSupport(), a -> !isEmpty(eventLoops), eventLoops, EventLoop::awaitUntilEmpty, EventLoop::awaitUntilEmpty);
-        this.shutdownEventLoopsHandler = MultiExceptionHandler.create(eventLoops, EventLoop::shutdown);
+        this.waitUntilDoneHandler = new MultiWaitHandle(settings.getDateTimeSupport(), a -> !isEmpty(eventLoops), EventLoopWaitHandle.translate(eventLoops));
+        this.shutdownHandler = new MultiExceptionHandler<>(eventLoops, EventLoop::shutdown);
     }
 
     private static List<EventLoop> createEventLoops(final EventLoopStreamSettings settings) {
@@ -48,20 +50,31 @@ public final class EventLoopStream {
                 .allMatch(EventLoop::isEmpty);
     }
 
-    public <T> void queue(final Stream<T> stream, final EventLoopStreamAction<T> action) {
+    public int getConcurrencyLevel() {
+        return eventLoops.size();
+    }
+
+    public <T> CountDownLatch queue(final Stream<T> stream, final EventLoopStreamAction<T> action, final ExceptionLogger exceptionLogger) {
+        CountDownLatch countDownLatch = new CountDownLatch(eventLoops.size());
         EventLoopStreamHandler<T> handler = new EventLoopStreamHandler<>(stream.iterator(), action);
 
         for (EventLoop eventLoop : eventLoops) {
-            eventLoop.queue(handler, 0L);
+            eventLoop.queue(handler, 0L, exceptionLogger, countDownLatch);
         }
+
+        return countDownLatch;
+    }
+
+    public <T> CountDownLatch queue(final Stream<T> stream, final EventLoopStreamAction<T> action) {
+        return queue(stream, action, null);
     }
 
     public void awaitUntilDone()
             throws InterruptedException {
-        waitUntilEmptyEventLoopsHandle.await();
+        waitUntilDoneHandler.await();
     }
 
     public void shutdown() {
-        shutdownEventLoopsHandler.invokeAllAndThrowAsSuppressedIfAny("unable to shutdown the event loops");
+        shutdownHandler.invokeAllAndReportAsSuppressed("unable to shutdown the event loops");
     }
 }

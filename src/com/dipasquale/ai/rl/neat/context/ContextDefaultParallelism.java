@@ -1,9 +1,15 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.threading.event.loop.EventLoopStream;
+import com.dipasquale.threading.wait.handle.WaitHandle;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -22,19 +28,8 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
     }
 
     @Override
-    public <T> void forEach(final Stream<T> stream, final Consumer<T> action) {
-        parallelism.forEach(stream, action);
-    }
-
-    @Override
-    public void waitUntilDone()
-            throws InterruptedException {
-        parallelism.waitUntilDone();
-    }
-
-    @Override
-    public void shutdown() {
-        parallelism.shutdown();
+    public <T> WaitHandle forEach(final Stream<T> stream, final Consumer<T> action) {
+        return parallelism.forEach(stream, action);
     }
 
     public static final class SingleThread implements Context.Parallelism {
@@ -49,24 +44,17 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
         }
 
         @Override
-        public <T> void forEach(final Stream<T> stream, final Consumer<T> action) {
+        public <T> WaitHandle forEach(final Stream<T> stream, final Consumer<T> action) {
             stream.forEach(action);
-        }
 
-        @Override
-        public void waitUntilDone() {
-        }
-
-        @Override
-        public void shutdown() {
+            return null;
         }
     }
 
     @RequiredArgsConstructor
     public static final class MultiThread implements Context.Parallelism {
         private final EventLoopStream eventLoopStream;
-        private final int numberOfThreads;
-        private final List<Throwable> exceptions;
+        private final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
 
         @Override
         public boolean isEnabled() {
@@ -75,7 +63,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
 
         @Override
         public int numberOfThreads() {
-            return numberOfThreads;
+            return eventLoopStream.getConcurrencyLevel();
         }
 
         private <T extends Exception> void failButAddAllUncaughtExceptionsAsSuppressed(final T exception)
@@ -95,29 +83,33 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
         }
 
         @Override
-        public <T> void forEach(final Stream<T> stream, final Consumer<T> action) {
+        public <T> WaitHandle forEach(final Stream<T> stream, final Consumer<T> action) {
             synchronized (eventLoopStream) {
                 failIfThereAreUncaughtExceptions();
-                eventLoopStream.queue(stream, action::accept);
+
+                return new CountDownLatchWaitHandle(eventLoopStream.queue(stream, action::accept));
             }
         }
 
-        @Override
-        public void waitUntilDone()
-                throws InterruptedException {
-            synchronized (eventLoopStream) {
-                try {
-                    eventLoopStream.awaitUntilDone();
-                    failIfThereAreUncaughtExceptions();
-                } catch (InterruptedException e) {
-                    failButAddAllUncaughtExceptionsAsSuppressed(e);
-                }
-            }
-        }
+        @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+        private final class CountDownLatchWaitHandle implements WaitHandle {
+            private final CountDownLatch countDownLatch;
 
-        @Override
-        public void shutdown() {
-            eventLoopStream.shutdown();
+            @Override
+            public void await()
+                    throws InterruptedException {
+                failIfThereAreUncaughtExceptions();
+
+                countDownLatch.await();
+            }
+
+            @Override
+            public boolean await(final long timeout, final TimeUnit unit)
+                    throws InterruptedException {
+                failIfThereAreUncaughtExceptions();
+
+                return countDownLatch.await(timeout, unit);
+            }
         }
     }
 }

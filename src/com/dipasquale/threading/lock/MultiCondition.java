@@ -14,19 +14,19 @@ final class MultiCondition implements Condition {
     private static final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.unit());
     private static final TimeUnit NS_TIME_UNIT = LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit();
     private final List<Condition> conditions;
-    private final MultiWaitHandle waitConditionsHandle;
-    private final MultiExceptionHandler awaitConditionsHandler;
+    private final MultiExceptionHandler<Condition> waitHandle;
+    private final MultiWaitHandle timedWaitHandle;
 
     MultiCondition(final List<Condition> conditions) {
         this.conditions = conditions;
-        this.waitConditionsHandle = MultiWaitHandle.createSinglePass(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS, conditions, null, Condition::await);
-        this.awaitConditionsHandler = MultiExceptionHandler.create(conditions, Condition::await);
+        this.waitHandle = new MultiExceptionHandler<>(conditions, Condition::await);
+        this.timedWaitHandle = new MultiWaitHandle(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS, ConditionWaitHandle.translate(conditions));
     }
 
     @Override
     public void await()
             throws InterruptedException {
-        awaitConditionsHandler.invokeAllAndThrowAsSuppressedIfAny(() -> new InterruptedException("unable to await on all conditions"));
+        waitHandle.invokeAllAndReportAsSuppressed(() -> new InterruptedException("unable to await on all conditions"));
     }
 
     @Override
@@ -39,7 +39,7 @@ final class MultiCondition implements Condition {
             throws InterruptedException {
         long startDateTime = LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
-        waitConditionsHandle.await(nanosTimeout, NS_TIME_UNIT);
+        timedWaitHandle.await(nanosTimeout, NS_TIME_UNIT);
 
         return nanosTimeout - LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.now() + startDateTime;
     }
@@ -47,7 +47,7 @@ final class MultiCondition implements Condition {
     @Override
     public boolean await(final long time, final TimeUnit unit)
             throws InterruptedException {
-        return waitConditionsHandle.await(time, unit);
+        return timedWaitHandle.await(time, unit);
     }
 
     @Override
@@ -57,7 +57,7 @@ final class MultiCondition implements Condition {
         long currentDateTime = LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.now();
         long time = Math.max(deadlineDateTime - currentDateTime, 0L);
 
-        return waitConditionsHandle.await(time, NS_TIME_UNIT);
+        return timedWaitHandle.await(time, NS_TIME_UNIT);
     }
 
     @Override

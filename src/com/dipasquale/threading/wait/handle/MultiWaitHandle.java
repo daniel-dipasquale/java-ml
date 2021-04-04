@@ -2,7 +2,6 @@ package com.dipasquale.threading.wait.handle;
 
 import com.dipasquale.common.DateTimeSupport;
 import com.google.common.collect.ImmutableList;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -16,14 +15,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public final class MultiWaitHandle {
     private static final Map<TimeUnitConversionKey, UnitConverter> TIME_UNIT_CONVERTERS = createTimeUnitConverters();
     private final DateTimeSupport dateTimeSupport;
-    private final HandlerInvocationPredicate handlerInvocationPredicate;
-    private final List<?> waitHandles;
-    private final IndefiniteHandler<?> indefinite;
-    private final TimedHandler<?> timedHandler;
+    private final Predicate predicate;
+    private final List<? extends WaitHandle> waitHandles;
+
+    public MultiWaitHandle(final DateTimeSupport dateTimeSupport, final List<? extends WaitHandle> waitHandles) {
+        this(dateTimeSupport, a -> a == 1, waitHandles);
+    }
 
     private static Map<TimeUnitConversionKey, UnitConverter> createTimeUnitConverters() {
         List<TimeUnit> timeUnits = ImmutableList.<TimeUnit>builder()
@@ -49,37 +50,23 @@ public final class MultiWaitHandle {
         Map<TimeUnitConversionKey, UnitConverter> timeUnitConverters = new HashMap<>(timeUnits.size() * units.size());
 
         for (TimeUnit timeUnit : timeUnits) {
-            Unit<Duration> timeUnitConverted = DateTimeSupport.getUnit(timeUnit);
+            Unit<Duration> unitFromTimeUnit = DateTimeSupport.getUnit(timeUnit);
 
             for (Unit<Duration> unit : units) {
-                TimeUnitConversionKey timeUnitConversionKey = new TimeUnitConversionKey(timeUnit, unit);
+                TimeUnitConversionKey conversionKey = new TimeUnitConversionKey(timeUnit, unit);
 
-                timeUnitConverters.put(timeUnitConversionKey, timeUnitConverted.getConverterTo(unit));
+                timeUnitConverters.put(conversionKey, unitFromTimeUnit.getConverterTo(unit));
             }
         }
 
         return timeUnitConverters;
     }
 
-    public static <T> MultiWaitHandle create(final DateTimeSupport dateTimeSupport, final HandlerInvocationPredicate handlerInvocationPredicate, final List<T> waitHandles, final IndefiniteHandler<T> indefinite, final TimedHandler<T> timedHandler) {
-        return new MultiWaitHandle(dateTimeSupport, handlerInvocationPredicate, waitHandles, indefinite, timedHandler);
-    }
-
-    public static <T> MultiWaitHandle createSinglePass(final DateTimeSupport dateTimeSupport, final List<T> waitHandles, final IndefiniteHandler<T> indefinite, final TimedHandler<T> timedHandler) {
-        HandlerInvocationPredicate handlerInvocationPredicate = a -> a == 1;
-
-        return create(dateTimeSupport, handlerInvocationPredicate, waitHandles, indefinite, timedHandler);
-    }
-
-    private static <T> T ensureType(final Object object) {
-        return (T) object;
-    }
-
     public void await()
             throws InterruptedException {
-        for (int attempt = 0; handlerInvocationPredicate.shouldAwait(++attempt); ) {
-            for (Object waitHandle : waitHandles) {
-                indefinite.await(ensureType(waitHandle));
+        for (int attempt = 0; predicate.shouldAwait(++attempt); ) {
+            for (WaitHandle waitHandle : waitHandles) {
+                waitHandle.await();
             }
         }
     }
@@ -88,12 +75,13 @@ public final class MultiWaitHandle {
             throws InterruptedException {
         boolean acquired = true;
         long offsetDateTime = dateTimeSupport.now();
-        long timeoutRemaining = (long) TIME_UNIT_CONVERTERS.get(new TimeUnitConversionKey(unit, dateTimeSupport.unit())).convert((double) timeout);
+        TimeUnitConversionKey conversionKey = new TimeUnitConversionKey(unit, dateTimeSupport.unit());
+        long timeoutRemaining = (long) TIME_UNIT_CONVERTERS.get(conversionKey).convert((double) timeout);
         TimeUnit timeUnit = dateTimeSupport.timeUnit();
 
-        if (handlerInvocationPredicate.shouldAwait(1)) {
-            for (int i = 0, c = waitHandles.size(); acquired && timeoutRemaining > 0L; i = (i + 1) % c) {
-                acquired = timedHandler.await(ensureType(waitHandles.get(i)), timeoutRemaining, timeUnit);
+        for (int attempt = 0; acquired && timeoutRemaining > 0L && predicate.shouldAwait(++attempt); ) {
+            for (int i = 0, c = waitHandles.size(); i < c && acquired && timeoutRemaining > 0L; i++) {
+                acquired = waitHandles.get(i).await(timeoutRemaining, timeUnit);
 
                 if (acquired) {
                     long currentDateTime = dateTimeSupport.now();
@@ -108,18 +96,8 @@ public final class MultiWaitHandle {
     }
 
     @FunctionalInterface
-    public interface HandlerInvocationPredicate {
+    public interface Predicate {
         boolean shouldAwait(int attempt);
-    }
-
-    @FunctionalInterface
-    public interface IndefiniteHandler<T> {
-        void await(T waitHandle) throws InterruptedException;
-    }
-
-    @FunctionalInterface
-    public interface TimedHandler<T> {
-        boolean await(T waitHandle, long timeout, TimeUnit unit) throws InterruptedException;
     }
 
     @RequiredArgsConstructor

@@ -14,15 +14,15 @@ public class MultiExceptionHandlerTest {
     public void TEST_1() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<Handler> items = ImmutableList.<Handler>builder()
-                .add(new Handler(data, 0, 3))
-                .add(new Handler(data, 1, 2))
-                .add(new Handler(data, 2, 1))
+        List<HandlerMock> items = ImmutableList.<HandlerMock>builder()
+                .add(new HandlerMock(data, 0, 3))
+                .add(new HandlerMock(data, 1, 2))
+                .add(new HandlerMock(data, 2, 1))
                 .build();
 
-        MultiExceptionHandler test = MultiExceptionHandler.create(items, Handler::handle);
+        MultiExceptionHandler<HandlerMock> test = new MultiExceptionHandler<>(items, HandlerMock::handle);
 
-        test.invokeAllAndThrowAsSuppressedIfAny(() -> new RuntimeException("unit test failure"));
+        test.invokeAllAndReportAsSuppressed(() -> new RuntimeException("unit test failure"));
         Assert.assertEquals(3, data.get(0));
         Assert.assertEquals(2, data.get(1));
         Assert.assertEquals(1, data.get(2));
@@ -32,16 +32,16 @@ public class MultiExceptionHandlerTest {
     public void TEST_2() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<Handler> items = ImmutableList.<Handler>builder()
-                .add(new Handler(data, 0, 3))
-                .add(new Handler(data, -1, 2))
-                .add(new Handler(data, 2, 1))
+        List<HandlerMock> items = ImmutableList.<HandlerMock>builder()
+                .add(new HandlerMock(data, 0, 3))
+                .add(new HandlerMock(data, -1, 2))
+                .add(new HandlerMock(data, 2, 1))
                 .build();
 
-        MultiExceptionHandler test = MultiExceptionHandler.create(items, Handler::handle);
+        MultiExceptionHandler<HandlerMock> test = new MultiExceptionHandler<>(items, HandlerMock::handle);
 
         try {
-            test.invokeAllAndThrowAsSuppressedIfAny(() -> new RuntimeException("unit test failure"));
+            test.invokeAllAndReportAsSuppressed(() -> new RuntimeException("unit test failure"));
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableComparer.builder()
                     .type(RuntimeException.class)
@@ -64,15 +64,15 @@ public class MultiExceptionHandlerTest {
     public void TEST_3() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<Handler> items = ImmutableList.<Handler>builder()
-                .add(new Handler(data, 0, 3))
-                .add(new Handler(data, 1, 2))
-                .add(new Handler(data, 2, 1))
+        List<HandlerMock> items = ImmutableList.<HandlerMock>builder()
+                .add(new HandlerMock(data, 0, 3))
+                .add(new HandlerMock(data, 1, 2))
+                .add(new HandlerMock(data, 2, 1))
                 .build();
 
-        MultiExceptionHandler test = MultiExceptionHandler.create(items, Handler::handle);
+        MultiExceptionHandler<HandlerMock> test = new MultiExceptionHandler<>(items, HandlerMock::handle);
 
-        test.invokeAllAndThrowAsSuppressedIfAny("unit test failure");
+        test.invokeAllAndReportAsSuppressed("unit test failure");
         Assert.assertEquals(3, data.get(0));
         Assert.assertEquals(2, data.get(1));
         Assert.assertEquals(1, data.get(2));
@@ -82,16 +82,16 @@ public class MultiExceptionHandlerTest {
     public void TEST_4() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<Handler> items = ImmutableList.<Handler>builder()
-                .add(new Handler(data, 0, 3))
-                .add(new Handler(data, -1, 2))
-                .add(new Handler(data, 2, 1))
+        List<HandlerMock> items = ImmutableList.<HandlerMock>builder()
+                .add(new HandlerMock(data, 0, 3))
+                .add(new HandlerMock(data, -1, 2))
+                .add(new HandlerMock(data, 2, 1))
                 .build();
 
-        MultiExceptionHandler test = MultiExceptionHandler.create(items, Handler::handle);
+        MultiExceptionHandler<HandlerMock> test = new MultiExceptionHandler<>(items, HandlerMock::handle);
 
         try {
-            test.invokeAllAndThrowAsSuppressedIfAny("unit test failure");
+            test.invokeAllAndReportAsSuppressed("unit test failure");
         } catch (Throwable e) {
             Assert.assertEquals(ThrowableComparer.builder()
                     .type(RuntimeException.class)
@@ -111,7 +111,7 @@ public class MultiExceptionHandlerTest {
     }
 
     @RequiredArgsConstructor
-    private static final class Handler {
+    private static final class HandlerMock {
         private final AtomicLongArray data;
         private final int index;
         private final long value;

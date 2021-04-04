@@ -211,7 +211,7 @@ public final class Population {
     private static int countOrganismsKilled(final Context context) {
         ArgumentValidatorUtils.ensureTrue(context.general() instanceof ContextDefaultGeneralSupport, "context.general", "is not an instanceof ContextDefaultGeneralSupport");
 
-        return ((ContextDefaultGeneralSupport) context.general()).getGenomeIdsKilled().size();
+        return ((ContextDefaultGeneralSupport) context.general()).getGenomesKilledCount();
     }
 
     public void evolve() {
