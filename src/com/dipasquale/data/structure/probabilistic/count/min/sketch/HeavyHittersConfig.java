@@ -2,7 +2,7 @@ package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.common.ExpirySupport;
-import com.dipasquale.threading.EventLoop;
+import com.dipasquale.threading.event.loop.EventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

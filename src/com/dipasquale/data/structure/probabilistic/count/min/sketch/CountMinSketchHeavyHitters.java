@@ -3,7 +3,7 @@ package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
-import com.dipasquale.threading.EventLoop;
+import com.dipasquale.threading.event.loop.EventLoop;
 import lombok.RequiredArgsConstructor;
 
 final class CountMinSketchHeavyHitters<T> implements CountMinSketch<T> {

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.threading.EventLoopStream;
+import com.dipasquale.threading.event.loop.EventLoopStream;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

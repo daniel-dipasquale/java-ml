@@ -6,12 +6,12 @@
 //import com.dipasquale.common.MultiExceptionHandler;
 //import com.dipasquale.data.structure.set.DequeSet;
 //import com.dipasquale.data.structure.set.IdentityDequeSet;
-//import com.dipasquale.threading.EventLoop;
+//import com.dipasquale.threading.el.EventLoop;
 //import com.dipasquale.threading.EventLoopDefaultParams;
 //import com.dipasquale.threading.EventLoopNoDelay;
 //import com.dipasquale.threading.EventLoopRecordQueueFactory;
 //import com.dipasquale.threading.ExclusiveQueueLocked;
-//import com.dipasquale.threading.MultiWaitHandle;
+//import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 //import lombok.AccessLevel;
 //import lombok.RequiredArgsConstructor;
 //

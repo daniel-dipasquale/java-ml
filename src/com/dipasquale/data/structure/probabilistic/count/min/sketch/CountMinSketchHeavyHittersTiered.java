@@ -4,7 +4,7 @@ import com.dipasquale.common.ExceptionHandlerUtils;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
-import com.dipasquale.threading.EventLoop;
+import com.dipasquale.threading.event.loop.EventLoop;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;

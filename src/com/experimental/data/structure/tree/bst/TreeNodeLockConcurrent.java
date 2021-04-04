@@ -1,6 +1,6 @@
 package com.experimental.data.structure.tree.bst;
 
-import com.dipasquale.threading.ComparableLock;
+import com.dipasquale.threading.lock.ComparableLock;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Stack;

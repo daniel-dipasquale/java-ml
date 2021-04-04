@@ -1,6 +1,6 @@
 //package com.experimental.threading;
 //
-//import com.dipasquale.threading.ReusableCountDownLatch;
+//import com.dipasquale.threading.wait.handle.ReusableCountDownLatch;
 //import lombok.AccessLevel;
 //import lombok.RequiredArgsConstructor;
 //

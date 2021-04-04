@@ -1,7 +1,7 @@
 package com.experimental.rate.limit.simple;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.threading.WaitHandle;
+import com.dipasquale.threading.wait.handle.WaitHandle;
 import com.experimental.rate.limit.RateLimitChecker;
 import com.experimental.rate.limit.RateLimiter;
 

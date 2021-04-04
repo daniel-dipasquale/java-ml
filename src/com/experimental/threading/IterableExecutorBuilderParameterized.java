@@ -1,7 +1,7 @@
 //package com.experimental.threading;
 //
 //import com.dipasquale.common.ArgumentValidatorUtils;
-//import com.dipasquale.threading.ReusableCountDownLatch;
+//import com.dipasquale.threading.wait.handle.ReusableCountDownLatch;
 //import com.google.common.collect.ImmutableList;
 //
 //import java.util.Iterator;

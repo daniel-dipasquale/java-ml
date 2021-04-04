@@ -1,6 +1,6 @@
 package com.experimental.concurrent;
 
-import com.dipasquale.threading.SlidingWaitHandle;
+import com.dipasquale.threading.wait.handle.SlidingWaitHandle;
 import sun.misc.Unsafe;
 
 import java.io.Serializable;
