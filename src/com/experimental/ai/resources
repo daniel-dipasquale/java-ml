@@ -15,6 +15,9 @@ https://stackoverflow.com/questions/4493554/neural-network-always-produces-same-
 https://www.researchgate.net/publication/323131150_The_importance_of_the_activation_function_in_NeuroEvolution_with_FS-NEAT_and_FD-NEAT
 https://arxiv.org/pdf/1703.07122.pdf
 
+hyperneat:
+http://web.mit.edu/jessiehl/Public/aaai11/fullpaper.pdf
+
 cart pole:
 https://github.com/CodeReclaimers/neat-python/blob/master/examples/single-pole-balancing/cart_pole.py
 https://www.youtube.com/watch?v=PqZsEUBm_4g
