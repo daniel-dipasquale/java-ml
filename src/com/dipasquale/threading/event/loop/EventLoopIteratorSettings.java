@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
-public final class EventLoopStreamSettings {
+public final class EventLoopIteratorSettings {
     private final ExecutorService executorService;
     private final int numberOfThreads;
     private final ExceptionLogger exceptionLogger;

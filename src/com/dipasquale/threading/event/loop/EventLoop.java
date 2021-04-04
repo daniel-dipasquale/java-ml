@@ -10,13 +10,27 @@ import java.util.concurrent.TimeUnit;
 public interface EventLoop {
     String getName();
 
-    void queue(EventLoopHandler handler, long delayTime);
-
-    void queue(EventLoopQueueableHandler handler, long delayTime);
-
-    void queue(EventLoopHandler handler, long delayTime, CountDownLatch countDownLatch);
+    int getConcurrencyLevel();
 
     void queue(EventLoopHandler handler, long delayTime, ExceptionLogger exceptionLogger, CountDownLatch countDownLatch);
+
+    default void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
+        queue(handler, delayTime, null, countDownLatch);
+    }
+
+    default void queue(final EventLoopHandler handler, final long delayTime) {
+        queue(handler, delayTime, null, null);
+    }
+
+    void queue(EventLoopIntervalHandler handler, long delayTime, ExceptionLogger exceptionLogger, CountDownLatch countDownLatch);
+
+    default void queue(final EventLoopIntervalHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
+        queue(handler, delayTime, null, countDownLatch);
+    }
+
+    default void queue(final EventLoopIntervalHandler handler, final long delayTime) {
+        queue(handler, delayTime, null, null);
+    }
 
     boolean isEmpty();
 
@@ -28,19 +42,19 @@ public interface EventLoop {
 
     private static EventLoopSelector getOrCreateEventLoopSelector(final EventLoopSettings settings) {
         return Optional.ofNullable(settings.getSelector())
-                .orElseGet(() -> EventLoopSelector.createRandom(settings.isContended(), settings.getCount()));
+                .orElseGet(() -> EventLoopSelector.createRandom(settings.isContended(), settings.getConcurrencyLevel()));
     }
 
     static EventLoop create(final EventLoopSettings settings) {
-        ArgumentValidatorUtils.ensureGreaterThanZero(settings.getCount(), "settings.count");
+        ArgumentValidatorUtils.ensureGreaterThanZero(settings.getConcurrencyLevel(), "settings.concurrencyLevel");
 
         EventLoopDefaultParams params = EventLoopDefaultParams.builder()
+                .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .exceptionLogger(settings.getExceptionLogger())
-                .executorService(settings.getExecutorService())
                 .build();
 
-        if (settings.getCount() == 1) {
+        if (settings.getConcurrencyLevel() == 1) {
             return settings.getFactoryProxy().create(settings.getName(), settings.getEventRecordsFactory(), params, null);
         }
 
@@ -52,7 +66,7 @@ public interface EventLoop {
         return new EventLoopMulti(name, eventLoopFactory, eventLoopSelector, settings.getDateTimeSupport());
     }
 
-    static EventLoopStream createStream(final EventLoopStreamSettings settings) {
-        return new EventLoopStream(settings);
+    static EventLoopIterator createForIterators(final EventLoopIteratorSettings settings) {
+        return new EventLoopIterator(settings);
     }
 }

@@ -14,9 +14,9 @@ import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.common.Pair;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public interface Context {
     GeneralSupport general();
@@ -149,7 +149,7 @@ public interface Context {
 
         int numberOfThreads();
 
-        <T> WaitHandle forEach(Stream<T> stream, Consumer<T> action);
+        <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> action);
     }
 
     interface Mutation {

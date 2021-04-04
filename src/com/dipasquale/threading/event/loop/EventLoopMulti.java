@@ -39,6 +39,11 @@ final class EventLoopMulti implements EventLoop {
         return eventLoops;
     }
 
+    @Override
+    public int getConcurrencyLevel() {
+        return eventLoops.size();
+    }
+
     private EventLoop getNextEventLoop() {
         int index = eventLoopSelector.next();
 
@@ -46,22 +51,12 @@ final class EventLoopMulti implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime) {
-        getNextEventLoop().queue(handler, delayTime);
-    }
-
-    @Override
-    public void queue(final EventLoopQueueableHandler handler, final long delayTime) {
-        getNextEventLoop().queue(handler, delayTime);
-    }
-
-    @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
-        getNextEventLoop().queue(handler, delayTime, countDownLatch);
-    }
-
-    @Override
     public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+        getNextEventLoop().queue(handler, delayTime, exceptionLogger, countDownLatch);
+    }
+
+    @Override
+    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
         getNextEventLoop().queue(handler, delayTime, exceptionLogger, countDownLatch);
     }
 

@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class EventLoopStreamTest {
+public final class EventLoopIteratorTest {
     private static final int NUMBER_OF_THREADS = 4;
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
@@ -27,7 +27,7 @@ public final class EventLoopStreamTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.create(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
 
-    private static final EventLoopStreamSettings SETTINGS = EventLoopStreamSettings.builder()
+    private static final EventLoopIteratorSettings SETTINGS = EventLoopIteratorSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .exceptionLogger(EXCEPTION_LOGGER)
@@ -46,7 +46,7 @@ public final class EventLoopStreamTest {
 
     @Test
     public void TEST_1() {
-        EventLoopStream test = new EventLoopStream(SETTINGS);
+        EventLoopIterator test = new EventLoopIterator(SETTINGS);
         ItemCollector collector = new ItemCollector();
 
         List<Item> items = IntStream.range(0, 256)
@@ -54,7 +54,7 @@ public final class EventLoopStreamTest {
                 .collect(Collectors.toList());
 
         try {
-            test.queue(items.stream(), i -> collector.value.addAndGet(i.value));
+            test.queue(items.iterator(), i -> collector.value.addAndGet(i.value));
             test.awaitUntilDone();
             Assert.assertEquals(32_896L, collector.value.get());
         } catch (InterruptedException e) {
@@ -66,7 +66,7 @@ public final class EventLoopStreamTest {
 
     @Test
     public void TEST_2() {
-        EventLoopStream test = new EventLoopStream(SETTINGS);
+        EventLoopIterator test = new EventLoopIterator(SETTINGS);
         ItemCollector collector = new ItemCollector();
 
         List<Item> items = IntStream.range(0, 256)
@@ -74,7 +74,7 @@ public final class EventLoopStreamTest {
                 .collect(Collectors.toList());
 
         try {
-            test.queue(items.stream().peek(i -> i.value++), i -> collector.value.addAndGet(i.value));
+            test.queue(items.stream().peek(i -> i.value++).iterator(), i -> collector.value.addAndGet(i.value));
             test.awaitUntilDone();
             Assert.assertEquals(33_152L, collector.value.get());
         } catch (InterruptedException e) {

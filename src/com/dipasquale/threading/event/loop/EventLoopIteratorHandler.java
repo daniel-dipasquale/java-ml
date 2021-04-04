@@ -4,11 +4,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class EventLoopStreamHandler<T> implements EventLoopHandler {
+final class EventLoopIteratorHandler<T> implements EventLoopHandler {
     private final Iterator<T> iterator;
-    private final EventLoopStreamAction<T> action;
+    private final Consumer<T> action;
 
     private Item<T> getNext() {
         synchronized (iterator) {
@@ -23,7 +24,7 @@ final class EventLoopStreamHandler<T> implements EventLoopHandler {
     @Override
     public void handle(final String name) {
         for (Item<T> item = getNext(); item != null; item = getNext()) {
-            action.enact(item.value);
+            action.accept(item.value);
         }
     }
 

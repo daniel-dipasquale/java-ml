@@ -33,9 +33,9 @@ final class EventLoopNoDelay implements EventLoop {
         ExclusiveQueue<EventLoopRecord> eventRecords = eventRecordsFactory.create(queue);
 
         EventLoopDefaultParams paramsFixed = EventLoopDefaultParams.builder()
+                .executorService(params.getExecutorService())
                 .dateTimeSupport(DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().unit()))
                 .exceptionLogger(params.getExceptionLogger())
-                .executorService(params.getExecutorService())
                 .build();
 
         this.eventLoop = new EventLoopDefault(name, eventRecords, paramsFixed, nextEventLoop);
@@ -46,32 +46,25 @@ final class EventLoopNoDelay implements EventLoop {
         return eventLoop.getName();
     }
 
+    @Override
+    public int getConcurrencyLevel() {
+        return eventLoop.getConcurrencyLevel();
+    }
+
     private static void ensureDelayTimeIsValid(final long delayTime) {
         ArgumentValidatorUtils.ensureEqual(delayTime, 0L, "delayTime", "must be 0 for FIFO ASAP event loops");
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime) {
-        ensureDelayTimeIsValid(delayTime);
-        eventLoop.queue(handler, 0L);
-    }
-
-    @Override
-    public void queue(final EventLoopQueueableHandler handler, final long delayTime) {
-        ensureDelayTimeIsValid(delayTime);
-        eventLoop.queue(handler, 0L);
-    }
-
-    @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
-        ensureDelayTimeIsValid(delayTime);
-        eventLoop.queue(handler, 0L, countDownLatch);
-    }
-
-    @Override
     public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
         ensureDelayTimeIsValid(delayTime);
-        eventLoop.queue(handler, 0L, exceptionLogger, countDownLatch);
+        eventLoop.queue(handler, delayTime, exceptionLogger, countDownLatch);
+    }
+
+    @Override
+    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+        ensureDelayTimeIsValid(delayTime);
+        eventLoop.queue(handler, delayTime, exceptionLogger, countDownLatch);
     }
 
     @Override

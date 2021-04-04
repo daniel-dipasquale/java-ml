@@ -6,8 +6,8 @@ import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.dipasquale.threading.event.loop.EventLoop;
-import com.dipasquale.threading.event.loop.EventLoopStream;
-import com.dipasquale.threading.event.loop.EventLoopStreamSettings;
+import com.dipasquale.threading.event.loop.EventLoopIterator;
+import com.dipasquale.threading.event.loop.EventLoopIteratorSettings;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,7 +32,7 @@ public final class NeatEvaluatorTest {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
-    private static final EventLoopStream EVENT_LOOP_STREAM = EventLoop.createStream(EventLoopStreamSettings.builder()
+    private static final EventLoopIterator EVENT_LOOP_STREAM = EventLoop.createForIterators(EventLoopIteratorSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .exceptionLogger(EXCEPTIONS::add)
@@ -104,7 +104,7 @@ public final class NeatEvaluatorTest {
                                 .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
-                                .eventLoopStream(shouldUseParallelism ? EVENT_LOOP_STREAM : null)
+                                .eventLoopIterator(shouldUseParallelism ? EVENT_LOOP_STREAM : null)
                                 .build())
                         .mutation(SettingsMutation.builder()
                                 .addNodeMutationRate(SettingsFloatNumber.literal(0.05f))
@@ -176,12 +176,12 @@ public final class NeatEvaluatorTest {
     }
 
     @Test
-    public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_for_the_xor_problem_THEN_find_the_solution() {
+    public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_first_problem_which_is_xor_THEN_find_the_solution() {
         assertTheXorProblem(false);
     }
 
     @Test
-    public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_for_the_xor_problem_THEN_find_the_solution() {
+    public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_first_problem_which_is_xor_THEN_find_the_solution() {
         assertTheXorProblem(true);
     }
 
@@ -261,7 +261,7 @@ public final class NeatEvaluatorTest {
                                 .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
-                                .eventLoopStream(shouldUseParallelism ? EVENT_LOOP_STREAM : null)
+                                .eventLoopIterator(shouldUseParallelism ? EVENT_LOOP_STREAM : null)
                                 .build())
                         .mutation(SettingsMutation.builder()
                                 .addNodeMutationRate(SettingsFloatNumber.literal(0.01f))
@@ -334,12 +334,12 @@ public final class NeatEvaluatorTest {
     }
 
     @Test
-    public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
+    public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
         assertTheSinglePoleBalancingProblem(false);
     }
 
     @Test
-    public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
+    public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
         assertTheSinglePoleBalancingProblem(true);
     }
 

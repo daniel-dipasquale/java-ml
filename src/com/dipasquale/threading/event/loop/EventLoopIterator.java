@@ -6,18 +6,19 @@ import com.dipasquale.common.MultiExceptionHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
-public final class EventLoopStream {
+public final class EventLoopIterator {
     private static final EventLoopRecordQueueFactory EVENT_RECORDS_FACTORY = q -> new ExclusiveQueueLocked<>(new ReentrantLock(), q);
     private final List<EventLoop> eventLoops;
     private final MultiWaitHandle waitUntilDoneHandler;
     private final MultiExceptionHandler<EventLoop> shutdownHandler;
 
-    EventLoopStream(final EventLoopStreamSettings settings) {
+    EventLoopIterator(final EventLoopIteratorSettings settings) {
         ArgumentValidatorUtils.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.numberOfThreads");
 
         List<EventLoop> eventLoops = createEventLoops(settings);
@@ -27,13 +28,13 @@ public final class EventLoopStream {
         this.shutdownHandler = new MultiExceptionHandler<>(eventLoops, EventLoop::shutdown);
     }
 
-    private static List<EventLoop> createEventLoops(final EventLoopStreamSettings settings) {
+    private static List<EventLoop> createEventLoops(final EventLoopIteratorSettings settings) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         EventLoopDefaultParams params = EventLoopDefaultParams.builder()
+                .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .exceptionLogger(settings.getExceptionLogger())
-                .executorService(settings.getExecutorService())
                 .build();
 
         for (int i = 0, c = settings.getNumberOfThreads(); i < c; i++) {
@@ -54,9 +55,9 @@ public final class EventLoopStream {
         return eventLoops.size();
     }
 
-    public <T> CountDownLatch queue(final Stream<T> stream, final EventLoopStreamAction<T> action, final ExceptionLogger exceptionLogger) {
+    public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
         CountDownLatch countDownLatch = new CountDownLatch(eventLoops.size());
-        EventLoopStreamHandler<T> handler = new EventLoopStreamHandler<>(stream.iterator(), action);
+        EventLoopIteratorHandler<T> handler = new EventLoopIteratorHandler<>(iterator, action);
 
         for (EventLoop eventLoop : eventLoops) {
             eventLoop.queue(handler, 0L, exceptionLogger, countDownLatch);
@@ -65,8 +66,8 @@ public final class EventLoopStream {
         return countDownLatch;
     }
 
-    public <T> CountDownLatch queue(final Stream<T> stream, final EventLoopStreamAction<T> action) {
-        return queue(stream, action, null);
+    public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action) {
+        return queue(iterator, action, null);
     }
 
     public void awaitUntilDone()

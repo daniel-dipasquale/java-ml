@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 @Builder(access = AccessLevel.PACKAGE)
 @Getter
 final class EventLoopDefaultParams {
+    private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
     private final ExceptionLogger exceptionLogger;
-    private final ExecutorService executorService;
 }

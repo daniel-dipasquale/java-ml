@@ -1,17 +1,17 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.threading.event.loop.EventLoopStream;
+import com.dipasquale.threading.event.loop.EventLoopIterator;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public final class ContextDefaultParallelism implements Context.Parallelism {
@@ -28,8 +28,8 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
     }
 
     @Override
-    public <T> WaitHandle forEach(final Stream<T> stream, final Consumer<T> action) {
-        return parallelism.forEach(stream, action);
+    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> action) {
+        return parallelism.forEach(iterator, action);
     }
 
     public static final class SingleThread implements Context.Parallelism {
@@ -44,8 +44,10 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
         }
 
         @Override
-        public <T> WaitHandle forEach(final Stream<T> stream, final Consumer<T> action) {
-            stream.forEach(action);
+        public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> action) {
+            while (iterator.hasNext()) {
+                action.accept(iterator.next());
+            }
 
             return null;
         }
@@ -53,7 +55,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
 
     @RequiredArgsConstructor
     public static final class MultiThread implements Context.Parallelism {
-        private final EventLoopStream eventLoopStream;
+        private final EventLoopIterator eventLoopIterator;
         private final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
 
         @Override
@@ -63,15 +65,13 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
 
         @Override
         public int numberOfThreads() {
-            return eventLoopStream.getConcurrencyLevel();
+            return eventLoopIterator.getConcurrencyLevel();
         }
 
-        private <T extends Exception> void failButAddAllUncaughtExceptionsAsSuppressed(final T exception)
+        private <T extends Exception> void addUncaughtExceptionsAsSuppressed(final T exception)
                 throws T {
             exceptions.forEach(exception::addSuppressed);
             exceptions.clear();
-
-            throw exception;
         }
 
         private void failIfThereAreUncaughtExceptions() {
@@ -79,16 +79,18 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
                 return;
             }
 
-            failButAddAllUncaughtExceptionsAsSuppressed(new IllegalStateException("exceptions were encountered in parallelism"));
+            RuntimeException exception = new IllegalStateException("exceptions were encountered in parallelism");
+
+            addUncaughtExceptionsAsSuppressed(exception);
+
+            throw exception;
         }
 
         @Override
-        public <T> WaitHandle forEach(final Stream<T> stream, final Consumer<T> action) {
-            synchronized (eventLoopStream) {
-                failIfThereAreUncaughtExceptions();
+        public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> action) {
+            failIfThereAreUncaughtExceptions();
 
-                return new CountDownLatchWaitHandle(eventLoopStream.queue(stream, action::accept));
-            }
+            return new CountDownLatchWaitHandle(eventLoopIterator.queue(iterator, action));
         }
 
         @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -98,17 +100,31 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
             @Override
             public void await()
                     throws InterruptedException {
-                failIfThereAreUncaughtExceptions();
+                try {
+                    countDownLatch.await();
+                } catch (InterruptedException e) {
+                    addUncaughtExceptionsAsSuppressed(e);
 
-                countDownLatch.await();
+                    throw e;
+                }
+
+                failIfThereAreUncaughtExceptions();
             }
 
             @Override
             public boolean await(final long timeout, final TimeUnit unit)
                     throws InterruptedException {
-                failIfThereAreUncaughtExceptions();
+                try {
+                    boolean acquired = countDownLatch.await(timeout, unit);
 
-                return countDownLatch.await(timeout, unit);
+                    failIfThereAreUncaughtExceptions();
+
+                    return acquired;
+                } catch (InterruptedException e) {
+                    addUncaughtExceptionsAsSuppressed(e);
+
+                    throw e;
+                }
             }
         }
     }

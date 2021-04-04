@@ -10,13 +10,17 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 final class EventLoopDefault implements EventLoop {
+    private static final int CONCURRENCY_LEVEL = 1;
     @Getter
     private final String name;
     private final ExclusiveQueue<EventLoopRecord> eventRecords;
+    private final ExecutorService executorService;
+    private boolean started;
     private final DateTimeSupport dateTimeSupport;
     private boolean isWaitUntilEmptyHandleLocked;
     private final ReusableCountDownLatch waitUntilEmptyHandle;
@@ -31,14 +35,20 @@ final class EventLoopDefault implements EventLoop {
 
         this.name = name;
         this.eventRecords = eventRecords;
+        this.executorService = params.getExecutorService();
+        this.started = false;
         this.dateTimeSupport = params.getDateTimeSupport();
         this.isWaitUntilEmptyHandleLocked = false;
         this.waitUntilEmptyHandle = new ReusableCountDownLatch(0);
         this.waitWhileEmptyHandle = new SlidingWaitHandle(name);
         this.exceptionLogger = params.getExceptionLogger();
         this.nextEventLoop = nextEventLoopFixed;
-        this.shutdown = new AtomicBoolean(false);
-        params.getExecutorService().submit(this::handleEvent);
+        this.shutdown = new AtomicBoolean(true);
+    }
+
+    @Override
+    public int getConcurrencyLevel() {
+        return CONCURRENCY_LEVEL;
     }
 
     private EventLoopRecordAudit produceNextEventRecordIfPossible() {
@@ -115,7 +125,14 @@ final class EventLoopDefault implements EventLoop {
 
         try {
             eventRecords.push(eventRecord);
-            waitWhileEmptyHandle.changeTimeout(getDelayTime(eventRecords.peek()), dateTimeSupport.timeUnit());
+
+            if (!started) {
+                started = true;
+                shutdown.set(false);
+                executorService.submit(this::handleEvent);
+            } else {
+                waitWhileEmptyHandle.changeTimeout(getDelayTime(eventRecords.peek()), dateTimeSupport.timeUnit());
+            }
 
             if (!isWaitUntilEmptyHandleLocked) {
                 isWaitUntilEmptyHandleLocked = true;
@@ -127,31 +144,19 @@ final class EventLoopDefault implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime) {
-        EventLoopRecord eventRecord = new EventLoopRecord(handler, dateTimeSupport.now() + delayTime);
+    public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+        EventLoopHandler handlerFixed = new EventLoopHandlerProxy(handler, exceptionLogger, countDownLatch);
+        EventLoopRecord eventRecord = new EventLoopRecord(handlerFixed, dateTimeSupport.now() + delayTime);
 
         queue(eventRecord);
     }
 
     @Override
-    public void queue(final EventLoopQueueableHandler handler, final long delayTime) {
-        EventLoopHandler handlerFixed = new EventLoopHandlerProxyQueueable(handler, delayTime);
+    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+        EventLoopHandler handlerFixed = new EventLoopIntervalHandlerProxy(handler, delayTime, exceptionLogger, countDownLatch, nextEventLoop);
+        EventLoopRecord eventRecord = new EventLoopRecord(handlerFixed, dateTimeSupport.now() + delayTime);
 
-        queue(handlerFixed, delayTime);
-    }
-
-    @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
-        EventLoopHandler handlerFixed = new EventLoopHandlerProxyWaitHandle(handler, null, countDownLatch);
-
-        queue(handlerFixed, delayTime);
-    }
-
-    @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
-        EventLoopHandler handlerFixed = new EventLoopHandlerProxyWaitHandle(handler, exceptionLogger, countDownLatch);
-
-        queue(handlerFixed, delayTime);
+        queue(eventRecord);
     }
 
     @Override
@@ -201,42 +206,5 @@ final class EventLoopDefault implements EventLoop {
     private static final class EventLoopRecordAudit {
         private final EventLoopRecord peeked;
         private final EventLoopRecord polled;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class EventLoopHandlerProxyQueueable implements EventLoopHandler {
-        private final EventLoopQueueableHandler handler;
-        private final long delayTime;
-
-        @Override
-        public void handle(final String name) {
-            handler.handle(name);
-
-            if (handler.shouldQueue()) {
-                nextEventLoop.queue(handler, delayTime);
-            }
-        }
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class EventLoopHandlerProxyWaitHandle implements EventLoopHandler {
-        private final EventLoopHandler handler;
-        private final ExceptionLogger exceptionLogger;
-        private final CountDownLatch countDownLatch;
-
-        @Override
-        public void handle(final String name) {
-            try {
-                handler.handle(name);
-            } catch (Throwable e) {
-                if (exceptionLogger == null) {
-                    throw e;
-                }
-
-                exceptionLogger.log(e);
-            } finally {
-                countDownLatch.countDown();
-            }
-        }
     }
 }

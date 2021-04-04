@@ -41,7 +41,6 @@ public final class ExceptionHandlerUtils {
     }
 
     @FunctionalInterface
-    public interface Factory<T extends Exception> {
-        T create();
+    public interface Factory<T extends Exception> extends ObjectFactory<T> {
     }
 }

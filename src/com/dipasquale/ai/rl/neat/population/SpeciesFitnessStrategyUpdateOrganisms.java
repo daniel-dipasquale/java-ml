@@ -9,7 +9,7 @@ import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.stream.Stream;
+import java.util.Iterator;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SpeciesFitnessStrategyUpdateOrganisms implements SpeciesFitnessStrategy {
@@ -17,9 +17,10 @@ final class SpeciesFitnessStrategyUpdateOrganisms implements SpeciesFitnessStrat
 
     @Override
     public <T extends Node> void process(final NodeDeque<Species, T> speciesNodes) {
-        Stream<Organism> organisms = speciesNodes.stream()
+        Iterator<Organism> organisms = speciesNodes.stream()
                 .map(speciesNodes::getValue)
-                .flatMap(s -> s.getOrganisms().stream());
+                .flatMap(s -> s.getOrganisms().stream())
+                .iterator();
 
         WaitHandle waitHandle = context.parallelism().forEach(organisms, Organism::updateFitness);
 

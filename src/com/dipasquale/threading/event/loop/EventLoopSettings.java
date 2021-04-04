@@ -22,18 +22,18 @@ import java.util.concurrent.locks.ReentrantLock;
 public final class EventLoopSettings {
     private static final Map<EventLoopType, EventLoopFactoryProxy> EVENT_LOOP_FACTORY_PROXIES = createEventLoopFactoryProxies();
     private static final Map<Boolean, EventLoopRecordQueueFactory> EVENT_RECORDS_FACTORIES = createEventRecordsFactories();
+    private final ExecutorService executorService;
     @Builder.Default
     private final DateTimeSupport dateTimeSupport = DateTimeSupport.createMilliseconds();
     @Builder.Default
     private final EventLoopType type = EventLoopType.EXPLICIT_DELAY;
     private final String name;
     @Builder.Default
-    private final int count = 1;
+    private final int concurrencyLevel = 1;
     private final EventLoopSelector selector;
     private final ExceptionLogger exceptionLogger;
     @Builder.Default
     private final boolean contended = true;
-    private final ExecutorService executorService;
 
     private static Map<EventLoopType, EventLoopFactoryProxy> createEventLoopFactoryProxies() {
         Map<EventLoopType, EventLoopFactoryProxy> eventLoopFactories = new EnumMap<>(EventLoopType.class);
