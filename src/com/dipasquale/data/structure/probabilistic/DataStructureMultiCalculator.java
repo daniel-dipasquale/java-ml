@@ -10,8 +10,11 @@ import lombok.ToString;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DataStructureMultiCalculator {
-    @Getter
-    private static final DataStructureMultiCalculator instance = new DataStructureMultiCalculator();
+    private static final DataStructureMultiCalculator INSTANCE = new DataStructureMultiCalculator();
+
+    public static DataStructureMultiCalculator getInstance() {
+        return INSTANCE;
+    }
 
     public Result readjust(final int count, final int estimatedSize, final long size) {
         boolean isInBounds = size <= (long) Integer.MAX_VALUE;

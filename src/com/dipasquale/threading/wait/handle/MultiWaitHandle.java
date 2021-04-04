@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
-public final class MultiWaitHandle {
+public final class MultiWaitHandle implements WaitHandle {
     private static final Map<TimeUnitConversionKey, UnitConverter> TIME_UNIT_CONVERTERS = createTimeUnitConverters();
     private final DateTimeSupport dateTimeSupport;
     private final Predicate predicate;
@@ -62,6 +62,7 @@ public final class MultiWaitHandle {
         return timeUnitConverters;
     }
 
+    @Override
     public void await()
             throws InterruptedException {
         for (int attempt = 0; predicate.shouldAwait(++attempt); ) {
@@ -71,6 +72,7 @@ public final class MultiWaitHandle {
         }
     }
 
+    @Override
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
         boolean acquired = true;

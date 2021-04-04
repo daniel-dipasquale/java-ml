@@ -1,13 +1,15 @@
 package com.experimental.data.structure.tree.bst;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class TreeNodeChanger {
-    @Getter
-    private static final TreeNodeChanger instance = new TreeNodeChanger();
+    private static final TreeNodeChanger INSTANCE = new TreeNodeChanger();
+
+    private static TreeNodeChanger getInstance() {
+        return INSTANCE;
+    }
 
     public void convertToRootNode(final TreeNode<?, ?> node) {
         if (node != null) {

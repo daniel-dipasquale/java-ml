@@ -3,14 +3,16 @@ package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterFactory;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class CountMinSketchFactoryAdapter {
-    @Getter
-    private static final CountMinSketchFactoryAdapter instance = new CountMinSketchFactoryAdapter();
+    private static final CountMinSketchFactoryAdapter INSTANCE = new CountMinSketchFactoryAdapter();
+
+    public static CountMinSketchFactoryAdapter getInstance() {
+        return INSTANCE;
+    }
 
     private static <T> CountMinSketch<T> extract(final BloomFilter<T> bloomFilter) {
         return ((BloomFilterAdapter<T>) bloomFilter).countMinSketch;

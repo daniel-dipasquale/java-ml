@@ -2,7 +2,6 @@ package com.experimental.concurrent;
 
 import lombok.AccessLevel;
 import lombok.Generated;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sun.misc.Unsafe;
 
@@ -11,8 +10,11 @@ import java.lang.reflect.Field;
 @Generated
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class UnsafeProvider { // NOTE: based on: https://github.com/boundary/high-scale-lib
-    @Getter
-    private static final UnsafeProvider instance = new UnsafeProvider();
+    private static final UnsafeProvider INSTANCE = new UnsafeProvider();
+
+    public static UnsafeProvider getInstance() {
+        return INSTANCE;
+    }
 
     public Unsafe getUnsafe() {
         if (UnsafeProvider.class.getClassLoader() == null) {

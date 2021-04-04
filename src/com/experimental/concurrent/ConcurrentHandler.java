@@ -1,7 +1,6 @@
 package com.experimental.concurrent;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -13,8 +12,11 @@ import java.util.function.Supplier;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ConcurrentHandler {
-    @Getter
-    private static final ConcurrentHandler instance = new ConcurrentHandler();
+    private static final ConcurrentHandler INSTANCE = new ConcurrentHandler();
+
+    public static ConcurrentHandler getInstance() {
+        return INSTANCE;
+    }
 
     public <T> T get(final ReadWriteLock readWriteLock, final Supplier<T> supplier) {
         readWriteLock.readLock().lock();

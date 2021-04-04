@@ -4,7 +4,7 @@ import com.dipasquale.common.DateTimeSupport;
 
 import java.util.concurrent.TimeUnit;
 
-public final class SinglePassWaitHandle {
+public final class SinglePassWaitHandle implements WaitHandle {
     private final ReusableCountDownLatch reusableCountDownLatch = new ReusableCountDownLatch(0);
     private boolean acquired = false;
 
@@ -21,14 +21,16 @@ public final class SinglePassWaitHandle {
         }
     }
 
-    public void acquireOrAwait()
+    @Override
+    public void await()
             throws InterruptedException {
         while (!acquire()) {
             reusableCountDownLatch.await();
         }
     }
 
-    public boolean acquireOrAwait(final long timeout, final TimeUnit unit)
+    @Override
+    public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
         boolean acquired = false;
         long timeoutRemaining = (long) DateTimeSupport.getUnit(unit).getConverterTo(WaitHandleConstants.DATE_TIME_SUPPORT_NANOSECONDS.unit()).convert((double) timeout);
