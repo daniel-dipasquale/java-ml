@@ -18,6 +18,11 @@ https://arxiv.org/pdf/1703.07122.pdf
 hyperneat:
 http://web.mit.edu/jessiehl/Public/aaai11/fullpaper.pdf
 
+tornado:
+https://arxiv.org/pdf/2001.04206.pdf
+https://github.com/beehive-lab/TornadoVM
+https://www.youtube.com/watch?v=nPlacnadR6k
+
 cart pole:
 https://github.com/CodeReclaimers/neat-python/blob/master/examples/single-pole-balancing/cart_pole.py
 https://www.youtube.com/watch?v=PqZsEUBm_4g
