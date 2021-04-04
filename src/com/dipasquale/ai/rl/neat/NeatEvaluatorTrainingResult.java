@@ -5,5 +5,6 @@ public enum NeatEvaluatorTrainingResult {
     EVOLVE,
     EVALUATE_FITNESS_AND_EVOLVE,
     RESTART,
-    STOP
+    STOP,
+    WORKING_SOLUTION_FOUND
 }

@@ -11,9 +11,14 @@ import java.util.List;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class NeatEvaluatorTrainingPolicies implements NeatEvaluatorTrainingPolicy {
     private final List<NeatEvaluatorTrainingPolicy> trainingPolicies;
+    private final NeatEvaluatorTrainingResult defaultResult;
 
     @Override
     public NeatEvaluatorTrainingResult test(final NeatActivator activator) {
+        if (trainingPolicies.isEmpty()) {
+            return defaultResult;
+        }
+
         EnumSet<NeatEvaluatorTrainingResult> results = EnumSet.noneOf(NeatEvaluatorTrainingResult.class);
 
         for (NeatEvaluatorTrainingPolicy trainingPolicy : trainingPolicies) {
@@ -21,10 +26,9 @@ public final class NeatEvaluatorTrainingPolicies implements NeatEvaluatorTrainin
 
             switch (result) {
                 case RESTART:
-                    return NeatEvaluatorTrainingResult.RESTART;
-
                 case STOP:
-                    return NeatEvaluatorTrainingResult.STOP;
+                case WORKING_SOLUTION_FOUND:
+                    return result;
             }
 
             results.add(result);
@@ -48,13 +52,22 @@ public final class NeatEvaluatorTrainingPolicies implements NeatEvaluatorTrainin
 
     public static final class Builder {
         private final List<NeatEvaluatorTrainingPolicy> trainingPolicies = new ArrayList<>();
+        private NeatEvaluatorTrainingResult defaultResult = NeatEvaluatorTrainingResult.EVALUATE_FITNESS;
 
-        public void add(final NeatEvaluatorTrainingPolicy trainingPolicy) {
+        public Builder add(final NeatEvaluatorTrainingPolicy trainingPolicy) {
             trainingPolicies.add(trainingPolicy);
+
+            return this;
+        }
+
+        public Builder defaultResult(final NeatEvaluatorTrainingResult result) {
+            defaultResult = result;
+
+            return this;
         }
 
         public NeatEvaluatorTrainingPolicies build() {
-            return new NeatEvaluatorTrainingPolicies(ImmutableList.copyOf(trainingPolicies));
+            return new NeatEvaluatorTrainingPolicies(ImmutableList.copyOf(trainingPolicies), defaultResult);
         }
     }
 }

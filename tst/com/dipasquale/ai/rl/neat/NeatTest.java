@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public final class NeatEvaluatorTest {
+public final class NeatTest {
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
@@ -50,11 +50,19 @@ public final class NeatEvaluatorTest {
         EXECUTOR_SERVICE.shutdown();
     }
 
-    private static NeatTest createXorEvaluatorTest(final float[][] inputs, final float[] expectedOutputs, final boolean shouldUseParallelism) {
+    private static NeatSetup createXorEvaluatorTest(final boolean shouldUseParallelism) {
         int populationSize = 150;
 
+        float[][] inputs = new float[][]{
+                new float[]{1f, 1f}, // 0f
+                new float[]{1f, 0f}, // 1f
+                new float[]{0f, 1f}, // 1f
+                new float[]{0f, 0f}  // 0f
+        };
+
+        float[] expectedOutputs = new float[]{0f, 1f, 1f, 0f};
+
         NeatEnvironmentContainer environmentContainer = NeatEnvironmentContainer.builder()
-                .populationSize(populationSize)
                 .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
                     float temporary = 0f;
@@ -69,8 +77,25 @@ public final class NeatEvaluatorTest {
                 })
                 .build();
 
-        return NeatTest.builder()
-                .environment(environmentContainer)
+        NeatEvaluatorTrainingPolicy trainingPolicy = na -> {
+            boolean success = true;
+
+            for (int i = 0; success && i < inputs.length; i++) {
+                float[] output = na.activate(inputs[i]);
+
+                success = Float.compare(expectedOutputs[i], (float) Math.round(output[0])) == 0;
+            }
+
+            if (success) {
+                return NeatEvaluatorTrainingResult.WORKING_SOLUTION_FOUND;
+            }
+
+            return NeatEvaluatorTrainingResult.EVALUATE_FITNESS_AND_EVOLVE;
+        };
+
+        return NeatSetup.builder()
+                .populationSize(populationSize)
+                .genomeIds(environmentContainer.genomeIds)
                 .settings(SettingsEvaluator.builder()
                         .general(SettingsGeneralEvaluatorSupport.builder()
                                 .populationSize(populationSize)
@@ -134,36 +159,17 @@ public final class NeatEvaluatorTest {
                                 .interSpeciesMatingRate(SettingsFloatNumber.literal(0.001f))
                                 .build())
                         .build())
+                .trainingPolicy(NeatEvaluatorTrainingPolicies.builder()
+                        .add(NeatEvaluatorTrainingPolicy.maximumGenerations(2_000, NeatEvaluatorTrainingResult.EVALUATE_FITNESS_AND_EVOLVE))
+                        .add(trainingPolicy)
+                        .build())
                 .build();
     }
 
     private void assertTheXorProblem(final boolean shouldUseParallelism) {
-        float[][] inputs = new float[][]{
-                new float[]{1f, 1f}, // 0f
-                new float[]{1f, 0f}, // 1f
-                new float[]{0f, 1f}, // 1f
-                new float[]{0f, 0f}  // 0f
-        };
-
-        float[] expectedOutputs = new float[]{0f, 1f, 1f, 0f};
-        NeatTest neatTest = createXorEvaluatorTest(inputs, expectedOutputs, shouldUseParallelism);
-        NeatEvaluator neat = Neat.createEvaluator(neatTest.settings);
-        boolean success = false;
-
-        for (int i1 = 0, c = 500; i1 < c && !success; i1++) {
-            success = true;
-
-            for (int i2 = 0; i2 < inputs.length && success; i2++) {
-                float[] output = neat.activate(inputs[i2]);
-
-                success = Float.compare(expectedOutputs[i2], (float) Math.round(output[0])) == 0;
-            }
-
-            if (!success) {
-                neat.evaluateFitness();
-                neat.evolve();
-            }
-        }
+        NeatSetup neatSetup = createXorEvaluatorTest(shouldUseParallelism);
+        NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
+        boolean success = neat.train(neatSetup.trainingPolicy);
 
         System.out.printf("=========================================%n");
         System.out.printf("XOR (%s):%n", shouldUseParallelism ? "parallel" : "single");
@@ -172,7 +178,7 @@ public final class NeatEvaluatorTest {
         System.out.printf("species: %d%n", neat.getSpeciesCount());
         System.out.printf("fitness: %f%n", neat.getMaximumFitness());
         Assert.assertTrue(success);
-        Assert.assertEquals(neatTest.environment.populationSize, neatTest.environment.genomeIds.size());
+        Assert.assertEquals(neatSetup.populationSize, neatSetup.genomeIds.size());
     }
 
     @Test
@@ -195,27 +201,26 @@ public final class NeatEvaluatorTest {
         return output;
     }
 
-    private static NeatTest createSinglePoleBalancingTest(final double timeSpentGoal, final boolean shouldUseParallelism) {
+    private static NeatSetup createSinglePoleBalancingTest(final double timeSpentGoal, final boolean shouldUseParallelism) {
         int populationSize = 150;
 
         NeatEnvironmentContainer environmentContainer = NeatEnvironmentContainer.builder()
-                .populationSize(populationSize)
                 .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
                     float minimumTimeSpent = Float.MAX_VALUE;
 
                     for (int i = 0, attempts = 5; i < attempts; i++) {
-                        CartPoleEnvironment cartPoleEnvironment = CartPoleEnvironment.builder()
+                        CartPoleEnvironment environment = CartPoleEnvironment.builder()
                                 .build();
 
-                        while (!cartPoleEnvironment.isLimitHit() && Double.compare(cartPoleEnvironment.getTimeSpent(), timeSpentGoal) < 0) {
-                            float[] input = convertToFloat(cartPoleEnvironment.getState());
+                        while (!environment.isLimitHit() && Double.compare(environment.getTimeSpent(), timeSpentGoal) < 0) {
+                            float[] input = convertToFloat(environment.getState());
                             float[] output = genome.activate(input);
 
-                            cartPoleEnvironment.stepInDiscrete(output[0]);
+                            environment.stepInDiscrete(output[0]);
                         }
 
-                        minimumTimeSpent = Math.min(minimumTimeSpent, (float) cartPoleEnvironment.getTimeSpent());
+                        minimumTimeSpent = Math.min(minimumTimeSpent, (float) environment.getTimeSpent());
                     }
 
                     if (Float.compare(minimumTimeSpent, Float.MAX_VALUE) == 0) {
@@ -226,8 +231,33 @@ public final class NeatEvaluatorTest {
                 })
                 .build();
 
-        return NeatTest.builder()
-                .environment(environmentContainer)
+        NeatEvaluatorTrainingPolicy trainingPolicy = na -> {
+            boolean success = true;
+
+            for (int i = 0, attempts = 10; success && i < attempts; i++) {
+                CartPoleEnvironment environment = CartPoleEnvironment.builder()
+                        .build();
+
+                while (!environment.isLimitHit() && Double.compare(environment.getTimeSpent(), timeSpentGoal) < 0) {
+                    float[] input = convertToFloat(environment.getState());
+                    float[] output = na.activate(input);
+
+                    environment.stepInDiscrete(output[0]);
+                }
+
+                success = Double.compare(environment.getTimeSpent(), timeSpentGoal) >= 0;
+            }
+
+            if (success) {
+                return NeatEvaluatorTrainingResult.WORKING_SOLUTION_FOUND;
+            }
+
+            return NeatEvaluatorTrainingResult.EVALUATE_FITNESS_AND_EVOLVE;
+        };
+
+        return NeatSetup.builder()
+                .populationSize(populationSize)
+                .genomeIds(environmentContainer.genomeIds)
                 .settings(SettingsEvaluator.builder()
                         .general(SettingsGeneralEvaluatorSupport.builder()
                                 .populationSize(populationSize)
@@ -291,37 +321,18 @@ public final class NeatEvaluatorTest {
                                 .interSpeciesMatingRate(SettingsFloatNumber.literal(0.001f))
                                 .build())
                         .build())
+                .trainingPolicy(NeatEvaluatorTrainingPolicies.builder()
+                        .add(NeatEvaluatorTrainingPolicy.maximumGenerations(2_000, NeatEvaluatorTrainingResult.EVALUATE_FITNESS_AND_EVOLVE))
+                        .add(trainingPolicy)
+                        .build())
                 .build();
     }
 
     private void assertTheSinglePoleBalancingProblem(final boolean shouldUseParallelism) {
         double timeSpentGoal = 60D;
-        NeatTest neatTest = createSinglePoleBalancingTest(timeSpentGoal, shouldUseParallelism);
-        NeatEvaluator neat = Neat.createEvaluator(neatTest.settings);
-        boolean success = false;
-
-        for (int i1 = 0, c = 2_000; i1 < c && !success; i1++) {
-            success = true;
-
-            for (int i2 = 0, attempts = 10; i2 < attempts && success; i2++) {
-                CartPoleEnvironment environment = CartPoleEnvironment.builder()
-                        .build();
-
-                while (!environment.isLimitHit() && Double.compare(environment.getTimeSpent(), timeSpentGoal) < 0) {
-                    float[] input = convertToFloat(environment.getState());
-                    float[] output = neat.activate(input);
-
-                    environment.stepInDiscrete(output[0]);
-                }
-
-                success = Double.compare(environment.getTimeSpent(), timeSpentGoal) >= 0;
-            }
-
-            if (!success) {
-                neat.evaluateFitness();
-                neat.evolve();
-            }
-        }
+        NeatSetup neatSetup = createSinglePoleBalancingTest(timeSpentGoal, shouldUseParallelism);
+        NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
+        boolean success = neat.train(neatSetup.trainingPolicy);
 
         System.out.printf("=========================================%n");
         System.out.printf("Single Pole Balancing (%s)%n", shouldUseParallelism ? "parallel" : "single");
@@ -330,7 +341,7 @@ public final class NeatEvaluatorTest {
         System.out.printf("species: %d%n", neat.getSpeciesCount());
         System.out.printf("fitness: %f%n", neat.getMaximumFitness());
         Assert.assertTrue(success);
-        Assert.assertEquals(neatTest.environment.populationSize, neatTest.environment.genomeIds.size());
+        Assert.assertEquals(neatSetup.populationSize, neatSetup.genomeIds.size());
     }
 
     @Test
@@ -345,17 +356,16 @@ public final class NeatEvaluatorTest {
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class NeatEnvironmentContainer implements NeatEnvironment {
-        private final int populationSize;
         private final Set<String> genomeIds;
         private final NeatEnvironment environment;
 
         @Builder(access = AccessLevel.PRIVATE)
-        public static NeatEnvironmentContainer create(final int populationSize, final boolean shouldUseParallelism, final NeatEnvironment environment) {
+        public static NeatEnvironmentContainer create(final boolean shouldUseParallelism, final NeatEnvironment environment) {
             Set<String> genomeIds = !shouldUseParallelism
                     ? new HashSet<>()
                     : Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-            return new NeatEnvironmentContainer(populationSize, genomeIds, environment);
+            return new NeatEnvironmentContainer(genomeIds, environment);
         }
 
         @Override
@@ -368,8 +378,10 @@ public final class NeatEvaluatorTest {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
-    private static final class NeatTest {
-        private final NeatEnvironmentContainer environment;
+    private static final class NeatSetup {
+        private final int populationSize;
+        private final Set<String> genomeIds;
         private final SettingsEvaluator settings;
+        private final NeatEvaluatorTrainingPolicy trainingPolicy;
     }
 }

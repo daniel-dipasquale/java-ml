@@ -26,46 +26,39 @@ final class NeatEvaluatorTrainerSynchronized implements NeatEvaluatorTrainer {
     }
 
     @Override
-    public void restart() {
-        evaluator.restart();
-    }
-
-    @Override
-    public void train(final NeatEvaluatorTrainingPolicy trainingPolicy) {
+    public boolean train(final NeatEvaluatorTrainingPolicy trainingPolicy) {
         synchronized (evaluator) {
-            boolean shouldTrain = true;
-
-            while (shouldTrain) {
+            while (true) {
                 NeatEvaluatorTrainingResult result = trainingPolicy.test(activator);
 
-                shouldTrain = switch (result) {
-                    case EVALUATE_FITNESS -> {
+                switch (result) {
+                    case EVALUATE_FITNESS:
                         evaluator.evaluateFitness();
 
-                        yield true;
-                    }
+                        break;
 
-                    case EVOLVE -> {
+                    case EVOLVE:
                         evaluator.evolve();
 
-                        yield true;
-                    }
+                        break;
 
-                    case EVALUATE_FITNESS_AND_EVOLVE -> {
+                    case EVALUATE_FITNESS_AND_EVOLVE:
                         evaluator.evaluateFitness();
                         evaluator.evolve();
 
-                        yield true;
-                    }
+                        break;
 
-                    case RESTART -> {
+                    case RESTART:
                         evaluator.restart();
 
-                        yield true;
-                    }
+                        break;
 
-                    case STOP -> false;
-                };
+                    case STOP:
+                        return false;
+
+                    case WORKING_SOLUTION_FOUND:
+                        return true;
+                }
             }
         }
     }

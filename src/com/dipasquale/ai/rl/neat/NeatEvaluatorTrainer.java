@@ -5,9 +5,7 @@ public interface NeatEvaluatorTrainer {
 
     int getSpeciesCount();
 
-    void restart();
-
-    void train(NeatEvaluatorTrainingPolicy trainingPolicy);
+    boolean train(NeatEvaluatorTrainingPolicy trainingPolicy);
 
     float getMaximumFitness();
 
