@@ -1,17 +1,17 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.RandomSupport;
+import com.dipasquale.common.RandomSupportFloat;
 
 public interface EventLoopSelector {
     int next();
 
     int size();
 
-    static EventLoopSelector createRandom(final RandomSupport randomSupport, final int size) {
+    static EventLoopSelector createRandom(final RandomSupportFloat randomSupport, final int size) {
         return new EventLoopSelector() {
             @Override
             public int next() {
-                return (int) randomSupport.next(0L, size);
+                return randomSupport.next(0, size);
             }
 
             @Override
@@ -22,10 +22,10 @@ public interface EventLoopSelector {
     }
 
     static EventLoopSelector createRandom(final boolean contended, final int size) {
-        if (contended) {
-            return createRandom(RandomSupport.createConcurrent(), size);
+        if (!contended) {
+            return createRandom(EventLoopConstants.RANDOM_SUPPORT_UNIFORM, size);
         }
 
-        return createRandom(RandomSupport.create(), size);
+        return createRandom(EventLoopConstants.RANDOM_SUPPORT_UNIFORM_CONCURRENT, size);
     }
 }
