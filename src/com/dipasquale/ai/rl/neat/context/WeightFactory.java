@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
 @FunctionalInterface
-public interface ConnectionGeneWeightFactory {
+public interface WeightFactory {
     float next();
 }

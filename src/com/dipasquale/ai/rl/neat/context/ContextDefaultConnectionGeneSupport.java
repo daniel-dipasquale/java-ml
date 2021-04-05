@@ -12,8 +12,8 @@ public final class ContextDefaultConnectionGeneSupport implements Context.Connec
     private final boolean multipleRecurrentCyclesAllowed;
     private final SequentialIdFactory innovationIdFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
-    private final ConnectionGeneWeightFactory weightFactory;
-    private final ConnectionGeneWeightPerturber weightPerturber;
+    private final WeightFactory weightFactory;
+    private final WeightPerturber weightPerturber;
 
     @Override
     public boolean multipleRecurrentCyclesAllowed() {

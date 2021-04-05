@@ -2,8 +2,8 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryDefault;
-import com.dipasquale.ai.rl.neat.context.ConnectionGeneWeightFactory;
-import com.dipasquale.ai.rl.neat.context.ConnectionGeneWeightPerturber;
+import com.dipasquale.ai.rl.neat.context.WeightFactory;
+import com.dipasquale.ai.rl.neat.context.WeightPerturber;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
@@ -26,12 +26,12 @@ public final class SettingsConnectionGeneSupport {
     @Builder.Default
     private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.literal(2.5f);
 
-    ConnectionGeneWeightFactory createWeightFactory(final SettingsParallelism parallelism) {
-        return new ConnectionGeneWeightFactoryDefault(weightFactory.createFactory(parallelism));
+    WeightFactory createWeightFactory(final SettingsParallelism parallelism) {
+        return new WeightFactoryDefault(weightFactory.createFactory(parallelism));
     }
 
-    ConnectionGeneWeightPerturber createWeightPerturber(final SettingsParallelism parallelism) {
-        return new ConnectionGeneWeightPerturberDefault(weightPerturber.createFactory(parallelism));
+    WeightPerturber createWeightPerturber(final SettingsParallelism parallelism) {
+        return new WeightPerturberDefault(weightPerturber.createFactory(parallelism));
     }
 
     ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> createFactory(final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
@@ -43,15 +43,15 @@ public final class SettingsConnectionGeneSupport {
                     ? new HashMap<>()
                     : new ConcurrentHashMap<>(16, 0.75f, parallelism.getNumberOfThreads());
 
-            ConnectionGeneWeightFactory weightFactoryFixed = createWeightFactory(parallelism);
-            ConnectionGeneWeightPerturber weightPerturberFixed = createWeightPerturber(parallelism);
+            WeightFactory weightFactoryFixed = createWeightFactory(parallelism);
+            WeightPerturber weightPerturberFixed = createWeightPerturber(parallelism);
 
             return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, innovationIdFactory, innovationIds, weightFactoryFixed, weightPerturberFixed);
         };
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class ConnectionGeneWeightFactoryDefault implements ConnectionGeneWeightFactory {
+    private static final class WeightFactoryDefault implements WeightFactory {
         private final FloatFactory weightFactory;
 
         @Override
@@ -61,7 +61,7 @@ public final class SettingsConnectionGeneSupport {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class ConnectionGeneWeightPerturberDefault implements ConnectionGeneWeightPerturber {
+    private static final class WeightPerturberDefault implements WeightPerturber {
         private final FloatFactory weightPerturber;
 
         @Override

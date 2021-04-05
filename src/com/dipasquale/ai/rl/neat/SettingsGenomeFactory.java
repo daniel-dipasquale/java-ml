@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.ConnectionGeneWeightFactory;
+import com.dipasquale.ai.rl.neat.context.WeightFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import com.dipasquale.common.FloatFactory;
@@ -49,7 +49,7 @@ public final class SettingsGenomeFactory {
         return createDefault(inputs, outputs, new float[0]);
     }
 
-    private FloatFactory createWeightSettings(final ConnectionGeneWeightFactory weightFactory) {
+    private FloatFactory createWeightSettings(final WeightFactory weightFactory) {
         if (initialWeightType == SettingsInitialWeightType.FIRST_RANDOM_SUBSEQUENT_COPY) {
             float weight = weightFactory.next();
 
