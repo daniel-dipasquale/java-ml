@@ -29,7 +29,7 @@ public final class SequentialIdDefault implements SequentialId {
 
         String message = String.format("unable to compare incompatible sequential ids, x: %s, y: %s", getClass().getTypeName(), otherTypeName);
 
-        throw new IllegalStateException(message);
+        throw new IllegalArgumentException(message);
     }
 
     @Override

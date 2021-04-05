@@ -29,9 +29,13 @@ public final class SequentialIdStrategy implements SequentialId {
             return compareTo((SequentialIdStrategy) other);
         }
 
-        String message = String.format("unable to compare incompatible sequential ids, x: %s, y: %s", getClass().getTypeName(), other == null ? null : other.getClass().getTypeName());
+        String otherTypeName = other == null
+                ? null
+                : other.getClass().getTypeName();
 
-        throw new IllegalStateException(message);
+        String message = String.format("unable to compare incompatible sequential ids, x: %s, y: %s", getClass().getTypeName(), otherTypeName);
+
+        throw new IllegalArgumentException(message);
     }
 
     @Override
