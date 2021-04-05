@@ -67,6 +67,6 @@ public final class SettingsSpeciation {
         int stagnationDropOffAgeFixed = stagnationDropOffAge.createFactory(parallelism).create();
         float interSpeciesMatingRateFixed = interSpeciesMatingRate.createFactory(parallelism).create();
 
-        return new ContextDefaultSpeciation(maximumSpeciesFixed, maximumGenomesFixed, weightDifferenceCoefficientFixed, disjointCoefficientFixed, excessCoefficientFixed, compatibilityThresholdFixed, compatibilityThresholdModifierFixed, genomeCompatibilityCalculator, eugenicsThresholdFixed, elitistThresholdFixed, elitistThresholdMinimumFixed, stagnationDropOffAgeFixed, interSpeciesMatingRateFixed);
+        return new ContextDefaultSpeciation(maximumSpeciesFixed, maximumGenomesFixed, compatibilityThresholdFixed, compatibilityThresholdModifierFixed, genomeCompatibilityCalculator, eugenicsThresholdFixed, elitistThresholdFixed, elitistThresholdMinimumFixed, stagnationDropOffAgeFixed, interSpeciesMatingRateFixed);
     }
 }

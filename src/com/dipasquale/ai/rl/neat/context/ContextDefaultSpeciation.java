@@ -8,9 +8,6 @@ import lombok.RequiredArgsConstructor;
 public final class ContextDefaultSpeciation implements Context.Speciation {
     private final int maximumSpecies;
     private final int maximumGenomes;
-    private final float weightDifferenceCoefficient;
-    private final float disjointCoefficient;
-    private final float excessCoefficient;
     private final float compatibilityThreshold;
     private final float compatibilityThresholdModifier;
     private final GenomeCompatibilityCalculator genomeCompatibilityCalculator;
@@ -28,21 +25,6 @@ public final class ContextDefaultSpeciation implements Context.Speciation {
     @Override
     public int maximumGenomes() {
         return maximumGenomes;
-    }
-
-    @Override
-    public float weightDifferenceCoefficient() {
-        return weightDifferenceCoefficient;
-    }
-
-    @Override
-    public float disjointCoefficient() {
-        return disjointCoefficient;
-    }
-
-    @Override
-    public float excessCoefficient() {
-        return excessCoefficient;
     }
 
     @Override

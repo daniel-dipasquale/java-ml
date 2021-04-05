@@ -193,12 +193,6 @@ public interface Context {
 
         int maximumGenomes();
 
-        float weightDifferenceCoefficient(); // c3
-
-        float disjointCoefficient(); // c2
-
-        float excessCoefficient(); // c1
-
         double compatibilityThreshold(int generation);
 
         double calculateCompatibility(GenomeDefault genome1, GenomeDefault genome2);
