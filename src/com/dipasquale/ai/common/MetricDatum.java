@@ -1,6 +1,8 @@
 package com.dipasquale.ai.common;
 
-public interface MetricDatum {
+import java.io.Serializable;
+
+public interface MetricDatum extends Serializable {
     float getLastValue();
 
     float getSum();

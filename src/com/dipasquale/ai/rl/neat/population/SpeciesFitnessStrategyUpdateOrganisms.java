@@ -22,7 +22,8 @@ final class SpeciesFitnessStrategyUpdateOrganisms implements SpeciesFitnessStrat
                 .flatMap(s -> s.getOrganisms().stream())
                 .iterator();
 
-        WaitHandle waitHandle = context.parallelism().forEach(organisms, Organism::updateFitness);
+        Context.GeneralSupport general = context.general();
+        WaitHandle waitHandle = context.parallelism().forEach(organisms, o -> o.updateFitness(general));
 
         try {
             waitHandle.await();

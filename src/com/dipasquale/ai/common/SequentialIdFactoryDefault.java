@@ -4,11 +4,15 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 public final class SequentialIdFactoryDefault implements SequentialIdFactory {
+    @Serial
+    private static final long serialVersionUID = -2914528594779687249L;
     private long current = 0L;
 
     @Override
-    public SequentialId next() {
+    public SequentialId create() {
         if (current == Long.MAX_VALUE) {
             throw new IllegalStateException("SequentialId reach its end");
         }
@@ -26,6 +30,8 @@ public final class SequentialIdFactoryDefault implements SequentialIdFactory {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
     private static final class SequentialIdLong implements SequentialId {
+        @Serial
+        private static final long serialVersionUID = -78487413947636387L;
         private final long value;
 
         private int compareTo(final SequentialIdLong other) {

@@ -1,7 +1,8 @@
 package com.dipasquale.ai.rl.neat.species;
 
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.ai.rl.neat.genotype.OrganismFactory;
 
 import java.util.List;
 
@@ -12,27 +13,27 @@ public interface Species { // TODO: this interface might not be needed, merge it
 
     List<Organism> getOrganisms();
 
-    boolean addIfCompatible(Organism organism);
+    boolean addIfCompatible(Context.Speciation speciation, Organism organism);
 
-    void add(Organism organism);
+    void add(Context.Speciation speciation, Organism organism);
 
     float getSharedFitness();
 
     float updateSharedFitness();
 
-    float updateFitness();
+    float updateFitness(Context.GeneralSupport general);
 
-    List<Organism> removeUnfitToReproduce();
+    List<Organism> removeUnfitToReproduce(Context.Speciation speciation);
 
-    List<ObjectFactory<Organism>> getOrganismsToBirth(int count);
+    List<OrganismFactory> getOrganismsToBirth(Context context, int count);
 
-    ObjectFactory<Organism> getOrganismToBirth(Species other);
+    OrganismFactory getOrganismToBirth(Context.Random random, Species other);
 
     Organism selectMostElite();
 
-    List<Organism> selectMostElites();
+    List<Organism> selectMostElites(Context.Speciation speciation);
 
-    boolean shouldSurvive();
+    boolean shouldSurvive(Context.Speciation speciation);
 
-    List<Organism> restart();
+    List<Organism> restart(Context.Random random);
 }

@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.population;
 
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 
 public interface OrganismActivator {
@@ -7,5 +8,5 @@ public interface OrganismActivator {
 
     float getFitness();
 
-    float[] activate(float[] inputs);
+    float[] activate(Context context, float[] inputs);
 }

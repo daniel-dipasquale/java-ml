@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.population;
 
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 
 import java.util.Deque;
@@ -26,10 +27,10 @@ public final class OrganismActivatorSynchronized implements OrganismActivator {
         }
     }
 
-    private Organism getOrCloneOrganism() {
+    private Organism getOrCloneOrganism(final Context context) {
         synchronized (clonedOrganisms) {
             if (clonedOrganisms.isEmpty()) {
-                return organism.createClone();
+                return organism.createClone(context);
             }
 
             return clonedOrganisms.removeFirst();
@@ -43,8 +44,8 @@ public final class OrganismActivatorSynchronized implements OrganismActivator {
     }
 
     @Override
-    public float[] activate(final float[] inputs) {
-        Organism organism = getOrCloneOrganism();
+    public float[] activate(final Context context, final float[] inputs) {
+        Organism organism = getOrCloneOrganism(context);
 
         try {
             return organism.activate(inputs);

@@ -21,7 +21,7 @@ public final class NeuronNavigatorTest {
         SequentialIdFactoryDefault nodeIdFactory = new SequentialIdFactoryDefault();
 
         return IntStream.range(0, count)
-                .mapToObj(i -> nodeIdFactory.next())
+                .mapToObj(i -> nodeIdFactory.create())
                 .collect(Collectors.toList());
     }
 

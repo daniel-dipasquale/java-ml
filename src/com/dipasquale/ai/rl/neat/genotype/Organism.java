@@ -7,34 +7,32 @@ import com.dipasquale.ai.rl.neat.species.Species;
 import lombok.Getter;
 
 public final class Organism implements Comparable<Organism> {
-    private final Context context;
-    private final Population population;
     private final GenomeDefault genome;
+    private final Population population;
     private double minimumCompatibility;
     @Getter
     private Species mostCompatibleSpecies;
     private final FitnessDeterminer fitnessDeterminer;
     private int fitnessGeneration;
 
-    public Organism(final Context context, final Population population, final GenomeDefault genome) {
-        this.context = context;
-        this.population = population;
+    public Organism(final GenomeDefault genome, final Population population, final Context.GeneralSupport general) {
         this.genome = genome;
+        this.population = population;
         this.minimumCompatibility = Double.POSITIVE_INFINITY;
         this.mostCompatibleSpecies = null;
-        this.fitnessDeterminer = context.general().createFitnessDeterminer();
+        this.fitnessDeterminer = general.createFitnessDeterminer();
         this.fitnessGeneration = -1;
     }
 
-    public boolean isCompatible(final Species species) {
-        double compatibility = context.speciation().calculateCompatibility(genome, species.getRepresentative().genome);
+    public boolean isCompatible(final Context.Speciation speciation, final Species species) {
+        double compatibility = speciation.calculateCompatibility(genome, species.getRepresentative().genome);
 
         if (Double.compare(minimumCompatibility, compatibility) > 0) {
             minimumCompatibility = compatibility;
             mostCompatibleSpecies = species;
         }
 
-        double compatibilityThreshold = context.speciation().compatibilityThreshold(population.getGeneration());
+        double compatibilityThreshold = speciation.compatibilityThreshold(population.getGeneration());
 
         return Double.compare(compatibility, compatibilityThreshold) < 0;
     }
@@ -48,13 +46,13 @@ public final class Organism implements Comparable<Organism> {
         return fitnessDeterminer.get();
     }
 
-    public float updateFitness() {
+    public float updateFitness(final Context.GeneralSupport general) {
         if (fitnessGeneration != population.getGeneration()) {
             fitnessGeneration = population.getGeneration();
             fitnessDeterminer.clear();
         }
 
-        float fitness = context.general().calculateFitness(genome);
+        float fitness = general.calculateFitness(genome);
         float fitnessFixed = !Float.isFinite(fitness) ? 0f : Math.max(fitness, 0f);
 
         fitnessDeterminer.add(fitnessFixed);
@@ -62,8 +60,8 @@ public final class Organism implements Comparable<Organism> {
         return fitnessDeterminer.get();
     }
 
-    public void mutate() {
-        genome.mutate();
+    public void mutate(final Context context) {
+        genome.mutate(context);
     }
 
     @Override
@@ -71,7 +69,7 @@ public final class Organism implements Comparable<Organism> {
         return Float.compare(fitnessDeterminer.get(), other.fitnessDeterminer.get());
     }
 
-    public Organism mate(final Organism other) {
+    public Organism mate(final Context context, final Organism other) {
         int comparison = compareTo(other);
 
         GenomeDefault genomeNew = switch (comparison) {
@@ -82,7 +80,7 @@ public final class Organism implements Comparable<Organism> {
             default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, other.genome, genome);
         };
 
-        return new Organism(context, population, genomeNew);
+        return new Organism(genomeNew, population, context.general());
     }
 
     public void freeze() {
@@ -93,15 +91,15 @@ public final class Organism implements Comparable<Organism> {
         return genome.activate(inputs);
     }
 
-    public Organism createCopy() {
-        return new Organism(context, population, genome.createCopy());
+    public Organism createCopy(final Context context) {
+        return new Organism(genome.createCopy(context), population, context.general());
     }
 
-    public Organism createClone() {
-        return new Organism(context, population, genome.createClone());
+    public Organism createClone(final Context context) {
+        return new Organism(genome.createClone(context.neuralNetwork()), population, context.general());
     }
 
-    public void kill() {
-        context.general().markToKill(genome);
+    public void kill(final Context.GeneralSupport general) {
+        general.markToKill(genome);
     }
 }

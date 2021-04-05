@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +15,9 @@ import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
 
-public final class SequentialMap<TId extends Comparable<TId>, TItem> implements Iterable<TItem> {
+public final class SequentialMap<TId extends Comparable<TId>, TItem> implements Iterable<TItem>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 2209041596810668817L;
     private final List<ItemIdEntry<TId, TItem>> list = new ArrayList<>();
     private final NavigableMap<TId, TItem> navigableMap = new TreeMap<>(TId::compareTo);
 
@@ -80,7 +84,9 @@ public final class SequentialMap<TId extends Comparable<TId>, TItem> implements 
     @Generated
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @EqualsAndHashCode
-    private static final class ItemIdEntry<TId, TItem> {
+    private static final class ItemIdEntry<TId, TItem> implements Serializable {
+        @Serial
+        private static final long serialVersionUID = -274541428462625603L;
         private final TId id;
         private final TItem item;
     }

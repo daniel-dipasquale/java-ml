@@ -1,6 +1,10 @@
 package com.dipasquale.ai.common;
 
+import java.io.Serial;
+
 final class FitnessDeterminerSingle implements FitnessDeterminer {
+    @Serial
+    private static final long serialVersionUID = 1119352029838131618L;
     private float value = 0f;
 
     @Override

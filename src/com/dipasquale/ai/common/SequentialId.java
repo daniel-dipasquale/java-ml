@@ -1,6 +1,8 @@
 package com.dipasquale.ai.common;
 
-public interface SequentialId extends Comparable<SequentialId> {
+import java.io.Serializable;
+
+public interface SequentialId extends Comparable<SequentialId>, Serializable {
     int hashCode();
 
     boolean equals(Object other);

@@ -5,5 +5,6 @@ public enum SettingsOutputActivationFunction {
     RANDOM,
     IDENTITY,
     RE_LU,
-    SIGMOID
+    SIGMOID,
+    TAN_H
 }

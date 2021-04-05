@@ -1,6 +1,8 @@
 package com.dipasquale.ai.common;
 
-public interface ActivationFunction {
+import java.io.Serializable;
+
+public interface ActivationFunction extends Serializable {
     ActivationFunction IDENTITY = new ActivationFunctionIdentity();
     ActivationFunction RE_LU = new ActivationFunctionReLU();
     ActivationFunction SIGMOID = new ActivationFunctionSigmoid();

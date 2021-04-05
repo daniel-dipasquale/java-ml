@@ -1,6 +1,8 @@
 package com.dipasquale.ai.common;
 
-public interface FitnessDeterminer {
+import java.io.Serializable;
+
+public interface FitnessDeterminer extends Serializable {
     float get();
 
     void add(float fitness);

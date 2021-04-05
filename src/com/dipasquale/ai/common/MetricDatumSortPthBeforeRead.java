@@ -3,12 +3,15 @@ package com.dipasquale.ai.common;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @NoArgsConstructor
 public final class MetricDatumSortPthBeforeRead implements MetricDatum {
+    @Serial
+    private static final long serialVersionUID = -2771355135755824104L;
     private final List<Float> values = new ArrayList<>();
     private boolean isValuesSorted = true;
     @Getter

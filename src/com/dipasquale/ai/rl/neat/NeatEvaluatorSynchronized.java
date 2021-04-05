@@ -60,6 +60,6 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
 
     @Override
     public float[] activate(final float[] input) {
-        return mostFitOrganismActivator.activate(input);
+        return mostFitOrganismActivator.activate(context, input);
     }
 }

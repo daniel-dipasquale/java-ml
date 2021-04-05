@@ -33,7 +33,7 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
             return id;
         }
 
-        return genomeIdFactory.next().toString();
+        return genomeIdFactory.create().toString();
     }
 
     @Override
@@ -43,7 +43,7 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
 
     @Override
     public String createSpeciesId() {
-        return speciesIdFactory.next().toString();
+        return speciesIdFactory.create().toString();
     }
 
     @Override

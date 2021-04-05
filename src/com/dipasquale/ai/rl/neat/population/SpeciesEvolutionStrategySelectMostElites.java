@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.population;
 
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.species.Species;
 import lombok.AccessLevel;
@@ -10,6 +11,7 @@ import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SpeciesEvolutionStrategySelectMostElites implements SpeciesEvolutionStrategy {
+    private final Context.Speciation speciation;
     private final Set<Organism> organismsWithoutSpecies;
 
     @Override
@@ -18,7 +20,7 @@ final class SpeciesEvolutionStrategySelectMostElites implements SpeciesEvolution
             return;
         }
 
-        List<Organism> eliteOrganisms = species.selectMostElites();
+        List<Organism> eliteOrganisms = species.selectMostElites(speciation);
 
         organismsWithoutSpecies.addAll(eliteOrganisms);
     }

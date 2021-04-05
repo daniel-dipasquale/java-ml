@@ -2,8 +2,12 @@ package com.dipasquale.ai.common;
 
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor
 final class FitnessDeterminerMetricDatum implements FitnessDeterminer {
+    @Serial
+    private static final long serialVersionUID = -5316290173390134390L;
     private final MetricDatum metricDatum = new MetricDatumSortPthBeforeRead(); // TODO: replace with MetricDatumReadWhileWriting
     private final Selector selector;
 

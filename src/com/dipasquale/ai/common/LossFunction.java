@@ -1,7 +1,9 @@
 package com.dipasquale.ai.common;
 
+import java.io.Serializable;
+
 @FunctionalInterface
-public interface LossFunction {
+public interface LossFunction extends Serializable {
     LossFunction MEAN_SQUARE_ERROR = (t, o) -> {
         float difference = 0f;
 

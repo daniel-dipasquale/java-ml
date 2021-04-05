@@ -2,10 +2,10 @@ package com.dipasquale.ai.rl.neat.species;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
+import com.dipasquale.ai.rl.neat.genotype.OrganismFactory;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactoryMating;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactoryMutation;
 import com.dipasquale.ai.rl.neat.population.Population;
-import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 
 public final class SpeciesDefault implements Species {
-    private final Context context;
     @Getter
     private final String id;
     private final Population population;
@@ -33,7 +32,6 @@ public final class SpeciesDefault implements Species {
     public SpeciesDefault(final Context context, final Population population, final Organism representativeOrganism) {
         List<Organism> organisms = Lists.newArrayList(representativeOrganism);
 
-        this.context = context;
         this.id = context.general().createSpeciesId();
         this.population = population;
         this.representativeOrganism = representativeOrganism;
@@ -67,8 +65,8 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public boolean addIfCompatible(final Organism organism) {
-        if (organisms.size() < context.speciation().maximumGenomes() && organism.isCompatible(this)) {
+    public boolean addIfCompatible(final Context.Speciation speciation, final Organism organism) {
+        if (organisms.size() < speciation.maximumGenomes() && organism.isCompatible(speciation, this)) {
             organism.setMostCompatibleSpecies(this);
             organisms.add(organism);
             isOrganismsSorted = false;
@@ -80,8 +78,8 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public void add(final Organism organism) {
-        if (organisms.size() < context.speciation().maximumGenomes()) {
+    public void add(final Context.Speciation speciation, final Organism organism) {
+        if (organisms.size() < speciation.maximumGenomes()) {
             organism.setMostCompatibleSpecies(this);
             organisms.add(organism);
             isOrganismsSorted = false;
@@ -89,19 +87,18 @@ public final class SpeciesDefault implements Species {
     }
 
     private float updateFitness(final OrganismFitness organismFitness) {
-        float fitnessTotal = 0f;
-
-        for (Organism organism : organisms) {
-            fitnessTotal += organismFitness.getOrUpdate(organism);
-        }
+        float fitnessTotal = organisms.stream()
+                .map(organismFitness::getOrUpdate)
+                .reduce(0f, Float::sum);
 
         float sharedFitnessNew = fitnessTotal / organisms.size();
-        int age = getAge();
-        int ageLastImprovedNew = Float.compare(sharedFitnessNew, maximumSharedFitness) > 0 ? age : ageLastImproved;
 
         sharedFitness = sharedFitnessNew;
-        maximumSharedFitness = Math.max(sharedFitnessNew, maximumSharedFitness);
-        ageLastImproved = ageLastImprovedNew;
+
+        if (Float.compare(sharedFitnessNew, maximumSharedFitness) > 0) {
+            maximumSharedFitness = sharedFitnessNew;
+            ageLastImproved = getAge();
+        }
 
         return sharedFitness;
     }
@@ -112,8 +109,8 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public float updateFitness() {
-        return updateFitness(Organism::updateFitness);
+    public float updateFitness(final Context.GeneralSupport general) {
+        return updateFitness(o -> o.updateFitness(general));
     }
 
     private void ensureOrganismsIsSorted() {
@@ -124,11 +121,11 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public List<Organism> removeUnfitToReproduce() {
+    public List<Organism> removeUnfitToReproduce(final Context.Speciation speciation) {
         int size = organisms.size();
 
         if (size > 1) {
-            int keep = context.speciation().getFitCountToReproduce(size);
+            int keep = speciation.getFitCountToReproduce(size);
             int remove = size - keep;
 
             if (remove > 0) {
@@ -146,8 +143,8 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public List<ObjectFactory<Organism>> getOrganismsToBirth(final int count) {
-        List<ObjectFactory<Organism>> organismsToBirth = new ArrayList<>();
+    public List<OrganismFactory> getOrganismsToBirth(final Context context, final int count) {
+        List<OrganismFactory> organismsToBirth = new ArrayList<>();
         int size = organisms.size();
 
         for (int i = 0; i < count; i++) {
@@ -170,13 +167,13 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public ObjectFactory<Organism> getOrganismToBirth(final Species other) {
+    public OrganismFactory getOrganismToBirth(final Context.Random random, final Species other) {
         if (organisms.size() == 0 || other.getOrganisms().size() == 0) {
             return null;
         }
 
-        Organism organism1 = context.random().nextItem(organisms);
-        Organism organism2 = context.random().nextItem(other.getOrganisms());
+        Organism organism1 = random.nextItem(organisms);
+        Organism organism2 = random.nextItem(other.getOrganisms());
 
         return new OrganismFactoryMating(organism1, organism2, false);
     }
@@ -189,9 +186,9 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public List<Organism> selectMostElites() {
+    public List<Organism> selectMostElites(final Context.Speciation speciation) {
         int size = organisms.size();
-        int select = context.speciation().getEliteCountToPreserve(size);
+        int select = speciation.getEliteCountToPreserve(size);
 
         if (select == 0) {
             return ImmutableList.of();
@@ -203,13 +200,13 @@ public final class SpeciesDefault implements Species {
     }
 
     @Override
-    public boolean shouldSurvive() {
-        return getAge() - ageLastImproved < context.speciation().stagnationDropOffAge();
+    public boolean shouldSurvive(final Context.Speciation speciation) {
+        return getAge() - ageLastImproved < speciation.stagnationDropOffAge();
     }
 
     @Override
-    public List<Organism> restart() {
-        int index = context.random().nextIndex(organisms.size());
+    public List<Organism> restart(final Context.Random random) {
+        int index = random.nextIndex(organisms.size());
         Organism representativeOrganismNew = organisms.remove(index);
         List<Organism> organismsOld = organisms;
 

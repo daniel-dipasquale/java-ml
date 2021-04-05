@@ -2,8 +2,8 @@ package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
+import com.dipasquale.ai.rl.neat.genotype.OrganismFactory;
 import com.dipasquale.ai.rl.neat.species.Species;
-import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.Set;
 final class SpeciesBreedStrategyInterSpecies implements SpeciesBreedStrategy {
     private final Context context;
     private final Set<Organism> organismsWithoutSpecies;
-    private final Queue<ObjectFactory<Organism>> organismsToBirth;
+    private final Queue<OrganismFactory> organismsToBirth;
 
     @Override
     public void process(final SpeciesBreedContext breedContext, final List<Species> speciesList) {
@@ -30,7 +30,7 @@ final class SpeciesBreedStrategyInterSpecies implements SpeciesBreedStrategy {
         if (size >= 2) {
             for (int i = 0; i < organismsToReproduceFixed; i++) {
                 Pair<Species> speciesPair = context.random().nextUniquePair(speciesList);
-                ObjectFactory<Organism> organismToBirth = speciesPair.getItem1().getOrganismToBirth(speciesPair.getItem2());
+                OrganismFactory organismToBirth = speciesPair.getItem1().getOrganismToBirth(context.random(), speciesPair.getItem2());
 
                 organismsToBirth.add(organismToBirth);
             }

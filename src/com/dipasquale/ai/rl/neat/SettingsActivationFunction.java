@@ -4,5 +4,6 @@ public enum SettingsActivationFunction {
     RANDOM,
     IDENTITY,
     RE_LU,
-    SIGMOID
+    SIGMOID,
+    TAN_H
 }

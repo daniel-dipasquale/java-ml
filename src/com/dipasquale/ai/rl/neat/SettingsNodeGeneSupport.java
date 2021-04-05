@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +30,7 @@ public final class SettingsNodeGeneSupport {
             .put(SettingsActivationFunction.IDENTITY, ActivationFunction.IDENTITY)
             .put(SettingsActivationFunction.RE_LU, ActivationFunction.RE_LU)
             .put(SettingsActivationFunction.SIGMOID, ActivationFunction.SIGMOID)
+            .put(SettingsActivationFunction.TAN_H, ActivationFunction.TAN_H)
             .build();
 
     private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = ImmutableList.copyOf(ACTIVATION_FUNCTIONS_MAP.values());
@@ -38,14 +40,22 @@ public final class SettingsNodeGeneSupport {
     private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.SIGMOID);
 
     private static ActivationFunctionFactory createActivationFunctionFactory(final EnumFactory<SettingsActivationFunction> activationFunctionFactory, final RandomSupportFloat randomSupport) {
-        return new ActivationFunctionFactoryUnknown(activationFunctionFactory.create(), randomSupport);
+        SettingsActivationFunction activationFunctionFixed = activationFunctionFactory.create();
+
+        return switch (activationFunctionFixed) {
+            case RANDOM -> new ActivationFunctionFactoryRandom(randomSupport);
+
+            default -> new ActivationFunctionFactoryLiteral(activationFunctionFixed);
+        };
     }
 
     private static ActivationFunctionFactory createActivationFunctionFactory(final EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory, final EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory, final RandomSupportFloat randomSupport) {
         SettingsOutputActivationFunction outputActivationFunctionFixed = outputActivationFunctionFactory.create();
 
         return switch (outputActivationFunctionFixed) {
-            case RANDOM -> new ActivationFunctionFactoryUnknown(SettingsActivationFunction.RANDOM, randomSupport);
+            case COPY_FROM_HIDDEN -> createActivationFunctionFactory(hiddenActivationFunctionFactory, randomSupport);
+
+            case RANDOM -> new ActivationFunctionFactoryRandom(randomSupport);
 
             case IDENTITY -> new ActivationFunctionFactoryLiteral(SettingsActivationFunction.IDENTITY);
 
@@ -53,7 +63,7 @@ public final class SettingsNodeGeneSupport {
 
             case SIGMOID -> new ActivationFunctionFactoryLiteral(SettingsActivationFunction.SIGMOID);
 
-            case COPY_FROM_HIDDEN -> new ActivationFunctionFactoryUnknown(hiddenActivationFunctionFactory.create(), randomSupport);
+            case TAN_H -> new ActivationFunctionFactoryLiteral(SettingsActivationFunction.TAN_H);
         };
     }
 
@@ -82,10 +92,10 @@ public final class SettingsNodeGeneSupport {
                 .build();
 
         Map<NodeGeneType, FloatFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatFactory>builder()
-                .put(NodeGeneType.INPUT, new FloatFactoryStrategy(genomeFactory.getInputBias().createFactory(parallelism)))
-                .put(NodeGeneType.OUTPUT, new FloatFactoryStrategy(genomeFactory.getOutputBias().createFactory(parallelism)))
+                .put(NodeGeneType.INPUT, genomeFactory.getInputBias().createFactory(parallelism))
+                .put(NodeGeneType.OUTPUT, genomeFactory.getOutputBias().createFactory(parallelism))
                 .put(NodeGeneType.BIAS, createBiasFactory(genomeFactory.getBiases(), parallelism))
-                .put(NodeGeneType.HIDDEN, new FloatFactoryStrategy(hiddenBias.createFactory(parallelism)))
+                .put(NodeGeneType.HIDDEN, hiddenBias.createFactory(parallelism))
                 .build();
 
         RandomSupportFloat randomSupport = parallelism.getRandomSupport(SettingsRandomType.UNIFORM);
@@ -107,18 +117,11 @@ public final class SettingsNodeGeneSupport {
         return new ContextDefaultNodeGeneSupport(sequentialIdFactories, biasFactories, activationFunctionFactories, inputs, outputs, biases);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class FloatFactoryStrategy implements FloatFactory {
-        private final FloatFactory floatFactory;
-
-        @Override
-        public float create() {
-            return floatFactory.create();
-        }
-    }
-
     @NoArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class FloatFactoryNoBias implements FloatFactory {
+        @Serial
+        private static final long serialVersionUID = 5535891217573360454L;
+
         @Override
         public float create() {
             throw new IllegalStateException("there are no biases allowed in this genome");
@@ -127,50 +130,62 @@ public final class SettingsNodeGeneSupport {
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class FloatFactoryBiasDefault implements FloatFactory {
+        @Serial
+        private static final long serialVersionUID = 342666697034548366L;
         private final List<FloatFactory> biasNodeBiasFactories;
         private int index = 0;
 
         @Override
         public float create() {
-            return biasNodeBiasFactories.get(index++).create();
+            int indexOld = index;
+
+            index = (index + 1) % biasNodeBiasFactories.size();
+
+            return biasNodeBiasFactories.get(indexOld).create();
         }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class FloatFactoryBiasConcurrent implements FloatFactory {
+        @Serial
+        private static final long serialVersionUID = 7213433767759259313L;
         private final List<FloatFactory> biasNodeBiasFactories;
         private final AtomicInteger index = new AtomicInteger();
 
         @Override
         public float create() {
-            return biasNodeBiasFactories.get(index.getAndIncrement()).create();
+            int indexFixed = index.getAndAccumulate(-1, (oi, ni) -> (oi + 1) % biasNodeBiasFactories.size());
+
+            return biasNodeBiasFactories.get(indexFixed).create();
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class ActivationFunctionFactoryLiteral implements ActivationFunctionFactory {
-        private final SettingsActivationFunction activationFunction;
+        @Serial
+        private static final long serialVersionUID = 1925932579626397814L;
+        private final ActivationFunction activationFunction;
+
+        ActivationFunctionFactoryLiteral(final SettingsActivationFunction activationFunction) {
+            this.activationFunction = ACTIVATION_FUNCTIONS_MAP.get(activationFunction);
+        }
 
         @Override
-        public ActivationFunction next() {
-            return ACTIVATION_FUNCTIONS_MAP.get(activationFunction);
+        public ActivationFunction create() {
+            return activationFunction;
         }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class ActivationFunctionFactoryUnknown implements ActivationFunctionFactory {
-        private final SettingsActivationFunction activationFunction;
+    private static final class ActivationFunctionFactoryRandom implements ActivationFunctionFactory {
+        @Serial
+        private static final long serialVersionUID = 9690464860515873L;
         private final RandomSupportFloat randomSupport;
 
         @Override
-        public ActivationFunction next() {
-            if (activationFunction == SettingsActivationFunction.RANDOM) {
-                int index = randomSupport.next(0, ACTIVATION_FUNCTIONS.size());
+        public ActivationFunction create() {
+            int index = randomSupport.next(0, ACTIVATION_FUNCTIONS.size());
 
-                return ACTIVATION_FUNCTIONS.get(index);
-            }
-
-            return ACTIVATION_FUNCTIONS_MAP.get(activationFunction);
+            return ACTIVATION_FUNCTIONS.get(index);
         }
     }
 }

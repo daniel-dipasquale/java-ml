@@ -36,4 +36,8 @@ public final class ConnectionGene {
     public ConnectionGene createCopy(final boolean expressed) {
         return new ConnectionGene(innovationId, weight, recurrentCyclesAllowed, expressed);
     }
+
+    public ConnectionGene createClone() {
+        return createCopy(expressed);
+    }
 }

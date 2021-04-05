@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class NodeGeneMap implements Iterable<NodeGene> {
-    private final Context context;
     private final SequentialMap<SequentialId, NodeGene> nodes = new SequentialMap<>();
     private final Map<NodeGeneType, SequentialMap<SequentialId, NodeGene>> nodesByType = createNodesByType();
 
@@ -52,12 +51,12 @@ public final class NodeGeneMap implements Iterable<NodeGene> {
         return nodes.getById(id);
     }
 
-    public NodeGene getRandom() {
-        return context.random().nextItem(nodes);
+    public NodeGene getRandom(final Context.Random random) {
+        return random.nextItem(nodes);
     }
 
-    public NodeGene getRandom(final NodeGeneType type) {
-        return context.random().nextItem(nodesByType.get(type));
+    public NodeGene getRandom(final Context.Random random, final NodeGeneType type) {
+        return random.nextItem(nodesByType.get(type));
     }
 
     public void put(final NodeGene node) {

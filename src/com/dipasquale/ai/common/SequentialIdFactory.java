@@ -1,7 +1,7 @@
 package com.dipasquale.ai.common;
 
-public interface SequentialIdFactory {
-    SequentialId next();
+import com.dipasquale.common.ObjectFactory;
 
+public interface SequentialIdFactory extends ObjectFactory<SequentialId> {
     void reset();
 }

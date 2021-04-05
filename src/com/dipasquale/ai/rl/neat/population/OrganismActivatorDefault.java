@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.population;
 
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import lombok.Getter;
 
@@ -15,7 +16,7 @@ public final class OrganismActivatorDefault implements OrganismActivator {
     }
 
     @Override
-    public float[] activate(final float[] inputs) {
+    public float[] activate(final Context context, final float[] inputs) {
         return organism.activate(inputs);
     }
 }

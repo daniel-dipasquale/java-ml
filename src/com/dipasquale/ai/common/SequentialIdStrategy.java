@@ -3,9 +3,13 @@ package com.dipasquale.ai.common;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public final class SequentialIdStrategy implements SequentialId {
+    @Serial
+    private static final long serialVersionUID = 7031781204958031412L;
     private final String name;
     private final SequentialId sequentialId;
 
