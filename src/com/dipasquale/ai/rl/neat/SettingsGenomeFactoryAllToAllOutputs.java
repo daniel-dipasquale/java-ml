@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.ContextDefault;
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGene;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
@@ -11,16 +11,19 @@ import com.dipasquale.common.FloatFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SettingsGenomeFactoryAllToAllOutputs implements GenomeDefaultFactory {
-    private final ContextDefault context;
+    @Serial
+    private static final long serialVersionUID = -6010453981237789595L;
     private final SettingsGenomeFactoryNoConnections genomeFactoryNoConnections;
     private final FloatFactory weightFactory;
     private final boolean shouldConnectBiasNodes;
 
     @Override
-    public GenomeDefault create() {
-        GenomeDefault genome = genomeFactoryNoConnections.create();
+    public GenomeDefault create(final Context context) {
+        GenomeDefault genome = genomeFactoryNoConnections.create(context);
 
         for (NodeGene inputNode : genome.getNodes(NodeGeneType.INPUT)) {
             for (NodeGene outputNode : genome.getNodes(NodeGeneType.OUTPUT)) {

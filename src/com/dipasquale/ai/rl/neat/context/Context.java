@@ -42,7 +42,7 @@ public interface Context {
 
         String createGenomeId();
 
-        GenomeDefault createGenesisGenome();
+        GenomeDefault createGenesisGenome(Context context);
 
         String createSpeciesId();
 
@@ -51,6 +51,8 @@ public interface Context {
         float calculateFitness(GenomeDefault genome);
 
         void markToKill(GenomeDefault genome);
+
+        int getGenomesKilledCount();
 
         void reset();
     }
@@ -62,6 +64,12 @@ public interface Context {
 
     interface NodeGeneSupport {
         NodeGene create(NodeGeneType type);
+
+        List<NodeGene> inputNodes();
+
+        List<NodeGene> outputNodes();
+
+        List<NodeGene> biasNodes();
 
         void reset();
     }
@@ -175,9 +183,9 @@ public interface Context {
 
         boolean shouldUseRandomParentConnectionWeight();
 
-        GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(GenomeDefault fitParent, GenomeDefault unfitParent);
+        GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(Context context, GenomeDefault fitParent, GenomeDefault unfitParent);
 
-        GenomeDefault crossOverByEqualTreatment(GenomeDefault parent1, GenomeDefault parent2);
+        GenomeDefault crossOverByEqualTreatment(Context context, GenomeDefault parent1, GenomeDefault parent2);
     }
 
     interface Speciation {

@@ -1,7 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.WeightFactory;
-import com.dipasquale.ai.rl.neat.context.ContextDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import com.dipasquale.common.FloatFactory;
 import com.google.common.collect.ImmutableList;
@@ -18,6 +16,7 @@ import java.util.stream.IntStream;
 @Builder
 @Getter(AccessLevel.PACKAGE)
 public final class SettingsGenomeFactory {
+    private static final SettingsGenomeFactoryNoConnections GENOME_FACTORY_NO_CONNECTIONS = new SettingsGenomeFactoryNoConnections();
     private final SettingsIntegerNumber inputs;
     @Builder.Default
     private final SettingsFloatNumber inputBias = SettingsFloatNumber.literal(0f);
@@ -49,27 +48,21 @@ public final class SettingsGenomeFactory {
         return createDefault(inputs, outputs, new float[0]);
     }
 
-    private FloatFactory createWeightSettings(final WeightFactory weightFactory) {
-        if (initialWeightType == SettingsInitialWeightType.FIRST_RANDOM_SUBSEQUENT_COPY) {
-            float weight = weightFactory.next();
-
-            return () -> weight;
+    private FloatFactory createWeightSettings(final FloatFactory weightFactory) {
+        if (initialWeightType == SettingsInitialWeightType.RANDOM) {
+            return weightFactory;
         }
 
-        return weightFactory::next;
+        return FloatFactory.createLiteral(weightFactory.create());
     }
 
-    public GenomeDefaultFactory create(final ContextDefault context, final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) {
-        int inputsFixed = inputs.createFactory(parallelism).create();
-        int outputsFixed = outputs.createFactory(parallelism).create();
-        int biasesFixed = biases.size();
-        SettingsGenomeFactoryNoConnections genomeFactoryNoConnections = new SettingsGenomeFactoryNoConnections(context, inputsFixed, outputsFixed, biasesFixed);
+    public GenomeDefaultFactory create(final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) {
         FloatFactory weightFactory = createWeightSettings(connections.createWeightFactory(parallelism));
 
         return switch (initialConnectionType) {
-            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, weightFactory, true);
+            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(GENOME_FACTORY_NO_CONNECTIONS, weightFactory, true);
 
-            case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(context, genomeFactoryNoConnections, weightFactory, false);
+            case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(GENOME_FACTORY_NO_CONNECTIONS, weightFactory, false);
 
             default -> throw new IllegalStateException("SettingsInitialConnectionType.Random needs to be implemented");
         };

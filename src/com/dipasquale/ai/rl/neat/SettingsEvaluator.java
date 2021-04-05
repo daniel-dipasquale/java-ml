@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.ContextDefault;
-import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOver;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
@@ -54,16 +53,16 @@ public final class SettingsEvaluator {
             .build();
 
     Context createContext() {
-        ContextDefaultComponentFactory<ContextDefaultGeneralSupport> generalFactory = general.createFactory(connections, parallelism);
-        ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> nodesFactory = nodes.createFactory(general.getGenomeFactory(), parallelism);
-        ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory = connections.createFactory(neuralNetwork, parallelism);
-        ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory = neuralNetwork.createFactory();
-        ContextDefaultComponentFactory<ContextDefaultRandom> randomFactory = random.createFactory(parallelism);
-        ContextDefaultComponentFactory<ContextDefaultParallelism> parallelismFactory = parallelism.createFactory();
-        ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory = mutation.createFactory(parallelism, random);
-        ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory = crossOver.createFactory(parallelism, random);
-        ContextDefaultComponentFactory<ContextDefaultSpeciation> speciationFactory = speciation.createFactory(general, parallelism);
+        ContextDefaultGeneralSupport generalFixed = general.create(connections, parallelism);
+        ContextDefaultNodeGeneSupport nodesFixed = nodes.create(general.getGenomeFactory(), parallelism);
+        ContextDefaultConnectionGeneSupport connectionsFixed = connections.create(neuralNetwork, parallelism);
+        ContextDefaultNeuralNetworkSupport neuralNetworkFixed = neuralNetwork.create();
+        ContextDefaultRandom randomFixed = random.create(parallelism);
+        ContextDefaultParallelism parallelismFixed = parallelism.create();
+        ContextDefaultMutation mutationFixed = mutation.create(parallelism, random);
+        ContextDefaultCrossOver crossOverFixed = crossOver.create(parallelism, random);
+        ContextDefaultSpeciation speciationFixed = speciation.create(general, parallelism);
 
-        return new ContextDefault(generalFactory, nodesFactory, connectionsFactory, neuralNetworkFactory, randomFactory, parallelismFactory, mutationFactory, crossOverFactory, speciationFactory);
+        return new ContextDefault(generalFixed, nodesFixed, connectionsFixed, neuralNetworkFixed, randomFixed, parallelismFixed, mutationFixed, crossOverFixed, speciationFixed);
     }
 }

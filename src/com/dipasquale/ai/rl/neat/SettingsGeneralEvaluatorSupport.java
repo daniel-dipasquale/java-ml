@@ -3,7 +3,6 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryDefault;
-import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import com.dipasquale.common.ArgumentValidatorUtils;
@@ -25,19 +24,17 @@ public final class SettingsGeneralEvaluatorSupport {
     private final FitnessDeterminerFactory fitnessDeterminerFactory;
     private final NeatEnvironment environment;
 
-    ContextDefaultComponentFactory<ContextDefaultGeneralSupport> createFactory(final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) { // TODO: avoid creating SequentialIdFactorySynchronized if parallism is not on
-        return context -> {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
+    ContextDefaultGeneralSupport create(final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) {
+        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
 
-            SequentialIdFactory genomeIdFactory = parallelism.createSequentialIdFactory("genome", new SequentialIdFactoryDefault());
-            GenomeDefaultFactory genomeFactoryFixed = genomeFactory.create(context, connections, parallelism);
-            SequentialIdFactory speciesIdFactory = parallelism.createSequentialIdFactory("species", new SequentialIdFactoryDefault());
+        SequentialIdFactory genomeIdFactory = parallelism.createSequentialIdFactory("genome", new SequentialIdFactoryDefault());
+        GenomeDefaultFactory genomeFactoryFixed = genomeFactory.create(connections, parallelism);
+        SequentialIdFactory speciesIdFactory = parallelism.createSequentialIdFactory("species", new SequentialIdFactoryDefault());
 
-            Deque<String> discardedGenomeIds = !parallelism.isEnabled()
-                    ? new LinkedList<>()
-                    : new ConcurrentLinkedDeque<>();
+        Deque<String> discardedGenomeIds = !parallelism.isEnabled()
+                ? new LinkedList<>()
+                : new ConcurrentLinkedDeque<>();
 
-            return new ContextDefaultGeneralSupport(populationSize, genomeIdFactory, genomeFactoryFixed, speciesIdFactory, fitnessDeterminerFactory, environment, discardedGenomeIds);
-        };
+        return new ContextDefaultGeneralSupport(populationSize, genomeIdFactory, genomeFactoryFixed, speciesIdFactory, fitnessDeterminerFactory, environment, discardedGenomeIds);
     }
 }

@@ -37,8 +37,8 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
     }
 
     @Override
-    public GenomeDefault createGenesisGenome() {
-        return genomeFactory.create();
+    public GenomeDefault createGenesisGenome(final Context context) {
+        return genomeFactory.create(context);
     }
 
     @Override
@@ -61,6 +61,7 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
         genomeIdsKilled.add(genome.getId());
     }
 
+    @Override
     public int getGenomesKilledCount() {
         return genomeIdsKilled.size();
     }

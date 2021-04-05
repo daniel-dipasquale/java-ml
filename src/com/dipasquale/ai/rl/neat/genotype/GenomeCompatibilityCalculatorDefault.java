@@ -1,12 +1,13 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.JointItems;
-import com.dipasquale.ai.rl.neat.context.Context;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class GenomeCompatibilityCalculatorDefault implements GenomeCompatibilityCalculator {
-    private final Context context;
+    private final float excessCoefficient; // c1;
+    private final float disjointCoefficient; // c2;
+    private final float weightDifferenceCoefficient; // c3
 
     private static boolean isMatching(final JointItems<ConnectionGene> jointItems) {
         return jointItems.getItem1() != null && jointItems.getItem2() != null;
@@ -60,13 +61,10 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
             }
         }
 
-        double c1 = context.speciation().excessCoefficient();
-        double c2 = context.speciation().disjointCoefficient();
-        double c3 = context.speciation().weightDifferenceCoefficient();
         int maximumNodes = Math.max(genome1.getNodes().size(), genome2.getNodes().size());
         double n = maximumNodes < 20 ? 1D : (double) maximumNodes;
         double averageWeightDifference = matchingCount == 0 ? 0D : weightDifference / (double) matchingCount;
 
-        return c1 * (double) excessCount / n + c2 * (double) disjointCount / n + c3 * averageWeightDifference;
+        return excessCoefficient * (double) excessCount / n + disjointCoefficient * (double) disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
     }
 }

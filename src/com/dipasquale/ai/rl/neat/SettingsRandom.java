@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultRandom;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
@@ -23,12 +22,10 @@ public final class SettingsRandom {
         return parallelism.getRandomSupport(isLessThan);
     }
 
-    ContextDefaultComponentFactory<ContextDefaultRandom> createFactory(final SettingsParallelism parallelism) {
-        return context -> {
-            RandomSupportFloat nextIndex = getNextIndexSupport(parallelism);
-            RandomSupportFloat isLessThan = getIsLessThanSupport(parallelism);
+    ContextDefaultRandom create(final SettingsParallelism parallelism) {
+        RandomSupportFloat nextIndex = getNextIndexSupport(parallelism);
+        RandomSupportFloat isLessThan = getIsLessThanSupport(parallelism);
 
-            return new ContextDefaultRandom(nextIndex, isLessThan);
-        };
+        return new ContextDefaultRandom(nextIndex, isLessThan);
     }
 }

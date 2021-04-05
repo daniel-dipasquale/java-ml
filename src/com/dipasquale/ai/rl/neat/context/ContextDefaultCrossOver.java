@@ -39,13 +39,13 @@ public final class ContextDefaultCrossOver implements Context.CrossOver {
     }
 
     @Override
-    public GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final GenomeDefault fitParent, final GenomeDefault unfitParent) {
-        return genomeCrossOver.crossOverBySkippingUnfitDisjointOrExcess(fitParent, unfitParent);
+    public GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final Context context, final GenomeDefault fitParent, final GenomeDefault unfitParent) {
+        return genomeCrossOver.crossOverBySkippingUnfitDisjointOrExcess(context, fitParent, unfitParent);
     }
 
     @Override
-    public GenomeDefault crossOverByEqualTreatment(final GenomeDefault parent1, final GenomeDefault parent2) {
-        return genomeCrossOver.crossOverByEqualTreatment(parent1, parent2);
+    public GenomeDefault crossOverByEqualTreatment(final Context context, final GenomeDefault parent1, final GenomeDefault parent2) {
+        return genomeCrossOver.crossOverByEqualTreatment(context, parent1, parent2);
     }
 
     @FunctionalInterface

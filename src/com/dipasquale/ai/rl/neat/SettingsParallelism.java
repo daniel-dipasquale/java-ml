@@ -4,7 +4,6 @@ import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryStrategy;
 import com.dipasquale.ai.common.SequentialIdFactoryStrategySynchronized;
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelism;
 import com.dipasquale.common.RandomSupportFloat;
 import com.dipasquale.threading.event.loop.EventLoopIterator;
@@ -34,18 +33,16 @@ public final class SettingsParallelism {
         return eventLoopIterator.getConcurrencyLevel();
     }
 
-    ContextDefaultComponentFactory<ContextDefaultParallelism> createFactory() {
-        return context -> {
-            if (!isEnabled()) {
-                Context.Parallelism parallelism = new ContextDefaultParallelism.SingleThread();
-
-                return new ContextDefaultParallelism(parallelism);
-            }
-
-            Context.Parallelism parallelism = new ContextDefaultParallelism.MultiThread(eventLoopIterator);
+    ContextDefaultParallelism create() {
+        if (!isEnabled()) {
+            Context.Parallelism parallelism = new ContextDefaultParallelism.SingleThread();
 
             return new ContextDefaultParallelism(parallelism);
-        };
+        }
+
+        Context.Parallelism parallelism = new ContextDefaultParallelism.MultiThread(eventLoopIterator);
+
+        return new ContextDefaultParallelism(parallelism);
     }
 
     RandomSupportFloat getRandomSupport(final SettingsRandomType type) {

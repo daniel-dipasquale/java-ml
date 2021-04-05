@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultMutation;
 import com.dipasquale.common.FloatFactory;
 import com.dipasquale.common.RandomSupportFloat;
@@ -44,16 +43,14 @@ public final class SettingsMutation {
         return new ConnectionWeightSuppliers(() -> randomSupport.isLessThan(perturbRateFixed), () -> randomSupport.isLessThan(replaceRateFixed));
     }
 
-    ContextDefaultComponentFactory<ContextDefaultMutation> createFactory(final SettingsParallelism parallelism, final SettingsRandom random) {
-        return context -> {
-            RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
-            ContextDefaultMutation.Supplier shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate.createFactory(parallelism));
-            ContextDefaultMutation.Supplier shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate.createFactory(parallelism));
-            ConnectionWeightSuppliers connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));
-            ContextDefaultMutation.Supplier shouldDisableConnectionExpressed = createSupplier(randomSupport, disableConnectionExpressedRate.createFactory(parallelism));
+    ContextDefaultMutation create(final SettingsParallelism parallelism, final SettingsRandom random) {
+        RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
+        ContextDefaultMutation.Supplier shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate.createFactory(parallelism));
+        ContextDefaultMutation.Supplier shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate.createFactory(parallelism));
+        ConnectionWeightSuppliers connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));
+        ContextDefaultMutation.Supplier shouldDisableConnectionExpressed = createSupplier(randomSupport, disableConnectionExpressedRate.createFactory(parallelism));
 
-            return new ContextDefaultMutation(shouldAddNodeMutation, shouldAddConnectionMutation, connectionsWeight.perturb, connectionsWeight.replace, shouldDisableConnectionExpressed);
-        };
+        return new ContextDefaultMutation(shouldAddNodeMutation, shouldAddConnectionMutation, connectionsWeight.perturb, connectionsWeight.replace, shouldDisableConnectionExpressed);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultNeuralNetworkSupport;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkDefault;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
@@ -37,17 +36,15 @@ public final class SettingsNeuralNetworkSupport {
         };
     }
 
-    ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> createFactory() {
-        return context -> {
-            NeuronFactory neuronFactory = NeuronDefault::new;
+    ContextDefaultNeuralNetworkSupport create() {
+        NeuronFactory neuronFactory = NeuronDefault::new;
 
-            NeuralNetworkFactory neuralNetworkFactory = switch (type) {
-                case FEED_FORWARD -> createFeedForwardNeuralNetworkFactory(neuronFactory);
+        NeuralNetworkFactory neuralNetworkFactory = switch (type) {
+            case FEED_FORWARD -> createFeedForwardNeuralNetworkFactory(neuronFactory);
 
-                default -> createRecurrentNeuralNetworkFactory(neuronFactory);
-            };
-
-            return new ContextDefaultNeuralNetworkSupport(neuralNetworkFactory);
+            default -> createRecurrentNeuralNetworkFactory(neuronFactory);
         };
+
+        return new ContextDefaultNeuralNetworkSupport(neuralNetworkFactory);
     }
 }

@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
+import com.dipasquale.common.FloatFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
@@ -12,7 +13,7 @@ public final class ContextDefaultConnectionGeneSupport implements Context.Connec
     private final boolean multipleRecurrentCyclesAllowed;
     private final SequentialIdFactory innovationIdFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
-    private final WeightFactory weightFactory;
+    private final FloatFactory weightFactory;
     private final WeightPerturber weightPerturber;
 
     @Override
@@ -27,7 +28,7 @@ public final class ContextDefaultConnectionGeneSupport implements Context.Connec
 
     @Override
     public float nextWeight() {
-        return weightFactory.next();
+        return weightFactory.create();
     }
 
     @Override

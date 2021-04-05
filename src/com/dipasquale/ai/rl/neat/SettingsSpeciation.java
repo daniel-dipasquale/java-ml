@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultSpeciation;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculatorDefault;
 import com.dipasquale.common.ArgumentValidatorUtils;
@@ -39,37 +38,35 @@ public final class SettingsSpeciation {
     @Builder.Default
     private final SettingsFloatNumber interSpeciesMatingRate = SettingsFloatNumber.literal(0.001f);
 
-    ContextDefaultComponentFactory<ContextDefaultSpeciation> createFactory(final SettingsGeneralEvaluatorSupport general, final SettingsParallelism parallelism) {
-        return context -> {
-            int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
-                    .map(sin -> sin.createFactory(parallelism))
-                    .map(IntegerFactory::create)
-                    .orElse(general.getPopulationSize() / 8);
+    ContextDefaultSpeciation create(final SettingsGeneralEvaluatorSupport general, final SettingsParallelism parallelism) {
+        int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
+                .map(sin -> sin.createFactory(parallelism))
+                .map(IntegerFactory::create)
+                .orElse(general.getPopulationSize() / 8);
 
-            ArgumentValidatorUtils.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
-            ArgumentValidatorUtils.ensureLessThan(maximumSpeciesFixed, general.getPopulationSize(), "maximumSpecies");
+        ArgumentValidatorUtils.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
+        ArgumentValidatorUtils.ensureLessThan(maximumSpeciesFixed, general.getPopulationSize(), "maximumSpecies");
 
-            int maximumGenomesFixed = Optional.ofNullable(maximumGenomes)
-                    .map(sin -> sin.createFactory(parallelism))
-                    .map(IntegerFactory::create)
-                    .orElse(general.getPopulationSize() / 2);
+        int maximumGenomesFixed = Optional.ofNullable(maximumGenomes)
+                .map(sin -> sin.createFactory(parallelism))
+                .map(IntegerFactory::create)
+                .orElse(general.getPopulationSize() / 2);
 
-            ArgumentValidatorUtils.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
-            ArgumentValidatorUtils.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
+        ArgumentValidatorUtils.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
+        ArgumentValidatorUtils.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
 
-            float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactory(parallelism).create();
-            float disjointCoefficientFixed = disjointCoefficient.createFactory(parallelism).create();
-            float excessCoefficientFixed = excessCoefficient.createFactory(parallelism).create();
-            float compatibilityThresholdFixed = compatibilityThreshold.createFactory(parallelism).create();
-            float compatibilityThresholdModifierFixed = compatibilityThresholdModifier.createFactory(parallelism).create();
-            GenomeCompatibilityCalculatorDefault genomeCompatibilityCalculator = new GenomeCompatibilityCalculatorDefault(context);
-            float eugenicsThresholdFixed = eugenicsThreshold.createFactory(parallelism).create();
-            float elitistThresholdFixed = elitistThreshold.createFactory(parallelism).create();
-            int elitistThresholdMinimumFixed = elitistThresholdMinimum.createFactory(parallelism).create();
-            int stagnationDropOffAgeFixed = stagnationDropOffAge.createFactory(parallelism).create();
-            float interSpeciesMatingRateFixed = interSpeciesMatingRate.createFactory(parallelism).create();
+        float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactory(parallelism).create();
+        float disjointCoefficientFixed = disjointCoefficient.createFactory(parallelism).create();
+        float excessCoefficientFixed = excessCoefficient.createFactory(parallelism).create();
+        float compatibilityThresholdFixed = compatibilityThreshold.createFactory(parallelism).create();
+        float compatibilityThresholdModifierFixed = compatibilityThresholdModifier.createFactory(parallelism).create();
+        GenomeCompatibilityCalculatorDefault genomeCompatibilityCalculator = new GenomeCompatibilityCalculatorDefault(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
+        float eugenicsThresholdFixed = eugenicsThreshold.createFactory(parallelism).create();
+        float elitistThresholdFixed = elitistThreshold.createFactory(parallelism).create();
+        int elitistThresholdMinimumFixed = elitistThresholdMinimum.createFactory(parallelism).create();
+        int stagnationDropOffAgeFixed = stagnationDropOffAge.createFactory(parallelism).create();
+        float interSpeciesMatingRateFixed = interSpeciesMatingRate.createFactory(parallelism).create();
 
-            return new ContextDefaultSpeciation(maximumSpeciesFixed, maximumGenomesFixed, weightDifferenceCoefficientFixed, disjointCoefficientFixed, excessCoefficientFixed, compatibilityThresholdFixed, compatibilityThresholdModifierFixed, genomeCompatibilityCalculator, eugenicsThresholdFixed, elitistThresholdFixed, elitistThresholdMinimumFixed, stagnationDropOffAgeFixed, interSpeciesMatingRateFixed);
-        };
+        return new ContextDefaultSpeciation(maximumSpeciesFixed, maximumGenomesFixed, weightDifferenceCoefficientFixed, disjointCoefficientFixed, excessCoefficientFixed, compatibilityThresholdFixed, compatibilityThresholdModifierFixed, genomeCompatibilityCalculator, eugenicsThresholdFixed, elitistThresholdFixed, elitistThresholdMinimumFixed, stagnationDropOffAgeFixed, interSpeciesMatingRateFixed);
     }
 }

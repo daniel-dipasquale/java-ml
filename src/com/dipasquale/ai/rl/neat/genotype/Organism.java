@@ -55,7 +55,7 @@ public final class Organism implements Comparable<Organism> {
         }
 
         float fitness = context.general().calculateFitness(genome);
-        float fitnessFixed = Float.isFinite(fitness) ? Math.max(fitness, 0f) : 0f;
+        float fitnessFixed = !Float.isFinite(fitness) ? 0f : Math.max(fitness, 0f);
 
         fitnessDeterminer.add(fitnessFixed);
 
@@ -75,11 +75,11 @@ public final class Organism implements Comparable<Organism> {
         int comparison = compareTo(other);
 
         GenomeDefault genomeNew = switch (comparison) {
-            case 1 -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(genome, other.genome);
+            case 1 -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, genome, other.genome);
 
-            case 0 -> context.crossOver().crossOverByEqualTreatment(genome, other.genome);
+            case 0 -> context.crossOver().crossOverByEqualTreatment(context, genome, other.genome);
 
-            default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(other.genome, genome);
+            default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, other.genome, genome);
         };
 
         return new Organism(context, population, genomeNew);

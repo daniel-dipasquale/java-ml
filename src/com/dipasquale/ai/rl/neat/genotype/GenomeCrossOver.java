@@ -6,14 +6,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class GenomeCrossOver {
-    private final Context context;
-
-    private <T> T getRandom(final T item1, final T item2) {
+    private <T> T getRandom(final Context context, final T item1, final T item2) {
         return context.random().isLessThan(0.5f) ? item1 : item2;
     }
 
-    private ConnectionGene createChildConnection(final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
-        ConnectionGene randomParentConnection = getRandom(parent1Connection, parent2Connection);
+    private ConnectionGene createChildConnection(final Context context, final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
+        ConnectionGene randomParentConnection = getRandom(context, parent1Connection, parent2Connection);
         boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || context.crossOver().shouldOverrideConnectionExpressed();
 
         if (context.crossOver().shouldUseRandomParentConnectionWeight()) {
@@ -27,12 +25,12 @@ public final class GenomeCrossOver {
         return new ConnectionGene(innovationId, weight, cyclesAllowed, expressed);
     }
 
-    public GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final GenomeDefault fitParent, final GenomeDefault unfitParent) {
+    public GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final Context context, final GenomeDefault fitParent, final GenomeDefault unfitParent) {
         GenomeDefault child = new GenomeDefault(context);
 
         for (JointItems<NodeGene> jointItems : fitParent.getNodes().fullJoin(unfitParent.getNodes())) {
             if (jointItems.getItem1() != null && jointItems.getItem2() != null) {
-                child.addNode(getRandom(jointItems.getItem1(), jointItems.getItem2()));
+                child.addNode(getRandom(context, jointItems.getItem1(), jointItems.getItem2()));
             } else if (jointItems.getItem1() != null) {
                 child.addNode(jointItems.getItem1());
             }
@@ -43,7 +41,7 @@ public final class GenomeCrossOver {
             ConnectionGene childConnection;
 
             if (unfitConnection != null) {
-                childConnection = createChildConnection(fitConnection, unfitConnection);
+                childConnection = createChildConnection(context, fitConnection, unfitConnection);
             } else {
                 childConnection = fitConnection.createCopy(fitConnection.isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
             }
@@ -54,12 +52,12 @@ public final class GenomeCrossOver {
         return child;
     }
 
-    public GenomeDefault crossOverByEqualTreatment(final GenomeDefault parent1, final GenomeDefault parent2) {
+    public GenomeDefault crossOverByEqualTreatment(final Context context, final GenomeDefault parent1, final GenomeDefault parent2) {
         GenomeDefault child = new GenomeDefault(context);
 
         for (JointItems<NodeGene> jointItems : parent1.getNodes().fullJoin(parent2.getNodes())) {
             if (jointItems.getItem1() != null && jointItems.getItem2() != null) {
-                child.addNode(getRandom(jointItems.getItem1(), jointItems.getItem2()));
+                child.addNode(getRandom(context, jointItems.getItem1(), jointItems.getItem2()));
             } else if (jointItems.getItem1() != null) {
                 child.addNode(jointItems.getItem1());
             } else {
@@ -69,7 +67,7 @@ public final class GenomeCrossOver {
 
         for (JointItems<ConnectionGene> jointItems : parent1.getConnections().fullJoinFromAll(parent2.getConnections())) {
             if (jointItems.getItem1() != null && jointItems.getItem2() != null) {
-                ConnectionGene childConnection = createChildConnection(jointItems.getItem1(), jointItems.getItem2());
+                ConnectionGene childConnection = createChildConnection(context, jointItems.getItem1(), jointItems.getItem2());
 
                 child.addConnection(childConnection);
             } else if (jointItems.getItem1() != null) {

@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.ContextDefaultComponentFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOver;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCrossOver;
 import com.dipasquale.common.FloatFactory;
@@ -44,15 +43,14 @@ public final class SettingsCrossOver {
         return () -> randomSupport.isLessThan(rate);
     }
 
-    ContextDefaultComponentFactory<ContextDefaultCrossOver> createFactory(final SettingsParallelism parallelism, final SettingsRandom random) {
-        return context -> {
-            RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
-            CrossOverSuppliers crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
-            ContextDefaultCrossOver.Supplier shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
-            ContextDefaultCrossOver.Supplier shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));
+    ContextDefaultCrossOver create(final SettingsParallelism parallelism, final SettingsRandom random) {
+        RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
+        CrossOverSuppliers crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
+        ContextDefaultCrossOver.Supplier shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
+        ContextDefaultCrossOver.Supplier shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));
+        GenomeCrossOver genomeCrossOver = new GenomeCrossOver();
 
-            return new ContextDefaultCrossOver(crossOver.mateAndMutate, crossOver.mateOnly, crossOver.mutateOnly, shouldOverrideConnectionExpressed, shouldUseRandomParentConnectionWeight, new GenomeCrossOver(context));
-        };
+        return new ContextDefaultCrossOver(crossOver.mateAndMutate, crossOver.mateOnly, crossOver.mutateOnly, shouldOverrideConnectionExpressed, shouldUseRandomParentConnectionWeight, genomeCrossOver);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

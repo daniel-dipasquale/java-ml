@@ -1,5 +1,8 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public final class ContextDefault implements Context {
     private final ContextDefaultGeneralSupport general;
     private final ContextDefaultNodeGeneSupport nodes;
@@ -10,26 +13,6 @@ public final class ContextDefault implements Context {
     private final ContextDefaultMutation mutation;
     private final ContextDefaultCrossOver crossOver;
     private final ContextDefaultSpeciation speciation;
-
-    public ContextDefault(final ContextDefaultComponentFactory<ContextDefaultGeneralSupport> generalFactory,
-                          final ContextDefaultComponentFactory<ContextDefaultNodeGeneSupport> nodesFactory,
-                          final ContextDefaultComponentFactory<ContextDefaultConnectionGeneSupport> connectionsFactory,
-                          final ContextDefaultComponentFactory<ContextDefaultNeuralNetworkSupport> neuralNetworkFactory,
-                          final ContextDefaultComponentFactory<ContextDefaultRandom> randomFactory,
-                          final ContextDefaultComponentFactory<ContextDefaultParallelism> parallelismFactory,
-                          final ContextDefaultComponentFactory<ContextDefaultMutation> mutationFactory,
-                          final ContextDefaultComponentFactory<ContextDefaultCrossOver> crossOverFactory,
-                          final ContextDefaultComponentFactory<ContextDefaultSpeciation> speciationFactory) {
-        this.general = generalFactory.create(this);
-        this.nodes = nodesFactory.create(this);
-        this.connections = connectionsFactory.create(this);
-        this.neuralNetwork = neuralNetworkFactory.create(this);
-        this.random = randomFactory.create(this);
-        this.parallelism = parallelismFactory.create(this);
-        this.mutation = mutationFactory.create(this);
-        this.crossOver = crossOverFactory.create(this);
-        this.speciation = speciationFactory.create(this);
-    }
 
     @Override
     public GeneralSupport general() {

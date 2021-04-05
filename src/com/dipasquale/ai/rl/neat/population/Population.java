@@ -1,11 +1,9 @@
 package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.species.Species;
 import com.dipasquale.ai.rl.neat.species.SpeciesDefault;
-import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
@@ -56,7 +54,7 @@ public final class Population {
 
     private static void fillWithGenesisOrganisms(final Set<Organism> organisms, final Context context, final Population population) {
         IntStream.range(0, context.general().populationSize())
-                .mapToObj(i -> context.general().createGenesisGenome())
+                .mapToObj(i -> context.general().createGenesisGenome(context))
                 .map(g -> new Organism(context, population, g))
                 .forEach(organisms::add);
     }
@@ -208,17 +206,11 @@ public final class Population {
         return organismsWithoutSpecies.size() + organismsToBirth.size() + countOrganismsInSpecies(speciesNodes);
     }
 
-    private static int countOrganismsKilled(final Context context) {
-        ArgumentValidatorUtils.ensureTrue(context.general() instanceof ContextDefaultGeneralSupport, "context.general", "is not an instanceof ContextDefaultGeneralSupport");
-
-        return ((ContextDefaultGeneralSupport) context.general()).getGenomesKilledCount();
-    }
-
     public void evolve() {
         SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
 
         assert context.general().populationSize() == countOrganismsEverywhere(organismsWithoutSpecies, organismsToBirth, speciesNodes);
-        assert organismsToBirth.isEmpty() && countOrganismsKilled(context) == organismsToBirth.size();
+        assert organismsToBirth.isEmpty() && context.general().getGenomesKilledCount() == organismsToBirth.size();
 
         prepareAllSpeciesForEvolution(evolutionContext);
 
@@ -228,7 +220,7 @@ public final class Population {
         generation++;
 
         assert context.general().populationSize() == countOrganismsEverywhere(organismsWithoutSpecies, organismsToBirth, speciesNodes);
-        assert countOrganismsKilled(context) == organismsToBirth.size();
+        assert context.general().getGenomesKilledCount() == organismsToBirth.size();
     }
 
     public void restart() {
