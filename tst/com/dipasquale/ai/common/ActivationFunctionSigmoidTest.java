@@ -14,9 +14,9 @@ public final class ActivationFunctionSigmoidTest {
         Assert.assertEquals(0.880797f, TEST.forward(2f), 0f);
         Assert.assertEquals(0.11920292f, TEST.forward(-2f), 0f);
         Assert.assertEquals(0.9999546f, TEST.forward(10f), 0f);
+        Assert.assertEquals(4.5397872E-5f, TEST.forward(-10f), 0f);
         Assert.assertEquals(0.9999999f, TEST.forward(16f), 0f);
         Assert.assertEquals(1.12535155E-7f, TEST.forward(-16f), 0f);
-        Assert.assertEquals(4.5397872E-5f, TEST.forward(-10f), 0f);
         Assert.assertEquals(1f, TEST.forward(50f), 0f);
         Assert.assertEquals(1.9287499E-22f, TEST.forward(-50f), 0f);
         Assert.assertEquals(1f, TEST.forward(75f), 0f);

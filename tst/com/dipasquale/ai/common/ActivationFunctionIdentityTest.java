@@ -8,15 +8,15 @@ public final class ActivationFunctionIdentityTest {
 
     @Test
     public void TEST_1() {
-        Assert.assertEquals(0.0f, TEST.forward(0f), 0f);
+        Assert.assertEquals(0f, TEST.forward(0f), 0f);
         Assert.assertEquals(1f, TEST.forward(1f), 0f);
         Assert.assertEquals(-1f, TEST.forward(-1f), 0f);
         Assert.assertEquals(2f, TEST.forward(2f), 0f);
         Assert.assertEquals(-2f, TEST.forward(-2f), 0f);
         Assert.assertEquals(10f, TEST.forward(10f), 0f);
+        Assert.assertEquals(-10f, TEST.forward(-10f), 0f);
         Assert.assertEquals(16f, TEST.forward(16f), 0f);
         Assert.assertEquals(-16f, TEST.forward(-16f), 0f);
-        Assert.assertEquals(-10f, TEST.forward(-10f), 0f);
         Assert.assertEquals(50f, TEST.forward(50f), 0f);
         Assert.assertEquals(-50f, TEST.forward(-50f), 0f);
         Assert.assertEquals(75f, TEST.forward(75f), 0f);
