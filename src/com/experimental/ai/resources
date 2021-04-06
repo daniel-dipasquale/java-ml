@@ -104,6 +104,9 @@ https://www.youtube.com/watch?v=ioidsRlf79o
 nn using gpu in java:
 https://github.com/ivan-vasilev/neuralnetworks
 
+activation functions:
+https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
+
 random:
 //        return () -> -Math.log(1D - (1D - Math.exp(-5D)) * randomSupport.next()) / 5D; // -> negative exponential
 //        return () -> Math.log(1D - randomSupport.next()) / -5D; // -> exponential

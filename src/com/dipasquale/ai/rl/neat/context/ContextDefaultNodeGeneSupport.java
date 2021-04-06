@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.ActivationFunction;
+import com.dipasquale.ai.common.ActivationFunctionProvider;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
@@ -11,12 +12,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupport {
     private final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories;
     private final Map<NodeGeneType, FloatFactory> biasFactories;
-    private final Map<NodeGeneType, Supplier<ActivationFunction>> activationFunctionSuppliers;
+    private final Map<NodeGeneType, ActivationFunctionProvider> activationFunctionSuppliers;
     private final int inputs;
     private final List<NodeGene> inputNodes;
     private final List<NodeGene> inputNodesReadOnly;
@@ -27,7 +27,7 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
     private final List<NodeGene> biasNodes;
     private final List<NodeGene> biasNodesReadOnly;
 
-    public ContextDefaultNodeGeneSupport(final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories, final Map<NodeGeneType, FloatFactory> biasFactories, final Map<NodeGeneType, Supplier<ActivationFunction>> activationFunctionSuppliers, final int inputs, final int outputs, final int biases) {
+    public ContextDefaultNodeGeneSupport(final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories, final Map<NodeGeneType, FloatFactory> biasFactories, final Map<NodeGeneType, ActivationFunctionProvider> activationFunctionSuppliers, final int inputs, final int outputs, final int biases) {
         List<NodeGene> inputNodes = createNodes(sequentialIdFactories, biasFactories, activationFunctionSuppliers, inputs, NodeGeneType.INPUT);
         List<NodeGene> outputNodes = createNodes(sequentialIdFactories, biasFactories, activationFunctionSuppliers, outputs, NodeGeneType.OUTPUT);
         List<NodeGene> biasNodes = createNodes(sequentialIdFactories, biasFactories, activationFunctionSuppliers, biases, NodeGeneType.BIAS);
@@ -46,7 +46,7 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
         this.biasNodesReadOnly = Collections.unmodifiableList(biasNodes);
     }
 
-    private static NodeGene create(final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories, final Map<NodeGeneType, FloatFactory> biasFactories, final Map<NodeGeneType, Supplier<ActivationFunction>> activationFunctionSuppliers, final NodeGeneType type) {
+    private static NodeGene create(final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories, final Map<NodeGeneType, FloatFactory> biasFactories, final Map<NodeGeneType, ActivationFunctionProvider> activationFunctionSuppliers, final NodeGeneType type) {
         SequentialId id = sequentialIdFactories.get(type).create();
         float bias = biasFactories.get(type).create();
         ActivationFunction activationFunction = activationFunctionSuppliers.get(type).get();
@@ -59,7 +59,7 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
         return create(sequentialIdFactories, biasFactories, activationFunctionSuppliers, type);
     }
 
-    private static void fillNodes(final List<NodeGene> nodes, final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories, final Map<NodeGeneType, FloatFactory> biasFactories, final Map<NodeGeneType, Supplier<ActivationFunction>> activationFunctionSuppliers, final int count, final NodeGeneType type) {
+    private static void fillNodes(final List<NodeGene> nodes, final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories, final Map<NodeGeneType, FloatFactory> biasFactories, final Map<NodeGeneType, ActivationFunctionProvider> activationFunctionSuppliers, final int count, final NodeGeneType type) {
         for (int i = 0; i < count; i++) {
             NodeGene node = create(sequentialIdFactories, biasFactories, activationFunctionSuppliers, type);
 
@@ -67,7 +67,7 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
         }
     }
 
-    private static List<NodeGene> createNodes(final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories, final Map<NodeGeneType, FloatFactory> biasFactories, final Map<NodeGeneType, Supplier<ActivationFunction>> activationFunctionSuppliers, final int count, final NodeGeneType type) {
+    private static List<NodeGene> createNodes(final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories, final Map<NodeGeneType, FloatFactory> biasFactories, final Map<NodeGeneType, ActivationFunctionProvider> activationFunctionSuppliers, final int count, final NodeGeneType type) {
         List<NodeGene> nodes = new ArrayList<>();
 
         fillNodes(nodes, sequentialIdFactories, biasFactories, activationFunctionSuppliers, count, type);

@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.ActivationFunctionIdentity;
+import com.dipasquale.ai.common.ActivationFunctionProvider;
 import com.dipasquale.ai.common.ActivationFunctionReLU;
 import com.dipasquale.ai.common.ActivationFunctionSigmoid;
 import com.dipasquale.ai.common.ActivationFunctionTanH;
@@ -21,11 +22,9 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -44,21 +43,15 @@ public final class SettingsNodeGeneSupport {
     @Builder.Default
     private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.TAN_H);
 
-    private static Supplier<ActivationFunction> createActivationFunctionSupplier(final SettingsActivationFunction activationFunction, final RandomSupportFloat randomSupport) {
+    public static ActivationFunction getActivationFunction(final SettingsActivationFunction activationFunction, final RandomSupportFloat randomSupport) {
         return switch (activationFunction) {
-            case RANDOM -> new ActivationFunctionFactoryRandom(randomSupport);
+            case RANDOM -> {
+                int index = randomSupport.next(0, ACTIVATION_FUNCTIONS.size());
 
-            default -> new ActivationFunctionFactoryLiteral(activationFunction);
-        };
-    }
+                yield ACTIVATION_FUNCTIONS.get(index);
+            }
 
-    private static Supplier<ActivationFunction> createActivationFunctionSupplier(final EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory, final SettingsActivationFunction hiddenActivationFunction, final RandomSupportFloat randomSupport) {
-        SettingsOutputActivationFunction outputActivationFunctionFixed = outputActivationFunctionFactory.create();
-
-        return switch (outputActivationFunctionFixed) {
-            case COPY_FROM_HIDDEN -> createActivationFunctionSupplier(hiddenActivationFunction, randomSupport);
-
-            default -> createActivationFunctionSupplier(outputActivationFunctionFixed.getTranslated(), randomSupport);
+            default -> ACTIVATION_FUNCTIONS_MAP.get(activationFunction);
         };
     }
 
@@ -97,13 +90,12 @@ public final class SettingsNodeGeneSupport {
         EnumFactory<SettingsActivationFunction> inputActivationFunctionFactory = genomeFactory.getInputActivationFunction().createFactory(parallelism);
         EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory = genomeFactory.getOutputActivationFunction().createFactory(parallelism);
         EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory = hiddenActivationFunction.createFactory(parallelism);
-        SettingsActivationFunction hiddenActivationFunction = hiddenActivationFunctionFactory.create();
 
-        Map<NodeGeneType, Supplier<ActivationFunction>> activationFunctionFactories = ImmutableMap.<NodeGeneType, Supplier<ActivationFunction>>builder()
-                .put(NodeGeneType.INPUT, createActivationFunctionSupplier(inputActivationFunctionFactory.create(), randomSupport))
-                .put(NodeGeneType.OUTPUT, createActivationFunctionSupplier(outputActivationFunctionFactory, hiddenActivationFunction, randomSupport))
+        Map<NodeGeneType, ActivationFunctionProvider> activationFunctionFactories = ImmutableMap.<NodeGeneType, ActivationFunctionProvider>builder()
+                .put(NodeGeneType.INPUT, new ActivationFunctionFactoryDefault(inputActivationFunctionFactory, randomSupport))
+                .put(NodeGeneType.OUTPUT, new ActivationFunctionFactoryOutput(outputActivationFunctionFactory, hiddenActivationFunctionFactory, randomSupport))
                 .put(NodeGeneType.BIAS, new ActivationFunctionFactoryLiteral(SettingsActivationFunction.IDENTITY))
-                .put(NodeGeneType.HIDDEN, createActivationFunctionSupplier(hiddenActivationFunction, randomSupport))
+                .put(NodeGeneType.HIDDEN, new ActivationFunctionFactoryDefault(hiddenActivationFunctionFactory, randomSupport))
                 .build();
 
         int inputs = genomeFactory.getInputs().createFactory(parallelism).create();
@@ -156,7 +148,42 @@ public final class SettingsNodeGeneSupport {
         }
     }
 
-    private static final class ActivationFunctionFactoryLiteral implements Supplier<ActivationFunction>, Serializable {
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class ActivationFunctionFactoryDefault implements ActivationFunctionProvider {
+        @Serial
+        private static final long serialVersionUID = 7277255622928403465L;
+        private final EnumFactory<SettingsActivationFunction> activationFunctionFactory;
+        private final RandomSupportFloat randomSupport;
+
+        @Override
+        public ActivationFunction get() {
+            SettingsActivationFunction activationFunction = activationFunctionFactory.create();
+
+            return getActivationFunction(activationFunction, randomSupport);
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class ActivationFunctionFactoryOutput implements ActivationFunctionProvider {
+        @Serial
+        private static final long serialVersionUID = 4590482884547973964L;
+        private final EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory;
+        private final EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory;
+        private final RandomSupportFloat randomSupport;
+
+        @Override
+        public ActivationFunction get() {
+            SettingsOutputActivationFunction outputActivationFunction = outputActivationFunctionFactory.create();
+
+            return switch (outputActivationFunction) {
+                case COPY_FROM_HIDDEN -> getActivationFunction(hiddenActivationFunctionFactory.create(), randomSupport);
+
+                default -> getActivationFunction(outputActivationFunction.getTranslated(), randomSupport);
+            };
+        }
+    }
+
+    private static final class ActivationFunctionFactoryLiteral implements ActivationFunctionProvider {
         @Serial
         private static final long serialVersionUID = 1925932579626397814L;
         private final ActivationFunction activationFunction;
@@ -168,20 +195,6 @@ public final class SettingsNodeGeneSupport {
         @Override
         public ActivationFunction get() {
             return activationFunction;
-        }
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class ActivationFunctionFactoryRandom implements Supplier<ActivationFunction>, Serializable {
-        @Serial
-        private static final long serialVersionUID = 9690464860515873L;
-        private final RandomSupportFloat randomSupport;
-
-        @Override
-        public ActivationFunction get() {
-            int index = randomSupport.next(0, ACTIVATION_FUNCTIONS.size());
-
-            return ACTIVATION_FUNCTIONS.get(index);
         }
     }
 }

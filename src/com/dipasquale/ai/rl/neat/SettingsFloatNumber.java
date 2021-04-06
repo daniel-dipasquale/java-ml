@@ -5,6 +5,8 @@ import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SettingsFloatNumber {
     private final FloatFactoryCreator factoryCreator;
@@ -36,6 +38,8 @@ public final class SettingsFloatNumber {
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class LiteralFloatFactory implements FloatFactory {
+        @Serial
+        private static final long serialVersionUID = -3947941626160062025L;
         private final float number;
 
         @Override
@@ -46,6 +50,8 @@ public final class SettingsFloatNumber {
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class RandomFloatFactory implements FloatFactory {
+        @Serial
+        private static final long serialVersionUID = 9198284947931230448L;
         private final RandomSupportFloat randomSupport;
         private final float min;
         private final float max;
