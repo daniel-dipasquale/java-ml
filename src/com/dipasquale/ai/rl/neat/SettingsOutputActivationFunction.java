@@ -1,9 +1,10 @@
 package com.dipasquale.ai.rl.neat;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public enum SettingsOutputActivationFunction {
     COPY_FROM_HIDDEN(null),
