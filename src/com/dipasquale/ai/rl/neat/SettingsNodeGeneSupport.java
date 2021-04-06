@@ -5,6 +5,7 @@ import com.dipasquale.ai.common.ActivationFunctionIdentity;
 import com.dipasquale.ai.common.ActivationFunctionProvider;
 import com.dipasquale.ai.common.ActivationFunctionReLU;
 import com.dipasquale.ai.common.ActivationFunctionSigmoid;
+import com.dipasquale.ai.common.ActivationFunctionStep;
 import com.dipasquale.ai.common.ActivationFunctionTanH;
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryDefault;
@@ -35,6 +36,7 @@ public final class SettingsNodeGeneSupport {
             .put(SettingsActivationFunction.RE_LU, ActivationFunctionReLU.getInstance())
             .put(SettingsActivationFunction.SIGMOID, ActivationFunctionSigmoid.getInstance())
             .put(SettingsActivationFunction.TAN_H, ActivationFunctionTanH.getInstance())
+            .put(SettingsActivationFunction.STEP, ActivationFunctionStep.getInstance())
             .build();
 
     private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = ImmutableList.copyOf(ACTIVATION_FUNCTIONS_MAP.values());

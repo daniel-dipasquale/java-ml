@@ -5,5 +5,6 @@ public enum SettingsActivationFunction {
     IDENTITY,
     RE_LU,
     SIGMOID,
-    TAN_H
+    TAN_H,
+    STEP
 }

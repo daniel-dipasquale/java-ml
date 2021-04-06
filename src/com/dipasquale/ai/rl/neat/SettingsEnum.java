@@ -35,7 +35,7 @@ public final class SettingsEnum<T extends Enum<T>> {
     }
 
     @FunctionalInterface
-    interface EnumFactoryCreator<T extends Enum<T>> {
+    interface EnumFactoryCreator<T extends Enum<T>> { // TODO: add a differentiator between singleton or transient
         EnumFactory<T> create(SettingsParallelism parallelism);
     }
 

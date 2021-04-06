@@ -12,7 +12,8 @@ public enum SettingsOutputActivationFunction {
     IDENTITY(SettingsActivationFunction.IDENTITY),
     RE_LU(SettingsActivationFunction.RE_LU),
     SIGMOID(SettingsActivationFunction.SIGMOID),
-    TAN_H(SettingsActivationFunction.TAN_H);
+    TAN_H(SettingsActivationFunction.TAN_H),
+    STEP(SettingsActivationFunction.STEP);
 
     private final SettingsActivationFunction translated;
 }
