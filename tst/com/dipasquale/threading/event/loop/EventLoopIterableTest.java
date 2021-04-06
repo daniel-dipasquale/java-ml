@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class EventLoopIteratorTest {
+public final class EventLoopIterableTest {
     private static final int NUMBER_OF_THREADS = 4;
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
@@ -27,7 +27,7 @@ public final class EventLoopIteratorTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.create(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
 
-    private static final EventLoopIteratorSettings SETTINGS = EventLoopIteratorSettings.builder()
+    private static final EventLoopIterableSettings SETTINGS = EventLoopIterableSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .exceptionLogger(EXCEPTION_LOGGER)
@@ -46,7 +46,7 @@ public final class EventLoopIteratorTest {
 
     @Test
     public void TEST_1() {
-        EventLoopIterator test = new EventLoopIterator(SETTINGS);
+        EventLoopIterable test = new EventLoopIterable(SETTINGS);
         ItemCollector collector = new ItemCollector();
 
         List<Item> items = IntStream.range(0, 256)
@@ -66,7 +66,7 @@ public final class EventLoopIteratorTest {
 
     @Test
     public void TEST_2() {
-        EventLoopIterator test = new EventLoopIterator(SETTINGS);
+        EventLoopIterable test = new EventLoopIterable(SETTINGS);
         ItemCollector collector = new ItemCollector();
 
         List<Item> items = IntStream.range(0, 256)

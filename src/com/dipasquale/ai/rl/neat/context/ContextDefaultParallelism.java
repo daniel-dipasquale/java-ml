@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.threading.event.loop.EventLoopIterator;
+import com.dipasquale.threading.event.loop.EventLoopIterable;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -49,13 +49,13 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
                 action.accept(iterator.next());
             }
 
-            return null;
+            return null; // TODO: return an empty wait handle
         }
     }
 
     @RequiredArgsConstructor
     public static final class MultiThread implements Context.Parallelism {
-        private final EventLoopIterator eventLoopIterator;
+        private final EventLoopIterable eventLoopIterable;
         private final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
 
         @Override
@@ -65,7 +65,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
 
         @Override
         public int numberOfThreads() {
-            return eventLoopIterator.getConcurrencyLevel();
+            return eventLoopIterable.getConcurrencyLevel();
         }
 
         private <T extends Exception> void addUncaughtExceptionsAsSuppressed(final T exception)
@@ -90,7 +90,7 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
         public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> action) {
             failIfThereAreUncaughtExceptions();
 
-            return new CountDownLatchWaitHandle(eventLoopIterator.queue(iterator, action));
+            return new CountDownLatchWaitHandle(eventLoopIterable.queue(iterator, action));
         }
 
         @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

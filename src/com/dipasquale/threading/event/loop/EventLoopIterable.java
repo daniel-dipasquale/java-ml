@@ -12,13 +12,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-public final class EventLoopIterator {
+public final class EventLoopIterable {
     private static final EventLoopRecordQueueFactory EVENT_RECORDS_FACTORY = q -> new ExclusiveQueueLocked<>(new ReentrantLock(), q);
     private final List<EventLoop> eventLoops;
     private final MultiWaitHandle waitUntilDoneHandler;
     private final MultiExceptionHandler<EventLoop> shutdownHandler;
 
-    EventLoopIterator(final EventLoopIteratorSettings settings) {
+    EventLoopIterable(final EventLoopIterableSettings settings) {
         ArgumentValidatorUtils.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.numberOfThreads");
 
         List<EventLoop> eventLoops = createEventLoops(settings);
@@ -28,7 +28,7 @@ public final class EventLoopIterator {
         this.shutdownHandler = new MultiExceptionHandler<>(eventLoops, EventLoop::shutdown);
     }
 
-    private static List<EventLoop> createEventLoops(final EventLoopIteratorSettings settings) {
+    private static List<EventLoop> createEventLoops(final EventLoopIterableSettings settings) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         EventLoopDefaultParams params = EventLoopDefaultParams.builder()
@@ -55,9 +55,8 @@ public final class EventLoopIterator {
         return eventLoops.size();
     }
 
-    public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
+    private CountDownLatch queue(final EventLoopHandler handler, final ExceptionLogger exceptionLogger) {
         CountDownLatch countDownLatch = new CountDownLatch(eventLoops.size());
-        EventLoopIteratorHandler<T> handler = new EventLoopIteratorHandler<>(iterator, action);
 
         for (EventLoop eventLoop : eventLoops) {
             eventLoop.queue(handler, 0L, exceptionLogger, countDownLatch);
@@ -66,8 +65,20 @@ public final class EventLoopIterator {
         return countDownLatch;
     }
 
+    public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
+        return queue(new EventLoopIterableHandlerIterator<>(iterator, action), exceptionLogger);
+    }
+
     public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action) {
         return queue(iterator, action, null);
+    }
+
+    public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
+        return queue(new EventLoopIterableHandlerList<>(list, action), exceptionLogger);
+    }
+
+    public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action) {
+        return queue(list, action, null);
     }
 
     public void awaitUntilDone()

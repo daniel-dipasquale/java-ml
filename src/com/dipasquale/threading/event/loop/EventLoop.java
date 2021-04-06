@@ -66,7 +66,7 @@ public interface EventLoop {
         return new EventLoopMulti(name, eventLoopFactory, eventLoopSelector, settings.getDateTimeSupport());
     }
 
-    static EventLoopIterator createForIterators(final EventLoopIteratorSettings settings) {
-        return new EventLoopIterator(settings);
+    static EventLoopIterable createForIterables(final EventLoopIterableSettings settings) {
+        return new EventLoopIterable(settings);
     }
 }

@@ -6,8 +6,8 @@ import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.dipasquale.threading.event.loop.EventLoop;
-import com.dipasquale.threading.event.loop.EventLoopIterator;
-import com.dipasquale.threading.event.loop.EventLoopIteratorSettings;
+import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.EventLoopIterableSettings;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,7 +32,7 @@ public final class NeatTest {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
-    private static final EventLoopIterator EVENT_LOOP_STREAM = EventLoop.createForIterators(EventLoopIteratorSettings.builder()
+    private static final EventLoopIterable EVENT_LOOP_ITERABLE = EventLoop.createForIterables(EventLoopIterableSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .exceptionLogger(EXCEPTIONS::add)
@@ -46,7 +46,7 @@ public final class NeatTest {
 
     @AfterClass
     public static void afterClass() {
-        EVENT_LOOP_STREAM.shutdown();
+        EVENT_LOOP_ITERABLE.shutdown();
         EXECUTOR_SERVICE.shutdown();
     }
 
@@ -129,7 +129,7 @@ public final class NeatTest {
                                 .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
-                                .eventLoopIterator(shouldUseParallelism ? EVENT_LOOP_STREAM : null)
+                                .eventLoopIterable(shouldUseParallelism ? EVENT_LOOP_ITERABLE : null)
                                 .build())
                         .mutation(SettingsMutation.builder()
                                 .addNodeMutationRate(SettingsFloatNumber.literal(0.1f))
@@ -291,7 +291,7 @@ public final class NeatTest {
                                 .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
-                                .eventLoopIterator(shouldUseParallelism ? EVENT_LOOP_STREAM : null)
+                                .eventLoopIterable(shouldUseParallelism ? EVENT_LOOP_ITERABLE : null)
                                 .build())
                         .mutation(SettingsMutation.builder()
                                 .addNodeMutationRate(SettingsFloatNumber.literal(0.1f))
