@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.species;
+package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;

@@ -1,11 +1,10 @@
-package com.dipasquale.ai.rl.neat.species;
+package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactory;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactoryMating;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactoryMutation;
-import com.dipasquale.ai.rl.neat.population.Population;
 import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

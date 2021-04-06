@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.ActivationFunction;
+import com.dipasquale.ai.common.ActivationFunctionIdentity;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialIdFactoryDefault;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
@@ -30,19 +30,19 @@ public final class NeuronNavigatorTest {
         List<NodeGene> nodes = new ArrayList<>();
 
         IntStream.range(0, inputBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(i), NodeGeneType.INPUT, inputBiases.get(i), ActivationFunction.IDENTITY))
+                .mapToObj(i -> new NodeGene(ids.get(i), NodeGeneType.INPUT, inputBiases.get(i), ActivationFunctionIdentity.getInstance()))
                 .forEach(nodes::add);
 
         IntStream.range(0, outputBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + i), NodeGeneType.OUTPUT, outputBiases.get(i), ActivationFunction.IDENTITY))
+                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + i), NodeGeneType.OUTPUT, outputBiases.get(i), ActivationFunctionIdentity.getInstance()))
                 .forEach(nodes::add);
 
         IntStream.range(0, biasBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + i), NodeGeneType.BIAS, biasBiases.get(i), ActivationFunction.IDENTITY))
+                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + i), NodeGeneType.BIAS, biasBiases.get(i), ActivationFunctionIdentity.getInstance()))
                 .forEach(nodes::add);
 
         IntStream.range(0, hiddenBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + biasBiases.size() + i), NodeGeneType.HIDDEN, hiddenBiases.get(i), ActivationFunction.IDENTITY))
+                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + biasBiases.size() + i), NodeGeneType.HIDDEN, hiddenBiases.get(i), ActivationFunctionIdentity.getInstance()))
                 .forEach(nodes::add);
 
         return nodes;

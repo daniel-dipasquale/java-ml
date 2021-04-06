@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.genotype;
 import com.dipasquale.ai.common.FitnessDeterminer;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.population.Population;
-import com.dipasquale.ai.rl.neat.species.Species;
+import com.dipasquale.ai.rl.neat.population.Species;
 import lombok.Getter;
 
 public final class Organism implements Comparable<Organism> {

@@ -3,8 +3,6 @@ package com.dipasquale.ai.rl.neat.population;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactory;
-import com.dipasquale.ai.rl.neat.species.Species;
-import com.dipasquale.ai.rl.neat.species.SpeciesDefault;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;

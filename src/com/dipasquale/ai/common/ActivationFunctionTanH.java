@@ -5,10 +5,15 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
-final class ActivationFunctionTanH implements ActivationFunction {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ActivationFunctionTanH implements ActivationFunction {
     @Serial
     private static final long serialVersionUID = 8400985575009442218L;
+    private static final ActivationFunctionTanH INSTANCE = new ActivationFunctionTanH();
+
+    public static ActivationFunctionTanH getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public float forward(final float input) {

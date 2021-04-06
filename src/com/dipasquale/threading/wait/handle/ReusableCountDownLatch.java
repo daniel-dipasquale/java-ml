@@ -8,7 +8,8 @@ import java.io.Serial;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-public final class ReusableCountDownLatch implements WaitHandle { // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
+// NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
+public final class ReusableCountDownLatch implements WaitHandle {
     private final Sync sync;
     @Getter(AccessLevel.PACKAGE)
     private final UnitTest unitTest;

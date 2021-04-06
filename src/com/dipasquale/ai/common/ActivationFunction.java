@@ -3,11 +3,6 @@ package com.dipasquale.ai.common;
 import java.io.Serializable;
 
 public interface ActivationFunction extends Serializable {
-    ActivationFunction IDENTITY = new ActivationFunctionIdentity();
-    ActivationFunction RE_LU = new ActivationFunctionReLU();
-    ActivationFunction SIGMOID = new ActivationFunctionSigmoid();
-    ActivationFunction TAN_H = new ActivationFunctionTanH();
-
     float forward(float input);
 
     default float[] forward(final float[] input) {

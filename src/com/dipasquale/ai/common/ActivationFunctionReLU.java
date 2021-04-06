@@ -5,10 +5,15 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
-final class ActivationFunctionReLU implements ActivationFunction {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ActivationFunctionReLU implements ActivationFunction {
     @Serial
     private static final long serialVersionUID = 1087976438012155468L;
+    private static final ActivationFunctionReLU INSTANCE = new ActivationFunctionReLU();
+
+    public static ActivationFunctionReLU getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public float forward(final float input) {

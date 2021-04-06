@@ -4,7 +4,6 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactory;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactoryMutation;
-import com.dipasquale.ai.rl.neat.species.Species;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
