@@ -18,7 +18,7 @@ import lombok.Getter;
 @Getter(AccessLevel.PACKAGE)
 public final class SettingsNeuralNetworkSupport {
     @Builder.Default
-    private final SettingsNeuralNetworkType type = SettingsNeuralNetworkType.FEED_FORWARD;
+    private final SettingsNeuralNetworkType type = SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
 
     private static NeuralNetworkFactory createFeedForwardNeuralNetworkFactory(final NeuronFactory neuronFactory) {
         return (genome, nodes, connections) -> {
