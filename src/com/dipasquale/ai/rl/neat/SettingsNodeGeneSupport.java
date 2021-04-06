@@ -42,7 +42,7 @@ public final class SettingsNodeGeneSupport {
     @Builder.Default
     private final SettingsFloatNumber hiddenBias = SettingsFloatNumber.random(SettingsRandomType.UNIFORM, -1f, 1f);
     @Builder.Default
-    private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.SIGMOID);
+    private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.TAN_H);
 
     private static Supplier<ActivationFunction> createActivationFunctionSupplier(final SettingsActivationFunction activationFunction, final RandomSupportFloat randomSupport) {
         return switch (activationFunction) {
