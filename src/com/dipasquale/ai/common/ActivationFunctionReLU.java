@@ -15,6 +15,11 @@ public final class ActivationFunctionReLU implements ActivationFunction {
         return INSTANCE;
     }
 
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
+    }
+
     @Override
     public float forward(final float input) {
         return Math.max(0f, input);

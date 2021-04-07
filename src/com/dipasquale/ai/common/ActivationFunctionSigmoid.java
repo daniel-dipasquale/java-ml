@@ -15,6 +15,11 @@ public final class ActivationFunctionSigmoid implements ActivationFunction {
         return INSTANCE;
     }
 
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
+    }
+
     @Override
     public float forward(final float input) { // (-89f, 17f)
         return 1f / (1f + (float) Math.exp(-input));

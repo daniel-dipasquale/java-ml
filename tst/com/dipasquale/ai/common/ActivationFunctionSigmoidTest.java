@@ -3,6 +3,12 @@ package com.dipasquale.ai.common;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 public final class ActivationFunctionSigmoidTest {
     private static final ActivationFunctionSigmoid TEST = ActivationFunctionSigmoid.getInstance();
 
@@ -37,5 +43,35 @@ public final class ActivationFunctionSigmoidTest {
     @Test
     public void TEST_2() {
         Assert.assertEquals("Sigmoid", TEST.toString());
+    }
+
+    private static byte[] serialize(final ActivationFunctionSigmoid activationFunction)
+            throws IOException {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(activationFunction);
+
+            return outputStream.toByteArray();
+        }
+    }
+
+    private static ActivationFunctionSigmoid deserialize(final byte[] activationFunction)
+            throws IOException, ClassNotFoundException {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(activationFunction);
+             ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+            return (ActivationFunctionSigmoid) objectInputStream.readObject();
+        }
+    }
+
+    @Test
+    public void TEST_3() {
+        try {
+            byte[] activationFunction = serialize(TEST);
+            ActivationFunctionSigmoid result = deserialize(activationFunction);
+
+            Assert.assertSame(TEST, result);
+        } catch (Throwable e) {
+            Assert.fail(e.getMessage());
+        }
     }
 }

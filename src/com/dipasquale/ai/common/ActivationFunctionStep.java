@@ -15,6 +15,11 @@ public final class ActivationFunctionStep implements ActivationFunction {
         return INSTANCE;
     }
 
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
+    }
+
     @Override
     public float forward(final float input) {
         return input >= 0f ? 1f : 0f;

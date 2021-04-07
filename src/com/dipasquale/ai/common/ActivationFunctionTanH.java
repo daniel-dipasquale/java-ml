@@ -15,6 +15,11 @@ public final class ActivationFunctionTanH implements ActivationFunction {
         return INSTANCE;
     }
 
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
+    }
+
     @Override
     public float forward(final float input) {
         return (float) Math.tanh(input);

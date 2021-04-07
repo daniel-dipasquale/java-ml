@@ -18,6 +18,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -356,6 +357,8 @@ public final class NeatTest {
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class NeatEnvironmentContainer implements NeatEnvironment {
+        @Serial
+        private static final long serialVersionUID = 395615026591016419L;
         private final Set<String> genomeIds;
         private final NeatEnvironment environment;
 
