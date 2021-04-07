@@ -29,33 +29,33 @@ public final class SettingsMutation {
         return () -> randomSupport.isLessThan(rate);
     }
 
-    private static ConnectionWeightBinaryDecisionProvider createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final FloatFactory perturbRateFactory, final FloatFactory replaceRateFactory) {
+    private static ConnectionWeightGateProvider createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final FloatFactory perturbRateFactory, final FloatFactory replaceRateFactory) {
         float perturbRate = perturbRateFactory.create();
         float replaceRate = replaceRateFactory.create();
         float rate = (float) Math.ceil(perturbRate + replaceRate);
 
         if (Float.compare(rate, 0f) == 0) {
-            return new ConnectionWeightBinaryDecisionProvider(() -> false, () -> false);
+            return new ConnectionWeightGateProvider(() -> false, () -> false);
         }
 
         float perturbRateFixed = perturbRate / rate;
         float replaceRateFixed = replaceRate / rate;
 
-        return new ConnectionWeightBinaryDecisionProvider(() -> randomSupport.isLessThan(perturbRateFixed), () -> randomSupport.isLessThan(replaceRateFixed));
+        return new ConnectionWeightGateProvider(() -> randomSupport.isLessThan(perturbRateFixed), () -> randomSupport.isLessThan(replaceRateFixed));
     }
 
     ContextDefaultMutation create(final SettingsParallelism parallelism, final SettingsRandom random) {
         RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
         GateProvider shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate.createFactory(parallelism));
         GateProvider shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate.createFactory(parallelism));
-        ConnectionWeightBinaryDecisionProvider connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));
+        ConnectionWeightGateProvider connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));
         GateProvider shouldDisableConnectionExpressed = createSupplier(randomSupport, disableConnectionExpressedRate.createFactory(parallelism));
 
         return new ContextDefaultMutation(shouldAddNodeMutation, shouldAddConnectionMutation, connectionsWeight.perturb, connectionsWeight.replace, shouldDisableConnectionExpressed);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ConnectionWeightBinaryDecisionProvider {
+    private static final class ConnectionWeightGateProvider {
         private final GateProvider perturb;
         private final GateProvider replace;
     }

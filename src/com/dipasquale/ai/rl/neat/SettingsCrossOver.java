@@ -22,20 +22,20 @@ public final class SettingsCrossOver {
     @Builder.Default
     private final SettingsFloatNumber useRandomParentConnectionWeightRate = SettingsFloatNumber.literal(0.6f);
 
-    private static CrossOverBinaryDecisionProvider createCrossOverSuppliers(final RandomSupportFloat randomSupport, final FloatFactory mateOnlyRateFactory, final FloatFactory mutateOnlyRateFactory) {
+    private static CrossOverGateProvider createCrossOverSuppliers(final RandomSupportFloat randomSupport, final FloatFactory mateOnlyRateFactory, final FloatFactory mutateOnlyRateFactory) {
         float mateOnlyRate = mateOnlyRateFactory.create();
         float mutateOnlyRate = mutateOnlyRateFactory.create();
         float rate = (float) Math.ceil(mateOnlyRate + mutateOnlyRate);
 
         if (Float.compare(rate, 0f) == 0) {
-            return new CrossOverBinaryDecisionProvider(() -> true, () -> false, () -> false);
+            return new CrossOverGateProvider(() -> true, () -> false, () -> false);
         }
 
         float mateAndMutateRate = (mateOnlyRate + mutateOnlyRate) / rate;
         float mateOnlyRateFixed = mateOnlyRate / rate;
         float mutateOnlyRateFixed = mutateOnlyRate / rate;
 
-        return new CrossOverBinaryDecisionProvider(() -> randomSupport.isLessThan(mateAndMutateRate), () -> randomSupport.isLessThan(mateOnlyRateFixed), () -> randomSupport.isLessThan(mutateOnlyRateFixed));
+        return new CrossOverGateProvider(() -> randomSupport.isLessThan(mateAndMutateRate), () -> randomSupport.isLessThan(mateOnlyRateFixed), () -> randomSupport.isLessThan(mutateOnlyRateFixed));
     }
 
     private static GateProvider createSupplier(final RandomSupportFloat randomSupport, final FloatFactory rateFactory) {
@@ -46,7 +46,7 @@ public final class SettingsCrossOver {
 
     ContextDefaultCrossOver create(final SettingsParallelism parallelism, final SettingsRandom random) {
         RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
-        CrossOverBinaryDecisionProvider crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
+        CrossOverGateProvider crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
         GateProvider shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
         GateProvider shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));
         GenomeCrossOver genomeCrossOver = new GenomeCrossOver();
@@ -55,7 +55,7 @@ public final class SettingsCrossOver {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class CrossOverBinaryDecisionProvider {
+    private static final class CrossOverGateProvider {
         private final GateProvider mateAndMutate;
         private final GateProvider mateOnly;
         private final GateProvider mutateOnly;

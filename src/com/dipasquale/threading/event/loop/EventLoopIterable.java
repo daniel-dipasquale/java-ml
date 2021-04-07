@@ -55,7 +55,8 @@ public final class EventLoopIterable {
         return eventLoops.size();
     }
 
-    private CountDownLatch queue(final EventLoopHandler handler, final ExceptionLogger exceptionLogger) {
+    private <T> CountDownLatch queue(final EventLoopIterableProducer<T> producer, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
+        EventLoopHandler handler = new EventLoopIterableHandler<>(producer, action);
         CountDownLatch countDownLatch = new CountDownLatch(eventLoops.size());
 
         for (EventLoop eventLoop : eventLoops) {
@@ -66,7 +67,9 @@ public final class EventLoopIterable {
     }
 
     public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
-        return queue(new EventLoopIterableHandlerIterator<>(iterator, action), exceptionLogger);
+        EventLoopIterableProducer<T> producer = EventLoopIterableProducer.createSynchronized(iterator);
+
+        return queue(producer, action, exceptionLogger);
     }
 
     public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action) {
@@ -74,7 +77,9 @@ public final class EventLoopIterable {
     }
 
     public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
-        return queue(new EventLoopIterableHandlerList<>(list, action), exceptionLogger);
+        EventLoopIterableProducer<T> producer = EventLoopIterableProducer.createConcurrent(list);
+
+        return queue(producer, action, exceptionLogger);
     }
 
     public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action) {
