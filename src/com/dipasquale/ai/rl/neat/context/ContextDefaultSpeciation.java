@@ -4,8 +4,12 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor
 public final class ContextDefaultSpeciation implements Context.Speciation {
+    @Serial
+    private static final long serialVersionUID = -2947494783326781687L;
     private final int maximumSpecies;
     private final int maximumGenomes;
     private final float compatibilityThreshold;

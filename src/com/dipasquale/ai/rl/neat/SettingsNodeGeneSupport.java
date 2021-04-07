@@ -19,13 +19,11 @@ import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -59,18 +57,14 @@ public final class SettingsNodeGeneSupport {
 
     private static FloatFactory createBiasFactory(final List<SettingsFloatNumber> biases, final SettingsParallelism parallelism) {
         if (biases.size() == 0) {
-            return new FloatFactoryNoBias();
+            return FloatFactory.createIllegalState("there are no biases allowed in this genome");
         }
 
         List<FloatFactory> biasNodeBiasFactories = biases.stream()
                 .map(sfn -> sfn.createFactory(parallelism))
                 .collect(Collectors.toList());
 
-        if (!parallelism.isEnabled()) {
-            return new FloatFactoryBiasDefault(biasNodeBiasFactories);
-        }
-
-        return new FloatFactoryBiasConcurrent(biasNodeBiasFactories);
+        return FloatFactory.createCyclic(biasNodeBiasFactories, parallelism.isEnabled());
     }
 
     ContextDefaultNodeGeneSupport create(final SettingsGenomeFactory genomeFactory, final SettingsParallelism parallelism) {
@@ -94,10 +88,10 @@ public final class SettingsNodeGeneSupport {
         EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory = hiddenActivationFunction.createFactory(parallelism);
 
         Map<NodeGeneType, ActivationFunctionProvider> activationFunctionFactories = ImmutableMap.<NodeGeneType, ActivationFunctionProvider>builder()
-                .put(NodeGeneType.INPUT, new ActivationFunctionFactoryDefault(inputActivationFunctionFactory, randomSupport))
-                .put(NodeGeneType.OUTPUT, new ActivationFunctionFactoryOutput(outputActivationFunctionFactory, hiddenActivationFunctionFactory, randomSupport))
-                .put(NodeGeneType.BIAS, new ActivationFunctionFactoryLiteral(SettingsActivationFunction.IDENTITY))
-                .put(NodeGeneType.HIDDEN, new ActivationFunctionFactoryDefault(hiddenActivationFunctionFactory, randomSupport))
+                .put(NodeGeneType.INPUT, new ActivationFunctionProviderDefault(inputActivationFunctionFactory, randomSupport))
+                .put(NodeGeneType.OUTPUT, new ActivationFunctionProviderOutput(outputActivationFunctionFactory, hiddenActivationFunctionFactory, randomSupport))
+                .put(NodeGeneType.BIAS, new ActivationFunctionProviderLiteral(SettingsActivationFunction.IDENTITY))
+                .put(NodeGeneType.HIDDEN, new ActivationFunctionProviderDefault(hiddenActivationFunctionFactory, randomSupport))
                 .build();
 
         int inputs = genomeFactory.getInputs().createFactory(parallelism).create();
@@ -107,51 +101,8 @@ public final class SettingsNodeGeneSupport {
         return new ContextDefaultNodeGeneSupport(sequentialIdFactories, biasFactories, activationFunctionFactories, inputs, outputs, biases);
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class FloatFactoryNoBias implements FloatFactory {
-        @Serial
-        private static final long serialVersionUID = 5535891217573360454L;
-
-        @Override
-        public float create() {
-            throw new IllegalStateException("there are no biases allowed in this genome");
-        }
-    }
-
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class FloatFactoryBiasDefault implements FloatFactory {
-        @Serial
-        private static final long serialVersionUID = 342666697034548366L;
-        private final List<FloatFactory> biasNodeBiasFactories;
-        private int index = 0;
-
-        @Override
-        public float create() {
-            int indexOld = index;
-
-            index = (index + 1) % biasNodeBiasFactories.size();
-
-            return biasNodeBiasFactories.get(indexOld).create();
-        }
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class FloatFactoryBiasConcurrent implements FloatFactory {
-        @Serial
-        private static final long serialVersionUID = 7213433767759259313L;
-        private final List<FloatFactory> biasNodeBiasFactories;
-        private final AtomicInteger index = new AtomicInteger();
-
-        @Override
-        public float create() {
-            int indexFixed = index.getAndAccumulate(-1, (oi, ni) -> (oi + 1) % biasNodeBiasFactories.size());
-
-            return biasNodeBiasFactories.get(indexFixed).create();
-        }
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class ActivationFunctionFactoryDefault implements ActivationFunctionProvider {
+    private static final class ActivationFunctionProviderDefault implements ActivationFunctionProvider {
         @Serial
         private static final long serialVersionUID = 7277255622928403465L;
         private final EnumFactory<SettingsActivationFunction> activationFunctionFactory;
@@ -166,7 +117,7 @@ public final class SettingsNodeGeneSupport {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class ActivationFunctionFactoryOutput implements ActivationFunctionProvider {
+    private static final class ActivationFunctionProviderOutput implements ActivationFunctionProvider {
         @Serial
         private static final long serialVersionUID = 4590482884547973964L;
         private final EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory;
@@ -185,12 +136,12 @@ public final class SettingsNodeGeneSupport {
         }
     }
 
-    private static final class ActivationFunctionFactoryLiteral implements ActivationFunctionProvider {
+    private static final class ActivationFunctionProviderLiteral implements ActivationFunctionProvider {
         @Serial
         private static final long serialVersionUID = 1925932579626397814L;
         private final ActivationFunction activationFunction;
 
-        ActivationFunctionFactoryLiteral(final SettingsActivationFunction activationFunction) {
+        ActivationFunctionProviderLiteral(final SettingsActivationFunction activationFunction) {
             this.activationFunction = ACTIVATION_FUNCTIONS_MAP.get(activationFunction);
         }
 

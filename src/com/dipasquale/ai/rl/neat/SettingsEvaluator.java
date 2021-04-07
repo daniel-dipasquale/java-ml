@@ -33,11 +33,11 @@ public final class SettingsEvaluator {
             .build();
 
     @Builder.Default
-    private final SettingsRandom random = SettingsRandom.builder()
+    private final SettingsParallelism parallelism = SettingsParallelism.builder()
             .build();
 
     @Builder.Default
-    private final SettingsParallelism parallelism = SettingsParallelism.builder()
+    private final SettingsRandom random = SettingsRandom.builder()
             .build();
 
     @Builder.Default
@@ -57,12 +57,12 @@ public final class SettingsEvaluator {
         ContextDefaultNodeGeneSupport nodesFixed = nodes.create(general.getGenomeFactory(), parallelism);
         ContextDefaultConnectionGeneSupport connectionsFixed = connections.create(neuralNetwork, parallelism);
         ContextDefaultNeuralNetworkSupport neuralNetworkFixed = neuralNetwork.create();
-        ContextDefaultRandom randomFixed = random.create(parallelism);
         ContextDefaultParallelism parallelismFixed = parallelism.create();
+        ContextDefaultRandom randomFixed = random.create(parallelism);
         ContextDefaultMutation mutationFixed = mutation.create(parallelism, random);
         ContextDefaultCrossOver crossOverFixed = crossOver.create(parallelism, random);
         ContextDefaultSpeciation speciationFixed = speciation.create(general, parallelism);
 
-        return new ContextDefault(generalFixed, nodesFixed, connectionsFixed, neuralNetworkFixed, randomFixed, parallelismFixed, mutationFixed, crossOverFixed, speciationFixed);
+        return new ContextDefault(generalFixed, nodesFixed, connectionsFixed, neuralNetworkFixed, parallelismFixed, randomFixed, mutationFixed, crossOverFixed, speciationFixed);
     }
 }

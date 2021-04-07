@@ -6,28 +6,32 @@ import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SettingsEnum<T extends Enum<T>> {
     private final EnumFactoryCreator<T> factoryCreator;
 
     public static <T extends Enum<T>> SettingsEnum<T> literal(final T value) {
-        return new SettingsEnum<>(sp -> new LiteralEnumFactory<>(value));
+        EnumFactoryCreator<T> factoryCreator = sp -> EnumFactory.createLiteral(value);
+
+        return new SettingsEnum<>(factoryCreator);
     }
 
-    private static <T extends Enum<T>> SettingsEnum<T> createRandom(final T[] constants) {
-        List<T> values = Lists.newArrayList(constants);
+    private static <T extends Enum<T>> SettingsEnum<T> createRandom(final T[] values) {
+        EnumFactoryCreator<T> factoryCreator = sp -> {
+            RandomSupportFloat randomSupport = sp.getRandomSupport(SettingsRandomType.UNIFORM);
 
-        return new SettingsEnum<>(sp -> new RandomEnumFactory<>(sp.getRandomSupport(SettingsRandomType.UNIFORM), values));
+            return EnumFactory.createRandom(randomSupport, Lists.newArrayList(values));
+        };
+
+        return new SettingsEnum<>(factoryCreator);
     }
 
     public static <T extends Enum<T>> SettingsEnum<T> random(final Class<T> type) {
         return createRandom(type.getEnumConstants());
     }
 
-    public static <T extends Enum<T>> SettingsEnum<T> random(final T... constants) {
-        return createRandom(constants);
+    public static <T extends Enum<T>> SettingsEnum<T> random(final T... values) {
+        return createRandom(values);
     }
 
     EnumFactory<T> createFactory(final SettingsParallelism parallelism) {
@@ -35,30 +39,7 @@ public final class SettingsEnum<T extends Enum<T>> {
     }
 
     @FunctionalInterface
-    interface EnumFactoryCreator<T extends Enum<T>> { // TODO: add a differentiator between singleton or transient
+    private interface EnumFactoryCreator<T extends Enum<T>> {
         EnumFactory<T> create(SettingsParallelism parallelism);
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class LiteralEnumFactory<T extends Enum<T>> implements EnumFactory<T> {
-        private final T value;
-
-        @Override
-        public T create() {
-            return value;
-        }
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class RandomEnumFactory<T extends Enum<T>> implements EnumFactory<T> {
-        private final RandomSupportFloat randomSupport;
-        private final List<T> values;
-
-        @Override
-        public T create() {
-            int index = randomSupport.next(0, values.size());
-
-            return values.get(index);
-        }
     }
 }

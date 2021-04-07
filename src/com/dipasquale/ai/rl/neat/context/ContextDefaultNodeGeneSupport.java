@@ -8,12 +8,15 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.FloatFactory;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupport {
+    @Serial
+    private static final long serialVersionUID = -7283416245979982748L;
     private final Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories;
     private final Map<NodeGeneType, FloatFactory> biasFactories;
     private final Map<NodeGeneType, ActivationFunctionProvider> activationFunctionSuppliers;

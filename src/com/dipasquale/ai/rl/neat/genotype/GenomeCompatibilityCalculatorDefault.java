@@ -3,8 +3,12 @@ package com.dipasquale.ai.rl.neat.genotype;
 import com.dipasquale.ai.common.JointItems;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor
 public final class GenomeCompatibilityCalculatorDefault implements GenomeCompatibilityCalculator {
+    @Serial
+    private static final long serialVersionUID = -5222473560325252763L;
     private final float excessCoefficient; // c1;
     private final float disjointCoefficient; // c2;
     private final float weightDifferenceCoefficient; // c3

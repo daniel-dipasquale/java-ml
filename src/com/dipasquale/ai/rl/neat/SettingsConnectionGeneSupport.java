@@ -2,15 +2,14 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryDefault;
+import com.dipasquale.ai.common.WeightPerturber;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.context.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.common.FloatFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +28,7 @@ public final class SettingsConnectionGeneSupport {
     }
 
     WeightPerturber createWeightPerturber(final SettingsParallelism parallelism) {
-        return new WeightPerturberDefault(weightPerturber.createFactory(parallelism));
+        return WeightPerturber.create(weightPerturber.createFactory(parallelism));
     }
 
     ContextDefaultConnectionGeneSupport create(final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
@@ -44,15 +43,5 @@ public final class SettingsConnectionGeneSupport {
         WeightPerturber weightPerturberFixed = createWeightPerturber(parallelism);
 
         return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, innovationIdFactory, innovationIds, weightFactoryFixed, weightPerturberFixed);
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class WeightPerturberDefault implements WeightPerturber {
-        private final FloatFactory weightPerturber;
-
-        @Override
-        public float next(final float value) {
-            return weightPerturber.create() * value;
-        }
     }
 }

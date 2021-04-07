@@ -2,14 +2,18 @@ package com.dipasquale.ai.rl.neat.context;
 
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor
 public final class ContextDefault implements Context {
+    @Serial
+    private static final long serialVersionUID = -6967839518513192799L;
     private final ContextDefaultGeneralSupport general;
     private final ContextDefaultNodeGeneSupport nodes;
     private final ContextDefaultConnectionGeneSupport connections;
     private final ContextDefaultNeuralNetworkSupport neuralNetwork;
-    private final ContextDefaultRandom random;
     private final ContextDefaultParallelism parallelism;
+    private final ContextDefaultRandom random;
     private final ContextDefaultMutation mutation;
     private final ContextDefaultCrossOver crossOver;
     private final ContextDefaultSpeciation speciation;
@@ -35,13 +39,13 @@ public final class ContextDefault implements Context {
     }
 
     @Override
-    public Random random() {
-        return random;
+    public Parallelism parallelism() {
+        return parallelism;
     }
 
     @Override
-    public Parallelism parallelism() {
-        return parallelism;
+    public Random random() {
+        return random;
     }
 
     @Override

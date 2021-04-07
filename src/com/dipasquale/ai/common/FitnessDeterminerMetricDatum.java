@@ -13,7 +13,7 @@ final class FitnessDeterminerMetricDatum implements FitnessDeterminer {
 
     @Override
     public float get() {
-        return selector.getValue(metricDatum);
+        return selector.selectValue(metricDatum);
     }
 
     @Override
@@ -28,6 +28,6 @@ final class FitnessDeterminerMetricDatum implements FitnessDeterminer {
 
     @FunctionalInterface
     public interface Selector {
-        float getValue(MetricDatum metricDatum);
+        float selectValue(MetricDatum metricDatum);
     }
 }

@@ -1,41 +1,46 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCrossOver;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor
 public final class ContextDefaultCrossOver implements Context.CrossOver {
-    private final Supplier shouldMateAndMutate;
-    private final Supplier shouldMateOnly;
-    private final Supplier shouldMutateOnly;
-    private final Supplier shouldOverrideConnectionExpressed;
-    private final Supplier shouldUseRandomParentConnectionWeight;
+    @Serial
+    private static final long serialVersionUID = -8201363182458911919L;
+    private final GateProvider shouldMateAndMutate;
+    private final GateProvider shouldMateOnly;
+    private final GateProvider shouldMutateOnly;
+    private final GateProvider shouldOverrideConnectionExpressed;
+    private final GateProvider shouldUseRandomParentConnectionWeight;
     private final GenomeCrossOver genomeCrossOver;
 
     @Override
     public boolean shouldMateAndMutate() {
-        return shouldMateAndMutate.get();
+        return shouldMateAndMutate.isOn();
     }
 
     @Override
     public boolean shouldMateOnly() {
-        return shouldMateOnly.get();
+        return shouldMateOnly.isOn();
     }
 
     @Override
     public boolean shouldMutateOnly() {
-        return shouldMutateOnly.get();
+        return shouldMutateOnly.isOn();
     }
 
     @Override
     public boolean shouldOverrideConnectionExpressed() {
-        return shouldOverrideConnectionExpressed.get();
+        return shouldOverrideConnectionExpressed.isOn();
     }
 
     @Override
     public boolean shouldUseRandomParentConnectionWeight() {
-        return shouldUseRandomParentConnectionWeight.get();
+        return shouldUseRandomParentConnectionWeight.isOn();
     }
 
     @Override
@@ -46,10 +51,5 @@ public final class ContextDefaultCrossOver implements Context.CrossOver {
     @Override
     public GenomeDefault crossOverByEqualTreatment(final Context context, final GenomeDefault parent1, final GenomeDefault parent2) {
         return genomeCrossOver.crossOverByEqualTreatment(context, parent1, parent2);
-    }
-
-    @FunctionalInterface
-    public interface Supplier {
-        boolean get();
     }
 }

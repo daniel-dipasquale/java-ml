@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOver;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCrossOver;
 import com.dipasquale.common.FloatFactory;
@@ -21,23 +22,23 @@ public final class SettingsCrossOver {
     @Builder.Default
     private final SettingsFloatNumber useRandomParentConnectionWeightRate = SettingsFloatNumber.literal(0.6f);
 
-    private static CrossOverSuppliers createCrossOverSuppliers(final RandomSupportFloat randomSupport, final FloatFactory mateOnlyRateFactory, final FloatFactory mutateOnlyRateFactory) {
+    private static CrossOverBinaryDecisionProvider createCrossOverSuppliers(final RandomSupportFloat randomSupport, final FloatFactory mateOnlyRateFactory, final FloatFactory mutateOnlyRateFactory) {
         float mateOnlyRate = mateOnlyRateFactory.create();
         float mutateOnlyRate = mutateOnlyRateFactory.create();
         float rate = (float) Math.ceil(mateOnlyRate + mutateOnlyRate);
 
         if (Float.compare(rate, 0f) == 0) {
-            return new CrossOverSuppliers(() -> true, () -> false, () -> false);
+            return new CrossOverBinaryDecisionProvider(() -> true, () -> false, () -> false);
         }
 
         float mateAndMutateRate = (mateOnlyRate + mutateOnlyRate) / rate;
         float mateOnlyRateFixed = mateOnlyRate / rate;
         float mutateOnlyRateFixed = mutateOnlyRate / rate;
 
-        return new CrossOverSuppliers(() -> randomSupport.isLessThan(mateAndMutateRate), () -> randomSupport.isLessThan(mateOnlyRateFixed), () -> randomSupport.isLessThan(mutateOnlyRateFixed));
+        return new CrossOverBinaryDecisionProvider(() -> randomSupport.isLessThan(mateAndMutateRate), () -> randomSupport.isLessThan(mateOnlyRateFixed), () -> randomSupport.isLessThan(mutateOnlyRateFixed));
     }
 
-    private static ContextDefaultCrossOver.Supplier createSupplier(final RandomSupportFloat randomSupport, final FloatFactory rateFactory) {
+    private static GateProvider createSupplier(final RandomSupportFloat randomSupport, final FloatFactory rateFactory) {
         float rate = rateFactory.create();
 
         return () -> randomSupport.isLessThan(rate);
@@ -45,18 +46,18 @@ public final class SettingsCrossOver {
 
     ContextDefaultCrossOver create(final SettingsParallelism parallelism, final SettingsRandom random) {
         RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
-        CrossOverSuppliers crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
-        ContextDefaultCrossOver.Supplier shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
-        ContextDefaultCrossOver.Supplier shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));
+        CrossOverBinaryDecisionProvider crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
+        GateProvider shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
+        GateProvider shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));
         GenomeCrossOver genomeCrossOver = new GenomeCrossOver();
 
         return new ContextDefaultCrossOver(crossOver.mateAndMutate, crossOver.mateOnly, crossOver.mutateOnly, shouldOverrideConnectionExpressed, shouldUseRandomParentConnectionWeight, genomeCrossOver);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class CrossOverSuppliers {
-        private final ContextDefaultCrossOver.Supplier mateAndMutate;
-        private final ContextDefaultCrossOver.Supplier mateOnly;
-        private final ContextDefaultCrossOver.Supplier mutateOnly;
+    private static final class CrossOverBinaryDecisionProvider {
+        private final GateProvider mateAndMutate;
+        private final GateProvider mateOnly;
+        private final GateProvider mutateOnly;
     }
 }

@@ -1,10 +1,10 @@
 package com.dipasquale.common;
 
+import java.io.Serializable;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 @FunctionalInterface
-public interface RandomSupportFloat {
+public interface RandomSupportFloat extends Serializable {
     float next();
 
     default float next(final float min, final float max) {
@@ -42,29 +42,15 @@ public interface RandomSupportFloat {
     }
 
     static RandomSupportFloat create() {
-        return new Random()::nextFloat;
+        return new RandomSupportFloatDefault(new Random());
     }
 
     static RandomSupportFloat createConcurrent() {
-        return () -> ThreadLocalRandom.current().nextFloat();
-    }
-
-    private static RandomSupportFloat createMeanDistribution(final RandomSupport randomSupport, final int concentration) {
-        float multiplier = 1f / (float) concentration; // clever idea from: https://stackoverflow.com/questions/30492259/get-a-random-number-focused-on-center
-
-        return () -> {
-            float random = 0f;
-
-            for (int i = 0; i < concentration; i++) {
-                random += randomSupport.next() * multiplier;
-            }
-
-            return random;
-        };
+        return new RandomSupportFloatConcurrent();
     }
 
     static RandomSupportFloat createMeanDistribution(final int concentration) {
-        return createMeanDistribution(new Random()::nextFloat, concentration);
+        return new RandomSupportFloatMeanDistribution(create(), concentration);
     }
 
     static RandomSupportFloat createMeanDistribution() {
@@ -72,7 +58,7 @@ public interface RandomSupportFloat {
     }
 
     static RandomSupportFloat createMeanDistributionConcurrent(final int concentration) {
-        return createMeanDistribution(() -> ThreadLocalRandom.current().nextFloat(), concentration);
+        return new RandomSupportFloatMeanDistribution(createConcurrent(), concentration);
     }
 
     static RandomSupportFloat createMeanDistributionConcurrent() {

@@ -8,10 +8,13 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Deque;
 
 @RequiredArgsConstructor
 public final class ContextDefaultGeneralSupport implements Context.GeneralSupport {
+    @Serial
+    private static final long serialVersionUID = -6562774113135100248L;
     private final int populationSize;
     private final SequentialIdFactory genomeIdFactory;
     private final GenomeDefaultFactory genomeFactory;

@@ -7,8 +7,12 @@ import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor
 public final class ContextDefaultNeuralNetworkSupport implements Context.NeuralNetworkSupport {
+    @Serial
+    private static final long serialVersionUID = -6365553803893188058L;
     private final NeuralNetworkFactory factory;
 
     @Override

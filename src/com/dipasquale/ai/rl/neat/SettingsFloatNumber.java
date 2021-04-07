@@ -1,30 +1,23 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.common.FloatFactory;
-import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-
-import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SettingsFloatNumber {
     private final FloatFactoryCreator factoryCreator;
 
-    static SettingsFloatNumber strategy(final FloatFactoryCreator factoryCreator) {
+    public static SettingsFloatNumber literal(final float number) {
+        FloatFactoryCreator factoryCreator = sp -> FloatFactory.createLiteral(number);
+
         return new SettingsFloatNumber(factoryCreator);
     }
 
-    public static SettingsFloatNumber literal(final float number) {
-        FloatFactoryCreator factoryCreator = sp -> new LiteralFloatFactory(number);
-
-        return strategy(factoryCreator);
-    }
-
     public static SettingsFloatNumber random(final SettingsRandomType type, final float min, final float max) {
-        FloatFactoryCreator factoryCreator = sp -> new RandomFloatFactory(sp.getRandomSupport(type), min, max);
+        FloatFactoryCreator factoryCreator = sp -> FloatFactory.createRandom(sp.getRandomSupport(type), min, max);
 
-        return strategy(factoryCreator);
+        return new SettingsFloatNumber(factoryCreator);
     }
 
     FloatFactory createFactory(final SettingsParallelism parallelism) {
@@ -32,33 +25,7 @@ public final class SettingsFloatNumber {
     }
 
     @FunctionalInterface
-    interface FloatFactoryCreator {
+    private interface FloatFactoryCreator {
         FloatFactory create(SettingsParallelism parallelism);
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class LiteralFloatFactory implements FloatFactory {
-        @Serial
-        private static final long serialVersionUID = -3947941626160062025L;
-        private final float number;
-
-        @Override
-        public float create() {
-            return number;
-        }
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class RandomFloatFactory implements FloatFactory {
-        @Serial
-        private static final long serialVersionUID = 9198284947931230448L;
-        private final RandomSupportFloat randomSupport;
-        private final float min;
-        private final float max;
-
-        @Override
-        public float create() {
-            return randomSupport.next(min, max);
-        }
     }
 }

@@ -1,15 +1,19 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.SequentialIdFactory;
+import com.dipasquale.ai.common.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.common.FloatFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Map;
 
 @RequiredArgsConstructor
 public final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGeneSupport {
+    @Serial
+    private static final long serialVersionUID = -7983552236955319968L;
     private final boolean multipleRecurrentCyclesAllowed;
     private final SequentialIdFactory innovationIdFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
@@ -33,7 +37,7 @@ public final class ContextDefaultConnectionGeneSupport implements Context.Connec
 
     @Override
     public float perturbWeight(final float weight) {
-        return weightPerturber.next(weight);
+        return weightPerturber.perturb(weight);
     }
 
     @Override

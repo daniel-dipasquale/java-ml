@@ -14,11 +14,12 @@ import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.common.Pair;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-public interface Context {
+public interface Context extends Serializable {
     GeneralSupport general();
 
     NodeGeneSupport nodes();
@@ -37,7 +38,7 @@ public interface Context {
 
     Speciation speciation();
 
-    interface GeneralSupport {
+    interface GeneralSupport extends Serializable {
         int populationSize();
 
         String createGenomeId();
@@ -57,12 +58,7 @@ public interface Context {
         void reset();
     }
 
-    @FunctionalInterface
-    interface NeuralNetworkSupport {
-        NeuralNetwork create(GenomeDefault genome, NodeGeneMap nodes, ConnectionGeneMap connections);
-    }
-
-    interface NodeGeneSupport {
+    interface NodeGeneSupport extends Serializable {
         NodeGene create(NodeGeneType type);
 
         List<NodeGene> inputNodes();
@@ -74,7 +70,7 @@ public interface Context {
         void reset();
     }
 
-    interface ConnectionGeneSupport {
+    interface ConnectionGeneSupport extends Serializable {
         boolean multipleRecurrentCyclesAllowed();
 
         InnovationId getOrCreateInnovationId(DirectedEdge directedEdge);
@@ -96,7 +92,20 @@ public interface Context {
         void reset();
     }
 
-    interface Random {
+    @FunctionalInterface
+    interface NeuralNetworkSupport extends Serializable {
+        NeuralNetwork create(GenomeDefault genome, NodeGeneMap nodes, ConnectionGeneMap connections);
+    }
+
+    interface Parallelism extends Serializable {
+        boolean isEnabled();
+
+        int numberOfThreads();
+
+        <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> action);
+    }
+
+    interface Random extends Serializable {
         int nextIndex(int offset, int count);
 
         default int nextIndex(final int count) {
@@ -152,15 +161,7 @@ public interface Context {
         }
     }
 
-    interface Parallelism {
-        boolean isEnabled();
-
-        int numberOfThreads();
-
-        <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> action);
-    }
-
-    interface Mutation {
+    interface Mutation extends Serializable {
         boolean shouldAddNodeMutation();
 
         boolean shouldAddConnectionMutation();
@@ -172,7 +173,7 @@ public interface Context {
         boolean shouldDisableConnectionExpressed();
     }
 
-    interface CrossOver {
+    interface CrossOver extends Serializable {
         boolean shouldMateAndMutate();
 
         boolean shouldMateOnly();
@@ -188,7 +189,7 @@ public interface Context {
         GenomeDefault crossOverByEqualTreatment(Context context, GenomeDefault parent1, GenomeDefault parent2);
     }
 
-    interface Speciation {
+    interface Speciation extends Serializable {
         int maximumSpecies();
 
         int maximumGenomes();

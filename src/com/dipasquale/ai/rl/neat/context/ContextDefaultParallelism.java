@@ -5,6 +5,7 @@ import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -15,6 +16,8 @@ import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public final class ContextDefaultParallelism implements Context.Parallelism {
+    @Serial
+    private static final long serialVersionUID = -586125448216469323L;
     private final Context.Parallelism parallelism;
 
     @Override
@@ -33,6 +36,9 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
     }
 
     public static final class SingleThread implements Context.Parallelism {
+        @Serial
+        private static final long serialVersionUID = 3035909772513944134L;
+
         @Override
         public boolean isEnabled() {
             return false;
@@ -55,7 +61,9 @@ public final class ContextDefaultParallelism implements Context.Parallelism {
 
     @RequiredArgsConstructor
     public static final class MultiThread implements Context.Parallelism {
-        private final EventLoopIterable eventLoopIterable;
+        @Serial
+        private static final long serialVersionUID = 6455931333164495174L;
+        private transient final EventLoopIterable eventLoopIterable;
         private final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
 
         @Override

@@ -4,13 +4,13 @@ import com.dipasquale.common.ArgumentValidatorUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class AtomicLoopSelector<T> {
+public final class AtomicCyclicReference<T> {
     private final ByIndex<T> items;
     private final AtomicInteger indexCas;
     private final int count;
     private final boolean restart;
 
-    public AtomicLoopSelector(final ByIndex<T> items, final int offset, final int count, final boolean restart) {
+    public AtomicCyclicReference(final ByIndex<T> items, final int offset, final int count, final boolean restart) {
         ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(offset, "offset");
         ArgumentValidatorUtils.ensureLessThan(offset, count, "offset");
         this.items = items;

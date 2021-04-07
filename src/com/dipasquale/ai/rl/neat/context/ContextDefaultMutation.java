@@ -1,42 +1,42 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.ai.common.GateProvider;
 import lombok.RequiredArgsConstructor;
+
+import java.io.Serial;
 
 @RequiredArgsConstructor
 public final class ContextDefaultMutation implements Context.Mutation {
-    private final Supplier shouldAddNodeMutation;
-    private final Supplier shouldAddConnectionMutation;
-    private final Supplier shouldPerturbConnectionWeight;
-    private final Supplier shouldReplaceConnectionWeight;
-    private final Supplier shouldDisableConnectionExpressed;
+    @Serial
+    private static final long serialVersionUID = 5944299841392988551L;
+    private final GateProvider shouldAddNodeMutation;
+    private final GateProvider shouldAddConnectionMutation;
+    private final GateProvider shouldPerturbConnectionWeight;
+    private final GateProvider shouldReplaceConnectionWeight;
+    private final GateProvider shouldDisableConnectionExpressed;
 
     @Override
     public boolean shouldAddNodeMutation() {
-        return shouldAddNodeMutation.get();
+        return shouldAddNodeMutation.isOn();
     }
 
     @Override
     public boolean shouldAddConnectionMutation() {
-        return shouldAddConnectionMutation.get();
+        return shouldAddConnectionMutation.isOn();
     }
 
     @Override
     public boolean shouldPerturbConnectionWeight() {
-        return shouldPerturbConnectionWeight.get();
+        return shouldPerturbConnectionWeight.isOn();
     }
 
     @Override
     public boolean shouldReplaceConnectionWeight() {
-        return shouldReplaceConnectionWeight.get();
+        return shouldReplaceConnectionWeight.isOn();
     }
 
     @Override
     public boolean shouldDisableConnectionExpressed() {
-        return shouldDisableConnectionExpressed.get();
-    }
-
-    @FunctionalInterface
-    public interface Supplier {
-        boolean get();
+        return shouldDisableConnectionExpressed.isOn();
     }
 }
