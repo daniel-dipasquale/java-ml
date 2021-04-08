@@ -3,16 +3,19 @@ package com.dipasquale.ai.rl.neat.population;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import com.dipasquale.ai.rl.neat.genotype.OrganismFactory;
+import com.dipasquale.ai.rl.neat.genotype.Species;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
+import com.dipasquale.data.structure.set.DequeSet;
+import com.dipasquale.data.structure.set.IdentityDequeSet;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import lombok.Getter;
 
-import java.util.Collections;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Comparator;
-import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -20,10 +23,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class Population {
+public final class Population implements Serializable {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
+    @Serial
+    private static final long serialVersionUID = 3565613163339474186L;
     private final Context context;
-    private final Set<Organism> organismsWithoutSpecies;
+    private final DequeSet<Organism> organismsWithoutSpecies;
     private final Queue<OrganismFactory> organismsToBirth;
     private final NodeDeque<Species, SimpleNode<Species>> speciesNodes;
     private final OrganismActivator mostFitOrganismActivator;
@@ -35,7 +40,7 @@ public final class Population {
     private int generation;
 
     public Population(final Context context, final OrganismActivator mostFitOrganismActivator) {
-        Set<Organism> organismsWithoutSpecies = createOrganisms(context, this);
+        DequeSet<Organism> organismsWithoutSpecies = createGenesisOrganisms(context, this);
         Queue<OrganismFactory> organismsToBirth = new LinkedList<>();
 
         this.context = context;
@@ -43,26 +48,26 @@ public final class Population {
         this.organismsToBirth = organismsToBirth;
         this.speciesNodes = new SimpleNodeDeque<>();
         this.mostFitOrganismActivator = mostFitOrganismActivator;
-        mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.iterator().next());
+        mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
         this.generation = 1;
         this.speciesFitnessStrategies = createSpeciesFitnessStrategies(context);
         this.speciesEvolutionStrategies = createSpeciesEvolutionStrategies(context, organismsWithoutSpecies, mostFitOrganismActivator);
         this.speciesBreedStrategies = createSpeciesBreedStrategies(context, organismsWithoutSpecies, organismsToBirth);
     }
 
-    private static void fillWithGenesisOrganisms(final Set<Organism> organisms, final Context context, final Population population) {
+    private static void fillWithGenesisOrganisms(final Set<Organism> genesisOrganisms, final Context context, final Population population) {
         IntStream.range(0, context.general().populationSize())
                 .mapToObj(i -> context.general().createGenesisGenome(context))
                 .map(g -> new Organism(g, population, context.general()))
-                .forEach(organisms::add);
+                .forEach(genesisOrganisms::add);
     }
 
-    private static Set<Organism> createOrganisms(final Context context, final Population population) {
-        Set<Organism> organismsWithoutSpecies = Collections.newSetFromMap(new IdentityHashMap<>());
+    private static DequeSet<Organism> createGenesisOrganisms(final Context context, final Population population) {
+        DequeSet<Organism> genesisOrganisms = new IdentityDequeSet<>();
 
-        fillWithGenesisOrganisms(organismsWithoutSpecies, context, population);
+        fillWithGenesisOrganisms(genesisOrganisms, context, population);
 
-        return organismsWithoutSpecies;
+        return genesisOrganisms;
     }
 
     private static List<SpeciesFitnessStrategy> createSpeciesFitnessStrategies(final Context context) {
@@ -106,7 +111,7 @@ public final class Population {
     }
 
     private Species createSpecies(final Organism organism) {
-        return new SpeciesDefault(context, this, organism);
+        return new Species(context, this, organism);
     }
 
     private SimpleNode<Species> addSpecies(final Species species) {

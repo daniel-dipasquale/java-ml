@@ -3,6 +3,8 @@ package com.dipasquale.data.structure.map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,7 +15,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable<TValue>> { // TODO: redo this
+public final class SortedByValueRankedAggregator<TKey, TValue extends Comparable<TValue>> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -4909404897739777421L; // TODO: redo this
     private final Comparator<TValue> comparator;
     private final Factory<TKey, TValue> mapFactory;
     private AbstractSortedByValueMap<TKey, TValue> map;

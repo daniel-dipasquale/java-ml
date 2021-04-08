@@ -2,16 +2,20 @@ package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
+import com.dipasquale.ai.rl.neat.genotype.Species;
 import com.dipasquale.data.structure.deque.Node;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Iterator;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SpeciesFitnessStrategyUpdateOrganisms implements SpeciesFitnessStrategy {
+    @Serial
+    private static final long serialVersionUID = 4682599786027442047L;
     private final Context context;
 
     @Override

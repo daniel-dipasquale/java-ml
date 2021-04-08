@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,6 +22,8 @@ import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, TValue> implements SortedByValueMap<TKey, TValue> {
+    @Serial
+    private static final long serialVersionUID = -192430348166168535L;
     private final Map<TKey, Entry<TKey, TValue>> map;
     private final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap;
     private final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory;

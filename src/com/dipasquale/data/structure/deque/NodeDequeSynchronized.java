@@ -3,6 +3,7 @@ package com.dipasquale.data.structure.deque;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.IntFunction;
@@ -10,6 +11,8 @@ import java.util.function.Predicate;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class NodeDequeSynchronized<TValue, TNode extends Node> implements NodeDeque<TValue, TNode> {
+    @Serial
+    private static final long serialVersionUID = -4409715583250590379L;
     private final NodeDeque<TValue, TNode> nodeDeque;
 
     @Override

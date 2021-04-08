@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -14,7 +16,9 @@ import java.util.Map;
 import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ConnectionGeneMap implements Iterable<ConnectionGene> {
+public final class ConnectionGeneMap implements Iterable<ConnectionGene>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 6378529672148503435L;
     private final SequentialMap<InnovationId, ConnectionGene> all = new SequentialMap<>();
     private final SequentialMap<InnovationId, ConnectionGene> expressed = new SequentialMap<>();
     private final Map<SequentialId, Map<DirectedEdge, ConnectionGene>> incomingToNodeId = new HashMap<>();

@@ -4,12 +4,15 @@ import com.dipasquale.data.structure.collection.AbstractCollection;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class KeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TKey> {
+    @Serial
+    private static final long serialVersionUID = -1450772736403367687L;
     private final AbstractMap<TKey, TValue> map;
 
     @Override

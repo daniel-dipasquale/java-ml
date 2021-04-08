@@ -7,12 +7,16 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public final class ConcurrentSortedByValueMap<TKey, TValue> extends AbstractSortedByValueMap<TKey, TValue> {
+    @Serial
+    private static final long serialVersionUID = -2007543205420858049L;
+
     private ConcurrentSortedByValueMap(final Map<TKey, Entry<TKey, TValue>> map, final Comparator<TValue> comparator) {
         super(map, new ConcurrentSkipListMap<>(comparator), () -> DequeSet.createSynchronized(new HashDequeSet<>()), EntryInternal::new);
     }

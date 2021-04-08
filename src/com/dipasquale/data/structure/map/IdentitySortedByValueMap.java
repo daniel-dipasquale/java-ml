@@ -5,12 +5,16 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 public final class IdentitySortedByValueMap<TKey, TValue> extends AbstractSortedByValueMap<TKey, TValue> {
+    @Serial
+    private static final long serialVersionUID = 7505976089668954036L;
+
     private IdentitySortedByValueMap(final Map<TKey, Entry<TKey, TValue>> map, final Comparator<TValue> comparator) {
         super(map, new TreeMap<>(comparator), HashDequeSet::new, EntryInternal::new);
     }

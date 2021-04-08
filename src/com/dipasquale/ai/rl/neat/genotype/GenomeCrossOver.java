@@ -2,10 +2,27 @@ package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.JointItems;
 import com.dipasquale.ai.rl.neat.context.Context;
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-@RequiredArgsConstructor
-public final class GenomeCrossOver {
+import java.io.Serial;
+import java.io.Serializable;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class GenomeCrossOver implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1629689330329377388L;
+    private static final GenomeCrossOver INSTANCE = new GenomeCrossOver();
+
+    public static GenomeCrossOver getInstance() {
+        return INSTANCE;
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
+    }
+
     private <T> T getRandom(final Context context, final T item1, final T item2) {
         return context.random().isLessThan(0.5f) ? item1 : item2;
     }

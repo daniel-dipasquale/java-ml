@@ -5,9 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @AllArgsConstructor
 @Getter
-public final class ConnectionGene {
+public final class ConnectionGene implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -72756908718555853L;
     private final InnovationId innovationId;
     @Setter(AccessLevel.PACKAGE)
     private float weight;

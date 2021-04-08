@@ -6,12 +6,16 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 public final class HashSortedByValueMap<TKey, TValue> extends AbstractSortedByValueMap<TKey, TValue> {
+    @Serial
+    private static final long serialVersionUID = 4141456851307327160L;
+
     private HashSortedByValueMap(final Map<TKey, Entry<TKey, TValue>> map, final Comparator<TValue> comparator) {
         super(map, new TreeMap<>(comparator), HashDequeSet::new, EntryInternal::new);
     }

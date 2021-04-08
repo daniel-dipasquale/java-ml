@@ -1,13 +1,17 @@
 package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.genotype.Organism;
+import com.dipasquale.ai.rl.neat.genotype.Species;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SpeciesEvolutionStrategySelectMostElite implements SpeciesEvolutionStrategy {
+    @Serial
+    private static final long serialVersionUID = -265764242596209981L;
     private final Set<Organism> organismsWithoutSpecies;
     private final OrganismActivator mostFitOrganismActivator;
 

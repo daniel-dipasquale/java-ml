@@ -1,9 +1,10 @@
 package com.dipasquale.data.structure.set;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
-public interface DequeSet<T> extends Set<T> {
+public interface DequeSet<T> extends Set<T>, Serializable {
     T getPrevious(T value);
 
     T getNext(T value);

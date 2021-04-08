@@ -1,8 +1,9 @@
 package com.dipasquale.data.structure.deque;
 
+import java.io.Serializable;
 import java.util.Deque;
 
-public interface NodeDeque<TValue, TNode extends Node> extends Deque<TNode> {
+public interface NodeDeque<TValue, TNode extends Node> extends Deque<TNode>, Serializable {
     TNode createUnbound(TValue value);
 
     TValue getValue(TNode node);

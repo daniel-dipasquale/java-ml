@@ -6,6 +6,7 @@ import com.dipasquale.data.structure.deque.NodeDeque;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -14,6 +15,8 @@ import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class AbstractDequeSet<TValue, TNode extends Node> extends AbstractCollection<TValue> implements DequeSet<TValue> {
+    @Serial
+    private static final long serialVersionUID = -8777988152140515009L;
     private final Map<TValue, TNode> nodesMap;
     private final NodeDeque<TValue, TNode> nodesDeque;
 

@@ -3,6 +3,7 @@ package com.dipasquale.data.structure.set;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.IntFunction;
@@ -10,6 +11,8 @@ import java.util.function.Predicate;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class DequeSetSynchronized<T> implements DequeSet<T> {
+    @Serial
+    private static final long serialVersionUID = 254104984527031305L;
     private final DequeSet<T> dequeSet;
 
     @Override

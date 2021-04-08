@@ -2,7 +2,7 @@ package com.dipasquale.common;
 
 import java.io.Serial;
 
-final class RandomSupportFloatMeanDistribution implements RandomSupportFloat {
+final class RandomSupportFloatMeanDistribution implements RandomSupportFloat { // clever idea from: https://stackoverflow.com/questions/30492259/get-a-random-number-focused-on-center
     @Serial
     private static final long serialVersionUID = -2580047376540693357L;
     private final RandomSupportFloat randomSupport;

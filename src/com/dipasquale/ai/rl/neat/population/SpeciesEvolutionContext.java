@@ -3,8 +3,13 @@ package com.dipasquale.ai.rl.neat.population;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Getter
-final class SpeciesEvolutionContext {
+final class SpeciesEvolutionContext implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 2714591384142252796L;
     private float totalSharedFitness = 0f;
     private Organism organismMostFit = null;
 

@@ -49,7 +49,7 @@ public final class SettingsCrossOver {
         CrossOverGateProvider crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
         GateProvider shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
         GateProvider shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));
-        GenomeCrossOver genomeCrossOver = new GenomeCrossOver();
+        GenomeCrossOver genomeCrossOver = GenomeCrossOver.getInstance();
 
         return new ContextDefaultCrossOver(crossOver.mateAndMutate, crossOver.mateOnly, crossOver.mutateOnly, shouldOverrideConnectionExpressed, shouldUseRandomParentConnectionWeight, genomeCrossOver);
     }

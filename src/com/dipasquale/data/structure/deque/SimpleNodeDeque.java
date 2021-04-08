@@ -3,9 +3,12 @@ package com.dipasquale.data.structure.deque;
 import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 
+import java.io.Serial;
 import java.util.Iterator;
 
 public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> implements NodeDeque<T, SimpleNode<T>> {
+    @Serial
+    private static final long serialVersionUID = -8560444876098720861L;
     private Object membership;
     private SimpleNode<T> start;
     private SimpleNode<T> end;

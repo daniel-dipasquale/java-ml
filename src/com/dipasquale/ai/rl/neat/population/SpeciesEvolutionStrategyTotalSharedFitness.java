@@ -1,6 +1,13 @@
 package com.dipasquale.ai.rl.neat.population;
 
+import com.dipasquale.ai.rl.neat.genotype.Species;
+
+import java.io.Serial;
+
 final class SpeciesEvolutionStrategyTotalSharedFitness implements SpeciesEvolutionStrategy {
+    @Serial
+    private static final long serialVersionUID = -188364327859090092L;
+
     @Override
     public void process(final SpeciesEvolutionContext evolutionContext, final Species species, boolean speciesSurvives) {
         if (!speciesSurvives) {

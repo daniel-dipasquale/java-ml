@@ -8,11 +8,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.util.Iterator;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends AbstractMap<TKey, TValue> implements DequeMap<TKey, TValue> {
+    @Serial
+    private static final long serialVersionUID = -1428146538346139099L;
     private final Map<TKey, TNode> nodesMap;
     private final NodeDeque<Entry<TKey, TValue>, TNode> nodesDeque;
 

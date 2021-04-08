@@ -1,11 +1,16 @@
 package com.dipasquale.ai.rl.neat.population;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.genotype.Species;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SpeciesEvolutionStrategyRemoveLeastFit implements SpeciesEvolutionStrategy {
+    @Serial
+    private static final long serialVersionUID = -8513956335859361822L;
     private final Context context;
 
     @Override

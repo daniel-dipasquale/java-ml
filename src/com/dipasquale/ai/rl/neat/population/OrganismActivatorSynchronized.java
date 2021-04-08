@@ -3,10 +3,13 @@ package com.dipasquale.ai.rl.neat.population;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Organism;
 
+import java.io.Serial;
 import java.util.Deque;
 import java.util.LinkedList;
 
 public final class OrganismActivatorSynchronized implements OrganismActivator {
+    @Serial
+    private static final long serialVersionUID = 6217956722108709223L;
     private Organism organism = null;
     private float fitness = 0f;
     private final Deque<Organism> clonedOrganisms = new LinkedList<>();

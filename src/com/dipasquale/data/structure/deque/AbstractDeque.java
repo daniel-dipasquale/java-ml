@@ -2,10 +2,14 @@ package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.data.structure.collection.AbstractCollection;
 
+import java.io.Serial;
 import java.util.Deque;
 import java.util.NoSuchElementException;
 
 public abstract class AbstractDeque<T> extends AbstractCollection<T> implements Deque<T> {
+    @Serial
+    private static final long serialVersionUID = -1682404335072307069L;
+
     @Override
     public T peek() {
         return peekFirst();
@@ -15,22 +19,22 @@ public abstract class AbstractDeque<T> extends AbstractCollection<T> implements 
     public T getFirst() {
         T item = peekFirst();
 
-        if (item == null) {
-            throw new NoSuchElementException("the deque is empty");
+        if (item != null) {
+            return item;
         }
 
-        return item;
+        throw new NoSuchElementException("the deque is empty");
     }
 
     @Override
     public T getLast() {
         T item = peekLast();
 
-        if (item == null) {
-            throw new NoSuchElementException("the deque is empty");
+        if (item != null) {
+            return item;
         }
 
-        return item;
+        throw new NoSuchElementException("the deque is empty");
     }
 
     @Override

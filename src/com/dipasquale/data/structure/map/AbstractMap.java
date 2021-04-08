@@ -1,5 +1,7 @@
 package com.dipasquale.data.structure.map;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,7 +14,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue> {
+public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 152413418451406722L;
     private final KeySet<TKey, TValue> keySet = new KeySet<>(this);
     private final Values<TKey, TValue> values = new Values<>(this);
     private final EntrySet<TKey, TValue> entrySet = new EntrySet<>(this);

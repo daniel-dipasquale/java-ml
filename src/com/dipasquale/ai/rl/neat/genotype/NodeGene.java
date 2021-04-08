@@ -8,12 +8,17 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Generated
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public final class NodeGene {
+public final class NodeGene implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -4174686982693760386L;
     @EqualsAndHashCode.Include
     @ToString.Include
     private final SequentialId id;

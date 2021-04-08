@@ -3,6 +3,8 @@ package com.dipasquale.data.structure.collection;
 import com.dipasquale.data.structure.iterator.ZipIterator;
 import com.google.common.collect.ImmutableList;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +17,10 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class AbstractCollection<T> implements Collection<T> {
+public abstract class AbstractCollection<T> implements Collection<T>, Serializable {
+    @Serial
+    private static final long serialVersionUID = -162665134155485514L;
+
     @Override
     public boolean isEmpty() {
         return size() == 0;

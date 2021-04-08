@@ -5,9 +5,13 @@ import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Optional;
 
-public final class GenomeDefault implements Genome {
+public final class GenomeDefault implements Genome, Serializable {
+    @Serial
+    private static final long serialVersionUID = 7461216583928544602L;
     @Getter
     private final String id;
     @Getter(AccessLevel.PACKAGE)

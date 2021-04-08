@@ -1,6 +1,8 @@
 package com.dipasquale.data.structure.deque;
 
-public interface Node {
+import java.io.Serializable;
+
+public interface Node extends Serializable {
     boolean equals(Object other);
 
     int hashCode();

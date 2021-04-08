@@ -7,12 +7,16 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class NodeGeneMap implements Iterable<NodeGene> {
+public final class NodeGeneMap implements Iterable<NodeGene>, Serializable {
+    @Serial
+    private static final long serialVersionUID = -414060625780283286L;
     private final SequentialMap<SequentialId, NodeGene> nodes = new SequentialMap<>();
     private final Map<NodeGeneType, SequentialMap<SequentialId, NodeGene>> nodesByType = createNodesByType();
 
