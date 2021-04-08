@@ -26,15 +26,15 @@ public final class ConnectionGene implements Serializable {
         this.expressed = true;
     }
 
-    void increaseCyclesAllowed() {
+    public void increaseCyclesAllowed() {
         recurrentCyclesAllowed++;
     }
 
-    void disable() {
+    public void disable() {
         expressed = false;
     }
 
-    boolean toggleExpressed() {
+    public boolean toggleExpressed() {
         return expressed = !expressed;
     }
 

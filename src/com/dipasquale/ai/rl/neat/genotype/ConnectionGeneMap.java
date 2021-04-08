@@ -135,7 +135,7 @@ public final class ConnectionGeneMap implements Iterable<ConnectionGene>, Serial
         return connection;
     }
 
-    void toggleExpressed(final ConnectionGene connection) {
+    public void toggleExpressed(final ConnectionGene connection) {
         if (connection == null) {
             return;
         }
