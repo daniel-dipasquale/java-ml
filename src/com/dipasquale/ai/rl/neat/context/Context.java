@@ -184,9 +184,13 @@ public interface Context extends Serializable {
 
         boolean shouldUseRandomParentConnectionWeight();
 
-        GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(Context context, GenomeDefault fitParent, GenomeDefault unfitParent);
+        default GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final Context context, final GenomeDefault fitParent, final GenomeDefault unfitParent) {
+            return GenomeDefault.crossOverBySkippingUnfitDisjointOrExcess(context, fitParent, unfitParent);
+        }
 
-        GenomeDefault crossOverByEqualTreatment(Context context, GenomeDefault parent1, GenomeDefault parent2);
+        default GenomeDefault crossOverByEqualTreatment(final Context context, final GenomeDefault parent1, final GenomeDefault parent2) {
+            return GenomeDefault.crossOverByEqualTreatment(context, parent1, parent2);
+        }
     }
 
     interface Speciation extends Serializable {

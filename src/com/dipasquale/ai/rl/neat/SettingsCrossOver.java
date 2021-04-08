@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOver;
-import com.dipasquale.ai.rl.neat.genotype.GenomeCrossOver;
 import com.dipasquale.common.FloatFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
@@ -49,9 +48,8 @@ public final class SettingsCrossOver {
         CrossOverGateProvider crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
         GateProvider shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
         GateProvider shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));
-        GenomeCrossOver genomeCrossOver = GenomeCrossOver.getInstance();
 
-        return new ContextDefaultCrossOver(crossOver.mateAndMutate, crossOver.mateOnly, crossOver.mutateOnly, shouldOverrideConnectionExpressed, shouldUseRandomParentConnectionWeight, genomeCrossOver);
+        return new ContextDefaultCrossOver(crossOver.mateAndMutate, crossOver.mateOnly, crossOver.mutateOnly, shouldOverrideConnectionExpressed, shouldUseRandomParentConnectionWeight);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
