@@ -5,7 +5,7 @@ import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialIdFactoryDefault;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.RecyclableVersion;
+import com.dipasquale.common.CyclicVersion;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public final class NeuronNavigatorTest {
     [ 4 ] => []
      */
     private static List<Neuron> createFeedForwardNetwork() {
-        RecyclableVersion activationNumber = new RecyclableVersion(0, 1);
+        CyclicVersion activationNumber = new CyclicVersion(0, 1);
         List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
 
         return ImmutableList.<Neuron>builder()
@@ -117,7 +117,7 @@ public final class NeuronNavigatorTest {
     [ 4 ] => []
      */
     private static List<Neuron> createRecurrentReflexiveNetwork() {
-        RecyclableVersion activationNumber = new RecyclableVersion(0, 1);
+        CyclicVersion activationNumber = new CyclicVersion(0, 1);
         List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
 
         return ImmutableList.<Neuron>builder()
@@ -180,7 +180,7 @@ public final class NeuronNavigatorTest {
     [ 4 ] => [ 5 ]
      */
     private static List<Neuron> createRecurrentSymmetricNetwork() {
-        RecyclableVersion activationNumber = new RecyclableVersion(0, 1);
+        CyclicVersion activationNumber = new CyclicVersion(0, 1);
         List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
 
         return ImmutableList.<Neuron>builder()
@@ -244,7 +244,7 @@ public final class NeuronNavigatorTest {
     [ 3 ] => [ 5 ]
      */
     private static List<Neuron> createRecurrentTransitiveNetwork() {
-        RecyclableVersion activationNumber = new RecyclableVersion(0, 1);
+        CyclicVersion activationNumber = new CyclicVersion(0, 1);
         List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f, 5f));
 
         return ImmutableList.<Neuron>builder()

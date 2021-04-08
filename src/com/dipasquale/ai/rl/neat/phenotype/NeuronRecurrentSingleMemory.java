@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.RecyclableVersion;
+import com.dipasquale.common.CyclicVersion;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ final class NeuronRecurrentSingleMemory implements Neuron {
     private final Collection<NeuronInput> inputs;
     @Getter
     private final Collection<NeuronOutput> outputs;
-    private final RecyclableVersion activationNumber;
+    private final CyclicVersion activationNumber;
     private int valueActivationNumber = -1;
     private final Map<SequentialId, Value> values = new HashMap<>();
     private float value = 0f;

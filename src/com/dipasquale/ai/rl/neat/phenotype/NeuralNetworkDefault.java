@@ -5,7 +5,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.ArgumentValidatorUtils;
-import com.dipasquale.common.RecyclableVersion;
+import com.dipasquale.common.CyclicVersion;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,14 +14,14 @@ public final class NeuralNetworkDefault implements NeuralNetwork {
     private final NodeGeneMap nodes;
     private final ConnectionGeneMap connections;
     private final NeuronNavigator neuronNavigator;
-    private final RecyclableVersion activationNumber;
+    private final CyclicVersion activationNumber;
     private final NeuronFactory neuronFactory;
 
     public NeuralNetworkDefault(final NodeGeneMap nodes, final ConnectionGeneMap connections, final NeuronPathBuilder neuronPathBuilder, final NeuronFactory neuronFactory) {
         this.nodes = nodes;
         this.connections = connections;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
-        this.activationNumber = new RecyclableVersion(0, Integer.MAX_VALUE);
+        this.activationNumber = new CyclicVersion(0, Integer.MAX_VALUE);
         this.neuronFactory = neuronFactory;
     }
 
