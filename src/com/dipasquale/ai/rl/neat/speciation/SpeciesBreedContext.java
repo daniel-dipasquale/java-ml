@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.population;
+package com.dipasquale.ai.rl.neat.speciation;
 
 import lombok.Getter;
 import lombok.Setter;

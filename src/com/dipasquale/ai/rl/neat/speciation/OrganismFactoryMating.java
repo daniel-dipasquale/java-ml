@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.genotype;
+package com.dipasquale.ai.rl.neat.speciation;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,6 @@
-package com.dipasquale.ai.rl.neat.genotype;
+package com.dipasquale.ai.rl.neat.speciation;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.population.Population;
 import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

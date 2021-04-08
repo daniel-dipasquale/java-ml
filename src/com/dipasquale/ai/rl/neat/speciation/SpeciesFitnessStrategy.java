@@ -1,6 +1,5 @@
-package com.dipasquale.ai.rl.neat.population;
+package com.dipasquale.ai.rl.neat.speciation;
 
-import com.dipasquale.ai.rl.neat.genotype.Species;
 import com.dipasquale.data.structure.deque.Node;
 import com.dipasquale.data.structure.deque.NodeDeque;
 

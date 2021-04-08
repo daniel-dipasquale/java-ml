@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.population.OrganismActivator;
-import com.dipasquale.ai.rl.neat.population.OrganismActivatorSynchronized;
-import com.dipasquale.ai.rl.neat.population.Population;
+import com.dipasquale.ai.rl.neat.speciation.OrganismActivator;
+import com.dipasquale.ai.rl.neat.speciation.OrganismActivatorSynchronized;
+import com.dipasquale.ai.rl.neat.speciation.Population;
 
 final class NeatEvaluatorSynchronized implements NeatEvaluator {
     private final Context context;

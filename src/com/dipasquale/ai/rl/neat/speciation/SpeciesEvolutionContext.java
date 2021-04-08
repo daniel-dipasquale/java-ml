@@ -1,6 +1,5 @@
-package com.dipasquale.ai.rl.neat.population;
+package com.dipasquale.ai.rl.neat.speciation;
 
-import com.dipasquale.ai.rl.neat.genotype.Organism;
 import lombok.Getter;
 
 import java.io.Serial;

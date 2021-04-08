@@ -1,8 +1,6 @@
-package com.dipasquale.ai.rl.neat.population;
+package com.dipasquale.ai.rl.neat.speciation;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.genotype.Organism;
-import com.dipasquale.ai.rl.neat.genotype.Species;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

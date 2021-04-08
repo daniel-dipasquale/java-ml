@@ -1,6 +1,4 @@
-package com.dipasquale.ai.rl.neat.population;
-
-import com.dipasquale.ai.rl.neat.genotype.Species;
+package com.dipasquale.ai.rl.neat.speciation;
 
 import java.io.Serial;
 

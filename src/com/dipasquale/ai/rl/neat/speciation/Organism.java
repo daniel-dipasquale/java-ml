@@ -1,8 +1,8 @@
-package com.dipasquale.ai.rl.neat.genotype;
+package com.dipasquale.ai.rl.neat.speciation;
 
 import com.dipasquale.ai.common.FitnessDeterminer;
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.population.Population;
+import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import lombok.Getter;
 
 import java.io.Serial;
