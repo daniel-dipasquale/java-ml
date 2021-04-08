@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.JointItems;
+import com.dipasquale.common.Pair;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -13,16 +13,16 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
     private final float disjointCoefficient; // c2;
     private final float weightDifferenceCoefficient; // c3
 
-    private static boolean isMatching(final JointItems<ConnectionGene> jointItems) {
-        return jointItems.getItem1() != null && jointItems.getItem2() != null;
+    private static boolean isMatching(final Pair<ConnectionGene> connections) {
+        return connections.getItem1() != null && connections.getItem2() != null;
     }
 
     private static boolean isExcess(final ConnectionGene connection, final ConnectionGene excessFromConnection) {
         return connection.getInnovationId().compareTo(excessFromConnection.getInnovationId()) > 0;
     }
 
-    private static boolean isDisjoint(final JointItems<ConnectionGene> jointItems, final ConnectionGene excessFromConnection) {
-        return excessFromConnection == null || jointItems.getItem1() != null && !isExcess(jointItems.getItem1(), excessFromConnection) || jointItems.getItem2() != null && !isExcess(jointItems.getItem2(), excessFromConnection);
+    private static boolean isDisjoint(final Pair<ConnectionGene> connections, final ConnectionGene excessFromConnection) {
+        return excessFromConnection == null || connections.getItem1() != null && !isExcess(connections.getItem1(), excessFromConnection) || connections.getItem2() != null && !isExcess(connections.getItem2(), excessFromConnection);
     }
 
     private static ConnectionGene getExcessConnection(final GenomeDefault genome1, final GenomeDefault genome2) {
@@ -54,11 +54,11 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
         int disjointCount = 0;
         int excessCount = 0;
 
-        for (JointItems<ConnectionGene> jointItems : genome1.getConnections().fullJoinFromAll(genome2.getConnections())) {
-            if (isMatching(jointItems)) {
+        for (Pair<ConnectionGene> connections : genome1.getConnections().fullJoinFromAll(genome2.getConnections())) {
+            if (isMatching(connections)) {
                 matchingCount++;
-                weightDifference += Math.abs(jointItems.getItem1().getWeight() - jointItems.getItem2().getWeight());
-            } else if (isDisjoint(jointItems, excessFromConnection)) {
+                weightDifference += Math.abs(connections.getItem1().getWeight() - connections.getItem2().getWeight());
+            } else if (isDisjoint(connections, excessFromConnection)) {
                 disjointCount++;
             } else {
                 excessCount++;

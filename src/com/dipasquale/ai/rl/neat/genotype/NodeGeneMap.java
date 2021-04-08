@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.JointItems;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialMap;
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -68,7 +68,7 @@ public final class NodeGeneMap implements Iterable<NodeGene>, Serializable {
         nodesByType.get(node.getType()).put(node.getId(), node);
     }
 
-    public Iterable<JointItems<NodeGene>> fullJoin(final NodeGeneMap other) {
+    public Iterable<Pair<NodeGene>> fullJoin(final NodeGeneMap other) {
         return nodes.fullJoin(other.nodes);
     }
 

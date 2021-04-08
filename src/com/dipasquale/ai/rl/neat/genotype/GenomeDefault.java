@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.JointItems;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
+import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -264,11 +264,11 @@ public final class GenomeDefault implements Genome, Serializable {
     public static GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final Context context, final GenomeDefault fitParent, final GenomeDefault unfitParent) {
         GenomeDefault child = new GenomeDefault(context);
 
-        for (JointItems<NodeGene> jointItems : fitParent.nodes.fullJoin(unfitParent.nodes)) {
-            if (jointItems.getItem1() != null && jointItems.getItem2() != null) {
-                child.nodes.put(getRandom(context, jointItems.getItem1(), jointItems.getItem2()));
-            } else if (jointItems.getItem1() != null) {
-                child.nodes.put(jointItems.getItem1());
+        for (Pair<NodeGene> nodes : fitParent.nodes.fullJoin(unfitParent.nodes)) {
+            if (nodes.getItem1() != null && nodes.getItem2() != null) {
+                child.nodes.put(getRandom(context, nodes.getItem1(), nodes.getItem2()));
+            } else if (nodes.getItem1() != null) {
+                child.nodes.put(nodes.getItem1());
             }
         }
 
@@ -291,27 +291,27 @@ public final class GenomeDefault implements Genome, Serializable {
     public static GenomeDefault crossOverByEqualTreatment(final Context context, final GenomeDefault parent1, final GenomeDefault parent2) {
         GenomeDefault child = new GenomeDefault(context);
 
-        for (JointItems<NodeGene> jointItems : parent1.nodes.fullJoin(parent2.nodes)) {
-            if (jointItems.getItem1() != null && jointItems.getItem2() != null) {
-                child.nodes.put(getRandom(context, jointItems.getItem1(), jointItems.getItem2()));
-            } else if (jointItems.getItem1() != null) {
-                child.nodes.put(jointItems.getItem1());
+        for (Pair<NodeGene> nodes : parent1.nodes.fullJoin(parent2.nodes)) {
+            if (nodes.getItem1() != null && nodes.getItem2() != null) {
+                child.nodes.put(getRandom(context, nodes.getItem1(), nodes.getItem2()));
+            } else if (nodes.getItem1() != null) {
+                child.nodes.put(nodes.getItem1());
             } else {
-                child.nodes.put(jointItems.getItem2());
+                child.nodes.put(nodes.getItem2());
             }
         }
 
-        for (JointItems<ConnectionGene> jointItems : parent1.connections.fullJoinFromAll(parent2.connections)) {
-            if (jointItems.getItem1() != null && jointItems.getItem2() != null) {
-                ConnectionGene childConnection = createChildConnection(context, jointItems.getItem1(), jointItems.getItem2());
+        for (Pair<ConnectionGene> connections : parent1.connections.fullJoinFromAll(parent2.connections)) {
+            if (connections.getItem1() != null && connections.getItem2() != null) {
+                ConnectionGene childConnection = createChildConnection(context, connections.getItem1(), connections.getItem2());
 
                 child.connections.put(childConnection);
-            } else if (jointItems.getItem1() != null) {
-                ConnectionGene childConnection = jointItems.getItem1().createCopy(jointItems.getItem1().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
+            } else if (connections.getItem1() != null) {
+                ConnectionGene childConnection = connections.getItem1().createCopy(connections.getItem1().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
 
                 child.connections.put(childConnection);
             } else {
-                ConnectionGene childConnection = jointItems.getItem2().createCopy(jointItems.getItem2().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
+                ConnectionGene childConnection = connections.getItem2().createCopy(connections.getItem2().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
 
                 child.connections.put(childConnection);
             }

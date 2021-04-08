@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.JointItems;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialMap;
+import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -156,11 +156,11 @@ public final class ConnectionGeneMap implements Iterable<ConnectionGene>, Serial
         return connection;
     }
 
-    public Iterable<JointItems<ConnectionGene>> fullJoinFromExpressed(final ConnectionGeneMap other) {
+    public Iterable<Pair<ConnectionGene>> fullJoinFromExpressed(final ConnectionGeneMap other) {
         return expressed.fullJoin(other.expressed);
     }
 
-    public Iterable<JointItems<ConnectionGene>> fullJoinFromAll(final ConnectionGeneMap other) {
+    public Iterable<Pair<ConnectionGene>> fullJoinFromAll(final ConnectionGeneMap other) {
         return all.fullJoin(other.all);
     }
 
