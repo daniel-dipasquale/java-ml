@@ -1,5 +1,6 @@
 package com.dipasquale.common;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -8,11 +9,27 @@ public interface FloatFactory extends Serializable { // TODO: add a differentiat
     float create();
 
     static FloatFactory createLiteral(final float value) {
-        return new FloatFactoryLiteral(value);
+        return new FloatFactory() {
+            @Serial
+            private static final long serialVersionUID = 890190052327745368L;
+
+            @Override
+            public float create() {
+                return value;
+            }
+        };
     }
 
     static FloatFactory createIllegalState(final String message) {
-        return new FloatFactoryIllegalStateException(message);
+        return new FloatFactory() {
+            @Serial
+            private static final long serialVersionUID = -205272143970817133L;
+
+            @Override
+            public float create() {
+                throw new IllegalStateException(message);
+            }
+        };
     }
 
     static FloatFactory createCyclic(final List<? extends FloatFactory> factories, final boolean contended) {
@@ -24,6 +41,14 @@ public interface FloatFactory extends Serializable { // TODO: add a differentiat
     }
 
     static FloatFactory createRandom(final RandomSupportFloat randomSupport, final float min, final float max) {
-        return new FloatFactoryRandom(randomSupport, min, max);
+        return new FloatFactory() {
+            @Serial
+            private static final long serialVersionUID = 7091995050863927280L;
+
+            @Override
+            public float create() {
+                return randomSupport.next(min, max);
+            }
+        };
     }
 }

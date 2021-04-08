@@ -1,7 +1,9 @@
 package com.dipasquale.common;
 
+import java.io.Serializable;
+
 @FunctionalInterface
-public interface ExpirySupport {
+public interface ExpirySupport extends Serializable {
     ExpiryRecord next();
 
     private static ExpirySupport create(final DateTimeSupport dateTimeSupport, final long expiryTime, final long offset, final double slider) {

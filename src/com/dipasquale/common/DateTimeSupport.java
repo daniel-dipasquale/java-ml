@@ -2,14 +2,15 @@ package com.dipasquale.common;
 
 import javax.measure.quantity.Duration;
 import javax.measure.unit.Unit;
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import java.util.function.LongSupplier;
 
-public interface DateTimeSupport {
+public interface DateTimeSupport extends Serializable {
     long now();
 
     Unit<Duration> unit();
@@ -69,11 +70,14 @@ public interface DateTimeSupport {
                 .convert((double) epochTime);
     }
 
-    static DateTimeSupport create(final LongSupplier nowFactory, final Unit<Duration> unit) {
+    static DateTimeSupport create(final LongFactory factory, final Unit<Duration> unit) {
         return new DateTimeSupport() {
+            @Serial
+            private static final long serialVersionUID = -5933526591359752376L;
+
             @Override
             public long now() {
-                return nowFactory.getAsLong();
+                return factory.create();
             }
 
             @Override

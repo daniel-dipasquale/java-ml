@@ -1,7 +1,9 @@
 package com.dipasquale.common;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @FunctionalInterface
 public interface RandomSupportFloat extends Serializable {
@@ -41,27 +43,31 @@ public interface RandomSupportFloat extends Serializable {
         return isBetween(0f, max);
     }
 
-    static RandomSupportFloat create() {
-        return new RandomSupportFloatDefault(new Random());
+    private static RandomSupportFloat create(final FloatFactory factory) {
+        return new RandomSupportFloat() {
+            @Serial
+            private static final long serialVersionUID = 7120126958463439731L;
+
+            @Override
+            public float next() {
+                return factory.create();
+            }
+        };
     }
 
-    static RandomSupportFloat createConcurrent() {
-        return new RandomSupportFloatConcurrent();
+    static RandomSupportFloat create(final boolean contended) {
+        if (!contended) {
+            return create(new Random()::nextFloat);
+        }
+
+        return create(() -> ThreadLocalRandom.current().nextFloat());
     }
 
-    static RandomSupportFloat createMeanDistribution(final int concentration) {
-        return new RandomSupportFloatMeanDistribution(create(), concentration);
+    static RandomSupportFloat createMeanDistribution(final boolean contended, final int concentration) {
+        return new RandomSupportFloatMeanDistribution(create(contended), concentration);
     }
 
-    static RandomSupportFloat createMeanDistribution() {
-        return createMeanDistribution(5);
-    }
-
-    static RandomSupportFloat createMeanDistributionConcurrent(final int concentration) {
-        return new RandomSupportFloatMeanDistribution(createConcurrent(), concentration);
-    }
-
-    static RandomSupportFloat createMeanDistributionConcurrent() {
-        return createMeanDistribution(5);
+    static RandomSupportFloat createMeanDistribution(final boolean contended) {
+        return createMeanDistribution(contended, 5);
     }
 }

@@ -137,7 +137,7 @@ public final class RandomSupportTest {
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
-        RandomSupport test = RandomSupport.create();
+        RandomSupport test = RandomSupport.create(false);
 
         Assert.assertTrue(isNextLongEquallyDistributed(test));
     }
@@ -156,21 +156,21 @@ public final class RandomSupportTest {
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-        RandomSupport test = RandomSupport.create();
+        RandomSupport test = RandomSupport.create(false);
 
         Assert.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
-        RandomSupport test = RandomSupport.createConcurrent();
+        RandomSupport test = RandomSupport.create(true);
 
         Assert.assertTrue(isNextLongEquallyDistributed(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-        RandomSupport test = RandomSupport.createConcurrent();
+        RandomSupport test = RandomSupport.create(true);
 
         Assert.assertTrue(isNextDoubleBounded(test));
     }
@@ -215,56 +215,56 @@ public final class RandomSupportTest {
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
-        RandomSupport test = RandomSupport.createMeanDistribution();
+        RandomSupport test = RandomSupport.createMeanDistribution(false);
 
         Assert.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(0.3D, 0.1D)));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-        RandomSupport test = RandomSupport.createMeanDistribution();
+        RandomSupport test = RandomSupport.createMeanDistribution(false);
 
         Assert.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
-        RandomSupport test = RandomSupport.createMeanDistribution(12);
+        RandomSupport test = RandomSupport.createMeanDistribution(false, 12);
 
         Assert.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(1D, 0.65D, 0.3D, 0.1D)));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-        RandomSupport test = RandomSupport.createMeanDistribution(12);
+        RandomSupport test = RandomSupport.createMeanDistribution(false, 12);
 
         Assert.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_gaussian_distributed_through_out() {
-        RandomSupport test = RandomSupport.createMeanDistributionConcurrent();
+        RandomSupport test = RandomSupport.createMeanDistribution(true);
 
         Assert.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(0.3D, 0.1D)));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-        RandomSupport test = RandomSupport.createMeanDistributionConcurrent();
+        RandomSupport test = RandomSupport.createMeanDistribution(true);
 
         Assert.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_gaussian_distributed_through_out() {
-        RandomSupport test = RandomSupport.createMeanDistributionConcurrent(12);
+        RandomSupport test = RandomSupport.createMeanDistribution(true, 12);
 
         Assert.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(1D, 0.65D, 0.3D, 0.1D)));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-        RandomSupport test = RandomSupport.createMeanDistributionConcurrent(12);
+        RandomSupport test = RandomSupport.createMeanDistribution(true, 12);
 
         Assert.assertTrue(isNextDoubleBounded(test));
     }

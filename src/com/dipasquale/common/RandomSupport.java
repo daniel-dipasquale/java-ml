@@ -1,10 +1,12 @@
 package com.dipasquale.common;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @FunctionalInterface
-public interface RandomSupport {
+public interface RandomSupport extends Serializable {
     double next();
 
     default double next(final double min, final double max) {
@@ -41,41 +43,31 @@ public interface RandomSupport {
         return isBetween(0D, max);
     }
 
-    static RandomSupport create() {
-        return new Random()::nextDouble;
-    }
+    private static RandomSupport create(final DoubleFactory factory) {
+        return new RandomSupport() {
+            @Serial
+            private static final long serialVersionUID = 4254847174604671066L;
 
-    static RandomSupport createConcurrent() {
-        return () -> ThreadLocalRandom.current().nextDouble();
-    }
-
-    private static RandomSupport createMeanDistribution(final RandomSupport randomSupport, final int concentration) {
-        double multiplier = 1D / (double) concentration; // clever idea from: https://stackoverflow.com/questions/30492259/get-a-random-number-focused-on-center
-
-        return () -> {
-            double random = 0D;
-
-            for (int i = 0; i < concentration; i++) {
-                random += randomSupport.next() * multiplier;
+            @Override
+            public double next() {
+                return factory.create();
             }
-
-            return random;
         };
     }
 
-    static RandomSupport createMeanDistribution(final int concentration) {
-        return createMeanDistribution(new Random()::nextDouble, concentration);
+    static RandomSupport create(final boolean contended) {
+        if (!contended) {
+            return create(new Random()::nextDouble);
+        }
+
+        return create(() -> ThreadLocalRandom.current().nextDouble());
     }
 
-    static RandomSupport createMeanDistribution() {
-        return createMeanDistribution(5);
+    static RandomSupport createMeanDistribution(final boolean contended, final int concentration) {
+        return new RandomSupportMeanDistribution(create(contended), concentration);
     }
 
-    static RandomSupport createMeanDistributionConcurrent(final int concentration) {
-        return createMeanDistribution(() -> ThreadLocalRandom.current().nextDouble(), concentration);
-    }
-
-    static RandomSupport createMeanDistributionConcurrent() {
-        return createMeanDistribution(5);
+    static RandomSupport createMeanDistribution(final boolean contended) {
+        return createMeanDistribution(contended, 5);
     }
 }

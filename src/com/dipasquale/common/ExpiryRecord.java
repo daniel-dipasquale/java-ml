@@ -8,13 +8,17 @@ import lombok.ToString;
 
 import javax.measure.quantity.Duration;
 import javax.measure.unit.Unit;
+import java.io.Serial;
+import java.io.Serializable;
 
 @Generated
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
 @ToString(onlyExplicitlyIncluded = true)
-public final class ExpiryRecord {
+public final class ExpiryRecord implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -154604941002512598L;
     @ToString.Include
     private final long currentDateTime;
     @ToString.Include

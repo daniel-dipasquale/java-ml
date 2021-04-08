@@ -42,7 +42,7 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
                 .orElse(0.01D);
 
         RandomSupport randomSupportFixed = Optional.ofNullable(randomSupport)
-                .orElseGet(RandomSupport::create);
+                .orElseGet(() -> RandomSupport.create(false));
 
         double positionLimitFixed = Optional.ofNullable(positionLimit)
                 .orElse(2.4D);

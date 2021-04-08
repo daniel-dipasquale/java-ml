@@ -49,7 +49,7 @@ public final class AtomicLongArrayBitManipulatorTest {
 
     @Test
     public void TEST_5() {
-        RandomSupport randomSupport = RandomSupport.create();
+        RandomSupport randomSupport = RandomSupport.create(false);
         List<Long> randomNumbers = new ArrayList<>();
 
         for (int i = 0, c = (int) TEST.size(); i < c; i++) {
