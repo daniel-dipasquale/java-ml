@@ -1,19 +1,12 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.common.SequentialIdFactoryDefault;
 import com.dipasquale.ai.common.WeightPerturber;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
-import com.dipasquale.ai.rl.neat.genotype.InnovationId;
+import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.common.FloatFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -23,25 +16,12 @@ public final class SettingsConnectionGeneSupport {
     @Builder.Default
     private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.literal(2.5f);
 
-    FloatFactory createWeightFactory(final SettingsParallelism parallelism) {
-        return weightFactory.createFactory(parallelism);
-    }
-
-    WeightPerturber createWeightPerturber(final SettingsParallelism parallelism) {
-        return WeightPerturber.create(weightPerturber.createFactory(parallelism));
-    }
-
-    ContextDefaultConnectionGeneSupport create(final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
+    ContextDefaultConnectionGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
         boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
-        SequentialIdFactory innovationIdFactory = parallelism.createSequentialIdFactory("innovation-id", new SequentialIdFactoryDefault());
+        FloatFactory weightFactoryFixed = weightFactory.createFactory(parallelism);
+        WeightPerturber weightPerturberFixed = WeightPerturber.create(weightPerturber.createFactory(parallelism));
+        GenomeGenesisConnector genomeGenesisConnector = genesisGenomeTemplate.createConnector(weightFactoryFixed);
 
-        Map<DirectedEdge, InnovationId> innovationIds = !parallelism.isEnabled()
-                ? new HashMap<>()
-                : new ConcurrentHashMap<>(16, 0.75f, parallelism.getNumberOfThreads());
-
-        FloatFactory weightFactoryFixed = createWeightFactory(parallelism);
-        WeightPerturber weightPerturberFixed = createWeightPerturber(parallelism);
-
-        return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, innovationIdFactory, innovationIds, weightFactoryFixed, weightPerturberFixed);
+        return new ContextDefaultConnectionGeneSupport(multipleRecurrentCyclesAllowed, weightFactoryFixed, weightPerturberFixed, genomeGenesisConnector);
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 
 public final class Species implements Serializable {
     @Serial
-    private static final long serialVersionUID = -186124256671311508L;
+    private static final long serialVersionUID = 3072560376586619614L;
     @Getter
     private final String id;
     private final Population population;
@@ -25,13 +25,13 @@ public final class Species implements Serializable {
     @Getter
     private float sharedFitness;
     private float maximumSharedFitness;
-    private final int birthGeneration;
+    private final int createdOnGeneration;
     private int ageLastImproved;
 
-    public Species(final Context context, final Population population, final Organism representativeOrganism) {
+    public Species(final Population population, final Organism representativeOrganism) {
         List<Organism> organisms = Lists.newArrayList(representativeOrganism);
 
-        this.id = context.general().createSpeciesId();
+        this.id = population.getHistoricalMarkings().createSpecies();
         this.population = population;
         this.representativeOrganism = representativeOrganism;
         representativeOrganism.setMostCompatibleSpecies(this);
@@ -40,7 +40,7 @@ public final class Species implements Serializable {
         this.isOrganismsSorted = true;
         this.sharedFitness = 0f;
         this.maximumSharedFitness = 0f;
-        this.birthGeneration = population.getGeneration();
+        this.createdOnGeneration = population.getGeneration();
         this.ageLastImproved = 0;
     }
 
@@ -58,10 +58,10 @@ public final class Species implements Serializable {
     }
 
     private int getAge() {
-        return population.getGeneration() - birthGeneration;
+        return population.getGeneration() - createdOnGeneration;
     }
 
-    public boolean addIfCompatible(final Context.Speciation speciation, final Organism organism) {
+    public boolean addIfCompatible(final Context.SpeciationSupport speciation, final Organism organism) {
         if (organisms.size() < speciation.maximumGenomes() && organism.isCompatible(speciation, this)) {
             organism.setMostCompatibleSpecies(this);
             organisms.add(organism);
@@ -73,7 +73,7 @@ public final class Species implements Serializable {
         return false;
     }
 
-    public void add(final Context.Speciation speciation, final Organism organism) {
+    public void add(final Context.SpeciationSupport speciation, final Organism organism) {
         if (organisms.size() < speciation.maximumGenomes()) {
             organism.setMostCompatibleSpecies(this);
             organisms.add(organism);
@@ -113,7 +113,7 @@ public final class Species implements Serializable {
         }
     }
 
-    public List<Organism> removeUnfitToReproduce(final Context.Speciation speciation) {
+    public List<Organism> removeUnfitToReproduce(final Context.SpeciationSupport speciation) {
         int size = organisms.size();
 
         if (size > 1) {
@@ -157,7 +157,7 @@ public final class Species implements Serializable {
         return organismsToBirth;
     }
 
-    public OrganismFactory getOrganismToBirth(final Context.Random random, final Species other) {
+    public OrganismFactory getOrganismToBirth(final Context.RandomSupport random, final Species other) {
         if (organisms.size() == 0 || other.getOrganisms().size() == 0) {
             return null;
         }
@@ -174,7 +174,7 @@ public final class Species implements Serializable {
         return organisms.get(organisms.size() - 1);
     }
 
-    public List<Organism> selectMostElites(final Context.Speciation speciation) {
+    public List<Organism> selectMostElites(final Context.SpeciationSupport speciation) {
         int size = organisms.size();
         int select = speciation.getEliteCountToPreserve(size);
 
@@ -187,11 +187,11 @@ public final class Species implements Serializable {
         return organisms.subList(size - select, size);
     }
 
-    public boolean shouldSurvive(final Context.Speciation speciation) {
+    public boolean shouldSurvive(final Context.SpeciationSupport speciation) {
         return getAge() - ageLastImproved < speciation.stagnationDropOffAge();
     }
 
-    public List<Organism> restart(final Context.Random random) {
+    public List<Organism> restart(final Context.RandomSupport random) {
         int index = random.nextIndex(organisms.size());
         Organism representativeOrganismNew = organisms.remove(index);
         List<Organism> organismsOld = organisms;

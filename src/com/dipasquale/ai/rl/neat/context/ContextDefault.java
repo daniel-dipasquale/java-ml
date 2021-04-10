@@ -2,21 +2,18 @@ package com.dipasquale.ai.rl.neat.context;
 
 import lombok.RequiredArgsConstructor;
 
-import java.io.Serial;
-
 @RequiredArgsConstructor
 public final class ContextDefault implements Context {
-    @Serial
-    private static final long serialVersionUID = -6967839518513192799L;
     private final ContextDefaultGeneralSupport general;
     private final ContextDefaultNodeGeneSupport nodes;
     private final ContextDefaultConnectionGeneSupport connections;
     private final ContextDefaultNeuralNetworkSupport neuralNetwork;
-    private final ContextDefaultParallelism parallelism;
-    private final ContextDefaultRandom random;
-    private final ContextDefaultMutation mutation;
-    private final ContextDefaultCrossOver crossOver;
-    private final ContextDefaultSpeciation speciation;
+    private final ContextDefaultParallelismSupport parallelism;
+    private final ContextDefaultRandomSupport random;
+    private final ContextDefaultMutationSupport mutation;
+    private final ContextDefaultCrossOverSupport crossOver;
+    private final ContextDefaultSpeciationSupport speciation;
+    private final ContextDefaultStateSupport state = new ContextDefaultStateSupport(this);
 
     @Override
     public GeneralSupport general() {
@@ -39,27 +36,56 @@ public final class ContextDefault implements Context {
     }
 
     @Override
-    public Parallelism parallelism() {
+    public ParallelismSupport parallelism() {
         return parallelism;
     }
 
     @Override
-    public Random random() {
+    public RandomSupport random() {
         return random;
     }
 
     @Override
-    public Mutation mutation() {
+    public MutationSupport mutation() {
         return mutation;
     }
 
     @Override
-    public CrossOver crossOver() {
+    public CrossOverSupport crossOver() {
         return crossOver;
     }
 
     @Override
-    public Speciation speciation() {
+    public SpeciationSupport speciation() {
         return speciation;
+    }
+
+    @Override
+    public StateSupport state() {
+        return state;
+    }
+
+    void save(final ContextDefaultStateMap state) {
+        general.save(state);
+        nodes.save(state);
+        connections.save(state);
+        neuralNetwork.save(state);
+        parallelism.save(state);
+        random.save(state);
+        mutation.save(state);
+        crossOver.save(state);
+        speciation.save(state);
+    }
+
+    public void load(final ContextDefaultStateMap state) {
+        general.load(state);
+        nodes.load(state);
+        connections.load(state);
+        neuralNetwork.load(state);
+        parallelism.load(state);
+        random.load(state);
+        mutation.load(state);
+        crossOver.load(state);
+        speciation.load(state);
     }
 }

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.GateProvider;
-import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOver;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOverSupport;
 import com.dipasquale.common.FloatFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
@@ -43,13 +43,13 @@ public final class SettingsCrossOver {
         return () -> randomSupport.isLessThan(rate);
     }
 
-    ContextDefaultCrossOver create(final SettingsParallelism parallelism, final SettingsRandom random) {
+    ContextDefaultCrossOverSupport create(final SettingsParallelism parallelism, final SettingsRandom random) {
         RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
         CrossOverGateProvider crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
         GateProvider shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));
         GateProvider shouldUseRandomParentConnectionWeight = createSupplier(randomSupport, useRandomParentConnectionWeightRate.createFactory(parallelism));
 
-        return new ContextDefaultCrossOver(crossOver.mateAndMutate, crossOver.mateOnly, crossOver.mutateOnly, shouldOverrideConnectionExpressed, shouldUseRandomParentConnectionWeight);
+        return new ContextDefaultCrossOverSupport(crossOver.mateAndMutate, crossOver.mateOnly, crossOver.mutateOnly, shouldOverrideConnectionExpressed, shouldUseRandomParentConnectionWeight);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

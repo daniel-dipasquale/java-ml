@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.genotype.GenomeDefaultFactory;
+import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.common.FloatFactory;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
@@ -15,8 +15,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter(AccessLevel.PACKAGE)
-public final class SettingsGenomeFactory {
-    private static final SettingsGenomeFactoryNoConnections GENOME_FACTORY_NO_CONNECTIONS = new SettingsGenomeFactoryNoConnections();
+public final class SettingsGenesisGenomeTemplate {
     private final SettingsIntegerNumber inputs;
     @Builder.Default
     private final SettingsFloatNumber inputBias = SettingsFloatNumber.literal(0f);
@@ -34,8 +33,8 @@ public final class SettingsGenomeFactory {
     @Builder.Default
     private final SettingsInitialWeightType initialWeightType = SettingsInitialWeightType.RANDOM;
 
-    public static SettingsGenomeFactory createDefault(final int inputs, final int outputs, final float[] bias) {
-        return SettingsGenomeFactory.builder()
+    public static SettingsGenesisGenomeTemplate createDefault(final int inputs, final int outputs, final float[] bias) {
+        return SettingsGenesisGenomeTemplate.builder()
                 .inputs(SettingsIntegerNumber.literal(inputs))
                 .outputs(SettingsIntegerNumber.literal(outputs))
                 .biases(IntStream.range(0, bias.length)
@@ -44,7 +43,7 @@ public final class SettingsGenomeFactory {
                 .build();
     }
 
-    public static SettingsGenomeFactory createDefault(final int inputs, final int outputs) {
+    public static SettingsGenesisGenomeTemplate createDefault(final int inputs, final int outputs) {
         return createDefault(inputs, outputs, new float[0]);
     }
 
@@ -56,13 +55,13 @@ public final class SettingsGenomeFactory {
         return FloatFactory.createLiteral(weightFactory.create());
     }
 
-    public GenomeDefaultFactory create(final SettingsConnectionGeneSupport connections, final SettingsParallelism parallelism) {
-        FloatFactory weightFactory = createWeightSettings(connections.createWeightFactory(parallelism));
+    public GenomeGenesisConnector createConnector(final FloatFactory weightFactor) {
+        FloatFactory weightFactory = createWeightSettings(weightFactor);
 
         return switch (initialConnectionType) {
-            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(GENOME_FACTORY_NO_CONNECTIONS, weightFactory, true);
+            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new SettingsGenesisGenomeConnectorAllToAllOutputs(weightFactory, true);
 
-            case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenomeFactoryAllToAllOutputs(GENOME_FACTORY_NO_CONNECTIONS, weightFactory, false);
+            case ALL_INPUTS_TO_ALL_OUTPUTS -> new SettingsGenesisGenomeConnectorAllToAllOutputs(weightFactory, false);
 
             default -> throw new IllegalStateException("SettingsInitialConnectionType.Random needs to be implemented");
         };

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.GateProvider;
-import com.dipasquale.ai.rl.neat.context.ContextDefaultMutation;
+import com.dipasquale.ai.rl.neat.context.ContextDefaultMutationSupport;
 import com.dipasquale.common.FloatFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
@@ -44,14 +44,14 @@ public final class SettingsMutation {
         return new ConnectionWeightGateProvider(() -> randomSupport.isLessThan(perturbRateFixed), () -> randomSupport.isLessThan(replaceRateFixed));
     }
 
-    ContextDefaultMutation create(final SettingsParallelism parallelism, final SettingsRandom random) {
+    ContextDefaultMutationSupport create(final SettingsParallelism parallelism, final SettingsRandom random) {
         RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
         GateProvider shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate.createFactory(parallelism));
         GateProvider shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate.createFactory(parallelism));
         ConnectionWeightGateProvider connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));
         GateProvider shouldDisableConnectionExpressed = createSupplier(randomSupport, disableConnectionExpressedRate.createFactory(parallelism));
 
-        return new ContextDefaultMutation(shouldAddNodeMutation, shouldAddConnectionMutation, connectionsWeight.perturb, connectionsWeight.replace, shouldDisableConnectionExpressed);
+        return new ContextDefaultMutationSupport(shouldAddNodeMutation, shouldAddConnectionMutation, connectionsWeight.perturb, connectionsWeight.replace, shouldDisableConnectionExpressed);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

@@ -7,8 +7,6 @@ import com.dipasquale.ai.common.ActivationFunctionReLU;
 import com.dipasquale.ai.common.ActivationFunctionSigmoid;
 import com.dipasquale.ai.common.ActivationFunctionStep;
 import com.dipasquale.ai.common.ActivationFunctionTanH;
-import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.common.SequentialIdFactoryDefault;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultNodeGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.EnumFactory;
@@ -67,24 +65,17 @@ public final class SettingsNodeGeneSupport {
         return FloatFactory.createCyclic(biasNodeBiasFactories, parallelism.isEnabled());
     }
 
-    ContextDefaultNodeGeneSupport create(final SettingsGenomeFactory genomeFactory, final SettingsParallelism parallelism) {
-        Map<NodeGeneType, SequentialIdFactory> sequentialIdFactories = ImmutableMap.<NodeGeneType, SequentialIdFactory>builder()
-                .put(NodeGeneType.INPUT, parallelism.createSequentialIdFactory("n1_input", new SequentialIdFactoryDefault()))
-                .put(NodeGeneType.OUTPUT, parallelism.createSequentialIdFactory("n4_output", new SequentialIdFactoryDefault()))
-                .put(NodeGeneType.BIAS, parallelism.createSequentialIdFactory("n2_bias", new SequentialIdFactoryDefault()))
-                .put(NodeGeneType.HIDDEN, parallelism.createSequentialIdFactory("n3_hidden", new SequentialIdFactoryDefault()))
-                .build();
-
+    ContextDefaultNodeGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsParallelism parallelism) {
         Map<NodeGeneType, FloatFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatFactory>builder()
-                .put(NodeGeneType.INPUT, genomeFactory.getInputBias().createFactory(parallelism))
-                .put(NodeGeneType.OUTPUT, genomeFactory.getOutputBias().createFactory(parallelism))
-                .put(NodeGeneType.BIAS, createBiasFactory(genomeFactory.getBiases(), parallelism))
+                .put(NodeGeneType.INPUT, genesisGenomeTemplate.getInputBias().createFactory(parallelism))
+                .put(NodeGeneType.OUTPUT, genesisGenomeTemplate.getOutputBias().createFactory(parallelism))
+                .put(NodeGeneType.BIAS, createBiasFactory(genesisGenomeTemplate.getBiases(), parallelism))
                 .put(NodeGeneType.HIDDEN, hiddenBias.createFactory(parallelism))
                 .build();
 
         RandomSupportFloat randomSupport = parallelism.getRandomSupport(SettingsRandomType.UNIFORM);
-        EnumFactory<SettingsActivationFunction> inputActivationFunctionFactory = genomeFactory.getInputActivationFunction().createFactory(parallelism);
-        EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory = genomeFactory.getOutputActivationFunction().createFactory(parallelism);
+        EnumFactory<SettingsActivationFunction> inputActivationFunctionFactory = genesisGenomeTemplate.getInputActivationFunction().createFactory(parallelism);
+        EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory = genesisGenomeTemplate.getOutputActivationFunction().createFactory(parallelism);
         EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory = hiddenActivationFunction.createFactory(parallelism);
 
         Map<NodeGeneType, ActivationFunctionProvider> activationFunctionFactories = ImmutableMap.<NodeGeneType, ActivationFunctionProvider>builder()
@@ -94,17 +85,17 @@ public final class SettingsNodeGeneSupport {
                 .put(NodeGeneType.HIDDEN, new ActivationFunctionProviderDefault(hiddenActivationFunctionFactory, randomSupport))
                 .build();
 
-        int inputs = genomeFactory.getInputs().createFactory(parallelism).create();
-        int outputs = genomeFactory.getOutputs().createFactory(parallelism).create();
-        int biases = genomeFactory.getBiases().size();
+        int inputs = genesisGenomeTemplate.getInputs().createFactory(parallelism).create();
+        int outputs = genesisGenomeTemplate.getOutputs().createFactory(parallelism).create();
+        int biases = genesisGenomeTemplate.getBiases().size();
 
-        return new ContextDefaultNodeGeneSupport(sequentialIdFactories, biasFactories, activationFunctionFactories, inputs, outputs, biases);
+        return new ContextDefaultNodeGeneSupport(biasFactories, activationFunctionFactories, inputs, outputs, biases);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class ActivationFunctionProviderDefault implements ActivationFunctionProvider {
         @Serial
-        private static final long serialVersionUID = 7277255622928403465L;
+        private static final long serialVersionUID = 6954949568299530193L;
         private final EnumFactory<SettingsActivationFunction> activationFunctionFactory;
         private final RandomSupportFloat randomSupport;
 
@@ -119,7 +110,7 @@ public final class SettingsNodeGeneSupport {
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class ActivationFunctionProviderOutput implements ActivationFunctionProvider {
         @Serial
-        private static final long serialVersionUID = 4590482884547973964L;
+        private static final long serialVersionUID = -428770097116120238L;
         private final EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory;
         private final EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory;
         private final RandomSupportFloat randomSupport;
@@ -138,7 +129,7 @@ public final class SettingsNodeGeneSupport {
 
     private static final class ActivationFunctionProviderLiteral implements ActivationFunctionProvider {
         @Serial
-        private static final long serialVersionUID = 1925932579626397814L;
+        private static final long serialVersionUID = -4677123004217102288L;
         private final ActivationFunction activationFunction;
 
         ActivationFunctionProviderLiteral(final SettingsActivationFunction activationFunction) {

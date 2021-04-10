@@ -17,6 +17,8 @@ public final class OrganismFactoryMating implements OrganismFactory {
     public Organism create(final Context context) {
         Organism organism = parentOrganism1.mate(context, parentOrganism2);
 
+        organism.initialize(context);
+
         if (shouldMutate) {
             organism.mutate(context);
         }

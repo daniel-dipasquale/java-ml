@@ -13,8 +13,9 @@ public final class OrganismFactoryMutation implements OrganismFactory {
 
     @Override
     public Organism create(final Context context) {
-        Organism organism = originalOrganism.createCopy(context);
+        Organism organism = originalOrganism.createCopy();
 
+        organism.initialize(context);
         organism.mutate(context);
         organism.freeze();
 

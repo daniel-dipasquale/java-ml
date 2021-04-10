@@ -4,22 +4,23 @@ import com.dipasquale.ai.common.FitnessDeterminer;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialMap;
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
-import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
-import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
+import com.dipasquale.ai.rl.neat.speciation.PopulationHistoricalMarkings;
 import com.dipasquale.common.Pair;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-public interface Context extends Serializable {
+public interface Context {
     GeneralSupport general();
 
     NodeGeneSupport nodes();
@@ -28,76 +29,48 @@ public interface Context extends Serializable {
 
     NeuralNetworkSupport neuralNetwork();
 
-    Parallelism parallelism();
+    ParallelismSupport parallelism();
 
-    Random random();
+    RandomSupport random();
 
-    Mutation mutation();
+    MutationSupport mutation();
 
-    CrossOver crossOver();
+    CrossOverSupport crossOver();
 
-    Speciation speciation();
+    SpeciationSupport speciation();
 
-    interface GeneralSupport extends Serializable {
+    StateSupport state();
+
+    interface GeneralSupport {
         int populationSize();
-
-        String createGenomeId();
-
-        GenomeDefault createGenesisGenome(Context context);
-
-        String createSpeciesId();
 
         FitnessDeterminer createFitnessDeterminer();
 
         float calculateFitness(GenomeDefault genome);
-
-        void markToKill(GenomeDefault genome);
-
-        int getGenomesKilledCount();
-
-        void reset();
     }
 
-    interface NodeGeneSupport extends Serializable {
-        NodeGene create(NodeGeneType type);
+    interface NodeGeneSupport {
+        NodeGene create(SequentialId id, NodeGeneType type);
 
-        List<NodeGene> inputNodes();
-
-        List<NodeGene> outputNodes();
-
-        List<NodeGene> biasNodes();
-
-        void reset();
+        int size(NodeGeneType type);
     }
 
-    interface ConnectionGeneSupport extends Serializable {
+    interface ConnectionGeneSupport {
         boolean multipleRecurrentCyclesAllowed();
-
-        InnovationId getOrCreateInnovationId(DirectedEdge directedEdge);
-
-        default InnovationId getOrCreateInnovationId(final SequentialId inNodeId, final SequentialId outNodeId) {
-            DirectedEdge directedEdge = new DirectedEdge(inNodeId, outNodeId);
-
-            return getOrCreateInnovationId(directedEdge);
-        }
-
-        default InnovationId getOrCreateInnovationId(final NodeGene inNode, final NodeGene outNode) {
-            return getOrCreateInnovationId(inNode.getId(), outNode.getId());
-        }
 
         float nextWeight();
 
         float perturbWeight(float weight);
 
-        void reset();
+        void setupInitialConnection(GenomeDefault genome, PopulationHistoricalMarkings historicalMarkings);
     }
 
     @FunctionalInterface
-    interface NeuralNetworkSupport extends Serializable {
+    interface NeuralNetworkSupport {
         NeuralNetwork create(GenomeDefault genome, NodeGeneMap nodes, ConnectionGeneMap connections);
     }
 
-    interface Parallelism extends Serializable {
+    interface ParallelismSupport {
         boolean isEnabled();
 
         int numberOfThreads();
@@ -105,7 +78,7 @@ public interface Context extends Serializable {
         <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> action);
     }
 
-    interface Random extends Serializable {
+    interface RandomSupport {
         int nextIndex(int offset, int count);
 
         default int nextIndex(final int count) {
@@ -161,7 +134,7 @@ public interface Context extends Serializable {
         }
     }
 
-    interface Mutation extends Serializable {
+    interface MutationSupport {
         boolean shouldAddNodeMutation();
 
         boolean shouldAddConnectionMutation();
@@ -173,7 +146,7 @@ public interface Context extends Serializable {
         boolean shouldDisableConnectionExpressed();
     }
 
-    interface CrossOver extends Serializable {
+    interface CrossOverSupport {
         boolean shouldMateAndMutate();
 
         boolean shouldMateOnly();
@@ -193,7 +166,7 @@ public interface Context extends Serializable {
         }
     }
 
-    interface Speciation extends Serializable {
+    interface SpeciationSupport {
         int maximumSpecies();
 
         int maximumGenomes();
@@ -225,5 +198,11 @@ public interface Context extends Serializable {
         int stagnationDropOffAge();
 
         float interSpeciesMatingRate();
+    }
+
+    interface StateSupport {
+        void save(ObjectOutputStream outputStream) throws IOException;
+
+        void load(ObjectInputStream inputStream) throws IOException, ClassNotFoundException;
     }
 }

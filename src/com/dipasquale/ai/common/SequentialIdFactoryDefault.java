@@ -5,7 +5,15 @@ import java.io.Serial;
 public final class SequentialIdFactoryDefault implements SequentialIdFactory {
     @Serial
     private static final long serialVersionUID = -2914528594779687249L;
-    private long current = 0L;
+    private long current;
+
+    public SequentialIdFactoryDefault() {
+        this.current = 0L;
+    }
+
+    public SequentialIdFactoryDefault(final SequentialIdFactoryDefault other) {
+        this.current = other.current;
+    }
 
     @Override
     public SequentialId create() {

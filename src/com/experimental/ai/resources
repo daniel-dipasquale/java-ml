@@ -17,6 +17,10 @@ https://arxiv.org/pdf/1703.07122.pdf
 
 hyperneat:
 http://web.mit.edu/jessiehl/Public/aaai11/fullpaper.pdf
+http://eplex.cs.ucf.edu/hyperNEATpage/
+http://eplex.cs.ucf.edu/papers/risi_sab10.pdf
+http://eplex.cs.ucf.edu/neat_software/
+http://eplex.cs.ucf.edu/neat_software/#HyperNEAT
 
 resource allocation:
 https://github.com/davidtw0320/Resources-Allocation-in-The-Edge-Computing-Environment-Using-Reinforcement-Learning
@@ -80,6 +84,9 @@ fix the way disconnected nodes are persisted
 fix the context properties, maybe implement a few to realize what's over done
 fix the speciation and evolution
 provide a way to save the genomes
+
+experiment:
+https://stackoverflow.com/questions/53611858/neat-algorithm-result-precision
 
 compared to others:
 https://ai.stackexchange.com/questions/10965/why-would-someone-use-neat-over-other-machine-learning-algorithms

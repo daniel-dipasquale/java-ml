@@ -19,13 +19,13 @@ final class SpeciesBreedStrategyGenesis implements SpeciesBreedStrategy {
 
     @Override
     public void process(final SpeciesBreedContext breedContext, final List<Species> speciesList) {
-        Context.Random random = context.random();
+        Context.RandomSupport random = context.random();
         Context.GeneralSupport general = context.general();
 
         for (Species species : speciesList) {
             species.restart(random).stream()
                     .filter(o -> !organismsWithoutSpecies.contains(o))
-                    .forEach(o -> o.kill(general));
+                    .forEach(Organism::kill);
 
             if (organismsWithoutSpecies.remove(species.getRepresentative())) { // TODO: figure out a better way of doing this
                 organismsToBirth.add(new OrganismFactoryMutation(species.getRepresentative()));

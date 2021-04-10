@@ -12,7 +12,7 @@ import java.util.Set;
 final class SpeciesEvolutionStrategySelectMostElites implements SpeciesEvolutionStrategy {
     @Serial
     private static final long serialVersionUID = 5390002373843857340L;
-    private final Context.Speciation speciation;
+    private final Context.SpeciationSupport speciation;
     private final Set<Organism> organismsWithoutSpecies;
 
     @Override

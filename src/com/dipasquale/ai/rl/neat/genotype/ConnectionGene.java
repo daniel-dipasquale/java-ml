@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,7 @@ public final class ConnectionGene implements Serializable {
     @Serial
     private static final long serialVersionUID = -72756908718555853L;
     private final InnovationId innovationId;
-    @Setter(AccessLevel.PACKAGE)
+    @Setter
     private float weight;
     private int recurrentCyclesAllowed;
     private boolean expressed;
