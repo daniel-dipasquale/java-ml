@@ -91,7 +91,7 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
         synchronized (population) {
             try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
                 context.state().save(objectOutputStream);
-                population.save(objectOutputStream);
+                population.save(objectOutputStream); // TODO: this needs to be finished
                 objectOutputStream.writeObject(mostFitOrganismActivator);
             }
         }
