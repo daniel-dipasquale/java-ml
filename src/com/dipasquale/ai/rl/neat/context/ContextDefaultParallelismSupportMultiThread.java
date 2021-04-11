@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public final class ContextDefaultParallelismSupportMultiThread implements Context.ParallelismSupport {
-    private final EventLoopIterable eventLoopIterable;
+    private final EventLoopIterable eventLoop;
     private final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
 
     @Override
@@ -25,7 +25,7 @@ public final class ContextDefaultParallelismSupportMultiThread implements Contex
 
     @Override
     public int numberOfThreads() {
-        return eventLoopIterable.getConcurrencyLevel();
+        return eventLoop.getConcurrencyLevel();
     }
 
     private <T extends Exception> void addUncaughtExceptionsAsSuppressed(final T exception)
@@ -50,7 +50,7 @@ public final class ContextDefaultParallelismSupportMultiThread implements Contex
     public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> action) {
         failIfThereAreUncaughtExceptions();
 
-        return new CountDownLatchWaitHandle(eventLoopIterable.queue(iterator, action));
+        return new CountDownLatchWaitHandle(eventLoop.queue(iterator, action));
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

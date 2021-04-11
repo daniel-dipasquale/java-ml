@@ -9,13 +9,13 @@ public interface NeatEvaluator {
 
     int getSpeciesCount();
 
+    float getMaximumFitness();
+
     void evaluateFitness();
 
     void evolve();
 
     void restart();
-
-    float getMaximumFitness();
 
     float[] activate(float[] input);
 

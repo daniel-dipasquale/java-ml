@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -71,7 +72,7 @@ public final class ContextDefaultSpeciationSupport implements Context.Speciation
         return interSpeciesMatingRate;
     }
 
-    public void save(final ContextDefaultStateMap state) {
+    public void save(final SerializableInteroperableStateMap state) {
         state.put("speciation.maximumSpecies", maximumSpecies);
         state.put("speciation.maximumGenomes", maximumGenomes);
         state.put("speciation.compatibilityThreshold", compatibilityThreshold);
@@ -84,7 +85,7 @@ public final class ContextDefaultSpeciationSupport implements Context.Speciation
         state.put("speciation.interSpeciesMatingRate", interSpeciesMatingRate);
     }
 
-    public void load(final ContextDefaultStateMap state) {
+    public void load(final SerializableInteroperableStateMap state) {
         maximumSpecies = state.get("speciation.maximumSpecies");
         maximumGenomes = state.get("speciation.maximumGenomes");
         compatibilityThreshold = state.get("speciation.compatibilityThreshold");

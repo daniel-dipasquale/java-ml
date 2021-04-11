@@ -4,6 +4,7 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.speciation.OrganismActivator;
 import com.dipasquale.ai.rl.neat.speciation.OrganismActivatorSynchronized;
 import com.dipasquale.ai.rl.neat.speciation.Population;
+import com.dipasquale.threading.event.loop.EventLoopIterable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +52,21 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
         }
     }
 
+    private void ensureIsInitializedSynchronized() {
+        if (!initialized) {
+            synchronized (population) {
+                ensureIsInitialized();
+            }
+        }
+    }
+
+    @Override
+    public float getMaximumFitness() {
+        ensureIsInitializedSynchronized();
+
+        return mostFitOrganismActivator.getFitness();
+    }
+
     @Override
     public void evaluateFitness() {
         synchronized (population) {
@@ -76,12 +92,9 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
     }
 
     @Override
-    public float getMaximumFitness() {
-        return mostFitOrganismActivator.getFitness();
-    }
-
-    @Override
     public float[] activate(final float[] input) {
+        ensureIsInitializedSynchronized();
+
         return mostFitOrganismActivator.activate(context, input);
     }
 
@@ -90,11 +103,25 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
             throws IOException {
         synchronized (population) {
             try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+                mostFitOrganismActivator.save(objectOutputStream);
+                population.save(objectOutputStream);
                 context.state().save(objectOutputStream);
-                population.save(objectOutputStream); // TODO: this needs to be finished
-                objectOutputStream.writeObject(mostFitOrganismActivator);
             }
         }
+    }
+
+    private static Context.StateOverrideSupport createStateOverride(final SettingsEvaluatorState settings) {
+        return new Context.StateOverrideSupport() {
+            @Override
+            public NeatEnvironment environment() {
+                return settings.getEnvironment();
+            }
+
+            @Override
+            public EventLoopIterable eventLoop() {
+                return settings.getEventLoop();
+            }
+        };
     }
 
     @Override
@@ -102,12 +129,28 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
             throws IOException {
         synchronized (population) {
             try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+                if (settings.isMeantToLoadTopology()) {
+                    try {
+                        mostFitOrganismActivator.load(objectInputStream);
+                        population.load(objectInputStream, mostFitOrganismActivator);
+                    } catch (ClassNotFoundException e) {
+                        throw new IOException("unable to load the topology", e);
+                    }
+                }
+
                 if (settings.isMeantToLoadSettings()) {
                     try {
-                        context.state().load(objectInputStream);
+                        Context.StateOverrideSupport override = createStateOverride(settings);
+
+                        context.state().load(objectInputStream, override);
                     } catch (ClassNotFoundException e) {
                         throw new IOException("unable to load the settings", e);
                     }
+                }
+
+                if (settings.isMeantToLoadTopology() || settings.isMeantToLoadSettings()) {
+                    population.initialize(context);
+                    initialized = true;
                 }
             }
         }

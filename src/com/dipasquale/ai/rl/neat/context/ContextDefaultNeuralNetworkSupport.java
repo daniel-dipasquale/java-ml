@@ -5,6 +5,7 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -19,11 +20,11 @@ public final class ContextDefaultNeuralNetworkSupport implements Context.NeuralN
         return factory.create(genome, nodes, connections);
     }
 
-    public void save(final ContextDefaultStateMap state) {
+    public void save(final SerializableInteroperableStateMap state) {
         state.put("neuralNetwork.factory", factory);
     }
 
-    public void load(final ContextDefaultStateMap state) {
+    public void load(final SerializableInteroperableStateMap state) {
         factory = state.get("neuralNetwork.factory");
     }
 }

@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -65,7 +66,7 @@ public final class ContextDefault implements Context {
         return state;
     }
 
-    void save(final ContextDefaultStateMap state) {
+    void save(final SerializableInteroperableStateMap state) {
         general.save(state);
         nodes.save(state);
         connections.save(state);
@@ -77,12 +78,12 @@ public final class ContextDefault implements Context {
         speciation.save(state);
     }
 
-    public void load(final ContextDefaultStateMap state) {
-        general.load(state);
+    public void load(final SerializableInteroperableStateMap state, final Context.StateOverrideSupport override) {
+        general.load(state, override.environment());
         nodes.load(state);
         connections.load(state);
         neuralNetwork.load(state);
-        parallelism.load(state);
+        parallelism.load(state, override.eventLoop());
         random.load(state);
         mutation.load(state);
         crossOver.load(state);

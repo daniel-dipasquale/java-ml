@@ -1,56 +1,31 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Set;
 
 @RequiredArgsConstructor
 public final class ContextDefaultStateSupport implements Context.StateSupport {
     private final ContextDefault context;
 
-    private void write(final ObjectOutputStream outputStream, final ContextDefaultStateMap state)
-            throws IOException {
-        Set<Map.Entry<String, Object>> entries = state.entries();
-        Map.Entry<String, Object> size = new AbstractMap.SimpleImmutableEntry<>("size", entries.size());
-
-        outputStream.writeObject(size);
-
-        for (Map.Entry<String, Object> entry : entries) {
-            outputStream.writeObject(entry);
-        }
-    }
-
     @Override
     public void save(final ObjectOutputStream outputStream)
             throws IOException {
-        ContextDefaultStateMap state = new ContextDefaultStateMap();
+        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
         context.save(state);
-        write(outputStream, state);
-    }
-
-    private void read(final ObjectInputStream inputStream, final ContextDefaultStateMap state)
-            throws IOException, ClassNotFoundException {
-        Map.Entry<String, Object> size = (Map.Entry<String, Object>) inputStream.readObject();
-
-        for (int i = 0, c = (int) size.getValue(); i < c; i++) {
-            Map.Entry<String, Object> entry = (Map.Entry<String, Object>) inputStream.readObject();
-
-            state.put(entry.getKey(), entry.getValue());
-        }
+        state.writeTo(outputStream);
     }
 
     @Override
-    public void load(final ObjectInputStream inputStream)
+    public void load(final ObjectInputStream inputStream, final Context.StateOverrideSupport override)
             throws IOException, ClassNotFoundException {
-        ContextDefaultStateMap state = new ContextDefaultStateMap();
+        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
-        read(inputStream, state);
-        context.load(state);
+        state.readFrom(inputStream);
+        context.load(state, override);
     }
 }

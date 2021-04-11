@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.context.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGene;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
+import com.dipasquale.ai.rl.neat.genotype.GenomeHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
@@ -21,7 +21,7 @@ final class SettingsGenesisGenomeConnectorAllToAllOutputs implements GenomeGenes
     private final boolean shouldConnectBiasNodes;
 
     @Override
-    public void connect(final GenomeDefault genome, final HistoricalMarkings historicalMarkings) {
+    public void setupConnections(final GenomeDefault genome, final GenomeHistoricalMarkings historicalMarkings) {
         for (NodeGene inputNode : genome.getNodes(NodeGeneType.INPUT)) {
             for (NodeGene outputNode : genome.getNodes(NodeGeneType.OUTPUT)) {
                 InnovationId innovationId = historicalMarkings.getOrCreateInnovationId(inputNode, outputNode);

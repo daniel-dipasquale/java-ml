@@ -1,13 +1,14 @@
 package com.dipasquale.ai.rl.neat.speciation;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.Getter;
 
-import java.io.Serial;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public final class OrganismActivatorDefault implements OrganismActivator {
-    @Serial
-    private static final long serialVersionUID = -960213656782630391L;
     private Organism organism = null;
     @Getter
     private float fitness = 0f;
@@ -21,5 +22,25 @@ public final class OrganismActivatorDefault implements OrganismActivator {
     @Override
     public float[] activate(final Context context, final float[] inputs) {
         return organism.activate(inputs);
+    }
+
+    @Override
+    public void save(final ObjectOutputStream outputStream)
+            throws IOException {
+        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+
+        state.put("organismActivator.organism", organism);
+        state.put("organismActivator.fitness", fitness);
+        state.writeTo(outputStream);
+    }
+
+    @Override
+    public void load(final ObjectInputStream inputStream)
+            throws IOException, ClassNotFoundException {
+        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+
+        state.readFrom(inputStream);
+        organism = state.get("organismActivator.organism");
+        fitness = state.get("organismActivator.fitness");
     }
 }

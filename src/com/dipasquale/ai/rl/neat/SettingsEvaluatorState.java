@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter(AccessLevel.PACKAGE)
 public final class SettingsEvaluatorState {
     private final boolean meantToLoadSettings;
-    private final EventLoopIterable eventLoopIterable;
+    private final EventLoopIterable eventLoop;
     private final NeatEnvironment environment;
     private final boolean meantToLoadTopology;
 }

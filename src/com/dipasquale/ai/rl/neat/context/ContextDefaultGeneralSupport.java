@@ -4,9 +4,12 @@ import com.dipasquale.ai.common.FitnessDeterminer;
 import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+
+import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
@@ -30,15 +33,17 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
         return environment.test(genome);
     }
 
-    public void save(final ContextDefaultStateMap state) {
+    public void save(final SerializableInteroperableStateMap state) {
         state.put("general.populationSize", populationSize);
         state.put("general.fitnessDeterminerFactory", fitnessDeterminerFactory);
         state.put("general.environment", environment);
     }
 
-    public void load(final ContextDefaultStateMap state) {
+    public void load(final SerializableInteroperableStateMap state, final NeatEnvironment newEnvironment) {
         populationSize = state.get("general.populationSize");
         fitnessDeterminerFactory = state.get("general.fitnessDeterminerFactory");
-        environment = state.get("general.environment");
+
+        environment = Optional.ofNullable(newEnvironment)
+                .orElse(state.get("general.environment"));
     }
 }

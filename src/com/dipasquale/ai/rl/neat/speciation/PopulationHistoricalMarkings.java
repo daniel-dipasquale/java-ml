@@ -6,14 +6,16 @@ import com.dipasquale.ai.common.SequentialIdFactoryDefault;
 import com.dipasquale.ai.common.SequentialIdFactoryStrategy;
 import com.dipasquale.ai.common.SequentialIdFactoryStrategySynchronized;
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.context.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
+import com.dipasquale.ai.rl.neat.genotype.GenomeHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.google.common.collect.ImmutableMap;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,7 +26,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class PopulationHistoricalMarkings implements HistoricalMarkings {
+public final class PopulationHistoricalMarkings implements GenomeHistoricalMarkings, Serializable {
+    @Serial
+    private static final long serialVersionUID = -3580686562257388659L;
     private final SequentialIdFactoryDefault genomeIdFactoryUnderlying;
     private SequentialIdFactory genomeIdFactory;
     private final SequentialIdFactoryDefault speciesIdFactoryUnderlying;
@@ -171,7 +175,7 @@ public final class PopulationHistoricalMarkings implements HistoricalMarkings {
             genome.addNode(context.nodes().create(nodeId, NodeGeneType.BIAS));
         }
 
-        context.connections().setupInitialConnection(genome, this);
+        context.connections().setupInitialConnections(genome, this);
 
         return genome;
     }

@@ -1,8 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.common.SequentialIdFactoryStrategy;
-import com.dipasquale.ai.common.SequentialIdFactoryStrategySynchronized;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelismSupport;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelismSupportMultiThread;
@@ -21,30 +18,18 @@ public final class SettingsParallelism {
     private static final RandomSupportFloat RANDOM_SUPPORT_UNIFORM_CONCURRENT = RandomSupportFloat.create(true);
     private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT = RandomSupportFloat.createMeanDistribution(true);
     @Builder.Default
-    private final EventLoopIterable eventLoopIterable = null;
+    private final EventLoopIterable eventLoop = null;
 
     boolean isEnabled() {
-        return eventLoopIterable != null;
+        return eventLoop != null;
     }
 
     int getNumberOfThreads() {
-        if (eventLoopIterable == null) {
+        if (!isEnabled()) {
             return 1;
         }
 
-        return eventLoopIterable.getConcurrencyLevel();
-    }
-
-    ContextDefaultParallelismSupport create() {
-        if (!isEnabled()) {
-            Context.ParallelismSupport parallelism = new ContextDefaultParallelismSupportSingleThread();
-
-            return new ContextDefaultParallelismSupport(parallelism);
-        }
-
-        Context.ParallelismSupport parallelism = new ContextDefaultParallelismSupportMultiThread(eventLoopIterable);
-
-        return new ContextDefaultParallelismSupport(parallelism);
+        return eventLoop.getConcurrencyLevel();
     }
 
     RandomSupportFloat getRandomSupport(final SettingsRandomType type) {
@@ -63,11 +48,15 @@ public final class SettingsParallelism {
         };
     }
 
-    SequentialIdFactory createSequentialIdFactory(final String name, final SequentialIdFactory sequentialIdFactory) {
+    ContextDefaultParallelismSupport create() {
         if (!isEnabled()) {
-            return new SequentialIdFactoryStrategy(name, sequentialIdFactory);
+            Context.ParallelismSupport parallelism = new ContextDefaultParallelismSupportSingleThread();
+
+            return new ContextDefaultParallelismSupport(parallelism);
         }
 
-        return new SequentialIdFactoryStrategySynchronized(name, sequentialIdFactory);
+        Context.ParallelismSupport parallelism = new ContextDefaultParallelismSupportMultiThread(eventLoop);
+
+        return new ContextDefaultParallelismSupport(parallelism);
     }
 }

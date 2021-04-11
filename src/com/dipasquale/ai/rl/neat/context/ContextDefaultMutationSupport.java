@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.GateProvider;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,7 @@ public final class ContextDefaultMutationSupport implements Context.MutationSupp
         return shouldDisableConnectionExpressed.isOn();
     }
 
-    public void save(final ContextDefaultStateMap state) {
+    public void save(final SerializableInteroperableStateMap state) {
         state.put("mutation.shouldAddNodeMutation", shouldAddNodeMutation);
         state.put("mutation.shouldAddConnectionMutation", shouldAddConnectionMutation);
         state.put("mutation.shouldPerturbConnectionWeight", shouldPerturbConnectionWeight);
@@ -47,7 +48,7 @@ public final class ContextDefaultMutationSupport implements Context.MutationSupp
         state.put("mutation.shouldDisableConnectionExpressed", shouldDisableConnectionExpressed);
     }
 
-    public void load(final ContextDefaultStateMap state) {
+    public void load(final SerializableInteroperableStateMap state) {
         shouldAddNodeMutation = state.get("mutation.shouldAddNodeMutation");
         shouldAddConnectionMutation = state.get("mutation.shouldAddConnectionMutation");
         shouldPerturbConnectionWeight = state.get("mutation.shouldPerturbConnectionWeight");

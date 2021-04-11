@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.GateProvider;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,7 @@ public final class ContextDefaultCrossOverSupport implements Context.CrossOverSu
         return shouldUseRandomParentConnectionWeight.isOn();
     }
 
-    public void save(final ContextDefaultStateMap state) {
+    public void save(final SerializableInteroperableStateMap state) {
         state.put("crossOver.shouldMateAndMutate", shouldMateAndMutate);
         state.put("crossOver.shouldMateOnly", shouldMateOnly);
         state.put("crossOver.shouldMutateOnly", shouldMutateOnly);
@@ -47,7 +48,7 @@ public final class ContextDefaultCrossOverSupport implements Context.CrossOverSu
         state.put("crossOver.shouldUseRandomParentConnectionWeight", shouldUseRandomParentConnectionWeight);
     }
 
-    public void load(final ContextDefaultStateMap state) {
+    public void load(final SerializableInteroperableStateMap state) {
         shouldMateAndMutate = state.get("crossOver.shouldMateAndMutate");
         shouldMateOnly = state.get("crossOver.shouldMateOnly");
         shouldMutateOnly = state.get("crossOver.shouldMutateOnly");

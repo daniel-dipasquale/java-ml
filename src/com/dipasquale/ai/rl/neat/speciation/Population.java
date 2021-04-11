@@ -4,11 +4,14 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.dipasquale.data.structure.set.IdentityDequeSet;
 import com.google.common.collect.Iterables;
 import lombok.Getter;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -22,15 +25,15 @@ public final class Population {
     @Getter
     private int generation;
     @Getter
-    private final PopulationHistoricalMarkings historicalMarkings;
-    private final DequeSet<Organism> organismsWithoutSpecies;
-    private final Queue<OrganismFactory> organismsToBirth;
-    private final NodeDeque<Species, SimpleNode<Species>> speciesNodes;
-    private final OrganismActivator mostFitOrganismActivator;
-    private final List<SpeciesFitnessStrategy> speciesFitnessStrategies;
-    private final List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
+    private PopulationHistoricalMarkings historicalMarkings;
+    private DequeSet<Organism> organismsWithoutSpecies;
+    private Queue<OrganismFactory> organismsToBirth;
+    private NodeDeque<Species, SimpleNode<Species>> speciesNodes;
+    private OrganismActivator mostFitOrganismActivator;
+    private List<SpeciesFitnessStrategy> speciesFitnessStrategies;
+    private List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
     private SpeciesBreedContext speciesBreedContext;
-    private final List<SpeciesBreedStrategy> speciesBreedStrategies;
+    private List<SpeciesBreedStrategy> speciesBreedStrategies;
 
     public Population(final OrganismActivator mostFitOrganismActivator) {
         this.generation = 1;
@@ -115,6 +118,7 @@ public final class Population {
             fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
             mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
         }
+
         replaceSpeciesFitnessStrategies(context);
         replaceSpeciesEvolutionStrategies(context);
         replaceSpeciesBreedStrategies(context);
@@ -245,6 +249,33 @@ public final class Population {
         speciesBreedContext = null;
     }
 
-    public void save(final ObjectOutputStream outputStream) {
+    public void save(final ObjectOutputStream outputStream)
+            throws IOException {
+        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+
+        state.put("population.generation", generation);
+        state.put("population.historicalMarkings", historicalMarkings);
+        state.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
+        state.put("population.organismsToBirth", organismsToBirth);
+        state.put("population.speciesNodes", speciesNodes);
+        state.put("population.speciesBreedContext", speciesBreedContext);
+        state.writeTo(outputStream);
+    }
+
+    public void load(final ObjectInputStream inputStream, final OrganismActivator newMostFitOrganismActivator)
+            throws IOException, ClassNotFoundException {
+        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+
+        state.readFrom(inputStream);
+        generation = state.get("population.generation");
+        historicalMarkings = state.get("population.historicalMarkings");
+        organismsWithoutSpecies = state.get("population.organismsWithoutSpecies");
+        organismsToBirth = state.get("population.organismsToBirth");
+        speciesNodes = state.get("population.speciesNodes");
+        mostFitOrganismActivator = newMostFitOrganismActivator;
+        speciesFitnessStrategies = new LinkedList<>();
+        speciesEvolutionStrategies = new LinkedList<>();
+        speciesBreedContext = state.get("population.speciesBreedContext");
+        speciesBreedStrategies = new LinkedList<>();
     }
 }

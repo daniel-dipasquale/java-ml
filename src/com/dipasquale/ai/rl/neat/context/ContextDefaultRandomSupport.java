@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.common.RandomSupportFloat;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -21,12 +22,12 @@ public final class ContextDefaultRandomSupport implements Context.RandomSupport 
         return isLessThan.isLessThan(rate);
     }
 
-    public void save(final ContextDefaultStateMap state) {
+    public void save(final SerializableInteroperableStateMap state) {
         state.put("random.nextIndex", nextIndex);
         state.put("random.isLessThan", isLessThan);
     }
 
-    public void load(final ContextDefaultStateMap state) {
+    public void load(final SerializableInteroperableStateMap state) {
         nextIndex = state.get("random.nextIndex");
         isLessThan = state.get("random.isLessThan");
     }

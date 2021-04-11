@@ -18,6 +18,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +36,7 @@ public final class NeatTest {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
-    private static final EventLoopIterable EVENT_LOOP_ITERABLE = EventLoop.createForIterables(EventLoopIterableSettings.builder()
+    private static final EventLoopIterable EVENT_LOOP = EventLoop.createForIterables(EventLoopIterableSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .exceptionLogger(EXCEPTIONS::add)
@@ -47,8 +50,40 @@ public final class NeatTest {
 
     @AfterClass
     public static void afterClass() {
-        EVENT_LOOP_ITERABLE.shutdown();
+        EVENT_LOOP.shutdown();
         EXECUTOR_SERVICE.shutdown();
+    }
+
+    private static void assertSaveAndLoad(final NeatEvaluatorTrainer neat, final NeatSetup neatSetup, final boolean shouldUseParallelism) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            neat.save(outputStream);
+
+            SettingsEvaluator evaluatorSettings = SettingsEvaluator.builder()
+                    .build();
+
+            NeatEvaluatorTrainer neatCopy = Neat.createEvaluatorTrainer(evaluatorSettings);
+
+            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+                SettingsEvaluatorState stateSettings = SettingsEvaluatorState.builder()
+                        .meantToLoadSettings(true)
+                        .environment(null)
+                        .eventLoop(shouldUseParallelism ? EVENT_LOOP : null)
+                        .meantToLoadTopology(true)
+                        .build();
+
+                neatCopy.load(inputStream, stateSettings);
+            }
+
+            Assert.assertEquals(neat.getGeneration(), neatCopy.getGeneration());
+            Assert.assertEquals(neat.getSpeciesCount(), neatCopy.getSpeciesCount());
+            Assert.assertEquals(neat.getMaximumFitness(), neatCopy.getMaximumFitness(), 0f);
+
+            NeatEvaluatorTrainingResult result = neatSetup.trainingPolicy.test(new NeatActivatorEvaluatorTrainer(neatCopy));
+
+            Assert.assertEquals(NeatEvaluatorTrainingResult.WORKING_SOLUTION_FOUND, result);
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
     }
 
     private static NeatSetup createXorEvaluatorTest(final boolean shouldUseParallelism) {
@@ -126,7 +161,7 @@ public final class NeatTest {
                                 .type(SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
-                                .eventLoopIterable(shouldUseParallelism ? EVENT_LOOP_ITERABLE : null)
+                                .eventLoop(shouldUseParallelism ? EVENT_LOOP : null)
                                 .build())
                         .random(SettingsRandom.builder()
                                 .nextIndex(SettingsRandomType.UNIFORM)
@@ -167,7 +202,7 @@ public final class NeatTest {
                 .build();
     }
 
-    private void assertTheXorProblem(final boolean shouldUseParallelism) {
+    private static void assertTheXorProblem(final boolean shouldUseParallelism) {
         NeatSetup neatSetup = createXorEvaluatorTest(shouldUseParallelism);
         NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
         boolean success = neat.train(neatSetup.trainingPolicy);
@@ -288,7 +323,7 @@ public final class NeatTest {
                                 .type(SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT)
                                 .build())
                         .parallelism(SettingsParallelism.builder()
-                                .eventLoopIterable(shouldUseParallelism ? EVENT_LOOP_ITERABLE : null)
+                                .eventLoop(shouldUseParallelism ? EVENT_LOOP : null)
                                 .build())
                         .random(SettingsRandom.builder()
                                 .nextIndex(SettingsRandomType.UNIFORM)
@@ -329,11 +364,15 @@ public final class NeatTest {
                 .build();
     }
 
-    private void assertTheSinglePoleBalancingProblem(final boolean shouldUseParallelism) {
+    private static void assertTheSinglePoleBalancingProblem(final boolean shouldUseParallelism, final boolean shouldTestSerialization) {
         double timeSpentGoal = 60D;
         NeatSetup neatSetup = createSinglePoleBalancingTest(timeSpentGoal, shouldUseParallelism);
         NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
         boolean success = neat.train(neatSetup.trainingPolicy);
+
+        if (shouldTestSerialization) {
+            assertSaveAndLoad(neat, neatSetup, !shouldUseParallelism);
+        }
 
         System.out.printf("=========================================%n");
         System.out.printf("Single Pole Balancing (%s)%n", shouldUseParallelism ? "parallel" : "single");
@@ -347,12 +386,12 @@ public final class NeatTest {
 
     @Test
     public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
-        assertTheSinglePoleBalancingProblem(false);
+        assertTheSinglePoleBalancingProblem(false, false);
     }
 
     @Test
     public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
-        assertTheSinglePoleBalancingProblem(true);
+        assertTheSinglePoleBalancingProblem(true, false);
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)

@@ -6,6 +6,7 @@ import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.FloatFactory;
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -48,7 +49,7 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
         };
     }
 
-    public void save(final ContextDefaultStateMap state) {
+    public void save(final SerializableInteroperableStateMap state) {
         state.put("nodes.biasFactories", biasFactories);
         state.put("nodes.activationFunctionProviders", activationFunctionProviders);
         state.put("nodes.inputs", inputs);
@@ -56,7 +57,7 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
         state.put("nodes.biases", biases);
     }
 
-    public void load(final ContextDefaultStateMap state) {
+    public void load(final SerializableInteroperableStateMap state) {
         biasFactories = state.get("nodes.biasFactories");
         activationFunctionProviders = state.get("nodes.activationFunctionProviders");
         inputs = state.get("nodes.inputs");

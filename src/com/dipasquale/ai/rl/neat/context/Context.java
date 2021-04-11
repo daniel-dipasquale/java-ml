@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.FitnessDeterminer;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialMap;
+import com.dipasquale.ai.rl.neat.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
@@ -11,6 +12,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.speciation.PopulationHistoricalMarkings;
 import com.dipasquale.common.Pair;
+import com.dipasquale.threading.event.loop.EventLoopIterable;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 
 import java.io.IOException;
@@ -62,7 +64,7 @@ public interface Context {
 
         float perturbWeight(float weight);
 
-        void setupInitialConnection(GenomeDefault genome, PopulationHistoricalMarkings historicalMarkings);
+        void setupInitialConnections(GenomeDefault genome, PopulationHistoricalMarkings historicalMarkings);
     }
 
     @FunctionalInterface
@@ -200,9 +202,15 @@ public interface Context {
         float interSpeciesMatingRate();
     }
 
+    interface StateOverrideSupport {
+        NeatEnvironment environment();
+
+        EventLoopIterable eventLoop();
+    }
+
     interface StateSupport {
         void save(ObjectOutputStream outputStream) throws IOException;
 
-        void load(ObjectInputStream inputStream) throws IOException, ClassNotFoundException;
+        void load(ObjectInputStream inputStream, StateOverrideSupport override) throws IOException, ClassNotFoundException;
     }
 }

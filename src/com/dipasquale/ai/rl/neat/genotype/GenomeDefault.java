@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.context.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
@@ -21,11 +20,11 @@ public final class GenomeDefault implements Genome, Serializable {
     private final NodeGeneMap nodes;
     @Getter(AccessLevel.PACKAGE)
     private final ConnectionGeneMap connections;
-    private final HistoricalMarkings historicalMarkings;
+    private final GenomeHistoricalMarkings historicalMarkings;
     private NeuralNetwork neuralNetwork;
     private boolean frozen;
 
-    public GenomeDefault(final String id, final HistoricalMarkings historicalMarkings) {
+    public GenomeDefault(final String id, final GenomeHistoricalMarkings historicalMarkings) {
         this.id = id;
         this.nodes = new NodeGeneMap();
         this.connections = new ConnectionGeneMap();
@@ -327,7 +326,7 @@ public final class GenomeDefault implements Genome, Serializable {
         return child;
     }
 
-    private GenomeDefault createCopy(final String id, final HistoricalMarkings historicalMarkings) {
+    private GenomeDefault createCopy(final String id, final GenomeHistoricalMarkings historicalMarkings) {
         GenomeDefault genome = new GenomeDefault(id, historicalMarkings);
 
         nodes.forEach(genome.nodes::put);
@@ -336,13 +335,13 @@ public final class GenomeDefault implements Genome, Serializable {
         return genome;
     }
 
-    public GenomeDefault createCopy(final HistoricalMarkings historicalMarkings) {
+    public GenomeDefault createCopy(final GenomeHistoricalMarkings historicalMarkings) {
         String id = historicalMarkings.createGenomeId();
 
         return createCopy(id, historicalMarkings);
     }
 
-    public GenomeDefault createClone(final HistoricalMarkings historicalMarkings) {
+    public GenomeDefault createClone(final GenomeHistoricalMarkings historicalMarkings) {
         return createCopy(id, historicalMarkings);
     }
 }

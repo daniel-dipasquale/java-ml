@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.threading.event.loop.EventLoopIterable;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,15 +30,12 @@ public final class ContextDefaultParallelismSupport implements Context.Paralleli
         return parallelism.forEach(iterator, action);
     }
 
-    public void save(final ContextDefaultStateMap state) {
-        state.put("parallelism.isEnabled", isEnabled());
+    public void save(final SerializableInteroperableStateMap state) {
     }
 
-    public void load(final ContextDefaultStateMap state) {
-        boolean isEnabled = state.get("parallelism.isEnabled");
-
-        if (isEnabled) {
-            parallelism = null;
+    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
+        if (eventLoop != null) {
+            parallelism = new ContextDefaultParallelismSupportMultiThread(eventLoop);
         } else {
             parallelism = new ContextDefaultParallelismSupportSingleThread();
         }
