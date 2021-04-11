@@ -86,6 +86,21 @@ public final class NeatTest {
         }
     }
 
+    private static void assertTheXorProblem(final boolean shouldUseParallelism) {
+        NeatSetup neatSetup = createXorEvaluatorTest(shouldUseParallelism);
+        NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
+        boolean success = neat.train(neatSetup.trainingPolicy);
+
+        System.out.printf("=========================================%n");
+        System.out.printf("XOR (%s):%n", shouldUseParallelism ? "parallel" : "single");
+        System.out.printf("=========================================%n");
+        System.out.printf("generation: %d%n", neat.getGeneration());
+        System.out.printf("species: %d%n", neat.getSpeciesCount());
+        System.out.printf("fitness: %f%n", neat.getMaximumFitness());
+        Assert.assertTrue(success);
+        Assert.assertEquals(neatSetup.populationSize, neatSetup.genomeIds.size());
+    }
+
     private static NeatSetup createXorEvaluatorTest(final boolean shouldUseParallelism) {
         int populationSize = 150;
 
@@ -202,7 +217,7 @@ public final class NeatTest {
                 .build();
     }
 
-    private static void assertTheXorProblem(final boolean shouldUseParallelism) {
+    private static void assertTheXorProblem(final NeatSetupFactory neatSetupFactory) {
         NeatSetup neatSetup = createXorEvaluatorTest(shouldUseParallelism);
         NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
         boolean success = neat.train(neatSetup.trainingPolicy);
@@ -425,5 +440,10 @@ public final class NeatTest {
         private final Set<String> genomeIds;
         private final SettingsEvaluator settings;
         private final NeatEvaluatorTrainingPolicy trainingPolicy;
+    }
+
+    @FunctionalInterface
+    private interface NeatSetupFactory {
+        NeatSetup create();
     }
 }
