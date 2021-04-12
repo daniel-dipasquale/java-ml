@@ -1,7 +1,7 @@
 package com.java.util.concurrent;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +45,7 @@ public final class ScheduledExecutorServiceTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void TEST_1() {
         long initialDelay = 0L;
         long delay = 100L;

@@ -1,8 +1,8 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public final class BloomFilterMultiTest {
     private static final int CONSISTENCY_CHECK = 15;
@@ -14,12 +14,12 @@ public final class BloomFilterMultiTest {
     public void TEST_1() {
         BloomFilter<String> test = BLOOM_FILTER_FACTORY.createEstimated(3, 1, 0.5D);
 
-        Assert.assertFalse(test.mightContain("one"));
-        Assert.assertTrue(test.add("one"));
+        Assertions.assertFalse(test.mightContain("one"));
+        Assertions.assertTrue(test.add("one"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("one"));
-            Assert.assertFalse(test.add("one"));
+            Assertions.assertTrue(test.mightContain("one"));
+            Assertions.assertFalse(test.add("one"));
         }
     }
 
@@ -27,37 +27,37 @@ public final class BloomFilterMultiTest {
     public void TEST_2() {
         BloomFilter<String> test = BLOOM_FILTER_FACTORY.createEstimated(3);
 
-        Assert.assertFalse(test.mightContain("one"));
-        Assert.assertTrue(test.add("one"));
+        Assertions.assertFalse(test.mightContain("one"));
+        Assertions.assertTrue(test.add("one"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("one"));
-            Assert.assertFalse(test.add("one"));
+            Assertions.assertTrue(test.mightContain("one"));
+            Assertions.assertFalse(test.add("one"));
         }
 
-        Assert.assertFalse(test.mightContain("two"));
-        Assert.assertTrue(test.add("two"));
+        Assertions.assertFalse(test.mightContain("two"));
+        Assertions.assertTrue(test.add("two"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("two"));
-            Assert.assertFalse(test.add("two"));
+            Assertions.assertTrue(test.mightContain("two"));
+            Assertions.assertFalse(test.add("two"));
         }
 
-        Assert.assertFalse(test.mightContain("three"));
-        Assert.assertTrue(test.add("three"));
+        Assertions.assertFalse(test.mightContain("three"));
+        Assertions.assertTrue(test.add("three"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("three"));
-            Assert.assertFalse(test.add("three"));
+            Assertions.assertTrue(test.mightContain("three"));
+            Assertions.assertFalse(test.add("three"));
         }
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("one"));
-            Assert.assertFalse(test.add("one"));
-            Assert.assertTrue(test.mightContain("two"));
-            Assert.assertFalse(test.add("two"));
-            Assert.assertTrue(test.mightContain("three"));
-            Assert.assertFalse(test.add("three"));
+            Assertions.assertTrue(test.mightContain("one"));
+            Assertions.assertFalse(test.add("one"));
+            Assertions.assertTrue(test.mightContain("two"));
+            Assertions.assertFalse(test.add("two"));
+            Assertions.assertTrue(test.mightContain("three"));
+            Assertions.assertFalse(test.add("three"));
         }
     }
 }

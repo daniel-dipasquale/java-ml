@@ -3,32 +3,32 @@ package com.dipasquale.data.structure.deque;
 import com.dipasquale.common.test.ThrowableComparer;
 import com.dipasquale.data.structure.collection.test.CollectionAsserter;
 import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
 public final class SimpleNodeDequeTest { // TODO: redo these test cases
     private static final SimpleNodeDeque<String> TEST = new SimpleNodeDeque<>();
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         TEST.clear();
     }
 
     private static void assertEmptyState() {
-        Assert.assertEquals(0, TEST.size());
-        Assert.assertTrue(TEST.isEmpty());
-        Assert.assertNull(TEST.peek());
-        Assert.assertNull(TEST.peekFirst());
-        Assert.assertNull(TEST.peekLast());
+        Assertions.assertEquals(0, TEST.size());
+        Assertions.assertTrue(TEST.isEmpty());
+        Assertions.assertNull(TEST.peek());
+        Assertions.assertNull(TEST.peekFirst());
+        Assertions.assertNull(TEST.peekLast());
 
         try {
             TEST.getFirst();
-            Assert.fail();
+            Assertions.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ThrowableComparer.builder()
                     .type(NoSuchElementException.class)
                     .message("the deque is empty")
                     .build(), ThrowableComparer.create(e));
@@ -36,9 +36,9 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
 
         try {
             TEST.getLast();
-            Assert.fail();
+            Assertions.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ThrowableComparer.builder()
                     .type(NoSuchElementException.class)
                     .message("the deque is empty")
                     .build(), ThrowableComparer.create(e));
@@ -46,9 +46,9 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
 
         try {
             TEST.element();
-            Assert.fail();
+            Assertions.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ThrowableComparer.builder()
                     .type(NoSuchElementException.class)
                     .message("the deque is empty")
                     .build(), ThrowableComparer.create(e));
@@ -62,18 +62,18 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
 
     private static void assertEmptyState(final SimpleNode<String> node, final String value) {
         assertEmptyState();
-        Assert.assertFalse(TEST.contains(value));
-        Assert.assertFalse(TEST.contains(node));
-        Assert.assertNull(TEST.peekPrevious(node));
-        Assert.assertNull(TEST.peekNext(node));
-        Assert.assertEquals(value, TEST.getValue(node));
+        Assertions.assertFalse(TEST.contains(value));
+        Assertions.assertFalse(TEST.contains(node));
+        Assertions.assertNull(TEST.peekPrevious(node));
+        Assertions.assertNull(TEST.peekNext(node));
+        Assertions.assertEquals(value, TEST.getValue(node));
     }
 
     @Test
     public void TEST_2() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertNotNull(node);
+        Assertions.assertNotNull(node);
         assertEmptyState(node, "item-1");
     }
 
@@ -81,47 +81,47 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
     public void TEST_3() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertTrue(TEST.add(node));
-        Assert.assertEquals(1, TEST.size());
-        Assert.assertFalse(TEST.isEmpty());
-        Assert.assertFalse(TEST.contains("item-1"));
-        Assert.assertTrue(TEST.contains(node));
-        Assert.assertEquals(node, TEST.peekFirst());
-        Assert.assertEquals(node, TEST.peek());
-        Assert.assertEquals(node, TEST.element());
-        Assert.assertEquals(node, TEST.peekLast());
-        Assert.assertEquals(node, TEST.getLast());
-        Assert.assertNull(TEST.peekPrevious(node));
-        Assert.assertNull(TEST.peekNext(node));
-        Assert.assertEquals("item-1", TEST.getValue(node));
+        Assertions.assertTrue(TEST.add(node));
+        Assertions.assertEquals(1, TEST.size());
+        Assertions.assertFalse(TEST.isEmpty());
+        Assertions.assertFalse(TEST.contains("item-1"));
+        Assertions.assertTrue(TEST.contains(node));
+        Assertions.assertEquals(node, TEST.peekFirst());
+        Assertions.assertEquals(node, TEST.peek());
+        Assertions.assertEquals(node, TEST.element());
+        Assertions.assertEquals(node, TEST.peekLast());
+        Assertions.assertEquals(node, TEST.getLast());
+        Assertions.assertNull(TEST.peekPrevious(node));
+        Assertions.assertNull(TEST.peekNext(node));
+        Assertions.assertEquals("item-1", TEST.getValue(node));
     }
 
     @Test
     public void TEST_4() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertTrue(TEST.add(node));
-        Assert.assertTrue(TEST.add(node));
-        Assert.assertTrue(TEST.offer(node));
+        Assertions.assertTrue(TEST.add(node));
+        Assertions.assertTrue(TEST.add(node));
+        Assertions.assertTrue(TEST.offer(node));
     }
 
     @Test
     public void TEST_5() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertTrue(TEST.offer(node));
-        Assert.assertTrue(TEST.offer(node));
-        Assert.assertTrue(TEST.add(node));
+        Assertions.assertTrue(TEST.offer(node));
+        Assertions.assertTrue(TEST.offer(node));
+        Assertions.assertTrue(TEST.add(node));
     }
 
     @Test
     public void TEST_6() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertFalse(TEST.remove(node));
-        Assert.assertTrue(TEST.add(node));
-        Assert.assertFalse(TEST.remove("item-1"));
-        Assert.assertTrue(TEST.remove(node));
+        Assertions.assertFalse(TEST.remove(node));
+        Assertions.assertTrue(TEST.add(node));
+        Assertions.assertFalse(TEST.remove("item-1"));
+        Assertions.assertTrue(TEST.remove(node));
         assertEmptyState(node, "item-1");
     }
 
@@ -129,9 +129,9 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
     public void TEST_7() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertNull(TEST.poll());
-        Assert.assertTrue(TEST.add(node));
-        Assert.assertEquals(node, TEST.poll());
+        Assertions.assertNull(TEST.poll());
+        Assertions.assertTrue(TEST.add(node));
+        Assertions.assertEquals(node, TEST.poll());
         assertEmptyState(node, "item-1");
     }
 
@@ -141,29 +141,29 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         SimpleNode<String> node2 = TEST.createUnbound("item-2");
         SimpleNode<String> node3 = TEST.createUnbound("item-3");
 
-        Assert.assertTrue(TEST.add(node1));
-        Assert.assertTrue(TEST.add(node2));
-        Assert.assertTrue(TEST.add(node3));
-        Assert.assertEquals(node1, TEST.peekFirst());
-        Assert.assertEquals(node1, TEST.getFirst());
-        Assert.assertEquals(node2, TEST.peekNext(node1));
-        Assert.assertEquals(node2, TEST.peekPrevious(node3));
-        Assert.assertEquals(node3, TEST.peekLast());
-        Assert.assertEquals(node3, TEST.getLast());
-        Assert.assertTrue(TEST.offerLast(node2));
-        Assert.assertEquals(node1, TEST.peekFirst());
-        Assert.assertEquals(node1, TEST.getFirst());
-        Assert.assertEquals(node3, TEST.peekNext(node1));
-        Assert.assertEquals(node3, TEST.peekPrevious(node2));
-        Assert.assertEquals(node2, TEST.peekLast());
-        Assert.assertEquals(node2, TEST.getLast());
+        Assertions.assertTrue(TEST.add(node1));
+        Assertions.assertTrue(TEST.add(node2));
+        Assertions.assertTrue(TEST.add(node3));
+        Assertions.assertEquals(node1, TEST.peekFirst());
+        Assertions.assertEquals(node1, TEST.getFirst());
+        Assertions.assertEquals(node2, TEST.peekNext(node1));
+        Assertions.assertEquals(node2, TEST.peekPrevious(node3));
+        Assertions.assertEquals(node3, TEST.peekLast());
+        Assertions.assertEquals(node3, TEST.getLast());
+        Assertions.assertTrue(TEST.offerLast(node2));
+        Assertions.assertEquals(node1, TEST.peekFirst());
+        Assertions.assertEquals(node1, TEST.getFirst());
+        Assertions.assertEquals(node3, TEST.peekNext(node1));
+        Assertions.assertEquals(node3, TEST.peekPrevious(node2));
+        Assertions.assertEquals(node2, TEST.peekLast());
+        Assertions.assertEquals(node2, TEST.getLast());
     }
 
     @Test
     public void TEST_9() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertTrue(TEST.offerLast(node));
+        Assertions.assertTrue(TEST.offerLast(node));
     }
 
     @Test
@@ -171,17 +171,17 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         SimpleNode<String> node1 = TEST.createUnbound("item-1");
         SimpleNode<String> node2 = TEST.createUnbound("item-2");
 
-        Assert.assertTrue(TEST.add(node1));
-        Assert.assertTrue(TEST.add(node2));
-        Assert.assertEquals(2, TEST.size());
-        Assert.assertEquals(node1, TEST.peek());
-        Assert.assertEquals(node1, TEST.peekFirst());
-        Assert.assertEquals(node1, TEST.getFirst());
-        Assert.assertEquals(node1, TEST.element());
-        Assert.assertEquals(node2, TEST.peekLast());
-        Assert.assertEquals(node2, TEST.getLast());
-        Assert.assertEquals(node1, TEST.peekPrevious(node2));
-        Assert.assertEquals(node2, TEST.peekNext(node1));
+        Assertions.assertTrue(TEST.add(node1));
+        Assertions.assertTrue(TEST.add(node2));
+        Assertions.assertEquals(2, TEST.size());
+        Assertions.assertEquals(node1, TEST.peek());
+        Assertions.assertEquals(node1, TEST.peekFirst());
+        Assertions.assertEquals(node1, TEST.getFirst());
+        Assertions.assertEquals(node1, TEST.element());
+        Assertions.assertEquals(node2, TEST.peekLast());
+        Assertions.assertEquals(node2, TEST.getLast());
+        Assertions.assertEquals(node1, TEST.peekPrevious(node2));
+        Assertions.assertEquals(node2, TEST.peekNext(node1));
     }
 
     @Test
@@ -189,17 +189,17 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         SimpleNode<String> node1 = TEST.createUnbound("item-1");
         SimpleNode<String> node2 = TEST.createUnbound("item-2");
 
-        Assert.assertTrue(TEST.add(node1));
-        Assert.assertTrue(TEST.add(node2));
-        Assert.assertTrue(TEST.remove(node1));
-        Assert.assertEquals(node2, TEST.peek());
-        Assert.assertEquals(node2, TEST.peekFirst());
-        Assert.assertEquals(node2, TEST.getFirst());
-        Assert.assertEquals(node2, TEST.element());
-        Assert.assertEquals(node2, TEST.peekLast());
-        Assert.assertEquals(node2, TEST.getLast());
-        Assert.assertNull(TEST.peekPrevious(node2));
-        Assert.assertNull(TEST.peekNext(node2));
+        Assertions.assertTrue(TEST.add(node1));
+        Assertions.assertTrue(TEST.add(node2));
+        Assertions.assertTrue(TEST.remove(node1));
+        Assertions.assertEquals(node2, TEST.peek());
+        Assertions.assertEquals(node2, TEST.peekFirst());
+        Assertions.assertEquals(node2, TEST.getFirst());
+        Assertions.assertEquals(node2, TEST.element());
+        Assertions.assertEquals(node2, TEST.peekLast());
+        Assertions.assertEquals(node2, TEST.getLast());
+        Assertions.assertNull(TEST.peekPrevious(node2));
+        Assertions.assertNull(TEST.peekNext(node2));
     }
 
     @Test
@@ -207,25 +207,25 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         SimpleNode<String> node1 = TEST.createUnbound("item-1");
         SimpleNode<String> node2 = TEST.createUnbound("item-2");
 
-        Assert.assertTrue(TEST.add(node1));
-        Assert.assertTrue(TEST.add(node2));
-        Assert.assertTrue(TEST.remove(node2));
-        Assert.assertEquals(node1, TEST.peek());
-        Assert.assertEquals(node1, TEST.peekFirst());
-        Assert.assertEquals(node1, TEST.getFirst());
-        Assert.assertEquals(node1, TEST.element());
-        Assert.assertEquals(node1, TEST.peekLast());
-        Assert.assertEquals(node1, TEST.getLast());
-        Assert.assertNull(TEST.peekPrevious(node1));
-        Assert.assertNull(TEST.peekNext(node1));
+        Assertions.assertTrue(TEST.add(node1));
+        Assertions.assertTrue(TEST.add(node2));
+        Assertions.assertTrue(TEST.remove(node2));
+        Assertions.assertEquals(node1, TEST.peek());
+        Assertions.assertEquals(node1, TEST.peekFirst());
+        Assertions.assertEquals(node1, TEST.getFirst());
+        Assertions.assertEquals(node1, TEST.element());
+        Assertions.assertEquals(node1, TEST.peekLast());
+        Assertions.assertEquals(node1, TEST.getLast());
+        Assertions.assertNull(TEST.peekPrevious(node1));
+        Assertions.assertNull(TEST.peekNext(node1));
     }
 
     private static void assertClearedState(final SimpleNode<String> node) {
         assertEmptyState();
-        Assert.assertFalse(TEST.contains(node));
-        Assert.assertNull(TEST.peekPrevious(node));
-        Assert.assertNull(TEST.peekNext(node));
-        Assert.assertNull(TEST.getValue(node));
+        Assertions.assertFalse(TEST.contains(node));
+        Assertions.assertNull(TEST.peekPrevious(node));
+        Assertions.assertNull(TEST.peekNext(node));
+        Assertions.assertNull(TEST.getValue(node));
     }
 
     @Test
@@ -233,8 +233,8 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         SimpleNode<String> node1 = TEST.createUnbound("item-1");
         SimpleNode<String> node2 = TEST.createUnbound("item-2");
 
-        Assert.assertTrue(TEST.add(node1));
-        Assert.assertTrue(TEST.add(node2));
+        Assertions.assertTrue(TEST.add(node1));
+        Assertions.assertTrue(TEST.add(node2));
         TEST.clear();
         assertClearedState(node1);
         assertClearedState(node2);
@@ -244,30 +244,30 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
     public void TEST_14() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertTrue(TEST.add(node));
+        Assertions.assertTrue(TEST.add(node));
         TEST.clear();
 
         try {
             TEST.add(node);
-            Assert.fail();
+            Assertions.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ThrowableComparer.builder()
                     .type(IllegalArgumentException.class)
                     .message("node was not created by this deque")
                     .build(), ThrowableComparer.create(e));
         }
 
-        Assert.assertFalse(TEST.offer(node));
+        Assertions.assertFalse(TEST.offer(node));
     }
 
     @Test
     public void TEST_15() {
         SimpleNode<String> node = TEST.createUnbound("item-1");
 
-        Assert.assertTrue(TEST.add(node));
+        Assertions.assertTrue(TEST.add(node));
         TEST.clear();
-        Assert.assertFalse(TEST.remove(node));
-        Assert.assertFalse(TEST.offerLast(node));
+        Assertions.assertFalse(TEST.remove(node));
+        Assertions.assertFalse(TEST.offerLast(node));
     }
 
     @Test
@@ -276,11 +276,11 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         SimpleNode<String> node2 = TEST.createUnbound("item-2");
         SimpleNode<String> node3 = TEST.createUnbound("item-3");
 
-        Assert.assertTrue(TEST.add(node1));
-        Assert.assertTrue(TEST.add(node2));
-        Assert.assertTrue(TEST.add(node3));
+        Assertions.assertTrue(TEST.add(node1));
+        Assertions.assertTrue(TEST.add(node2));
+        Assertions.assertTrue(TEST.add(node3));
 
-        Assert.assertEquals(ImmutableList.builder()
+        Assertions.assertEquals(ImmutableList.builder()
                 .add(node1)
                 .add(node2)
                 .add(node3)
@@ -293,11 +293,11 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         SimpleNode<String> node2 = TEST.createUnbound("item-2");
         SimpleNode<String> node3 = TEST.createUnbound("item-3");
 
-        Assert.assertTrue(TEST.add(node1));
-        Assert.assertTrue(TEST.add(node2));
-        Assert.assertTrue(TEST.add(node3));
+        Assertions.assertTrue(TEST.add(node1));
+        Assertions.assertTrue(TEST.add(node2));
+        Assertions.assertTrue(TEST.add(node3));
 
-        Assert.assertEquals(ImmutableList.builder()
+        Assertions.assertEquals(ImmutableList.builder()
                 .add(node3)
                 .add(node2)
                 .add(node1)
@@ -306,7 +306,7 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_18() {
-        CollectionAsserter<SimpleNode<String>> collectionAsserter = new CollectionAsserter<>(TEST, i -> TEST.createUnbound(String.format("item-%d", i)), SimpleNode.class, Assert::assertEquals);
+        CollectionAsserter<SimpleNode<String>> collectionAsserter = new CollectionAsserter<>(TEST, i -> TEST.createUnbound(String.format("item-%d", i)), SimpleNode.class, Assertions::assertEquals);
 
         collectionAsserter.assertToArray();
         collectionAsserter.assertContainsAll();

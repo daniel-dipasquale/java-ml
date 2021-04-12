@@ -2,9 +2,9 @@ package com.dipasquale.common;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AtomicDouble;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,95 +17,95 @@ public final class RandomSupportTest {
     private static final RandomSupport TEST = RANDOM_SEED::get;
     private static final int RANDOM_TEST_COUNT = 1_000_000;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         RANDOM_SEED.set(0D);
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_getting_a_random_number_THEN_get_the_number() {
-        Assert.assertEquals(RANDOM_SEED.get(), TEST.next(), 0D);
+        Assertions.assertEquals(RANDOM_SEED.get(), TEST.next(), 0D);
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_getting_a_random_number_bounded_by_an_arbitrary_limit_THEN_get_the_number_within_the_limits() {
-        Assert.assertEquals(0D, TEST.next(0D, 1D), 0D);
-        Assert.assertEquals(0.2D, TEST.next(0.2D, 0.8D), 0D);
-        Assert.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
+        Assertions.assertEquals(0D, TEST.next(0D, 1D), 0D);
+        Assertions.assertEquals(0.2D, TEST.next(0.2D, 0.8D), 0D);
+        Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
         RANDOM_SEED.set(0.25D);
-        Assert.assertEquals(0.25D, TEST.next(0D, 1D), 0D);
-        Assert.assertEquals(0.35000000000000003D, TEST.next(0.2D, 0.8D), 0D);
-        Assert.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
+        Assertions.assertEquals(0.25D, TEST.next(0D, 1D), 0D);
+        Assertions.assertEquals(0.35000000000000003D, TEST.next(0.2D, 0.8D), 0D);
+        Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
         RANDOM_SEED.set(0.5D);
-        Assert.assertEquals(0.5D, TEST.next(0D, 1D), 0D);
-        Assert.assertEquals(0.5D, TEST.next(0.2D, 0.8D), 0D);
-        Assert.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
+        Assertions.assertEquals(0.5D, TEST.next(0D, 1D), 0D);
+        Assertions.assertEquals(0.5D, TEST.next(0.2D, 0.8D), 0D);
+        Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
         RANDOM_SEED.set(0.75D);
-        Assert.assertEquals(0.75D, TEST.next(0D, 1D), 0D);
-        Assert.assertEquals(0.6500000000000001D, TEST.next(0.2D, 0.8D), 0D);
-        Assert.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
+        Assertions.assertEquals(0.75D, TEST.next(0D, 1D), 0D);
+        Assertions.assertEquals(0.6500000000000001D, TEST.next(0.2D, 0.8D), 0D);
+        Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
         RANDOM_SEED.set(0.99D);
-        Assert.assertEquals(0.99D, TEST.next(0D, 1D), 0D);
-        Assert.assertEquals(0.794D, TEST.next(0.2D, 0.8D), 0D);
-        Assert.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
+        Assertions.assertEquals(0.99D, TEST.next(0D, 1D), 0D);
+        Assertions.assertEquals(0.794D, TEST.next(0.2D, 0.8D), 0D);
+        Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_getting_a_random_whole_number_bounded_by_an_arbitrary_limit_THEN_get_the_number_within_the_limits() {
-        Assert.assertEquals(0L, TEST.next(0L, 5L));
+        Assertions.assertEquals(0L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.19D);
-        Assert.assertEquals(0L, TEST.next(0L, 5L));
+        Assertions.assertEquals(0L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.2D);
-        Assert.assertEquals(1L, TEST.next(0L, 5L));
+        Assertions.assertEquals(1L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.39D);
-        Assert.assertEquals(1L, TEST.next(0L, 5L));
+        Assertions.assertEquals(1L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.4D);
-        Assert.assertEquals(2L, TEST.next(0L, 5L));
+        Assertions.assertEquals(2L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.59D);
-        Assert.assertEquals(2L, TEST.next(0L, 5L));
+        Assertions.assertEquals(2L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.6D);
-        Assert.assertEquals(3L, TEST.next(0L, 5L));
+        Assertions.assertEquals(3L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.79D);
-        Assert.assertEquals(3L, TEST.next(0L, 5L));
+        Assertions.assertEquals(3L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.8D);
-        Assert.assertEquals(4L, TEST.next(0L, 5L));
+        Assertions.assertEquals(4L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.99D);
-        Assert.assertEquals(4L, TEST.next(0L, 5L));
+        Assertions.assertEquals(4L, TEST.next(0L, 5L));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_getting_a_random_whole_number_bounded_by_the_same_minimum_and_maximum_THEN_get_the_minimum_number() {
-        Assert.assertEquals(1L, TEST.next(1L, 1L));
+        Assertions.assertEquals(1L, TEST.next(1L, 1L));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_creating_a_random_number_generator_bounded_by_an_arbitrary_limit_THEN_use_the_random_generator_instance_to_get_the_next_number_bounded_by_the_arbitrary_limit() {
         RandomSupport test = TEST.bounded(0.2D, 0.8D);
 
-        Assert.assertEquals(0.2D, test.next(), 0);
-        Assert.assertEquals(0.38D, test.next(0.3D, 0.7D), 0);
+        Assertions.assertEquals(0.2D, test.next(), 0);
+        Assertions.assertEquals(0.38D, test.next(0.3D, 0.7D), 0);
         RANDOM_SEED.set(0.5D);
-        Assert.assertEquals(0.5D, test.next(), 0);
-        Assert.assertEquals(0.5D, test.next(0.3D, 0.7D), 0);
+        Assertions.assertEquals(0.5D, test.next(), 0);
+        Assertions.assertEquals(0.5D, test.next(0.3D, 0.7D), 0);
         RANDOM_SEED.set(0.99D);
-        Assert.assertEquals(0.794D, test.next(), 0);
-        Assert.assertEquals(0.5588D, test.next(0.4D, 0.6D), 0);
+        Assertions.assertEquals(0.794D, test.next(), 0);
+        Assertions.assertEquals(0.5588D, test.next(0.4D, 0.6D), 0);
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_determining_if_the_next_random_number_is_within_an_expected_boundary_THEN_indicate_true_if_within_and_false_otherwise() {
-        Assert.assertTrue(TEST.isBetween(0D, Double.MIN_VALUE));
-        Assert.assertTrue(TEST.isBetween(0D, 0.25D));
+        Assertions.assertTrue(TEST.isBetween(0D, Double.MIN_VALUE));
+        Assertions.assertTrue(TEST.isBetween(0D, 0.25D));
         RANDOM_SEED.set(0.25D);
-        Assert.assertFalse(TEST.isBetween(0D, 0.25D));
+        Assertions.assertFalse(TEST.isBetween(0D, 0.25D));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_determining_if_the_next_random_number_is_within_0_and_some_maximum_boundary_THEN_indicate_true_if_within_and_false_otherwise() {
-        Assert.assertFalse(TEST.isLessThan(0D));
-        Assert.assertTrue(TEST.isLessThan(0.5D));
+        Assertions.assertFalse(TEST.isLessThan(0D));
+        Assertions.assertTrue(TEST.isLessThan(0.5D));
         RANDOM_SEED.set(0.5D);
-        Assert.assertFalse(TEST.isLessThan(0.5D));
+        Assertions.assertFalse(TEST.isLessThan(0.5D));
     }
 
     private static boolean isNextLongEquallyDistributed(final RandomSupport randomSupport) {
@@ -139,7 +139,7 @@ public final class RandomSupportTest {
     public void GIVEN_a_random_number_generator_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
         RandomSupport test = RandomSupport.create(false);
 
-        Assert.assertTrue(isNextLongEquallyDistributed(test));
+        Assertions.assertTrue(isNextLongEquallyDistributed(test));
     }
 
     private static boolean isNextDoubleBounded(final RandomSupport randomSupport) {
@@ -158,21 +158,21 @@ public final class RandomSupportTest {
     public void GIVEN_a_random_number_generator_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
         RandomSupport test = RandomSupport.create(false);
 
-        Assert.assertTrue(isNextDoubleBounded(test));
+        Assertions.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
         RandomSupport test = RandomSupport.create(true);
 
-        Assert.assertTrue(isNextLongEquallyDistributed(test));
+        Assertions.assertTrue(isNextLongEquallyDistributed(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
         RandomSupport test = RandomSupport.create(true);
 
-        Assert.assertTrue(isNextDoubleBounded(test));
+        Assertions.assertTrue(isNextDoubleBounded(test));
     }
 
     private static boolean isNextLongMeanDistributed(final RandomSupport randomSupport, final List<Double> marginOfErrors) {
@@ -217,55 +217,55 @@ public final class RandomSupportTest {
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
         RandomSupport test = RandomSupport.createMeanDistribution(false);
 
-        Assert.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(0.3D, 0.1D)));
+        Assertions.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(0.3D, 0.1D)));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
         RandomSupport test = RandomSupport.createMeanDistribution(false);
 
-        Assert.assertTrue(isNextDoubleBounded(test));
+        Assertions.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
         RandomSupport test = RandomSupport.createMeanDistribution(false, 12);
 
-        Assert.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(1D, 0.65D, 0.3D, 0.1D)));
+        Assertions.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(1D, 0.65D, 0.3D, 0.1D)));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
         RandomSupport test = RandomSupport.createMeanDistribution(false, 12);
 
-        Assert.assertTrue(isNextDoubleBounded(test));
+        Assertions.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_gaussian_distributed_through_out() {
         RandomSupport test = RandomSupport.createMeanDistribution(true);
 
-        Assert.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(0.3D, 0.1D)));
+        Assertions.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(0.3D, 0.1D)));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
         RandomSupport test = RandomSupport.createMeanDistribution(true);
 
-        Assert.assertTrue(isNextDoubleBounded(test));
+        Assertions.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_gaussian_distributed_through_out() {
         RandomSupport test = RandomSupport.createMeanDistribution(true, 12);
 
-        Assert.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(1D, 0.65D, 0.3D, 0.1D)));
+        Assertions.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(1D, 0.65D, 0.3D, 0.1D)));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
         RandomSupport test = RandomSupport.createMeanDistribution(true, 12);
 
-        Assert.assertTrue(isNextDoubleBounded(test));
+        Assertions.assertTrue(isNextDoubleBounded(test));
     }
 }

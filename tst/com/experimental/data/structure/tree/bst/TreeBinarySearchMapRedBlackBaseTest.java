@@ -37,7 +37,7 @@
 //        TreeBinarySearchMapRedBlack test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(false));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(42, "42"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(39, "39"))

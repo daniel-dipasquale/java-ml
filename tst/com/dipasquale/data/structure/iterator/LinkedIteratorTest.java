@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +47,7 @@ public final class LinkedIteratorTest {
                 .map(li -> li.value)
                 .limit(2);
 
-        Assert.assertEquals(ImmutableList.<String>builder()
+        Assertions.assertEquals(ImmutableList.<String>builder()
                 .add("val-1")
                 .add("val-2")
                 .build(), ImmutableList.copyOf(result::iterator));
@@ -60,7 +60,7 @@ public final class LinkedIteratorTest {
         Stream<String> result = LinkedIterator.createStream(linkedItem, li -> li.next)
                 .map(li -> li.value);
 
-        Assert.assertEquals(ImmutableList.<String>builder()
+        Assertions.assertEquals(ImmutableList.<String>builder()
                 .add("val-1")
                 .add("val-2")
                 .add("val-3")

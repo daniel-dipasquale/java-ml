@@ -1,8 +1,8 @@
 package com.java.threading;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Formatter;
@@ -69,13 +69,13 @@ public final class ReentrantReadWriteLockTest {
         });
     }
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         STRING_BUILDER = new StringBuilder();
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void TEST_1() {
         ExecutorService executorService = Executors.newFixedThreadPool(9);
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);

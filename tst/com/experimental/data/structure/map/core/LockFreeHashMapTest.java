@@ -18,12 +18,12 @@
 //    public void TEST_1() {
 //        LockFreeHashMap<String, String> map = new LockFreeHashMap<>();
 //
-//        Assert.assertEquals(0, map.size());
-//        Assert.assertNull(map.get("key-1"));
-//        Assert.assertNull(map.put("key-1", "value-1"));
-//        Assert.assertEquals(1, map.size());
-//        Assert.assertEquals("value-1", map.get("key-1"));
-//        Assert.assertEquals("value-1", map.put("key-1", "value-2"));
+//        Assertions.assertEquals(0, map.size());
+//        Assertions.assertNull(map.get("key-1"));
+//        Assertions.assertNull(map.put("key-1", "value-1"));
+//        Assertions.assertEquals(1, map.size());
+//        Assertions.assertEquals("value-1", map.get("key-1"));
+//        Assertions.assertEquals("value-1", map.put("key-1", "value-2"));
 //    }
 //
 //    private static void putEntries(final Map<String, String> map, final int size)
@@ -38,7 +38,7 @@
 //                        String key = String.format("key-%d", index);
 //                        String value = String.format("value-%d", index);
 //
-//                        // Assert.assertNull();
+//                        // Assertions.assertNull();
 //                        map.put(key, value);
 //                    }
 //                });

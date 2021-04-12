@@ -3,8 +3,8 @@ package com.dipasquale.common;
 import com.dipasquale.common.test.ThrowableComparer;
 import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLongArray;
@@ -23,9 +23,9 @@ public class MultiExceptionHandlerTest {
         MultiExceptionHandler<HandlerMock> test = new MultiExceptionHandler<>(items, HandlerMock::handle);
 
         test.invokeAllAndReportAsSuppressed(() -> new RuntimeException("unit test failure"));
-        Assert.assertEquals(3, data.get(0));
-        Assert.assertEquals(2, data.get(1));
-        Assert.assertEquals(1, data.get(2));
+        Assertions.assertEquals(3, data.get(0));
+        Assertions.assertEquals(2, data.get(1));
+        Assertions.assertEquals(1, data.get(2));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class MultiExceptionHandlerTest {
         try {
             test.invokeAllAndReportAsSuppressed(() -> new RuntimeException("unit test failure"));
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ThrowableComparer.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
                     .suppressed(ImmutableList.<ThrowableComparer>builder()
@@ -55,9 +55,9 @@ public class MultiExceptionHandlerTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        Assert.assertEquals(3, data.get(0));
-        Assert.assertEquals(0, data.get(1));
-        Assert.assertEquals(1, data.get(2));
+        Assertions.assertEquals(3, data.get(0));
+        Assertions.assertEquals(0, data.get(1));
+        Assertions.assertEquals(1, data.get(2));
     }
 
     @Test
@@ -73,9 +73,9 @@ public class MultiExceptionHandlerTest {
         MultiExceptionHandler<HandlerMock> test = new MultiExceptionHandler<>(items, HandlerMock::handle);
 
         test.invokeAllAndReportAsSuppressed("unit test failure");
-        Assert.assertEquals(3, data.get(0));
-        Assert.assertEquals(2, data.get(1));
-        Assert.assertEquals(1, data.get(2));
+        Assertions.assertEquals(3, data.get(0));
+        Assertions.assertEquals(2, data.get(1));
+        Assertions.assertEquals(1, data.get(2));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class MultiExceptionHandlerTest {
         try {
             test.invokeAllAndReportAsSuppressed("unit test failure");
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ThrowableComparer.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
                     .suppressed(ImmutableList.<ThrowableComparer>builder()
@@ -105,9 +105,9 @@ public class MultiExceptionHandlerTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        Assert.assertEquals(3, data.get(0));
-        Assert.assertEquals(0, data.get(1));
-        Assert.assertEquals(1, data.get(2));
+        Assertions.assertEquals(3, data.get(0));
+        Assertions.assertEquals(0, data.get(1));
+        Assertions.assertEquals(1, data.get(2));
     }
 
     @RequiredArgsConstructor

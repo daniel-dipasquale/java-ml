@@ -4,10 +4,10 @@ import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.ExceptionLogger;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.measure.unit.SI;
 import java.util.ArrayList;
@@ -34,13 +34,13 @@ public final class EventLoopIterableTest {
             .dateTimeSupport(DATE_TIME_SUPPORT)
             .build();
 
-    @AfterClass
-    public static void afterClass() {
+    @AfterAll
+    public static void afterAll() {
         EXECUTOR_SERVICE.shutdown();
     }
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         EXCEPTIONS.clear();
     }
 
@@ -56,9 +56,9 @@ public final class EventLoopIterableTest {
         try {
             test.queue(items.iterator(), i -> collector.value.addAndGet(i.value));
             test.awaitUntilDone();
-            Assert.assertEquals(32_896L, collector.value.get());
+            Assertions.assertEquals(32_896L, collector.value.get());
         } catch (InterruptedException e) {
-            Assert.fail("interrupted");
+            Assertions.fail("interrupted");
         } finally {
             test.shutdown();
         }
@@ -76,9 +76,9 @@ public final class EventLoopIterableTest {
         try {
             test.queue(items.stream().peek(i -> i.value++).iterator(), i -> collector.value.addAndGet(i.value));
             test.awaitUntilDone();
-            Assert.assertEquals(33_152L, collector.value.get());
+            Assertions.assertEquals(33_152L, collector.value.get());
         } catch (InterruptedException e) {
-            Assert.fail("interrupted");
+            Assertions.fail("interrupted");
         } finally {
             test.shutdown();
         }

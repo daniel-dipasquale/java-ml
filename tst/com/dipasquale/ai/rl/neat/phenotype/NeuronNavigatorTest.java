@@ -7,8 +7,8 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.CyclicVersion;
 import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -310,7 +310,7 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assert.assertEquals(ImmutableList.<SequentialId>builder()
+        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
                 .add(neurons.get(1).getId())
                 .add(neurons.get(0).getId())
                 .add(neurons.get(4).getId())
@@ -330,7 +330,7 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assert.assertEquals(ImmutableList.<SequentialId>builder()
+        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
                 .add(neurons.get(1).getId())
                 .add(neurons.get(0).getId())
                 .add(neurons.get(4).getId())
@@ -350,7 +350,7 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assert.assertEquals(ImmutableList.<SequentialId>builder()
+        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
                 .add(neurons.get(1).getId())
                 .add(neurons.get(0).getId())
                 .add(neurons.get(4).getId())
@@ -370,7 +370,7 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assert.assertEquals(ImmutableList.<SequentialId>builder()
+        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
                 .add(neurons.get(1).getId())
                 .add(neurons.get(4).getId())
                 .add(neurons.get(0).getId())
@@ -390,7 +390,7 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assert.assertEquals(ImmutableList.<SequentialId>builder()
+        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
                 .add(neurons.get(1).getId())
                 .add(neurons.get(0).getId())
                 .add(neurons.get(4).getId())
@@ -410,7 +410,7 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assert.assertEquals(ImmutableList.<SequentialId>builder()
+        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
                 .add(neurons.get(1).getId())
                 .add(neurons.get(0).getId())
                 .add(neurons.get(4).getId())
@@ -433,7 +433,7 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assert.assertEquals(ImmutableList.<SequentialId>builder()
+        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
                 .add(neurons.get(1).getId())
                 .add(neurons.get(0).getId())
                 .add(neurons.get(4).getId())
@@ -458,7 +458,7 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assert.assertEquals(ImmutableList.<SequentialId>builder()
+        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
                 .add(neurons.get(1).getId())
                 .add(neurons.get(4).getId())
                 .add(neurons.get(0).getId())

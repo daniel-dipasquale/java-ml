@@ -2,52 +2,52 @@ package com.dipasquale.data.structure.map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public final class SortedByValueRankedAggregatorTest {
     private static final SortedByValueRankedAggregator<String, Long> TEST = SortedByValueRankedAggregator.createHighestRankedConcurrent(2);
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         TEST.clear();
     }
 
     @Test
     public void TEST_1() {
-        Assert.assertEquals(Long.valueOf(0L), TEST.getExtremeValue());
-        Assert.assertEquals(ImmutableSet.of(), TEST.getKeys());
+        Assertions.assertEquals(Long.valueOf(0L), TEST.getExtremeValue());
+        Assertions.assertEquals(ImmutableSet.of(), TEST.getKeys());
     }
 
     @Test
     public void TEST_2() {
-        Assert.assertNull(TEST.put("one", 1L));
-        Assert.assertEquals(Long.valueOf(0L), TEST.getExtremeValue());
-        Assert.assertEquals(ImmutableSet.of("one"), TEST.getKeys());
-        Assert.assertNull(TEST.put("two", 2L));
-        Assert.assertEquals(Long.valueOf(0L), TEST.getExtremeValue());
-        Assert.assertEquals(ImmutableSet.of("one", "two"), TEST.getKeys());
-        Assert.assertNull(TEST.put("three", 3L));
-        Assert.assertEquals(Long.valueOf(2L), TEST.getExtremeValue());
-        Assert.assertEquals(ImmutableSet.of("two", "three"), TEST.getKeys());
-        Assert.assertNull(TEST.put("zero", 0L));
-        Assert.assertEquals(Long.valueOf(2L), TEST.getExtremeValue());
-        Assert.assertEquals(ImmutableSet.of("two", "three"), TEST.getKeys());
-        Assert.assertNull(TEST.put("four", 4L));
-        Assert.assertEquals(Long.valueOf(3L), TEST.getExtremeValue());
-        Assert.assertEquals(ImmutableSet.of("three", "four"), TEST.getKeys());
+        Assertions.assertNull(TEST.put("one", 1L));
+        Assertions.assertEquals(Long.valueOf(0L), TEST.getExtremeValue());
+        Assertions.assertEquals(ImmutableSet.of("one"), TEST.getKeys());
+        Assertions.assertNull(TEST.put("two", 2L));
+        Assertions.assertEquals(Long.valueOf(0L), TEST.getExtremeValue());
+        Assertions.assertEquals(ImmutableSet.of("one", "two"), TEST.getKeys());
+        Assertions.assertNull(TEST.put("three", 3L));
+        Assertions.assertEquals(Long.valueOf(2L), TEST.getExtremeValue());
+        Assertions.assertEquals(ImmutableSet.of("two", "three"), TEST.getKeys());
+        Assertions.assertNull(TEST.put("zero", 0L));
+        Assertions.assertEquals(Long.valueOf(2L), TEST.getExtremeValue());
+        Assertions.assertEquals(ImmutableSet.of("two", "three"), TEST.getKeys());
+        Assertions.assertNull(TEST.put("four", 4L));
+        Assertions.assertEquals(Long.valueOf(3L), TEST.getExtremeValue());
+        Assertions.assertEquals(ImmutableSet.of("three", "four"), TEST.getKeys());
     }
 
     @Test
     public void TEST_3() {
-        Assert.assertNull(TEST.put("one", 1L));
-        Assert.assertNull(TEST.put("two", 2L));
-        Assert.assertNull(TEST.put("three", 3L));
-        Assert.assertNull(TEST.put("zero", 0L));
-        Assert.assertNull(TEST.put("four", 4L));
+        Assertions.assertNull(TEST.put("one", 1L));
+        Assertions.assertNull(TEST.put("two", 2L));
+        Assertions.assertNull(TEST.put("three", 3L));
+        Assertions.assertNull(TEST.put("zero", 0L));
+        Assertions.assertNull(TEST.put("four", 4L));
 
-        Assert.assertEquals(ImmutableList.<String>builder()
+        Assertions.assertEquals(ImmutableList.<String>builder()
                 .add("four")
                 .add("three")
                 .build(), TEST.clear().retrieve());

@@ -5,11 +5,11 @@ import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.test.JvmWarmup;
 import com.google.common.collect.Sets;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.measure.unit.SI;
 import java.lang.management.ManagementFactory;
@@ -43,13 +43,13 @@ public final class ConcurrentBloomFilterTest {
     private static final AtomicInteger MISMATCHES = new AtomicInteger();
     private static CountDownLatch COUNT_DOWN_LATCH;
 
-    @BeforeClass
-    public static void beforeClass() {
+    @BeforeAll
+    public static void beforeAll() {
         JvmWarmup.start(250_000);
     }
 
-    @AfterClass
-    public static void afterClass() {
+    @AfterAll
+    public static void afterAll() {
         EXECUTOR_SERVICE.shutdownNow();
     }
 
@@ -92,7 +92,7 @@ public final class ConcurrentBloomFilterTest {
             if (await(false)) {
                 INDEX.set(SIZE);
                 await(true);
-                Assert.fail("test timed out");
+                Assertions.fail("test timed out");
             }
         } catch (AssertionError e) {
             throw e;
@@ -106,13 +106,13 @@ public final class ConcurrentBloomFilterTest {
         double expectedFailures = (double) SIZE * FALSE_POSITIVE_RATIO;
         double actualFailures = (double) bloomFilterMismatches - (double) setNotAdded;
 
-        Assert.assertEquals(0, setNotAdded);
-        Assert.assertTrue(message, Double.compare(expectedFailures, actualFailures) >= 0);
+        Assertions.assertEquals(0, setNotAdded);
+        Assertions.assertTrue(Double.compare(expectedFailures, actualFailures) >= 0, message);
         System.out.println(message);
     }
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         CURRENT_DATE_TIME.set(0L);
         COUNT_DOWN_LATCH = new CountDownLatch(CPU_CORES);
         INDEX.set(0);

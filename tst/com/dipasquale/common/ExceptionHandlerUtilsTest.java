@@ -2,8 +2,8 @@ package com.dipasquale.common;
 
 import com.dipasquale.common.test.ThrowableComparer;
 import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,9 +44,9 @@ public final class ExceptionHandlerUtilsTest {
     public void GIVEN_there_are_suppressed_exceptions_WHEN_wrapping_them_in_a_custom_exception_THEN_fail_with_the_custom_exception_wrapping_all_other_exceptions_as_suppressed_in_it() {
         try {
             ExceptionHandlerUtils.throwAsSuppressedIfAny(() -> new IllegalStateException("test-message"), ImmutableList.of(new IllegalStateException("illegal-state-exception")));
-            Assert.fail();
+            Assertions.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ThrowableComparer.builder()
                     .type(IllegalStateException.class)
                     .message("test-message")
                     .suppressed(ImmutableList.<ThrowableComparer>builder()
@@ -63,9 +63,9 @@ public final class ExceptionHandlerUtilsTest {
     public void GIVEN_there_are_suppressed_exceptions_WHEN_wrapping_them_in_a_runtime_exception_THEN_fail_with_a_runtime_exception_wrapping_all_other_exceptions_as_suppressed_in_it() {
         try {
             ExceptionHandlerUtils.throwAsSuppressedIfAny("test-message", ImmutableList.of(new IllegalStateException("illegal-state-exception")));
-            Assert.fail();
+            Assertions.fail();
         } catch (Throwable e) {
-            Assert.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ThrowableComparer.builder()
                     .type(RuntimeException.class)
                     .message("test-message")
                     .suppressed(ImmutableList.<ThrowableComparer>builder()
@@ -92,7 +92,7 @@ public final class ExceptionHandlerUtilsTest {
 
             String result = outputStream.toString(StandardCharsets.UTF_8);
 
-            Assert.assertTrue(assertResult.test(result)); // TODO: FIX THIS
+            Assertions.assertTrue(assertResult.test(result)); // TODO: FIX THIS
         }
     }
 }

@@ -1,17 +1,17 @@
 package com.java.lang;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
 public final class LambdaClosureTest {
     private volatile String value = null;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         value = getClass().getSimpleName();
     }
 
@@ -19,8 +19,8 @@ public final class LambdaClosureTest {
     public void TEST_1() {
         Supplier<String> supplier = () -> value;
         value = "TEST_1";
-        Assert.assertEquals("TEST_1", supplier.get());
-        Assert.assertEquals("TEST_1", value);
+        Assertions.assertEquals("TEST_1", supplier.get());
+        Assertions.assertEquals("TEST_1", value);
     }
 
     private static String pass(final String value) {
@@ -31,8 +31,8 @@ public final class LambdaClosureTest {
     public void TEST_2() {
         Supplier<String> supplier = () -> pass(value);
         value = "TEST_2";
-        Assert.assertEquals("TEST_2", supplier.get());
-        Assert.assertEquals("TEST_2", value);
+        Assertions.assertEquals("TEST_2", supplier.get());
+        Assertions.assertEquals("TEST_2", value);
     }
 
     @RequiredArgsConstructor
@@ -50,7 +50,7 @@ public final class LambdaClosureTest {
         Supplier<String> supplier = new SupplierClosure(value);
 
         value = "TEST_2";
-        Assert.assertEquals(getClass().getSimpleName(), supplier.get());
-        Assert.assertEquals("TEST_2", value);
+        Assertions.assertEquals(getClass().getSimpleName(), supplier.get());
+        Assertions.assertEquals("TEST_2", value);
     }
 }

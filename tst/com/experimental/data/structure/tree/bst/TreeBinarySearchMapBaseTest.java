@@ -37,7 +37,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(6, "6"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
@@ -61,7 +61,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(false));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(42, "42"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(39, "39"))
@@ -88,7 +88,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .build(), result);
 //    }
@@ -101,7 +101,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(false));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .build(), result);
 //    }
@@ -111,7 +111,7 @@
 //        TestTreeBinarySearchMap test = new TestTreeBinarySearchMap(Integer::compareTo);
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.of(), result);
+//        Assertions.assertEquals(ImmutableList.of(), result);
 //    }
 //
 //    @Test
@@ -119,19 +119,19 @@
 //        TestTreeBinarySearchMap test = new TestTreeBinarySearchMap(Integer::compareTo);
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(false));
 //
-//        Assert.assertEquals(ImmutableList.of(), result);
+//        Assertions.assertEquals(ImmutableList.of(), result);
 //    }
 //
 //    @Test
 //    public void TEST_7() {
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //
-//        Assert.assertFalse(test.containsKey(-1));
-//        Assert.assertTrue(test.containsKey(3));
-//        Assert.assertFalse(test.containsKey(7));
-//        Assert.assertTrue(test.containsKey(24));
-//        Assert.assertFalse(test.containsKey(41));
-//        Assert.assertTrue(test.containsKey(45));
+//        Assertions.assertFalse(test.containsKey(-1));
+//        Assertions.assertTrue(test.containsKey(3));
+//        Assertions.assertFalse(test.containsKey(7));
+//        Assertions.assertTrue(test.containsKey(24));
+//        Assertions.assertFalse(test.containsKey(41));
+//        Assertions.assertTrue(test.containsKey(45));
 //    }
 //
 //    @Test
@@ -139,26 +139,26 @@
 //        Comparator<Integer> comparator = Integer::compareTo;
 //        TestTreeBinarySearchMap test = new TestTreeBinarySearchMap(comparator);
 //
-//        Assert.assertEquals(comparator, test.comparator());
+//        Assertions.assertEquals(comparator, test.comparator());
 //    }
 //
 //    @Test
 //    public void TEST_9() {
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //
-//        Assert.assertEquals(15, test.size());
+//        Assertions.assertEquals(15, test.size());
 //    }
 //
 //    @Test
 //    public void TEST_10() {
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //
-//        Assert.assertNull(test.get(-1));
-//        Assert.assertEquals("3", test.get(3));
-//        Assert.assertNull(test.get(7));
-//        Assert.assertEquals("24", test.get(24));
-//        Assert.assertNull(test.get(41));
-//        Assert.assertEquals("45", test.get(45));
+//        Assertions.assertNull(test.get(-1));
+//        Assertions.assertEquals("3", test.get(3));
+//        Assertions.assertNull(test.get(7));
+//        Assertions.assertEquals("24", test.get(24));
+//        Assertions.assertNull(test.get(41));
+//        Assertions.assertEquals("45", test.get(45));
 //    }
 //
 //    @Test
@@ -168,8 +168,8 @@
 //            put(3, "3-changed");
 //        }};
 //
-//        Assert.assertEquals("3-changed", test.get(3));
-//        Assert.assertEquals(1, test.size());
+//        Assertions.assertEquals("3-changed", test.get(3));
+//        Assertions.assertEquals(1, test.size());
 //    }
 //
 //    @Test
@@ -177,7 +177,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(18, true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(18, "18"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(21, "21"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(24, "24"))
@@ -196,7 +196,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(24, true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(24, "24"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(27, "27"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(30, "30"))
@@ -213,7 +213,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(33, true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(33, "33"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(36, "36"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(39, "39"))
@@ -227,7 +227,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(0, true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(6, "6"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
@@ -251,7 +251,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(7, true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(12, "12"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(15, "15"))
@@ -273,7 +273,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(17, true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(18, "18"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(21, "21"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(24, "24"))
@@ -292,7 +292,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(35, true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(36, "36"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(39, "39"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(42, "42"))
@@ -305,7 +305,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(44, true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .build(), result);
 //    }
@@ -315,7 +315,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iteratorFrom(46, true));
 //
-//        Assert.assertEquals(ImmutableList.of(), result);
+//        Assertions.assertEquals(ImmutableList.of(), result);
 //    }
 //
 //    @Test
@@ -326,7 +326,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(6, "6"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(12, "12"))
@@ -343,7 +343,7 @@
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .build(), result);
 //
-//        Assert.assertEquals(14, test.size());
+//        Assertions.assertEquals(14, test.size());
 //    }
 //
 //    @Test
@@ -354,7 +354,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(6, "6"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
@@ -371,7 +371,7 @@
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .build(), result);
 //
-//        Assert.assertEquals(14, test.size());
+//        Assertions.assertEquals(14, test.size());
 //    }
 //
 //    @Test
@@ -382,7 +382,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(6, "6"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
@@ -399,7 +399,7 @@
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .build(), result);
 //
-//        Assert.assertEquals(14, test.size());
+//        Assertions.assertEquals(14, test.size());
 //    }
 //
 //    @Test
@@ -410,7 +410,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(6, "6"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
@@ -427,7 +427,7 @@
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .build(), result);
 //
-//        Assert.assertEquals(14, test.size());
+//        Assertions.assertEquals(14, test.size());
 //    }
 //
 //    @Test
@@ -438,7 +438,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(6, "6"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
@@ -455,7 +455,7 @@
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .build(), result);
 //
-//        Assert.assertEquals(14, test.size());
+//        Assertions.assertEquals(14, test.size());
 //    }
 //
 //    @Test
@@ -466,7 +466,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
+//        Assertions.assertEquals(ImmutableList.<Map.Entry<Integer, String>>builder()
 //                .add(new AbstractMap.SimpleImmutableEntry<>(3, "3"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(6, "6"))
 //                .add(new AbstractMap.SimpleImmutableEntry<>(9, "9"))
@@ -484,7 +484,7 @@
 //                .add(new AbstractMap.SimpleImmutableEntry<>(45, "45"))
 //                .build(), result);
 //
-//        Assert.assertEquals(15, test.size());
+//        Assertions.assertEquals(15, test.size());
 //    }
 //
 //    @Test
@@ -495,7 +495,7 @@
 //
 //        List<Map.Entry<Integer, String>> result = ImmutableList.copyOf(test.iterator(true));
 //
-//        Assert.assertEquals(ImmutableList.of(), result);
+//        Assertions.assertEquals(ImmutableList.of(), result);
 //    }
 //
 //    @Test
@@ -503,7 +503,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        Map.Entry<Integer, String> result = test.minimumEntry(42);
 //
-//        Assert.assertEquals(new AbstractMap.SimpleImmutableEntry<>(39, "39"), result);
+//        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>(39, "39"), result);
 //    }
 //
 //    @Test
@@ -511,7 +511,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        Map.Entry<Integer, String> result = test.minimumEntry(24);
 //
-//        Assert.assertEquals(new AbstractMap.SimpleImmutableEntry<>(3, "3"), result);
+//        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>(3, "3"), result);
 //    }
 //
 //    @Test
@@ -519,7 +519,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        Map.Entry<Integer, String> result = test.maximumEntry(6);
 //
-//        Assert.assertEquals(new AbstractMap.SimpleImmutableEntry<>(9, "9"), result);
+//        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>(9, "9"), result);
 //    }
 //
 //    @Test
@@ -527,7 +527,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        Map.Entry<Integer, String> result = test.maximumEntry(24);
 //
-//        Assert.assertEquals(new AbstractMap.SimpleImmutableEntry<>(45, "45"), result);
+//        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>(45, "45"), result);
 //    }
 //
 //    @Test
@@ -535,7 +535,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        Map.Entry<Integer, String> result = test.predecessorEntry(24);
 //
-//        Assert.assertEquals(new AbstractMap.SimpleImmutableEntry<>(21, "21"), result);
+//        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>(21, "21"), result);
 //    }
 //
 //    @Test
@@ -543,7 +543,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        Map.Entry<Integer, String> result = test.predecessorEntry(36);
 //
-//        Assert.assertEquals(new AbstractMap.SimpleImmutableEntry<>(33, "33"), result);
+//        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>(33, "33"), result);
 //    }
 //
 //    @Test
@@ -551,7 +551,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        Map.Entry<Integer, String> result = test.successorEntry(24);
 //
-//        Assert.assertEquals(new AbstractMap.SimpleImmutableEntry<>(27, "27"), result);
+//        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>(27, "27"), result);
 //    }
 //
 //    @Test
@@ -559,7 +559,7 @@
 //        TestTreeBinarySearchMap test = createBsTreeMap();
 //        Map.Entry<Integer, String> result = test.successorEntry(12);
 //
-//        Assert.assertEquals(new AbstractMap.SimpleImmutableEntry<>(15, "15"), result);
+//        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>(15, "15"), result);
 //    }
 //
 //    private static class TestTreeBinarySearchMap extends TreeBinarySearchMapBase<Integer, String, TreeNodeDefault<Integer, String>> {

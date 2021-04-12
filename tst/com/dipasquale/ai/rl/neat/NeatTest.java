@@ -13,10 +13,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,20 +36,22 @@ public final class NeatTest {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
-    private static final EventLoopIterable EVENT_LOOP = EventLoop.createForIterables(EventLoopIterableSettings.builder()
+    private static final EventLoopIterableSettings EVENT_LOOP_SETTINGS = EventLoopIterableSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .exceptionLogger(EXCEPTIONS::add)
             .dateTimeSupport(DateTimeSupport.createMilliseconds())
-            .build());
+            .build();
 
-    @BeforeClass
-    public static void beforeClass() {
+    private static final EventLoopIterable EVENT_LOOP = EventLoop.createForIterables(EVENT_LOOP_SETTINGS);
+
+    @BeforeAll
+    public static void beforeAll() {
         JvmWarmup.start(250_000);
     }
 
-    @AfterClass
-    public static void afterClass() {
+    @AfterAll
+    public static void afterAll() {
         EVENT_LOOP.shutdown();
         EXECUTOR_SERVICE.shutdown();
     }
@@ -74,31 +76,34 @@ public final class NeatTest {
                 neatCopy.load(inputStream, stateSettings);
             }
 
-            Assert.assertEquals(neat.getGeneration(), neatCopy.getGeneration());
-            Assert.assertEquals(neat.getSpeciesCount(), neatCopy.getSpeciesCount());
-            Assert.assertEquals(neat.getMaximumFitness(), neatCopy.getMaximumFitness(), 0f);
+            Assertions.assertEquals(neat.getGeneration(), neatCopy.getGeneration());
+            Assertions.assertEquals(neat.getSpeciesCount(), neatCopy.getSpeciesCount());
+            Assertions.assertEquals(neat.getMaximumFitness(), neatCopy.getMaximumFitness(), 0f);
 
             NeatEvaluatorTrainingResult result = neatSetup.trainingPolicy.test(new NeatActivatorEvaluatorTrainer(neatCopy));
 
-            Assert.assertEquals(NeatEvaluatorTrainingResult.WORKING_SOLUTION_FOUND, result);
+            Assertions.assertEquals(NeatEvaluatorTrainingResult.WORKING_SOLUTION_FOUND, result);
         } catch (IOException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
     }
 
-    private static void assertTheXorProblem(final boolean shouldUseParallelism) {
-        NeatSetup neatSetup = createXorEvaluatorTest(shouldUseParallelism);
+    private static void assertTheSolutionForTheProblem(final NeatSetup neatSetup, final boolean shouldTestSerialization) {
         NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
         boolean success = neat.train(neatSetup.trainingPolicy);
 
         System.out.printf("=========================================%n");
-        System.out.printf("XOR (%s):%n", shouldUseParallelism ? "parallel" : "single");
+        System.out.printf("%s (%s):%n", neatSetup.name, neatSetup.shouldUseParallelism ? "parallel" : "single");
         System.out.printf("=========================================%n");
         System.out.printf("generation: %d%n", neat.getGeneration());
         System.out.printf("species: %d%n", neat.getSpeciesCount());
         System.out.printf("fitness: %f%n", neat.getMaximumFitness());
-        Assert.assertTrue(success);
-        Assert.assertEquals(neatSetup.populationSize, neatSetup.genomeIds.size());
+        Assertions.assertTrue(success);
+        Assertions.assertEquals(neatSetup.populationSize, neatSetup.genomeIds.size());
+
+        if (shouldTestSerialization) {
+            assertSaveAndLoad(neat, neatSetup, !neatSetup.shouldUseParallelism);
+        }
     }
 
     private static NeatSetup createXorEvaluatorTest(final boolean shouldUseParallelism) {
@@ -145,6 +150,8 @@ public final class NeatTest {
         };
 
         return NeatSetup.builder()
+                .name("XOR")
+                .shouldUseParallelism(shouldUseParallelism)
                 .populationSize(populationSize)
                 .genomeIds(environmentContainer.genomeIds)
                 .settings(SettingsEvaluator.builder()
@@ -217,29 +224,14 @@ public final class NeatTest {
                 .build();
     }
 
-    private static void assertTheXorProblem(final NeatSetupFactory neatSetupFactory) {
-        NeatSetup neatSetup = createXorEvaluatorTest(shouldUseParallelism);
-        NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
-        boolean success = neat.train(neatSetup.trainingPolicy);
-
-        System.out.printf("=========================================%n");
-        System.out.printf("XOR (%s):%n", shouldUseParallelism ? "parallel" : "single");
-        System.out.printf("=========================================%n");
-        System.out.printf("generation: %d%n", neat.getGeneration());
-        System.out.printf("species: %d%n", neat.getSpeciesCount());
-        System.out.printf("fitness: %f%n", neat.getMaximumFitness());
-        Assert.assertTrue(success);
-        Assert.assertEquals(neatSetup.populationSize, neatSetup.genomeIds.size());
-    }
-
     @Test
     public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_first_problem_which_is_xor_THEN_find_the_solution() {
-        assertTheXorProblem(false);
+        assertTheSolutionForTheProblem(createXorEvaluatorTest(false), false);
     }
 
     @Test
     public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_first_problem_which_is_xor_THEN_find_the_solution() {
-        assertTheXorProblem(true);
+        assertTheSolutionForTheProblem(createXorEvaluatorTest(true), false);
     }
 
     private static float[] convertToFloat(final double[] input) {
@@ -307,6 +299,8 @@ public final class NeatTest {
         };
 
         return NeatSetup.builder()
+                .name("Single Pole Balancing")
+                .shouldUseParallelism(shouldUseParallelism)
                 .populationSize(populationSize)
                 .genomeIds(environmentContainer.genomeIds)
                 .settings(SettingsEvaluator.builder()
@@ -379,34 +373,14 @@ public final class NeatTest {
                 .build();
     }
 
-    private static void assertTheSinglePoleBalancingProblem(final boolean shouldUseParallelism, final boolean shouldTestSerialization) {
-        double timeSpentGoal = 60D;
-        NeatSetup neatSetup = createSinglePoleBalancingTest(timeSpentGoal, shouldUseParallelism);
-        NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
-        boolean success = neat.train(neatSetup.trainingPolicy);
-
-        if (shouldTestSerialization) {
-            assertSaveAndLoad(neat, neatSetup, !shouldUseParallelism);
-        }
-
-        System.out.printf("=========================================%n");
-        System.out.printf("Single Pole Balancing (%s)%n", shouldUseParallelism ? "parallel" : "single");
-        System.out.printf("=========================================%n");
-        System.out.printf("generation: %d%n", neat.getGeneration());
-        System.out.printf("species: %d%n", neat.getSpeciesCount());
-        System.out.printf("fitness: %f%n", neat.getMaximumFitness());
-        Assert.assertTrue(success);
-        Assert.assertEquals(neatSetup.populationSize, neatSetup.genomeIds.size());
-    }
-
     @Test
     public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
-        assertTheSinglePoleBalancingProblem(false, false);
+        assertTheSolutionForTheProblem(createSinglePoleBalancingTest(60D, false), false);
     }
 
     @Test
     public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
-        assertTheSinglePoleBalancingProblem(true, false);
+        assertTheSolutionForTheProblem(createSinglePoleBalancingTest(60D, true), false);
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
@@ -436,14 +410,11 @@ public final class NeatTest {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
     private static final class NeatSetup {
+        private final String name;
+        private final boolean shouldUseParallelism;
         private final int populationSize;
         private final Set<String> genomeIds;
         private final SettingsEvaluator settings;
         private final NeatEvaluatorTrainingPolicy trainingPolicy;
-    }
-
-    @FunctionalInterface
-    private interface NeatSetupFactory {
-        NeatSetup create();
     }
 }

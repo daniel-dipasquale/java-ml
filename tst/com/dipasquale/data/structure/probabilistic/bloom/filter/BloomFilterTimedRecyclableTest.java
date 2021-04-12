@@ -3,9 +3,9 @@ package com.dipasquale.data.structure.probabilistic.bloom.filter;
 import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.measure.unit.SI;
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,8 +19,8 @@ public final class BloomFilterTimedRecyclableTest {
     private static final ExpirySupport EXPIRY_SUPPORT = ExpirySupport.create(DATE_TIME_SUPPORT, 1L);
     private static final BloomFilterTimedRecyclableFactory BLOOM_FILTER_FACTORY = new BloomFilterTimedRecyclableFactory(BLOOM_FILTER_DEFAULT_FACTORY, EXPIRY_SUPPORT);
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         CURRENT_DATE_TIME.set(1L);
     }
 
@@ -28,12 +28,12 @@ public final class BloomFilterTimedRecyclableTest {
     public void GIVEN_an_empty_bloom_filter_WHEN_determining_if_an_item_might_exist_before_and_after_it_is_added_THEN_determine_if_it_might_exist_before_and_after_it_is_added() {
         BloomFilter<String> test = BLOOM_FILTER_FACTORY.createEstimated(1, 1, 0.5D);
 
-        Assert.assertFalse(test.mightContain("one"));
-        Assert.assertTrue(test.add("one"));
+        Assertions.assertFalse(test.mightContain("one"));
+        Assertions.assertTrue(test.add("one"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("one"));
-            Assert.assertFalse(test.add("one"));
+            Assertions.assertTrue(test.mightContain("one"));
+            Assertions.assertFalse(test.add("one"));
         }
     }
 
@@ -41,21 +41,21 @@ public final class BloomFilterTimedRecyclableTest {
     public void GIVEN_an_empty_bloom_filter_WHEN_determining_if_an_item_might_exist_after_it_is_added_THEN_determine_it_might_not_contain_it_due_to_expiration() {
         BloomFilter<String> test = BLOOM_FILTER_FACTORY.createEstimated(1, 1, 0.5D);
 
-        Assert.assertFalse(test.mightContain("one"));
-        Assert.assertTrue(test.add("one"));
+        Assertions.assertFalse(test.mightContain("one"));
+        Assertions.assertTrue(test.add("one"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("one"));
-            Assert.assertFalse(test.add("one"));
+            Assertions.assertTrue(test.mightContain("one"));
+            Assertions.assertFalse(test.add("one"));
         }
 
         CURRENT_DATE_TIME.incrementAndGet();
-        Assert.assertFalse(test.mightContain("one"));
-        Assert.assertTrue(test.add("one"));
+        Assertions.assertFalse(test.mightContain("one"));
+        Assertions.assertTrue(test.add("one"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("one"));
-            Assert.assertFalse(test.add("one"));
+            Assertions.assertTrue(test.mightContain("one"));
+            Assertions.assertFalse(test.add("one"));
         }
     }
 
@@ -63,37 +63,37 @@ public final class BloomFilterTimedRecyclableTest {
     public void GIVEN_an_empty_bloom_filter_WHEN_adding_different_items_THEN_ensure_the_items_do_not_overlap() {
         BloomFilter<String> test = BLOOM_FILTER_FACTORY.createEstimated(3);
 
-        Assert.assertFalse(test.mightContain("one"));
-        Assert.assertTrue(test.add("one"));
+        Assertions.assertFalse(test.mightContain("one"));
+        Assertions.assertTrue(test.add("one"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("one"));
-            Assert.assertFalse(test.add("one"));
+            Assertions.assertTrue(test.mightContain("one"));
+            Assertions.assertFalse(test.add("one"));
         }
 
-        Assert.assertFalse(test.mightContain("two"));
-        Assert.assertTrue(test.add("two"));
+        Assertions.assertFalse(test.mightContain("two"));
+        Assertions.assertTrue(test.add("two"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("two"));
-            Assert.assertFalse(test.add("two"));
+            Assertions.assertTrue(test.mightContain("two"));
+            Assertions.assertFalse(test.add("two"));
         }
 
-        Assert.assertFalse(test.mightContain("three"));
-        Assert.assertTrue(test.add("three"));
+        Assertions.assertFalse(test.mightContain("three"));
+        Assertions.assertTrue(test.add("three"));
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("three"));
-            Assert.assertFalse(test.add("three"));
+            Assertions.assertTrue(test.mightContain("three"));
+            Assertions.assertFalse(test.add("three"));
         }
 
         for (int i = 0; i < CONSISTENCY_CHECK; i++) {
-            Assert.assertTrue(test.mightContain("one"));
-            Assert.assertFalse(test.add("one"));
-            Assert.assertTrue(test.mightContain("two"));
-            Assert.assertFalse(test.add("two"));
-            Assert.assertTrue(test.mightContain("three"));
-            Assert.assertFalse(test.add("three"));
+            Assertions.assertTrue(test.mightContain("one"));
+            Assertions.assertFalse(test.add("one"));
+            Assertions.assertTrue(test.mightContain("two"));
+            Assertions.assertFalse(test.add("two"));
+            Assertions.assertTrue(test.mightContain("three"));
+            Assertions.assertFalse(test.add("three"));
         }
     }
 }

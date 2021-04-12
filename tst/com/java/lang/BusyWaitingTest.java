@@ -1,8 +1,8 @@
 package com.java.lang;
 
 import com.dipasquale.common.DateTimeSupport;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -11,7 +11,7 @@ public final class BusyWaitingTest {
     private static final long DURATION = 60_000L;
 
     @Test
-    @Ignore
+    @Disabled
     public void TEST_1() {
         long startDateTime = DATE_TIME_SUPPORT.now();
 
@@ -19,7 +19,7 @@ public final class BusyWaitingTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void TEST_2()
             throws InterruptedException {
         new CountDownLatch(1).await(DURATION, DATE_TIME_SUPPORT.timeUnit());

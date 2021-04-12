@@ -55,9 +55,9 @@
 //                    .map(c -> c.value + 1)
 //                    .awaitReduce(0f, Float::sum);
 //
-//            Assert.assertEquals(0, Float.compare(20f, result));
+//            Assertions.assertEquals(0, Float.compare(20f, result));
 //        } catch (InterruptedException e) {
-//            Assert.fail("interrupted");
+//            Assertions.fail("interrupted");
 //        } finally {
 //            test.shutdown();
 //        }
@@ -85,9 +85,9 @@
 //                    .map(c -> c.value)
 //                    .awaitReduce(0f, Float::sum);
 //
-//            Assert.assertEquals(0, Float.compare(20f, result));
+//            Assertions.assertEquals(0, Float.compare(20f, result));
 //        } catch (InterruptedException e) {
-//            Assert.fail("interrupted");
+//            Assertions.fail("interrupted");
 //        } finally {
 //            test.shutdown();
 //        }
@@ -121,9 +121,9 @@
 //            population.determineMinimumAsync(test);
 //            test.awaitUntilDone();
 //
-//            Assert.assertEquals(0, Float.compare(13f, population.value));
+//            Assertions.assertEquals(0, Float.compare(13f, population.value));
 //        } catch (InterruptedException e) {
-//            Assert.fail("interrupted");
+//            Assertions.fail("interrupted");
 //        } finally {
 //            test.shutdown();
 //        }

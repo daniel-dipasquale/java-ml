@@ -2,9 +2,9 @@ package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,36 +16,36 @@ public final class BloomFilterPartitionFactoryTest {
     private static final BloomFilterFactory BLOOM_FILTER_FACTORY = new BloomFilterFactoryMock(MAXIMUM_HASH_FUNCTIONS, ITEMS);
     private static final BloomFilterPartitionFactory TEST = BloomFilterPartitionFactory.create(BLOOM_FILTER_FACTORY);
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         MAXIMUM_HASH_FUNCTIONS.set(21);
         ITEMS.clear();
     }
 
     @Test
     public void TEST_1() {
-        Assert.assertEquals(21, TEST.getMaximumHashFunctions());
+        Assertions.assertEquals(21, TEST.getMaximumHashFunctions());
         MAXIMUM_HASH_FUNCTIONS.set(7);
-        Assert.assertEquals(7, TEST.getMaximumHashFunctions());
+        Assertions.assertEquals(7, TEST.getMaximumHashFunctions());
     }
 
     @Test
     public void TEST_2() {
         BloomFilter<String> result = TEST.create(5, 2_000_000, 21, 0.5D, 1_000_000);
 
-        Assert.assertTrue(result.mightContain("estimatedSize"));
-        Assert.assertTrue(result.mightContain("hashFunctions"));
-        Assert.assertTrue(result.mightContain("falsePositiveRatio"));
-        Assert.assertTrue(result.mightContain("size"));
-        Assert.assertFalse(result.add("size"));
-        Assert.assertTrue(result.add("does-not-exist"));
+        Assertions.assertTrue(result.mightContain("estimatedSize"));
+        Assertions.assertTrue(result.mightContain("hashFunctions"));
+        Assertions.assertTrue(result.mightContain("falsePositiveRatio"));
+        Assertions.assertTrue(result.mightContain("size"));
+        Assertions.assertFalse(result.add("size"));
+        Assertions.assertTrue(result.add("does-not-exist"));
     }
 
     @Test
     public void TEST_3() {
         TEST.create(5, 2_000_000, 21, 0.5D, 1_000_000);
 
-        Assert.assertEquals(ImmutableMap.<String, String>builder()
+        Assertions.assertEquals(ImmutableMap.<String, String>builder()
                 .put("estimatedSize", "2000000")
                 .put("hashFunctions", "21")
                 .put("falsePositiveRatio", "0.5")

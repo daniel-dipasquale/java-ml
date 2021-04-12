@@ -3,8 +3,8 @@ package com.java.lang;
 import com.dipasquale.common.test.SerializableUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -27,10 +27,10 @@ public class SerializableTest {
             byte[] bytes = SerializableUtils.serialize(a);
             TestA1 result = SerializableUtils.deserialize(bytes);
 
-            Assert.assertNotSame(a, result);
-            Assert.assertSame(result.b.c.a, result);
+            Assertions.assertNotSame(a, result);
+            Assertions.assertSame(result.b.c.a, result);
         } catch (IOException | ClassNotFoundException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
     }
 
@@ -50,7 +50,7 @@ public class SerializableTest {
             SerializableUtils.<TestA2>deserialize(bytes);
         } catch (ClassCastException e) {
         } catch (Throwable e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
     }
 
@@ -65,10 +65,10 @@ public class SerializableTest {
             byte[] bytes = SerializableUtils.serialize(test);
             TestOptional result = SerializableUtils.deserialize(bytes);
 
-            Assert.assertEquals(test.firstName, result.firstName);
-            Assert.assertEquals(test.lastNameGetter.get(), result.lastNameGetter.get());
+            Assertions.assertEquals(test.firstName, result.firstName);
+            Assertions.assertEquals(test.lastNameGetter.get(), result.lastNameGetter.get());
         } catch (IOException | ClassNotFoundException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
     }
 

@@ -1,8 +1,8 @@
 package com.dipasquale.common;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.measure.unit.SI;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,8 +27,8 @@ public final class ExpirySupportTest {
         return ExpirySupport.create(DATE_TIME_SUPPORT, expiryTime);
     }
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         CURRENT_DATE_TIME.set(0L);
     }
 
@@ -38,23 +38,23 @@ public final class ExpirySupportTest {
         ExpirySupport test = createExpirySupport(100L);
 
         CURRENT_DATE_TIME.set(1_049L);
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_050L);
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_051L);
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_099L);
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_100L);
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_101L);
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
     }
 
     @Test
@@ -63,23 +63,23 @@ public final class ExpirySupportTest {
         ExpirySupport test = createExpirySupport(100L, 50L);
 
         CURRENT_DATE_TIME.set(1_049L);
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_150L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_150L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_050L);
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_150L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_150L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_051L);
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_150L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_150L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_099L);
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_150L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_150L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_100L);
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_250L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_250L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_101L);
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_250L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_250L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_150L, SI.MILLI(SI.SECOND)), test.next());
     }
 
     @Test
@@ -88,23 +88,23 @@ public final class ExpirySupportTest {
         ExpirySupport test = createExpirySupport(1L);
 
         CURRENT_DATE_TIME.set(1_049L);
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_050L);
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_051L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_051L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_051L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_051L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_051L);
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_052L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_052L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_052L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_052L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_099L);
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_100L);
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_101L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_101L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_101L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_101L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_101L);
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_102L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_102L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_102L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_102L, SI.MILLI(SI.SECOND)), test.next());
     }
 
     @Test
@@ -113,23 +113,23 @@ public final class ExpirySupportTest {
         ExpirySupport test = ExpirySupport.createFactory(DATE_TIME_SUPPORT).create(100L);
 
         CURRENT_DATE_TIME.set(1_049L);
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_050L);
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_051L);
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_099L);
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_100L);
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_101L);
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
     }
 
     @Test
@@ -138,22 +138,22 @@ public final class ExpirySupportTest {
         ExpirySupport test = ExpirySupport.createFactory(DATE_TIME_SUPPORT).create(100L);
 
         CURRENT_DATE_TIME.set(1_049L);
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_050L);
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_050L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_050L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_051L);
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_051L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_051L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_099L);
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_100L);
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
         CURRENT_DATE_TIME.set(1_101L);
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
-        Assert.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test_slider.next());
+        Assertions.assertEquals(new ExpiryRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test.next());
     }
 }

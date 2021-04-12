@@ -1,12 +1,12 @@
 package com.java.lang;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public final class OperatorPriorityTest {
     @Test
-    @Ignore
+    @Disabled
     public void TEST_1() {
         long x = 10;
         long y = 187;
@@ -14,6 +14,6 @@ public final class OperatorPriorityTest {
 
         x -= y - z;
 
-        Assert.assertEquals(3, x);
+        Assertions.assertEquals(3, x);
     }
 }

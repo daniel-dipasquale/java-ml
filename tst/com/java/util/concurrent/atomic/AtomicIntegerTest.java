@@ -1,8 +1,8 @@
 package com.java.util.concurrent.atomic;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,17 +15,17 @@ public final class AtomicIntegerTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void TEST_1() {
-        Assert.assertEquals(0, TEST.get());
-        Assert.assertEquals(0, incrementAndGet());
-        Assert.assertEquals(1, TEST.get());
-        Assert.assertEquals(1, incrementAndGet());
-        Assert.assertEquals(2, TEST.get());
-        Assert.assertEquals(2, incrementAndGet());
-        Assert.assertEquals(3, TEST.get());
-        Assert.assertEquals(3, incrementAndGet());
-        Assert.assertEquals(0, TEST.get());
-        Assert.assertEquals(0, incrementAndGet());
+        Assertions.assertEquals(0, TEST.get());
+        Assertions.assertEquals(0, incrementAndGet());
+        Assertions.assertEquals(1, TEST.get());
+        Assertions.assertEquals(1, incrementAndGet());
+        Assertions.assertEquals(2, TEST.get());
+        Assertions.assertEquals(2, incrementAndGet());
+        Assertions.assertEquals(3, TEST.get());
+        Assertions.assertEquals(3, incrementAndGet());
+        Assertions.assertEquals(0, TEST.get());
+        Assertions.assertEquals(0, incrementAndGet());
     }
 }

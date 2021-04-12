@@ -1,9 +1,9 @@
 package com.dipasquale.common;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -12,116 +12,116 @@ public final class BitManipulatorTest {
     private static final AtomicLong VALUE = new AtomicLong();
     private static final BitManipulator TEST = new BitManipulatorMock(SIZE, VALUE);
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
         SIZE.set(0L);
         VALUE.set(1L);
     }
 
     @Test
     public void TEST_1() {
-        Assert.assertEquals(SIZE.get(), TEST.size());
-        Assert.assertEquals(SIZE.incrementAndGet(), TEST.size());
+        Assertions.assertEquals(SIZE.get(), TEST.size());
+        Assertions.assertEquals(SIZE.incrementAndGet(), TEST.size());
     }
 
     @Test
     public void TEST_2() {
-        Assert.assertFalse(TEST.isOutOfBounds(0L));
-        Assert.assertTrue(TEST.isOutOfBounds(65L));
+        Assertions.assertFalse(TEST.isOutOfBounds(0L));
+        Assertions.assertTrue(TEST.isOutOfBounds(65L));
     }
 
     @Test
     public void TEST_3() {
-        Assert.assertEquals(1L, TEST.extract(0L));
-        Assert.assertEquals(65L, TEST.extract(64L));
+        Assertions.assertEquals(1L, TEST.extract(0L));
+        Assertions.assertEquals(65L, TEST.extract(64L));
     }
 
     @Test
     public void TEST_4() {
-        Assert.assertEquals(6L, TEST.merge(2L, 4L));
-        Assert.assertEquals(6L, VALUE.get());
-        Assert.assertEquals(12L, TEST.merge(5L, 7L));
-        Assert.assertEquals(12L, VALUE.get());
+        Assertions.assertEquals(6L, TEST.merge(2L, 4L));
+        Assertions.assertEquals(6L, VALUE.get());
+        Assertions.assertEquals(12L, TEST.merge(5L, 7L));
+        Assertions.assertEquals(12L, VALUE.get());
     }
 
     @Test
     public void TEST_5() {
-        Assert.assertEquals(8L, TEST.setAndGet(2L, 4L));
-        Assert.assertEquals(6L, VALUE.get());
-        Assert.assertEquals(17L, TEST.setAndGet(5L, 7L));
-        Assert.assertEquals(12L, VALUE.get());
+        Assertions.assertEquals(8L, TEST.setAndGet(2L, 4L));
+        Assertions.assertEquals(6L, VALUE.get());
+        Assertions.assertEquals(17L, TEST.setAndGet(5L, 7L));
+        Assertions.assertEquals(12L, VALUE.get());
     }
 
     @Test
     public void TEST_6() {
-        Assert.assertEquals(3L, TEST.getAndSet(2L, 4L));
-        Assert.assertEquals(6L, VALUE.get());
-        Assert.assertEquals(11L, TEST.getAndSet(5L, 7L));
-        Assert.assertEquals(12L, VALUE.get());
+        Assertions.assertEquals(3L, TEST.getAndSet(2L, 4L));
+        Assertions.assertEquals(6L, VALUE.get());
+        Assertions.assertEquals(11L, TEST.getAndSet(5L, 7L));
+        Assertions.assertEquals(12L, VALUE.get());
     }
 
     @Test
     public void TEST_7() {
-        Assert.assertEquals(11L, TEST.accumulateAndGet(2L, 4L, Long::sum));
-        Assert.assertEquals(9L, VALUE.get());
-        Assert.assertEquals(31L, TEST.accumulateAndGet(5L, 7L, Long::sum));
-        Assert.assertEquals(26L, VALUE.get());
+        Assertions.assertEquals(11L, TEST.accumulateAndGet(2L, 4L, Long::sum));
+        Assertions.assertEquals(9L, VALUE.get());
+        Assertions.assertEquals(31L, TEST.accumulateAndGet(5L, 7L, Long::sum));
+        Assertions.assertEquals(26L, VALUE.get());
     }
 
     @Test
     public void TEST_8() {
-        Assert.assertEquals(3L, TEST.getAndAccumulate(2L, 4L, Long::sum));
-        Assert.assertEquals(9L, VALUE.get());
-        Assert.assertEquals(14L, TEST.getAndAccumulate(5L, 7L, Long::sum));
-        Assert.assertEquals(26L, VALUE.get());
+        Assertions.assertEquals(3L, TEST.getAndAccumulate(2L, 4L, Long::sum));
+        Assertions.assertEquals(9L, VALUE.get());
+        Assertions.assertEquals(14L, TEST.getAndAccumulate(5L, 7L, Long::sum));
+        Assertions.assertEquals(26L, VALUE.get());
     }
 
     @Test
     public void TEST_9() {
-        Assert.assertEquals(11L, TEST.addAndGet(2L, 4L));
-        Assert.assertEquals(9L, VALUE.get());
-        Assert.assertEquals(31L, TEST.addAndGet(5L, 7L));
-        Assert.assertEquals(26L, VALUE.get());
+        Assertions.assertEquals(11L, TEST.addAndGet(2L, 4L));
+        Assertions.assertEquals(9L, VALUE.get());
+        Assertions.assertEquals(31L, TEST.addAndGet(5L, 7L));
+        Assertions.assertEquals(26L, VALUE.get());
     }
 
     @Test
     public void TEST_10() {
-        Assert.assertEquals(3L, TEST.getAndAdd(2L, 4L));
-        Assert.assertEquals(9L, VALUE.get());
-        Assert.assertEquals(14L, TEST.getAndAdd(5L, 7L));
-        Assert.assertEquals(26L, VALUE.get());
+        Assertions.assertEquals(3L, TEST.getAndAdd(2L, 4L));
+        Assertions.assertEquals(9L, VALUE.get());
+        Assertions.assertEquals(14L, TEST.getAndAdd(5L, 7L));
+        Assertions.assertEquals(26L, VALUE.get());
     }
 
     @Test
     public void TEST_11() {
-        Assert.assertEquals(8L, TEST.incrementAndGet(2L));
-        Assert.assertEquals(6L, VALUE.get());
-        Assert.assertEquals(22L, TEST.incrementAndGet(5L));
-        Assert.assertEquals(17L, VALUE.get());
+        Assertions.assertEquals(8L, TEST.incrementAndGet(2L));
+        Assertions.assertEquals(6L, VALUE.get());
+        Assertions.assertEquals(22L, TEST.incrementAndGet(5L));
+        Assertions.assertEquals(17L, VALUE.get());
     }
 
     @Test
     public void TEST_12() {
-        Assert.assertEquals(3L, TEST.getAndIncrement(2L));
-        Assert.assertEquals(6L, VALUE.get());
-        Assert.assertEquals(11L, TEST.getAndIncrement(5L));
-        Assert.assertEquals(17L, VALUE.get());
+        Assertions.assertEquals(3L, TEST.getAndIncrement(2L));
+        Assertions.assertEquals(6L, VALUE.get());
+        Assertions.assertEquals(11L, TEST.getAndIncrement(5L));
+        Assertions.assertEquals(17L, VALUE.get());
     }
 
     @Test
     public void TEST_13() {
-        Assert.assertEquals(6L, TEST.decrementAndGet(2L));
-        Assert.assertEquals(4L, VALUE.get());
-        Assert.assertEquals(18L, TEST.decrementAndGet(5L));
-        Assert.assertEquals(13L, VALUE.get());
+        Assertions.assertEquals(6L, TEST.decrementAndGet(2L));
+        Assertions.assertEquals(4L, VALUE.get());
+        Assertions.assertEquals(18L, TEST.decrementAndGet(5L));
+        Assertions.assertEquals(13L, VALUE.get());
     }
 
     @Test
     public void TEST_14() {
-        Assert.assertEquals(3L, TEST.getAndDecrement(2L));
-        Assert.assertEquals(4L, VALUE.get());
-        Assert.assertEquals(9L, TEST.getAndDecrement(5L));
-        Assert.assertEquals(13L, VALUE.get());
+        Assertions.assertEquals(3L, TEST.getAndDecrement(2L));
+        Assertions.assertEquals(4L, VALUE.get());
+        Assertions.assertEquals(9L, TEST.getAndDecrement(5L));
+        Assertions.assertEquals(13L, VALUE.get());
     }
 
     @RequiredArgsConstructor
