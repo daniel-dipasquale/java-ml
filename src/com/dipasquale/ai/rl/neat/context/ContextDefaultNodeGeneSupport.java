@@ -7,9 +7,11 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.FloatFactory;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -57,8 +59,18 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
         state.put("nodes.biases", biases);
     }
 
-    public void load(final SerializableInteroperableStateMap state) {
-        biasFactories = state.get("nodes.biasFactories");
+    private static Map<NodeGeneType, FloatFactory> loadBiasFactories(final Map<NodeGeneType, FloatFactory> biasFactories, final EventLoopIterable eventLoop) {
+        Map<NodeGeneType, FloatFactory> biasFactoriesFixed = new HashMap<>();
+
+        for (Map.Entry<NodeGeneType, FloatFactory> entry : biasFactories.entrySet()) {
+            biasFactoriesFixed.put(entry.getKey(), entry.getValue().selectContended(eventLoop != null));
+        }
+
+        return biasFactoriesFixed;
+    }
+
+    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
+        biasFactories = loadBiasFactories(state.get("nodes.biasFactories"), eventLoop);
         activationFunctionProviders = state.get("nodes.activationFunctionProviders");
         inputs = state.get("nodes.inputs");
         outputs = state.get("nodes.outputs");

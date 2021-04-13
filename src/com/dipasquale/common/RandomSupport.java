@@ -43,14 +43,14 @@ public interface RandomSupport extends Serializable {
         return isBetween(0D, max);
     }
 
-    private static RandomSupport create(final DoubleFactory factory) {
+    private static RandomSupport create(final RandomSupport randomSupport) {
         return new RandomSupport() {
             @Serial
             private static final long serialVersionUID = 4254847174604671066L;
 
             @Override
             public double next() {
-                return factory.create();
+                return randomSupport.next();
             }
         };
     }

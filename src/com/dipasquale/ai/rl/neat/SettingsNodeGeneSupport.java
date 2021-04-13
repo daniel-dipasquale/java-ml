@@ -62,7 +62,7 @@ public final class SettingsNodeGeneSupport {
                 .map(sfn -> sfn.createFactory(parallelism))
                 .collect(Collectors.toList());
 
-        return FloatFactory.createCyclic(biasNodeBiasFactories, parallelism.isEnabled());
+        return FloatFactory.createCyclic(biasNodeBiasFactories).selectContended(parallelism.isEnabled());
     }
 
     ContextDefaultNodeGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsParallelism parallelism) {

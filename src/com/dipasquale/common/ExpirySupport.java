@@ -61,7 +61,7 @@ public interface ExpirySupport extends Serializable {
     static Factory createFactory(final DateTimeSupport dateTimeSupport) {
         return new Factory() {
             @Serial
-            private static final long serialVersionUID = 6563396837209486475L;
+            private static final long serialVersionUID = 1483751445553293007L;
 
             @Override
             public ExpirySupport create(final long expiryTime, final long offset) {

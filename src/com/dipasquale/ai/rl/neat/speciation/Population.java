@@ -262,7 +262,7 @@ public final class Population {
         state.writeTo(outputStream);
     }
 
-    public void load(final ObjectInputStream inputStream, final OrganismActivator newMostFitOrganismActivator)
+    public void load(final ObjectInputStream inputStream, final OrganismActivator mostFitOrganismActivatorOverride)
             throws IOException, ClassNotFoundException {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
@@ -272,7 +272,7 @@ public final class Population {
         organismsWithoutSpecies = state.get("population.organismsWithoutSpecies");
         organismsToBirth = state.get("population.organismsToBirth");
         speciesNodes = state.get("population.speciesNodes");
-        mostFitOrganismActivator = newMostFitOrganismActivator;
+        mostFitOrganismActivator = mostFitOrganismActivatorOverride;
         speciesFitnessStrategies = new LinkedList<>();
         speciesEvolutionStrategies = new LinkedList<>();
         speciesBreedContext = state.get("population.speciesBreedContext");

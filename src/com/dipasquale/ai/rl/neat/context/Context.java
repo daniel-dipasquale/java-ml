@@ -41,7 +41,9 @@ public interface Context {
 
     SpeciationSupport speciation();
 
-    StateSupport state();
+    void save(ObjectOutputStream outputStream) throws IOException;
+
+    void load(ObjectInputStream inputStream, StateOverrideSupport override) throws IOException, ClassNotFoundException;
 
     interface GeneralSupport {
         int populationSize();
@@ -206,11 +208,5 @@ public interface Context {
         NeatEnvironment environment();
 
         EventLoopIterable eventLoop();
-    }
-
-    interface StateSupport {
-        void save(ObjectOutputStream outputStream) throws IOException;
-
-        void load(ObjectInputStream inputStream, StateOverrideSupport override) throws IOException, ClassNotFoundException;
     }
 }

@@ -32,8 +32,8 @@ public final class SettingsParallelism {
         return eventLoop.getConcurrencyLevel();
     }
 
-    RandomSupportFloat getRandomSupport(final SettingsRandomType type) {
-        if (!isEnabled()) {
+    RandomSupportFloat getRandomSupport(final SettingsRandomType type, final boolean contended) {
+        if (!contended) {
             return switch (type) {
                 case UNIFORM -> RANDOM_SUPPORT_UNIFORM;
 
@@ -46,6 +46,10 @@ public final class SettingsParallelism {
 
             case MEAN_DISTRIBUTED -> RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT;
         };
+    }
+
+    RandomSupportFloat getRandomSupport(final SettingsRandomType type) {
+        return getRandomSupport(type, isEnabled());
     }
 
     ContextDefaultParallelismSupport create() {

@@ -105,7 +105,7 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
             try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
                 mostFitOrganismActivator.save(objectOutputStream);
                 population.save(objectOutputStream);
-                context.state().save(objectOutputStream);
+                context.save(objectOutputStream);
             }
         }
     }
@@ -142,7 +142,7 @@ final class NeatEvaluatorSynchronized implements NeatEvaluator {
                     try {
                         Context.StateOverrideSupport override = createStateOverride(settings);
 
-                        context.state().load(objectInputStream, override);
+                        context.load(objectInputStream, override);
                     } catch (ClassNotFoundException e) {
                         throw new IOException("unable to load the settings", e);
                     }

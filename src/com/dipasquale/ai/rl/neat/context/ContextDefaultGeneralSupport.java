@@ -39,11 +39,11 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
         state.put("general.environment", environment);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final NeatEnvironment newEnvironment) {
+    public void load(final SerializableInteroperableStateMap state, final NeatEnvironment environmentOverride) {
         populationSize = state.get("general.populationSize");
         fitnessDeterminerFactory = state.get("general.fitnessDeterminerFactory");
 
-        environment = Optional.ofNullable(newEnvironment)
-                .orElse(state.get("general.environment"));
+        environment = Optional.ofNullable(environmentOverride)
+                .orElseGet(() -> state.get("general.environment"));
     }
 }

@@ -3,6 +3,10 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 @RequiredArgsConstructor
 public final class ContextDefault implements Context {
     private final ContextDefaultGeneralSupport general;
@@ -14,7 +18,6 @@ public final class ContextDefault implements Context {
     private final ContextDefaultMutationSupport mutation;
     private final ContextDefaultCrossOverSupport crossOver;
     private final ContextDefaultSpeciationSupport speciation;
-    private final ContextDefaultStateSupport state = new ContextDefaultStateSupport(this);
 
     @Override
     public GeneralSupport general() {
@@ -62,11 +65,10 @@ public final class ContextDefault implements Context {
     }
 
     @Override
-    public StateSupport state() {
-        return state;
-    }
+    public void save(final ObjectOutputStream outputStream)
+            throws IOException {
+        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
-    void save(final SerializableInteroperableStateMap state) {
         general.save(state);
         nodes.save(state);
         connections.save(state);
@@ -76,11 +78,17 @@ public final class ContextDefault implements Context {
         mutation.save(state);
         crossOver.save(state);
         speciation.save(state);
+        state.writeTo(outputStream);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final Context.StateOverrideSupport override) {
+    @Override
+    public void load(final ObjectInputStream inputStream, final Context.StateOverrideSupport override)
+            throws IOException, ClassNotFoundException {
+        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+
+        state.readFrom(inputStream);
         general.load(state, override.environment());
-        nodes.load(state);
+        nodes.load(state, override.eventLoop());
         connections.load(state);
         neuralNetwork.load(state);
         parallelism.load(state, override.eventLoop());

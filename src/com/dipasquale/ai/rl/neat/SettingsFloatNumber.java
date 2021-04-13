@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.common.FloatFactory;
+import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +16,13 @@ public final class SettingsFloatNumber {
     }
 
     public static SettingsFloatNumber random(final SettingsRandomType type, final float min, final float max) {
-        FloatFactoryCreator factoryCreator = sp -> FloatFactory.createRandom(sp.getRandomSupport(type), min, max);
+        FloatFactoryCreator factoryCreator = sp -> {
+            RandomSupportFloat randomSupport = sp.getRandomSupport(type, false);
+            RandomSupportFloat randomSupportContended = sp.getRandomSupport(type, true);
+            FloatFactory factory = FloatFactory.createRandom(randomSupport, min, max, randomSupportContended);
+
+            return factory.selectContended(sp.isEnabled());
+        };
 
         return new SettingsFloatNumber(factoryCreator);
     }

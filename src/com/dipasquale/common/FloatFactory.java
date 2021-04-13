@@ -1,54 +1,26 @@
 package com.dipasquale.common;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-@FunctionalInterface
-public interface FloatFactory extends Serializable { // TODO: add a differentiator between singleton or transient
+public interface FloatFactory extends Serializable {
     float create();
 
-    static FloatFactory createLiteral(final float value) {
-        return new FloatFactory() {
-            @Serial
-            private static final long serialVersionUID = 890190052327745368L;
+    FloatFactory selectContended(boolean contended);
 
-            @Override
-            public float create() {
-                return value;
-            }
-        };
+    static FloatFactory createLiteral(final float value) {
+        return new FloatFactoryLiteral(value);
     }
 
     static FloatFactory createIllegalState(final String message) {
-        return new FloatFactory() {
-            @Serial
-            private static final long serialVersionUID = -205272143970817133L;
-
-            @Override
-            public float create() {
-                throw new IllegalStateException(message);
-            }
-        };
+        return new FloatFactoryIllegalState(message);
     }
 
-    static FloatFactory createCyclic(final List<? extends FloatFactory> factories, final boolean contended) {
-        if (!contended) {
-            return new FloatFactoryCyclic(factories);
-        }
-
-        return new FloatFactoryCyclicCas(factories);
+    static FloatFactory createCyclic(final List<? extends FloatFactory> factories) {
+        return new FloatFactoryCyclic(factories);
     }
 
-    static FloatFactory createRandom(final RandomSupportFloat randomSupport, final float min, final float max) {
-        return new FloatFactory() {
-            @Serial
-            private static final long serialVersionUID = 7091995050863927280L;
-
-            @Override
-            public float create() {
-                return randomSupport.next(min, max);
-            }
-        };
+    static FloatFactory createRandom(final RandomSupportFloat randomSupport, final float min, final float max, final RandomSupportFloat randomSupportContended) {
+        return new FloatFactoryRandom(randomSupport, min, max, randomSupportContended);
     }
 }

@@ -2,7 +2,11 @@ package com.dipasquale.threading.lock;
 
 import com.dipasquale.common.test.ThrowableComparer;
 import com.dipasquale.concurrent.ConcurrentId;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

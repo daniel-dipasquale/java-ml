@@ -43,14 +43,14 @@ public interface RandomSupportFloat extends Serializable {
         return isBetween(0f, max);
     }
 
-    private static RandomSupportFloat create(final FloatFactory factory) {
+    private static RandomSupportFloat create(final RandomSupportFloat randomSupport) {
         return new RandomSupportFloat() {
             @Serial
             private static final long serialVersionUID = 7120126958463439731L;
 
             @Override
             public float next() {
-                return factory.create();
+                return randomSupport.next();
             }
         };
     }
