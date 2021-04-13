@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.common.FloatFactory;
+import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +15,17 @@ final class SettingsFloatFactoryRandom implements FloatFactory {
     private final SettingsRandomType type;
     private final float min;
     private final float max;
-    private final FloatFactoryRandomContended factoryContended = new FloatFactoryRandomContended();
+    private final FloatFactoryRandomContended contendedFactory = new FloatFactoryRandomContended();
+
+    private float create(final boolean contended) {
+        RandomSupportFloat randomSupport = SettingsConstants.getRandomSupport(type, contended);
+
+        return randomSupport.next(min, max);
+    }
 
     @Override
     public float create() {
-        return SettingsConstants.getRandomSupport(type, false).next(min, max);
+        return create(false);
     }
 
     @Override
@@ -27,7 +34,7 @@ final class SettingsFloatFactoryRandom implements FloatFactory {
             return this;
         }
 
-        return factoryContended;
+        return contendedFactory;
     }
 
     @NoArgsConstructor(access = AccessLevel.PACKAGE)
@@ -37,7 +44,7 @@ final class SettingsFloatFactoryRandom implements FloatFactory {
 
         @Override
         public float create() {
-            return SettingsConstants.getRandomSupport(type, true).next(min, max);
+            return SettingsFloatFactoryRandom.this.create(true);
         }
 
         @Override

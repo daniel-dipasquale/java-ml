@@ -3,11 +3,8 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public final class ContextDefaultSpeciationSupport implements Context.SpeciationSupport {
     private int maximumSpecies;

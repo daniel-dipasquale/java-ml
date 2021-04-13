@@ -6,11 +6,8 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public final class ContextDefaultNeuralNetworkSupport implements Context.NeuralNetworkSupport {
     private NeuralNetworkFactory factory;

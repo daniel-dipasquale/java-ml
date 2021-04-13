@@ -3,14 +3,11 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import com.dipasquale.threading.wait.handle.WaitHandle;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public final class ContextDefaultParallelismSupport implements Context.ParallelismSupport {
     private Context.ParallelismSupport parallelism;

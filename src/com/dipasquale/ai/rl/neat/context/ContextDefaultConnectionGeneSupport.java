@@ -6,11 +6,8 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.ai.rl.neat.speciation.PopulationHistoricalMarkings;
 import com.dipasquale.common.FloatFactory;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGeneSupport {
     private boolean multipleRecurrentCyclesAllowed;

@@ -5,13 +5,10 @@ import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 import java.util.Optional;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public final class ContextDefaultGeneralSupport implements Context.GeneralSupport {
     private int populationSize;

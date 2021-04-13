@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.common.EnumFactory;
+import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +15,18 @@ final class SettingsEnumFactoryRandom<T extends Enum<T>> implements EnumFactory<
     private static final long serialVersionUID = 2087565933469556834L;
     private final SettingsRandomType type;
     private final List<? extends T> values;
-    private final SettingsEnumFactoryRandomContended factoryContended = new SettingsEnumFactoryRandomContended();
+    private final SettingsEnumFactoryRandomContended contendedFactory = new SettingsEnumFactoryRandomContended();
+
+    private T create(final boolean contended) {
+        RandomSupportFloat randomSupport = SettingsConstants.getRandomSupport(type, contended);
+        int index = randomSupport.next(0, values.size());
+
+        return values.get(index);
+    }
 
     @Override
     public T create() {
-        int index = SettingsConstants.getRandomSupport(type, false).next(0, values.size());
-
-        return values.get(index);
+        return create(false);
     }
 
     @Override
@@ -29,7 +35,7 @@ final class SettingsEnumFactoryRandom<T extends Enum<T>> implements EnumFactory<
             return this;
         }
 
-        return factoryContended;
+        return contendedFactory;
     }
 
     @NoArgsConstructor(access = AccessLevel.PACKAGE)
@@ -39,9 +45,7 @@ final class SettingsEnumFactoryRandom<T extends Enum<T>> implements EnumFactory<
 
         @Override
         public T create() {
-            int index = SettingsConstants.getRandomSupport(type, true).next(0, values.size());
-
-            return values.get(index);
+            return SettingsEnumFactoryRandom.this.create(true);
         }
 
         @Override

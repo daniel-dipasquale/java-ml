@@ -2,11 +2,8 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public final class ContextDefaultMutationSupport implements Context.MutationSupport {
     private GateProvider shouldAddNodeMutation;
