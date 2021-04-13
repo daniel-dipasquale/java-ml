@@ -3,23 +3,18 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.common.FloatFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SettingsFloatFactoryRandom implements FloatFactory {
     @Serial
     private static final long serialVersionUID = 2597747301977413978L;
     private final SettingsRandomType type;
     private final float min;
     private final float max;
-    private final FloatFactoryRandomContended factoryContended;
-
-    SettingsFloatFactoryRandom(final SettingsRandomType type, final float min, final float max) {
-        this.type = type;
-        this.min = min;
-        this.max = max;
-        this.factoryContended = new FloatFactoryRandomContended();
-    }
+    private final FloatFactoryRandomContended factoryContended = new FloatFactoryRandomContended();
 
     @Override
     public float create() {

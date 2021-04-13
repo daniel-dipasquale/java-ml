@@ -1,7 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.common.EnumFactory;
-import com.dipasquale.common.RandomSupportFloat;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +17,9 @@ public final class SettingsEnum<T extends Enum<T>> {
 
     private static <T extends Enum<T>> SettingsEnum<T> createRandom(final T[] values) {
         EnumFactoryCreator<T> factoryCreator = sp -> {
-            RandomSupportFloat randomSupport = sp.getRandomSupport(SettingsRandomType.UNIFORM);
+            EnumFactory<T> factory = new SettingsEnumFactoryRandom<>(SettingsRandomType.UNIFORM, Lists.newArrayList(values));
 
-            return EnumFactory.createRandom(randomSupport, Lists.newArrayList(values));
+            return factory.selectContended(sp.isEnabled());
         };
 
         return new SettingsEnum<>(factoryCreator);
