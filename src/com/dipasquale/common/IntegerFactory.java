@@ -19,8 +19,4 @@ public interface IntegerFactory extends Serializable {
     static IntegerFactory createCyclic(final List<? extends IntegerFactory> factories) {
         return new IntegerFactoryCyclic(factories);
     }
-
-    static IntegerFactory createRandom(final RandomSupportFloat randomSupport, final int min, final int max, final RandomSupportFloat randomSupportContended) {
-        return new IntegerFactoryRandom(randomSupport, min, max, randomSupportContended);
-    }
 }

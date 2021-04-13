@@ -53,7 +53,7 @@ public final class SettingsNodeGeneSupport {
         };
     }
 
-    private static FloatFactory createBiasFactory(final List<SettingsFloatNumber> biases, final SettingsParallelism parallelism) {
+    private static FloatFactory createBiasFactory(final List<SettingsFloatNumber> biases, final SettingsParallelismSupport parallelism) {
         if (biases.size() == 0) {
             return FloatFactory.createIllegalState("there are no biases allowed in this genome");
         }
@@ -65,7 +65,7 @@ public final class SettingsNodeGeneSupport {
         return FloatFactory.createCyclic(biasNodeBiasFactories).selectContended(parallelism.isEnabled());
     }
 
-    ContextDefaultNodeGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsParallelism parallelism) {
+    ContextDefaultNodeGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsParallelismSupport parallelism) {
         Map<NodeGeneType, FloatFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatFactory>builder()
                 .put(NodeGeneType.INPUT, genesisGenomeTemplate.getInputBias().createFactory(parallelism))
                 .put(NodeGeneType.OUTPUT, genesisGenomeTemplate.getOutputBias().createFactory(parallelism))

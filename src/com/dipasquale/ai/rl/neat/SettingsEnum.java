@@ -34,12 +34,12 @@ public final class SettingsEnum<T extends Enum<T>> {
         return createRandom(values);
     }
 
-    EnumFactory<T> createFactory(final SettingsParallelism parallelism) {
+    EnumFactory<T> createFactory(final SettingsParallelismSupport parallelism) {
         return factoryCreator.create(parallelism);
     }
 
     @FunctionalInterface
     private interface EnumFactoryCreator<T extends Enum<T>> {
-        EnumFactory<T> create(SettingsParallelism parallelism);
+        EnumFactory<T> create(SettingsParallelismSupport parallelism);
     }
 }

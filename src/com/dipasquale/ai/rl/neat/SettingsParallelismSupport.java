@@ -12,11 +12,7 @@ import lombok.Builder;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class SettingsParallelism {
-    private static final RandomSupportFloat RANDOM_SUPPORT_UNIFORM = RandomSupportFloat.create(false);
-    private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTED = RandomSupportFloat.createMeanDistribution(false);
-    private static final RandomSupportFloat RANDOM_SUPPORT_UNIFORM_CONCURRENT = RandomSupportFloat.create(true);
-    private static final RandomSupportFloat RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT = RandomSupportFloat.createMeanDistribution(true);
+public final class SettingsParallelismSupport {
     @Builder.Default
     private final EventLoopIterable eventLoop = null;
 
@@ -32,24 +28,8 @@ public final class SettingsParallelism {
         return eventLoop.getConcurrencyLevel();
     }
 
-    RandomSupportFloat getRandomSupport(final SettingsRandomType type, final boolean contended) {
-        if (!contended) {
-            return switch (type) {
-                case UNIFORM -> RANDOM_SUPPORT_UNIFORM;
-
-                case MEAN_DISTRIBUTED -> RANDOM_SUPPORT_MEAN_DISTRIBUTED;
-            };
-        }
-
-        return switch (type) {
-            case UNIFORM -> RANDOM_SUPPORT_UNIFORM_CONCURRENT;
-
-            case MEAN_DISTRIBUTED -> RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT;
-        };
-    }
-
     RandomSupportFloat getRandomSupport(final SettingsRandomType type) {
-        return getRandomSupport(type, isEnabled());
+        return SettingsConstants.getRandomSupport(type, isEnabled());
     }
 
     ContextDefaultParallelismSupport create() {

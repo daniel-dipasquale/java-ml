@@ -19,8 +19,4 @@ public interface FloatFactory extends Serializable {
     static FloatFactory createCyclic(final List<? extends FloatFactory> factories) {
         return new FloatFactoryCyclic(factories);
     }
-
-    static FloatFactory createRandom(final RandomSupportFloat randomSupport, final float min, final float max, final RandomSupportFloat randomSupportContended) {
-        return new FloatFactoryRandom(randomSupport, min, max, randomSupportContended);
-    }
 }

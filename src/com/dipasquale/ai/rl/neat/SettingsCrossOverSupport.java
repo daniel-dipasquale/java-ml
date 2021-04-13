@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class SettingsCrossOver {
+public final class SettingsCrossOverSupport {
     @Builder.Default
     private final SettingsFloatNumber mateOnlyRate = SettingsFloatNumber.literal(0.2f);
     @Builder.Default
@@ -43,7 +43,7 @@ public final class SettingsCrossOver {
         return () -> randomSupport.isLessThan(rate);
     }
 
-    ContextDefaultCrossOverSupport create(final SettingsParallelism parallelism, final SettingsRandom random) {
+    ContextDefaultCrossOverSupport create(final SettingsParallelismSupport parallelism, final SettingsRandomSupport random) {
         RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
         CrossOverGateProvider crossOver = createCrossOverSuppliers(randomSupport, mateOnlyRate.createFactory(parallelism), mutateOnlyRate.createFactory(parallelism));
         GateProvider shouldOverrideConnectionExpressed = createSupplier(randomSupport, overrideConnectionExpressedRate.createFactory(parallelism));

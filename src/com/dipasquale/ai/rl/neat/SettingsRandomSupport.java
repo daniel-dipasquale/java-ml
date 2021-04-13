@@ -8,21 +8,21 @@ import lombok.Builder;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class SettingsRandom {
+public final class SettingsRandomSupport {
     @Builder.Default
     private final SettingsRandomType nextIndex = SettingsRandomType.UNIFORM;
     @Builder.Default
     private final SettingsRandomType isLessThan = SettingsRandomType.UNIFORM;
 
-    RandomSupportFloat getNextIndexSupport(final SettingsParallelism parallelism) {
+    RandomSupportFloat getNextIndexSupport(final SettingsParallelismSupport parallelism) {
         return parallelism.getRandomSupport(nextIndex);
     }
 
-    RandomSupportFloat getIsLessThanSupport(final SettingsParallelism parallelism) {
+    RandomSupportFloat getIsLessThanSupport(final SettingsParallelismSupport parallelism) {
         return parallelism.getRandomSupport(isLessThan);
     }
 
-    ContextDefaultRandomSupport create(final SettingsParallelism parallelism) {
+    ContextDefaultRandomSupport create(final SettingsParallelismSupport parallelism) {
         RandomSupportFloat nextIndex = getNextIndexSupport(parallelism);
         RandomSupportFloat isLessThan = getIsLessThanSupport(parallelism);
 

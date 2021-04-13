@@ -33,23 +33,23 @@ public final class SettingsEvaluator {
             .build();
 
     @Builder.Default
-    private final SettingsParallelism parallelism = SettingsParallelism.builder()
+    private final SettingsParallelismSupport parallelism = SettingsParallelismSupport.builder()
             .build();
 
     @Builder.Default
-    private final SettingsRandom random = SettingsRandom.builder()
+    private final SettingsRandomSupport random = SettingsRandomSupport.builder()
             .build();
 
     @Builder.Default
-    private final SettingsMutation mutation = SettingsMutation.builder()
+    private final SettingsMutationSupport mutation = SettingsMutationSupport.builder()
             .build();
 
     @Builder.Default
-    private final SettingsCrossOver crossOver = SettingsCrossOver.builder()
+    private final SettingsCrossOverSupport crossOver = SettingsCrossOverSupport.builder()
             .build();
 
     @Builder.Default
-    private final SettingsSpeciation speciation = SettingsSpeciation.builder()
+    private final SettingsSpeciationSupport speciation = SettingsSpeciationSupport.builder()
             .build();
 
     Context createContext() {

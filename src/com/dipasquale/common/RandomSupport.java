@@ -1,6 +1,5 @@
 package com.dipasquale.common;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -43,24 +42,12 @@ public interface RandomSupport extends Serializable {
         return isBetween(0D, max);
     }
 
-    private static RandomSupport create(final RandomSupport randomSupport) {
-        return new RandomSupport() {
-            @Serial
-            private static final long serialVersionUID = 4254847174604671066L;
-
-            @Override
-            public double next() {
-                return randomSupport.next();
-            }
-        };
-    }
-
     static RandomSupport create(final boolean contended) {
         if (!contended) {
-            return create(new Random()::nextDouble);
+            return new Random()::nextDouble;
         }
 
-        return create(() -> ThreadLocalRandom.current().nextDouble());
+        return () -> ThreadLocalRandom.current().nextDouble();
     }
 
     static RandomSupport createMeanDistribution(final boolean contended, final int concentration) {

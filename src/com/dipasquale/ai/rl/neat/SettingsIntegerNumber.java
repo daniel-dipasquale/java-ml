@@ -1,7 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.common.IntegerFactory;
-import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -17,9 +16,7 @@ public final class SettingsIntegerNumber {
 
     public static SettingsIntegerNumber random(final SettingsRandomType type, final int min, final int max) {
         IntegerFactoryCreator factoryCreator = sp -> {
-            RandomSupportFloat randomSupport = sp.getRandomSupport(type, false);
-            RandomSupportFloat randomSupportContended = sp.getRandomSupport(type, true);
-            IntegerFactory factory = IntegerFactory.createRandom(randomSupport, min, max, randomSupportContended);
+            IntegerFactory factory = new SettingsIntegerFactoryRandom(type, min, max);
 
             return factory.selectContended(sp.isEnabled());
         };
@@ -27,12 +24,12 @@ public final class SettingsIntegerNumber {
         return new SettingsIntegerNumber(factoryCreator);
     }
 
-    IntegerFactory createFactory(final SettingsParallelism parallelism) {
+    IntegerFactory createFactory(final SettingsParallelismSupport parallelism) {
         return factoryCreator.create(parallelism);
     }
 
     @FunctionalInterface
     private interface IntegerFactoryCreator {
-        IntegerFactory create(SettingsParallelism parallelism);
+        IntegerFactory create(SettingsParallelismSupport parallelism);
     }
 }

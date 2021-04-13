@@ -16,7 +16,7 @@ public final class SettingsConnectionGeneSupport {
     @Builder.Default
     private final SettingsFloatNumber weightPerturber = SettingsFloatNumber.literal(2.5f);
 
-    ContextDefaultConnectionGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelism parallelism) {
+    ContextDefaultConnectionGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelismSupport parallelism) {
         boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
         FloatFactory weightFactoryFixed = weightFactory.createFactory(parallelism);
         WeightPerturber weightPerturberFixed = WeightPerturber.create(weightPerturber.createFactory(parallelism));

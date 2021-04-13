@@ -1,30 +1,29 @@
-package com.dipasquale.common;
+package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.common.FloatFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 
-final class FloatFactoryRandom implements FloatFactory {
+final class SettingsFloatFactoryRandom implements FloatFactory {
     @Serial
-    private static final long serialVersionUID = 3590158734451559869L;
-    private final RandomSupportFloat randomSupport;
+    private static final long serialVersionUID = 2597747301977413978L;
+    private final SettingsRandomType type;
     private final float min;
     private final float max;
-    private final RandomSupportFloat randomSupportContended;
     private final FloatFactoryRandomContended factoryContended;
 
-    FloatFactoryRandom(final RandomSupportFloat randomSupport, final float min, final float max, final RandomSupportFloat randomSupportContended) {
-        this.randomSupport = randomSupport;
+    SettingsFloatFactoryRandom(final SettingsRandomType type, final float min, final float max) {
+        this.type = type;
         this.min = min;
         this.max = max;
-        this.randomSupportContended = randomSupportContended;
         this.factoryContended = new FloatFactoryRandomContended();
     }
 
     @Override
     public float create() {
-        return randomSupport.next(min, max);
+        return SettingsConstants.getRandomSupport(type, false).next(min, max);
     }
 
     @Override
@@ -39,16 +38,16 @@ final class FloatFactoryRandom implements FloatFactory {
     @NoArgsConstructor(access = AccessLevel.PACKAGE)
     private final class FloatFactoryRandomContended implements FloatFactory {
         @Serial
-        private static final long serialVersionUID = 8943757011000247015L;
+        private static final long serialVersionUID = 1102884778826767986L;
 
         @Override
         public float create() {
-            return randomSupportContended.next(min, max);
+            return SettingsConstants.getRandomSupport(type, true).next(min, max);
         }
 
         @Override
         public FloatFactory selectContended(final boolean contended) {
-            return FloatFactoryRandom.this.selectContended(contended);
+            return SettingsFloatFactoryRandom.this.selectContended(contended);
         }
     }
 }

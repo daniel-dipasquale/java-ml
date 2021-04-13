@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class SettingsSpeciation {
+public final class SettingsSpeciationSupport {
     @Builder.Default
     private final SettingsIntegerNumber maximumSpecies = null;
     @Builder.Default
@@ -38,7 +38,7 @@ public final class SettingsSpeciation {
     @Builder.Default
     private final SettingsFloatNumber interSpeciesMatingRate = SettingsFloatNumber.literal(0.001f);
 
-    ContextDefaultSpeciationSupport create(final SettingsGeneralEvaluatorSupport general, final SettingsParallelism parallelism) {
+    ContextDefaultSpeciationSupport create(final SettingsGeneralEvaluatorSupport general, final SettingsParallelismSupport parallelism) {
         int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
                 .map(sin -> sin.createFactory(parallelism))
                 .map(IntegerFactory::create)

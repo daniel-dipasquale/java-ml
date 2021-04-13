@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class SettingsMutation {
+public final class SettingsMutationSupport {
     @Builder.Default
     private final SettingsFloatNumber addNodeMutationRate = SettingsFloatNumber.literal(0.1f);
     @Builder.Default
@@ -44,7 +44,7 @@ public final class SettingsMutation {
         return new ConnectionWeightGateProvider(() -> randomSupport.isLessThan(perturbRateFixed), () -> randomSupport.isLessThan(replaceRateFixed));
     }
 
-    ContextDefaultMutationSupport create(final SettingsParallelism parallelism, final SettingsRandom random) {
+    ContextDefaultMutationSupport create(final SettingsParallelismSupport parallelism, final SettingsRandomSupport random) {
         RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
         GateProvider shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate.createFactory(parallelism));
         GateProvider shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate.createFactory(parallelism));
