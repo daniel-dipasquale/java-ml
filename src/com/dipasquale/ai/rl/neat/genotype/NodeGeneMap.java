@@ -5,6 +5,7 @@ import com.dipasquale.ai.common.SequentialMap;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -14,9 +15,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class NodeGeneMap implements Iterable<NodeGene>, Serializable {
     @Serial
     private static final long serialVersionUID = -414060625780283286L;
+    @EqualsAndHashCode.Include
     private final SequentialMap<SequentialId, NodeGene> nodes = new SequentialMap<>();
     private final Map<NodeGeneType, SequentialMap<SequentialId, NodeGene>> nodesByType = createNodesByType();
 

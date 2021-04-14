@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -56,25 +57,45 @@ public final class NeatTest {
         EXECUTOR_SERVICE.shutdown();
     }
 
-    private static void assertSaveAndLoad(final NeatEvaluatorTrainer neat, final NeatSetup neatSetup, final boolean shouldUseParallelism) {
+    private static byte[] getBytes(final NeatEvaluatorTrainer neat)
+            throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             neat.save(outputStream);
 
-            SettingsEvaluator evaluatorSettings = SettingsEvaluator.builder()
+            return outputStream.toByteArray();
+        }
+    }
+
+    private static NeatEvaluatorTrainer createEvaluatorTrainer(final byte[] bytes, final SettingsEvaluatorState stateSettings)
+            throws IOException {
+        SettingsEvaluator evaluatorSettings = SettingsEvaluator.builder()
+                .general(SettingsGeneralEvaluatorSupport.builder().build())
+                .build();
+
+        NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(evaluatorSettings);
+
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
+            neat.load(inputStream, stateSettings);
+        }
+
+        return neat;
+    }
+
+    private static void assertPersistence(final NeatEvaluatorTrainer neat, final NeatEvaluatorSetup neatSetup, final boolean shouldUseParallelism) {
+        try {
+            byte[] bytes = getBytes(neat);
+
+            Assertions.assertTrue(bytes.length > 30_000);
+            Assertions.assertTrue(bytes.length < 1_000_000);
+
+            SettingsEvaluatorState stateSettings = SettingsEvaluatorState.builder()
+                    .meantToLoadSettings(true)
+                    .environment(null)
+                    .eventLoop(shouldUseParallelism ? EVENT_LOOP : null)
+                    .meantToLoadTopology(true)
                     .build();
 
-            NeatEvaluatorTrainer neatCopy = Neat.createEvaluatorTrainer(evaluatorSettings);
-
-            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-                SettingsEvaluatorState stateSettings = SettingsEvaluatorState.builder()
-                        .meantToLoadSettings(true)
-                        .environment(null)
-                        .eventLoop(shouldUseParallelism ? EVENT_LOOP : null)
-                        .meantToLoadTopology(true)
-                        .build();
-
-                neatCopy.load(inputStream, stateSettings);
-            }
+            NeatEvaluatorTrainer neatCopy = createEvaluatorTrainer(bytes, stateSettings);
 
             Assertions.assertEquals(neat.getGeneration(), neatCopy.getGeneration());
             Assertions.assertEquals(neat.getSpeciesCount(), neatCopy.getSpeciesCount());
@@ -88,7 +109,7 @@ public final class NeatTest {
         }
     }
 
-    private static void assertTheSolutionForTheProblem(final NeatSetup neatSetup, final boolean shouldTestSerialization) {
+    private static void assertTheSolutionForTheProblem(final NeatEvaluatorSetup neatSetup, final boolean shouldTestSerialization) {
         NeatEvaluatorTrainer neat = Neat.createEvaluatorTrainer(neatSetup.settings);
         boolean success = neat.train(neatSetup.trainingPolicy);
 
@@ -102,11 +123,11 @@ public final class NeatTest {
         Assertions.assertEquals(neatSetup.populationSize, neatSetup.genomeIds.size());
 
         if (shouldTestSerialization) {
-            assertSaveAndLoad(neat, neatSetup, !neatSetup.shouldUseParallelism);
+            assertPersistence(neat, neatSetup, !neatSetup.shouldUseParallelism);
         }
     }
 
-    private static NeatSetup createXorEvaluatorTest(final boolean shouldUseParallelism) {
+    private static NeatEvaluatorSetup createXorEvaluatorTest(final boolean shouldUseParallelism) {
         int populationSize = 150;
 
         float[][] inputs = new float[][]{
@@ -149,7 +170,7 @@ public final class NeatTest {
             return NeatEvaluatorTrainingResult.EVALUATE_FITNESS_AND_EVOLVE;
         };
 
-        return NeatSetup.builder()
+        return NeatEvaluatorSetup.builder()
                 .name("XOR")
                 .shouldUseParallelism(shouldUseParallelism)
                 .populationSize(populationSize)
@@ -225,13 +246,27 @@ public final class NeatTest {
     }
 
     @Test
+    @Order(1)
     public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_first_problem_which_is_xor_THEN_find_the_solution() {
         assertTheSolutionForTheProblem(createXorEvaluatorTest(false), false);
     }
 
     @Test
+    @Order(2)
     public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_first_problem_which_is_xor_THEN_find_the_solution() {
         assertTheSolutionForTheProblem(createXorEvaluatorTest(true), false);
+    }
+
+    @Test
+    @Order(3)
+    public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_first_problem_which_is_xor_THEN_find_the_solution_also_save_it_and_transfer_it() {
+        assertTheSolutionForTheProblem(createXorEvaluatorTest(false), true);
+    }
+
+    @Test
+    @Order(4)
+    public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_first_problem_which_is_xor_THEN_find_the_solution_also_save_it_and_transfer_it() {
+        assertTheSolutionForTheProblem(createXorEvaluatorTest(true), true);
     }
 
     private static float[] convertToFloat(final double[] input) {
@@ -244,7 +279,7 @@ public final class NeatTest {
         return output;
     }
 
-    private static NeatSetup createSinglePoleBalancingTest(final double timeSpentGoal, final boolean shouldUseParallelism) {
+    private static NeatEvaluatorSetup createSinglePoleBalancingTest(final double timeSpentGoal, final boolean shouldUseParallelism) {
         int populationSize = 150;
 
         NeatEnvironmentContainer environmentContainer = NeatEnvironmentContainer.builder()
@@ -298,7 +333,7 @@ public final class NeatTest {
             return NeatEvaluatorTrainingResult.EVALUATE_FITNESS_AND_EVOLVE;
         };
 
-        return NeatSetup.builder()
+        return NeatEvaluatorSetup.builder()
                 .name("Single Pole Balancing")
                 .shouldUseParallelism(shouldUseParallelism)
                 .populationSize(populationSize)
@@ -374,13 +409,27 @@ public final class NeatTest {
     }
 
     @Test
+    @Order(5)
     public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
         assertTheSolutionForTheProblem(createSinglePoleBalancingTest(60D, false), false);
     }
 
     @Test
+    @Order(6)
     public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution() {
         assertTheSolutionForTheProblem(createSinglePoleBalancingTest(60D, true), false);
+    }
+
+    @Test
+    @Order(7)
+    public void GIVEN_a_single_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution_also_save_it_and_transfer_it() {
+        assertTheSolutionForTheProblem(createSinglePoleBalancingTest(60D, false), true);
+    }
+
+    @Test
+    @Order(8)
+    public void GIVEN_a_multi_threaded_neat_evaluator_WHEN_finding_the_solution_to_the_second_problem_which_is_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_find_the_solution_also_save_it_and_transfer_it() {
+        assertTheSolutionForTheProblem(createSinglePoleBalancingTest(60D, true), true);
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
@@ -409,7 +458,7 @@ public final class NeatTest {
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @Builder(access = AccessLevel.PACKAGE)
-    private static final class NeatSetup {
+    private static final class NeatEvaluatorSetup {
         private final String name;
         private final boolean shouldUseParallelism;
         private final int populationSize;

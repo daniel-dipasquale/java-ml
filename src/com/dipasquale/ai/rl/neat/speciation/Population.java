@@ -8,7 +8,6 @@ import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.dipasquale.data.structure.set.IdentityDequeSet;
 import com.google.common.collect.Iterables;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,10 +21,7 @@ import java.util.stream.IntStream;
 
 public final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
-    @Getter
-    private int generation;
-    @Getter
-    private PopulationHistoricalMarkings historicalMarkings;
+    private PopulationInfo info;
     private DequeSet<Organism> organismsWithoutSpecies;
     private Queue<OrganismFactory> organismsToBirth;
     private NodeDeque<Species, SimpleNode<Species>> speciesNodes;
@@ -36,8 +32,7 @@ public final class Population {
     private List<SpeciesBreedStrategy> speciesBreedStrategies;
 
     public Population(final OrganismActivator mostFitOrganismActivator) {
-        this.generation = 1;
-        this.historicalMarkings = new PopulationHistoricalMarkings();
+        this.info = new PopulationInfo();
         this.organismsWithoutSpecies = new IdentityDequeSet<>();
         this.organismsToBirth = new LinkedList<>();
         this.speciesNodes = new SimpleNodeDeque<>();
@@ -48,14 +43,18 @@ public final class Population {
         this.speciesBreedStrategies = new LinkedList<>();
     }
 
+    public int getGeneration() {
+        return info.getGeneration();
+    }
+
     private boolean isInitialized() {
         return !(organismsWithoutSpecies.isEmpty() && organismsToBirth.isEmpty() && speciesNodes.isEmpty());
     }
 
     private void fillOrganismsWithoutSpeciesWithGenesisGenomes(final Context context) {
         IntStream.range(0, context.general().populationSize())
-                .mapToObj(i -> historicalMarkings.createGenome(context))
-                .map(g -> new Organism(g, this))
+                .mapToObj(i -> info.getHistoricalMarkings().createGenome(context))
+                .map(g -> new Organism(g, info))
                 .peek(o -> o.initialize(context))
                 .peek(Organism::freeze)
                 .forEach(organismsWithoutSpecies::add);
@@ -104,7 +103,7 @@ public final class Population {
             throw new IllegalStateException("unable to change the population size after initialization ... yet!");
         }
 
-        historicalMarkings.initialize(context);
+        info.getHistoricalMarkings().initialize(context);
 
         if (isInitialized()) {
             organismsWithoutSpecies.forEach(o -> o.initialize(context));
@@ -135,7 +134,7 @@ public final class Population {
     }
 
     private Species createSpecies(final Organism organism) {
-        return new Species(this, organism);
+        return new Species(organism, info);
     }
 
     private SimpleNode<Species> addSpecies(final Species species) {
@@ -225,22 +224,22 @@ public final class Population {
         SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
 
         assert context.general().populationSize() == countOrganismsEverywhere();
-        assert organismsToBirth.isEmpty() && historicalMarkings.getGenomeKilledCount() == 0;
+        assert organismsToBirth.isEmpty() && info.getHistoricalMarkings().getGenomeKilledCount() == 0;
 
         prepareAllSpeciesForEvolution(context, evolutionContext);
 
         assert organismsToBirth.isEmpty();
 
         breedThroughAllSpecies(evolutionContext);
-        generation++;
+        info.increaseGeneration();
 
         assert context.general().populationSize() == countOrganismsEverywhere();
-        assert historicalMarkings.getGenomeKilledCount() == organismsToBirth.size();
+        assert info.getHistoricalMarkings().getGenomeKilledCount() == organismsToBirth.size();
     }
 
     public void restart(final Context context) {
-        generation = 1;
-        historicalMarkings.reset(context.nodes());
+        info.restartGeneration();
+        info.getHistoricalMarkings().reset(context.nodes());
         organismsWithoutSpecies.clear();
         fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
         mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
@@ -253,8 +252,7 @@ public final class Population {
             throws IOException {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
-        state.put("population.generation", generation);
-        state.put("population.historicalMarkings", historicalMarkings);
+        state.put("population.info", info);
         state.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
         state.put("population.organismsToBirth", organismsToBirth);
         state.put("population.speciesNodes", speciesNodes);
@@ -267,8 +265,7 @@ public final class Population {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
         state.readFrom(inputStream);
-        generation = state.get("population.generation");
-        historicalMarkings = state.get("population.historicalMarkings");
+        info = state.get("population.info");
         organismsWithoutSpecies = state.get("population.organismsWithoutSpecies");
         organismsToBirth = state.get("population.organismsToBirth");
         speciesNodes = state.get("population.speciesNodes");

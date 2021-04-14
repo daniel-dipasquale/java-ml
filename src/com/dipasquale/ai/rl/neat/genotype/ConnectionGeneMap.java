@@ -5,6 +5,7 @@ import com.dipasquale.ai.common.SequentialMap;
 import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serial;
@@ -16,9 +17,11 @@ import java.util.Map;
 import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class ConnectionGeneMap implements Iterable<ConnectionGene>, Serializable {
     @Serial
     private static final long serialVersionUID = 6378529672148503435L;
+    @EqualsAndHashCode.Include
     private final SequentialMap<InnovationId, ConnectionGene> all = new SequentialMap<>();
     private final SequentialMap<InnovationId, ConnectionGene> expressed = new SequentialMap<>();
     private final Map<SequentialId, Map<DirectedEdge, ConnectionGene>> incomingToNodeId = new HashMap<>();

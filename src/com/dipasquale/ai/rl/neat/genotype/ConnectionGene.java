@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.io.Serializable;
 
 @AllArgsConstructor
 @Getter
+@EqualsAndHashCode
 public final class ConnectionGene implements Serializable {
     @Serial
     private static final long serialVersionUID = -72756908718555853L;

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +17,13 @@ import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class SequentialMap<TId extends Comparable<TId>, TItem> implements Iterable<TItem>, Serializable {
     @Serial
     private static final long serialVersionUID = 2209041596810668817L;
+    @EqualsAndHashCode.Include
     private final List<ItemIdEntry<TId, TItem>> list = new ArrayList<>();
-    private final NavigableMap<TId, TItem> navigableMap = new TreeMap<>(TId::compareTo);
+    private final NavigableMap<TId, TItem> navigableMap = new TreeMap<>(Comparator.naturalOrder());
 
     public boolean isEmpty() {
         return list.isEmpty();

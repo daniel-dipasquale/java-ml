@@ -12,10 +12,14 @@ import lombok.Getter;
 @Builder
 @Getter(AccessLevel.PACKAGE)
 public final class SettingsGeneralEvaluatorSupport {
-    private final int populationSize;
-    private final SettingsGenesisGenomeTemplate genesisGenomeConnector;
-    private final FitnessDeterminerFactory fitnessDeterminerFactory;
-    private final NeatEnvironment environment;
+    @Builder.Default
+    private final int populationSize = 150;
+    @Builder.Default
+    private final SettingsGenesisGenomeTemplate genesisGenomeConnector = SettingsGenesisGenomeTemplate.createDefault(1, 1);
+    @Builder.Default
+    private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
+    @Builder.Default
+    private final NeatEnvironment environment = g -> 0f;
 
     ContextDefaultGeneralSupport create() {
         ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");

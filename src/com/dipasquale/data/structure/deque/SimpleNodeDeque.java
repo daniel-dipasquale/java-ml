@@ -2,8 +2,11 @@ package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.ArgumentValidatorUtils;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.Iterator;
 
 public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> implements NodeDeque<T, SimpleNode<T>> {
@@ -19,7 +22,7 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
     }
 
     private void initialize() {
-        Object membership = new Object();
+        Object membership = new Membership();
         SimpleNode<T> start = new SimpleNode<>(null, membership);
         SimpleNode<T> end = new SimpleNode<>(null, membership);
 
@@ -282,5 +285,11 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
     public Iterator<SimpleNode<T>> descendingIterator() {
         return LinkedIterator.createStream(end.previous, e -> e.previous, e -> e != start)
                 .iterator();
+    }
+
+    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class Membership implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 5707462379223536762L;
     }
 }

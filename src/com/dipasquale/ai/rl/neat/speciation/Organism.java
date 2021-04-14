@@ -5,20 +5,23 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
 import java.io.Serializable;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class Organism implements Comparable<Organism>, Serializable {
     @Serial
     private static final long serialVersionUID = -1411966258093431863L;
     private static final double MINIMUM_COMPATIBILITY = Double.POSITIVE_INFINITY;
+    @EqualsAndHashCode.Include
     private final GenomeDefault genome;
-    private final Population population;
+    private final PopulationInfo population;
     private final MostCompatibleSpecies mostCompatibleSpecies;
     private transient Fitness fitness;
 
-    public Organism(final GenomeDefault genome, final Population population) {
+    public Organism(final GenomeDefault genome, final PopulationInfo population) {
         this.genome = genome;
         this.population = population;
         this.mostCompatibleSpecies = new MostCompatibleSpecies(MINIMUM_COMPATIBILITY, null);
@@ -126,6 +129,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
+    @EqualsAndHashCode
     private static final class MostCompatibleSpecies implements Serializable {
         @Serial
         private static final long serialVersionUID = -6165184849094919071L;

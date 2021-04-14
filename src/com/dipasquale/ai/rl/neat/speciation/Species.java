@@ -4,6 +4,7 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serial;
@@ -12,32 +13,37 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class Species implements Serializable {
     @Serial
     private static final long serialVersionUID = 3072560376586619614L;
     @Getter
+    @EqualsAndHashCode.Include
     private final String id;
-    private final Population population;
+    @EqualsAndHashCode.Include
     private Organism representativeOrganism;
+    @EqualsAndHashCode.Include
     private List<Organism> organisms;
     private List<Organism> organismsReadOnly;
     private boolean isOrganismsSorted;
+    private final PopulationInfo population;
     @Getter
+    @EqualsAndHashCode.Include
     private float sharedFitness;
     private float maximumSharedFitness;
     private final int createdOnGeneration;
     private int ageLastImproved;
 
-    public Species(final Population population, final Organism representativeOrganism) {
+    public Species(final Organism representativeOrganism, final PopulationInfo population) {
         List<Organism> organisms = Lists.newArrayList(representativeOrganism);
 
         this.id = population.getHistoricalMarkings().createSpecies();
-        this.population = population;
         this.representativeOrganism = representativeOrganism;
         representativeOrganism.setMostCompatibleSpecies(this);
         this.organisms = organisms;
         this.organismsReadOnly = Collections.unmodifiableList(organisms);
         this.isOrganismsSorted = true;
+        this.population = population;
         this.sharedFitness = 0f;
         this.maximumSharedFitness = 0f;
         this.createdOnGeneration = population.getGeneration();

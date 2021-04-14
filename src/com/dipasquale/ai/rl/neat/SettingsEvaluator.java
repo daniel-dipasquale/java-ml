@@ -18,7 +18,9 @@ import lombok.Builder;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public final class SettingsEvaluator {
-    private final SettingsGeneralEvaluatorSupport general;
+    @Builder.Default
+    private final SettingsGeneralEvaluatorSupport general = SettingsGeneralEvaluatorSupport.builder()
+            .build();
 
     @Builder.Default
     private final SettingsNodeGeneSupport nodes = SettingsNodeGeneSupport.builder()

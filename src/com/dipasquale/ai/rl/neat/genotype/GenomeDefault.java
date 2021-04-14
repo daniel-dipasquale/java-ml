@@ -5,23 +5,28 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class GenomeDefault implements Genome, Serializable {
     @Serial
     private static final long serialVersionUID = 1467592503532949541L;
     @Getter
+    @EqualsAndHashCode.Include
     private final String id;
     @Getter(AccessLevel.PACKAGE)
+    @EqualsAndHashCode.Include
     private final NodeGeneMap nodes;
     @Getter(AccessLevel.PACKAGE)
+    @EqualsAndHashCode.Include
     private final ConnectionGeneMap connections;
     private final GenomeHistoricalMarkings historicalMarkings;
-    private NeuralNetwork neuralNetwork;
+    private transient NeuralNetwork neuralNetwork;
     private boolean frozen;
 
     public GenomeDefault(final String id, final GenomeHistoricalMarkings historicalMarkings) {
