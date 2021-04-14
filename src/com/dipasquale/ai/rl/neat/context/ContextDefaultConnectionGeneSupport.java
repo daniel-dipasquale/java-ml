@@ -6,6 +6,7 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.ai.rl.neat.speciation.PopulationHistoricalMarkings;
 import com.dipasquale.common.FloatFactory;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -42,10 +43,18 @@ public final class ContextDefaultConnectionGeneSupport implements Context.Connec
         state.put("connections.genomeGenesisConnector", genomeGenesisConnector);
     }
 
-    public void load(final SerializableInteroperableStateMap state) {
+    private static FloatFactory load(final FloatFactory factory, final EventLoopIterable eventLoop) {
+        return factory.selectContended(eventLoop != null);
+    }
+
+    private static WeightPerturber load(final WeightPerturber perturber, final EventLoopIterable eventLoop) {
+        return perturber.selectContended(eventLoop != null);
+    }
+
+    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
         multipleRecurrentCyclesAllowed = state.get("connections.multipleRecurrentCyclesAllowed");
-        weightFactory = state.get("connections.weightFactory");
-        weightPerturber = state.get("connections.weightPerturber");
+        weightFactory = load(state.<FloatFactory>get("connections.weightFactory"), eventLoop);
+        weightPerturber = load(state.<WeightPerturber>get("connections.weightPerturber"), eventLoop);
         genomeGenesisConnector = state.get("connections.genomeGenesisConnector");
     }
 }

@@ -16,4 +16,9 @@ final class WeightPerturberDefault implements WeightPerturber {
     public float perturb(final float value) {
         return factory.create() * value;
     }
+
+    @Override
+    public WeightPerturber selectContended(final boolean contended) {
+        return new WeightPerturberDefault(factory.selectContended(contended));
+    }
 }

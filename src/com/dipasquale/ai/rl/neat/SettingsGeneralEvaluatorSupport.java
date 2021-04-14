@@ -17,7 +17,7 @@ public final class SettingsGeneralEvaluatorSupport {
     private final FitnessDeterminerFactory fitnessDeterminerFactory;
     private final NeatEnvironment environment;
 
-    ContextDefaultGeneralSupport create(final SettingsConnectionGeneSupport connections, final SettingsParallelismSupport parallelism) {
+    ContextDefaultGeneralSupport create() {
         ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
 
         return new ContextDefaultGeneralSupport(populationSize, fitnessDeterminerFactory, environment);

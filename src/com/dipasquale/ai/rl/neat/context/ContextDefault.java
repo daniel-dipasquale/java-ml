@@ -89,7 +89,7 @@ public final class ContextDefault implements Context {
         state.readFrom(inputStream);
         general.load(state, override.environment());
         nodes.load(state, override.eventLoop());
-        connections.load(state);
+        connections.load(state, override.eventLoop());
         neuralNetwork.load(state);
         parallelism.load(state, override.eventLoop());
         random.load(state);
