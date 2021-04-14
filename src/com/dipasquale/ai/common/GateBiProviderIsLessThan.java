@@ -1,6 +1,5 @@
 package com.dipasquale.ai.common;
 
-import com.dipasquale.common.RandomSupportFloat;
 import com.dipasquale.concurrent.RandomBiSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,19 +9,23 @@ import java.io.Serial;
 final class GateBiProviderIsLessThan implements GateBiProvider {
     @Serial
     private static final long serialVersionUID = -6273100292904208563L;
-    private final RandomSupportFloat randomSupport;
+    private final RandomBiSupportFloat randomSupport;
     private final float rate;
     private final GateBiProviderIsLessThanContended contendedGateProvider;
 
     GateBiProviderIsLessThan(final RandomBiSupportFloat randomSupport, final float rate) {
-        this.randomSupport = randomSupport.selectContended(false);
+        this.randomSupport = randomSupport;
         this.rate = rate;
-        this.contendedGateProvider = new GateBiProviderIsLessThanContended(randomSupport.selectContended(true));
+        this.contendedGateProvider = new GateBiProviderIsLessThanContended();
+    }
+
+    private boolean isOn(final boolean contended) {
+        return randomSupport.selectContended(contended).isLessThan(rate);
     }
 
     @Override
     public boolean isOn() {
-        return randomSupport.isLessThan(rate);
+        return isOn(false);
     }
 
     @Override
@@ -38,11 +41,10 @@ final class GateBiProviderIsLessThan implements GateBiProvider {
     private final class GateBiProviderIsLessThanContended implements GateBiProvider {
         @Serial
         private static final long serialVersionUID = -8007865741374430066L;
-        private final RandomSupportFloat randomSupport;
 
         @Override
         public boolean isOn() {
-            return randomSupport.isLessThan(rate);
+            return GateBiProviderIsLessThan.this.isOn(true);
         }
 
         @Override
