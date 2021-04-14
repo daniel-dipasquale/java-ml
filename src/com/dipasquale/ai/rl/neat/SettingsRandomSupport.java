@@ -18,7 +18,7 @@ public final class SettingsRandomSupport {
         SettingsRandomType nextIndexFixed = Optional.ofNullable(nextIndex)
                 .orElse(SettingsRandomType.UNIFORM);
 
-        SettingsRandomType isLessThanFixed = Optional.ofNullable(nextIndex)
+        SettingsRandomType isLessThanFixed = Optional.ofNullable(isLessThan)
                 .orElse(SettingsRandomType.UNIFORM);
 
         RandomBiSupportFloat nextIndexSupport = new SettingsRandomBiSupport(nextIndexFixed);
