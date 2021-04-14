@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -9,14 +9,14 @@ public final class SettingsFloatNumber {
     private final FloatFactoryCreator factoryCreator;
 
     public static SettingsFloatNumber literal(final float number) {
-        FloatFactoryCreator factoryCreator = sp -> FloatFactory.createLiteral(number);
+        FloatFactoryCreator factoryCreator = sp -> FloatBiFactory.createLiteral(number);
 
         return new SettingsFloatNumber(factoryCreator);
     }
 
     public static SettingsFloatNumber random(final SettingsRandomType type, final float min, final float max) {
         FloatFactoryCreator factoryCreator = sp -> {
-            FloatFactory factory = new SettingsFloatFactoryRandom(type, min, max);
+            FloatBiFactory factory = new SettingsFloatFactoryRandom(type, min, max);
 
             return factory.selectContended(sp.isEnabled());
         };
@@ -24,12 +24,12 @@ public final class SettingsFloatNumber {
         return new SettingsFloatNumber(factoryCreator);
     }
 
-    FloatFactory createFactory(final SettingsParallelismSupport parallelism) {
+    FloatBiFactory createFactory(final SettingsParallelismSupport parallelism) {
         return factoryCreator.create(parallelism);
     }
 
     @FunctionalInterface
     private interface FloatFactoryCreator {
-        FloatFactory create(SettingsParallelismSupport parallelism);
+        FloatBiFactory create(SettingsParallelismSupport parallelism);
     }
 }

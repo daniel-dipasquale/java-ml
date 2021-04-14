@@ -3,20 +3,29 @@ package com.dipasquale.common;
 import java.io.Serializable;
 import java.util.List;
 
+@FunctionalInterface
 public interface IntegerFactory extends Serializable {
     int create();
 
-    IntegerFactory selectContended(boolean contended);
-
     static IntegerFactory createLiteral(final int value) {
-        return new IntegerFactoryLiteral(value);
+        return () -> value;
     }
 
     static IntegerFactory createIllegalState(final String message) {
-        return new IntegerFactoryIllegalState(message);
+        return () -> {
+            throw new IllegalStateException(message);
+        };
     }
 
     static IntegerFactory createCyclic(final List<? extends IntegerFactory> factories) {
-        return new IntegerFactoryCyclic(factories);
+        int[] index = new int[1];
+
+        return () -> {
+            int indexOld = index[0];
+
+            index[0] = (index[0] + 1) % factories.size();
+
+            return factories.get(indexOld).create();
+        };
     }
 }

@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.common.WeightPerturber;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +18,7 @@ public final class SettingsConnectionGeneSupport {
 
     ContextDefaultConnectionGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsNeuralNetworkSupport neuralNetwork, final SettingsParallelismSupport parallelism) {
         boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == SettingsNeuralNetworkType.MULTI_CYCLE_RECURRENT;
-        FloatFactory weightFactoryFixed = weightFactory.createFactory(parallelism);
+        FloatBiFactory weightFactoryFixed = weightFactory.createFactory(parallelism);
         WeightPerturber weightPerturberFixed = WeightPerturber.create(weightPerturber.createFactory(parallelism));
         GenomeGenesisConnector genomeGenesisConnector = genesisGenomeTemplate.createConnector(weightFactoryFixed);
 

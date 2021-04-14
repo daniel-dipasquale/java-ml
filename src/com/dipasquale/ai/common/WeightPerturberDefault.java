@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common;
 
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -10,7 +10,7 @@ import java.io.Serial;
 final class WeightPerturberDefault implements WeightPerturber {
     @Serial
     private static final long serialVersionUID = 3538961269200792337L;
-    private final FloatFactory factory;
+    private final FloatBiFactory factory;
 
     @Override
     public float perturb(final float value) {

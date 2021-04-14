@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.ai.rl.neat.speciation.PopulationHistoricalMarkings;
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public final class ContextDefaultConnectionGeneSupport implements Context.ConnectionGeneSupport {
     private boolean multipleRecurrentCyclesAllowed;
-    private FloatFactory weightFactory;
+    private FloatBiFactory weightFactory;
     private WeightPerturber weightPerturber;
     private GenomeGenesisConnector genomeGenesisConnector;
 
@@ -43,7 +43,7 @@ public final class ContextDefaultConnectionGeneSupport implements Context.Connec
         state.put("connections.genomeGenesisConnector", genomeGenesisConnector);
     }
 
-    private static FloatFactory load(final FloatFactory factory, final EventLoopIterable eventLoop) {
+    private static FloatBiFactory load(final FloatBiFactory factory, final EventLoopIterable eventLoop) {
         return factory.selectContended(eventLoop != null);
     }
 
@@ -53,7 +53,7 @@ public final class ContextDefaultConnectionGeneSupport implements Context.Connec
 
     public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
         multipleRecurrentCyclesAllowed = state.get("connections.multipleRecurrentCyclesAllowed");
-        weightFactory = load(state.<FloatFactory>get("connections.weightFactory"), eventLoop);
+        weightFactory = load(state.<FloatBiFactory>get("connections.weightFactory"), eventLoop);
         weightPerturber = load(state.<WeightPerturber>get("connections.weightPerturber"), eventLoop);
         genomeGenesisConnector = state.get("connections.genomeGenesisConnector");
     }

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -47,16 +47,16 @@ public final class SettingsGenesisGenomeTemplate {
         return createDefault(inputs, outputs, new float[0]);
     }
 
-    private FloatFactory createWeightSettings(final FloatFactory weightFactory) {
+    private FloatBiFactory createWeightSettings(final FloatBiFactory weightFactory) {
         if (initialWeightType == SettingsInitialWeightType.RANDOM) {
             return weightFactory;
         }
 
-        return FloatFactory.createLiteral(weightFactory.create());
+        return FloatBiFactory.createLiteral(weightFactory.create());
     }
 
-    public GenomeGenesisConnector createConnector(final FloatFactory weightFactor) {
-        FloatFactory weightFactory = createWeightSettings(weightFactor);
+    public GenomeGenesisConnector createConnector(final FloatBiFactory weightFactor) {
+        FloatBiFactory weightFactory = createWeightSettings(weightFactor);
 
         return switch (initialConnectionType) {
             case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new SettingsGenesisGenomeConnectorAllToAllOutputs(weightFactory, true);

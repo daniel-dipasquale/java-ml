@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.concurrent;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class FloatFactoryLiteral implements FloatFactory {
+final class FloatBiFactoryLiteral implements FloatBiFactory {
     @Serial
     private static final long serialVersionUID = 4181512590387729925L;
     private final float value;
@@ -17,7 +17,7 @@ final class FloatFactoryLiteral implements FloatFactory {
     }
 
     @Override
-    public FloatFactory selectContended(final boolean contended) {
+    public FloatBiFactory selectContended(final boolean contended) {
         return this;
     }
 }

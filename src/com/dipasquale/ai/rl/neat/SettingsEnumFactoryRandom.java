@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.EnumFactory;
+import com.dipasquale.concurrent.EnumBiFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,7 @@ import java.io.Serial;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SettingsEnumFactoryRandom<T extends Enum<T>> implements EnumFactory<T> {
+final class SettingsEnumFactoryRandom<T extends Enum<T>> implements EnumBiFactory<T> {
     @Serial
     private static final long serialVersionUID = 2087565933469556834L;
     private final SettingsRandomType type;
@@ -30,7 +30,7 @@ final class SettingsEnumFactoryRandom<T extends Enum<T>> implements EnumFactory<
     }
 
     @Override
-    public EnumFactory<T> selectContended(final boolean contended) {
+    public EnumBiFactory<T> selectContended(final boolean contended) {
         if (!contended) {
             return this;
         }
@@ -39,7 +39,7 @@ final class SettingsEnumFactoryRandom<T extends Enum<T>> implements EnumFactory<
     }
 
     @NoArgsConstructor(access = AccessLevel.PACKAGE)
-    private final class SettingsEnumFactoryRandomContended implements EnumFactory<T> {
+    private final class SettingsEnumFactoryRandomContended implements EnumBiFactory<T> {
         @Serial
         private static final long serialVersionUID = 1102884778826767986L;
 
@@ -49,7 +49,7 @@ final class SettingsEnumFactoryRandom<T extends Enum<T>> implements EnumFactory<
         }
 
         @Override
-        public EnumFactory<T> selectContended(final boolean contended) {
+        public EnumBiFactory<T> selectContended(final boolean contended) {
             return SettingsEnumFactoryRandom.this.selectContended(contended);
         }
     }

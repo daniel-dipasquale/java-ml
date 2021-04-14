@@ -5,7 +5,7 @@ import com.dipasquale.ai.common.ActivationFunctionFactory;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 @AllArgsConstructor
 public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupport {
-    private Map<NodeGeneType, FloatFactory> biasFactories;
+    private Map<NodeGeneType, FloatBiFactory> biasFactories;
     private Map<NodeGeneType, ActivationFunctionFactory> activationFunctionFactories;
     private int inputs;
     private int outputs;
@@ -50,10 +50,10 @@ public final class ContextDefaultNodeGeneSupport implements Context.NodeGeneSupp
         state.put("nodes.biases", biases);
     }
 
-    private static Map<NodeGeneType, FloatFactory> loadBiasFactories(final Map<NodeGeneType, FloatFactory> biasFactories, final EventLoopIterable eventLoop) {
-        Map<NodeGeneType, FloatFactory> biasFactoriesFixed = new HashMap<>();
+    private static Map<NodeGeneType, FloatBiFactory> loadBiasFactories(final Map<NodeGeneType, FloatBiFactory> biasFactories, final EventLoopIterable eventLoop) {
+        Map<NodeGeneType, FloatBiFactory> biasFactoriesFixed = new HashMap<>();
 
-        for (Map.Entry<NodeGeneType, FloatFactory> entry : biasFactories.entrySet()) {
+        for (Map.Entry<NodeGeneType, FloatBiFactory> entry : biasFactories.entrySet()) {
             biasFactoriesFixed.put(entry.getKey(), entry.getValue().selectContended(eventLoop != null));
         }
 

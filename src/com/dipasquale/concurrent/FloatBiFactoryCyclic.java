@@ -1,21 +1,21 @@
-package com.dipasquale.common;
+package com.dipasquale.concurrent;
 
 import java.io.Serial;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class FloatFactoryCyclic implements FloatFactory {
+final class FloatBiFactoryCyclic implements FloatBiFactory {
     @Serial
     private static final long serialVersionUID = 868920995030701907L;
-    private final List<? extends FloatFactory> factories;
+    private final List<? extends FloatBiFactory> factories;
     private int index;
 
-    FloatFactoryCyclic(final List<? extends FloatFactory> factories, final int index) {
+    FloatBiFactoryCyclic(final List<? extends FloatBiFactory> factories, final int index) {
         this.factories = factories;
         this.index = index;
     }
 
-    FloatFactoryCyclic(final List<? extends FloatFactory> factories) {
+    FloatBiFactoryCyclic(final List<? extends FloatBiFactory> factories) {
         this(factories, 0);
     }
 
@@ -29,21 +29,21 @@ final class FloatFactoryCyclic implements FloatFactory {
     }
 
     @Override
-    public FloatFactory selectContended(final boolean contended) {
+    public FloatBiFactory selectContended(final boolean contended) {
         if (!contended) {
             return this;
         }
 
-        return new FloatFactoryCyclicCas(factories, index);
+        return new FloatBiFactoryCyclicCas(factories, index);
     }
 
-    private static final class FloatFactoryCyclicCas implements FloatFactory {
+    private static final class FloatBiFactoryCyclicCas implements FloatBiFactory {
         @Serial
         private static final long serialVersionUID = 8076896839207898329L;
-        private final List<? extends FloatFactory> factories;
+        private final List<? extends FloatBiFactory> factories;
         private final AtomicInteger index;
 
-        FloatFactoryCyclicCas(final List<? extends FloatFactory> factories, final int index) {
+        FloatBiFactoryCyclicCas(final List<? extends FloatBiFactory> factories, final int index) {
             this.factories = factories;
             this.index = new AtomicInteger(index);
         }
@@ -56,12 +56,12 @@ final class FloatFactoryCyclic implements FloatFactory {
         }
 
         @Override
-        public FloatFactory selectContended(final boolean contended) {
+        public FloatBiFactory selectContended(final boolean contended) {
             if (contended) {
                 return this;
             }
 
-            return new FloatFactoryCyclic(factories, index.get());
+            return new FloatBiFactoryCyclic(factories, index.get());
         }
     }
 }

@@ -1,21 +1,21 @@
-package com.dipasquale.common;
+package com.dipasquale.concurrent;
 
 import java.io.Serial;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class IntegerFactoryCyclic implements IntegerFactory {
+final class IntegerBiFactoryCyclic implements IntegerBiFactory {
     @Serial
     private static final long serialVersionUID = -8338656409981889475L;
-    private final List<? extends IntegerFactory> factories;
+    private final List<? extends IntegerBiFactory> factories;
     private int index;
 
-    IntegerFactoryCyclic(final List<? extends IntegerFactory> factories, final int index) {
+    IntegerBiFactoryCyclic(final List<? extends IntegerBiFactory> factories, final int index) {
         this.factories = factories;
         this.index = index;
     }
 
-    IntegerFactoryCyclic(final List<? extends IntegerFactory> factories) {
+    IntegerBiFactoryCyclic(final List<? extends IntegerBiFactory> factories) {
         this(factories, 0);
     }
 
@@ -29,21 +29,21 @@ final class IntegerFactoryCyclic implements IntegerFactory {
     }
 
     @Override
-    public IntegerFactory selectContended(final boolean contended) {
+    public IntegerBiFactory selectContended(final boolean contended) {
         if (!contended) {
             return this;
         }
 
-        return new IntegerFactoryCyclicCas(factories, index);
+        return new IntegerBiFactoryCyclicCas(factories, index);
     }
 
-    private static final class IntegerFactoryCyclicCas implements IntegerFactory {
+    private static final class IntegerBiFactoryCyclicCas implements IntegerBiFactory {
         @Serial
         private static final long serialVersionUID = -7862704243962425735L;
-        private final List<? extends IntegerFactory> factories;
+        private final List<? extends IntegerBiFactory> factories;
         private final AtomicInteger index;
 
-        IntegerFactoryCyclicCas(final List<? extends IntegerFactory> factories, final int index) {
+        IntegerBiFactoryCyclicCas(final List<? extends IntegerBiFactory> factories, final int index) {
             this.factories = factories;
             this.index = new AtomicInteger(index);
         }
@@ -56,12 +56,12 @@ final class IntegerFactoryCyclic implements IntegerFactory {
         }
 
         @Override
-        public IntegerFactory selectContended(final boolean contended) {
+        public IntegerBiFactory selectContended(final boolean contended) {
             if (contended) {
                 return this;
             }
 
-            return new IntegerFactoryCyclic(factories, index.get());
+            return new IntegerBiFactoryCyclic(factories, index.get());
         }
     }
 }

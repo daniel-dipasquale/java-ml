@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.concurrent;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class EnumFactoryLiteral<T extends Enum<T>> implements EnumFactory<T> {
+final class EnumBiFactoryLiteral<T extends Enum<T>> implements EnumBiFactory<T> {
     @Serial
     private static final long serialVersionUID = 6776600093764259448L;
     private final T value;
@@ -17,7 +17,7 @@ final class EnumFactoryLiteral<T extends Enum<T>> implements EnumFactory<T> {
     }
 
     @Override
-    public EnumFactory<T> selectContended(final boolean contended) {
+    public EnumBiFactory<T> selectContended(final boolean contended) {
         return this;
     }
 }

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -9,13 +9,13 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SettingsFloatFactoryRandom implements FloatFactory {
+final class SettingsFloatFactoryRandom implements FloatBiFactory {
     @Serial
     private static final long serialVersionUID = 2597747301977413978L;
     private final SettingsRandomType type;
     private final float min;
     private final float max;
-    private final FloatFactoryRandomContended contendedFactory = new FloatFactoryRandomContended();
+    private final FloatBiFactoryRandomContended contendedFactory = new FloatBiFactoryRandomContended();
 
     private float create(final boolean contended) {
         RandomSupportFloat randomSupport = SettingsConstants.getRandomSupport(type, contended);
@@ -29,7 +29,7 @@ final class SettingsFloatFactoryRandom implements FloatFactory {
     }
 
     @Override
-    public FloatFactory selectContended(final boolean contended) {
+    public FloatBiFactory selectContended(final boolean contended) {
         if (!contended) {
             return this;
         }
@@ -38,7 +38,7 @@ final class SettingsFloatFactoryRandom implements FloatFactory {
     }
 
     @NoArgsConstructor(access = AccessLevel.PACKAGE)
-    private final class FloatFactoryRandomContended implements FloatFactory {
+    private final class FloatBiFactoryRandomContended implements FloatBiFactory {
         @Serial
         private static final long serialVersionUID = 1102884778826767986L;
 
@@ -48,7 +48,7 @@ final class SettingsFloatFactoryRandom implements FloatFactory {
         }
 
         @Override
-        public FloatFactory selectContended(final boolean contended) {
+        public FloatBiFactory selectContended(final boolean contended) {
             return SettingsFloatFactoryRandom.this.selectContended(contended);
         }
     }

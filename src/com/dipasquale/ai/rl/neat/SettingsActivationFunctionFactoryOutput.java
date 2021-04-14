@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.ActivationFunctionFactory;
-import com.dipasquale.common.EnumFactory;
+import com.dipasquale.concurrent.EnumBiFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -12,8 +12,8 @@ import java.io.Serial;
 final class SettingsActivationFunctionFactoryOutput implements ActivationFunctionFactory {
     @Serial
     private static final long serialVersionUID = -3202998167478993985L;
-    private final EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory;
-    private final EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory;
+    private final EnumBiFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory;
+    private final EnumBiFactory<SettingsActivationFunction> hiddenActivationFunctionFactory;
     private final SettingsActivationFunctionFactoryOutputContended contendedFactory = new SettingsActivationFunctionFactoryOutputContended();
 
     private SettingsActivationFunction createOutputActivationFunction() {

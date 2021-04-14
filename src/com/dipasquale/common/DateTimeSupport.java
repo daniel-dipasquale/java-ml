@@ -1,5 +1,7 @@
 package com.dipasquale.common;
 
+import com.dipasquale.concurrent.LongBiFactory;
+
 import javax.measure.quantity.Duration;
 import javax.measure.unit.Unit;
 import java.io.Serial;
@@ -70,7 +72,7 @@ public interface DateTimeSupport extends Serializable {
                 .convert((double) epochTime);
     }
 
-    static DateTimeSupport create(final LongFactory factory, final Unit<Duration> unit) {
+    static DateTimeSupport create(final LongBiFactory factory, final Unit<Duration> unit) {
         return new DateTimeSupport() {
             @Serial
             private static final long serialVersionUID = -5933526591359752376L;

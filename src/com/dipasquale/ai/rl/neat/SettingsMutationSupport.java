@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultMutationSupport;
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,13 +23,13 @@ public final class SettingsMutationSupport {
     @Builder.Default
     private final SettingsFloatNumber disableConnectionExpressedRate = SettingsFloatNumber.literal(0.05f);
 
-    private static GateProvider createSupplier(final RandomSupportFloat randomSupport, final FloatFactory rateFactory) {
+    private static GateProvider createSupplier(final RandomSupportFloat randomSupport, final FloatBiFactory rateFactory) {
         float rate = rateFactory.create();
 
         return () -> randomSupport.isLessThan(rate);
     }
 
-    private static ConnectionWeightGateProvider createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final FloatFactory perturbRateFactory, final FloatFactory replaceRateFactory) {
+    private static ConnectionWeightGateProvider createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final FloatBiFactory perturbRateFactory, final FloatBiFactory replaceRateFactory) {
         float perturbRate = perturbRateFactory.create();
         float replaceRate = replaceRateFactory.create();
         float rate = (float) Math.ceil(perturbRate + replaceRate);

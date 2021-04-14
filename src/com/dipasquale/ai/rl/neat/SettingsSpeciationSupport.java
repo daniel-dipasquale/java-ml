@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultSpeciationSupport;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculatorDefault;
 import com.dipasquale.common.ArgumentValidatorUtils;
-import com.dipasquale.common.IntegerFactory;
+import com.dipasquale.concurrent.IntegerBiFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,7 +41,7 @@ public final class SettingsSpeciationSupport {
     ContextDefaultSpeciationSupport create(final SettingsGeneralEvaluatorSupport general, final SettingsParallelismSupport parallelism) {
         int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
                 .map(sin -> sin.createFactory(parallelism))
-                .map(IntegerFactory::create)
+                .map(IntegerBiFactory::create)
                 .orElse(general.getPopulationSize() / 8);
 
         ArgumentValidatorUtils.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
@@ -49,7 +49,7 @@ public final class SettingsSpeciationSupport {
 
         int maximumGenomesFixed = Optional.ofNullable(maximumGenomes)
                 .map(sin -> sin.createFactory(parallelism))
-                .map(IntegerFactory::create)
+                .map(IntegerBiFactory::create)
                 .orElse(general.getPopulationSize() / 2);
 
         ArgumentValidatorUtils.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");

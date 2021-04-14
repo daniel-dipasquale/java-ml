@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOverSupport;
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ public final class SettingsCrossOverSupport {
     @Builder.Default
     private final SettingsFloatNumber useRandomParentConnectionWeightRate = SettingsFloatNumber.literal(0.6f);
 
-    private static CrossOverGateProvider createCrossOverSuppliers(final RandomSupportFloat randomSupport, final FloatFactory mateOnlyRateFactory, final FloatFactory mutateOnlyRateFactory) {
+    private static CrossOverGateProvider createCrossOverSuppliers(final RandomSupportFloat randomSupport, final FloatBiFactory mateOnlyRateFactory, final FloatBiFactory mutateOnlyRateFactory) {
         float mateOnlyRate = mateOnlyRateFactory.create();
         float mutateOnlyRate = mutateOnlyRateFactory.create();
         float rate = (float) Math.ceil(mateOnlyRate + mutateOnlyRate);
@@ -37,7 +37,7 @@ public final class SettingsCrossOverSupport {
         return new CrossOverGateProvider(() -> randomSupport.isLessThan(mateAndMutateRate), () -> randomSupport.isLessThan(mateOnlyRateFixed), () -> randomSupport.isLessThan(mutateOnlyRateFixed));
     }
 
-    private static GateProvider createSupplier(final RandomSupportFloat randomSupport, final FloatFactory rateFactory) {
+    private static GateProvider createSupplier(final RandomSupportFloat randomSupport, final FloatBiFactory rateFactory) {
         float rate = rateFactory.create();
 
         return () -> randomSupport.isLessThan(rate);

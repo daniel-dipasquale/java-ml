@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.IntegerFactory;
+import com.dipasquale.concurrent.IntegerBiFactory;
 import com.dipasquale.common.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -9,13 +9,13 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SettingsIntegerFactoryRandom implements IntegerFactory {
+final class SettingsIntegerFactoryRandom implements IntegerBiFactory {
     @Serial
     private static final long serialVersionUID = -1387158511021812055L;
     private final SettingsRandomType type;
     private final int min;
     private final int max;
-    private final IntegerFactoryRandomContended contendedFactory = new IntegerFactoryRandomContended();
+    private final IntegerBiFactoryRandomContended contendedFactory = new IntegerBiFactoryRandomContended();
 
     private int create(final boolean contended) {
         RandomSupportFloat randomSupport = SettingsConstants.getRandomSupport(type, contended);
@@ -29,7 +29,7 @@ final class SettingsIntegerFactoryRandom implements IntegerFactory {
     }
 
     @Override
-    public IntegerFactory selectContended(final boolean contended) {
+    public IntegerBiFactory selectContended(final boolean contended) {
         if (!contended) {
             return this;
         }
@@ -38,7 +38,7 @@ final class SettingsIntegerFactoryRandom implements IntegerFactory {
     }
 
     @NoArgsConstructor(access = AccessLevel.PACKAGE)
-    private final class IntegerFactoryRandomContended implements IntegerFactory {
+    private final class IntegerBiFactoryRandomContended implements IntegerBiFactory {
         @Serial
         private static final long serialVersionUID = 7913844336205474062L;
 
@@ -48,7 +48,7 @@ final class SettingsIntegerFactoryRandom implements IntegerFactory {
         }
 
         @Override
-        public IntegerFactory selectContended(final boolean contended) {
+        public IntegerBiFactory selectContended(final boolean contended) {
             return SettingsIntegerFactoryRandom.this.selectContended(contended);
         }
     }

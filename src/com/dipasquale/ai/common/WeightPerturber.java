@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common;
 
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 
 import java.io.Serializable;
 
@@ -9,7 +9,7 @@ public interface WeightPerturber extends Serializable {
 
     WeightPerturber selectContended(boolean contended);
 
-    static WeightPerturber create(final FloatFactory factory) {
+    static WeightPerturber create(final FloatBiFactory factory) {
         return new WeightPerturberDefault(factory);
     }
 }

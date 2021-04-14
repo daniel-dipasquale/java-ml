@@ -4,8 +4,8 @@ import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.ActivationFunctionFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultNodeGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.EnumFactory;
-import com.dipasquale.common.FloatFactory;
+import com.dipasquale.concurrent.EnumBiFactory;
+import com.dipasquale.concurrent.FloatBiFactory;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,27 +23,27 @@ public final class SettingsNodeGeneSupport {
     @Builder.Default
     private final SettingsEnum<SettingsActivationFunction> hiddenActivationFunction = SettingsEnum.literal(SettingsActivationFunction.TAN_H);
 
-    private static FloatFactory createBiasFactory(final List<SettingsFloatNumber> biases, final SettingsParallelismSupport parallelism) {
+    private static FloatBiFactory createBiasFactory(final List<SettingsFloatNumber> biases, final SettingsParallelismSupport parallelism) {
         if (biases.size() == 0) {
-            return FloatFactory.createIllegalState("there are no biases allowed in this genome");
+            return FloatBiFactory.createIllegalState("there are no biases allowed in this genome");
         }
 
-        List<FloatFactory> biasNodeBiasFactories = biases.stream()
+        List<FloatBiFactory> biasNodeBiasFactories = biases.stream()
                 .map(sfn -> sfn.createFactory(parallelism))
                 .collect(Collectors.toList());
 
-        FloatFactory factory = FloatFactory.createCyclic(biasNodeBiasFactories);
+        FloatBiFactory factory = FloatBiFactory.createCyclic(biasNodeBiasFactories);
 
         return factory.selectContended(parallelism.isEnabled());
     }
 
-    private static ActivationFunctionFactory createActivationFunctionFactory(final EnumFactory<SettingsActivationFunction> activationFunctionFactory, final SettingsParallelismSupport parallelism) {
+    private static ActivationFunctionFactory createActivationFunctionFactory(final EnumBiFactory<SettingsActivationFunction> activationFunctionFactory, final SettingsParallelismSupport parallelism) {
         ActivationFunctionFactory factory = new SettingsActivationFunctionFactoryDefault(activationFunctionFactory);
 
         return factory.selectContended(parallelism.isEnabled());
     }
 
-    private static ActivationFunctionFactory createActivationFunctionFactory(final EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory, final EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory, final SettingsParallelismSupport parallelism) {
+    private static ActivationFunctionFactory createActivationFunctionFactory(final EnumBiFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory, final EnumBiFactory<SettingsActivationFunction> hiddenActivationFunctionFactory, final SettingsParallelismSupport parallelism) {
         ActivationFunctionFactory factory = new SettingsActivationFunctionFactoryOutput(outputActivationFunctionFactory, hiddenActivationFunctionFactory);
 
         return factory.selectContended(parallelism.isEnabled());
@@ -56,16 +56,16 @@ public final class SettingsNodeGeneSupport {
     }
 
     ContextDefaultNodeGeneSupport create(final SettingsGenesisGenomeTemplate genesisGenomeTemplate, final SettingsParallelismSupport parallelism) {
-        Map<NodeGeneType, FloatFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatFactory>builder()
+        Map<NodeGeneType, FloatBiFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatBiFactory>builder()
                 .put(NodeGeneType.INPUT, genesisGenomeTemplate.getInputBias().createFactory(parallelism))
                 .put(NodeGeneType.OUTPUT, genesisGenomeTemplate.getOutputBias().createFactory(parallelism))
                 .put(NodeGeneType.BIAS, createBiasFactory(genesisGenomeTemplate.getBiases(), parallelism))
                 .put(NodeGeneType.HIDDEN, hiddenBias.createFactory(parallelism))
                 .build();
 
-        EnumFactory<SettingsActivationFunction> inputActivationFunctionFactory = genesisGenomeTemplate.getInputActivationFunction().createFactory(parallelism);
-        EnumFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory = genesisGenomeTemplate.getOutputActivationFunction().createFactory(parallelism);
-        EnumFactory<SettingsActivationFunction> hiddenActivationFunctionFactory = hiddenActivationFunction.createFactory(parallelism);
+        EnumBiFactory<SettingsActivationFunction> inputActivationFunctionFactory = genesisGenomeTemplate.getInputActivationFunction().createFactory(parallelism);
+        EnumBiFactory<SettingsOutputActivationFunction> outputActivationFunctionFactory = genesisGenomeTemplate.getOutputActivationFunction().createFactory(parallelism);
+        EnumBiFactory<SettingsActivationFunction> hiddenActivationFunctionFactory = hiddenActivationFunction.createFactory(parallelism);
 
         Map<NodeGeneType, ActivationFunctionFactory> activationFunctionFactories = ImmutableMap.<NodeGeneType, ActivationFunctionFactory>builder()
                 .put(NodeGeneType.INPUT, createActivationFunctionFactory(inputActivationFunctionFactory, parallelism))

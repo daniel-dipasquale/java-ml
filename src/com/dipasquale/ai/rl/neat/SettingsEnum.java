@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.EnumFactory;
+import com.dipasquale.concurrent.EnumBiFactory;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,14 +10,14 @@ public final class SettingsEnum<T extends Enum<T>> {
     private final EnumFactoryCreator<T> factoryCreator;
 
     public static <T extends Enum<T>> SettingsEnum<T> literal(final T value) {
-        EnumFactoryCreator<T> factoryCreator = sp -> EnumFactory.createLiteral(value);
+        EnumFactoryCreator<T> factoryCreator = sp -> EnumBiFactory.createLiteral(value);
 
         return new SettingsEnum<>(factoryCreator);
     }
 
     private static <T extends Enum<T>> SettingsEnum<T> createRandom(final T[] values) {
         EnumFactoryCreator<T> factoryCreator = sp -> {
-            EnumFactory<T> factory = new SettingsEnumFactoryRandom<>(SettingsRandomType.UNIFORM, Lists.newArrayList(values));
+            EnumBiFactory<T> factory = new SettingsEnumFactoryRandom<>(SettingsRandomType.UNIFORM, Lists.newArrayList(values));
 
             return factory.selectContended(sp.isEnabled());
         };
@@ -33,12 +33,12 @@ public final class SettingsEnum<T extends Enum<T>> {
         return createRandom(values);
     }
 
-    EnumFactory<T> createFactory(final SettingsParallelismSupport parallelism) {
+    EnumBiFactory<T> createFactory(final SettingsParallelismSupport parallelism) {
         return factoryCreator.create(parallelism);
     }
 
     @FunctionalInterface
     private interface EnumFactoryCreator<T extends Enum<T>> {
-        EnumFactory<T> create(SettingsParallelismSupport parallelism);
+        EnumBiFactory<T> create(SettingsParallelismSupport parallelism);
     }
 }

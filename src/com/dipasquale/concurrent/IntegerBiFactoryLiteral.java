@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.concurrent;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class IntegerFactoryLiteral implements IntegerFactory {
+final class IntegerBiFactoryLiteral implements IntegerBiFactory {
     @Serial
     private static final long serialVersionUID = -8019471724010338823L;
     private final int value;
@@ -17,7 +17,7 @@ final class IntegerFactoryLiteral implements IntegerFactory {
     }
 
     @Override
-    public IntegerFactory selectContended(final boolean contended) {
+    public IntegerBiFactory selectContended(final boolean contended) {
         return this;
     }
 }
