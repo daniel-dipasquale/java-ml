@@ -73,7 +73,7 @@ final class NeuronRecurrentSingleMemory implements Neuron {
         valueOutdated = true;
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class Value {
         private float value;
     }

@@ -1,30 +1,43 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.context.ContextDefaultRandomSupport;
-import com.dipasquale.common.RandomSupportFloat;
+import com.dipasquale.concurrent.RandomBiSupportFloat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-public final class SettingsRandomSupport {
-    @Builder.Default
-    private final SettingsRandomType nextIndex = SettingsRandomType.UNIFORM;
-    @Builder.Default
-    private final SettingsRandomType isLessThan = SettingsRandomType.UNIFORM;
+import java.util.Optional;
 
-    RandomSupportFloat getNextIndexSupport(final SettingsParallelismSupport parallelism) {
-        return parallelism.getRandomSupport(nextIndex);
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public final class SettingsRandomSupport {
+    private final RandomBiSupportFloat nextIndexSupport;
+    private final RandomBiSupportFloat isLessThanSupport;
+
+    @Builder
+    private static SettingsRandomSupport create(final SettingsRandomType nextIndex, final SettingsRandomType isLessThan) {
+        SettingsRandomType nextIndexFixed = Optional.ofNullable(nextIndex)
+                .orElse(SettingsRandomType.UNIFORM);
+
+        SettingsRandomType isLessThanFixed = Optional.ofNullable(nextIndex)
+                .orElse(SettingsRandomType.UNIFORM);
+
+        RandomBiSupportFloat nextIndexSupport = new SettingsRandomBiSupport(nextIndexFixed);
+        RandomBiSupportFloat isLessThanSupport = new SettingsRandomBiSupport(isLessThanFixed);
+
+        return new SettingsRandomSupport(nextIndexSupport, isLessThanSupport);
     }
 
-    RandomSupportFloat getIsLessThanSupport(final SettingsParallelismSupport parallelism) {
-        return parallelism.getRandomSupport(isLessThan);
+    RandomBiSupportFloat getNextIndexSupport(final SettingsParallelismSupport parallelism) {
+        return nextIndexSupport.selectContended(parallelism.isEnabled());
+    }
+
+    RandomBiSupportFloat getIsLessThanSupport(final SettingsParallelismSupport parallelism) {
+        return isLessThanSupport.selectContended(parallelism.isEnabled());
     }
 
     ContextDefaultRandomSupport create(final SettingsParallelismSupport parallelism) {
-        RandomSupportFloat nextIndex = getNextIndexSupport(parallelism);
-        RandomSupportFloat isLessThan = getIsLessThanSupport(parallelism);
+        RandomBiSupportFloat nextIndex = getNextIndexSupport(parallelism);
+        RandomBiSupportFloat isLessThan = getIsLessThanSupport(parallelism);
 
         return new ContextDefaultRandomSupport(nextIndex, isLessThan);
     }

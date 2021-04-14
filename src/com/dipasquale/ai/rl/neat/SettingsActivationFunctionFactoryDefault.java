@@ -13,7 +13,7 @@ final class SettingsActivationFunctionFactoryDefault implements ActivationFuncti
     @Serial
     private static final long serialVersionUID = 2087952631887422948L;
     private final EnumBiFactory<SettingsActivationFunction> activationFunctionFactory;
-    private final SettingsActivationFunctionFactoryDefaultContended contendedFactory = new SettingsActivationFunctionFactoryDefaultContended();
+    private final SettingsActivationFunctionFactoryContended contendedFactory = new SettingsActivationFunctionFactoryContended();
 
     private ActivationFunction create(final boolean contended) {
         SettingsActivationFunction activationFunction = activationFunctionFactory.create();
@@ -35,7 +35,7 @@ final class SettingsActivationFunctionFactoryDefault implements ActivationFuncti
         return contendedFactory;
     }
 
-    private final class SettingsActivationFunctionFactoryDefaultContended implements ActivationFunctionFactory {
+    private final class SettingsActivationFunctionFactoryContended implements ActivationFunctionFactory {
         @Serial
         private static final long serialVersionUID = -1062004666978860258L;
 

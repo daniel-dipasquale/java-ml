@@ -125,7 +125,7 @@ public final class HeavyHittersConfig<T> {
         <T> CountMinSketch<T> create(HeavyHittersCollector<T> heavyHittersCollector);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @Builder
     @Getter
     public static final class AggregateConfig<T> {

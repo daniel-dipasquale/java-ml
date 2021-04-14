@@ -29,7 +29,7 @@ public final class ConcurrentSortedByValueMap<TKey, TValue> extends AbstractSort
         this(new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel), comparator);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @Getter
     @EqualsAndHashCode(onlyExplicitlyIncluded = true)
     private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue> {

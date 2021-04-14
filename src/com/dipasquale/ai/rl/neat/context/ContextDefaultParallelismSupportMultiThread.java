@@ -53,7 +53,7 @@ public final class ContextDefaultParallelismSupportMultiThread implements Contex
         return new CountDownLatchWaitHandle(eventLoop.queue(iterator, action));
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private final class CountDownLatchWaitHandle implements WaitHandle {
         private final CountDownLatch countDownLatch;
 

@@ -23,7 +23,7 @@ public final class IdentitySortedByValueMap<TKey, TValue> extends AbstractSorted
         this(new IdentityHashMap<>(), comparator);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @Getter
     private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue> {
         private final TKey key;

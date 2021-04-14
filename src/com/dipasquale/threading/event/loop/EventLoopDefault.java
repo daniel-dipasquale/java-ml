@@ -202,7 +202,7 @@ final class EventLoopDefault implements EventLoop {
         return name;
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class EventLoopRecordAudit {
         private final EventLoopRecord peeked;
         private final EventLoopRecord polled;

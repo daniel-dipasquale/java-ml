@@ -1,7 +1,9 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.ai.common.GateBiProvider;
 import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -45,11 +47,15 @@ public final class ContextDefaultMutationSupport implements Context.MutationSupp
         state.put("mutation.shouldDisableConnectionExpressed", shouldDisableConnectionExpressed);
     }
 
-    public void load(final SerializableInteroperableStateMap state) {
-        shouldAddNodeMutation = state.get("mutation.shouldAddNodeMutation");
-        shouldAddConnectionMutation = state.get("mutation.shouldAddConnectionMutation");
-        shouldPerturbConnectionWeight = state.get("mutation.shouldPerturbConnectionWeight");
-        shouldReplaceConnectionWeight = state.get("mutation.shouldReplaceConnectionWeight");
-        shouldDisableConnectionExpressed = state.get("mutation.shouldDisableConnectionExpressed");
+    private static GateBiProvider load(final GateBiProvider gateProvider, final EventLoopIterable eventLoop) {
+        return gateProvider.selectContended(eventLoop != null);
+    }
+
+    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
+        shouldAddNodeMutation = load(state.<GateBiProvider>get("mutation.shouldAddNodeMutation"), eventLoop);
+        shouldAddConnectionMutation = load(state.<GateBiProvider>get("mutation.shouldAddConnectionMutation"), eventLoop);
+        shouldPerturbConnectionWeight = load(state.<GateBiProvider>get("mutation.shouldPerturbConnectionWeight"), eventLoop);
+        shouldReplaceConnectionWeight = load(state.<GateBiProvider>get("mutation.shouldReplaceConnectionWeight"), eventLoop);
+        shouldDisableConnectionExpressed = load(state.<GateBiProvider>get("mutation.shouldDisableConnectionExpressed"), eventLoop);
     }
 }

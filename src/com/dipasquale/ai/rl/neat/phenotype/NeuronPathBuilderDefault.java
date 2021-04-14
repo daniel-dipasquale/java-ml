@@ -77,7 +77,7 @@ public final class NeuronPathBuilderDefault implements NeuronPathBuilder {
         return ordered.iterator();
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class NeuronOrder {
         private final Neuron neuron;
         private final boolean ordered;

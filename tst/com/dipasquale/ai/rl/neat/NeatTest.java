@@ -390,7 +390,7 @@ public final class NeatTest {
         private final Set<String> genomeIds;
         private final NeatEnvironment environment;
 
-        @Builder(access = AccessLevel.PRIVATE)
+        @Builder(access = AccessLevel.PACKAGE)
         public static NeatEnvironmentContainer create(final boolean shouldUseParallelism, final NeatEnvironment environment) {
             Set<String> genomeIds = !shouldUseParallelism
                     ? new HashSet<>()
@@ -407,8 +407,8 @@ public final class NeatTest {
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @Builder(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    @Builder(access = AccessLevel.PACKAGE)
     private static final class NeatSetup {
         private final String name;
         private final boolean shouldUseParallelism;

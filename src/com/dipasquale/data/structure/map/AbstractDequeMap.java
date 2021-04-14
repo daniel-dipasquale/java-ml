@@ -138,7 +138,7 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
                 .iterator();
     }
 
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PACKAGE)
     @Getter
     @EqualsAndHashCode
     private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue> {

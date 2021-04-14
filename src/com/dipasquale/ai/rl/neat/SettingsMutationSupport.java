@@ -1,9 +1,10 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.GateBiProvider;
 import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultMutationSupport;
 import com.dipasquale.concurrent.FloatBiFactory;
-import com.dipasquale.common.RandomSupportFloat;
+import com.dipasquale.concurrent.RandomBiSupportFloat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,38 +24,42 @@ public final class SettingsMutationSupport {
     @Builder.Default
     private final SettingsFloatNumber disableConnectionExpressedRate = SettingsFloatNumber.literal(0.05f);
 
-    private static GateProvider createSupplier(final RandomSupportFloat randomSupport, final FloatBiFactory rateFactory) {
+    private static GateProvider createProvider(final RandomBiSupportFloat randomSupport, final FloatBiFactory rateFactory) {
         float rate = rateFactory.create();
 
-        return () -> randomSupport.isLessThan(rate);
+        return GateBiProvider.createIsLessThan(randomSupport, rate);
     }
 
-    private static ConnectionWeightGateProvider createConnectionWeightSuppliers(final RandomSupportFloat randomSupport, final FloatBiFactory perturbRateFactory, final FloatBiFactory replaceRateFactory) {
+    private static ConnectionWeightGateProvider createConnectionWeightProviders(final RandomBiSupportFloat randomSupport, final FloatBiFactory perturbRateFactory, final FloatBiFactory replaceRateFactory) {
         float perturbRate = perturbRateFactory.create();
         float replaceRate = replaceRateFactory.create();
         float rate = (float) Math.ceil(perturbRate + replaceRate);
 
         if (Float.compare(rate, 0f) == 0) {
-            return new ConnectionWeightGateProvider(() -> false, () -> false);
+            GateBiProvider perturbOrReplace = GateBiProvider.createLiteral(false);
+
+            return new ConnectionWeightGateProvider(perturbOrReplace, perturbOrReplace);
         }
 
         float perturbRateFixed = perturbRate / rate;
+        GateBiProvider perturb = GateBiProvider.createIsLessThan(randomSupport, perturbRateFixed);
         float replaceRateFixed = replaceRate / rate;
+        GateBiProvider replace = GateBiProvider.createIsLessThan(randomSupport, replaceRateFixed);
 
-        return new ConnectionWeightGateProvider(() -> randomSupport.isLessThan(perturbRateFixed), () -> randomSupport.isLessThan(replaceRateFixed));
+        return new ConnectionWeightGateProvider(perturb, replace);
     }
 
     ContextDefaultMutationSupport create(final SettingsParallelismSupport parallelism, final SettingsRandomSupport random) {
-        RandomSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
-        GateProvider shouldAddNodeMutation = createSupplier(randomSupport, addNodeMutationRate.createFactory(parallelism));
-        GateProvider shouldAddConnectionMutation = createSupplier(randomSupport, addConnectionMutationRate.createFactory(parallelism));
-        ConnectionWeightGateProvider connectionsWeight = createConnectionWeightSuppliers(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));
-        GateProvider shouldDisableConnectionExpressed = createSupplier(randomSupport, disableConnectionExpressedRate.createFactory(parallelism));
+        RandomBiSupportFloat randomSupport = random.getIsLessThanSupport(parallelism);
+        GateProvider shouldAddNodeMutation = createProvider(randomSupport, addNodeMutationRate.createFactory(parallelism));
+        GateProvider shouldAddConnectionMutation = createProvider(randomSupport, addConnectionMutationRate.createFactory(parallelism));
+        ConnectionWeightGateProvider connectionsWeight = createConnectionWeightProviders(randomSupport, perturbConnectionsWeightRate.createFactory(parallelism), replaceConnectionsWeightRate.createFactory(parallelism));
+        GateProvider shouldDisableConnectionExpressed = createProvider(randomSupport, disableConnectionExpressedRate.createFactory(parallelism));
 
         return new ContextDefaultMutationSupport(shouldAddNodeMutation, shouldAddConnectionMutation, connectionsWeight.perturb, connectionsWeight.replace, shouldDisableConnectionExpressed);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class ConnectionWeightGateProvider {
         private final GateProvider perturb;
         private final GateProvider replace;

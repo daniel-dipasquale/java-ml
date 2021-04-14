@@ -38,7 +38,7 @@ interface EventLoopIterableProducer<T> {
         };
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @Getter
     final class Envelope<T> {
         private final T item;

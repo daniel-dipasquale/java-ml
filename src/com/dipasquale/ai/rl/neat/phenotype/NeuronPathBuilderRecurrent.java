@@ -86,7 +86,7 @@ public final class NeuronPathBuilderRecurrent<T extends Neuron> implements Neuro
         return ordered.iterator();
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @EqualsAndHashCode
     private static final class CompositeId {
         private final SequentialId id;
@@ -98,7 +98,7 @@ public final class NeuronPathBuilderRecurrent<T extends Neuron> implements Neuro
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class NeuronOrder {
         private final Neuron neuron;
         private final boolean ordered;
