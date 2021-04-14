@@ -136,7 +136,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class Fitness {
         private final FitnessDeterminer determiner;
-        private float value = 0f;
+        private float value;
         private int generation;
     }
 }
