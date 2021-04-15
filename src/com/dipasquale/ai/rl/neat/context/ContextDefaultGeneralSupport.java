@@ -7,8 +7,6 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import lombok.AllArgsConstructor;
 
-import java.util.Optional;
-
 @AllArgsConstructor
 public final class ContextDefaultGeneralSupport implements Context.GeneralSupport {
     private int populationSize;
@@ -36,11 +34,29 @@ public final class ContextDefaultGeneralSupport implements Context.GeneralSuppor
         state.put("general.environment", environment);
     }
 
+    private NeatEnvironment loadEnvironment(final SerializableInteroperableStateMap state, final NeatEnvironment environmentOverride) {
+        if (environmentOverride != null) {
+            return null;
+        }
+
+        Object environment = state.get("general.environment");
+
+        if (environment instanceof NeatEnvironment) {
+            return (NeatEnvironment) environment;
+        }
+
+        String message = "unable to load the environment (fitness function)";
+
+        if (environment instanceof Exception) {
+            throw new IllegalStateException(message, (Exception) environment);
+        }
+
+        throw new IllegalStateException(message);
+    }
+
     public void load(final SerializableInteroperableStateMap state, final NeatEnvironment environmentOverride) {
         populationSize = state.get("general.populationSize");
         fitnessDeterminerFactory = state.get("general.fitnessDeterminerFactory");
-
-        environment = Optional.ofNullable(environmentOverride)
-                .orElseGet(() -> state.get("general.environment"));
+        environment = loadEnvironment(state, environmentOverride);
     }
 }

@@ -1,13 +1,8 @@
 package com.dipasquale.data.structure.map;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,31 +25,35 @@ public final class SerializableInteroperableStateMap {
     public void writeTo(final ObjectOutputStream outputStream)
             throws IOException {
         Set<Map.Entry<String, Object>> entries = state.entrySet();
-        Storable size = new Storable("size", entries.size());
 
-        outputStream.writeObject(size);
+        outputStream.writeObject(entries.size());
 
         for (Map.Entry<String, Object> entry : entries) {
-            outputStream.writeObject(new Storable(entry.getKey(), entry.getValue()));
+            outputStream.writeObject(entry.getKey());
+            outputStream.writeObject(entry.getValue());
         }
     }
 
     public void readFrom(final ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException {
-        Storable size = (Storable) inputStream.readObject();
+        int size = (int) inputStream.readObject();
 
-        for (int i = 0, c = (int) size.value; i < c; i++) {
-            Storable entry = (Storable) inputStream.readObject();
+        for (int i = 0; i < size; i++) {
+            String key = (String) inputStream.readObject();
 
-            state.put(entry.key, entry.value);
+            try {
+                state.put(key, inputStream.readObject());
+            } catch (Exception e) {
+                state.put(key, e);
+            }
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class Storable implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1266337875670000594L;
-        private final String key;
-        private final Object value;
-    }
+//    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+//    private static final class Storable implements Serializable {
+//        @Serial
+//        private static final long serialVersionUID = 1266337875670000594L;
+//        private final String key;
+//        private final Object value;
+//    }
 }

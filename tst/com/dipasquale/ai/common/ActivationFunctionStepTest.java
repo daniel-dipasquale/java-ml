@@ -9,7 +9,7 @@ public final class ActivationFunctionStepTest {
 
     @Test
     public void TEST_1() {
-        Assertions.assertEquals(1f, TEST.forward(0f), 0f);
+        Assertions.assertEquals(0f, TEST.forward(0f), 0f);
         Assertions.assertEquals(1f, TEST.forward(1f), 0f);
         Assertions.assertEquals(0f, TEST.forward(-1f), 0f);
         Assertions.assertEquals(1f, TEST.forward(2f), 0f);

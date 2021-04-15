@@ -22,7 +22,7 @@ public final class ActivationFunctionStep implements ActivationFunction {
 
     @Override
     public float forward(final float input) {
-        return input >= 0f ? 1f : 0f;
+        return input > 0f ? 1f : 0f;
     }
 
     @Override
