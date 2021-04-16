@@ -30,7 +30,7 @@ final class SpeciesBreedStrategyInterSpecies implements SpeciesBreedStrategy {
         if (size >= 2) {
             for (int i = 0; i < organismsToReproduceFixed; i++) {
                 Pair<Species> speciesPair = context.random().nextUniquePair(speciesList);
-                OrganismFactory organismToBirth = speciesPair.getItem1().getOrganismToBirth(context.random(), speciesPair.getItem2());
+                OrganismFactory organismToBirth = speciesPair.getLeft().getOrganismToBirth(context.random(), speciesPair.getRight());
 
                 organismsToBirth.add(organismToBirth);
             }

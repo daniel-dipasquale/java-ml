@@ -14,7 +14,7 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
     private final float weightDifferenceCoefficient; // c3
 
     private static boolean isMatching(final Pair<ConnectionGene> connections) {
-        return connections.getItem1() != null && connections.getItem2() != null;
+        return connections.getLeft() != null && connections.getRight() != null;
     }
 
     private static boolean isExcess(final ConnectionGene connection, final ConnectionGene excessFromConnection) {
@@ -22,7 +22,7 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
     }
 
     private static boolean isDisjoint(final Pair<ConnectionGene> connections, final ConnectionGene excessFromConnection) {
-        return excessFromConnection == null || connections.getItem1() != null && !isExcess(connections.getItem1(), excessFromConnection) || connections.getItem2() != null && !isExcess(connections.getItem2(), excessFromConnection);
+        return excessFromConnection == null || connections.getLeft() != null && !isExcess(connections.getLeft(), excessFromConnection) || connections.getRight() != null && !isExcess(connections.getRight(), excessFromConnection);
     }
 
     private static ConnectionGene getExcessConnection(final GenomeDefault genome1, final GenomeDefault genome2) {
@@ -57,7 +57,7 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
         for (Pair<ConnectionGene> connections : genome1.getConnections().fullJoinFromAll(genome2.getConnections())) {
             if (isMatching(connections)) {
                 matchingCount++;
-                weightDifference += Math.abs(connections.getItem1().getWeight() - connections.getItem2().getWeight());
+                weightDifference += Math.abs(connections.getLeft().getWeight() - connections.getRight().getWeight());
             } else if (isDisjoint(connections, excessFromConnection)) {
                 disjointCount++;
             } else {

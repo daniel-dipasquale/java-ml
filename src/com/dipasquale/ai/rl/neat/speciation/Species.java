@@ -152,7 +152,7 @@ public final class Species implements Serializable {
             if (size > 1 && shouldMate) {
                 Pair<Organism> organismPair = context.random().nextUniquePair(organisms);
 
-                organismsToBirth.add(new OrganismFactoryMating(organismPair.getItem1(), organismPair.getItem2(), shouldMutate));
+                organismsToBirth.add(new OrganismFactoryMating(organismPair.getLeft(), organismPair.getRight(), shouldMutate));
             } else {
                 Organism organism = context.random().nextItem(organisms);
 

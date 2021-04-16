@@ -276,10 +276,10 @@ public final class GenomeDefault implements Genome, Serializable {
         GenomeDefault child = new GenomeDefault(fitParent.createGenomeId(), fitParent.historicalMarkings);
 
         for (Pair<NodeGene> nodes : fitParent.nodes.fullJoin(unfitParent.nodes)) {
-            if (nodes.getItem1() != null && nodes.getItem2() != null) {
-                child.nodes.put(getRandom(context.random(), nodes.getItem1(), nodes.getItem2()));
-            } else if (nodes.getItem1() != null) {
-                child.nodes.put(nodes.getItem1());
+            if (nodes.getLeft() != null && nodes.getRight() != null) {
+                child.nodes.put(getRandom(context.random(), nodes.getLeft(), nodes.getRight()));
+            } else if (nodes.getLeft() != null) {
+                child.nodes.put(nodes.getLeft());
             }
         }
 
@@ -303,26 +303,26 @@ public final class GenomeDefault implements Genome, Serializable {
         GenomeDefault child = new GenomeDefault(parent1.createGenomeId(), parent1.historicalMarkings);
 
         for (Pair<NodeGene> nodes : parent1.nodes.fullJoin(parent2.nodes)) {
-            if (nodes.getItem1() != null && nodes.getItem2() != null) {
-                child.nodes.put(getRandom(context.random(), nodes.getItem1(), nodes.getItem2()));
-            } else if (nodes.getItem1() != null) {
-                child.nodes.put(nodes.getItem1());
+            if (nodes.getLeft() != null && nodes.getRight() != null) {
+                child.nodes.put(getRandom(context.random(), nodes.getLeft(), nodes.getRight()));
+            } else if (nodes.getLeft() != null) {
+                child.nodes.put(nodes.getLeft());
             } else {
-                child.nodes.put(nodes.getItem2());
+                child.nodes.put(nodes.getRight());
             }
         }
 
         for (Pair<ConnectionGene> connections : parent1.connections.fullJoinFromAll(parent2.connections)) {
-            if (connections.getItem1() != null && connections.getItem2() != null) {
-                ConnectionGene childConnection = createChildConnection(context, connections.getItem1(), connections.getItem2());
+            if (connections.getLeft() != null && connections.getRight() != null) {
+                ConnectionGene childConnection = createChildConnection(context, connections.getLeft(), connections.getRight());
 
                 child.connections.put(childConnection);
-            } else if (connections.getItem1() != null) {
-                ConnectionGene childConnection = connections.getItem1().createCopy(connections.getItem1().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
+            } else if (connections.getLeft() != null) {
+                ConnectionGene childConnection = connections.getLeft().createCopy(connections.getLeft().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
 
                 child.connections.put(childConnection);
             } else {
-                ConnectionGene childConnection = connections.getItem2().createCopy(connections.getItem2().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
+                ConnectionGene childConnection = connections.getRight().createCopy(connections.getRight().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
 
                 child.connections.put(childConnection);
             }
