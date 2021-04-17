@@ -14,5 +14,6 @@
     <orderEntry type="library" name="com.google.guava:guava:18.0" level="project" />
     <orderEntry type="library" name="org.apache.commons:commons-lang3:3.1" level="project" />
     <orderEntry type="library" name="javax.measure:jsr-275:1.0.0" level="project" />
+    <orderEntry type="library" name="com.aparapi:aparapi:2.0.0" level="project" />
   </component>
 </module>

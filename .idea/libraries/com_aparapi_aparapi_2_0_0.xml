@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="com.google.guava:guava:18.0" type="repository">
+    <properties maven-id="com.aparapi:aparapi:2.0.0" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/aparapi-2.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
