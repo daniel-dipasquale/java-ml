@@ -139,7 +139,7 @@ public final class NeatTest {
 
         float[] expectedOutputs = new float[]{0f, 1f, 1f, 0f};
 
-        NeatEnvironmentContainer environmentContainer = NeatEnvironmentContainer.builder()
+        NeatEnvironmentMock environment = NeatEnvironmentMock.builder()
                 .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
                     float temporary = 0f;
@@ -174,7 +174,7 @@ public final class NeatTest {
                 .name("XOR")
                 .shouldUseParallelism(shouldUseParallelism)
                 .populationSize(populationSize)
-                .genomeIds(environmentContainer.genomeIds)
+                .genomeIds(environment.genomeIds)
                 .settings(SettingsEvaluator.builder()
                         .general(SettingsGeneralEvaluatorSupport.builder()
                                 .populationSize(populationSize)
@@ -190,7 +190,7 @@ public final class NeatTest {
                                         .initialWeightType(SettingsInitialWeightType.RANDOM)
                                         .build())
                                 .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValueFactory())
-                                .environment(environmentContainer)
+                                .environment(environment)
                                 .build())
                         .nodes(SettingsNodeGeneSupport.builder()
                                 .hiddenBias(SettingsFloatNumber.random(SettingsRandomType.UNIFORM, -1f, 1f))
@@ -282,23 +282,23 @@ public final class NeatTest {
     private static NeatEvaluatorSetup createSinglePoleBalancingTest(final double timeSpentGoal, final boolean shouldUseParallelism) {
         int populationSize = 150;
 
-        NeatEnvironmentContainer environmentContainer = NeatEnvironmentContainer.builder()
+        NeatEnvironmentMock environment = NeatEnvironmentMock.builder()
                 .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
                     float minimumTimeSpent = Float.MAX_VALUE;
 
                     for (int i = 0, attempts = 5; i < attempts; i++) {
-                        CartPoleEnvironment environment = CartPoleEnvironment.builder()
+                        CartPoleEnvironment cartPole = CartPoleEnvironment.builder()
                                 .build();
 
-                        while (!environment.isLimitHit() && Double.compare(environment.getTimeSpent(), timeSpentGoal) < 0) {
-                            float[] input = convertToFloat(environment.getState());
+                        while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
+                            float[] input = convertToFloat(cartPole.getState());
                             float[] output = genome.activate(input);
 
-                            environment.stepInDiscrete(output[0]);
+                            cartPole.stepInDiscrete(output[0]);
                         }
 
-                        minimumTimeSpent = Math.min(minimumTimeSpent, (float) environment.getTimeSpent());
+                        minimumTimeSpent = Math.min(minimumTimeSpent, (float) cartPole.getTimeSpent());
                     }
 
                     if (Float.compare(minimumTimeSpent, Float.MAX_VALUE) == 0) {
@@ -313,17 +313,17 @@ public final class NeatTest {
             boolean success = true;
 
             for (int i = 0, attempts = 10; success && i < attempts; i++) {
-                CartPoleEnvironment environment = CartPoleEnvironment.builder()
+                CartPoleEnvironment cartPole = CartPoleEnvironment.builder()
                         .build();
 
-                while (!environment.isLimitHit() && Double.compare(environment.getTimeSpent(), timeSpentGoal) < 0) {
-                    float[] input = convertToFloat(environment.getState());
+                while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
+                    float[] input = convertToFloat(cartPole.getState());
                     float[] output = na.activate(input);
 
-                    environment.stepInDiscrete(output[0]);
+                    cartPole.stepInDiscrete(output[0]);
                 }
 
-                success = Double.compare(environment.getTimeSpent(), timeSpentGoal) >= 0;
+                success = Double.compare(cartPole.getTimeSpent(), timeSpentGoal) >= 0;
             }
 
             if (success) {
@@ -337,7 +337,7 @@ public final class NeatTest {
                 .name("Single Pole Balancing")
                 .shouldUseParallelism(shouldUseParallelism)
                 .populationSize(populationSize)
-                .genomeIds(environmentContainer.genomeIds)
+                .genomeIds(environment.genomeIds)
                 .settings(SettingsEvaluator.builder()
                         .general(SettingsGeneralEvaluatorSupport.builder()
                                 .populationSize(populationSize)
@@ -353,7 +353,7 @@ public final class NeatTest {
                                         .initialWeightType(SettingsInitialWeightType.RANDOM)
                                         .build())
                                 .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValueFactory())
-                                .environment(environmentContainer)
+                                .environment(environment)
                                 .build())
                         .nodes(SettingsNodeGeneSupport.builder()
                                 .hiddenBias(SettingsFloatNumber.random(SettingsRandomType.UNIFORM, -1f, 1f))
@@ -433,19 +433,19 @@ public final class NeatTest {
     }
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class NeatEnvironmentContainer implements NeatEnvironment {
+    private static final class NeatEnvironmentMock implements NeatEnvironment {
         @Serial
         private static final long serialVersionUID = 395615026591016419L;
         private final Set<String> genomeIds;
         private final NeatEnvironment environment;
 
         @Builder(access = AccessLevel.PACKAGE)
-        public static NeatEnvironmentContainer create(final boolean shouldUseParallelism, final NeatEnvironment environment) {
+        public static NeatEnvironmentMock create(final boolean shouldUseParallelism, final NeatEnvironment environment) {
             Set<String> genomeIds = !shouldUseParallelism
                     ? new HashSet<>()
                     : Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-            return new NeatEnvironmentContainer(genomeIds, environment);
+            return new NeatEnvironmentMock(genomeIds, environment);
         }
 
         @Override
