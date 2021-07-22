@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class DateTimeSupportTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport TEST = DateTimeSupport.create(CURRENT_DATE_TIME::incrementAndGet, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport TEST = new DateTimeSupportProxy(CURRENT_DATE_TIME::incrementAndGet, SI.MILLI(SI.SECOND));
 
     @BeforeEach
     public void beforeEach() {
@@ -59,33 +59,28 @@ public final class DateTimeSupportTest {
 
     @Test
     public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_time_frame_for_a_specific_date_time_THEN_remove_the_remainder_of_the_time_past_the_division_of_the_specified_date_time() {
-        Assertions.assertEquals(1_000L, TEST.getTimeFrameFor(1_099L, 100L));
+        Assertions.assertEquals(1_000L, DateTimeSupport.getTimeBucket(1_099L, 100L));
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_100L, TEST.getTimeFrameFor(1_100L, 100L));
+        Assertions.assertEquals(1_100L, DateTimeSupport.getTimeBucket(1_100L, 100L));
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_100L, TEST.getTimeFrameFor(1_101L, 100L));
+        Assertions.assertEquals(1_100L, DateTimeSupport.getTimeBucket(1_101L, 100L));
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
 
     @Test
     public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_time_frame_for_a_specific_date_time_THEN_remove_the_remainder_of_the_time_past_the_division_of_the_specified_date_time_and_substract_the_offset() {
-        Assertions.assertEquals(1_050L, TEST.getTimeFrameFor(1_149L, 100L, 50L));
+        Assertions.assertEquals(1_050L, DateTimeSupport.getTimeBucket(1_149L, 100L, 50L));
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_150L, TEST.getTimeFrameFor(1_150L, 100L, 50L));
+        Assertions.assertEquals(1_150L, DateTimeSupport.getTimeBucket(1_150L, 100L, 50L));
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_150L, TEST.getTimeFrameFor(1_151L, 100L, 50L));
+        Assertions.assertEquals(1_150L, DateTimeSupport.getTimeBucket(1_151L, 100L, 50L));
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
 
     @Test
     public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_time_frame_for_the_current_date_time_THEN_remove_the_remainder_of_the_time_past_the_division_of_the_current_date_time() {
         CURRENT_DATE_TIME.set(999L);
-        Assertions.assertEquals(1_000L, TEST.getCurrentTimeFrame(100L));
-    }
-
-    @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_time_spent_since_the_specified_date_time_THEN_provide_the_time_difference() {
-        Assertions.assertEquals(0L, TEST.getTimeSince(1L));
+        Assertions.assertEquals(1_000L, TEST.getCurrentTimeBucket(100L));
     }
 
     @Test
@@ -134,7 +129,7 @@ public final class DateTimeSupportTest {
 
     @Test
     public void GIVEN_an_instance_date_time_support_created_to_represent_milliseconds_WHEN_getting_the_current_date_time_and_the_unit_THEN_provide_the_time_and_unit_in_milliseconds() {
-        DateTimeSupport test = DateTimeSupport.createMilliseconds();
+        DateTimeSupport test = new DateTimeSupportMilliseconds();
         long startDateTime = System.currentTimeMillis();
         long result = test.now();
         long endDateTime = System.currentTimeMillis();
@@ -146,7 +141,7 @@ public final class DateTimeSupportTest {
 
     @Test
     public void GIVEN_an_instance_date_time_support_created_to_represent_nanoseconds_WHEN_getting_the_current_date_time_and_the_unit_THEN_provide_the_time_and_unit_in_nanoseconds() {
-        DateTimeSupport test = DateTimeSupport.createNanoseconds();
+        DateTimeSupport test = new DateTimeSupportNanoseconds();
         long startDateTime = System.nanoTime();
         long result = test.now();
         long endDateTime = System.nanoTime();

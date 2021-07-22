@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class ConcurrentIdFactoryTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.create(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createProxy(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
     private static final ExpirySupport EXPIRY_SUPPORT = ExpirySupport.create(DATE_TIME_SUPPORT, 1L);
     private static final AtomicLong CURRENT_MINOR_ID = new AtomicLong();
 

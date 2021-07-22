@@ -18,18 +18,13 @@ import java.util.concurrent.TimeUnit;
 @Generated
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class DateTimeConstants {
-    public static final ZoneId UTC = ZoneId.of("UTC");
-
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
-            .withZone(UTC);
-
-    public static final DateTimeFormatter DATE_TIME_PARSER = DateTimeFormatter.ofPattern("yyyy-MM-dd[[ ]['T']HH:mm[:ss[.SSS][z][Z]]]")
-            .withZone(UTC);
-
-    public static final EnumMap<TimeUnit, Unit<Duration>> TIME_UNITS = createTimeUnits();
-    public static final Map<Unit<Duration>, TimeUnit> UNITS = createUnits();
-    public static final Unit<Duration> MILLISECONDS_UNIT = TIME_UNITS.get(TimeUnit.MILLISECONDS);
-    public static final Unit<Duration> NANOSECONDS_UNIT = TIME_UNITS.get(TimeUnit.NANOSECONDS);
+    private static final ZoneId UTC = ZoneId.of("UTC");
+    static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS").withZone(UTC);
+    static final DateTimeFormatter DATE_TIME_PARSER = DateTimeFormatter.ofPattern("yyyy-MM-dd[[ ]['T']HH:mm[:ss[.SSS][z][Z]]]").withZone(UTC);
+    static final EnumMap<TimeUnit, Unit<Duration>> TIME_UNITS = createTimeUnits();
+    static final Map<Unit<Duration>, TimeUnit> UNITS = createUnits();
+    static final Unit<Duration> MILLISECONDS_UNIT = TIME_UNITS.get(TimeUnit.MILLISECONDS);
+    static final Unit<Duration> NANOSECONDS_UNIT = TIME_UNITS.get(TimeUnit.NANOSECONDS);
 
     private static EnumMap<TimeUnit, Unit<Duration>> createTimeUnits() {
         EnumMap<TimeUnit, Unit<Duration>> timeUnits = new EnumMap<>(TimeUnit.class);

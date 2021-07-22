@@ -33,12 +33,12 @@ public final class MetricDataCollectorConcurrent<T> implements MetricDataCollect
         this.concurrencyLevel = concurrencyLevel;
         this.timeFramedMetrics = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
         this.timeFramedUnits = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
-        this.lastTimeFrameFlushed = dateTimeSupport.getCurrentTimeFrame(timeInExpectedUnit) - timeInExpectedUnit;
+        this.lastTimeFrameFlushed = dateTimeSupport.getCurrentTimeBucket(timeInExpectedUnit) - timeInExpectedUnit;
     }
 
     @Override
     public void add(final String name, final double value, final Unit<?> unit) {
-        long timeFrame = dateTimeSupport.getCurrentTimeFrame(time);
+        long timeFrame = dateTimeSupport.getCurrentTimeBucket(time);
         Map<String, MetricDatumCollectorConcurrent<T>> metrics = timeFramedMetrics.computeIfAbsent(timeFrame, tf -> new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel));
         Map<String, Unit<?>> units = timeFramedUnits.computeIfAbsent(timeFrame, tf -> new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel));
         MetricDatumCollectorConcurrent<T> collector = metrics.computeIfAbsent(name, n -> new MetricDatumCollectorConcurrent<>(idFactory, initialCapacity, loadFactor, concurrencyLevel));
@@ -65,7 +65,7 @@ public final class MetricDataCollectorConcurrent<T> implements MetricDataCollect
     @Override
     public synchronized List<MetricData> flush(final boolean force) {
         List<MetricData> output = new ArrayList<>();
-        long currentTimeFrame = dateTimeSupport.getCurrentTimeFrame(time);
+        long currentTimeFrame = dateTimeSupport.getCurrentTimeBucket(time);
         long nextTimeFrameToFlush = lastTimeFrameFlushed + time;
 
         while (nextTimeFrameToFlush < currentTimeFrame || force && nextTimeFrameToFlush == currentTimeFrame) {

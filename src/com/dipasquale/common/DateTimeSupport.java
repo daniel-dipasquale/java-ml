@@ -1,17 +1,33 @@
 package com.dipasquale.common;
 
+import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Duration;
 import javax.measure.unit.Unit;
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public interface DateTimeSupport extends Serializable {
     long now();
+
+    static long getTimeBucket(final long dateTime, final long bucketSize, final long bucketOffset) {
+        long timeBucketProgress = dateTime % bucketSize;
+        long timeBucket = dateTime - timeBucketProgress - bucketOffset;
+
+        return timeBucket + bucketSize * Math.floorDiv(timeBucketProgress + bucketOffset, bucketSize);
+    }
+
+    static long getTimeBucket(final long dateTime, final long bucketSize) {
+        return getTimeBucket(dateTime, bucketSize, 0L);
+    }
+
+    default long getCurrentTimeBucket(final long bucketSize) {
+        return getTimeBucket(now(), bucketSize);
+    }
 
     Unit<Duration> unit();
 
@@ -27,71 +43,69 @@ public interface DateTimeSupport extends Serializable {
         return getTimeUnit(unit());
     }
 
-    default long getTimeFrameFor(final long dateTime, final long time, final long subtraction) {
-        long timeFrameProgress = dateTime % time;
-        long timeFrame = dateTime - timeFrameProgress - subtraction;
-
-        return timeFrame + time * Math.floorDiv(timeFrameProgress + subtraction, time);
-    }
-
-    default long getTimeFrameFor(final long dateTime, final long time) {
-        return getTimeFrameFor(dateTime, time, 0L);
-    }
-
-    default long getCurrentTimeFrame(final long time) {
-        return getTimeFrameFor(now(), time);
-    }
-
-    default long getTimeSince(final long dateTime) {
-        return now() - dateTime;
-    }
-
-    default String format(final long dateTime) {
-        long dateTimeConverted = (long) unit().getConverterTo(DateTimeConstants.MILLISECONDS_UNIT)
-                .convert((double) dateTime);
-
-        Instant instant = new Date(dateTimeConverted).toInstant();
-
-        return DateTimeConstants.DATE_TIME_FORMATTER.format(instant);
-    }
+    String format(long dateTime);
 
     default String nowFormatted() {
         return format(now());
     }
 
-    default long parse(final String dateTime) {
-        TemporalAccessor temporalAccessor = DateTimeConstants.DATE_TIME_PARSER.parse(dateTime);
+    static Instant convert(final long dateTime, final Unit<Duration> unit) {
+        UnitConverter unitConverter = unit.getConverterTo(DateTimeConstants.MILLISECONDS_UNIT);
+        long dateTimeConverted = (long) unitConverter.convert((double) dateTime);
 
-        long epochTime = ZonedDateTime.from(temporalAccessor)
-                .toInstant()
-                .toEpochMilli();
-
-        return (long) DateTimeConstants.MILLISECONDS_UNIT.getConverterTo(unit())
-                .convert((double) epochTime);
+        return new Date(dateTimeConverted).toInstant();
     }
 
-    static DateTimeSupport create(final LongFactory factory, final Unit<Duration> unit) {
-        return new DateTimeSupport() {
-            @Serial
-            private static final long serialVersionUID = -5933526591359752376L;
+    static String format(final DateTimeFormatter dateTimeFormatter, final long dateTime, final Unit<Duration> unit) {
+        Instant instant = DateTimeSupport.convert(dateTime, unit);
 
-            @Override
-            public long now() {
-                return factory.create();
-            }
+        return dateTimeFormatter.format(instant);
+    }
 
-            @Override
-            public Unit<Duration> unit() {
-                return unit;
-            }
-        };
+    long parse(String dateTime);
+
+    static long convert(final TemporalAccessor dateTime, final Unit<Duration> unit) {
+        long epochTime = ZonedDateTime.from(dateTime).toInstant().toEpochMilli();
+        UnitConverter unitConverter = DateTimeConstants.MILLISECONDS_UNIT.getConverterTo(unit);
+
+        return (long) unitConverter.convert((double) epochTime);
+    }
+
+    static long parse(final DateTimeFormatter dateTimeParser, final String dateTime, final Unit<Duration> unit) {
+        TemporalAccessor dateTimeParsed = dateTimeParser.parse(dateTime);
+
+        return DateTimeSupport.convert(dateTimeParsed, unit);
     }
 
     static DateTimeSupport createMilliseconds() {
-        return create(System::currentTimeMillis, DateTimeConstants.MILLISECONDS_UNIT);
+        return new DateTimeSupportMilliseconds();
+    }
+
+    static DateTimeSupport createMilliseconds(final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
+        return new DateTimeSupportMilliseconds(dateTimeFormatter, dateTimeParser);
     }
 
     static DateTimeSupport createNanoseconds() {
-        return create(System::nanoTime, DateTimeConstants.NANOSECONDS_UNIT);
+        return new DateTimeSupportNanoseconds();
+    }
+
+    static DateTimeSupport createNanoseconds(final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
+        return new DateTimeSupportNanoseconds(dateTimeFormatter, dateTimeParser);
+    }
+
+    static DateTimeSupport createProxy(final LongFactory nowFactory, final Unit<Duration> unit) {
+        return new DateTimeSupportProxy(nowFactory, unit);
+    }
+
+    static DateTimeSupport createProxy(final LongFactory nowFactory, final Unit<Duration> unit, final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
+        return new DateTimeSupportProxy(nowFactory, unit, dateTimeFormatter, dateTimeParser);
+    }
+
+    static DateTimeSupport createZero(final Unit<Duration> unit) {
+        return new DateTimeSupportZero(unit);
+    }
+
+    static DateTimeSupport createZero(final Unit<Duration> unit, final String nowFormatted) {
+        return new DateTimeSupportZero(unit, nowFormatted);
     }
 }

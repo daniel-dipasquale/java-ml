@@ -142,15 +142,15 @@ public final class NeatTest {
         NeatEnvironmentMock environment = NeatEnvironmentMock.builder()
                 .shouldUseParallelism(shouldUseParallelism)
                 .environment(genome -> {
-                    float temporary = 0f;
+                    float error = 0f;
 
                     for (int i = 0; i < inputs.length; i++) {
                         float[] output = genome.activate(inputs[i]);
 
-                        temporary += (float) Math.pow(expectedOutputs[i] - output[0], 2D);
+                        error += (float) Math.pow(expectedOutputs[i] - output[0], 2D);
                     }
 
-                    return 4f - temporary;
+                    return inputs.length - error;
                 })
                 .build();
 
@@ -211,7 +211,7 @@ public final class NeatTest {
                                 .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .mutation(SettingsMutationSupport.builder()
-                                .addNodeMutationRate(SettingsFloatNumber.literal(0.1f))
+                                .addNodeMutationRate(SettingsFloatNumber.literal(0.25f))
                                 .addConnectionMutationRate(SettingsFloatNumber.literal(0.2f))
                                 .perturbConnectionsWeightRate(SettingsFloatNumber.literal(0.75f))
                                 .replaceConnectionsWeightRate(SettingsFloatNumber.literal(0.5f))

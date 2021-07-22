@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class ExpirySupportTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.create(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new DateTimeSupportProxy(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
 
     private static ExpirySupport createExpirySupportSlider(final long expiryTime, final long expiryTimeSubtraction) {
         return ExpirySupport.createSlider(DATE_TIME_SUPPORT, expiryTime, expiryTimeSubtraction);

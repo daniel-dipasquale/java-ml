@@ -17,13 +17,13 @@ import java.util.concurrent.TimeUnit;
 
 final class EventLoopNoDelay implements EventLoop {
     private static final Map<Unit<Duration>, DateTimeSupport> DATE_TIME_SUPPORTS = ImmutableMap.<Unit<Duration>, DateTimeSupport>builder()
-            .put(SI.NANO(SI.SECOND), DateTimeSupport.create(() -> 0L, SI.NANO(SI.SECOND)))
-            .put(SI.MICRO(SI.SECOND), DateTimeSupport.create(() -> 0L, SI.MICRO(SI.SECOND)))
-            .put(SI.MILLI(SI.SECOND), DateTimeSupport.create(() -> 0L, SI.MILLI(SI.SECOND)))
-            .put(SI.SECOND, DateTimeSupport.create(() -> 0L, SI.SECOND))
-            .put(NonSI.MINUTE, DateTimeSupport.create(() -> 0L, NonSI.MINUTE))
-            .put(NonSI.HOUR, DateTimeSupport.create(() -> 0L, NonSI.HOUR))
-            .put(NonSI.DAY, DateTimeSupport.create(() -> 0L, NonSI.DAY))
+            .put(SI.NANO(SI.SECOND), DateTimeSupport.createZero(SI.NANO(SI.SECOND)))
+            .put(SI.MICRO(SI.SECOND), DateTimeSupport.createZero(SI.MICRO(SI.SECOND)))
+            .put(SI.MILLI(SI.SECOND), DateTimeSupport.createZero(SI.MILLI(SI.SECOND)))
+            .put(SI.SECOND, DateTimeSupport.createZero(SI.SECOND))
+            .put(NonSI.MINUTE, DateTimeSupport.createZero(NonSI.MINUTE))
+            .put(NonSI.HOUR, DateTimeSupport.createZero(NonSI.HOUR))
+            .put(NonSI.DAY, DateTimeSupport.createZero(NonSI.DAY))
             .build();
 
     private final EventLoopDefault eventLoop;

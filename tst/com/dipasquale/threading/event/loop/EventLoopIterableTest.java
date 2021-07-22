@@ -25,7 +25,7 @@ public final class EventLoopIterableTest {
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
     private static final ExceptionLogger EXCEPTION_LOGGER = EXCEPTIONS::add;
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.create(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createProxy(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
 
     private static final EventLoopIterableSettings SETTINGS = EventLoopIterableSettings.builder()
             .executorService(EXECUTOR_SERVICE)
