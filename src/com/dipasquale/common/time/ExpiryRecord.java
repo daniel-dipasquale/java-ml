@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
 
 import lombok.EqualsAndHashCode;
 import lombok.Generated;

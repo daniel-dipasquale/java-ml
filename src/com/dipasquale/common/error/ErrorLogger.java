@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.error;
 
 @FunctionalInterface
 public interface ErrorLogger {

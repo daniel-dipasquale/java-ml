@@ -1,6 +1,6 @@
 package com.dipasquale.threading.wait.handle;
 
-import com.dipasquale.common.DateTimeSupport;
+import com.dipasquale.common.time.DateTimeSupport;
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;

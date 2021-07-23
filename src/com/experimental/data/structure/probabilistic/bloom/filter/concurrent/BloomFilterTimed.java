@@ -1,7 +1,7 @@
 package com.experimental.data.structure.probabilistic.bloom.filter.concurrent;
 
-import com.dipasquale.common.ExpiryRecord;
-import com.dipasquale.common.ExpirySupport;
+import com.dipasquale.common.time.ExpiryRecord;
+import com.dipasquale.common.time.ExpirySupport;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import lombok.AccessLevel;

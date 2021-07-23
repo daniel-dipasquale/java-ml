@@ -1,8 +1,8 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ExceptionHandlerSupport;
-import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.error.ErrorHandlerSupport;
+import com.dipasquale.common.time.ExpirySupport;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
 import com.dipasquale.threading.event.loop.EventLoop;
 import lombok.RequiredArgsConstructor;
@@ -60,13 +60,13 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
                 try {
                     flushPredicate.confirmRecycled(aggregatedCountMinSketch, expiryDateTime, heavyHitters, minimumHeavyHitterCount);
                 } catch (Throwable e) {
-                    ExceptionHandlerSupport.throwAsSuppressedIfAny(() -> new RuntimeException(e.getMessage(), e), suppressed);
+                    ErrorHandlerSupport.throwAsSuppressedIfAny(() -> new RuntimeException(e.getMessage(), e), suppressed);
                 } finally {
                     aggregatedCountMinSketch = aggregatedCountMinSketchFactory.create();
                 }
             }
 
-            ExceptionHandlerSupport.throwAsSuppressedIfAny("unable to collect the heavy hitters", suppressed);
+            ErrorHandlerSupport.throwAsSuppressedIfAny("unable to collect the heavy hitters", suppressed);
         }
     }
 

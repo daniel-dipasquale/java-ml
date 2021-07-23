@@ -1,8 +1,8 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ErrorLogger;
+import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.time.DateTimeSupport;
 import com.google.common.collect.ImmutableMap;
 
 import javax.measure.quantity.Duration;

@@ -1,7 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ErrorLogger;
+import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.time.DateTimeSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.AfterAll;

@@ -1,6 +1,6 @@
 package com.experimental.stress;
 
-import com.dipasquale.common.DateTimeSupport;
+import com.dipasquale.common.time.DateTimeSupport;
 import com.experimental.metrics.MetricDataSelector;
 import com.experimental.metrics.MetricKey;
 import com.experimental.metrics.MetricKeyDefault;

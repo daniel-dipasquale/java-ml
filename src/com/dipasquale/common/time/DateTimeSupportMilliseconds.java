@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
 
 import lombok.AccessLevel;
 import lombok.Generated;
@@ -11,24 +11,24 @@ import java.time.format.DateTimeFormatter;
 
 @Generated
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class DateTimeSupportNanoseconds implements DateTimeSupport {
+final class DateTimeSupportMilliseconds implements DateTimeSupport {
     @Serial
-    private static final long serialVersionUID = 3025659867976964745L;
+    private static final long serialVersionUID = 526767263817809164L;
     private final DateTimeFormatter dateTimeFormatter;
     private final DateTimeFormatter dateTimeParser;
 
-    DateTimeSupportNanoseconds() {
+    DateTimeSupportMilliseconds() {
         this(DateTimeConstants.DATE_TIME_FORMATTER, DateTimeConstants.DATE_TIME_PARSER);
     }
 
     @Override
     public long now() {
-        return System.nanoTime();
+        return System.currentTimeMillis();
     }
 
     @Override
     public Unit<Duration> unit() {
-        return DateTimeConstants.NANOSECONDS_UNIT;
+        return DateTimeConstants.MILLISECONDS_UNIT;
     }
 
     @Override

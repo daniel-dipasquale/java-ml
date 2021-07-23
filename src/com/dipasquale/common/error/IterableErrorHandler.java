@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.error;
 
 import lombok.RequiredArgsConstructor;
 
@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class MultiExceptionHandler<T> {
-    private final List<T> items;
+public final class IterableErrorHandler<T> {
+    private final Iterable<T> items;
     private final ItemHandler<T> handler;
 
-    public <E extends Exception> void invokeAllAndReportAsSuppressed(final ExceptionHandlerSupport.Factory<E> exceptionFactory)
+    public <E extends Throwable> void invokeAllAndReportAsSuppressed(final ErrorHandlerSupport.Factory<E> exceptionFactory)
             throws E {
         List<Throwable> suppressed = new ArrayList<>();
 
@@ -22,7 +22,7 @@ public final class MultiExceptionHandler<T> {
             }
         }
 
-        ExceptionHandlerSupport.throwAsSuppressedIfAny(exceptionFactory, suppressed);
+        ErrorHandlerSupport.throwAsSuppressedIfAny(exceptionFactory, suppressed);
     }
 
     public void invokeAllAndReportAsSuppressed(final String message) {

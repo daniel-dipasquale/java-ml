@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

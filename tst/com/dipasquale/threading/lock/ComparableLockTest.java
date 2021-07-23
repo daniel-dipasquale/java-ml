@@ -1,6 +1,6 @@
 package com.dipasquale.threading.lock;
 
-import com.dipasquale.common.test.ThrowableComparer;
+import com.dipasquale.common.error.ErrorComparer;
 import com.dipasquale.concurrent.ConcurrentId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -129,10 +129,10 @@ public final class ComparableLockTest {
             test.lockInterruptibly();
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.acquired);
@@ -141,10 +141,10 @@ public final class ComparableLockTest {
             test.tryLock(0L, null);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.acquired);
@@ -153,10 +153,10 @@ public final class ComparableLockTest {
             test.tryLock(1L, null);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.acquired);
@@ -165,10 +165,10 @@ public final class ComparableLockTest {
             test.tryLock(1L, TimeUnit.HOURS);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.acquired);
@@ -224,10 +224,10 @@ public final class ComparableLockTest {
             test.await();
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.conditions.get(0).acquired);
@@ -236,10 +236,10 @@ public final class ComparableLockTest {
             test.awaitNanos(10L);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.conditions.get(0).acquired);
@@ -248,10 +248,10 @@ public final class ComparableLockTest {
             test.await(0L, null);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.conditions.get(0).acquired);
@@ -260,10 +260,10 @@ public final class ComparableLockTest {
             test.await(1L, null);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.conditions.get(0).acquired);
@@ -272,10 +272,10 @@ public final class ComparableLockTest {
             test.await(1L, TimeUnit.HOURS);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.conditions.get(0).acquired);
@@ -284,10 +284,10 @@ public final class ComparableLockTest {
             test.awaitUntil(null);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(InterruptedException.class)
                     .message("this is an interruption for unit test case purposes")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
 
         Assertions.assertEquals(0, lockState.conditions.get(0).acquired);

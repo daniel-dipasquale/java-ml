@@ -1,8 +1,8 @@
 package com.dipasquale.concurrent;
 
-import com.dipasquale.common.ExpiryRecord;
-import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.time.ExpiryRecord;
+import com.dipasquale.common.time.ExpirySupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

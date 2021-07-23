@@ -1,6 +1,6 @@
 package com.dipasquale.threading.lock;
 
-import com.dipasquale.common.MultiExceptionHandler;
+import com.dipasquale.common.error.IterableErrorHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.stream.StreamSupport;
 
 final class MultiLock implements Lock {
     private final List<ComparableLock> locks;
-    private final MultiExceptionHandler<ComparableLock> lockInterruptiblyHandler;
+    private final IterableErrorHandler<ComparableLock> lockInterruptiblyHandler;
     private final MultiWaitHandle tryLockHandler;
 
     public MultiLock(final Iterable<ComparableLock> locks) {
@@ -22,7 +22,7 @@ final class MultiLock implements Lock {
                 .collect(Collectors.toList());
 
         this.locks = locksFixed;
-        this.lockInterruptiblyHandler = new MultiExceptionHandler<>(locksFixed, ComparableLock::lockInterruptibly);
+        this.lockInterruptiblyHandler = new IterableErrorHandler<>(locksFixed, ComparableLock::lockInterruptibly);
         this.tryLockHandler = new MultiWaitHandle(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS, LockWaitHandle.translate(locksFixed));
     }
 

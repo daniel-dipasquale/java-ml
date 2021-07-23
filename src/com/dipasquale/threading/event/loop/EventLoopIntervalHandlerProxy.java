@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.ErrorLogger;
+import com.dipasquale.common.error.ErrorLogger;
 
 import java.util.concurrent.CountDownLatch;
 

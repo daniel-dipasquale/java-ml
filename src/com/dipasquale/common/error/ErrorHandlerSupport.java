@@ -1,5 +1,6 @@
-package com.dipasquale.common;
+package com.dipasquale.common.error;
 
+import com.dipasquale.common.ObjectFactory;
 import lombok.Generated;
 
 import java.io.IOException;
@@ -8,18 +9,18 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public final class ExceptionHandlerSupport {
+public final class ErrorHandlerSupport {
     @Generated
-    private ExceptionHandlerSupport() {
+    private ErrorHandlerSupport() {
     }
 
-    public static <T extends Exception> void throwAsSuppressedIfAny(final Factory<T> exceptionFactory, final List<Throwable> suppressed)
+    public static <T extends Throwable> void throwAsSuppressedIfAny(final Factory<T> errorFactory, final List<Throwable> suppressed)
             throws T {
         if (suppressed.size() == 0) {
             return;
         }
 
-        T exception = exceptionFactory.create();
+        T exception = errorFactory.create();
 
         suppressed.forEach(exception::addSuppressed);
 
@@ -43,6 +44,6 @@ public final class ExceptionHandlerSupport {
     }
 
     @FunctionalInterface
-    public interface Factory<T extends Exception> extends ObjectFactory<T> {
+    public interface Factory<T extends Throwable> extends ObjectFactory<T> {
     }
 }

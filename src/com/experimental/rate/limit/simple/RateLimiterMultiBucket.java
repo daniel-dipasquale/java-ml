@@ -1,6 +1,6 @@
 package com.experimental.rate.limit.simple;
 
-import com.dipasquale.common.DateTimeSupport;
+import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
 import com.dipasquale.threading.wait.handle.WaitHandle;

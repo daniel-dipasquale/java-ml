@@ -1,7 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.ErrorLogger;
+import com.dipasquale.common.error.ErrorLogger;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;

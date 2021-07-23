@@ -1,8 +1,8 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.ErrorLogger;
-import com.dipasquale.common.MultiExceptionHandler;
+import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.IterableErrorHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public final class EventLoopIterable {
     private static final EventLoopRecordQueueFactory EVENT_RECORDS_FACTORY = q -> new ExclusiveQueueLocked<>(new ReentrantLock(), q);
     private final List<EventLoop> eventLoops;
     private final MultiWaitHandle waitUntilDoneHandler;
-    private final MultiExceptionHandler<EventLoop> shutdownHandler;
+    private final IterableErrorHandler<EventLoop> shutdownHandler;
 
     EventLoopIterable(final EventLoopIterableSettings settings) {
         ArgumentValidatorSupport.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.numberOfThreads");
@@ -25,7 +25,7 @@ public final class EventLoopIterable {
 
         this.eventLoops = eventLoops;
         this.waitUntilDoneHandler = new MultiWaitHandle(settings.getDateTimeSupport(), a -> !isEmpty(eventLoops), EventLoopWaitHandle.translate(eventLoops));
-        this.shutdownHandler = new MultiExceptionHandler<>(eventLoops, EventLoop::shutdown);
+        this.shutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
     private static List<EventLoop> createEventLoops(final EventLoopIterableSettings settings) {

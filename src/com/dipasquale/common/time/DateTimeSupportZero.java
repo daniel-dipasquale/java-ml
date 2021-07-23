@@ -1,5 +1,6 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
 
+import com.dipasquale.common.ArgumentValidatorSupport;
 import lombok.AccessLevel;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,6 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
+
+import com.dipasquale.common.ArgumentValidatorSupport;
 
 import java.io.Serializable;
 

@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.time.ExpirySupport;
 import com.dipasquale.concurrent.AtomicRecyclableReference;
 import com.dipasquale.concurrent.RecyclableReference;
 

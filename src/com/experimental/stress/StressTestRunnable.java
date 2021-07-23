@@ -1,6 +1,6 @@
 package com.experimental.stress;
 
-import com.dipasquale.common.DateTimeSupport;
+import com.dipasquale.common.time.DateTimeSupport;
 import lombok.Builder;
 
 public final class StressTestRunnable extends StressTestStrategy {

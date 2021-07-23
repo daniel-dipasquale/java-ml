@@ -2,8 +2,8 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.common.DateTimeSupport;
 import com.dipasquale.common.test.JvmWarmup;
+import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.dipasquale.threading.event.loop.EventLoop;
 import com.dipasquale.threading.event.loop.EventLoopIterable;

@@ -1,6 +1,6 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
 
-import com.dipasquale.common.test.ThrowableComparer;
+import com.dipasquale.common.error.ErrorComparer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -120,10 +120,10 @@ public final class DateTimeSupportTest {
             TEST.parse("unparseable");
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ThrowableComparer.builder()
+            Assertions.assertEquals(ErrorComparer.builder()
                     .type(DateTimeParseException.class)
                     .message("Text 'unparseable' could not be parsed at index 0")
-                    .build(), ThrowableComparer.create(e));
+                    .build(), ErrorComparer.create(e));
         }
     }
 

@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
 
 import java.io.Serial;
 

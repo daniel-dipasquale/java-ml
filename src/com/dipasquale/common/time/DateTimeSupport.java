@@ -1,4 +1,6 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
+
+import com.dipasquale.common.LongFactory;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Duration;

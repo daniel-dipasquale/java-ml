@@ -1,8 +1,8 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ErrorLogger;
-import com.dipasquale.common.MultiExceptionHandler;
+import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.IterableErrorHandler;
+import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 import lombok.Getter;
 
@@ -17,7 +17,7 @@ final class EventLoopMulti implements EventLoop {
     private final List<EventLoop> eventLoops;
     private final EventLoopSelector eventLoopSelector;
     private final MultiWaitHandle waitUntilEmptyHandler;
-    private final MultiExceptionHandler<EventLoop> shutdownHandler;
+    private final IterableErrorHandler<EventLoop> shutdownHandler;
 
     EventLoopMulti(final String name, final EventLoopFactory eventLoopFactory, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
         List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, eventLoopSelector.size(), this);
@@ -26,7 +26,7 @@ final class EventLoopMulti implements EventLoop {
         this.eventLoops = eventLoops;
         this.eventLoopSelector = eventLoopSelector;
         this.waitUntilEmptyHandler = new MultiWaitHandle(dateTimeSupport, a -> !isEmpty(), EventLoopWaitHandle.translate(eventLoops));
-        this.shutdownHandler = new MultiExceptionHandler<>(eventLoops, EventLoop::shutdown);
+        this.shutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
     private static List<EventLoop> createEventLoops(final EventLoopFactory eventLoopFactory, final int count, final EventLoopMulti eventLoopOwner) {

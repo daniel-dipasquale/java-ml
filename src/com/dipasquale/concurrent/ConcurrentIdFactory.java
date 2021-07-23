@@ -1,7 +1,7 @@
 package com.dipasquale.concurrent;
 
-import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.IdFactory;
+import com.dipasquale.common.time.ExpirySupport;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;

@@ -1,5 +1,6 @@
-package com.dipasquale.common.test;
+package com.dipasquale.common.error;
 
+import lombok.AccessLevel;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -8,7 +9,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Generated
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class MessageComparer {
     private final String value;
     private final Pattern pattern;

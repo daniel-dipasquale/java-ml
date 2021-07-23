@@ -1,6 +1,6 @@
 package com.dipasquale.threading.lock;
 
-import com.dipasquale.common.MultiExceptionHandler;
+import com.dipasquale.common.error.IterableErrorHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 
 import javax.measure.converter.UnitConverter;
@@ -14,12 +14,12 @@ final class MultiCondition implements Condition {
     private static final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.unit());
     private static final TimeUnit NS_TIME_UNIT = LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit();
     private final List<Condition> conditions;
-    private final MultiExceptionHandler<Condition> waitHandle;
+    private final IterableErrorHandler<Condition> waitHandle;
     private final MultiWaitHandle timedWaitHandle;
 
     MultiCondition(final List<Condition> conditions) {
         this.conditions = conditions;
-        this.waitHandle = new MultiExceptionHandler<>(conditions, Condition::await);
+        this.waitHandle = new IterableErrorHandler<>(conditions, Condition::await);
         this.timedWaitHandle = new MultiWaitHandle(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS, ConditionWaitHandle.translate(conditions));
     }
 

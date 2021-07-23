@@ -1,5 +1,6 @@
-package com.dipasquale.common;
+package com.dipasquale.common.time;
 
+import com.dipasquale.common.LongFactory;
 import lombok.AccessLevel;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
@@ -11,24 +12,26 @@ import java.time.format.DateTimeFormatter;
 
 @Generated
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class DateTimeSupportMilliseconds implements DateTimeSupport {
+final class DateTimeSupportProxy implements DateTimeSupport {
     @Serial
-    private static final long serialVersionUID = 526767263817809164L;
+    private static final long serialVersionUID = -51819225872192012L;
+    private final LongFactory nowFactory;
+    private final Unit<Duration> unit;
     private final DateTimeFormatter dateTimeFormatter;
     private final DateTimeFormatter dateTimeParser;
 
-    DateTimeSupportMilliseconds() {
-        this(DateTimeConstants.DATE_TIME_FORMATTER, DateTimeConstants.DATE_TIME_PARSER);
+    DateTimeSupportProxy(final LongFactory nowFactory, final Unit<Duration> unit) {
+        this(nowFactory, unit, DateTimeConstants.DATE_TIME_FORMATTER, DateTimeConstants.DATE_TIME_PARSER);
     }
 
     @Override
     public long now() {
-        return System.currentTimeMillis();
+        return nowFactory.create();
     }
 
     @Override
     public Unit<Duration> unit() {
-        return DateTimeConstants.MILLISECONDS_UNIT;
+        return unit;
     }
 
     @Override
