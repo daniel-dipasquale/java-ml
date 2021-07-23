@@ -1,6 +1,6 @@
-package com.dipasquale.concurrent;
+package com.dipasquale.concurrent.random;
 
-import com.dipasquale.common.RandomSupportFloat;
+import com.dipasquale.common.random.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

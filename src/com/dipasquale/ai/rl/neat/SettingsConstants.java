@@ -6,7 +6,7 @@ import com.dipasquale.ai.common.ActivationFunctionReLU;
 import com.dipasquale.ai.common.ActivationFunctionSigmoid;
 import com.dipasquale.ai.common.ActivationFunctionStep;
 import com.dipasquale.ai.common.ActivationFunctionTanH;
-import com.dipasquale.common.RandomSupportFloat;
+import com.dipasquale.common.random.RandomSupportFloat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;

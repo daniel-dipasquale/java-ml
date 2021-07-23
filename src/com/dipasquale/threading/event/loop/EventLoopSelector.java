@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.RandomSupportFloat;
+import com.dipasquale.common.random.RandomSupportFloat;
 
 public interface EventLoopSelector {
     int next();

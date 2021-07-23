@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.random;
 
 import java.io.Serializable;
 import java.util.Random;

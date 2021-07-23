@@ -1,4 +1,6 @@
-package com.dipasquale.common;
+package com.dipasquale.common.bit;
+
+import com.dipasquale.common.ArgumentValidatorSupport;
 
 public interface BitManipulatorSupport {
     int MAXIMUM_BITS = 64;

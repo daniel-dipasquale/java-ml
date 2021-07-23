@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.bit;
 
 import lombok.AccessLevel;
 import lombok.Getter;

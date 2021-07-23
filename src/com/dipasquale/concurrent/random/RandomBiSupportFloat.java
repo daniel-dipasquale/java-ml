@@ -1,6 +1,6 @@
-package com.dipasquale.concurrent;
+package com.dipasquale.concurrent.random;
 
-import com.dipasquale.common.RandomSupportFloat;
+import com.dipasquale.common.random.RandomSupportFloat;
 
 public interface RandomBiSupportFloat extends RandomSupportFloat {
     RandomBiSupportFloat selectContended(boolean contended);

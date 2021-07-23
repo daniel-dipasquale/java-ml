@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.GateBiProvider;
 import com.dipasquale.ai.common.GateProvider;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultCrossOverSupport;
 import com.dipasquale.concurrent.FloatBiFactory;
-import com.dipasquale.concurrent.RandomBiSupportFloat;
+import com.dipasquale.concurrent.random.RandomBiSupportFloat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

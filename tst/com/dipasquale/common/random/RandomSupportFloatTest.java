@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.random;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Assertions;

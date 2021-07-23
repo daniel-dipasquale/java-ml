@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.bit;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.concurrent.RandomBiSupportFloat;
+import com.dipasquale.concurrent.random.RandomBiSupportFloat;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;

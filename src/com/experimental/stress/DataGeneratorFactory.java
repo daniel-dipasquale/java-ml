@@ -1,6 +1,6 @@
 package com.experimental.stress;
 
-import com.dipasquale.common.RandomSupport;
+import com.dipasquale.common.random.RandomSupport;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import lombok.Getter;

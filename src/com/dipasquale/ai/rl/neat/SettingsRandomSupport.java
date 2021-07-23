@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.context.ContextDefaultRandomSupport;
-import com.dipasquale.concurrent.RandomBiSupportFloat;
+import com.dipasquale.concurrent.random.RandomBiSupportFloat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelismSupport;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelismSupportMultiThread;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultParallelismSupportSingleThread;
-import com.dipasquale.common.RandomSupportFloat;
+import com.dipasquale.common.random.RandomSupportFloat;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

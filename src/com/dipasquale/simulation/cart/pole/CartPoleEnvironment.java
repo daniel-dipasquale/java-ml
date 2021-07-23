@@ -1,6 +1,6 @@
 package com.dipasquale.simulation.cart.pole;
 
-import com.dipasquale.common.RandomSupport;
+import com.dipasquale.common.random.RandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

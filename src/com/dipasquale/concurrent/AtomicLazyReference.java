@@ -9,13 +9,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @RequiredArgsConstructor
 public final class AtomicLazyReference<T> {
-    private final ObjectFactory<T> objectFactory;
+    private final ObjectFactory<T> referenceFactory;
     private final AtomicBoolean initializedCas = new AtomicBoolean();
     private final AtomicReference<Envelope> envelopeCas = new AtomicReference<>();
 
     public T reference() {
         if (initializedCas.compareAndSet(false, true)) {
-            envelopeCas.set(new Envelope(objectFactory.create()));
+            envelopeCas.set(new Envelope(referenceFactory.create()));
         }
 
         Envelope envelope = envelopeCas.get();
@@ -27,7 +27,7 @@ public final class AtomicLazyReference<T> {
         return envelope.reference;
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private final class Envelope {
         private final T reference;
     }

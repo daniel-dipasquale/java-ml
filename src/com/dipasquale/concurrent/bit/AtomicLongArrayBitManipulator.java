@@ -1,7 +1,7 @@
-package com.dipasquale.concurrent;
+package com.dipasquale.concurrent.bit;
 
-import com.dipasquale.common.BitManipulator;
-import com.dipasquale.common.BitManipulatorSupport;
+import com.dipasquale.common.bit.BitManipulator;
+import com.dipasquale.common.bit.BitManipulatorSupport;
 
 import java.util.concurrent.atomic.AtomicLongArray;
 

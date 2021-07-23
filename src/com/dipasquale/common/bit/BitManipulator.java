@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.bit;
 
 public interface BitManipulator {
     long size();
