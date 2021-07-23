@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultSpeciationSupport;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculatorDefault;
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.concurrent.IntegerBiFactory;
+import com.dipasquale.common.concurrent.IntegerBiFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

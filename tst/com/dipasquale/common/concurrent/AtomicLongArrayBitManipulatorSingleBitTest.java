@@ -1,7 +1,7 @@
-package com.dipasquale.concurrent;
+package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.random.RandomSupport;
-import com.dipasquale.concurrent.bit.AtomicLongArrayBitManipulatorSingleBit;
+import com.dipasquale.common.bit.concurrent.AtomicLongArrayBitManipulatorSingleBit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

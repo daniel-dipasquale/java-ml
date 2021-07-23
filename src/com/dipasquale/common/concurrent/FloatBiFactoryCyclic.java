@@ -1,4 +1,4 @@
-package com.dipasquale.concurrent;
+package com.dipasquale.common.concurrent;
 
 import java.io.Serial;
 import java.util.List;

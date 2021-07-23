@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common;
 
-import com.dipasquale.concurrent.random.RandomBiSupportFloat;
+import com.dipasquale.common.random.concurrent.RandomBiSupportFloat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

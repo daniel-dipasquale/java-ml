@@ -5,7 +5,7 @@ import com.dipasquale.ai.common.ActivationFunctionFactory;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.concurrent.FloatBiFactory;
+import com.dipasquale.common.concurrent.FloatBiFactory;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;

@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.ActivationFunction;
 import com.dipasquale.ai.common.ActivationFunctionFactory;
-import com.dipasquale.concurrent.EnumBiFactory;
+import com.dipasquale.common.concurrent.EnumBiFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

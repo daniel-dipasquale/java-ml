@@ -1,4 +1,4 @@
-package com.dipasquale.concurrent;
+package com.dipasquale.common.concurrent;
 
 import lombok.RequiredArgsConstructor;
 

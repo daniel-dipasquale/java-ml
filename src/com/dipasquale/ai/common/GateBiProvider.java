@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common;
 
-import com.dipasquale.concurrent.random.RandomBiSupportFloat;
+import com.dipasquale.common.random.concurrent.RandomBiSupportFloat;
 
 public interface GateBiProvider extends GateProvider {
     GateBiProvider selectContended(boolean contended);

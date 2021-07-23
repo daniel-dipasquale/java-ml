@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.concurrent.FloatBiFactory;
+import com.dipasquale.common.concurrent.FloatBiFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

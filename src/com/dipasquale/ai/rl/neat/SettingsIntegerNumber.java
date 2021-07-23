@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.concurrent.IntegerBiFactory;
+import com.dipasquale.common.concurrent.IntegerBiFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

@@ -1,6 +1,6 @@
 package com.dipasquale.threading.lock;
 
-import com.dipasquale.concurrent.ConcurrentId;
+import com.dipasquale.common.concurrent.ConcurrentId;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

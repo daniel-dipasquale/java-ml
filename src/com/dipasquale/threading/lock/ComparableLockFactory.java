@@ -1,8 +1,8 @@
 package com.dipasquale.threading.lock;
 
 import com.dipasquale.common.ObjectFactory;
-import com.dipasquale.concurrent.ConcurrentId;
-import com.dipasquale.concurrent.ConcurrentIdFactory;
+import com.dipasquale.common.concurrent.ConcurrentId;
+import com.dipasquale.common.concurrent.ConcurrentIdFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.locks.Lock;

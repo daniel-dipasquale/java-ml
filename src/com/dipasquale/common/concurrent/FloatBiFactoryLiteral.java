@@ -1,4 +1,4 @@
-package com.dipasquale.concurrent;
+package com.dipasquale.common.concurrent;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -6,14 +6,14 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class FloatBiFactoryIllegalState implements FloatBiFactory {
+final class FloatBiFactoryLiteral implements FloatBiFactory {
     @Serial
-    private static final long serialVersionUID = 4112885393370486526L;
-    private final String message;
+    private static final long serialVersionUID = 4181512590387729925L;
+    private final float value;
 
     @Override
     public float create() {
-        throw new IllegalStateException(message);
+        return value;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.common.random.RandomSupportFloat;
-import com.dipasquale.concurrent.random.RandomBiSupportFloat;
+import com.dipasquale.common.random.concurrent.RandomBiSupportFloat;
 
 import java.io.Serial;
 

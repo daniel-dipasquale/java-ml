@@ -1,4 +1,4 @@
-package com.dipasquale.concurrent.random;
+package com.dipasquale.common.random.concurrent;
 
 import com.dipasquale.common.random.RandomSupportFloat;
 

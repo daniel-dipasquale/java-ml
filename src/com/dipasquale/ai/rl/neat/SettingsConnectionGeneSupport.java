@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.common.WeightPerturber;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
-import com.dipasquale.concurrent.FloatBiFactory;
+import com.dipasquale.common.concurrent.FloatBiFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

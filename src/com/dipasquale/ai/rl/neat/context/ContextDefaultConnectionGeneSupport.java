@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.ai.rl.neat.speciation.PopulationHistoricalMarkings;
-import com.dipasquale.concurrent.FloatBiFactory;
+import com.dipasquale.common.concurrent.FloatBiFactory;
 import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;

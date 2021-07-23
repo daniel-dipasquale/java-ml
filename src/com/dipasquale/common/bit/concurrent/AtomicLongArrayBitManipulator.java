@@ -1,4 +1,4 @@
-package com.dipasquale.concurrent.bit;
+package com.dipasquale.common.bit.concurrent;
 
 import com.dipasquale.common.bit.BitManipulator;
 import com.dipasquale.common.bit.BitManipulatorSupport;

@@ -1,4 +1,4 @@
-package com.dipasquale.concurrent;
+package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirySupport;

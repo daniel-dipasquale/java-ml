@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common;
 
-import com.dipasquale.concurrent.FloatBiFactory;
+import com.dipasquale.common.concurrent.FloatBiFactory;
 
 import java.io.Serializable;
 

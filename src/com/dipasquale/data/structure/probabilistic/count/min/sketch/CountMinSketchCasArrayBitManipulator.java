@@ -2,7 +2,7 @@ package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.bit.BitManipulator;
-import com.dipasquale.concurrent.bit.AtomicLongArrayBitManipulator;
+import com.dipasquale.common.bit.concurrent.AtomicLongArrayBitManipulator;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
