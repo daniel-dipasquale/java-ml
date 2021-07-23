@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common;
 
-import com.dipasquale.common.test.SerializableUtils;
+import com.dipasquale.common.test.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -43,8 +43,8 @@ public final class ActivationFunctionStepTest {
     @Test
     public void TEST_3() {
         try {
-            byte[] activationFunction = SerializableUtils.serialize(TEST);
-            ActivationFunctionStep result = SerializableUtils.deserialize(activationFunction);
+            byte[] activationFunction = SerializableSupport.serialize(TEST);
+            ActivationFunctionStep result = SerializableSupport.deserialize(activationFunction);
 
             Assertions.assertSame(TEST, result);
         } catch (Throwable e) {

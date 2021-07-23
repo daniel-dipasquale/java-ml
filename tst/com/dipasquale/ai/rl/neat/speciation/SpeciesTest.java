@@ -12,7 +12,7 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.test.SerializableUtils;
+import com.dipasquale.common.test.SerializableSupport;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -124,8 +124,8 @@ public final class SpeciesTest {
 
         Organism organism = new Organism(genome, population);
         Species test = new Species(organism, population);
-        byte[] bytes = SerializableUtils.serialize(test);
-        Species result = SerializableUtils.deserialize(bytes);
+        byte[] bytes = SerializableSupport.serialize(test);
+        Species result = SerializableSupport.deserialize(bytes);
 
         Assertions.assertNotSame(test, result);
         Assertions.assertEquals(test, result);

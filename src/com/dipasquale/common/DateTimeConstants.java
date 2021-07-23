@@ -1,9 +1,7 @@
 package com.dipasquale.common;
 
 import com.google.common.collect.ImmutableMap;
-import lombok.AccessLevel;
 import lombok.Generated;
-import lombok.NoArgsConstructor;
 
 import javax.measure.quantity.Duration;
 import javax.measure.unit.NonSI;
@@ -15,8 +13,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Generated
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class DateTimeConstants {
     private static final ZoneId UTC = ZoneId.of("UTC");
     static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS").withZone(UTC);
@@ -25,6 +21,10 @@ final class DateTimeConstants {
     static final Map<Unit<Duration>, TimeUnit> UNITS = createUnits();
     static final Unit<Duration> MILLISECONDS_UNIT = TIME_UNITS.get(TimeUnit.MILLISECONDS);
     static final Unit<Duration> NANOSECONDS_UNIT = TIME_UNITS.get(TimeUnit.NANOSECONDS);
+
+    @Generated
+    private DateTimeConstants() {
+    }
 
     private static EnumMap<TimeUnit, Unit<Duration>> createTimeUnits() {
         EnumMap<TimeUnit, Unit<Duration>> timeUnits = new EnumMap<>(TimeUnit.class);

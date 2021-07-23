@@ -1,7 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ArgumentValidatorSupport;
+import com.dipasquale.common.ErrorLogger;
 import com.dipasquale.common.MultiExceptionHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 
@@ -19,7 +19,7 @@ public final class EventLoopIterable {
     private final MultiExceptionHandler<EventLoop> shutdownHandler;
 
     EventLoopIterable(final EventLoopIterableSettings settings) {
-        ArgumentValidatorUtils.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.numberOfThreads");
+        ArgumentValidatorSupport.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.numberOfThreads");
 
         List<EventLoop> eventLoops = createEventLoops(settings);
 
@@ -34,7 +34,7 @@ public final class EventLoopIterable {
         EventLoopDefaultParams params = EventLoopDefaultParams.builder()
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
-                .exceptionLogger(settings.getExceptionLogger())
+                .errorLogger(settings.getErrorLogger())
                 .build();
 
         for (int i = 0, c = settings.getNumberOfThreads(); i < c; i++) {
@@ -55,31 +55,31 @@ public final class EventLoopIterable {
         return eventLoops.size();
     }
 
-    private <T> CountDownLatch queue(final EventLoopIterableProducer<T> producer, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
+    private <T> CountDownLatch queue(final EventLoopIterableProducer<T> producer, final Consumer<T> action, final ErrorLogger errorLogger) {
         EventLoopHandler handler = new EventLoopIterableHandler<>(producer, action);
         CountDownLatch countDownLatch = new CountDownLatch(eventLoops.size());
 
         for (EventLoop eventLoop : eventLoops) {
-            eventLoop.queue(handler, 0L, exceptionLogger, countDownLatch);
+            eventLoop.queue(handler, 0L, errorLogger, countDownLatch);
         }
 
         return countDownLatch;
     }
 
-    public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
+    public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action, final ErrorLogger errorLogger) {
         EventLoopIterableProducer<T> producer = EventLoopIterableProducer.createSynchronized(iterator);
 
-        return queue(producer, action, exceptionLogger);
+        return queue(producer, action, errorLogger);
     }
 
     public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action) {
         return queue(iterator, action, null);
     }
 
-    public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action, final ExceptionLogger exceptionLogger) {
+    public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action, final ErrorLogger errorLogger) {
         EventLoopIterableProducer<T> producer = EventLoopIterableProducer.createConcurrent(list);
 
-        return queue(producer, action, exceptionLogger);
+        return queue(producer, action, errorLogger);
     }
 
     public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action) {

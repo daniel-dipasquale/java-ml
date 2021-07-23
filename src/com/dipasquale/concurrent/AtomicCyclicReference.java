@@ -1,6 +1,6 @@
 package com.dipasquale.concurrent;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,8 +11,8 @@ public final class AtomicCyclicReference<T> {
     private final boolean restart;
 
     public AtomicCyclicReference(final ByIndex<T> items, final int offset, final int count, final boolean restart) {
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(offset, "offset");
-        ArgumentValidatorUtils.ensureLessThan(offset, count, "offset");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(offset, "offset");
+        ArgumentValidatorSupport.ensureLessThan(offset, count, "offset");
         this.items = items;
         this.indexCas = new AtomicInteger(offset);
         this.count = count;

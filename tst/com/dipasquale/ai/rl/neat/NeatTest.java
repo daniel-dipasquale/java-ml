@@ -40,7 +40,7 @@ public final class NeatTest {
     private static final EventLoopIterableSettings EVENT_LOOP_SETTINGS = EventLoopIterableSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
-            .exceptionLogger(EXCEPTIONS::add)
+            .errorLogger(EXCEPTIONS::add)
             .dateTimeSupport(DateTimeSupport.createMilliseconds())
             .build();
 

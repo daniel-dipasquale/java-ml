@@ -9,18 +9,14 @@ final class ExpirySupportDefault implements ExpirySupport {
     private final long expiryTime;
     private final double expiryTimeDouble;
     private final long offset;
-    private final double slider;
+    private final double rounder;
 
-    ExpirySupportDefault(final DateTimeSupport dateTimeSupport, final long expiryTime, final long offset, final boolean slider) {
-        ArgumentValidatorUtils.ensureNotNull(dateTimeSupport, "dateTimeSupport");
-        ArgumentValidatorUtils.ensureGreaterThanZero(expiryTime, "expiryTime");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(offset, "offset");
-        ArgumentValidatorUtils.ensureGreaterThan(expiryTime, offset, "expiryTime");
+    ExpirySupportDefault(final DateTimeSupport dateTimeSupport, final long expiryTime, final long offset, final boolean rounded) {
         this.dateTimeSupport = dateTimeSupport;
         this.expiryTime = expiryTime;
         this.expiryTimeDouble = (double) expiryTime;
         this.offset = offset;
-        this.slider = slider ? 1D : 0.5D;
+        this.rounder = rounded ? 1D : 0.5D;
     }
 
     @Override
@@ -28,7 +24,7 @@ final class ExpirySupportDefault implements ExpirySupport {
         long currentDateTime = dateTimeSupport.now();
         long expiryDateTimePrevious = DateTimeSupport.getTimeBucket(currentDateTime, expiryTime, offset);
         long expiryTimeProgress = (currentDateTime + expiryTime - offset) % expiryTime;
-        long expiryDateTime = expiryDateTimePrevious + expiryTime * Math.round((expiryTimeDouble * slider + (double) expiryTimeProgress) / expiryTimeDouble);
+        long expiryDateTime = expiryDateTimePrevious + expiryTime * Math.round((expiryTimeDouble * rounder + (double) expiryTimeProgress) / expiryTimeDouble);
 
         return new ExpiryRecord(currentDateTime, expiryDateTime, dateTimeSupport.unit());
     }

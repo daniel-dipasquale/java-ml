@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ExceptionHandlerUtils;
+import com.dipasquale.common.ExceptionHandlerSupport;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
@@ -60,13 +60,13 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
                 try {
                     flushPredicate.confirmRecycled(aggregatedCountMinSketch, expiryDateTime, heavyHitters, minimumHeavyHitterCount);
                 } catch (Throwable e) {
-                    ExceptionHandlerUtils.throwAsSuppressedIfAny(() -> new RuntimeException(e.getMessage(), e), suppressed);
+                    ExceptionHandlerSupport.throwAsSuppressedIfAny(() -> new RuntimeException(e.getMessage(), e), suppressed);
                 } finally {
                     aggregatedCountMinSketch = aggregatedCountMinSketchFactory.create();
                 }
             }
 
-            ExceptionHandlerUtils.throwAsSuppressedIfAny("unable to collect the heavy hitters", suppressed);
+            ExceptionHandlerSupport.throwAsSuppressedIfAny("unable to collect the heavy hitters", suppressed);
         }
     }
 

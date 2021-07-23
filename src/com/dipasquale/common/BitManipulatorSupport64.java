@@ -1,9 +1,5 @@
 package com.dipasquale.common;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
 final class BitManipulatorSupport64 implements BitManipulatorSupport {
     private static final long SIZE = 1L;
 

@@ -1,7 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ErrorLogger;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +15,5 @@ import java.util.concurrent.ExecutorService;
 final class EventLoopDefaultParams {
     private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
-    private final ExceptionLogger exceptionLogger;
+    private final ErrorLogger errorLogger;
 }

@@ -1,7 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ErrorLogger;
 import com.dipasquale.threading.wait.handle.ReusableCountDownLatch;
 import com.dipasquale.threading.wait.handle.SlidingWaitHandle;
 import lombok.AccessLevel;
@@ -25,7 +25,7 @@ final class EventLoopDefault implements EventLoop {
     private boolean isWaitUntilEmptyHandleLocked;
     private final ReusableCountDownLatch waitUntilEmptyHandle;
     private final SlidingWaitHandle waitWhileEmptyHandle;
-    private final ExceptionLogger exceptionLogger;
+    private final ErrorLogger errorLogger;
     private final EventLoop nextEventLoop;
     private final AtomicBoolean shutdown;
 
@@ -41,7 +41,7 @@ final class EventLoopDefault implements EventLoop {
         this.isWaitUntilEmptyHandleLocked = false;
         this.waitUntilEmptyHandle = new ReusableCountDownLatch(0);
         this.waitWhileEmptyHandle = new SlidingWaitHandle(name);
-        this.exceptionLogger = params.getExceptionLogger();
+        this.errorLogger = params.getErrorLogger();
         this.nextEventLoop = nextEventLoopFixed;
         this.shutdown = new AtomicBoolean(true);
     }
@@ -110,8 +110,8 @@ final class EventLoopDefault implements EventLoop {
                 try {
                     eventRecordAudit.polled.getHandler().handle(name);
                 } catch (Throwable e) {
-                    if (exceptionLogger != null) {
-                        exceptionLogger.log(e);
+                    if (errorLogger != null) {
+                        errorLogger.log(e);
                     }
                 } finally {
                     releaseWaitUntilEmptyHandleIfEmptyButThreadSafe();
@@ -144,16 +144,16 @@ final class EventLoopDefault implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
-        EventLoopHandler handlerFixed = new EventLoopHandlerProxy(handler, exceptionLogger, countDownLatch);
+    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch countDownLatch) {
+        EventLoopHandler handlerFixed = new EventLoopHandlerProxy(handler, errorLogger, countDownLatch);
         EventLoopRecord eventRecord = new EventLoopRecord(handlerFixed, dateTimeSupport.now() + delayTime);
 
         queue(eventRecord);
     }
 
     @Override
-    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
-        EventLoopHandler handlerFixed = new EventLoopIntervalHandlerProxy(handler, delayTime, exceptionLogger, countDownLatch, nextEventLoop);
+    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch countDownLatch) {
+        EventLoopHandler handlerFixed = new EventLoopIntervalHandlerProxy(handler, delayTime, errorLogger, countDownLatch, nextEventLoop);
         EventLoopRecord eventRecord = new EventLoopRecord(handlerFixed, dateTimeSupport.now() + delayTime);
 
         queue(eventRecord);

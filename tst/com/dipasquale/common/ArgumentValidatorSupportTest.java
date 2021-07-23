@@ -4,11 +4,11 @@ import com.dipasquale.common.test.ThrowableComparer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class ArgumentValidatorUtilsTest {
+public final class ArgumentValidatorSupportTest {
     @Test
     public void TEST_1() {
         try {
-            ArgumentValidatorUtils.ensureNotNull(null, "object");
+            ArgumentValidatorSupport.ensureNotNull(null, "object");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -17,13 +17,13 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureNotNull(new Object(), "object");
+        ArgumentValidatorSupport.ensureNotNull(new Object(), "object");
     }
 
     @Test
     public void TEST_2() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10D, 11D, "number", "especially number cannot be less than the limit");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10D, 11D, "number", "especially number cannot be less than the limit");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -32,11 +32,11 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10D, 10D, "number", "especially number cannot be less than the limit");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10D, 9D, "number", "especially number cannot be less than the limit");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10D, 10D, "number", "especially number cannot be less than the limit");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10D, 9D, "number", "especially number cannot be less than the limit");
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10D, 11D, "number");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10D, 11D, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -45,14 +45,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10D, 10D, "number");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10D, 9D, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10D, 10D, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10D, 9D, "number");
     }
 
     @Test
     public void TEST_3() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10L, 11L, "number", "especially number cannot be less than the limit");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10L, 11L, "number", "especially number cannot be less than the limit");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -61,11 +61,11 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10L, 10L, "number", "especially number cannot be less than the limit");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10L, 9L, "number", "especially number cannot be less than the limit");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10L, 10L, "number", "especially number cannot be less than the limit");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10L, 9L, "number", "especially number cannot be less than the limit");
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10L, 11L, "number");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10L, 11L, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -74,14 +74,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10L, 10L, "number");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10L, 9L, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10L, 10L, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10L, 9L, "number");
     }
 
     @Test
     public void TEST_4() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10, 11, "number", "especially number cannot be less than the limit");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10, 11, "number", "especially number cannot be less than the limit");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -90,11 +90,11 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10, 10, "number", "especially number cannot be less than the limit");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10, 9, "number", "especially number cannot be less than the limit");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10, 10, "number", "especially number cannot be less than the limit");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10, 9, "number", "especially number cannot be less than the limit");
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10, 11, "number");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10, 11, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -103,14 +103,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10, 10, "number");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(10, 9, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10, 10, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(10, 9, "number");
     }
 
     @Test
     public void TEST_5() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThan(10, 11, "number", "especially number cannot be less than or equal to the limit");
+            ArgumentValidatorSupport.ensureGreaterThan(10, 11, "number", "especially number cannot be less than or equal to the limit");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -120,7 +120,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThan(10, 10, "number", "especially number cannot be less than or equal to the limit");
+            ArgumentValidatorSupport.ensureGreaterThan(10, 10, "number", "especially number cannot be less than or equal to the limit");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -129,10 +129,10 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThan(10, 9, "number", "especially number cannot be less than or equal to the limit");
+        ArgumentValidatorSupport.ensureGreaterThan(10, 9, "number", "especially number cannot be less than or equal to the limit");
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThan(10, 11, "number");
+            ArgumentValidatorSupport.ensureGreaterThan(10, 11, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -142,7 +142,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThan(10, 10, "number");
+            ArgumentValidatorSupport.ensureGreaterThan(10, 10, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -151,13 +151,13 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThan(10, 9, "number");
+        ArgumentValidatorSupport.ensureGreaterThan(10, 9, "number");
     }
 
     @Test
     public void TEST_7() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(-10D, "number");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(-10D, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -166,14 +166,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(0D, "number");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(10D, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(0D, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(10D, "number");
     }
 
     @Test
     public void TEST_8() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(-10L, "number");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(-10L, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -182,14 +182,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(0L, "number");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(10L, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(0L, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(10L, "number");
     }
 
     @Test
     public void TEST_9() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(-10, "number");
+            ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(-10, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -198,14 +198,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(0, "number");
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualToZero(10, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(0, "number");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(10, "number");
     }
 
     @Test
     public void TEST_10() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThanZero(-10L, "number", "especially -10 is bad");
+            ArgumentValidatorSupport.ensureGreaterThanZero(-10L, "number", "especially -10 is bad");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -215,7 +215,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanZero(0L, "number", "especially 0 is bad");
+            ArgumentValidatorSupport.ensureGreaterThanZero(0L, "number", "especially 0 is bad");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -224,10 +224,10 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanZero(10L, "number", "especially 10 is bad");
+        ArgumentValidatorSupport.ensureGreaterThanZero(10L, "number", "especially 10 is bad");
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanZero(-10L, "number");
+            ArgumentValidatorSupport.ensureGreaterThanZero(-10L, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -237,7 +237,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanZero(0L, "number");
+            ArgumentValidatorSupport.ensureGreaterThanZero(0L, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -246,13 +246,13 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanZero(10L, "number");
+        ArgumentValidatorSupport.ensureGreaterThanZero(10L, "number");
     }
 
     @Test
     public void TEST_12() {
         try {
-            ArgumentValidatorUtils.ensureGreaterThanZero(-10, "number", "especially -10 is bad");
+            ArgumentValidatorSupport.ensureGreaterThanZero(-10, "number", "especially -10 is bad");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -262,7 +262,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanZero(0, "number", "especially 0 is bad");
+            ArgumentValidatorSupport.ensureGreaterThanZero(0, "number", "especially 0 is bad");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -271,10 +271,10 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanZero(10, "number", "especially 10 is bad");
+        ArgumentValidatorSupport.ensureGreaterThanZero(10, "number", "especially 10 is bad");
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanZero(-10, "number");
+            ArgumentValidatorSupport.ensureGreaterThanZero(-10, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -284,7 +284,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureGreaterThanZero(0, "number");
+            ArgumentValidatorSupport.ensureGreaterThanZero(0, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -293,13 +293,13 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureGreaterThanZero(10, "number");
+        ArgumentValidatorSupport.ensureGreaterThanZero(10, "number");
     }
 
     @Test
     public void TEST_13() {
         try {
-            ArgumentValidatorUtils.ensureLessThanOrEqualTo(10D, 9D, "number", "especially number cannot be greater than the limit");
+            ArgumentValidatorSupport.ensureLessThanOrEqualTo(10D, 9D, "number", "especially number cannot be greater than the limit");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -308,11 +308,11 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10D, 10D, "number", "especially number cannot be greater than the limit");
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10D, 11D, "number", "especially number cannot be greater than the limit");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10D, 10D, "number", "especially number cannot be greater than the limit");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10D, 11D, "number", "especially number cannot be greater than the limit");
 
         try {
-            ArgumentValidatorUtils.ensureLessThanOrEqualTo(10D, 9D, "number");
+            ArgumentValidatorSupport.ensureLessThanOrEqualTo(10D, 9D, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -321,14 +321,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10D, 10D, "number");
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10D, 11D, "number");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10D, 10D, "number");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10D, 11D, "number");
     }
 
     @Test
     public void TEST_17() {
         try {
-            ArgumentValidatorUtils.ensureLessThanOrEqualTo(10L, 9L, "number", "especially number cannot be greater than the limit");
+            ArgumentValidatorSupport.ensureLessThanOrEqualTo(10L, 9L, "number", "especially number cannot be greater than the limit");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -337,11 +337,11 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10L, 10L, "number", "especially number cannot be greater than the limit");
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10L, 11L, "number", "especially number cannot be greater than the limit");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10L, 10L, "number", "especially number cannot be greater than the limit");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10L, 11L, "number", "especially number cannot be greater than the limit");
 
         try {
-            ArgumentValidatorUtils.ensureLessThanOrEqualTo(10L, 9L, "number");
+            ArgumentValidatorSupport.ensureLessThanOrEqualTo(10L, 9L, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -350,14 +350,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10L, 10L, "number");
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10L, 11L, "number");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10L, 10L, "number");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10L, 11L, "number");
     }
 
     @Test
     public void TEST_18() {
         try {
-            ArgumentValidatorUtils.ensureLessThanOrEqualTo(10, 9, "number", "especially number cannot be greater than the limit");
+            ArgumentValidatorSupport.ensureLessThanOrEqualTo(10, 9, "number", "especially number cannot be greater than the limit");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -366,11 +366,11 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10, 10, "number", "especially number cannot be greater than the limit");
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10, 11, "number", "especially number cannot be greater than the limit");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10, 10, "number", "especially number cannot be greater than the limit");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10, 11, "number", "especially number cannot be greater than the limit");
 
         try {
-            ArgumentValidatorUtils.ensureLessThanOrEqualTo(10, 9, "number");
+            ArgumentValidatorSupport.ensureLessThanOrEqualTo(10, 9, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -379,14 +379,14 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10, 10, "number");
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(10, 11, "number");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10, 10, "number");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(10, 11, "number");
     }
 
     @Test
     public void TEST_21() {
         try {
-            ArgumentValidatorUtils.ensureEqual(10L, 9L, "number", "especially 10 of course");
+            ArgumentValidatorSupport.ensureEqual(10L, 9L, "number", "especially 10 of course");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -396,7 +396,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureEqual(10L, 11L, "number", "especially 10 of course");
+            ArgumentValidatorSupport.ensureEqual(10L, 11L, "number", "especially 10 of course");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -405,10 +405,10 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureEqual(10L, 10L, "number", "especially 10 of course");
+        ArgumentValidatorSupport.ensureEqual(10L, 10L, "number", "especially 10 of course");
 
         try {
-            ArgumentValidatorUtils.ensureEqual(10L, 9L, "number");
+            ArgumentValidatorSupport.ensureEqual(10L, 9L, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -418,7 +418,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureEqual(10L, 11L, "number");
+            ArgumentValidatorSupport.ensureEqual(10L, 11L, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -427,13 +427,13 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureEqual(10L, 10L, "number");
+        ArgumentValidatorSupport.ensureEqual(10L, 10L, "number");
     }
 
     @Test
     public void TEST_22() {
         try {
-            ArgumentValidatorUtils.ensureEqual(10, 9, "number", "especially 10 of course");
+            ArgumentValidatorSupport.ensureEqual(10, 9, "number", "especially 10 of course");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -443,7 +443,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureEqual(10, 11, "number", "especially 10 of course");
+            ArgumentValidatorSupport.ensureEqual(10, 11, "number", "especially 10 of course");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -452,10 +452,10 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureEqual(10, 10, "number", "especially 10 of course");
+        ArgumentValidatorSupport.ensureEqual(10, 10, "number", "especially 10 of course");
 
         try {
-            ArgumentValidatorUtils.ensureEqual(10, 9, "number");
+            ArgumentValidatorSupport.ensureEqual(10, 9, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -465,7 +465,7 @@ public final class ArgumentValidatorUtilsTest {
         }
 
         try {
-            ArgumentValidatorUtils.ensureEqual(10, 11, "number");
+            ArgumentValidatorSupport.ensureEqual(10, 11, "number");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -474,13 +474,13 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureEqual(10, 10, "number");
+        ArgumentValidatorSupport.ensureEqual(10, 10, "number");
     }
 
     @Test
     public void TEST_23() {
         try {
-            ArgumentValidatorUtils.ensureFalse(true, "boolean", "especially true");
+            ArgumentValidatorSupport.ensureFalse(true, "boolean", "especially true");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -489,13 +489,13 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureFalse(false, "boolean", "especially false");
+        ArgumentValidatorSupport.ensureFalse(false, "boolean", "especially false");
     }
 
     @Test
     public void TEST_24() {
         try {
-            ArgumentValidatorUtils.ensureTrue(false, "boolean", "especially false");
+            ArgumentValidatorSupport.ensureTrue(false, "boolean", "especially false");
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -504,6 +504,6 @@ public final class ArgumentValidatorUtilsTest {
                     .build(), ThrowableComparer.create(e));
         }
 
-        ArgumentValidatorUtils.ensureTrue(true, "boolean", "especially true");
+        ArgumentValidatorSupport.ensureTrue(true, "boolean", "especially true");
     }
 }

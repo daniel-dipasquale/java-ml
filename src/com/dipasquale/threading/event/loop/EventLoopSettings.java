@@ -1,7 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ErrorLogger;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public final class EventLoopSettings {
     @Builder.Default
     private final int concurrencyLevel = 1;
     private final EventLoopSelector selector;
-    private final ExceptionLogger exceptionLogger;
+    private final ErrorLogger errorLogger;
     @Builder.Default
     private final boolean contended = true;
 

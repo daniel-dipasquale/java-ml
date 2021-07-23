@@ -9,23 +9,23 @@ import java.util.regex.Pattern;
 
 @Generated
 @RequiredArgsConstructor
-final class Message {
+final class MessageComparer {
     private final String value;
     private final Pattern pattern;
 
-    static Message literal(final String message) {
-        return new Message(message, null);
+    static MessageComparer literal(final String message) {
+        return new MessageComparer(message, null);
     }
 
-    static Message pattern(final String pattern) {
-        return new Message(null, Pattern.compile(pattern));
+    static MessageComparer pattern(final Pattern pattern) {
+        return new MessageComparer(null, pattern);
     }
 
     private static boolean equals(final String message, final Pattern regex) {
         return regex.matcher(message).matches();
     }
 
-    private boolean equals(final Message other) {
+    private boolean equals(final MessageComparer other) {
         String message = Optional.ofNullable(value)
                 .orElse(other.value);
 
@@ -61,7 +61,7 @@ final class Message {
             return false;
         }
 
-        return equals((Message) o);
+        return equals((MessageComparer) o);
     }
 
     @Override

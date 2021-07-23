@@ -12,11 +12,11 @@ public final class ExpirySupportTest {
     private static final DateTimeSupport DATE_TIME_SUPPORT = new DateTimeSupportProxy(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
 
     private static ExpirySupport createExpirySupportSlider(final long expiryTime, final long expiryTimeSubtraction) {
-        return ExpirySupport.createSlider(DATE_TIME_SUPPORT, expiryTime, expiryTimeSubtraction);
+        return ExpirySupport.createRounded(DATE_TIME_SUPPORT, expiryTime, expiryTimeSubtraction);
     }
 
     private static ExpirySupport createExpirySupportSlider(final long expiryTime) {
-        return ExpirySupport.createSlider(DATE_TIME_SUPPORT, expiryTime);
+        return ExpirySupport.createRounded(DATE_TIME_SUPPORT, expiryTime);
     }
 
     private static ExpirySupport createExpirySupport(final long expiryTime, final long expiryTimeSubtraction) {
@@ -109,7 +109,7 @@ public final class ExpirySupportTest {
 
     @Test
     public void TEST_4() {
-        ExpirySupport test_slider = ExpirySupport.createSliderFactory(DATE_TIME_SUPPORT).create(100L);
+        ExpirySupport test_slider = ExpirySupport.createRoundedFactory(DATE_TIME_SUPPORT).create(100L);
         ExpirySupport test = ExpirySupport.createFactory(DATE_TIME_SUPPORT).create(100L);
 
         CURRENT_DATE_TIME.set(1_049L);
@@ -134,7 +134,7 @@ public final class ExpirySupportTest {
 
     @Test
     public void TEST_5() {
-        ExpirySupport test_slider = ExpirySupport.createSliderFactory(DATE_TIME_SUPPORT).create(100L);
+        ExpirySupport test_slider = ExpirySupport.createRoundedFactory(DATE_TIME_SUPPORT).create(100L);
         ExpirySupport test = ExpirySupport.createFactory(DATE_TIME_SUPPORT).create(100L);
 
         CURRENT_DATE_TIME.set(1_049L);

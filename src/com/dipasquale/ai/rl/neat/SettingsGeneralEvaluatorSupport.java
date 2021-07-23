@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.context.ContextDefaultGeneralSupport;
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +22,7 @@ public final class SettingsGeneralEvaluatorSupport {
     private final NeatEnvironment environment = g -> 0f;
 
     ContextDefaultGeneralSupport create() {
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
 
         return new ContextDefaultGeneralSupport(populationSize, fitnessDeterminerFactory, environment);
     }

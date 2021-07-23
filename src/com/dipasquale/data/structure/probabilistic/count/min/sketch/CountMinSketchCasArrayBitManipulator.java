@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.BitManipulator;
 import com.dipasquale.concurrent.AtomicLongArrayBitManipulator;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
@@ -58,7 +58,7 @@ final class CountMinSketchCasArrayBitManipulator<T> implements CountMinSketch<T>
 
     @Override
     public long put(final T item, final long count) {
-        ArgumentValidatorUtils.ensureFalse(dataBitManipulators.get(0).isOutOfBounds(count), "count", "is out of bounds");
+        ArgumentValidatorSupport.ensureFalse(dataBitManipulators.get(0).isOutOfBounds(count), "count", "is out of bounds");
 
         return selectOrUpdateData(item, (bm, i) -> bm.getAndAdd(i, count));
     }

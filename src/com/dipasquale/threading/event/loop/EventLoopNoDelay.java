@@ -1,8 +1,8 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ErrorLogger;
 import com.google.common.collect.ImmutableMap;
 
 import javax.measure.quantity.Duration;
@@ -35,7 +35,7 @@ final class EventLoopNoDelay implements EventLoop {
         EventLoopDefaultParams paramsFixed = EventLoopDefaultParams.builder()
                 .executorService(params.getExecutorService())
                 .dateTimeSupport(DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().unit()))
-                .exceptionLogger(params.getExceptionLogger())
+                .errorLogger(params.getErrorLogger())
                 .build();
 
         this.eventLoop = new EventLoopDefault(name, eventRecords, paramsFixed, nextEventLoop);
@@ -52,19 +52,19 @@ final class EventLoopNoDelay implements EventLoop {
     }
 
     private static void ensureDelayTimeIsValid(final long delayTime) {
-        ArgumentValidatorUtils.ensureEqual(delayTime, 0L, "delayTime", "must be 0 for FIFO ASAP event loops");
+        ArgumentValidatorSupport.ensureEqual(delayTime, 0L, "delayTime", "must be 0 for FIFO ASAP event loops");
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch countDownLatch) {
         ensureDelayTimeIsValid(delayTime);
-        eventLoop.queue(handler, delayTime, exceptionLogger, countDownLatch);
+        eventLoop.queue(handler, delayTime, errorLogger, countDownLatch);
     }
 
     @Override
-    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
+    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch countDownLatch) {
         ensureDelayTimeIsValid(delayTime);
-        eventLoop.queue(handler, delayTime, exceptionLogger, countDownLatch);
+        eventLoop.queue(handler, delayTime, errorLogger, countDownLatch);
     }
 
     @Override

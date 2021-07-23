@@ -33,14 +33,14 @@ final class DateTimeSupportZero implements DateTimeSupport {
 
     @Override
     public String format(final long dateTime) {
-        ArgumentValidatorUtils.ensureEqual(dateTime, 0L, "dateTime", "must be 0");
+        ArgumentValidatorSupport.ensureEqual(dateTime, 0L, "dateTime", "must be 0");
 
         return nowFormatted;
     }
 
     @Override
     public long parse(final String dateTime) {
-        ArgumentValidatorUtils.ensureEqual(dateTime, nowFormatted, "dateTime", String.format("must be '%s'", nowFormatted));
+        ArgumentValidatorSupport.ensureEqual(dateTime, nowFormatted, "dateTime", String.format("must be '%s'", nowFormatted));
 
         return 0L;
     }

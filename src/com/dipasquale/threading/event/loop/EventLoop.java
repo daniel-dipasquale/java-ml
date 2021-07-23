@@ -1,7 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ArgumentValidatorSupport;
+import com.dipasquale.common.ErrorLogger;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -12,7 +12,7 @@ public interface EventLoop {
 
     int getConcurrencyLevel();
 
-    void queue(EventLoopHandler handler, long delayTime, ExceptionLogger exceptionLogger, CountDownLatch countDownLatch);
+    void queue(EventLoopHandler handler, long delayTime, ErrorLogger errorLogger, CountDownLatch countDownLatch);
 
     default void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
         queue(handler, delayTime, null, countDownLatch);
@@ -22,7 +22,7 @@ public interface EventLoop {
         queue(handler, delayTime, null, null);
     }
 
-    void queue(EventLoopIntervalHandler handler, long delayTime, ExceptionLogger exceptionLogger, CountDownLatch countDownLatch);
+    void queue(EventLoopIntervalHandler handler, long delayTime, ErrorLogger errorLogger, CountDownLatch countDownLatch);
 
     default void queue(final EventLoopIntervalHandler handler, final long delayTime, final CountDownLatch countDownLatch) {
         queue(handler, delayTime, null, countDownLatch);
@@ -46,12 +46,12 @@ public interface EventLoop {
     }
 
     static EventLoop create(final EventLoopSettings settings) {
-        ArgumentValidatorUtils.ensureGreaterThanZero(settings.getConcurrencyLevel(), "settings.concurrencyLevel");
+        ArgumentValidatorSupport.ensureGreaterThanZero(settings.getConcurrencyLevel(), "settings.concurrencyLevel");
 
         EventLoopDefaultParams params = EventLoopDefaultParams.builder()
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
-                .exceptionLogger(settings.getExceptionLogger())
+                .errorLogger(settings.getErrorLogger())
                 .build();
 
         if (settings.getConcurrencyLevel() == 1) {

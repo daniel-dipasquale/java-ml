@@ -10,10 +10,14 @@ final class ExpirySupportFactoryDefault implements ExpirySupport.Factory {
     @Serial
     private static final long serialVersionUID = -7185073988511695663L;
     private final DateTimeSupport dateTimeSupport;
-    private final boolean slider;
+    private final boolean rounded;
 
     @Override
     public ExpirySupport create(final long expiryTime, final long offset) {
-        return new ExpirySupportDefault(dateTimeSupport, expiryTime, offset, slider);
+        ArgumentValidatorSupport.ensureGreaterThanZero(expiryTime, "expiryTime");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(offset, "offset");
+        ArgumentValidatorSupport.ensureGreaterThan(expiryTime, offset, "expiryTime");
+
+        return new ExpirySupportDefault(dateTimeSupport, expiryTime, offset, rounded);
     }
 }

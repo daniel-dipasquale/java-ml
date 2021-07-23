@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.context.ContextDefaultSpeciationSupport;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculatorDefault;
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.concurrent.IntegerBiFactory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -44,16 +44,16 @@ public final class SettingsSpeciationSupport {
                 .map(IntegerBiFactory::create)
                 .orElse(general.getPopulationSize() / 8);
 
-        ArgumentValidatorUtils.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
-        ArgumentValidatorUtils.ensureLessThan(maximumSpeciesFixed, general.getPopulationSize(), "maximumSpecies");
+        ArgumentValidatorSupport.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
+        ArgumentValidatorSupport.ensureLessThan(maximumSpeciesFixed, general.getPopulationSize(), "maximumSpecies");
 
         int maximumGenomesFixed = Optional.ofNullable(maximumGenomes)
                 .map(sin -> sin.createFactory(parallelism))
                 .map(IntegerBiFactory::create)
                 .orElse(general.getPopulationSize() / 2);
 
-        ArgumentValidatorUtils.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
-        ArgumentValidatorUtils.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
+        ArgumentValidatorSupport.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
+        ArgumentValidatorSupport.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
 
         float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactory(parallelism).create();
         float disjointCoefficientFixed = disjointCoefficient.createFactory(parallelism).create();

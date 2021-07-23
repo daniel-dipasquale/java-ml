@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ErrorLogger;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -9,7 +9,7 @@ import java.util.concurrent.CountDownLatch;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class EventLoopHandlerProxy implements EventLoopHandler {
     private final EventLoopHandler handler;
-    protected final ExceptionLogger exceptionLogger;
+    protected final ErrorLogger errorLogger;
     protected final CountDownLatch countDownLatch;
 
     @Override
@@ -17,11 +17,11 @@ class EventLoopHandlerProxy implements EventLoopHandler {
         try {
             handler.handle(name);
         } catch (Throwable e) {
-            if (exceptionLogger == null) {
+            if (errorLogger == null) {
                 throw e;
             }
 
-            exceptionLogger.log(e);
+            errorLogger.log(e);
         } finally {
             if (countDownLatch != null) {
                 countDownLatch.countDown();

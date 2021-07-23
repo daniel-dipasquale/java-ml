@@ -1,6 +1,7 @@
 package com.dipasquale.common.test;
 
 import lombok.AccessLevel;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
 
 import java.io.ByteArrayInputStream;
@@ -10,8 +11,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+@Generated
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SerializableUtils {
+public final class SerializableSupport {
     public static byte[] serialize(final Serializable serializable)
             throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

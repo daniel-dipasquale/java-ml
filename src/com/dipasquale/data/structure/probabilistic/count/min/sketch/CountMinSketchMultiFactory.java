@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.data.structure.probabilistic.DataStructureMultiCalculator;
 
 final class CountMinSketchMultiFactory implements CountMinSketchFactory {
@@ -8,7 +8,7 @@ final class CountMinSketchMultiFactory implements CountMinSketchFactory {
     private final int count;
 
     CountMinSketchMultiFactory(final CountMinSketchPartitionFactory countMinSketchPartitionFactory, final int count) {
-        ArgumentValidatorUtils.ensureGreaterThanZero(count, "count");
+        ArgumentValidatorSupport.ensureGreaterThanZero(count, "count");
         this.countMinSketchPartitionFactory = countMinSketchPartitionFactory;
         this.count = count;
     }

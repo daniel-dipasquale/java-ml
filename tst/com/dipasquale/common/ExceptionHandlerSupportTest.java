@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public final class ExceptionHandlerUtilsTest {
+public final class ExceptionHandlerSupportTest {
     private static Throwable createException() {
         try {
             throw new RuntimeException("cause");
@@ -32,18 +32,18 @@ public final class ExceptionHandlerUtilsTest {
 
     @Test
     public void GIVEN_there_are_no_suppressed_exceptions_WHEN_attempting_to_wrap_them_in_a_custom_exception_THEN_avoid_creating_the_exception() {
-        ExceptionHandlerUtils.throwAsSuppressedIfAny(() -> new IllegalStateException("test-message"), ImmutableList.of());
+        ExceptionHandlerSupport.throwAsSuppressedIfAny(() -> new IllegalStateException("test-message"), ImmutableList.of());
     }
 
     @Test
     public void GIVEN_there_are_no_suppressed_exceptions_WHEN_attempting_to_wrap_them_in_a_runtime_exception_THEN_avoid_creating_the_exception() {
-        ExceptionHandlerUtils.throwAsSuppressedIfAny("test-message", ImmutableList.of());
+        ExceptionHandlerSupport.throwAsSuppressedIfAny("test-message", ImmutableList.of());
     }
 
     @Test
     public void GIVEN_there_are_suppressed_exceptions_WHEN_wrapping_them_in_a_custom_exception_THEN_fail_with_the_custom_exception_wrapping_all_other_exceptions_as_suppressed_in_it() {
         try {
-            ExceptionHandlerUtils.throwAsSuppressedIfAny(() -> new IllegalStateException("test-message"), ImmutableList.of(new IllegalStateException("illegal-state-exception")));
+            ExceptionHandlerSupport.throwAsSuppressedIfAny(() -> new IllegalStateException("test-message"), ImmutableList.of(new IllegalStateException("illegal-state-exception")));
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -62,7 +62,7 @@ public final class ExceptionHandlerUtilsTest {
     @Test
     public void GIVEN_there_are_suppressed_exceptions_WHEN_wrapping_them_in_a_runtime_exception_THEN_fail_with_a_runtime_exception_wrapping_all_other_exceptions_as_suppressed_in_it() {
         try {
-            ExceptionHandlerUtils.throwAsSuppressedIfAny("test-message", ImmutableList.of(new IllegalStateException("illegal-state-exception")));
+            ExceptionHandlerSupport.throwAsSuppressedIfAny("test-message", ImmutableList.of(new IllegalStateException("illegal-state-exception")));
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ThrowableComparer.builder()
@@ -88,7 +88,7 @@ public final class ExceptionHandlerUtilsTest {
         Predicate<String> assertResult = Pattern.compile(String.format("^%s%s%s%s$", rootRegex, suppressedRegex, causeRegex, nextRegex)).asPredicate();
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ExceptionHandlerUtils.print(outputStream, createException(), false, StandardCharsets.UTF_8);
+            ExceptionHandlerSupport.print(outputStream, createException(), false, StandardCharsets.UTF_8);
 
             String result = outputStream.toString(StandardCharsets.UTF_8);
 

@@ -5,7 +5,7 @@ import com.dipasquale.ai.common.ActivationFunctionIdentity;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryDefault;
-import com.dipasquale.common.test.SerializableUtils;
+import com.dipasquale.common.test.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +21,8 @@ public final class NodeGeneTest {
         float bias = 1.1f;
         ActivationFunction activationFunction = ActivationFunctionIdentity.getInstance();
         NodeGene test = new NodeGene(nodeId, type, bias, activationFunction);
-        byte[] bytes = SerializableUtils.serialize(test);
-        NodeGene result = SerializableUtils.deserialize(bytes);
+        byte[] bytes = SerializableSupport.serialize(test);
+        NodeGene result = SerializableSupport.deserialize(bytes);
 
         Assertions.assertNotSame(test, result);
         Assertions.assertEquals(test.hashCode(), result.hashCode());

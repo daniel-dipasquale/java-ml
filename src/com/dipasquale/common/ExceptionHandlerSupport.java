@@ -1,7 +1,6 @@
 package com.dipasquale.common;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.Generated;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,8 +8,11 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ExceptionHandlerUtils {
+public final class ExceptionHandlerSupport {
+    @Generated
+    private ExceptionHandlerSupport() {
+    }
+
     public static <T extends Exception> void throwAsSuppressedIfAny(final Factory<T> exceptionFactory, final List<Throwable> suppressed)
             throws T {
         if (suppressed.size() == 0) {

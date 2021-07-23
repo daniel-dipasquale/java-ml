@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ErrorLogger;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -9,8 +9,8 @@ final class EventLoopIntervalHandlerProxy extends EventLoopHandlerProxy {
     private final long delayTime;
     private final EventLoop nextEventLoop;
 
-    EventLoopIntervalHandlerProxy(final EventLoopIntervalHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch, final EventLoop nextEventLoop) {
-        super(handler, exceptionLogger, countDownLatch);
+    EventLoopIntervalHandlerProxy(final EventLoopIntervalHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch countDownLatch, final EventLoop nextEventLoop) {
+        super(handler, errorLogger, countDownLatch);
         this.handler = handler;
         this.delayTime = delayTime;
         this.nextEventLoop = nextEventLoop;
@@ -21,7 +21,7 @@ final class EventLoopIntervalHandlerProxy extends EventLoopHandlerProxy {
         super.handle(name);
 
         if (handler.shouldRequeue()) {
-            nextEventLoop.queue(handler, delayTime, exceptionLogger, countDownLatch);
+            nextEventLoop.queue(handler, delayTime, errorLogger, countDownLatch);
         }
     }
 }

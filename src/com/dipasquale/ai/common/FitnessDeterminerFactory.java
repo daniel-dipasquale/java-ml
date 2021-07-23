@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.ObjectFactory;
 
 @FunctionalInterface
@@ -26,8 +26,8 @@ public interface FitnessDeterminerFactory extends ObjectFactory<FitnessDetermine
     }
 
     static FitnessDeterminerFactory createPthFactory(final float percentage) {
-        ArgumentValidatorUtils.ensureGreaterThanOrEqualTo(percentage, 0f, "percentage");
-        ArgumentValidatorUtils.ensureLessThanOrEqualTo(percentage, 1f, "percentage");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(percentage, 0f, "percentage");
+        ArgumentValidatorSupport.ensureLessThanOrEqualTo(percentage, 1f, "percentage");
 
         return () -> new FitnessDeterminerMetricDatum(md -> md.getPth(percentage));
     }

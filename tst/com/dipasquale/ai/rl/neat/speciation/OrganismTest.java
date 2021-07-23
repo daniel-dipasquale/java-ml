@@ -11,7 +11,7 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.test.SerializableUtils;
+import com.dipasquale.common.test.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,8 +33,8 @@ public final class OrganismTest {
 
         PopulationInfo population = new PopulationInfo();
         Organism test = new Organism(genome, population);
-        byte[] bytes = SerializableUtils.serialize(test);
-        Organism result = SerializableUtils.deserialize(bytes);
+        byte[] bytes = SerializableSupport.serialize(test);
+        Organism result = SerializableSupport.deserialize(bytes);
 
         Assertions.assertNotSame(test, result);
         Assertions.assertEquals(test, result);

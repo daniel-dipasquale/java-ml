@@ -12,24 +12,38 @@ import lombok.ToString;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Generated // TODO: should the testing tool be tested? I'm feeling like it should be
+@Generated
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @EqualsAndHashCode
 @ToString
 public final class ThrowableComparer {
     private final Class<?> type;
-    private final Message message;
+    private final MessageComparer message;
     private final ThrowableComparer cause;
     private final List<ThrowableComparer> suppressed;
 
+    private static Optional<MessageComparer> createMessagePattern(final Object message) {
+        return Optional.ofNullable(message)
+                .filter(m -> m instanceof Pattern)
+                .map(m -> (Pattern) m)
+                .map(MessageComparer::pattern);
+    }
+
+    private static Optional<MessageComparer> createMessageLiteral(final Object message) {
+        return Optional.ofNullable(message)
+                .filter(m -> m instanceof String)
+                .map(m -> (String) m)
+                .map(MessageComparer::literal);
+    }
+
     @Builder
-    private static ThrowableComparer create(final Class<?> type, final String messagePattern, final String message, final ThrowableComparer cause, final List<ThrowableComparer> suppressed) {
-        Message messageArg = Optional.ofNullable(messagePattern)
-                .map(Message::pattern)
-                .orElseGet(() -> Message.literal(message));
+    private static ThrowableComparer create(final Class<?> type, final Object message, final ThrowableComparer cause, final List<ThrowableComparer> suppressed) {
+        MessageComparer messageArg = createMessagePattern(message)
+                .orElseGet(() -> createMessageLiteral(message).orElse(null));
 
         List<ThrowableComparer> suppressedArg = Optional.ofNullable(suppressed)
                 .orElseGet(ImmutableList::of);
@@ -43,7 +57,7 @@ public final class ThrowableComparer {
         }
 
         Class<?> type = throwable.getClass();
-        Message message = Message.literal(throwable.getMessage());
+        MessageComparer message = MessageComparer.literal(throwable.getMessage());
         ThrowableComparer cause = create(throwable.getCause());
 
         List<ThrowableComparer> suppressed = Arrays.stream(throwable.getSuppressed())

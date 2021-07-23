@@ -5,7 +5,7 @@ import com.dipasquale.ai.common.ActivationFunctionSigmoid;
 import com.dipasquale.ai.common.SequentialId;
 import com.dipasquale.ai.common.SequentialIdFactory;
 import com.dipasquale.ai.common.SequentialIdFactoryDefault;
-import com.dipasquale.common.test.SerializableUtils;
+import com.dipasquale.common.test.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,8 +25,8 @@ public final class GenomeDefaultTest {
         test.addNode(new NodeGene(nodeId2, NodeGeneType.HIDDEN, 1.2f, ActivationFunctionSigmoid.getInstance()));
         test.addConnection(new ConnectionGene(innovationId, 0.9f));
 
-        byte[] bytes = SerializableUtils.serialize(test);
-        GenomeDefault result = SerializableUtils.deserialize(bytes);
+        byte[] bytes = SerializableSupport.serialize(test);
+        GenomeDefault result = SerializableSupport.deserialize(bytes);
 
         Assertions.assertNotSame(test, result);
         Assertions.assertEquals(test, result);

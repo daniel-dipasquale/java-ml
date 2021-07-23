@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.ExpirySupport;
 import com.dipasquale.threading.event.loop.EventLoop;
 import lombok.AccessLevel;
@@ -58,7 +58,7 @@ public final class HeavyHittersConfig<T> {
         }
 
         static <T> AggregatePredicate<T> afterAggregating(final int times) {
-            ArgumentValidatorUtils.ensureGreaterThanZero(times, "times");
+            ArgumentValidatorSupport.ensureGreaterThanZero(times, "times");
 
             int[] count = new int[1];
 
@@ -76,7 +76,7 @@ public final class HeavyHittersConfig<T> {
         }
 
         static <T> AggregatePredicate<T> afterEvery(final long expiryTime) {
-            ArgumentValidatorUtils.ensureGreaterThanZero(expiryTime, "expiryTime");
+            ArgumentValidatorSupport.ensureGreaterThanZero(expiryTime, "expiryTime");
 
             long[] lastRecycledDateTime = new long[]{Long.MIN_VALUE};
 
@@ -100,7 +100,7 @@ public final class HeavyHittersConfig<T> {
         }
 
         static <T> AggregatePredicate<T> afterMinimumCountOf(final long minimumCount) {
-            ArgumentValidatorUtils.ensureGreaterThanZero(minimumCount, "minimumCount");
+            ArgumentValidatorSupport.ensureGreaterThanZero(minimumCount, "minimumCount");
 
             return new AggregatePredicate<>() {
                 @Override

@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.CyclicVersion;
 
 import java.util.List;
@@ -79,7 +79,7 @@ public final class NeuralNetworkDefault implements NeuralNetwork {
 
     @Override
     public float[] activate(final float[] input) {
-        ArgumentValidatorUtils.ensureEqual(input.length, nodes.size(NodeGeneType.INPUT), "input.length");
+        ArgumentValidatorSupport.ensureEqual(input.length, nodes.size(NodeGeneType.INPUT), "input.length");
         activationNumber.next();
         initializeNeuronNavigator(input);
         processNeuronsViaNavigator();

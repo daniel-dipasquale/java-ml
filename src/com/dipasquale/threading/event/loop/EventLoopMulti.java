@@ -1,7 +1,7 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.DateTimeSupport;
-import com.dipasquale.common.ExceptionLogger;
+import com.dipasquale.common.ErrorLogger;
 import com.dipasquale.common.MultiExceptionHandler;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 import lombok.Getter;
@@ -51,13 +51,13 @@ final class EventLoopMulti implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
-        getNextEventLoop().queue(handler, delayTime, exceptionLogger, countDownLatch);
+    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch countDownLatch) {
+        getNextEventLoop().queue(handler, delayTime, errorLogger, countDownLatch);
     }
 
     @Override
-    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ExceptionLogger exceptionLogger, final CountDownLatch countDownLatch) {
-        getNextEventLoop().queue(handler, delayTime, exceptionLogger, countDownLatch);
+    public void queue(final EventLoopIntervalHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch countDownLatch) {
+        getNextEventLoop().queue(handler, delayTime, errorLogger, countDownLatch);
     }
 
     @Override

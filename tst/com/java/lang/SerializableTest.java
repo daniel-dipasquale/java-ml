@@ -1,6 +1,6 @@
 package com.java.lang;
 
-import com.dipasquale.common.test.SerializableUtils;
+import com.dipasquale.common.test.SerializableSupport;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Assertions;
@@ -24,8 +24,8 @@ public class SerializableTest {
         c.a = a;
 
         try {
-            byte[] bytes = SerializableUtils.serialize(a);
-            TestA1 result = SerializableUtils.deserialize(bytes);
+            byte[] bytes = SerializableSupport.serialize(a);
+            TestA1 result = SerializableSupport.deserialize(bytes);
 
             Assertions.assertNotSame(a, result);
             Assertions.assertSame(result.b.c.a, result);
@@ -45,9 +45,9 @@ public class SerializableTest {
         c.a = a;
 
         try {
-            byte[] bytes = SerializableUtils.serialize(a);
+            byte[] bytes = SerializableSupport.serialize(a);
 
-            SerializableUtils.<TestA2>deserialize(bytes);
+            SerializableSupport.<TestA2>deserialize(bytes);
         } catch (ClassCastException e) {
         } catch (Throwable e) {
             Assertions.fail(e.getMessage());
@@ -62,8 +62,8 @@ public class SerializableTest {
         test.lastNameGetter = (Supplier<String> & Serializable) () -> "Di Pasquale";
 
         try {
-            byte[] bytes = SerializableUtils.serialize(test);
-            TestOptional result = SerializableUtils.deserialize(bytes);
+            byte[] bytes = SerializableSupport.serialize(test);
+            TestOptional result = SerializableSupport.deserialize(bytes);
 
             Assertions.assertEquals(test.firstName, result.firstName);
             Assertions.assertEquals(test.lastNameGetter.get(), result.lastNameGetter.get());

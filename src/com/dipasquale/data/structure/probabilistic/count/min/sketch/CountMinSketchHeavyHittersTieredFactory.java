@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
 import lombok.Builder;
@@ -12,11 +12,11 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
     private final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig;
 
     CountMinSketchHeavyHittersTieredFactory(final CountMinSketchDefaultFactory countMinSketchDefaultFactory, final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig) {
-        ArgumentValidatorUtils.ensureNotNull(countMinSketchHeavyHittersConfig.getExpirySupport(), "countMinSketchHeavyHittersConfig.expirySupport");
-        ArgumentValidatorUtils.ensureNotNull(countMinSketchHeavyHittersConfig.getCollector(), "countMinSketchHeavyHittersConfig.collector");
-        ArgumentValidatorUtils.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getTopLimit(), "countMinSketchHeavyHittersConfig.topLimit");
-        ArgumentValidatorUtils.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getPartitions(), "countMinSketchHeavyHittersConfig.partitions");
-        ArgumentValidatorUtils.ensureTrue(areAllFlushPredicatesAvailable(countMinSketchHeavyHittersConfig), "countMinSketchHeavyHittersConfig.aggregates[...].flushPredicate", "cannot be null");
+        ArgumentValidatorSupport.ensureNotNull(countMinSketchHeavyHittersConfig.getExpirySupport(), "countMinSketchHeavyHittersConfig.expirySupport");
+        ArgumentValidatorSupport.ensureNotNull(countMinSketchHeavyHittersConfig.getCollector(), "countMinSketchHeavyHittersConfig.collector");
+        ArgumentValidatorSupport.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getTopLimit(), "countMinSketchHeavyHittersConfig.topLimit");
+        ArgumentValidatorSupport.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getPartitions(), "countMinSketchHeavyHittersConfig.partitions");
+        ArgumentValidatorSupport.ensureTrue(areAllFlushPredicatesAvailable(countMinSketchHeavyHittersConfig), "countMinSketchHeavyHittersConfig.aggregates[...].flushPredicate", "cannot be null");
         this.countMinSketchDefaultFactory = countMinSketchDefaultFactory;
         this.countMinSketchHeavyHittersConfig = countMinSketchHeavyHittersConfig;
     }

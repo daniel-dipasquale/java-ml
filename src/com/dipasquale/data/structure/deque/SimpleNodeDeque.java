@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.deque;
 
-import com.dipasquale.common.ArgumentValidatorUtils;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -208,7 +208,7 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
     }
 
     private void ensureHasMembership(final SimpleNode<T> node) {
-        ArgumentValidatorUtils.ensureTrue(hasMembership(node), "node", "was not created by this deque");
+        ArgumentValidatorSupport.ensureTrue(hasMembership(node), "node", "was not created by this deque");
     }
 
     @Override
