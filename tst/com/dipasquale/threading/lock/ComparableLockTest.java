@@ -1,7 +1,7 @@
 package com.dipasquale.threading.lock;
 
-import com.dipasquale.common.error.ErrorComparer;
 import com.dipasquale.common.concurrent.ConcurrentId;
+import com.dipasquale.common.error.ErrorComparer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

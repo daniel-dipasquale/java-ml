@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.common.random.RandomSupportFloat;
 import com.dipasquale.common.concurrent.EnumBiFactory;
+import com.dipasquale.common.random.RandomSupportFloat;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;

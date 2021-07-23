@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Generated
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class MessageComparer {
     private final String value;
     private final Pattern pattern;
@@ -53,16 +53,16 @@ final class MessageComparer {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object other) {
+        if (this == other) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (other == null || getClass() != other.getClass()) {
             return false;
         }
 
-        return equals((MessageComparer) o);
+        return equals((MessageComparer) other);
     }
 
     @Override
