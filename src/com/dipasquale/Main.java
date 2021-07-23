@@ -207,13 +207,13 @@ public final class Main {
                 }
             }
 
-            List<Throwable> exceptions = ImmutableList.copyOf(stressTest.extractExceptions());
+            List<Throwable> errors = ImmutableList.copyOf(stressTest.extractExceptions());
 
-            if (!exceptions.isEmpty()) {
+            if (!errors.isEmpty()) {
                 System.out.printf("[INFO] there were some errors found: %n");
 
-                for (Throwable exception : exceptions) {
-                    exception.printStackTrace(System.err);
+                for (Throwable error : errors) {
+                    error.printStackTrace(System.err);
                 }
             }
         } finally {

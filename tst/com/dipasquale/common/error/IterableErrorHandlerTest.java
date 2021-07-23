@@ -21,7 +21,7 @@ public class IterableErrorHandlerTest {
 
         IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
 
-        test.invokeAllAndReportAsSuppressed(() -> new RuntimeException("unit test failure"));
+        test.handleAll(() -> new RuntimeException("unit test failure"));
         Assertions.assertEquals(3, data.get(0));
         Assertions.assertEquals(2, data.get(1));
         Assertions.assertEquals(1, data.get(2));
@@ -40,7 +40,7 @@ public class IterableErrorHandlerTest {
         IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
 
         try {
-            test.invokeAllAndReportAsSuppressed(() -> new RuntimeException("unit test failure"));
+            test.handleAll(() -> new RuntimeException("unit test failure"));
         } catch (Throwable e) {
             Assertions.assertEquals(ErrorComparer.builder()
                     .type(RuntimeException.class)
@@ -71,7 +71,7 @@ public class IterableErrorHandlerTest {
 
         IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
 
-        test.invokeAllAndReportAsSuppressed("unit test failure");
+        test.handleAll("unit test failure");
         Assertions.assertEquals(3, data.get(0));
         Assertions.assertEquals(2, data.get(1));
         Assertions.assertEquals(1, data.get(2));
@@ -90,7 +90,7 @@ public class IterableErrorHandlerTest {
         IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
 
         try {
-            test.invokeAllAndReportAsSuppressed("unit test failure");
+            test.handleAll("unit test failure");
         } catch (Throwable e) {
             Assertions.assertEquals(ErrorComparer.builder()
                     .type(RuntimeException.class)

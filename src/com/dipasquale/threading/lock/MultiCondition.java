@@ -26,7 +26,7 @@ final class MultiCondition implements Condition {
     @Override
     public void await()
             throws InterruptedException {
-        waitHandle.invokeAllAndReportAsSuppressed(() -> new InterruptedException("unable to await on all conditions"));
+        waitHandle.handleAll(() -> new InterruptedException("unable to await on all conditions"));
     }
 
     @Override

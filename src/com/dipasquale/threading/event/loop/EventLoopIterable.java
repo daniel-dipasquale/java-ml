@@ -92,6 +92,6 @@ public final class EventLoopIterable {
     }
 
     public void shutdown() {
-        shutdownHandler.invokeAllAndReportAsSuppressed("unable to shutdown the event loops");
+        shutdownHandler.handleAll("unable to shutdown the event loops");
     }
 }

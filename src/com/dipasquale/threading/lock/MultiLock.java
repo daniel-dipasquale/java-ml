@@ -37,7 +37,7 @@ final class MultiLock implements Lock {
     public void lockInterruptibly()
             throws InterruptedException {
         synchronized (locks) {
-            lockInterruptiblyHandler.invokeAllAndReportAsSuppressed(() -> new InterruptedException("unable to lock interruptibly on all locks"));
+            lockInterruptiblyHandler.handleAll(() -> new InterruptedException("unable to lock interruptibly on all locks"));
         }
     }
 

@@ -10,8 +10,8 @@ public final class IterableErrorHandler<T> {
     private final Iterable<T> items;
     private final ItemHandler<T> handler;
 
-    public <E extends Throwable> void invokeAllAndReportAsSuppressed(final ErrorHandlerSupport.Factory<E> exceptionFactory)
-            throws E {
+    public <TError extends Throwable> void handleAll(final ErrorHandlerSupport.Factory<TError> errorFactory)
+            throws TError {
         List<Throwable> suppressed = new ArrayList<>();
 
         for (T item : items) {
@@ -22,11 +22,11 @@ public final class IterableErrorHandler<T> {
             }
         }
 
-        ErrorHandlerSupport.throwAsSuppressedIfAny(exceptionFactory, suppressed);
+        ErrorHandlerSupport.throwAsSuppressedIfAny(errorFactory, suppressed);
     }
 
-    public void invokeAllAndReportAsSuppressed(final String message) {
-        invokeAllAndReportAsSuppressed(() -> new RuntimeException(message));
+    public void handleAll(final String message) {
+        handleAll(() -> new RuntimeException(message));
     }
 
     @FunctionalInterface

@@ -31,12 +31,12 @@ public final class ErrorHandlerSupport {
         throwAsSuppressedIfAny(() -> new RuntimeException(message), suppressed);
     }
 
-    public static void print(final OutputStream outputStream, final Throwable exception, final boolean autoFlush, final Charset charset)
+    public static void print(final OutputStream outputStream, final Throwable error, final boolean autoFlush, final Charset charset)
             throws IOException {
         try (PrintStream printStream = new PrintStream(outputStream, autoFlush, charset.toString())) {
-            exception.printStackTrace(printStream);
+            error.printStackTrace(printStream);
 
-            for (Throwable e = exception.getCause(); e != null; e = e.getCause()) {
+            for (Throwable e = error.getCause(); e != null; e = e.getCause()) {
                 printStream.write("Caused by: ".getBytes(charset));
                 e.printStackTrace(printStream);
             }
