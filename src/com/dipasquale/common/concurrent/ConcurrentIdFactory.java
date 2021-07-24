@@ -1,7 +1,9 @@
 package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.IdFactory;
+import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.time.ExpirySupport;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
@@ -9,39 +11,39 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class ConcurrentIdFactory implements IdFactory<ConcurrentId<Long>> {
-    private final AtomicRecyclableReference<MajorIdContainer> recyclableMajorIdContainer;
+    private final AtomicRecyclableReference<MajorId> recyclableMajorId;
     private final IdFactory<Long> minorIdFactory;
 
-    public ConcurrentIdFactory(final ExpirySupport expirySupport, final IdFactory<Long> minorIdFactory, final int initialCapacity, final float loadFactor, final int concurrencyLevel) {
-        this.recyclableMajorIdContainer = new AtomicRecyclableReference<>(createMajorIdContainerFactory(initialCapacity, loadFactor, concurrencyLevel), expirySupport);
+    public ConcurrentIdFactory(final ExpirySupport expirySupport, final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory, final IdFactory<Long> minorIdFactory) {
+        this.recyclableMajorId = new AtomicRecyclableReference<>(createMajorIdFactory(minorIdContainerFactory), expirySupport);
         this.minorIdFactory = minorIdFactory;
     }
 
-    public ConcurrentIdFactory(final ExpirySupport expirySupport, final int initialCapacity, final float loadFactor, final int concurrencyLevel) {
-        this(expirySupport, () -> Thread.currentThread().getId(), initialCapacity, loadFactor, concurrencyLevel);
+    public ConcurrentIdFactory(final ExpirySupport expirySupport, final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
+        this(expirySupport, minorIdContainerFactory, () -> Thread.currentThread().getId());
     }
 
-    private static RecyclableReference.Factory<MajorIdContainer> createMajorIdContainerFactory(final int initialCapacity, final float loadFactor, final int concurrencyLevel) {
-        return edt -> new MajorIdContainer(edt, new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel));
+    private static RecyclableReference.Factory<MajorId> createMajorIdFactory(final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
+        return edt -> new MajorId(edt, minorIdContainerFactory.create());
     }
 
     @Override
     public ConcurrentId<Long> createId() {
-        MajorIdContainer majorIdContainer = recyclableMajorIdContainer.reference();
-        MinorIdContainer minorIdContainer = majorIdContainer.minorIdContainers.computeIfAbsent(minorIdFactory.createId(), MinorIdContainer::new);
+        MajorId majorId = recyclableMajorId.reference();
+        MinorId minorId = majorId.minorIds.computeIfAbsent(minorIdFactory.createId(), MinorId::new);
 
-        return new ConcurrentId<>(majorIdContainer.majorId, minorIdContainer.minorId, minorIdContainer.revisionId.getAndIncrement());
+        return new ConcurrentId<>(majorId.majorId, minorId.minorId, minorId.revisionId.getAndIncrement());
     }
 
-    @RequiredArgsConstructor
-    private static final class MinorIdContainer {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    static final class MinorId {
         private final long minorId;
         private final AtomicLong revisionId = new AtomicLong();
     }
 
-    @RequiredArgsConstructor
-    private static final class MajorIdContainer {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class MajorId {
         private final long majorId;
-        private final Map<Long, MinorIdContainer> minorIdContainers;
+        private final Map<Long, MinorId> minorIds;
     }
 }

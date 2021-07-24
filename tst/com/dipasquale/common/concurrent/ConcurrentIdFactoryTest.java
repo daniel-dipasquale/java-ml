@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.measure.unit.SI;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class ConcurrentIdFactoryTest {
@@ -23,7 +24,7 @@ public final class ConcurrentIdFactoryTest {
 
     @Test
     public void TEST_1() {
-        ConcurrentIdFactory test = new ConcurrentIdFactory(EXPIRY_SUPPORT, CURRENT_MINOR_ID::get, 16, 0.75f, 1);
+        ConcurrentIdFactory test = new ConcurrentIdFactory(EXPIRY_SUPPORT, ConcurrentHashMap::new, CURRENT_MINOR_ID::get);
 
         Assertions.assertEquals("1.0.0", test.createId().toString());
         Assertions.assertEquals("1.0.1", test.createId().toString());
@@ -38,7 +39,7 @@ public final class ConcurrentIdFactoryTest {
     @Test
     public void TEST_2() {
         long threadId = Thread.currentThread().getId();
-        ConcurrentIdFactory test = new ConcurrentIdFactory(EXPIRY_SUPPORT, 16, 0.75f, 1);
+        ConcurrentIdFactory test = new ConcurrentIdFactory(EXPIRY_SUPPORT, ConcurrentHashMap::new);
 
         Assertions.assertEquals(String.format("1.%d.0", threadId), test.createId().toString());
         Assertions.assertEquals(String.format("1.%d.1", threadId), test.createId().toString());

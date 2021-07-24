@@ -1,5 +1,6 @@
 package com.dipasquale.common.concurrent;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
@@ -7,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Generated
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 @EqualsAndHashCode
 @ToString
