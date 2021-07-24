@@ -2,6 +2,7 @@ package com.dipasquale.threading.wait.handle;
 
 import com.dipasquale.common.error.ErrorComparer;
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.common.time.ProxyDateTimeSupport;
 import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -18,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class MultiWaitHandleTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createProxy(CURRENT_DATE_TIME::incrementAndGet, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::incrementAndGet, SI.MILLI(SI.SECOND));
 
     @BeforeEach
     public void beforeEach() {

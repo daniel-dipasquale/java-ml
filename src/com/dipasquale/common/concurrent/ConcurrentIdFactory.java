@@ -2,7 +2,7 @@ package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.IdFactory;
 import com.dipasquale.common.ObjectFactory;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,13 +14,13 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId<Long>> 
     private final AtomicRecyclableReference<MajorId> recyclableMajorId;
     private final IdFactory<Long> minorIdFactory;
 
-    public ConcurrentIdFactory(final ExpirySupport expirySupport, final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory, final IdFactory<Long> minorIdFactory) {
-        this.recyclableMajorId = new AtomicRecyclableReference<>(createMajorIdFactory(minorIdContainerFactory), expirySupport);
+    public ConcurrentIdFactory(final ExpirationFactory expirationFactory, final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory, final IdFactory<Long> minorIdFactory) {
+        this.recyclableMajorId = new AtomicRecyclableReference<>(createMajorIdFactory(minorIdContainerFactory), expirationFactory);
         this.minorIdFactory = minorIdFactory;
     }
 
-    public ConcurrentIdFactory(final ExpirySupport expirySupport, final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
-        this(expirySupport, minorIdContainerFactory, () -> Thread.currentThread().getId());
+    public ConcurrentIdFactory(final ExpirationFactory expirationFactory, final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
+        this(expirationFactory, minorIdContainerFactory, () -> Thread.currentThread().getId());
     }
 
     private static RecyclableReference.Factory<MajorId> createMajorIdFactory(final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {

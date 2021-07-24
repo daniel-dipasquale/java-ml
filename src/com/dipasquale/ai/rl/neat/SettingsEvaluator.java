@@ -56,8 +56,8 @@ public final class SettingsEvaluator {
 
     Context createContext() {
         ContextDefaultGeneralSupport generalFixed = general.create();
-        ContextDefaultNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeConnector(), parallelism);
-        ContextDefaultConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeConnector(), neuralNetwork, parallelism);
+        ContextDefaultNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeFactory(), parallelism);
+        ContextDefaultConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeFactory(), neuralNetwork, parallelism);
         ContextDefaultNeuralNetworkSupport neuralNetworkFixed = neuralNetwork.create();
         ContextDefaultParallelismSupport parallelismFixed = parallelism.create();
         ContextDefaultRandomSupport randomFixed = random.create(parallelism);

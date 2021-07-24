@@ -2,6 +2,7 @@ package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.error.ErrorLogger;
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public final class EventLoopSettings {
     private static final Map<Boolean, EventLoopRecordQueueFactory> EVENT_RECORDS_FACTORIES = createEventRecordsFactories();
     private final ExecutorService executorService;
     @Builder.Default
-    private final DateTimeSupport dateTimeSupport = DateTimeSupport.createMilliseconds();
+    private final DateTimeSupport dateTimeSupport = new MillisecondsDateTimeSupport();
     @Builder.Default
     private final EventLoopType type = EventLoopType.EXPLICIT_DELAY;
     private final String name;

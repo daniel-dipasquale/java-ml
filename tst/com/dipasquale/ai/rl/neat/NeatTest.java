@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.common.FitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.common.test.JvmWarmup;
-import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.dipasquale.threading.event.loop.EventLoop;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
@@ -41,7 +41,7 @@ public final class NeatTest {
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .errorLogger(EXCEPTIONS::add)
-            .dateTimeSupport(DateTimeSupport.createMilliseconds())
+            .dateTimeSupport(new MillisecondsDateTimeSupport())
             .build();
 
     private static final EventLoopIterable EVENT_LOOP = EventLoop.createForIterables(EVENT_LOOP_SETTINGS);
@@ -178,7 +178,7 @@ public final class NeatTest {
                 .settings(SettingsEvaluator.builder()
                         .general(SettingsGeneralEvaluatorSupport.builder()
                                 .populationSize(populationSize)
-                                .genesisGenomeConnector(SettingsGenesisGenomeTemplate.builder()
+                                .genesisGenomeFactory(SettingsGenesisGenomeTemplate.builder()
                                         .inputs(SettingsIntegerNumber.literal(2))
                                         .inputBias(SettingsFloatNumber.literal(0f))
                                         .inputActivationFunction(SettingsEnum.literal(SettingsActivationFunction.IDENTITY))
@@ -211,7 +211,7 @@ public final class NeatTest {
                                 .isLessThan(SettingsRandomType.UNIFORM)
                                 .build())
                         .mutation(SettingsMutationSupport.builder()
-                                .addNodeMutationRate(SettingsFloatNumber.literal(0.25f))
+                                .addNodeMutationRate(SettingsFloatNumber.literal(0.1f))
                                 .addConnectionMutationRate(SettingsFloatNumber.literal(0.2f))
                                 .perturbConnectionsWeightRate(SettingsFloatNumber.literal(0.75f))
                                 .replaceConnectionsWeightRate(SettingsFloatNumber.literal(0.5f))
@@ -341,7 +341,7 @@ public final class NeatTest {
                 .settings(SettingsEvaluator.builder()
                         .general(SettingsGeneralEvaluatorSupport.builder()
                                 .populationSize(populationSize)
-                                .genesisGenomeConnector(SettingsGenesisGenomeTemplate.builder()
+                                .genesisGenomeFactory(SettingsGenesisGenomeTemplate.builder()
                                         .inputs(SettingsIntegerNumber.literal(4))
                                         .inputBias(SettingsFloatNumber.literal(0f))
                                         .inputActivationFunction(SettingsEnum.literal(SettingsActivationFunction.IDENTITY))

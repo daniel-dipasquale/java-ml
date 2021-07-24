@@ -1,7 +1,8 @@
 package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.time.DateTimeSupport;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
+import com.dipasquale.common.time.ProxyDateTimeSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class ConcurrentIdFactoryTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createProxy(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
-    private static final ExpirySupport EXPIRY_SUPPORT = ExpirySupport.create(DATE_TIME_SUPPORT, 1L);
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final ExpirationFactory EXPIRY_SUPPORT = DATE_TIME_SUPPORT.createBucketExpirationFactory(1L);
     private static final AtomicLong CURRENT_MINOR_ID = new AtomicLong();
 
     @BeforeEach

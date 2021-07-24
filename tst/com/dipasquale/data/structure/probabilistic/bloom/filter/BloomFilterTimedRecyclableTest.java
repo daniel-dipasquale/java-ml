@@ -1,7 +1,8 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.time.DateTimeSupport;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
+import com.dipasquale.common.time.ProxyDateTimeSupport;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +16,8 @@ public final class BloomFilterTimedRecyclableTest {
     private static final MultiFunctionHashing MULTI_FUNCTION_HASHING = MultiFunctionHashing.createMd5(25, BloomFilterTimedRecyclableTest.class.getSimpleName());
     private static final BloomFilterDefaultFactory BLOOM_FILTER_DEFAULT_FACTORY = new BloomFilterDefaultFactory(MULTI_FUNCTION_HASHING);
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createProxy(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
-    private static final ExpirySupport EXPIRY_SUPPORT = ExpirySupport.create(DATE_TIME_SUPPORT, 1L);
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final ExpirationFactory EXPIRY_SUPPORT = DATE_TIME_SUPPORT.createBucketExpirationFactory(1L);
     private static final BloomFilterTimedRecyclableFactory BLOOM_FILTER_FACTORY = new BloomFilterTimedRecyclableFactory(BLOOM_FILTER_DEFAULT_FACTORY, EXPIRY_SUPPORT);
 
     @BeforeEach

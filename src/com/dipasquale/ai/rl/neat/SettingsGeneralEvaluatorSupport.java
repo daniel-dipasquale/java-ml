@@ -15,7 +15,7 @@ public final class SettingsGeneralEvaluatorSupport {
     @Builder.Default
     private final int populationSize = 150;
     @Builder.Default
-    private final SettingsGenesisGenomeTemplate genesisGenomeConnector = SettingsGenesisGenomeTemplate.createDefault(1, 1);
+    private final SettingsGenesisGenomeTemplate genesisGenomeFactory = SettingsGenesisGenomeTemplate.createDefault(1, 1);
     @Builder.Default
     private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValueFactory();
     @Builder.Default

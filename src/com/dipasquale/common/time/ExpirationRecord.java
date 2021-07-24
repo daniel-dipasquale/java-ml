@@ -15,17 +15,11 @@ import java.io.Serializable;
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
-@ToString(onlyExplicitlyIncluded = true)
-public final class ExpiryRecord implements Serializable {
+@ToString
+public final class ExpirationRecord implements Serializable {
     @Serial
-    private static final long serialVersionUID = -154604941002512598L;
-    @ToString.Include
+    private static final long serialVersionUID = -7606800053983722156L;
     private final long currentDateTime;
-    @ToString.Include
-    private final long expiryDateTime;
+    private final long expirationDateTime;
     private final Unit<Duration> unit;
-
-    public boolean isExpired(final long dateTime) {
-        return currentDateTime >= dateTime;
-    }
 }

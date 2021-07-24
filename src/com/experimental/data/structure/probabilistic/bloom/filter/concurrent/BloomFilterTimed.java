@@ -1,7 +1,7 @@
 package com.experimental.data.structure.probabilistic.bloom.filter.concurrent;
 
-import com.dipasquale.common.time.ExpiryRecord;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
+import com.dipasquale.common.time.ExpirationRecord;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import lombok.AccessLevel;
@@ -15,12 +15,12 @@ final class BloomFilterTimed<T> implements BloomFilter<T> {
     private final MultiFunctionHashing multiFunctionHashing;
     private final AtomicLongArray expiryDateTimes;
     private final int hashFunctions;
-    private final ExpirySupport expirySupport;
+    private final ExpirationFactory expirationFactory;
 
-    static <T> BloomFilterTimed<T> create(final MultiFunctionHashing multiFunctionHashing, final int size, final int hashFunctions, final ExpirySupport expirySupport) {
+    static <T> BloomFilterTimed<T> create(final MultiFunctionHashing multiFunctionHashing, final int size, final int hashFunctions, final ExpirationFactory expirationFactory) {
         AtomicLongArray expiryDateTimes = new AtomicLongArray(size);
 
-        return new BloomFilterTimed<>(multiFunctionHashing, expiryDateTimes, hashFunctions, expirySupport);
+        return new BloomFilterTimed<>(multiFunctionHashing, expiryDateTimes, hashFunctions, expirationFactory);
     }
 
     private long[] selectOrUpdateExpiryDateTimes(final T item, final ExpiryDateTimeRetriever retriever) {
@@ -39,23 +39,23 @@ final class BloomFilterTimed<T> implements BloomFilter<T> {
 
     @Override
     public boolean mightContain(final T item) {
-        ExpiryRecord expiryRecord = expirySupport.next();
+        ExpirationRecord expirationRecord = expirationFactory.create();
         long[] expiryDateTimesOld = selectOrUpdateExpiryDateTimes(item, expiryDateTimes::get);
 
         long expiryDateTime = Arrays.stream(expiryDateTimesOld).min()
-                .orElse(0L);
+                .orElse(Long.MIN_VALUE);
 
-        return !expiryRecord.isExpired(expiryDateTime);
+        return expirationRecord.getCurrentDateTime() < expiryDateTime;
     }
 
     @Override
     public boolean add(final T item) {
-        ExpiryRecord record = expirySupport.next();
-        long[] expiryDateTimesOld = selectOrUpdateExpiryDateTimes(item, i -> expiryDateTimes.getAndAccumulate(i, record.getExpiryDateTime(), Math::max));
+        ExpirationRecord expirationRecord = expirationFactory.create();
+        long[] expiryDateTimesOld = selectOrUpdateExpiryDateTimes(item, i -> expiryDateTimes.getAndAccumulate(i, expirationRecord.getExpirationDateTime(), Math::max));
         boolean[] added = new boolean[1];
 
         Arrays.stream(expiryDateTimesOld)
-                .filter(record::isExpired)
+                .filter(edt -> expirationRecord.getExpirationDateTime() >= edt)
                 .findFirst()
                 .ifPresent(edt -> added[0] = true);
 

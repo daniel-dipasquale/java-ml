@@ -2,6 +2,7 @@ package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.error.ErrorLogger;
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.common.time.ProxyDateTimeSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.AfterAll;
@@ -25,7 +26,7 @@ public final class EventLoopIterableTest {
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
     private static final ErrorLogger EXCEPTION_LOGGER = EXCEPTIONS::add;
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createProxy(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
 
     private static final EventLoopIterableSettings SETTINGS = EventLoopIterableSettings.builder()
             .executorService(EXECUTOR_SERVICE)

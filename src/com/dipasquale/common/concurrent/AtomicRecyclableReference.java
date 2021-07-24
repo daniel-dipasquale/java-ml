@@ -2,8 +2,8 @@ package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.ObjectFactory;
-import com.dipasquale.common.time.ExpiryRecord;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
+import com.dipasquale.common.time.ExpirationRecord;
 import lombok.AccessLevel;
 import lombok.Generated;
 import lombok.NoArgsConstructor;
@@ -17,18 +17,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class AtomicRecyclableReference<T> {
     private final RecyclableReference.Factory<T> referenceFactory;
-    private final ExpirySupport expirySupport;
+    private final ExpirationFactory expirationFactory;
     private final AtomicReference<Envelope> envelopeCas;
     private final AtomicLong lastRecycledDateTime;
     private final Queue<RecyclableReference<T>> recycledReferences;
     private final RecyclableReference.Collector<T> recycledReferenceCollector;
     private final AtomicLong lastRecycledConfirmationDateTime;
 
-    private AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirySupport expirySupport, final boolean collectRecycledReferences, final RecyclableReference.Collector<T> recycledReferenceCollector) {
+    private AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirationFactory expirationFactory, final boolean collectRecycledReferences, final RecyclableReference.Collector<T> recycledReferenceCollector) {
         Queue<RecyclableReference<T>> recycledReferences = new ConcurrentLinkedQueue<>();
 
         this.referenceFactory = referenceFactory;
-        this.expirySupport = expirySupport;
+        this.expirationFactory = expirationFactory;
         this.envelopeCas = new AtomicReference<>();
         this.lastRecycledDateTime = new AtomicLong(Long.MIN_VALUE);
         this.recycledReferences = recycledReferences;
@@ -36,36 +36,36 @@ public final class AtomicRecyclableReference<T> {
         this.lastRecycledConfirmationDateTime = new AtomicLong(Long.MIN_VALUE);
     }
 
-    public AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirySupport expirySupport, final RecyclableReference.Collector<T> recycledReferenceCollector) {
-        this(referenceFactory, expirySupport, false, recycledReferenceCollector);
+    public AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirationFactory expirationFactory, final RecyclableReference.Collector<T> recycledReferenceCollector) {
+        this(referenceFactory, expirationFactory, false, recycledReferenceCollector);
     }
 
-    public AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirySupport expirySupport, final boolean collectRecycledReferences) {
-        this(referenceFactory, expirySupport, collectRecycledReferences, null);
+    public AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirationFactory expirationFactory, final boolean collectRecycledReferences) {
+        this(referenceFactory, expirationFactory, collectRecycledReferences, null);
     }
 
-    public AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirySupport expirySupport) {
-        this(referenceFactory, expirySupport, false);
+    public AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirationFactory expirationFactory) {
+        this(referenceFactory, expirationFactory, false);
     }
 
-    public AtomicRecyclableReference(final ObjectFactory<T> referenceFactory, final ExpirySupport expirySupport, final RecyclableReference.Collector<T> recycledReferenceCollector) {
-        this(edt -> referenceFactory.create(), expirySupport, false, recycledReferenceCollector);
+    public AtomicRecyclableReference(final ObjectFactory<T> referenceFactory, final ExpirationFactory expirationFactory, final RecyclableReference.Collector<T> recycledReferenceCollector) {
+        this(edt -> referenceFactory.create(), expirationFactory, false, recycledReferenceCollector);
     }
 
-    public AtomicRecyclableReference(final ObjectFactory<T> referenceFactory, final ExpirySupport expirySupport, final boolean collectRecycledReferences) {
-        this(edt -> referenceFactory.create(), expirySupport, collectRecycledReferences);
+    public AtomicRecyclableReference(final ObjectFactory<T> referenceFactory, final ExpirationFactory expirationFactory, final boolean collectRecycledReferences) {
+        this(edt -> referenceFactory.create(), expirationFactory, collectRecycledReferences);
     }
 
-    public AtomicRecyclableReference(final ObjectFactory<T> referenceFactory, final ExpirySupport expirySupport) {
-        this(edt -> referenceFactory.create(), expirySupport);
+    public AtomicRecyclableReference(final ObjectFactory<T> referenceFactory, final ExpirationFactory expirationFactory) {
+        this(edt -> referenceFactory.create(), expirationFactory);
     }
 
-    private Envelope recycleIfExpired(final Envelope envelope, final ExpiryRecord expiryRecord) {
-        if (envelope != null && !expiryRecord.isExpired(envelope.expiryDateTime)) {
+    private Envelope recycleIfExpired(final Envelope envelope, final ExpirationRecord expirationRecord) {
+        if (envelope != null && expirationRecord.getCurrentDateTime() < envelope.expiryDateTime) {
             return envelope;
         }
 
-        if (!lastRecycledDateTime.compareAndSet(lastRecycledConfirmationDateTime.get(), expiryRecord.getExpiryDateTime())) {
+        if (!lastRecycledDateTime.compareAndSet(lastRecycledConfirmationDateTime.get(), expirationRecord.getExpirationDateTime())) {
             Envelope envelopeFixed = envelope;
 
             while (envelopeFixed == envelope) {
@@ -79,11 +79,11 @@ public final class AtomicRecyclableReference<T> {
             recycledReferenceCollector.collect(envelope.getRecyclableReference());
         }
 
-        return new Envelope(expiryRecord.getExpiryDateTime());
+        return new Envelope(expirationRecord.getExpirationDateTime());
     }
 
     private Envelope recycleIfExpired(final Envelope envelope) {
-        return recycleIfExpired(envelope, expirySupport.next());
+        return recycleIfExpired(envelope, expirationFactory.create());
     }
 
     private Envelope compareAndSwapIfExpired() {

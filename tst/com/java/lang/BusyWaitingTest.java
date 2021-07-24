@@ -1,13 +1,14 @@
 package com.java.lang;
 
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 
 public final class BusyWaitingTest {
-    private static final DateTimeSupport DATE_TIME_SUPPORT = DateTimeSupport.createMilliseconds();
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new MillisecondsDateTimeSupport();
     private static final long DURATION = 60_000L;
 
     @Test

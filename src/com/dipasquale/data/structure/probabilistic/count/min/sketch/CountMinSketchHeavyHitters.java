@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ObjectFactory;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
 import com.dipasquale.threading.event.loop.EventLoop;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,8 @@ final class CountMinSketchHeavyHitters<T> implements CountMinSketch<T> {
     private final SortedByValueRankedAggregator<T, Long> heavyHittersRankedAggregator;
     private final EventLoop eventLoop;
 
-    CountMinSketchHeavyHitters(final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirySupport expirySupport, final HeavyHittersCollector<T> heavyHittersCollector, final int topLimit, final EventLoop eventLoop) {
-        this.countMinSketch = new CountMinSketchTimedRecyclable<>(countMinSketchFactory, expirySupport, this::collectRecycled);
+    CountMinSketchHeavyHitters(final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirationFactory expirationFactory, final HeavyHittersCollector<T> heavyHittersCollector, final int topLimit, final EventLoop eventLoop) {
+        this.countMinSketch = new CountMinSketchTimedRecyclable<>(countMinSketchFactory, expirationFactory, this::collectRecycled);
         this.heavyHittersCollector = heavyHittersCollector;
         this.heavyHittersRankedAggregator = SortedByValueRankedAggregator.createHighestRankedConcurrent(topLimit);
         this.eventLoop = eventLoop;

@@ -2,7 +2,7 @@ package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.error.ErrorHandlerSupport;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
 import com.dipasquale.threading.event.loop.EventLoop;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +20,10 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
     private final HeavyHittersConfig.AggregatePredicate<T> flushPredicate;
     private final EventLoop eventLoop;
 
-    CountMinSketchHeavyHittersTiered(final ObjectFactory<CountMinSketch<T>> aggregatedCountMinSketchFactory, final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirySupport expirySupport, final HeavyHittersCollector<T> heavyHittersCollector, final int topLimit, final HeavyHittersConfig.AggregatePredicate<T> flushPredicate, final EventLoop eventLoop) {
+    CountMinSketchHeavyHittersTiered(final ObjectFactory<CountMinSketch<T>> aggregatedCountMinSketchFactory, final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirationFactory expirationFactory, final HeavyHittersCollector<T> heavyHittersCollector, final int topLimit, final HeavyHittersConfig.AggregatePredicate<T> flushPredicate, final EventLoop eventLoop) {
         this.aggregatedCountMinSketch = aggregatedCountMinSketchFactory.create();
         this.aggregatedCountMinSketchFactory = aggregatedCountMinSketchFactory;
-        this.countMinSketch = new CountMinSketchHeavyHitters<>(countMinSketchFactory, expirySupport, this::collectRecycledHeavyHitters, topLimit, eventLoop);
+        this.countMinSketch = new CountMinSketchHeavyHitters<>(countMinSketchFactory, expirationFactory, this::collectRecycledHeavyHitters, topLimit, eventLoop);
         this.heavyHittersCollector = heavyHittersCollector;
         this.heavyHittersRankedAggregator = SortedByValueRankedAggregator.createHighestRankedConcurrent(Integer.MAX_VALUE);
         this.flushPredicate = flushPredicate;

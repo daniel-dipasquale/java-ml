@@ -3,6 +3,7 @@ package com.dipasquale.threading.event.loop;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.error.ErrorLogger;
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.common.time.ZeroDateTimeSupport;
 import com.google.common.collect.ImmutableMap;
 
 import javax.measure.quantity.Duration;
@@ -17,13 +18,13 @@ import java.util.concurrent.TimeUnit;
 
 final class EventLoopNoDelay implements EventLoop {
     private static final Map<Unit<Duration>, DateTimeSupport> DATE_TIME_SUPPORTS = ImmutableMap.<Unit<Duration>, DateTimeSupport>builder()
-            .put(SI.NANO(SI.SECOND), DateTimeSupport.createZero(SI.NANO(SI.SECOND)))
-            .put(SI.MICRO(SI.SECOND), DateTimeSupport.createZero(SI.MICRO(SI.SECOND)))
-            .put(SI.MILLI(SI.SECOND), DateTimeSupport.createZero(SI.MILLI(SI.SECOND)))
-            .put(SI.SECOND, DateTimeSupport.createZero(SI.SECOND))
-            .put(NonSI.MINUTE, DateTimeSupport.createZero(NonSI.MINUTE))
-            .put(NonSI.HOUR, DateTimeSupport.createZero(NonSI.HOUR))
-            .put(NonSI.DAY, DateTimeSupport.createZero(NonSI.DAY))
+            .put(SI.NANO(SI.SECOND), new ZeroDateTimeSupport(SI.NANO(SI.SECOND)))
+            .put(SI.MICRO(SI.SECOND), new ZeroDateTimeSupport(SI.MICRO(SI.SECOND)))
+            .put(SI.MILLI(SI.SECOND), new ZeroDateTimeSupport(SI.MILLI(SI.SECOND)))
+            .put(SI.SECOND, new ZeroDateTimeSupport(SI.SECOND))
+            .put(NonSI.MINUTE, new ZeroDateTimeSupport(NonSI.MINUTE))
+            .put(NonSI.HOUR, new ZeroDateTimeSupport(NonSI.HOUR))
+            .put(NonSI.DAY, new ZeroDateTimeSupport(NonSI.DAY))
             .build();
 
     private final EventLoopDefault eventLoop;

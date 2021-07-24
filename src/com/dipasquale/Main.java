@@ -4,6 +4,8 @@ import com.dipasquale.common.IdFactory;
 import com.dipasquale.common.random.RandomSupport;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.common.time.MillisecondsDateTimeSupport;
+import com.dipasquale.common.time.NanosecondsDateTimeSupport;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.dipasquale.data.structure.set.HashDequeSet;
 import com.experimental.cliff.data.structure.map.NonBlockingHashMap;
@@ -50,13 +52,13 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public final class Main {
-    private static final DateTimeSupport DATE_TIME_SUPPORT_MILLISECONDS = DateTimeSupport.createMilliseconds();
+    private static final DateTimeSupport DATE_TIME_SUPPORT_MILLISECONDS = new MillisecondsDateTimeSupport();
     private static final int TIME_FRAME_IN_MILLISECONDS = 604_800_000;
     private static final IdFactory<Long> THREAD_ID_FACTORY = () -> Thread.currentThread().getId();
     private static final int NUMBER_OF_THREADS = 64;
     private static final MetricDataCollector METRIC_DATA_COLLECTOR = new MetricDataCollectorConcurrent<>(DATE_TIME_SUPPORT_MILLISECONDS, TIME_FRAME_IN_MILLISECONDS, SI.MILLI(SI.SECOND), THREAD_ID_FACTORY, 32, 0.75f, NUMBER_OF_THREADS);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-    private static final DateTimeSupport DATE_TIME_SUPPORT_NANOSECONDS = DateTimeSupport.createNanoseconds();
+    private static final DateTimeSupport DATE_TIME_SUPPORT_NANOSECONDS = new NanosecondsDateTimeSupport();
     private static final RandomSupport RANDOM_SUPPORT = () -> ThreadLocalRandom.current().nextDouble();
 
     private static final MetricGroupKeyFactory METRIC_GROUP_KEY_FACTORY = mk -> {

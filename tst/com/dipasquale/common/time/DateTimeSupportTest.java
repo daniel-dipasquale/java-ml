@@ -1,19 +1,25 @@
 package com.dipasquale.common.time;
 
+import com.dipasquale.common.LongFactory;
 import com.dipasquale.common.error.ErrorComparer;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.measure.quantity.Duration;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import java.io.Serial;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class DateTimeSupportTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport TEST = new DateTimeSupportProxy(CURRENT_DATE_TIME::incrementAndGet, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupportMock TEST = new DateTimeSupportMock(CURRENT_DATE_TIME::incrementAndGet, SI.MILLI(SI.SECOND));
 
     @BeforeEach
     public void beforeEach() {
@@ -21,17 +27,28 @@ public final class DateTimeSupportTest {
     }
 
     @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_current_time_THEN_provide_the_time_in_epoch_format() {
-        Assertions.assertEquals(1L, TEST.now());
+    public void GIVEN_a_date_time_in_epoch_format_and_a_bucket_size_and_sometimes_a_bucket_offset_WHEN_calculating_the_time_bucket_THEN_assign_the_given_date_time_to_a_date_time_in_the_past_or_the_present() {
+        Assertions.assertEquals(1_000L, DateTimeSupport.getTimeBucket(1_099L, 100L));
+        Assertions.assertEquals(1_100L, DateTimeSupport.getTimeBucket(1_100L, 100L));
+        Assertions.assertEquals(1_100L, DateTimeSupport.getTimeBucket(1_101L, 100L));
+        Assertions.assertEquals(1_050L, DateTimeSupport.getTimeBucket(1_149L, 100L, 50L));
+        Assertions.assertEquals(1_150L, DateTimeSupport.getTimeBucket(1_150L, 100L, 50L));
+        Assertions.assertEquals(1_150L, DateTimeSupport.getTimeBucket(1_151L, 100L, 50L));
     }
 
     @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_unit_the_time_represents_THEN_provide_it() {
-        Assertions.assertEquals(SI.MILLI(SI.SECOND), TEST.unit());
+    public void GIVEN_a_date_time_support_mock_and_a_bucket_size_WHEN_calculating_the_current_time_bucket_THEN_assign_the_given_date_time_to_a_date_time_in_the_past_or_the_present() {
+        CURRENT_DATE_TIME.set(1_098L);
+        Assertions.assertEquals(1_000L, TEST.getCurrentTimeBucket(100L));
+        Assertions.assertEquals(1_099L, CURRENT_DATE_TIME.get());
+        Assertions.assertEquals(1_100L, TEST.getCurrentTimeBucket(100L));
+        Assertions.assertEquals(1_100L, CURRENT_DATE_TIME.get());
+        Assertions.assertEquals(1_100L, TEST.getCurrentTimeBucket(100L));
+        Assertions.assertEquals(1_101L, CURRENT_DATE_TIME.get());
     }
 
     @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_converting_the_time_unit_to_the_unit_THEN_provide_it() {
+    public void GIVEN_a_time_unit_WHEN_converting_to_the_unit_type_THEN_convert_it() {
         Assertions.assertEquals(SI.NANO(SI.SECOND), DateTimeSupport.getUnit(TimeUnit.NANOSECONDS));
         Assertions.assertEquals(SI.MICRO(SI.SECOND), DateTimeSupport.getUnit(TimeUnit.MICROSECONDS));
         Assertions.assertEquals(SI.MILLI(SI.SECOND), DateTimeSupport.getUnit(TimeUnit.MILLISECONDS));
@@ -42,7 +59,7 @@ public final class DateTimeSupportTest {
     }
 
     @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_converting_the_unit_to_the_time_unit_THEN_provide_it() {
+    public void GIVEN_a_unit_WHEN_converting_to_the_time_unit_type_THEN_convert_it() {
         Assertions.assertEquals(TimeUnit.NANOSECONDS, DateTimeSupport.getTimeUnit(SI.NANO(SI.SECOND)));
         Assertions.assertEquals(TimeUnit.MICROSECONDS, DateTimeSupport.getTimeUnit(SI.MICRO(SI.SECOND)));
         Assertions.assertEquals(TimeUnit.MILLISECONDS, DateTimeSupport.getTimeUnit(SI.MILLI(SI.SECOND)));
@@ -53,101 +70,165 @@ public final class DateTimeSupportTest {
     }
 
     @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_time_unit_the_time_represents_THEN_provide_it() {
-        Assertions.assertEquals(TimeUnit.MILLISECONDS, TEST.timeUnit());
+    public void GIVEN_a_date_time_in_epoch_format_WHEN_formatting_it_THEN_get_the_date_time_it_represents_in_text_format() {
+        Assertions.assertEquals("Value(YearOfEra,4,19,EXCEEDS_PAD)'-'Value(MonthOfYear,2)'-'Value(DayOfMonth,2)'T'Value(HourOfDay,2)':'Value(MinuteOfHour,2)':'Value(SecondOfMinute,2)'.'Fraction(NanoOfSecond,3,3)", DateTimeSupportConstants.DATE_TIME_FORMATTER.toString());
+        Assertions.assertEquals("1970-01-01T00:00:00.001", DateTimeSupport.format(DateTimeSupportConstants.DATE_TIME_FORMATTER, 1L, SI.MILLI(SI.SECOND)));
+        Assertions.assertEquals("1970-01-01T00:00:01.000", DateTimeSupport.format(DateTimeSupportConstants.DATE_TIME_FORMATTER, 1_000L, SI.MILLI(SI.SECOND)));
     }
 
     @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_time_frame_for_a_specific_date_time_THEN_remove_the_remainder_of_the_time_past_the_division_of_the_specified_date_time() {
-        Assertions.assertEquals(1_000L, DateTimeSupport.getTimeBucket(1_099L, 100L));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_100L, DateTimeSupport.getTimeBucket(1_100L, 100L));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_100L, DateTimeSupport.getTimeBucket(1_101L, 100L));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-    }
-
-    @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_time_frame_for_a_specific_date_time_THEN_remove_the_remainder_of_the_time_past_the_division_of_the_specified_date_time_and_substract_the_offset() {
-        Assertions.assertEquals(1_050L, DateTimeSupport.getTimeBucket(1_149L, 100L, 50L));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_150L, DateTimeSupport.getTimeBucket(1_150L, 100L, 50L));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_150L, DateTimeSupport.getTimeBucket(1_151L, 100L, 50L));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-    }
-
-    @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_getting_the_time_frame_for_the_current_date_time_THEN_remove_the_remainder_of_the_time_past_the_division_of_the_current_date_time() {
-        CURRENT_DATE_TIME.set(999L);
-        Assertions.assertEquals(1_000L, TEST.getCurrentTimeBucket(100L));
-    }
-
-    @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_formatting_the_milliseconds_since_epoch_THEN_get_the_date_time_it_represents_in_text_format() {
+    public void GIVEN_a_date_time_support_mock_and_a_date_time_in_epoch_format_WHEN_formatting_the_date_time_into_text_THEN_format_the_date_time_it_represents_in_text_format() {
         Assertions.assertEquals("1970-01-01T00:00:00.001", TEST.format(1L));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
+        Assertions.assertEquals("1970-01-01T00:00:01.000", TEST.format(1_000L));
     }
 
     @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_formatting_the_current_date_time_since_epoch_THEN_get_the_date_time_it_represents_in_text_format() {
+    public void GIVEN_a_proxy_date_time_support_WHEN_formatting_the_current_date_time_THEN_get_the_date_time_it_represents_in_text_format() {
         Assertions.assertEquals("1970-01-01T00:00:00.001", TEST.nowFormatted());
     }
 
     @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_parsing_a_date_time_in_iso_format_8601_THEN_retrieve_the_milliseconds_the_date_time_represents_since_epoch() {
-        Assertions.assertEquals(123L, TEST.parse("1970-01-01T00:00:00.123"));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(123L, TEST.parse("1970-01-01T00:00:00.123Z"));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_000L, TEST.parse("1970-01-01T00:00:01"));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(1_000L, TEST.parse("1970-01-01T00:00:01Z"));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(321L, TEST.parse("1970-01-01 00:00:00.321"));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(321L, TEST.parse("1970-01-01 00:00:00.321Z"));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(30_000L, TEST.parse("1970-01-01 00:00:30"));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-        Assertions.assertEquals(30_000L, TEST.parse("1970-01-01 00:00:30Z"));
-        Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
-    }
+    public void GIVEN_a_text_WHEN_parsing_it_using_the_date_time_iso_format_8601_THEN_either_parse_it_into_epoch_format_if_valid_otherwise_fail_by_throwing_a_date_time_parse_exception() {
+        Assertions.assertEquals("Value(YearOfEra,4,19,EXCEEDS_PAD)'-'Value(MonthOfYear,2)'-'Value(DayOfMonth,2)[[' ']['T']Value(HourOfDay,2)':'Value(MinuteOfHour,2)[':'Value(SecondOfMinute,2)['.'Fraction(NanoOfSecond,3,3)][ZoneText(SHORT)][Offset(+HHMM,'+0000')]]]", DateTimeSupportConstants.DATE_TIME_PARSER.toString());
+        Assertions.assertEquals(123L, DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "1970-01-01T00:00:00.123", DateTimeSupportConstants.MILLISECONDS_UNIT));
+        Assertions.assertEquals(123L, DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "1970-01-01T00:00:00.123Z", DateTimeSupportConstants.MILLISECONDS_UNIT));
+        Assertions.assertEquals(1_000L, DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "1970-01-01T00:00:01", DateTimeSupportConstants.MILLISECONDS_UNIT));
+        Assertions.assertEquals(1_000L, DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "1970-01-01T00:00:01Z", DateTimeSupportConstants.MILLISECONDS_UNIT));
+        Assertions.assertEquals(321L, DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "1970-01-01 00:00:00.321", DateTimeSupportConstants.MILLISECONDS_UNIT));
+        Assertions.assertEquals(321L, DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "1970-01-01 00:00:00.321Z", DateTimeSupportConstants.MILLISECONDS_UNIT));
+        Assertions.assertEquals(30_000L, DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "1970-01-01 00:00:30", DateTimeSupportConstants.MILLISECONDS_UNIT));
+        Assertions.assertEquals(30_000L, DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "1970-01-01 00:00:30Z", DateTimeSupportConstants.MILLISECONDS_UNIT));
 
-    @Test
-    public void GIVEN_an_instance_of_the_date_time_support_WHEN_parsing_a_date_time_in_unparseable_format_THEN_fail_by_throwing_an_exception() {
         try {
-            TEST.parse("unparseable");
+            DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, "invalid format", DateTimeSupportConstants.MILLISECONDS_UNIT);
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ErrorComparer.builder()
                     .type(DateTimeParseException.class)
-                    .message("Text 'unparseable' could not be parsed at index 0")
+                    .message("Text 'invalid format' could not be parsed at index 0")
                     .build(), ErrorComparer.create(e));
         }
     }
 
     @Test
-    public void GIVEN_an_instance_date_time_support_created_to_represent_milliseconds_WHEN_getting_the_current_date_time_and_the_unit_THEN_provide_the_time_and_unit_in_milliseconds() {
-        DateTimeSupport test = new DateTimeSupportMilliseconds();
-        long startDateTime = System.currentTimeMillis();
-        long result = test.now();
-        long endDateTime = System.currentTimeMillis();
+    public void GIVEN_a_date_time_support_mock_and_a_text_WHEN_parsing_it_using_the_date_time_iso_format_8601_THEN_either_parse_it_into_epoch_format_if_valid_otherwise_fail_by_throwing_a_date_time_parse_exception() {
+        Assertions.assertEquals(123L, TEST.parse("1970-01-01T00:00:00.123"));
+        Assertions.assertEquals(123L, TEST.parse("1970-01-01T00:00:00.123Z"));
+        Assertions.assertEquals(1_000L, TEST.parse("1970-01-01T00:00:01"));
+        Assertions.assertEquals(1_000L, TEST.parse("1970-01-01T00:00:01Z"));
+        Assertions.assertEquals(321L, TEST.parse("1970-01-01 00:00:00.321"));
+        Assertions.assertEquals(321L, TEST.parse("1970-01-01 00:00:00.321Z"));
+        Assertions.assertEquals(30_000L, TEST.parse("1970-01-01 00:00:30"));
+        Assertions.assertEquals(30_000L, TEST.parse("1970-01-01 00:00:30Z"));
 
-        Assertions.assertTrue(startDateTime <= result);
-        Assertions.assertTrue(endDateTime >= result);
-        Assertions.assertEquals(SI.MILLI(SI.SECOND), test.unit());
+        try {
+            TEST.parse("invalid format");
+            Assertions.fail();
+        } catch (Throwable e) {
+            Assertions.assertEquals(ErrorComparer.builder()
+                    .type(DateTimeParseException.class)
+                    .message("Text 'invalid format' could not be parsed at index 0")
+                    .build(), ErrorComparer.create(e));
+        }
     }
 
     @Test
-    public void GIVEN_an_instance_date_time_support_created_to_represent_nanoseconds_WHEN_getting_the_current_date_time_and_the_unit_THEN_provide_the_time_and_unit_in_nanoseconds() {
-        DateTimeSupport test = new DateTimeSupportNanoseconds();
-        long startDateTime = System.nanoTime();
-        long result = test.now();
-        long endDateTime = System.nanoTime();
+    public void GIVEN_a_date_time_support_mock_and_an_expiration_bucket_size_and_offset_WHEN_creating_an_instance_of_the_bucket_expiration_factory_THEN_create_it_with_the_expected_bucket_size_and_offset() {
+        Assertions.assertEquals(new BucketExpirationFactory(TEST, 100L, 0L, false), TEST.createBucketExpirationFactory(100L));
+        Assertions.assertNotEquals(new BucketExpirationFactory(TEST, 100L, 0L, false), TEST.createBucketExpirationFactory(1L));
+        Assertions.assertEquals(new BucketExpirationFactory(TEST, 100L, 1L, false), TEST.createBucketExpirationFactory(100L, 1L));
+        Assertions.assertNotEquals(new BucketExpirationFactory(TEST, 100L, 1L, false), TEST.createBucketExpirationFactory(100L, 2L));
+        Assertions.assertEquals(new BucketExpirationFactory(TEST, 100L, 0L, true), TEST.createRoundedBucketExpirationFactory(100L));
+        Assertions.assertNotEquals(new BucketExpirationFactory(TEST, 100L, 0L, true), TEST.createRoundedBucketExpirationFactory(1L));
+        Assertions.assertEquals(new BucketExpirationFactory(TEST, 100L, 1L, true), TEST.createRoundedBucketExpirationFactory(100L, 1L));
+        Assertions.assertNotEquals(new BucketExpirationFactory(TEST, 100L, 1L, true), TEST.createRoundedBucketExpirationFactory(100L, 2L));
 
-        Assertions.assertTrue(startDateTime <= result);
-        Assertions.assertTrue(endDateTime >= result);
-        Assertions.assertEquals(SI.NANO(SI.SECOND), test.unit());
+        try {
+            TEST.createBucketExpirationFactory(0L);
+            Assertions.fail();
+        } catch (Throwable e) {
+            Assertions.assertEquals(ErrorComparer.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("bucketSize '0' cannot be less than or equal to '0'")
+                    .build(), ErrorComparer.create(e));
+        }
+
+        try {
+            TEST.createBucketExpirationFactory(100L, -1L);
+            Assertions.fail();
+        } catch (Throwable e) {
+            Assertions.assertEquals(ErrorComparer.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("bucketOffset '-1' cannot be less than '0'")
+                    .build(), ErrorComparer.create(e));
+        }
+
+        try {
+            TEST.createBucketExpirationFactory(100L, 101L);
+            Assertions.fail();
+        } catch (Throwable e) {
+            Assertions.assertEquals(ErrorComparer.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("bucketOffset '101' cannot be greater than or equal to '100'")
+                    .build(), ErrorComparer.create(e));
+        }
+
+        try {
+            TEST.createRoundedBucketExpirationFactory(0L);
+            Assertions.fail();
+        } catch (Throwable e) {
+            Assertions.assertEquals(ErrorComparer.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("bucketSize '0' cannot be less than or equal to '0'")
+                    .build(), ErrorComparer.create(e));
+        }
+
+        try {
+            TEST.createRoundedBucketExpirationFactory(100L, -1L);
+            Assertions.fail();
+        } catch (Throwable e) {
+            Assertions.assertEquals(ErrorComparer.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("bucketOffset '-1' cannot be less than '0'")
+                    .build(), ErrorComparer.create(e));
+        }
+
+        try {
+            TEST.createRoundedBucketExpirationFactory(100L, 101L);
+            Assertions.fail();
+        } catch (Throwable e) {
+            Assertions.assertEquals(ErrorComparer.builder()
+                    .type(IllegalArgumentException.class)
+                    .message("bucketOffset '101' cannot be greater than or equal to '100'")
+                    .build(), ErrorComparer.create(e));
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class DateTimeSupportMock implements DateTimeSupport {
+        @Serial
+        private static final long serialVersionUID = 5818961090041503787L;
+        private final LongFactory nowFactory;
+        private final Unit<Duration> unit;
+
+        @Override
+        public long now() {
+            return nowFactory.create();
+        }
+
+        @Override
+        public Unit<Duration> unit() {
+            return unit;
+        }
+
+        @Override
+        public String format(final long dateTime) {
+            return DateTimeSupport.format(DateTimeSupportConstants.DATE_TIME_FORMATTER, dateTime, unit);
+        }
+
+        @Override
+        public long parse(final String dateTime) {
+            return DateTimeSupport.parse(DateTimeSupportConstants.DATE_TIME_PARSER, dateTime, unit);
+        }
     }
 }

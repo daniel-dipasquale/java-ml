@@ -12,7 +12,7 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
     private final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig;
 
     CountMinSketchHeavyHittersTieredFactory(final CountMinSketchDefaultFactory countMinSketchDefaultFactory, final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig) {
-        ArgumentValidatorSupport.ensureNotNull(countMinSketchHeavyHittersConfig.getExpirySupport(), "countMinSketchHeavyHittersConfig.expirySupport");
+        ArgumentValidatorSupport.ensureNotNull(countMinSketchHeavyHittersConfig.getExpirationFactory(), "countMinSketchHeavyHittersConfig.expirySupport");
         ArgumentValidatorSupport.ensureNotNull(countMinSketchHeavyHittersConfig.getCollector(), "countMinSketchHeavyHittersConfig.collector");
         ArgumentValidatorSupport.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getTopLimit(), "countMinSketchHeavyHittersConfig.topLimit");
         ArgumentValidatorSupport.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getPartitions(), "countMinSketchHeavyHittersConfig.partitions");
@@ -43,7 +43,7 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
         HeavyHittersConfig.RecyclableProxyFactory recyclableProxyFactory = new HeavyHittersConfig.RecyclableProxyFactory() {
             @Override
             public <R> CountMinSketch<R> create(final RecycledCollector<R> recycledCollector) {
-                CountMinSketchTimedRecyclableFactory countMinSketchTimedRecyclableFactory = new CountMinSketchTimedRecyclableFactory(countMinSketchDefaultFactory, countMinSketchHeavyHittersConfig.getExpirySupport(), recycledCollector);
+                CountMinSketchTimedRecyclableFactory countMinSketchTimedRecyclableFactory = new CountMinSketchTimedRecyclableFactory(countMinSketchDefaultFactory, countMinSketchHeavyHittersConfig.getExpirationFactory(), recycledCollector);
 
                 return countMinSketchTimedRecyclableFactory.create(params.estimatedSize, params.hashFunctions, params.falsePositiveRatio, params.size, params.bits);
             }

@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.threading.event.loop.EventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.util.Set;
 @Builder
 @Getter
 public final class HeavyHittersConfig<T> {
-    private final ExpirySupport expirySupport;
+    private final ExpirationFactory expirationFactory;
     private final HeavyHittersCollector<T> collector;
     private final int topLimit;
     private final EventLoop eventLoop;

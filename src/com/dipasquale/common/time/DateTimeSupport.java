@@ -1,6 +1,6 @@
 package com.dipasquale.common.time;
 
-import com.dipasquale.common.LongFactory;
+import com.dipasquale.common.ArgumentValidatorSupport;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Duration;
@@ -34,15 +34,23 @@ public interface DateTimeSupport extends Serializable {
     Unit<Duration> unit();
 
     static Unit<Duration> getUnit(final TimeUnit unit) {
-        return DateTimeConstants.TIME_UNITS.get(unit);
+        return DateTimeSupportConstants.TIME_UNITS.get(unit);
     }
 
     static TimeUnit getTimeUnit(final Unit<Duration> unit) {
-        return DateTimeConstants.UNITS.get(unit);
+        return DateTimeSupportConstants.UNITS.get(unit);
     }
 
     default TimeUnit timeUnit() {
         return getTimeUnit(unit());
+    }
+
+    static String format(final DateTimeFormatter dateTimeFormatter, final long dateTime, final Unit<Duration> unit) {
+        UnitConverter unitConverter = unit.getConverterTo(DateTimeSupportConstants.MILLISECONDS_UNIT);
+        long dateTimeFixed = (long) unitConverter.convert((double) dateTime);
+        Instant dateTimeInstant = new Date(dateTimeFixed).toInstant();
+
+        return dateTimeFormatter.format(dateTimeInstant);
     }
 
     String format(long dateTime);
@@ -51,63 +59,37 @@ public interface DateTimeSupport extends Serializable {
         return format(now());
     }
 
-    static Instant convert(final long dateTime, final Unit<Duration> unit) {
-        UnitConverter unitConverter = unit.getConverterTo(DateTimeConstants.MILLISECONDS_UNIT);
-        long dateTimeConverted = (long) unitConverter.convert((double) dateTime);
+    static long parse(final DateTimeFormatter dateTimeParser, final String dateTime, final Unit<Duration> unit) {
+        UnitConverter unitConverter = DateTimeSupportConstants.MILLISECONDS_UNIT.getConverterTo(unit);
+        TemporalAccessor dateTimeParsed = dateTimeParser.parse(dateTime);
+        long dateTimeFixed = ZonedDateTime.from(dateTimeParsed).toInstant().toEpochMilli();
 
-        return new Date(dateTimeConverted).toInstant();
-    }
-
-    static String format(final DateTimeFormatter dateTimeFormatter, final long dateTime, final Unit<Duration> unit) {
-        Instant instant = DateTimeSupport.convert(dateTime, unit);
-
-        return dateTimeFormatter.format(instant);
+        return (long) unitConverter.convert((double) dateTimeFixed);
     }
 
     long parse(String dateTime);
 
-    static long convert(final TemporalAccessor dateTime, final Unit<Duration> unit) {
-        long epochTime = ZonedDateTime.from(dateTime).toInstant().toEpochMilli();
-        UnitConverter unitConverter = DateTimeConstants.MILLISECONDS_UNIT.getConverterTo(unit);
+    private static ExpirationFactory createBucketExpirationFactory(final DateTimeSupport dateTimeSupport, final long bucketSize, final long bucketOffset, final boolean rounded) {
+        ArgumentValidatorSupport.ensureGreaterThanZero(bucketSize, "bucketSize");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(bucketOffset, "bucketOffset");
+        ArgumentValidatorSupport.ensureLessThan(bucketOffset, bucketSize, "bucketOffset");
 
-        return (long) unitConverter.convert((double) epochTime);
+        return new BucketExpirationFactory(dateTimeSupport, bucketSize, bucketOffset, rounded);
     }
 
-    static long parse(final DateTimeFormatter dateTimeParser, final String dateTime, final Unit<Duration> unit) {
-        TemporalAccessor dateTimeParsed = dateTimeParser.parse(dateTime);
-
-        return DateTimeSupport.convert(dateTimeParsed, unit);
+    default ExpirationFactory createBucketExpirationFactory(final long bucketSize, final long bucketOffset) {
+        return createBucketExpirationFactory(this, bucketSize, bucketOffset, false);
     }
 
-    static DateTimeSupport createMilliseconds() {
-        return new DateTimeSupportMilliseconds();
+    default ExpirationFactory createBucketExpirationFactory(final long bucketSize) {
+        return createBucketExpirationFactory(bucketSize, 0L);
     }
 
-    static DateTimeSupport createMilliseconds(final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
-        return new DateTimeSupportMilliseconds(dateTimeFormatter, dateTimeParser);
+    default ExpirationFactory createRoundedBucketExpirationFactory(final long bucketSize, final long bucketOffset) {
+        return createBucketExpirationFactory(this, bucketSize, bucketOffset, true);
     }
 
-    static DateTimeSupport createNanoseconds() {
-        return new DateTimeSupportNanoseconds();
-    }
-
-    static DateTimeSupport createNanoseconds(final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
-        return new DateTimeSupportNanoseconds(dateTimeFormatter, dateTimeParser);
-    }
-
-    static DateTimeSupport createProxy(final LongFactory nowFactory, final Unit<Duration> unit) {
-        return new DateTimeSupportProxy(nowFactory, unit);
-    }
-
-    static DateTimeSupport createProxy(final LongFactory nowFactory, final Unit<Duration> unit, final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
-        return new DateTimeSupportProxy(nowFactory, unit, dateTimeFormatter, dateTimeParser);
-    }
-
-    static DateTimeSupport createZero(final Unit<Duration> unit) {
-        return new DateTimeSupportZero(unit);
-    }
-
-    static DateTimeSupport createZero(final Unit<Duration> unit, final String nowFormatted) {
-        return new DateTimeSupportZero(unit, nowFormatted);
+    default ExpirationFactory createRoundedBucketExpirationFactory(final long bucketSize) {
+        return createRoundedBucketExpirationFactory(bucketSize, 0L);
     }
 }

@@ -1,25 +1,25 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
 
 final class BloomFilterTimedRecyclableMultiFactory implements BloomFilterFactory {
     private final BloomFilterDefaultFactory bloomFilterDefaultFactory;
     private final ExpirySupportProvider expirySupportProvider;
     private final int partitions;
 
-    BloomFilterTimedRecyclableMultiFactory(final BloomFilterDefaultFactory bloomFilterDefaultFactory, final ExpirySupport.Factory expirySupportFactory, final long expiryTime, final int partitions) {
+    BloomFilterTimedRecyclableMultiFactory(final BloomFilterDefaultFactory bloomFilterDefaultFactory, final ExpirationFactory.Creator expirationFactoryCreator, final long expiryTime, final int partitions) {
         ArgumentValidatorSupport.ensureGreaterThanZero(expiryTime, "expiryTime");
         ArgumentValidatorSupport.ensureGreaterThanZero(partitions, "partitions");
         this.bloomFilterDefaultFactory = bloomFilterDefaultFactory;
-        this.expirySupportProvider = i -> expirySupportFactory.create(expiryTime * (long) partitions, expiryTime * (long) i);
+        this.expirySupportProvider = i -> expirationFactoryCreator.create(expiryTime * (long) partitions, expiryTime * (long) i);
         this.partitions = partitions;
     }
 
-    BloomFilterTimedRecyclableMultiFactory(final BloomFilterDefaultFactory bloomFilterDefaultFactory, final ExpirySupport expirySupport, final int partitions) {
+    BloomFilterTimedRecyclableMultiFactory(final BloomFilterDefaultFactory bloomFilterDefaultFactory, final ExpirationFactory expirationFactory, final int partitions) {
         ArgumentValidatorSupport.ensureGreaterThanZero(partitions, "partitions");
         this.bloomFilterDefaultFactory = bloomFilterDefaultFactory;
-        this.expirySupportProvider = i -> expirySupport;
+        this.expirySupportProvider = i -> expirationFactory;
         this.partitions = partitions;
     }
 
@@ -37,8 +37,8 @@ final class BloomFilterTimedRecyclableMultiFactory implements BloomFilterFactory
 
             @Override
             public <T> BloomFilter<T> create(final int index, final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size) {
-                ExpirySupport expirySupport = expirySupportProvider.get(index);
-                BloomFilterTimedRecyclableFactory bloomFilterFactory = new BloomFilterTimedRecyclableFactory(bloomFilterDefaultFactory, expirySupport);
+                ExpirationFactory expirationFactory = expirySupportProvider.get(index);
+                BloomFilterTimedRecyclableFactory bloomFilterFactory = new BloomFilterTimedRecyclableFactory(bloomFilterDefaultFactory, expirationFactory);
 
                 return bloomFilterFactory.create(estimatedSize, hashFunctions, falsePositiveRatio, size);
             }
@@ -55,6 +55,6 @@ final class BloomFilterTimedRecyclableMultiFactory implements BloomFilterFactory
 
     @FunctionalInterface
     interface ExpirySupportProvider {
-        ExpirySupport get(int index);
+        ExpirationFactory get(int index);
     }
 }

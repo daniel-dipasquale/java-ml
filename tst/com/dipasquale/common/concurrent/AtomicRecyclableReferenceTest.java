@@ -1,8 +1,8 @@
 package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.ObjectFactory;
-import com.dipasquale.common.time.ExpiryRecord;
-import com.dipasquale.common.time.ExpirySupport;
+import com.dipasquale.common.time.ExpirationFactory;
+import com.dipasquale.common.time.ExpirationRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class AtomicRecyclableReferenceTest {
     private static final AtomicInteger REFERENCE_SEED = new AtomicInteger();
     private static final AtomicLong EXPIRY_SEED = new AtomicLong();
-    private static final ExpirySupport EXPIRY_SUPPORT = () -> new ExpiryRecord(EXPIRY_SEED.get(), EXPIRY_SEED.get() + 1L, SI.MILLI(SI.SECOND));
+    private static final ExpirationFactory EXPIRY_SUPPORT = () -> new ExpirationRecord(EXPIRY_SEED.get(), EXPIRY_SEED.get() + 1L, SI.MILLI(SI.SECOND));
 
     private static AtomicRecyclableReference<String> createAtomicRecyclableReference(final RecyclableReference.Factory<String> objectFactory, final boolean collectRecycledReferences) {
         return new AtomicRecyclableReference<>(objectFactory, EXPIRY_SUPPORT, collectRecycledReferences);
