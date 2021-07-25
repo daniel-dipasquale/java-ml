@@ -1,6 +1,5 @@
 package com.dipasquale.common.time;
 
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
@@ -13,7 +12,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Generated
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
 @ToString
