@@ -1,13 +1,11 @@
 package com.dipasquale.common.time;
 
-import com.dipasquale.common.ObjectFactory;
-
-import java.io.Serializable;
+import com.dipasquale.common.factory.ObjectFactory;
 
 @FunctionalInterface
 public interface ExpirationFactory extends ObjectFactory<ExpirationRecord> {
     @FunctionalInterface
-    interface Creator extends Serializable {
+    interface Creator {
         ExpirationFactory create(long expiryTime, long offset);
     }
 }

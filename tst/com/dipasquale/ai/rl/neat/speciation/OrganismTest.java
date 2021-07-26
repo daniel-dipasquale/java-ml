@@ -1,13 +1,13 @@
 package com.dipasquale.ai.rl.neat.speciation;
 
-import com.dipasquale.ai.common.ActivationFunctionIdentity;
-import com.dipasquale.ai.common.ActivationFunctionSigmoid;
-import com.dipasquale.ai.common.SequentialId;
-import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.common.SequentialIdFactoryDefault;
+import com.dipasquale.ai.common.function.activation.ActivationFunctionIdentity;
+import com.dipasquale.ai.common.function.activation.ActivationFunctionSigmoid;
+import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
+import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.common.sequence.SequentialIdFactory;
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGene;
+import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
-import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
@@ -21,8 +21,8 @@ public final class OrganismTest {
     @Test
     public void TEST_1()
             throws IOException, ClassNotFoundException {
-        SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault();
-        GenomeDefault genome = new GenomeDefault("id", null);
+        SequentialIdFactory sequentialIdFactory = new DefaultSequentialIdFactory();
+        DefaultGenome genome = new DefaultGenome("id", null);
         SequentialId nodeId1 = sequentialIdFactory.create();
         SequentialId nodeId2 = sequentialIdFactory.create();
         InnovationId innovationId = new InnovationId(new DirectedEdge(nodeId1, nodeId2), sequentialIdFactory.create());

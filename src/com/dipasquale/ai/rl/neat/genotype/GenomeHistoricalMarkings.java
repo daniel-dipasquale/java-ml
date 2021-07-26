@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.SequentialId;
+import com.dipasquale.ai.common.sequence.SequentialId;
 
 public interface GenomeHistoricalMarkings {
     String createGenomeId();

@@ -1,6 +1,6 @@
 package com.dipasquale.common.error;
 
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.factory.ObjectFactory;
 import lombok.Generated;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ public final class ErrorHandlerSupport {
 
     public static <T extends Throwable> void throwAsSuppressedIfAny(final Factory<T> errorFactory, final List<Throwable> suppressed)
             throws T {
-        if (suppressed.size() == 0) {
+        if (suppressed.isEmpty()) {
             return;
         }
 

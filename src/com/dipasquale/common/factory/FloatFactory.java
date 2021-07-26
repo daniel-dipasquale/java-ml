@@ -1,0 +1,6 @@
+package com.dipasquale.common.factory;
+
+@FunctionalInterface
+public interface FloatFactory {
+    float create();
+}

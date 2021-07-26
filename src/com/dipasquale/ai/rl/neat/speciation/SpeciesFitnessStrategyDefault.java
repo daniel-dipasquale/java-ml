@@ -7,11 +7,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SpeciesFitnessStrategyDefault implements SpeciesFitnessStrategy {
+final class SpeciesFitnessStrategyDefault implements SpeciesFitnessStrategy, Serializable {
     @Serial
-    private static final long serialVersionUID = 8618927004394952964L;
+    private static final long serialVersionUID = 9126364579807820036L;
     private final Context.GeneralSupport general;
 
     @Override

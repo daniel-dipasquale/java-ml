@@ -85,7 +85,7 @@ public final class EventLoopIterableTest {
         }
     }
 
-    @AllArgsConstructor(access = AccessLevel.PACKAGE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Item {
         private long value;
     }

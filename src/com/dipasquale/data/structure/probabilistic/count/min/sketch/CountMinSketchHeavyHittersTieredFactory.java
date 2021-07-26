@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
 import lombok.Builder;
 

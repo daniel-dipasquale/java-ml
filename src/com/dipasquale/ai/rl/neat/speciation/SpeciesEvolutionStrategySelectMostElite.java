@@ -4,12 +4,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SpeciesEvolutionStrategySelectMostElite implements SpeciesEvolutionStrategy {
+final class SpeciesEvolutionStrategySelectMostElite implements SpeciesEvolutionStrategy, Serializable {
     @Serial
-    private static final long serialVersionUID = -265764242596209981L;
+    private static final long serialVersionUID = 6142238994253254883L;
     private final Set<Organism> organismsWithoutSpecies;
     private final OrganismActivator mostFitOrganismActivator;
 

@@ -1,13 +1,13 @@
 package com.dipasquale.ai.rl.neat.speciation;
 
-import com.dipasquale.ai.common.SequentialId;
-import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.common.SequentialIdFactoryDefault;
-import com.dipasquale.ai.common.SequentialIdFactoryStrategy;
-import com.dipasquale.ai.common.SequentialIdFactoryStrategySynchronized;
+import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
+import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.common.sequence.SequentialIdFactory;
+import com.dipasquale.ai.common.sequence.StrategySequentialIdFactory;
+import com.dipasquale.ai.common.sequence.SynchronizedStrategySequentialIdFactory;
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
-import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
 import com.dipasquale.ai.rl.neat.genotype.GenomeHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
@@ -33,14 +33,14 @@ public final class PopulationHistoricalMarkings implements GenomeHistoricalMarki
     @Serial
     private static final long serialVersionUID = -3580686562257388659L;
     private boolean initialized = false;
-    private final SequentialIdFactoryDefault genomeIdFactoryUnderlying = new SequentialIdFactoryDefault();
+    private final DefaultSequentialIdFactory genomeIdFactoryUnderlying = new DefaultSequentialIdFactory();
     private SequentialIdFactory genomeIdFactory = null;
-    private final SequentialIdFactoryDefault speciesIdFactoryUnderlying = new SequentialIdFactoryDefault();
+    private final DefaultSequentialIdFactory speciesIdFactoryUnderlying = new DefaultSequentialIdFactory();
     private SequentialIdFactory speciesIdFactory = null;
-    private final SequentialIdFactoryDefault innovationIdFactoryUnderlying = new SequentialIdFactoryDefault();
+    private final DefaultSequentialIdFactory innovationIdFactoryUnderlying = new DefaultSequentialIdFactory();
     private SequentialIdFactory innovationIdFactory = null;
     private Map<DirectedEdge, InnovationId> innovationIds = null;
-    private final Map<NodeGeneType, SequentialIdFactoryDefault> nodeIdFactoriesUnderlying = createSequentialIdFactories();
+    private final Map<NodeGeneType, DefaultSequentialIdFactory> nodeIdFactoriesUnderlying = createSequentialIdFactories();
     private Map<NodeGeneType, SequentialIdFactory> nodeIdFactories = null;
     private List<SequentialId> inputNodesIds = null;
     private List<SequentialId> outputNodeIds = null;
@@ -49,10 +49,10 @@ public final class PopulationHistoricalMarkings implements GenomeHistoricalMarki
 
     private static SequentialIdFactory createSequentialIdFactory(final boolean parallel, final String name, final SequentialIdFactory sequentialIdFactory) {
         if (!parallel) {
-            return new SequentialIdFactoryStrategy(name, sequentialIdFactory);
+            return new StrategySequentialIdFactory(name, sequentialIdFactory);
         }
 
-        return new SequentialIdFactoryStrategySynchronized(name, sequentialIdFactory);
+        return new SynchronizedStrategySequentialIdFactory(name, sequentialIdFactory);
     }
 
     private SequentialIdFactory createGenomeIdFactory(final Context.ParallelismSupport parallelism) {
@@ -79,12 +79,12 @@ public final class PopulationHistoricalMarkings implements GenomeHistoricalMarki
         return innovationIdsReplacement;
     }
 
-    private static Map<NodeGeneType, SequentialIdFactoryDefault> createSequentialIdFactories() {
-        return ImmutableMap.<NodeGeneType, SequentialIdFactoryDefault>builder()
-                .put(NodeGeneType.INPUT, new SequentialIdFactoryDefault())
-                .put(NodeGeneType.OUTPUT, new SequentialIdFactoryDefault())
-                .put(NodeGeneType.BIAS, new SequentialIdFactoryDefault())
-                .put(NodeGeneType.HIDDEN, new SequentialIdFactoryDefault())
+    private static Map<NodeGeneType, DefaultSequentialIdFactory> createSequentialIdFactories() {
+        return ImmutableMap.<NodeGeneType, DefaultSequentialIdFactory>builder()
+                .put(NodeGeneType.INPUT, new DefaultSequentialIdFactory())
+                .put(NodeGeneType.OUTPUT, new DefaultSequentialIdFactory())
+                .put(NodeGeneType.BIAS, new DefaultSequentialIdFactory())
+                .put(NodeGeneType.HIDDEN, new DefaultSequentialIdFactory())
                 .build();
     }
 
@@ -122,6 +122,7 @@ public final class PopulationHistoricalMarkings implements GenomeHistoricalMarki
             throw new IllegalStateException("unable to change the number of input, output or bia nodes after initialization ... yet!");
         }
 
+        initialized = true;
         genomeIdFactory = createGenomeIdFactory(context.parallelism());
         speciesIdFactory = createSpeciesIdFactory(context.parallelism());
         innovationIdFactory = createInnovationIdFactory(context.parallelism());
@@ -144,8 +145,8 @@ public final class PopulationHistoricalMarkings implements GenomeHistoricalMarki
         return genomeIdFactory.create().toString();
     }
 
-    public GenomeDefault createGenome(final Context context) {
-        GenomeDefault genome = new GenomeDefault(createGenomeId(), this);
+    public DefaultGenome createGenome(final Context context) {
+        DefaultGenome genome = new DefaultGenome(createGenomeId(), this);
 
         for (SequentialId nodeId : inputNodesIds) {
             genome.addNode(context.nodes().create(nodeId, NodeGeneType.INPUT));
@@ -188,7 +189,7 @@ public final class PopulationHistoricalMarkings implements GenomeHistoricalMarki
         return nodeIdFactories.get(type).create();
     }
 
-    public void markToKill(final GenomeDefault genome) {
+    public void markToKill(final DefaultGenome genome) {
         genomeIdsKilled.add(genome.getId());
     }
 

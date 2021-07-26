@@ -1,8 +1,8 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.concurrent.AtomicRecyclableReference;
 import com.dipasquale.common.concurrent.RecyclableReference;
+import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.ExpirationFactory;
 
 final class CountMinSketchTimedRecyclable<T> implements CountMinSketch<T> {

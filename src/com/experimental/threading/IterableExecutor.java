@@ -149,7 +149,7 @@
 //        shutdownEventLoopsHandler.invokeAllAndThrowAsSuppressedIfAny("unable to shutdown the event loops");
 //    }
 //
-//    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+//    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 //    private static final class EventLoopHandlersPair {
 //        private final EventLoop eventLoop;
 //        private final DequeSet<IterableExecutorHandler<?>> handlers = new IdentityDequeSet<>();

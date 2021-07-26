@@ -9,13 +9,14 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends AbstractMap<TKey, TValue> implements DequeMap<TKey, TValue> {
+public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends AbstractMap<TKey, TValue> implements DequeMap<TKey, TValue>, Serializable {
     @Serial
-    private static final long serialVersionUID = -1428146538346139099L;
+    private static final long serialVersionUID = 3833727732372864205L;
     private final Map<TKey, TNode> nodesMap;
     private final NodeDeque<Entry<TKey, TValue>, TNode> nodesDeque;
 
@@ -138,7 +139,7 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
                 .iterator();
     }
 
-    @AllArgsConstructor(access = AccessLevel.PACKAGE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Getter
     @EqualsAndHashCode
     private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue> {

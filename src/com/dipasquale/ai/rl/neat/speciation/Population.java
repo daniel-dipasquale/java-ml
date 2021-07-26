@@ -55,7 +55,7 @@ public final class Population {
         IntStream.range(0, context.general().populationSize())
                 .mapToObj(i -> info.getHistoricalMarkings().createGenome(context))
                 .map(g -> new Organism(g, info))
-                .peek(o -> o.initialize(context))
+                .peek(o -> o.prepare(context))
                 .peek(Organism::freeze)
                 .forEach(organismsWithoutSpecies::add);
     }
@@ -106,13 +106,13 @@ public final class Population {
         info.getHistoricalMarkings().initialize(context);
 
         if (isInitialized()) {
-            organismsWithoutSpecies.forEach(o -> o.initialize(context));
+            organismsWithoutSpecies.forEach(o -> o.prepare(context));
 
             speciesNodes.stream()
                     .map(speciesNodes::getValue)
                     .map(Species::getOrganisms)
                     .flatMap(List::stream)
-                    .forEach(o -> o.initialize(context));
+                    .forEach(o -> o.prepare(context));
         } else {
             fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
             mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());

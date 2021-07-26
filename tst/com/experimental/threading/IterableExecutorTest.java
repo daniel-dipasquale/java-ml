@@ -129,13 +129,13 @@
 //        }
 //    }
 //
-//    @AllArgsConstructor(access = AccessLevel.PACKAGE)
+//    @AllArgsConstructor(access = AccessLevel.PRIVATE)
 //    private static final class Child {
 //        private float value;
 //    }
 //
-//    @AllArgsConstructor(access = AccessLevel.PACKAGE)
-//    @Builder(access = AccessLevel.PACKAGE)
+//    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+//    @Builder(access = AccessLevel.PRIVATE)
 //    private static final class Parent {
 //        private final List<Child> children;
 //        private volatile float value = 0f;
@@ -160,8 +160,8 @@
 //        }
 //    }
 //
-//    @AllArgsConstructor(access = AccessLevel.PACKAGE)
-//    @Builder(access = AccessLevel.PACKAGE)
+//    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+//    @Builder(access = AccessLevel.PRIVATE)
 //    private static final class Population {
 //        private final List<Parent> parents;
 //        private volatile float value = 0f;

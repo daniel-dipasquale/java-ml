@@ -4,11 +4,12 @@ import com.dipasquale.common.Pair;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class GenomeCompatibilityCalculatorDefault implements GenomeCompatibilityCalculator {
+public final class GenomeCompatibilityCalculatorDefault implements GenomeCompatibilityCalculator, Serializable {
     @Serial
-    private static final long serialVersionUID = -5222473560325252763L;
+    private static final long serialVersionUID = -657873611756824223L;
     private final float excessCoefficient; // c1;
     private final float disjointCoefficient; // c2;
     private final float weightDifferenceCoefficient; // c3
@@ -25,7 +26,7 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
         return excessFromConnection == null || connections.getLeft() != null && !isExcess(connections.getLeft(), excessFromConnection) || connections.getRight() != null && !isExcess(connections.getRight(), excessFromConnection);
     }
 
-    private static ConnectionGene getExcessConnection(final GenomeDefault genome1, final GenomeDefault genome2) {
+    private static ConnectionGene getExcessConnection(final DefaultGenome genome1, final DefaultGenome genome2) {
         ConnectionGene lastConnection1 = genome1.getConnections().getLastFromAll();
         ConnectionGene lastConnection2 = genome2.getConnections().getLastFromAll();
 
@@ -47,7 +48,7 @@ public final class GenomeCompatibilityCalculatorDefault implements GenomeCompati
     }
 
     @Override
-    public double calculateCompatibility(final GenomeDefault genome1, final GenomeDefault genome2) {
+    public double calculateCompatibility(final DefaultGenome genome1, final DefaultGenome genome2) {
         ConnectionGene excessFromConnection = getExcessConnection(genome1, genome2);
         int matchingCount = 0;
         double weightDifference = 0D;

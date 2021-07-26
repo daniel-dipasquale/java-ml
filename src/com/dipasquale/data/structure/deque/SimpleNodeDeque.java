@@ -9,9 +9,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
 
-public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> implements NodeDeque<T, SimpleNode<T>> {
+public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> implements NodeDeque<T, SimpleNode<T>>, Serializable {
     @Serial
-    private static final long serialVersionUID = -8560444876098720861L;
+    private static final long serialVersionUID = -6511910907907223574L;
     private Object membership;
     private SimpleNode<T> start;
     private SimpleNode<T> end;
@@ -287,7 +287,7 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
                 .iterator();
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Membership implements Serializable {
         @Serial
         private static final long serialVersionUID = 5707462379223536762L;

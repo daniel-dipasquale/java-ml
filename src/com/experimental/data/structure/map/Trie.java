@@ -142,7 +142,7 @@ public final class Trie<TKey, TValue> extends AbstractMap<TKey, TValue> {
         return stream(rootEntry).iterator();
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private final class EntryInternal implements Entry<TKey, TValue> {
         private final Object tokenizedKey;
         private Map<Object, EntryInternal> entries = createMap();

@@ -127,7 +127,7 @@ final class SlidingWaitHandleSingleThread implements SlidingWaitHandleInternal {
         return name;
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class ReferenceBox<T> {
         private volatile T reference;
 

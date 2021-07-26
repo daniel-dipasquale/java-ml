@@ -5,11 +5,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SpeciesEvolutionStrategyRemoveLeastFit implements SpeciesEvolutionStrategy {
+final class SpeciesEvolutionStrategyRemoveLeastFit implements SpeciesEvolutionStrategy, Serializable {
     @Serial
-    private static final long serialVersionUID = -8513956335859361822L;
+    private static final long serialVersionUID = -8972350994440640462L;
     private final Context context;
 
     @Override

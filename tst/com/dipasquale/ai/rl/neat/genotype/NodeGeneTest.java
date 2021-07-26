@@ -1,10 +1,10 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.ActivationFunction;
-import com.dipasquale.ai.common.ActivationFunctionIdentity;
-import com.dipasquale.ai.common.SequentialId;
-import com.dipasquale.ai.common.SequentialIdFactory;
-import com.dipasquale.ai.common.SequentialIdFactoryDefault;
+import com.dipasquale.ai.common.function.activation.ActivationFunction;
+import com.dipasquale.ai.common.function.activation.ActivationFunctionIdentity;
+import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
+import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.common.sequence.SequentialIdFactory;
 import com.dipasquale.common.test.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ public final class NodeGeneTest {
     @Test
     public void TEST_1()
             throws IOException, ClassNotFoundException {
-        SequentialIdFactory sequentialIdFactory = new SequentialIdFactoryDefault();
+        SequentialIdFactory sequentialIdFactory = new DefaultSequentialIdFactory();
         SequentialId nodeId = sequentialIdFactory.create();
         NodeGeneType type = NodeGeneType.HIDDEN;
         float bias = 1.1f;

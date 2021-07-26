@@ -3,9 +3,10 @@ package com.dipasquale.common.time;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
+import java.io.Serializable;
 
 @EqualsAndHashCode
-final class BucketExpirationFactory implements ExpirationFactory {
+final class BucketExpirationFactory implements ExpirationFactory, Serializable {
     @Serial
     private static final long serialVersionUID = 4557523191903500546L;
     private final DateTimeSupport dateTimeSupport;

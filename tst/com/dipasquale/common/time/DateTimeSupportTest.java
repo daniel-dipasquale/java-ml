@@ -1,7 +1,7 @@
 package com.dipasquale.common.time;
 
-import com.dipasquale.common.LongFactory;
 import com.dipasquale.common.error.ErrorComparer;
+import com.dipasquale.common.factory.LongFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +13,7 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -204,8 +205,8 @@ public final class DateTimeSupportTest {
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    private static final class DateTimeSupportMock implements DateTimeSupport {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class DateTimeSupportMock implements DateTimeSupport, Serializable {
         @Serial
         private static final long serialVersionUID = 5818961090041503787L;
         private final LongFactory nowFactory;

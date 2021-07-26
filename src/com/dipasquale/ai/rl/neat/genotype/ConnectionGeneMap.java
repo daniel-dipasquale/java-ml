@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.SequentialId;
-import com.dipasquale.ai.common.SequentialMap;
+import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.common.sequence.SequentialMap;
 import com.dipasquale.common.Pair;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;

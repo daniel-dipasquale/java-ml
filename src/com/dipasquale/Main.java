@@ -1,7 +1,7 @@
 package com.dipasquale;
 
-import com.dipasquale.common.IdFactory;
-import com.dipasquale.common.random.RandomSupport;
+import com.dipasquale.common.factory.IdFactory;
+import com.dipasquale.common.random.float2.RandomSupport;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;

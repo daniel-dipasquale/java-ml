@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.SequentialId;
+import com.dipasquale.ai.common.sequence.SequentialId;
 
 public interface NeuronPathBuilder extends Iterable<Neuron> {
     boolean hasNeurons();

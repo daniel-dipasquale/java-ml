@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
-import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.error.ErrorHandlerSupport;
+import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.data.structure.map.SortedByValueRankedAggregator;
 import com.dipasquale.threading.event.loop.EventLoop;

@@ -1,6 +1,6 @@
 package com.experimental.metrics;
 
-import com.dipasquale.common.IdFactory;
+import com.dipasquale.common.factory.IdFactory;
 import com.dipasquale.common.time.DateTimeSupport;
 
 import javax.measure.quantity.Duration;

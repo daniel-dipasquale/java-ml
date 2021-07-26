@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirationFactory;
@@ -28,7 +28,7 @@ public final class ConcurrentBloomFilterTest {
     private static final boolean TEST_AGAINST_BLOOM_FILTER = true; // 8,000,000 items and 3 test cases (and default p) = 613,112,000 bytes without sets
     private static final boolean TEST_AGAINST_SET = true; // 8,000,000 items and 3 test cases = 3,534,360,000 bytes without bloom filters
     private static final int CPU_CORES = DEBUG_MODE ? 1 : Runtime.getRuntime().availableProcessors();
-    private static final int SIZE = 2_000_000;
+    private static final int SIZE = 500_000;
     private static final int ESTIMATED_SIZE = SIZE;
     private static final int HASH_FUNCTIONS = 8;
     private static final double FALSE_POSITIVE_RATIO = 0.003D;

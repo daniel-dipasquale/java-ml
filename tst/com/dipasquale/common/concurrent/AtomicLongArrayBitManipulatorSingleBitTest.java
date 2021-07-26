@@ -1,7 +1,8 @@
 package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.bit.concurrent.AtomicLongArrayBitManipulatorSingleBit;
-import com.dipasquale.common.random.RandomSupport;
+import com.dipasquale.common.random.float2.DefaultRandomSupport;
+import com.dipasquale.common.random.float2.RandomSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ public final class AtomicLongArrayBitManipulatorSingleBitTest {
 
     @Test
     public void TEST_5() {
-        RandomSupport randomSupport = RandomSupport.create(false);
+        RandomSupport randomSupport = new DefaultRandomSupport();
         List<Long> randomNumbers = new ArrayList<>();
 
         for (int i = 0, c = (int) TEST.size(); i < c; i++) {

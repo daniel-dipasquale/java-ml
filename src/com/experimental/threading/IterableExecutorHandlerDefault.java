@@ -130,7 +130,7 @@
 //        stoppedProcessingCas.set(true);
 //    }
 //
-//    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+//    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 //    private static final class IteratorItem<T> {
 //        private final T value;
 //    }

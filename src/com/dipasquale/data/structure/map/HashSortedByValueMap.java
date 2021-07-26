@@ -28,7 +28,7 @@ public final class HashSortedByValueMap<TKey, TValue> extends AbstractSortedByVa
         this(new HashMap<>(initialCapacity), comparator);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Getter
     @EqualsAndHashCode(onlyExplicitlyIncluded = true)
     private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue> {

@@ -1,8 +1,8 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.ObjectFactory;
 import com.dipasquale.common.bit.BitManipulatorSupport;
+import com.dipasquale.common.factory.ObjectFactory;
 
 public interface BloomFilterFactory { // TODO: enclose parameters to single object
     int getMaximumHashFunctions();

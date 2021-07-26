@@ -1,6 +1,6 @@
 package com.dipasquale.common.concurrent;
 
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.factory.ObjectFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

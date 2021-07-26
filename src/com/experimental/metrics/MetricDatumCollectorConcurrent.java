@@ -1,6 +1,6 @@
 package com.experimental.metrics;
 
-import com.dipasquale.common.IdFactory;
+import com.dipasquale.common.factory.IdFactory;
 
 import java.util.Collection;
 import java.util.LinkedList;

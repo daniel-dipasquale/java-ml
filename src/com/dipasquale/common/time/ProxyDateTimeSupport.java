@@ -1,6 +1,6 @@
 package com.dipasquale.common.time;
 
-import com.dipasquale.common.LongFactory;
+import com.dipasquale.common.factory.LongFactory;
 import lombok.EqualsAndHashCode;
 
 import javax.measure.quantity.Duration;

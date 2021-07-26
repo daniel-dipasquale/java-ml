@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.SequentialId;
+import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

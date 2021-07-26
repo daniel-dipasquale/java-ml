@@ -1,6 +1,7 @@
 package com.dipasquale.simulation.cart.pole;
 
-import com.dipasquale.common.random.RandomSupport;
+import com.dipasquale.common.random.float2.DefaultRandomSupport;
+import com.dipasquale.common.random.float2.RandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +43,7 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
                 .orElse(0.01D);
 
         RandomSupport randomSupportFixed = Optional.ofNullable(randomSupport)
-                .orElseGet(() -> RandomSupport.create(false));
+                .orElseGet(DefaultRandomSupport::new);
 
         double positionLimitFixed = Optional.ofNullable(positionLimit)
                 .orElse(2.4D);

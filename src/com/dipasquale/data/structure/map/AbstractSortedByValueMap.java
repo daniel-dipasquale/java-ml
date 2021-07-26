@@ -1,12 +1,13 @@
 package com.dipasquale.data.structure.map;
 
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.data.structure.set.DequeSet;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,9 +22,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, TValue> implements SortedByValueMap<TKey, TValue> {
+abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, TValue> implements SortedByValueMap<TKey, TValue>, Serializable {
     @Serial
-    private static final long serialVersionUID = -192430348166168535L;
+    private static final long serialVersionUID = 2986439092892441609L;
     private final Map<TKey, Entry<TKey, TValue>> map;
     private final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap;
     private final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory;
@@ -217,7 +218,7 @@ abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, 
         Entry<TKey, TValue> create(TKey key, TValue value);
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private final class ChangeAudit {
         private TValue oldValue;
     }

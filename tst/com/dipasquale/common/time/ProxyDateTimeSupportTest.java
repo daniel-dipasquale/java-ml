@@ -1,6 +1,6 @@
 package com.dipasquale.common.time;
 
-import com.dipasquale.common.LongFactory;
+import com.dipasquale.common.factory.LongFactory;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import javax.measure.quantity.Duration;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -47,9 +48,9 @@ public final class ProxyDateTimeSupportTest {
         Assertions.assertNotEquals(new ProxyDateTimeSupport(() -> 0L, UNIT), TEST);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-    private static final class LongFactoryMock implements LongFactory {
+    private static final class LongFactoryMock implements LongFactory, Serializable {
         @Serial
         private static final long serialVersionUID = 344354311071266964L;
         private final AtomicLong nowCas;

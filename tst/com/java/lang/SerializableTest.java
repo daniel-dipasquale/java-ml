@@ -72,42 +72,42 @@ public class SerializableTest {
         }
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class TestA1 implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         private TestB1 b;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class TestB1 implements Serializable {
         @Serial
         private static final long serialVersionUID = 2L;
         private TestC1 c;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class TestC1 implements Serializable {
         @Serial
         private static final long serialVersionUID = 3L;
         private TestA1 a;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class TestA2 implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         private TestB2 b;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class TestB2 implements Serializable {
         @Serial
         private static final long serialVersionUID = 2L;
         private TestC2 c;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class TestC2 implements Serializable {
         @Serial
         private static final long serialVersionUID = 3L;

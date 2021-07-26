@@ -164,7 +164,7 @@ public final class Species implements Serializable {
     }
 
     public OrganismFactory getOrganismToBirth(final Context.RandomSupport random, final Species other) {
-        if (organisms.size() == 0 || other.getOrganisms().size() == 0) {
+        if (organisms.isEmpty() || other.getOrganisms().isEmpty()) {
             return null;
         }
 

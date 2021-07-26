@@ -1,7 +1,7 @@
 package com.dipasquale.common.concurrent;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ExpirationRecord;
 import lombok.AccessLevel;

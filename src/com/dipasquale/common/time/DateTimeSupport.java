@@ -5,7 +5,6 @@ import com.dipasquale.common.ArgumentValidatorSupport;
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Duration;
 import javax.measure.unit.Unit;
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,7 +12,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public interface DateTimeSupport extends Serializable {
+public interface DateTimeSupport {
     long now();
 
     static long getTimeBucket(final long dateTime, final long bucketSize, final long bucketOffset) {

@@ -4,18 +4,19 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class OrganismFactoryMutation implements OrganismFactory {
+public final class OrganismFactoryMutation implements OrganismFactory, Serializable {
     @Serial
-    private static final long serialVersionUID = 3542098615345722645L;
+    private static final long serialVersionUID = -8710603695032354428L;
     private final Organism originalOrganism;
 
     @Override
     public Organism create(final Context context) {
         Organism organism = originalOrganism.createCopy();
 
-        organism.initialize(context);
+        organism.prepare(context);
         organism.mutate(context);
         organism.freeze();
 

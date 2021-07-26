@@ -2,9 +2,7 @@ package com.dipasquale.ai.rl.neat.speciation;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 
-import java.io.Serializable;
-
 @FunctionalInterface
-public interface OrganismFactory extends Serializable {
+public interface OrganismFactory {
     Organism create(Context context);
 }

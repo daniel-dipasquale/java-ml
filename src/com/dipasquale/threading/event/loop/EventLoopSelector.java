@@ -1,13 +1,13 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.random.RandomSupportFloat;
+import com.dipasquale.common.random.float1.RandomSupport;
 
 public interface EventLoopSelector {
     int next();
 
     int size();
 
-    static EventLoopSelector createRandom(final RandomSupportFloat randomSupport, final int size) {
+    static EventLoopSelector createRandom(final RandomSupport randomSupport, final int size) {
         return new EventLoopSelector() {
             @Override
             public int next() {

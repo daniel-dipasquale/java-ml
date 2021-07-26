@@ -4,11 +4,12 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
+import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class OrganismFactoryMating implements OrganismFactory {
+public final class OrganismFactoryMating implements OrganismFactory, Serializable {
     @Serial
-    private static final long serialVersionUID = 1377974290849433492L;
+    private static final long serialVersionUID = -7040095868129331447L;
     private final Organism parentOrganism1;
     private final Organism parentOrganism2;
     private final boolean shouldMutate;
@@ -17,7 +18,7 @@ public final class OrganismFactoryMating implements OrganismFactory {
     public Organism create(final Context context) {
         Organism organism = parentOrganism1.mate(context, parentOrganism2);
 
-        organism.initialize(context);
+        organism.prepare(context);
 
         if (shouldMutate) {
             organism.mutate(context);

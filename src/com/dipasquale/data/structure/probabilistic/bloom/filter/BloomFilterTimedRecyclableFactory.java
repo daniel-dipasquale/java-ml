@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
-import com.dipasquale.common.ObjectFactory;
+import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.ExpirationFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

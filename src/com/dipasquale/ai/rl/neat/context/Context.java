@@ -1,11 +1,12 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.common.FitnessDeterminer;
-import com.dipasquale.ai.common.SequentialId;
-import com.dipasquale.ai.common.SequentialMap;
-import com.dipasquale.ai.rl.neat.NeatEnvironment;
+import com.dipasquale.ai.common.fitness.FitnessDeterminer;
+import com.dipasquale.ai.common.fitness.FitnessFunction;
+import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.common.sequence.SequentialMap;
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
-import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
+import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
+import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
@@ -50,7 +51,7 @@ public interface Context {
 
         FitnessDeterminer createFitnessDeterminer();
 
-        float calculateFitness(GenomeDefault genome);
+        float calculateFitness(DefaultGenome genome);
     }
 
     interface NodeGeneSupport {
@@ -66,12 +67,12 @@ public interface Context {
 
         float perturbWeight(float weight);
 
-        void setupInitialConnections(GenomeDefault genome, PopulationHistoricalMarkings historicalMarkings);
+        void setupInitialConnections(DefaultGenome genome, PopulationHistoricalMarkings historicalMarkings);
     }
 
     @FunctionalInterface
     interface NeuralNetworkSupport {
-        NeuralNetwork create(GenomeDefault genome, NodeGeneMap nodes, ConnectionGeneMap connections);
+        NeuralNetwork create(DefaultGenome genome, NodeGeneMap nodes, ConnectionGeneMap connections);
     }
 
     interface ParallelismSupport {
@@ -161,12 +162,12 @@ public interface Context {
 
         boolean shouldUseRandomParentConnectionWeight();
 
-        default GenomeDefault crossOverBySkippingUnfitDisjointOrExcess(final Context context, final GenomeDefault fitParent, final GenomeDefault unfitParent) {
-            return GenomeDefault.crossOverBySkippingUnfitDisjointOrExcess(context, fitParent, unfitParent);
+        default DefaultGenome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final DefaultGenome fitParent, final DefaultGenome unfitParent) {
+            return DefaultGenome.crossOverBySkippingUnfitDisjointOrExcess(context, fitParent, unfitParent);
         }
 
-        default GenomeDefault crossOverByEqualTreatment(final Context context, final GenomeDefault parent1, final GenomeDefault parent2) {
-            return GenomeDefault.crossOverByEqualTreatment(context, parent1, parent2);
+        default DefaultGenome crossOverByEqualTreatment(final Context context, final DefaultGenome parent1, final DefaultGenome parent2) {
+            return DefaultGenome.crossOverByEqualTreatment(context, parent1, parent2);
         }
     }
 
@@ -177,7 +178,7 @@ public interface Context {
 
         double compatibilityThreshold(int generation);
 
-        double calculateCompatibility(GenomeDefault genome1, GenomeDefault genome2);
+        double calculateCompatibility(DefaultGenome genome1, DefaultGenome genome2);
 
         float eugenicsThreshold();
 
@@ -205,7 +206,7 @@ public interface Context {
     }
 
     interface StateOverrideSupport {
-        NeatEnvironment environment();
+        FitnessFunction<Genome> environment();
 
         EventLoopIterable eventLoop();
     }

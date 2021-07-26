@@ -7,11 +7,12 @@ import lombok.RequiredArgsConstructor;
 import javax.measure.quantity.Duration;
 import javax.measure.unit.Unit;
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
-abstract class AbstractDateTimeSupport implements DateTimeSupport {
+abstract class AbstractDateTimeSupport implements DateTimeSupport, Serializable {
     @Serial
     private static final long serialVersionUID = 8555314249316920593L;
     private final Unit<Duration> unit;

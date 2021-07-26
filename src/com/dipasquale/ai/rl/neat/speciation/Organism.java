@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.speciation;
 
-import com.dipasquale.ai.common.FitnessDeterminer;
+import com.dipasquale.ai.common.fitness.FitnessDeterminer;
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.genotype.GenomeDefault;
+import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -16,12 +16,12 @@ public final class Organism implements Comparable<Organism>, Serializable {
     private static final long serialVersionUID = -1411966258093431863L;
     private static final double MINIMUM_COMPATIBILITY = Double.POSITIVE_INFINITY;
     @EqualsAndHashCode.Include
-    private final GenomeDefault genome;
+    private final DefaultGenome genome;
     private final PopulationInfo population;
     private final MostCompatibleSpecies mostCompatibleSpecies;
     private transient Fitness fitness;
 
-    public Organism(final GenomeDefault genome, final PopulationInfo population) {
+    public Organism(final DefaultGenome genome, final PopulationInfo population) {
         this.genome = genome;
         this.population = population;
         this.mostCompatibleSpecies = new MostCompatibleSpecies(MINIMUM_COMPATIBILITY, null);
@@ -36,8 +36,8 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return new Fitness(general.createFitnessDeterminer(), fitness.value, fitness.generation);
     }
 
-    public void initialize(final Context context) {
-        genome.initialize(context.neuralNetwork());
+    public void prepare(final Context context) {
+        genome.prepare(context.neuralNetwork());
         fitness = createFitness(context.general());
     }
 
@@ -93,7 +93,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     public Organism mate(final Context context, final Organism other) {
         int comparison = compareTo(other);
 
-        GenomeDefault genomeNew = switch (comparison) {
+        DefaultGenome genomeNew = switch (comparison) {
             case 1 -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, genome, other.genome);
 
             case 0 -> context.crossOver().crossOverByEqualTreatment(context, genome, other.genome);
@@ -119,7 +119,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     public Organism createClone(final Context context) {
         Organism organism = new Organism(genome.createClone(population.getHistoricalMarkings()), population);
 
-        organism.initialize(context);
+        organism.prepare(context);
 
         return organism;
     }
@@ -128,7 +128,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
         population.getHistoricalMarkings().markToKill(genome);
     }
 
-    @AllArgsConstructor(access = AccessLevel.PACKAGE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
     private static final class MostCompatibleSpecies implements Serializable {
         @Serial
@@ -137,7 +137,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
         private Species reference;
     }
 
-    @AllArgsConstructor(access = AccessLevel.PACKAGE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Fitness {
         private final FitnessDeterminer determiner;
         private float value;

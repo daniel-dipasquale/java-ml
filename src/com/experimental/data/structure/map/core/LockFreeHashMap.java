@@ -1,7 +1,7 @@
 //package com.experimental.data.structure.map.core;
 //
 //import com.dipasquale.common.ArgumentValidator;
-//import com.dipasquale.common.ObjectFactory;
+//import com.dipasquale.common.factory.ObjectFactory;
 //import com.dipasquale.data.structure.map.MapBase;
 //import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
 //import com.google.common.collect.ImmutableList;

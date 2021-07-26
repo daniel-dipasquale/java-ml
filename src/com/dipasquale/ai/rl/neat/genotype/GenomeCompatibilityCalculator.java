@@ -1,8 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import java.io.Serializable;
-
 @FunctionalInterface
-public interface GenomeCompatibilityCalculator extends Serializable {
-    double calculateCompatibility(GenomeDefault genome1, GenomeDefault genome2);
+public interface GenomeCompatibilityCalculator {
+    double calculateCompatibility(DefaultGenome genome1, DefaultGenome genome2);
 }

@@ -48,12 +48,4 @@ public final class SerializableInteroperableStateMap {
             }
         }
     }
-
-//    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-//    private static final class Storable implements Serializable {
-//        @Serial
-//        private static final long serialVersionUID = 1266337875670000594L;
-//        private final String key;
-//        private final Object value;
-//    }
 }
