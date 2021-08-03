@@ -11,7 +11,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
-import com.dipasquale.ai.rl.neat.speciation.PopulationHistoricalMarkings;
+import com.dipasquale.ai.rl.neat.speciation.core.PopulationHistoricalMarkings;
 import com.dipasquale.common.Pair;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import com.dipasquale.threading.wait.handle.WaitHandle;

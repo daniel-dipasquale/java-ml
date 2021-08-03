@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunctionIdentity;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionSigmoid;
+import com.dipasquale.ai.common.function.activation.IdentityActivationFunction;
+import com.dipasquale.ai.common.function.activation.SigmoidActivationFunction;
 import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.common.sequence.SequentialIdFactory;
@@ -21,8 +21,8 @@ public final class DefaultGenomeTest {
         SequentialId nodeId2 = sequentialIdFactory.create();
         InnovationId innovationId = new InnovationId(new DirectedEdge(nodeId1, nodeId2), sequentialIdFactory.create());
 
-        test.addNode(new NodeGene(nodeId1, NodeGeneType.BIAS, 1.1f, ActivationFunctionIdentity.getInstance()));
-        test.addNode(new NodeGene(nodeId2, NodeGeneType.HIDDEN, 1.2f, ActivationFunctionSigmoid.getInstance()));
+        test.addNode(new NodeGene(nodeId1, NodeGeneType.BIAS, 1.1f, IdentityActivationFunction.getInstance()));
+        test.addNode(new NodeGene(nodeId2, NodeGeneType.HIDDEN, 1.2f, SigmoidActivationFunction.getInstance()));
         test.addConnection(new ConnectionGene(innovationId, 0.9f));
 
         byte[] bytes = SerializableSupport.serialize(test);

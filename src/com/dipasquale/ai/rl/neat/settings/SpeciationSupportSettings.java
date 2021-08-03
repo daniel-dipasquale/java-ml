@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.context.DefaultSpeciationSupportContext;
-import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculatorDefault;
+import com.dipasquale.ai.rl.neat.genotype.DefaultGenomeCompatibilityCalculator;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.IntegerFactory;
 import com.dipasquale.common.switcher.ObjectSwitcher;
@@ -63,7 +63,7 @@ public final class SpeciationSupportSettings {
         float excessCoefficientFixed = excessCoefficient.createFactorySwitcher(parallelism).getObject().create();
         float compatibilityThresholdFixed = compatibilityThreshold.createFactorySwitcher(parallelism).getObject().create();
         float compatibilityThresholdModifierFixed = compatibilityThresholdModifier.createFactorySwitcher(parallelism).getObject().create();
-        GenomeCompatibilityCalculatorDefault genomeCompatibilityCalculator = new GenomeCompatibilityCalculatorDefault(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
+        DefaultGenomeCompatibilityCalculator genomeCompatibilityCalculator = new DefaultGenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         float eugenicsThresholdFixed = eugenicsThreshold.createFactorySwitcher(parallelism).getObject().create();
         float elitistThresholdFixed = elitistThreshold.createFactorySwitcher(parallelism).getObject().create();
         int elitistThresholdMinimumFixed = elitistThresholdMinimum.createFactorySwitcher(parallelism).getObject().create();

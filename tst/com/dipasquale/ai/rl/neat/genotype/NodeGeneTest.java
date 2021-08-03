@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.function.activation.ActivationFunction;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionIdentity;
+import com.dipasquale.ai.common.function.activation.IdentityActivationFunction;
 import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.common.sequence.SequentialIdFactory;
@@ -19,7 +19,7 @@ public final class NodeGeneTest {
         SequentialId nodeId = sequentialIdFactory.create();
         NodeGeneType type = NodeGeneType.HIDDEN;
         float bias = 1.1f;
-        ActivationFunction activationFunction = ActivationFunctionIdentity.getInstance();
+        ActivationFunction activationFunction = IdentityActivationFunction.getInstance();
         NodeGene test = new NodeGene(nodeId, type, bias, activationFunction);
         byte[] bytes = SerializableSupport.serialize(test);
         NodeGene result = SerializableSupport.deserialize(bytes);

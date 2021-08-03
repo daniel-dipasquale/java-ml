@@ -10,11 +10,11 @@ import java.io.InputStream;
 
 public interface Neat {
     static NeatEvaluator createEvaluator(final EvaluatorSettings settings) {
-        return new NeatEvaluatorSynchronized(settings.createContext());
+        return new SynchronizedNeatEvaluator(settings.createContext());
     }
 
     static NeatEvaluatorTrainer createEvaluatorTrainer(final EvaluatorSettings settings) {
-        return new NeatEvaluatorTrainerSynchronized(settings.createContext());
+        return new SynchronizedNeatEvaluatorTrainer(settings.createContext());
     }
 
     static NeatEvaluatorTrainer createEvaluatorTrainer(final InputStream inputStream, final EvaluatorStateSettings settings)

@@ -1,12 +1,12 @@
 package com.dipasquale.ai.rl.neat.switcher;
 
 import com.dipasquale.ai.common.function.activation.ActivationFunction;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionIdentity;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionReLU;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionSigmoid;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionStep;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionTanH;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.common.function.activation.IdentityActivationFunction;
+import com.dipasquale.ai.common.function.activation.ReLUActivationFunction;
+import com.dipasquale.ai.common.function.activation.SigmoidActivationFunction;
+import com.dipasquale.ai.common.function.activation.StepActivationFunction;
+import com.dipasquale.ai.common.function.activation.TanHActivationFunction;
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.common.random.float1.DefaultRandomSupport;
 import com.dipasquale.common.random.float1.MeanDistributedRandomSupport;
@@ -28,11 +28,11 @@ final class Constants {
     private static final RandomSupport RANDOM_SUPPORT_MEAN_DISTRIBUTED = new MeanDistributedRandomSupport(RANDOM_SUPPORT_UNIFORM, 5);
 
     private static final Map<ActivationFunctionType, ActivationFunction> ACTIVATION_FUNCTIONS_MAP = ImmutableMap.<ActivationFunctionType, ActivationFunction>builder()
-            .put(ActivationFunctionType.IDENTITY, ActivationFunctionIdentity.getInstance())
-            .put(ActivationFunctionType.RE_LU, ActivationFunctionReLU.getInstance())
-            .put(ActivationFunctionType.SIGMOID, ActivationFunctionSigmoid.getInstance())
-            .put(ActivationFunctionType.TAN_H, ActivationFunctionTanH.getInstance())
-            .put(ActivationFunctionType.STEP, ActivationFunctionStep.getInstance())
+            .put(ActivationFunctionType.IDENTITY, IdentityActivationFunction.getInstance())
+            .put(ActivationFunctionType.RE_LU, ReLUActivationFunction.getInstance())
+            .put(ActivationFunctionType.SIGMOID, SigmoidActivationFunction.getInstance())
+            .put(ActivationFunctionType.TAN_H, TanHActivationFunction.getInstance())
+            .put(ActivationFunctionType.STEP, StepActivationFunction.getInstance())
             .build();
 
     private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = ImmutableList.copyOf(ACTIVATION_FUNCTIONS_MAP.values());
