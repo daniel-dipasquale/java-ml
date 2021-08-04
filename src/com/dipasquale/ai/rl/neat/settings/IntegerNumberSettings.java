@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.switcher.BoundedRandomIntegerFactorySwitcher;
+import com.dipasquale.ai.rl.neat.switcher.factory.BoundedRandomIntegerFactorySwitcher;
 import com.dipasquale.common.factory.IntegerFactory;
 import com.dipasquale.common.factory.LiteralIntegerFactory;
 import com.dipasquale.common.switcher.DefaultObjectSwitcher;

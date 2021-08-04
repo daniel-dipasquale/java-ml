@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultRandomSupportContext;
-import com.dipasquale.ai.rl.neat.switcher.RandomSupportSwitcher;
+import com.dipasquale.ai.rl.neat.switcher.factory.RandomSupportFactorySwitcher;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.switcher.ObjectSwitcher;
 import lombok.AccessLevel;
@@ -21,7 +21,7 @@ public final class RandomSupportSettings {
         RandomType typeFixed = Optional.ofNullable(type)
                 .orElse(RandomType.UNIFORM);
 
-        return new RandomSupportSwitcher(parallelism.isEnabled(), typeFixed);
+        return new RandomSupportFactorySwitcher(parallelism.isEnabled(), typeFixed);
     }
 
     ObjectSwitcher<RandomSupport> createNextIndex(final ParallelismSupportSettings parallelism) {

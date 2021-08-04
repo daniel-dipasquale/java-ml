@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.switcher.RandomEnumFactorySwitcher;
+import com.dipasquale.ai.rl.neat.switcher.factory.RandomEnumFactorySwitcher;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.LiteralEnumFactory;
 import com.dipasquale.common.switcher.DefaultObjectSwitcher;

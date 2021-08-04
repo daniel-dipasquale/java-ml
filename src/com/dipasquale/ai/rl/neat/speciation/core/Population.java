@@ -47,7 +47,7 @@ public final class Population {
     private List<SpeciesFitnessStrategy> speciesFitnessStrategies;
     private List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
     private SpeciesBreedingContext speciesBreedingContext;
-    private List<SpeciesBreedingStrategy> speciesBreedStrategies;
+    private List<SpeciesBreedingStrategy> speciesBreedingStrategies;
 
     public Population(final OrganismActivator mostFitOrganismActivator) {
         this.info = new PopulationState();
@@ -58,7 +58,7 @@ public final class Population {
         this.speciesFitnessStrategies = new LinkedList<>();
         this.speciesEvolutionStrategies = new LinkedList<>();
         this.speciesBreedingContext = null;
-        this.speciesBreedStrategies = new LinkedList<>();
+        this.speciesBreedingStrategies = new LinkedList<>();
     }
 
     public int getGeneration() {
@@ -110,10 +110,10 @@ public final class Population {
     }
 
     private void replaceSpeciesBreedStrategies(final Context context) {
-        speciesBreedStrategies.clear();
-        speciesBreedStrategies.add(new InterSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
-        speciesBreedStrategies.add(new MatchingSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
-        speciesBreedStrategies.add(new GenesisSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
+        speciesBreedingStrategies.clear();
+        speciesBreedingStrategies.add(new InterSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
+        speciesBreedingStrategies.add(new MatchingSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
+        speciesBreedingStrategies.add(new GenesisSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
     }
 
     public void initialize(final Context context) {
@@ -233,7 +233,7 @@ public final class Population {
                 .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 
-        for (SpeciesBreedingStrategy speciesBreedingStrategy : speciesBreedStrategies) {
+        for (SpeciesBreedingStrategy speciesBreedingStrategy : speciesBreedingStrategies) {
             speciesBreedingStrategy.process(speciesBreedingContext, speciesList);
         }
     }
@@ -291,6 +291,6 @@ public final class Population {
         speciesFitnessStrategies = new LinkedList<>();
         speciesEvolutionStrategies = new LinkedList<>();
         speciesBreedingContext = state.get("population.speciesBreedContext");
-        speciesBreedStrategies = new LinkedList<>();
+        speciesBreedingStrategies = new LinkedList<>();
     }
 }

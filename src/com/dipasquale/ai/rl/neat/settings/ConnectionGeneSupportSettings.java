@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultConnectionGeneSupportContext;
 import com.dipasquale.ai.rl.neat.factory.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
-import com.dipasquale.ai.rl.neat.switcher.WeightPerturberSwitcher;
+import com.dipasquale.ai.rl.neat.switcher.factory.WeightPerturberSwitcher;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.switcher.ObjectSwitcher;

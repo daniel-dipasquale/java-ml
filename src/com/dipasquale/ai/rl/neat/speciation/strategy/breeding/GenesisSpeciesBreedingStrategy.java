@@ -24,7 +24,6 @@ public final class GenesisSpeciesBreedingStrategy implements SpeciesBreedingStra
     @Override
     public void process(final SpeciesBreedingContext breedContext, final List<Species> speciesList) {
         Context.RandomSupport random = context.random();
-        Context.GeneralSupport general = context.general();
 
         for (Species species : speciesList) {
             species.restart(random).stream()
