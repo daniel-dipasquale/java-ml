@@ -1,4 +1,4 @@
-package com.dipasquale.common.random.float1;
+package com.dipasquale.common.random.float2;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -11,11 +11,11 @@ final class BoundedRandomSupport implements RandomSupport, Serializable {
     @Serial
     private static final long serialVersionUID = 6034184836835887844L;
     private final RandomSupport randomSupport;
-    private final float min;
-    private final float max;
+    private final double min;
+    private final double max;
 
     @Override
-    public float next() {
+    public double next() {
         return randomSupport.next(min, max);
     }
 }

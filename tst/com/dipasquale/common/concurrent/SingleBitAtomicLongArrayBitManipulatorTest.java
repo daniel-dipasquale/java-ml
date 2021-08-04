@@ -1,6 +1,6 @@
 package com.dipasquale.common.concurrent;
 
-import com.dipasquale.common.bit.concurrent.AtomicLongArrayBitManipulatorSingleBit;
+import com.dipasquale.common.bit.concurrent.SingleBitAtomicLongArrayBitManipulator;
 import com.dipasquale.common.random.float2.DefaultRandomSupport;
 import com.dipasquale.common.random.float2.RandomSupport;
 import org.junit.jupiter.api.Assertions;
@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLongArray;
 
-public final class AtomicLongArrayBitManipulatorSingleBitTest {
+public final class SingleBitAtomicLongArrayBitManipulatorTest {
     private static final AtomicLongArray ARRAY = new AtomicLongArray(10);
-    private static final AtomicLongArrayBitManipulatorSingleBit TEST = new AtomicLongArrayBitManipulatorSingleBit(ARRAY);
+    private static final SingleBitAtomicLongArrayBitManipulator TEST = new SingleBitAtomicLongArrayBitManipulator(ARRAY);
 
     @BeforeEach
     public void beforeEach() {

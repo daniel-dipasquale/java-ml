@@ -72,10 +72,10 @@ public interface BitManipulatorSupport {
         ArgumentValidatorSupport.ensureLessThanOrEqualTo(bits, MAXIMUM_BITS, "bits");
 
         if (bits == MAXIMUM_BITS) {
-            return new BitManipulatorSupport64();
+            return new Only64BitManipulatorSupport();
         }
 
-        return new BitManipulatorSupportDefault(bits);
+        return new DefaultBitManipulatorSupport(bits);
     }
 
     @FunctionalInterface

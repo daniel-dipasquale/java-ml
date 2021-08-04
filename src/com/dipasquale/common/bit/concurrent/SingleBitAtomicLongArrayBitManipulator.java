@@ -7,12 +7,12 @@ import lombok.ToString;
 
 import java.util.concurrent.atomic.AtomicLongArray;
 
-public final class AtomicLongArrayBitManipulatorSingleBit implements BitManipulator {
+public final class SingleBitAtomicLongArrayBitManipulator implements BitManipulator {
     private static final int RECORD_SIZE = 64;
     private final AtomicLongArray array;
     private final long size;
 
-    public AtomicLongArrayBitManipulatorSingleBit(final AtomicLongArray array) {
+    public SingleBitAtomicLongArrayBitManipulator(final AtomicLongArray array) {
         this.array = array;
         this.size = (long) array.length() * RECORD_SIZE;
     }

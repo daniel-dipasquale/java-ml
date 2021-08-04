@@ -1,6 +1,6 @@
 package com.dipasquale.common.bit;
 
-final class BitManipulatorSupport64 implements BitManipulatorSupport {
+final class Only64BitManipulatorSupport implements BitManipulatorSupport {
     private static final long SIZE = 1L;
 
     @Override

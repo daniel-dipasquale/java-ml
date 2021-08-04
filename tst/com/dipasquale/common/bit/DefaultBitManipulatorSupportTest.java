@@ -3,8 +3,8 @@ package com.dipasquale.common.bit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class BitManipulatorSupportDefaultTest {
-    private static final BitManipulatorSupportDefault TEST = new BitManipulatorSupportDefault(2);
+public final class DefaultBitManipulatorSupportTest {
+    private static final DefaultBitManipulatorSupport TEST = new DefaultBitManipulatorSupport(2);
 
     @Test
     public void TEST_1() {

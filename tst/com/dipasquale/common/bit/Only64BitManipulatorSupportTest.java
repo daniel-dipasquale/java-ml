@@ -3,8 +3,8 @@ package com.dipasquale.common.bit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class BitManipulatorSupport64Test {
-    private static final BitManipulatorSupport64 TEST = new BitManipulatorSupport64();
+public final class Only64BitManipulatorSupportTest {
+    private static final Only64BitManipulatorSupport TEST = new Only64BitManipulatorSupport();
 
     @Test
     public void TEST_1() {

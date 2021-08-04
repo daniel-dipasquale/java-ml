@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.bit.BitManipulator;
-import com.dipasquale.common.bit.concurrent.AtomicLongArrayBitManipulatorSingleBit;
+import com.dipasquale.common.bit.concurrent.SingleBitAtomicLongArrayBitManipulator;
 import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
 
 import java.util.BitSet;
@@ -17,7 +17,7 @@ final class BloomFilterCasArrayBitManipulator<T> implements BloomFilter<T> {
         AtomicLongArray array = new AtomicLongArray(size);
 
         this.multiFunctionHashing = multiFunctionHashing;
-        this.dataBitManipulator = new AtomicLongArrayBitManipulatorSingleBit(array);
+        this.dataBitManipulator = new SingleBitAtomicLongArrayBitManipulator(array);
         this.hashFunctions = hashFunctions;
     }
 

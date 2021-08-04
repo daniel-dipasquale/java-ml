@@ -4,14 +4,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-final class BitManipulatorSupportDefault implements BitManipulatorSupport {
+final class DefaultBitManipulatorSupport implements BitManipulatorSupport {
     private final int bits;
     private final long mask;
     private final long size;
     @Getter(AccessLevel.PACKAGE)
     private final UnitTest unitTest;
 
-    BitManipulatorSupportDefault(final int bits) {
+    DefaultBitManipulatorSupport(final int bits) {
         this.bits = bits;
         this.mask = (1L << bits) - 1L;
         this.size = (long) BitManipulatorSupport.MAXIMUM_BITS / (long) bits;
