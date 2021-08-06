@@ -2,40 +2,33 @@ package com.dipasquale.ai.rl.neat.switcher.factory;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.common.factory.FloatFactory;
+import com.dipasquale.common.switcher.AbstractObjectSwitcher;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-public final class BoundedRandomFloatFactorySwitcher extends AbstractRandomFactorySwitcher<FloatFactory> {
+public final class BoundedRandomFloatFactorySwitcher extends AbstractObjectSwitcher<FloatFactory> {
     @Serial
     private static final long serialVersionUID = -791004180256061334L;
-    private final float min;
-    private final float max;
-    @Getter(AccessLevel.PROTECTED)
-    private final FloatFactory on;
-    @Getter(AccessLevel.PROTECTED)
-    private final FloatFactory off;
 
     public BoundedRandomFloatFactorySwitcher(final boolean isOn, final RandomType type, final float min, final float max) {
-        super(isOn, type);
-        this.min = min;
-        this.max = max;
-        this.on = new DefaultFloatFactory(true);
-        this.off = new DefaultFloatFactory(false);
+        super(isOn, new DefaultFloatFactory(true, type, min, max), new DefaultFloatFactory(false, type, min, max));
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class DefaultFloatFactory implements FloatFactory, Serializable {
+    private static final class DefaultFloatFactory implements FloatFactory, Serializable {
         @Serial
         private static final long serialVersionUID = -5038178366194681591L;
         private final boolean isOn;
+        private final RandomType type;
+        private final float min;
+        private final float max;
 
         @Override
         public float create() {
-            return getRandomSupport(isOn).next(min, max);
+            return Constants.getRandomSupport(type, isOn).next(min, max);
         }
     }
 }

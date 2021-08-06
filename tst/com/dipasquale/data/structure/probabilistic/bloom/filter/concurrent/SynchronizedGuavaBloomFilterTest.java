@@ -1,18 +1,16 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter;
+package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
-import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class BloomFilterMultiTest {
+public class SynchronizedGuavaBloomFilterTest {
     private static final int CONSISTENCY_CHECK = 15;
-    private static final MultiFunctionHashing MULTI_FUNCTION_HASHING = MultiFunctionHashing.createMd5(25, BloomFilterTimedRecyclableTest.class.getSimpleName());
-    private static final BloomFilterDefaultFactory BLOOM_FILTER_DEFAULT_FACTORY = new BloomFilterDefaultFactory(MULTI_FUNCTION_HASHING);
-    private static final BloomFilterMultiFactory BLOOM_FILTER_FACTORY = new BloomFilterMultiFactory(BloomFilterPartitionFactory.create(BLOOM_FILTER_DEFAULT_FACTORY), 3);
+    private static final ConcurrentBloomFilterFactory BLOOM_FILTER_FACTORY = new ConcurrentBloomFilterFactory();
 
     @Test
     public void TEST_1() {
-        BloomFilter<String> test = BLOOM_FILTER_FACTORY.createEstimated(3, 1, 0.5D);
+        BloomFilter<String> test = BLOOM_FILTER_FACTORY.createEstimated(1, 1, 0.5D);
 
         Assertions.assertFalse(test.mightContain("one"));
         Assertions.assertTrue(test.add("one"));

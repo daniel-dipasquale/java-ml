@@ -18,14 +18,14 @@ final class CountMinSketchFactoryAdapter {
         return ((BloomFilterAdapter<T>) bloomFilter).countMinSketch;
     }
 
-    public <T> CountMinSketch<T> createEstimated(final CountMinSketchFactory countMinSketchFactory, final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final int bits) {
-        BloomFilterFactoryAdapter bloomFilterFactory = new BloomFilterFactoryAdapter(countMinSketchFactory, hashFunctions, bits);
+    public <T> CountMinSketch<T> createEstimated(final CountMinSketchFactory countMinSketchFactory, final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final int bits) {
+        BloomFilterFactoryAdapter bloomFilterFactory = new BloomFilterFactoryAdapter(countMinSketchFactory, hashingFunctionCount, bits);
 
         return extract(bloomFilterFactory.createEstimated(estimatedSize, 1, falsePositiveRatio));
     }
 
-    public <T> CountMinSketch<T> createEstimated(final CountMinSketchFactory countMinSketchFactory, final int estimatedSize, final int hashFunctions, final int bits) {
-        BloomFilterFactoryAdapter bloomFilterFactory = new BloomFilterFactoryAdapter(countMinSketchFactory, hashFunctions, bits);
+    public <T> CountMinSketch<T> createEstimated(final CountMinSketchFactory countMinSketchFactory, final int estimatedSize, final int hashingFunctionCount, final int bits) {
+        BloomFilterFactoryAdapter bloomFilterFactory = new BloomFilterFactoryAdapter(countMinSketchFactory, hashingFunctionCount, bits);
 
         return extract(bloomFilterFactory.createEstimated(estimatedSize, 1));
     }
@@ -60,12 +60,12 @@ final class CountMinSketchFactoryAdapter {
     @RequiredArgsConstructor
     private static final class BloomFilterFactoryAdapter implements BloomFilterFactory {
         private final CountMinSketchFactory countMinSketchFactory;
-        private final int hashFunctionsDesired;
+        private final int hashingFunctionCountDesired;
         private final int bits;
 
         @Override
-        public int getMaximumHashFunctions() {
-            return countMinSketchFactory.getMaximumHashFunctions();
+        public int getHashingFunctionCount() {
+            return countMinSketchFactory.getHashingFunctionCount();
         }
 
         @Override
@@ -73,18 +73,18 @@ final class CountMinSketchFactoryAdapter {
             return Math.floorDiv(BloomFilterFactory.super.getSizePerRecord(), bits);
         }
 
-        private int getHashFunctions(final int estimatedSize, final long size) {
-            if (hashFunctionsDesired > 0) {
-                return hashFunctionsDesired;
+        private int getHashingFunctionCount(final int estimatedSize, final long size) {
+            if (hashingFunctionCountDesired > 0) {
+                return hashingFunctionCountDesired;
             }
 
             return (int) Math.ceil(((double) size / estimatedSize) * Math.log(2D));
         }
 
         @Override
-        public <T> BloomFilter<T> create(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size) {
-            int hashFunctionsFixed = getHashFunctions(estimatedSize, size);
-            CountMinSketch<T> countMinSketch = countMinSketchFactory.create(estimatedSize, hashFunctionsFixed, falsePositiveRatio, size, bits);
+        public <T> BloomFilter<T> create(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size) {
+            int hashingFunctionCountFixed = getHashingFunctionCount(estimatedSize, size);
+            CountMinSketch<T> countMinSketch = countMinSketchFactory.create(estimatedSize, hashingFunctionCountFixed, falsePositiveRatio, size, bits);
 
             return new BloomFilterAdapter<>(countMinSketch);
         }

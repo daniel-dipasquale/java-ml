@@ -11,12 +11,12 @@ public interface RandomSupport {
     }
 
     default long next(final long min, final long max) {
-        long maxFixed = max - 1L;
+        long maxStep1 = max - 1L;
         double value = next();
-        double minDouble = (float) min;
-        double maxDouble = (float) maxFixed;
+        double minFixed = (float) min;
+        double maxFixed = (float) maxStep1;
 
-        return (long) (value * maxDouble - value * minDouble + value + minDouble);
+        return (long) (value * maxFixed - value * minFixed + value + minFixed);
     }
 
     default RandomSupport bounded(final double min, final double max) {

@@ -9,8 +9,7 @@ import com.dipasquale.common.Pair;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.switcher.AbstractObjectSwitcher;
 import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -18,19 +17,9 @@ import java.io.Serializable;
 public final class OutputActivationFunctionFactorySwitcher extends AbstractObjectSwitcher<ActivationFunctionFactory> {
     @Serial
     private static final long serialVersionUID = -6687884858709091960L;
-    private final Pair<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactoryPair;
-    private final Pair<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactoryPair;
-    @Getter(AccessLevel.PROTECTED)
-    private final ActivationFunctionFactory on;
-    @Getter(AccessLevel.PROTECTED)
-    private final ActivationFunctionFactory off;
 
     public OutputActivationFunctionFactorySwitcher(final boolean isOn, final Pair<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactoryPair, final Pair<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactoryPair) {
-        super(isOn);
-        this.outputActivationFunctionTypeFactoryPair = outputActivationFunctionTypeFactoryPair;
-        this.hiddenActivationFunctionTypeFactoryPair = hiddenActivationFunctionTypeFactoryPair;
-        this.on = new OnActivationFunctionFactory();
-        this.off = new OffActivationFunctionFactory();
+        super(isOn, new DefaultActivationFunctionFactory(true, outputActivationFunctionTypeFactoryPair.getLeft(), hiddenActivationFunctionTypeFactoryPair.getLeft()), new DefaultActivationFunctionFactory(false, outputActivationFunctionTypeFactoryPair.getRight(), hiddenActivationFunctionTypeFactoryPair.getRight()));
     }
 
     private static ActivationFunctionType createActivationFunctionType(final EnumFactory<OutputActivationFunctionType> outputActivationFunctionTypeFactory, final EnumFactory<ActivationFunctionType> hiddenActivationFunctionTypeFactory) {
@@ -43,37 +32,23 @@ public final class OutputActivationFunctionFactorySwitcher extends AbstractObjec
         };
     }
 
-    private ActivationFunction create(final boolean isOn, final EnumFactory<OutputActivationFunctionType> outputActivationFunctionTypeFactory, final EnumFactory<ActivationFunctionType> hiddenActivationFunctionTypeFactory) {
+    private static ActivationFunction create(final boolean isOn, final EnumFactory<OutputActivationFunctionType> outputActivationFunctionTypeFactory, final EnumFactory<ActivationFunctionType> hiddenActivationFunctionTypeFactory) {
         ActivationFunctionType activationFunctionType = createActivationFunctionType(outputActivationFunctionTypeFactory, hiddenActivationFunctionTypeFactory);
 
         return Constants.getActivationFunction(activationFunctionType, RandomType.UNIFORM, isOn);
     }
 
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class OnActivationFunctionFactory implements ActivationFunctionFactory, Serializable {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class DefaultActivationFunctionFactory implements ActivationFunctionFactory, Serializable {
         @Serial
         private static final long serialVersionUID = 3984638047934118973L;
+        private final boolean isOn;
+        private final EnumFactory<OutputActivationFunctionType> outputActivationFunctionTypeFactory;
+        private final EnumFactory<ActivationFunctionType> hiddenActivationFunctionTypeFactory;
 
         @Override
         public ActivationFunction create() {
-            EnumFactory<OutputActivationFunctionType> outputActivationFunctionTypeFactory = outputActivationFunctionTypeFactoryPair.getLeft();
-            EnumFactory<ActivationFunctionType> hiddenActivationFunctionTypeFactory = hiddenActivationFunctionTypeFactoryPair.getLeft();
-
-            return OutputActivationFunctionFactorySwitcher.this.create(true, outputActivationFunctionTypeFactory, hiddenActivationFunctionTypeFactory);
-        }
-    }
-
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class OffActivationFunctionFactory implements ActivationFunctionFactory, Serializable {
-        @Serial
-        private static final long serialVersionUID = 9011523118745664669L;
-
-        @Override
-        public ActivationFunction create() {
-            EnumFactory<OutputActivationFunctionType> outputActivationFunctionTypeFactory = outputActivationFunctionTypeFactoryPair.getRight();
-            EnumFactory<ActivationFunctionType> hiddenActivationFunctionTypeFactory = hiddenActivationFunctionTypeFactoryPair.getRight();
-
-            return OutputActivationFunctionFactorySwitcher.this.create(false, outputActivationFunctionTypeFactory, hiddenActivationFunctionTypeFactory);
+            return OutputActivationFunctionFactorySwitcher.create(isOn, outputActivationFunctionTypeFactory, hiddenActivationFunctionTypeFactory);
         }
     }
 }

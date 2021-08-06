@@ -1,10 +1,11 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter;
+package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ProxyDateTimeSupport;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -137,6 +138,6 @@ public final class ConcurrentBloomFilterTest {
 
     @Test
     public void TEST_4() {
-        performTest(() -> new BloomFilterDefaultFactory().createEstimated(ESTIMATED_SIZE, FALSE_POSITIVE_RATIO));
+        performTest(() -> new ConcurrentBloomFilterFactory().createEstimated(ESTIMATED_SIZE, FALSE_POSITIVE_RATIO));
     }
 }

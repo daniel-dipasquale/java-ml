@@ -1,9 +1,12 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter;
+package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ProxyDateTimeSupport;
-import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
+import com.dipasquale.data.structure.probabilistic.DefaultMultiHashingFunction;
+import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
+import com.dipasquale.data.structure.probabilistic.MultiHashingFunction;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,14 +14,14 @@ import org.junit.jupiter.api.Test;
 import javax.measure.unit.SI;
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class BloomFilterTimedRecyclableTest {
+public final class RecyclableBloomFilterTest {
     private static final int CONSISTENCY_CHECK = 15;
-    private static final MultiFunctionHashing MULTI_FUNCTION_HASHING = MultiFunctionHashing.createMd5(25, BloomFilterTimedRecyclableTest.class.getSimpleName());
-    private static final BloomFilterDefaultFactory BLOOM_FILTER_DEFAULT_FACTORY = new BloomFilterDefaultFactory(MULTI_FUNCTION_HASHING);
+    private static final MultiHashingFunction MULTI_FUNCTION_HASHING = new DefaultMultiHashingFunction(25, HashingFunctionAlgorithm.MD5, RecyclableBloomFilterTest.class.getSimpleName());
+    private static final ConcurrentBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new ConcurrentBloomFilterFactory(MULTI_FUNCTION_HASHING);
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
     private static final ExpirationFactory EXPIRY_SUPPORT = DATE_TIME_SUPPORT.createBucketExpirationFactory(1L);
-    private static final BloomFilterTimedRecyclableFactory BLOOM_FILTER_FACTORY = new BloomFilterTimedRecyclableFactory(BLOOM_FILTER_DEFAULT_FACTORY, EXPIRY_SUPPORT);
+    private static final RecyclableBloomFilterFactory BLOOM_FILTER_FACTORY = new RecyclableBloomFilterFactory(BLOOM_FILTER_DEFAULT_FACTORY, EXPIRY_SUPPORT);
 
     @BeforeEach
     public void beforeEach() {

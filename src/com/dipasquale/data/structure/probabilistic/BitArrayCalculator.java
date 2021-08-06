@@ -3,20 +3,17 @@ package com.dipasquale.data.structure.probabilistic;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DataStructureMultiCalculator {
-    private static final DataStructureMultiCalculator INSTANCE = new DataStructureMultiCalculator();
-
-    public static DataStructureMultiCalculator getInstance() {
-        return INSTANCE;
+public final class BitArrayCalculator {
+    @Generated
+    private BitArrayCalculator() {
     }
 
-    public Result readjust(final int count, final int estimatedSize, final long size) {
+    public static Result readjust(final int count, final int estimatedSize, final long size) {
         boolean isInBounds = size <= (long) Integer.MAX_VALUE;
 
         if (isInBounds && count == 1) {
@@ -36,7 +33,7 @@ public final class DataStructureMultiCalculator {
         return new Result(countFixed, estimatedSizeFixed, sizeFixed);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PACKAGE)
     @Getter
     @EqualsAndHashCode

@@ -1,13 +1,19 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter;
+package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
 import com.dipasquale.common.concurrent.AtomicRecyclableReference;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.ExpirationFactory;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 
-final class BloomFilterTimedRecyclable<T> implements BloomFilter<T> {
+import java.io.Serial;
+import java.io.Serializable;
+
+final class RecyclableBloomFilter<T> implements BloomFilter<T>, Serializable {
+    @Serial
+    private static final long serialVersionUID = -3669803275544446308L;
     private final AtomicRecyclableReference<BloomFilter<T>> recyclableBloomFilter;
 
-    BloomFilterTimedRecyclable(final ObjectFactory<BloomFilter<T>> bloomFilterFactory, final ExpirationFactory expirationFactory) {
+    RecyclableBloomFilter(final ObjectFactory<BloomFilter<T>> bloomFilterFactory, final ExpirationFactory expirationFactory) {
         this.recyclableBloomFilter = new AtomicRecyclableReference<>(bloomFilterFactory, expirationFactory);
     }
 

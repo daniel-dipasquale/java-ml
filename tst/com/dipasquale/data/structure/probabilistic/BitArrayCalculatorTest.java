@@ -3,14 +3,12 @@ package com.dipasquale.data.structure.probabilistic;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class DataStructureMultiCalculatorTest {
-    private static final DataStructureMultiCalculator TEST = DataStructureMultiCalculator.getInstance();
-
+public final class BitArrayCalculatorTest {
     @Test
     public void TEST_1() {
-        DataStructureMultiCalculator.Result result = TEST.readjust(1, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        BitArrayCalculator.Result result = BitArrayCalculator.readjust(1, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-        Assertions.assertEquals(DataStructureMultiCalculator.Result.builder()
+        Assertions.assertEquals(BitArrayCalculator.Result.builder()
                 .count(1)
                 .estimatedSize(Integer.MAX_VALUE)
                 .size(Integer.MAX_VALUE)
@@ -19,9 +17,9 @@ public final class DataStructureMultiCalculatorTest {
 
     @Test
     public void TEST_2() {
-        DataStructureMultiCalculator.Result result = TEST.readjust(2, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        BitArrayCalculator.Result result = BitArrayCalculator.readjust(2, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-        Assertions.assertEquals(DataStructureMultiCalculator.Result.builder()
+        Assertions.assertEquals(BitArrayCalculator.Result.builder()
                 .count(2)
                 .estimatedSize(Integer.MAX_VALUE)
                 .size(Integer.MAX_VALUE)
@@ -30,9 +28,9 @@ public final class DataStructureMultiCalculatorTest {
 
     @Test
     public void TEST_3() {
-        DataStructureMultiCalculator.Result result = TEST.readjust(3, Integer.MAX_VALUE, Integer.MAX_VALUE * 2L);
+        BitArrayCalculator.Result result = BitArrayCalculator.readjust(3, Integer.MAX_VALUE, Integer.MAX_VALUE * 2L);
 
-        Assertions.assertEquals(DataStructureMultiCalculator.Result.builder()
+        Assertions.assertEquals(BitArrayCalculator.Result.builder()
                 .count(6)
                 .estimatedSize((int) Math.ceil((double) Integer.MAX_VALUE / 2D))
                 .size(Integer.MAX_VALUE)

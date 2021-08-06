@@ -1,13 +1,16 @@
-package com.dipasquale.data.structure.probabilistic.bloom.filter;
+package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
-import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
+import com.dipasquale.data.structure.probabilistic.DefaultMultiHashingFunction;
+import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
+import com.dipasquale.data.structure.probabilistic.MultiHashingFunction;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class BloomFilterCasArrayBitManipulatorTest {
+public final class AtomicLongArrayBloomFilterTest {
     private static final int CONSISTENCY_CHECK = 15;
-    private static final MultiFunctionHashing MULTI_FUNCTION_HASHING = MultiFunctionHashing.createMd5(25, BloomFilterTimedRecyclableTest.class.getSimpleName());
-    private static final BloomFilterDefaultFactory BLOOM_FILTER_FACTORY = new BloomFilterDefaultFactory(MULTI_FUNCTION_HASHING);
+    private static final MultiHashingFunction MULTI_FUNCTION_HASHING = new DefaultMultiHashingFunction(25, HashingFunctionAlgorithm.MD5, RecyclableBloomFilterTest.class.getSimpleName());
+    private static final ConcurrentBloomFilterFactory BLOOM_FILTER_FACTORY = new ConcurrentBloomFilterFactory(MULTI_FUNCTION_HASHING);
 
     @Test
     public void TEST_1() {

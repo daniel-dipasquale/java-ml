@@ -2,7 +2,7 @@ package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.ExpirationFactory;
-import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
+import com.dipasquale.data.structure.probabilistic.MultiHashingFunction;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -12,13 +12,13 @@ final class CountMinSketchTimedRecyclableFactory implements CountMinSketchFactor
     private final ExpirationFactory expirationFactory;
     private final RecycledCollector<?> recycledCollector;
 
-    CountMinSketchTimedRecyclableFactory(final MultiFunctionHashing multiFunctionHashing, final ExpirationFactory expirationFactory, final RecycledCollector<?> recycledCollector) {
-        this(new CountMinSketchDefaultFactory(multiFunctionHashing), expirationFactory, recycledCollector);
+    CountMinSketchTimedRecyclableFactory(final MultiHashingFunction multiHashingFunction, final ExpirationFactory expirationFactory, final RecycledCollector<?> recycledCollector) {
+        this(new CountMinSketchDefaultFactory(multiHashingFunction), expirationFactory, recycledCollector);
     }
 
     @Override
-    public int getMaximumHashFunctions() {
-        return countMinSketchDefaultFactory.getMaximumHashFunctions();
+    public int getHashingFunctionCount() {
+        return countMinSketchDefaultFactory.getHashingFunctionCount();
     }
 
     private static <T> T ensureType(final Object object) {
@@ -26,8 +26,8 @@ final class CountMinSketchTimedRecyclableFactory implements CountMinSketchFactor
     }
 
     @Override
-    public <T> CountMinSketch<T> create(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size, final int bits) {
-        ObjectFactory<CountMinSketch<T>> countMinSketchFactory = countMinSketchDefaultFactory.createProxy(estimatedSize, hashFunctions, falsePositiveRatio, size, bits);
+    public <T> CountMinSketch<T> create(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size, final int bits) {
+        ObjectFactory<CountMinSketch<T>> countMinSketchFactory = countMinSketchDefaultFactory.createProxy(estimatedSize, hashingFunctionCount, falsePositiveRatio, size, bits);
 
         return new CountMinSketchTimedRecyclable<>(countMinSketchFactory, expirationFactory, ensureType(recycledCollector));
     }

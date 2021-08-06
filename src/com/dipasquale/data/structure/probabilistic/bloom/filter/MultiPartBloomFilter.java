@@ -1,13 +1,17 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-final class BloomFilterMulti<T> implements BloomFilter<T> {
+final class MultiPartBloomFilter<T> implements BloomFilter<T>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 3882809450291604624L;
     private final List<BloomFilter<T>> bloomFilters;
 
-    BloomFilterMulti(final BloomFilterPartitionFactory.Proxy bloomFilterPartitionFactoryProxy, final int count) {
+    MultiPartBloomFilter(final BloomFilterPartitionFactoryProxy bloomFilterPartitionFactoryProxy, final int count) {
         this.bloomFilters = IntStream.range(0, count)
                 .mapToObj(bloomFilterPartitionFactoryProxy::<T>create)
                 .collect(Collectors.toList());

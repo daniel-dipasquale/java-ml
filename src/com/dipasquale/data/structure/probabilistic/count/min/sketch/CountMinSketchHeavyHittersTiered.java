@@ -40,14 +40,14 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
         this.eventLoop = eventLoop;
     }
 
-    private void collectRecycledHeavyHittersIfPredicateApproves(final long expiryDateTime) {
+    private void collectRecycledHeavyHittersIfPredicateApproves(final long expirationDateTime) {
         Set<T> heavyHitters = heavyHittersRankedAggregator.getKeys();
         long minimumHeavyHitterCount = heavyHittersRankedAggregator.getExtremeValue();
         List<Throwable> suppressed = new ArrayList<>();
 
-        if (flushPredicate.shouldRecycle(aggregatedCountMinSketch, expiryDateTime, heavyHitters, minimumHeavyHitterCount)) {
+        if (flushPredicate.shouldRecycle(aggregatedCountMinSketch, expirationDateTime, heavyHitters, minimumHeavyHitterCount)) {
             try {
-                CollectHeavyHittersHandler collectHeavyHittersHandler = new CollectHeavyHittersHandler(aggregatedCountMinSketch, expiryDateTime, heavyHittersRankedAggregator.clear());
+                CollectHeavyHittersHandler collectHeavyHittersHandler = new CollectHeavyHittersHandler(aggregatedCountMinSketch, expirationDateTime, heavyHittersRankedAggregator.clear());
 
                 if (eventLoop != null) {
                     eventLoop.queue(n -> collectHeavyHittersHandler.run(), 0L);
@@ -58,7 +58,7 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
                 suppressed.add(e);
             } finally {
                 try {
-                    flushPredicate.confirmRecycled(aggregatedCountMinSketch, expiryDateTime, heavyHitters, minimumHeavyHitterCount);
+                    flushPredicate.confirmRecycled(aggregatedCountMinSketch, expirationDateTime, heavyHitters, minimumHeavyHitterCount);
                 } catch (Throwable e) {
                     ErrorHandlerSupport.throwAsSuppressedIfAny(() -> new RuntimeException(e.getMessage(), e), suppressed);
                 } finally {
@@ -70,7 +70,7 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
         }
     }
 
-    private void collectRecycledHeavyHitters(final CountMinSketch<T> countMinSketch, final long expiryDateTime, final List<T> items) {
+    private void collectRecycledHeavyHitters(final CountMinSketch<T> countMinSketch, final long expirationDateTime, final List<T> items) {
         synchronized (heavyHittersRankedAggregator) {
             for (T item : items) {
                 long count = countMinSketch.get(item);
@@ -79,7 +79,7 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
                 heavyHittersRankedAggregator.put(item, countAggregated);
             }
 
-            collectRecycledHeavyHittersIfPredicateApproves(expiryDateTime);
+            collectRecycledHeavyHittersIfPredicateApproves(expirationDateTime);
         }
     }
 
@@ -96,12 +96,12 @@ final class CountMinSketchHeavyHittersTiered<T> implements CountMinSketch<T> {
     @RequiredArgsConstructor
     private final class CollectHeavyHittersHandler implements Runnable {
         private final CountMinSketch<T> aggregatedCountMinSketch;
-        private final long expiryDateTime;
+        private final long expirationDateTime;
         private final SortedByValueRankedAggregator<T, Long>.ClearResult heavyHittersResult;
 
         @Override
         public void run() {
-            heavyHittersCollector.collect(aggregatedCountMinSketch, expiryDateTime, heavyHittersResult.retrieve());
+            heavyHittersCollector.collect(aggregatedCountMinSketch, expirationDateTime, heavyHittersResult.retrieve());
         }
     }
 }

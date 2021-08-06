@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.data.structure.probabilistic.DataStructureMultiCalculator;
+import com.dipasquale.data.structure.probabilistic.BitArrayCalculator;
 
 final class CountMinSketchMultiFactory implements CountMinSketchFactory {
     private final CountMinSketchPartitionFactory countMinSketchPartitionFactory;
@@ -14,23 +14,23 @@ final class CountMinSketchMultiFactory implements CountMinSketchFactory {
     }
 
     @Override
-    public int getMaximumHashFunctions() {
-        return countMinSketchPartitionFactory.getMaximumHashFunctions();
+    public int getHashingFunctionCount() {
+        return countMinSketchPartitionFactory.getHashingFunctionCount();
     }
 
-    private CountMinSketchPartitionFactory.Proxy createPartitionFactoryProxy(final DataStructureMultiCalculator.Result readjusted, final int hashFunctions, final double falsePositiveRatio, final int bits) {
-        return CountMinSketchPartitionFactory.Proxy.create(countMinSketchPartitionFactory, readjusted.getEstimatedSize(), hashFunctions, falsePositiveRatio, readjusted.getSize(), bits);
+    private CountMinSketchPartitionFactory.Proxy createPartitionFactoryProxy(final BitArrayCalculator.Result readjusted, final int hashingFunctionCount, final double falsePositiveRatio, final int bits) {
+        return CountMinSketchPartitionFactory.Proxy.create(countMinSketchPartitionFactory, readjusted.getEstimatedSize(), hashingFunctionCount, falsePositiveRatio, readjusted.getSize(), bits);
     }
 
     @Override
-    public <T> CountMinSketch<T> create(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size, final int bits) {
-        DataStructureMultiCalculator.Result readjusted = DataStructureMultiCalculator.getInstance().readjust(count, estimatedSize, size);
+    public <T> CountMinSketch<T> create(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size, final int bits) {
+        BitArrayCalculator.Result readjusted = BitArrayCalculator.readjust(count, estimatedSize, size);
 
         if (readjusted.getCount() == 1) {
-            return countMinSketchPartitionFactory.create(0, readjusted.getEstimatedSize(), hashFunctions, falsePositiveRatio, readjusted.getSize(), bits);
+            return countMinSketchPartitionFactory.create(0, readjusted.getEstimatedSize(), hashingFunctionCount, falsePositiveRatio, readjusted.getSize(), bits);
         }
 
-        CountMinSketchPartitionFactory.Proxy countMinSketchPartitionFactoryProxy = createPartitionFactoryProxy(readjusted, hashFunctions, falsePositiveRatio, bits);
+        CountMinSketchPartitionFactory.Proxy countMinSketchPartitionFactoryProxy = createPartitionFactoryProxy(readjusted, hashingFunctionCount, falsePositiveRatio, bits);
 
         return new CountMinSketchMulti<>(countMinSketchPartitionFactoryProxy, readjusted.getCount());
     }

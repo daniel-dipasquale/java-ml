@@ -2,8 +2,13 @@ package com.dipasquale.common.concurrent;
 
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @RequiredArgsConstructor
-public final class ConcurrentId<T extends Comparable<T>> implements Comparable<ConcurrentId<T>> {
+public final class ConcurrentId<T extends Comparable<T>> implements Comparable<ConcurrentId<T>>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 2874790523023759695L;
     private final T majorId;
     private final T minorId;
     private final T revisionId;

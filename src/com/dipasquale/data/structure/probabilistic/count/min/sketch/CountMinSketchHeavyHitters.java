@@ -26,8 +26,8 @@ final class CountMinSketchHeavyHitters<T> implements CountMinSketch<T> {
         this.eventLoop = eventLoop;
     }
 
-    private void collectRecycled(final CountMinSketch<T> countMinSketch, final long expiryDateTime) {
-        CollectRecycledHandler collectRecycledHandler = new CollectRecycledHandler(countMinSketch, expiryDateTime, heavyHittersRankedAggregator.clear());
+    private void collectRecycled(final CountMinSketch<T> countMinSketch, final long expirationDateTime) {
+        CollectRecycledHandler collectRecycledHandler = new CollectRecycledHandler(countMinSketch, expirationDateTime, heavyHittersRankedAggregator.clear());
 
         if (eventLoop != null) {
             eventLoop.queue(n -> collectRecycledHandler.run(), 0L);
@@ -53,12 +53,12 @@ final class CountMinSketchHeavyHitters<T> implements CountMinSketch<T> {
     @RequiredArgsConstructor
     private final class CollectRecycledHandler implements Runnable {
         private final CountMinSketch<T> countMinSketch;
-        private final long expiryDateTime;
+        private final long expirationDateTime;
         private final SortedByValueRankedAggregator<T, Long>.ClearResult heavyHittersResult;
 
         @Override
         public void run() {
-            heavyHittersCollector.collect(countMinSketch, expiryDateTime, heavyHittersResult.retrieve());
+            heavyHittersCollector.collect(countMinSketch, expirationDateTime, heavyHittersResult.retrieve());
         }
     }
 }

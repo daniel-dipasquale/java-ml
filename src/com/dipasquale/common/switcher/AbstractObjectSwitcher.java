@@ -2,6 +2,7 @@ package com.dipasquale.common.switcher;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -11,6 +12,10 @@ public abstract class AbstractObjectSwitcher<T> implements ObjectSwitcher<T>, Se
     @Serial
     private static final long serialVersionUID = -2031619467740284195L;
     private boolean isOn;
+    @Getter(AccessLevel.PROTECTED)
+    private T onObject;
+    @Getter(AccessLevel.PROTECTED)
+    private T offObject;
 
     @Override
     public final boolean switchObject(final boolean on) {
@@ -21,16 +26,12 @@ public abstract class AbstractObjectSwitcher<T> implements ObjectSwitcher<T>, Se
         }
     }
 
-    protected abstract T getOn();
-
-    protected abstract T getOff();
-
     @Override
     public final T getObject() {
         if (isOn) {
-            return getOn();
+            return getOnObject();
         }
 
-        return getOff();
+        return getOffObject();
     }
 }

@@ -2,7 +2,7 @@ package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.data.structure.probabilistic.MultiFunctionHashing;
+import com.dipasquale.data.structure.probabilistic.MultiHashingFunction;
 import lombok.Builder;
 
 import java.util.Optional;
@@ -12,7 +12,7 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
     private final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig;
 
     CountMinSketchHeavyHittersTieredFactory(final CountMinSketchDefaultFactory countMinSketchDefaultFactory, final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig) {
-        ArgumentValidatorSupport.ensureNotNull(countMinSketchHeavyHittersConfig.getExpirationFactory(), "countMinSketchHeavyHittersConfig.expirySupport");
+        ArgumentValidatorSupport.ensureNotNull(countMinSketchHeavyHittersConfig.getExpirationFactory(), "countMinSketchHeavyHittersConfig.expirationSupport");
         ArgumentValidatorSupport.ensureNotNull(countMinSketchHeavyHittersConfig.getCollector(), "countMinSketchHeavyHittersConfig.collector");
         ArgumentValidatorSupport.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getTopLimit(), "countMinSketchHeavyHittersConfig.topLimit");
         ArgumentValidatorSupport.ensureGreaterThanZero(countMinSketchHeavyHittersConfig.getPartitions(), "countMinSketchHeavyHittersConfig.partitions");
@@ -21,8 +21,8 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
         this.countMinSketchHeavyHittersConfig = countMinSketchHeavyHittersConfig;
     }
 
-    CountMinSketchHeavyHittersTieredFactory(final MultiFunctionHashing multiFunctionHashing, final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig) {
-        this(new CountMinSketchDefaultFactory(multiFunctionHashing), countMinSketchHeavyHittersConfig);
+    CountMinSketchHeavyHittersTieredFactory(final MultiHashingFunction multiHashingFunction, final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig) {
+        this(new CountMinSketchDefaultFactory(multiHashingFunction), countMinSketchHeavyHittersConfig);
     }
 
     private static boolean areAllFlushPredicatesAvailable(final HeavyHittersConfig<?> countMinSketchHeavyHittersConfig) {
@@ -31,8 +31,8 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
     }
 
     @Override
-    public int getMaximumHashFunctions() {
-        return countMinSketchDefaultFactory.getMaximumHashFunctions();
+    public int getHashingFunctionCount() {
+        return countMinSketchDefaultFactory.getHashingFunctionCount();
     }
 
     private static <T> T ensureType(final Object object) {
@@ -45,7 +45,7 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
             public <R> CountMinSketch<R> create(final RecycledCollector<R> recycledCollector) {
                 CountMinSketchTimedRecyclableFactory countMinSketchTimedRecyclableFactory = new CountMinSketchTimedRecyclableFactory(countMinSketchDefaultFactory, countMinSketchHeavyHittersConfig.getExpirationFactory(), recycledCollector);
 
-                return countMinSketchTimedRecyclableFactory.create(params.estimatedSize, params.hashFunctions, params.falsePositiveRatio, params.size, params.bits);
+                return countMinSketchTimedRecyclableFactory.create(params.estimatedSize, params.hashingFunctionCount, params.falsePositiveRatio, params.size, params.bits);
             }
         };
 
@@ -63,13 +63,13 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
             public <R> CountMinSketch<R> create(final HeavyHittersCollector<R> heavyHittersCollector) {
                 CountMinSketchPartitionFactory partitionFactory = new CountMinSketchPartitionFactory() {
                     @Override
-                    public int getMaximumHashFunctions() {
-                        return countMinSketchDefaultFactory.getMaximumHashFunctions();
+                    public int getHashingFunctionCount() {
+                        return countMinSketchDefaultFactory.getHashingFunctionCount();
                     }
 
                     @Override
-                    public <RT> CountMinSketch<RT> create(final int index, final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size, final int bits) {
-                        Params params = Params.create(estimatedSize, hashFunctions, falsePositiveRatio, size, bits);
+                    public <RT> CountMinSketch<RT> create(final int index, final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size, final int bits) {
+                        Params params = Params.create(estimatedSize, hashingFunctionCount, falsePositiveRatio, size, bits);
                         HeavyHittersConfig.HeavyHittersProxyFactory heavyHittersProxyFactory = createSingleHeavyHittersProxyFactory(config, params);
 
                         return ensureType(heavyHittersProxyFactory.create(heavyHittersCollector));
@@ -78,7 +78,7 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
 
                 CountMinSketchMultiFactory countMinSketchMultiFactory = new CountMinSketchMultiFactory(partitionFactory, partitions);
 
-                return countMinSketchMultiFactory.create(params.estimatedSize, params.hashFunctions, params.falsePositiveRatio, params.size, params.bits);
+                return countMinSketchMultiFactory.create(params.estimatedSize, params.hashingFunctionCount, params.falsePositiveRatio, params.size, params.bits);
             }
         };
     }
@@ -86,22 +86,22 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
     private <T> CountMinSketchFactory createAggregatedHeavyHittersFactory(final HeavyHittersConfig<T> config, final int aggregateIndex, final HeavyHittersConfig.AggregateConfig<T> aggregateConfig) {
         return new CountMinSketchFactory() {
             @Override
-            public int getMaximumHashFunctions() {
-                return countMinSketchDefaultFactory.getMaximumHashFunctions();
+            public int getHashingFunctionCount() {
+                return countMinSketchDefaultFactory.getHashingFunctionCount();
             }
 
             @Override
-            public <R> CountMinSketch<R> create(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size, final int bits) {
+            public <R> CountMinSketch<R> create(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size, final int bits) {
                 int estimatedSizeOverridden = Optional.ofNullable(aggregateConfig.getEstimatedSizeOverride())
                         .orElse(config.getTopLimit() * (aggregateIndex + 2));
 
-                int hashFunctionsOverridden = Optional.ofNullable(aggregateConfig.getHashFunctionsOverride())
-                        .orElse(hashFunctions);
+                int hashingFunctionCountOverridden = Optional.ofNullable(aggregateConfig.getHashingFunctionCountOverride())
+                        .orElse(hashingFunctionCount);
 
                 int bitsOverridden = Optional.ofNullable(aggregateConfig.getBitsOverride())
                         .orElse(bits + aggregateIndex + 1);
 
-                return countMinSketchDefaultFactory.create(estimatedSizeOverridden, hashFunctionsOverridden, falsePositiveRatio, size, bitsOverridden);
+                return countMinSketchDefaultFactory.create(estimatedSizeOverridden, hashingFunctionCountOverridden, falsePositiveRatio, size, bitsOverridden);
             }
         };
     }
@@ -111,7 +111,7 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
             @Override
             public <R> CountMinSketch<R> create(final HeavyHittersCollector<R> heavyHittersCollector) {
                 CountMinSketchFactory aggregatedCountMinSketchFactory = createAggregatedHeavyHittersFactory(config, aggregateIndex, aggregateConfig);
-                ObjectFactory<CountMinSketch<R>> aggregatedCountMinSketchFactoryProxy = aggregatedCountMinSketchFactory.createProxy(params.estimatedSize, params.hashFunctions, params.falsePositiveRatio, params.size, params.bits);
+                ObjectFactory<CountMinSketch<R>> aggregatedCountMinSketchFactoryProxy = aggregatedCountMinSketchFactory.createProxy(params.estimatedSize, params.hashingFunctionCount, params.falsePositiveRatio, params.size, params.bits);
 
                 return new CountMinSketchHeavyHittersTiered<>(aggregatedCountMinSketchFactoryProxy, heavyHittersProxyFactory, heavyHittersCollector, ensureType(aggregateConfig.getFlushPredicate()), config.getEventLoop());
             }
@@ -119,9 +119,9 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
     }
 
     @Override
-    public <T> CountMinSketch<T> create(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size, final int bits) {
+    public <T> CountMinSketch<T> create(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size, final int bits) {
         HeavyHittersConfig<T> config = ensureType(countMinSketchHeavyHittersConfig);
-        Params params = Params.create(estimatedSize, hashFunctions, falsePositiveRatio, size, bits);
+        Params params = Params.create(estimatedSize, hashingFunctionCount, falsePositiveRatio, size, bits);
 
         HeavyHittersConfig.HeavyHittersProxyFactory heavyHittersProxyFactory = config.getPartitions() == 1
                 ? createSingleHeavyHittersProxyFactory(config, params)
@@ -139,15 +139,15 @@ final class CountMinSketchHeavyHittersTieredFactory implements CountMinSketchFac
     @Builder
     private static final class Params {
         private final int estimatedSize;
-        private final int hashFunctions;
+        private final int hashingFunctionCount;
         private final double falsePositiveRatio;
         private final long size;
         private final int bits;
 
-        public static Params create(final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size, final int bits) {
+        public static Params create(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size, final int bits) {
             return Params.builder()
                     .estimatedSize(estimatedSize)
-                    .hashFunctions(hashFunctions)
+                    .hashingFunctionCount(hashingFunctionCount)
                     .falsePositiveRatio(falsePositiveRatio)
                     .size(size)
                     .size(bits)

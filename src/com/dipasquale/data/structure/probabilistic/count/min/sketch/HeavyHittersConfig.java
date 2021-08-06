@@ -75,8 +75,8 @@ public final class HeavyHittersConfig<T> {
             };
         }
 
-        static <T> AggregatePredicate<T> afterEvery(final long expiryTime) {
-            ArgumentValidatorSupport.ensureGreaterThanZero(expiryTime, "expiryTime");
+        static <T> AggregatePredicate<T> afterEvery(final long expirationTime) {
+            ArgumentValidatorSupport.ensureGreaterThanZero(expirationTime, "expirationTime");
 
             long[] lastRecycledDateTime = new long[]{Long.MIN_VALUE};
 
@@ -89,7 +89,7 @@ public final class HeavyHittersConfig<T> {
                         return false;
                     }
 
-                    return recycledDateTime - lastRecycledDateTime[0] >= expiryTime;
+                    return recycledDateTime - lastRecycledDateTime[0] >= expirationTime;
                 }
 
                 @Override
@@ -130,7 +130,7 @@ public final class HeavyHittersConfig<T> {
     @Getter
     public static final class AggregateConfig<T> {
         private final Integer estimatedSizeOverride;
-        private final Integer hashFunctionsOverride;
+        private final Integer hashingFunctionCountOverride;
         private final Integer bitsOverride;
         private final AggregatePredicate<T> flushPredicate;
     }

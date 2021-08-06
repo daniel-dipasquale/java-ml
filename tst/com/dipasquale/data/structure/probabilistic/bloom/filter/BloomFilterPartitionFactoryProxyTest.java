@@ -1,6 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,7 @@ public final class BloomFilterPartitionFactoryProxyTest {
 
         Assertions.assertTrue(test.mightContain("index"));
         Assertions.assertTrue(test.mightContain("estimatedSize"));
-        Assertions.assertTrue(test.mightContain("hashFunctions"));
+        Assertions.assertTrue(test.mightContain("hashingFunctionCount"));
         Assertions.assertTrue(test.mightContain("falsePositiveRatio"));
         Assertions.assertTrue(test.mightContain("size"));
         Assertions.assertFalse(test.add("size"));
@@ -41,7 +42,7 @@ public final class BloomFilterPartitionFactoryProxyTest {
         Assertions.assertEquals(ImmutableMap.<String, String>builder()
                 .put("index", "5")
                 .put("estimatedSize", "2000000")
-                .put("hashFunctions", "21")
+                .put("hashingFunctionCount", "21")
                 .put("falsePositiveRatio", "0.5")
                 .put("size", "1000000")
                 .build(), ITEMS);
@@ -51,21 +52,21 @@ public final class BloomFilterPartitionFactoryProxyTest {
         return (T) object;
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class BloomFilterPartitionFactoryProxyMock implements BloomFilterPartitionFactory {
-        private final AtomicInteger maximumHashFunctions;
+        private final AtomicInteger hashingFunctionCount;
         private final Map<String, String> items;
 
         @Override
-        public int getMaximumHashFunctions() {
-            return maximumHashFunctions.get();
+        public int getHashingFunctionCount() {
+            return hashingFunctionCount.get();
         }
 
         @Override
-        public <T> BloomFilter<T> create(final int index, final int estimatedSize, final int hashFunctions, final double falsePositiveRatio, final long size) {
+        public <T> BloomFilter<T> create(final int index, final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size) {
             items.put("index", Integer.toString(index));
             items.put("estimatedSize", Integer.toString(estimatedSize));
-            items.put("hashFunctions", Integer.toString(hashFunctions));
+            items.put("hashingFunctionCount", Integer.toString(hashingFunctionCount));
             items.put("falsePositiveRatio", Double.toString(falsePositiveRatio));
             items.put("size", Long.toString(size));
 

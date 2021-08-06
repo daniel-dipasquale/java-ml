@@ -9,16 +9,12 @@ import java.io.Serial;
 public final class DefaultObjectSwitcher<T> extends AbstractObjectSwitcher<T> {
     @Serial
     private static final long serialVersionUID = -4711611220090246081L;
-    private final T on;
-    private final T off;
 
-    public DefaultObjectSwitcher(final boolean isOn, final T onValue, final T offValue) {
-        super(isOn);
-        this.on = onValue;
-        this.off = offValue;
+    public DefaultObjectSwitcher(final boolean isOn, final T onObject, final T offObject) {
+        super(isOn, onObject, offObject);
     }
 
-    public DefaultObjectSwitcher(final boolean isOn, final T value) {
-        this(isOn, value, value);
+    public DefaultObjectSwitcher(final boolean isOn, final T object) {
+        this(isOn, object, object);
     }
 }

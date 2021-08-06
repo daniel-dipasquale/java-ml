@@ -6,6 +6,6 @@ import com.dipasquale.common.factory.ObjectFactory;
 public interface ExpirationFactory extends ObjectFactory<ExpirationRecord> {
     @FunctionalInterface
     interface Creator {
-        ExpirationFactory create(long expiryTime, long offset);
+        ExpirationFactory create(long expirationTime, long offset);
     }
 }

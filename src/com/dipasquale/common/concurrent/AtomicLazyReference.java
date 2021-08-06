@@ -4,31 +4,37 @@ import com.dipasquale.common.factory.ObjectFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 @RequiredArgsConstructor
-public final class AtomicLazyReference<T> {
+public final class AtomicLazyReference<T> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -6226524128351563527L;
     private final ObjectFactory<T> referenceFactory;
-    private final AtomicBoolean initializedCas = new AtomicBoolean();
-    private final AtomicReference<Envelope> envelopeCas = new AtomicReference<>();
+    private final AtomicBoolean initialized = new AtomicBoolean();
+    private volatile ReferenceEnvelope<T> referenceEnvelope = null;
 
     public T reference() {
-        if (initializedCas.compareAndSet(false, true)) {
-            envelopeCas.set(new Envelope(referenceFactory.create()));
+        ReferenceEnvelope<T> referenceEnvelopeFixed;
+
+        if (!initialized.compareAndSet(false, true)) {
+            referenceEnvelopeFixed = referenceEnvelope;
+
+            while (referenceEnvelopeFixed == null) {
+                referenceEnvelopeFixed = referenceEnvelope;
+            }
+        } else {
+            referenceEnvelopeFixed = new ReferenceEnvelope<>(referenceFactory.create());
+            referenceEnvelope = referenceEnvelopeFixed;
         }
 
-        Envelope envelope = envelopeCas.get();
-
-        while (envelope == null) {
-            envelope = envelopeCas.get();
-        }
-
-        return envelope.reference;
+        return referenceEnvelopeFixed.reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class Envelope {
+    private static final class ReferenceEnvelope<T> {
         private final T reference;
     }
 }
