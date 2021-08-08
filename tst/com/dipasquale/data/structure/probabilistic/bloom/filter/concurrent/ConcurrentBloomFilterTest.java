@@ -138,6 +138,6 @@ public final class ConcurrentBloomFilterTest {
 
     @Test
     public void TEST_4() {
-        performTest(() -> new ConcurrentBloomFilterFactory().createEstimated(ESTIMATED_SIZE, FALSE_POSITIVE_RATIO));
+        performTest(() -> new DefaultBloomFilterFactory().createEstimated(ESTIMATED_SIZE, FALSE_POSITIVE_RATIO));
     }
 }

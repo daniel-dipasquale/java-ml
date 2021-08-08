@@ -1,6 +1,12 @@
 package com.dipasquale.data.structure.probabilistic;
 
+import java.nio.charset.StandardCharsets;
+
 @FunctionalInterface
-interface HashingFunctionFactory {
-    HashingFunction create(byte[] salt);
+public interface HashingFunctionFactory {
+    HashingFunction create(HashingFunctionAlgorithm algorithm, byte[] salt);
+
+    default HashingFunction create(final HashingFunctionAlgorithm algorithm, final String salt) {
+        return create(algorithm, salt.getBytes(StandardCharsets.UTF_8));
+    }
 }

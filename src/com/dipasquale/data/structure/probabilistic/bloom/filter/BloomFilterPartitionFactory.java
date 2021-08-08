@@ -1,7 +1,6 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
+@FunctionalInterface
 public interface BloomFilterPartitionFactory {
-    int getHashingFunctionCount();
-
-    <T> BloomFilter<T> create(int index, int estimatedSize, int hashingFunctionCount, double falsePositiveRatio, long size);
+    <T> BloomFilter<T> create(int index, int estimatedSize, int hashingFunctions, double falsePositiveRatio, long size);
 }

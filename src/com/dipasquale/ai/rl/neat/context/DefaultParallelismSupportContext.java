@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AllArgsConstructor;

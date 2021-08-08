@@ -19,10 +19,10 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.DefaultSpeciesFitne
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateOrganismsSpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSpeciesFitnessStrategy;
+import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
-import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.dipasquale.data.structure.set.IdentityDequeSet;
 import com.google.common.collect.Iterables;

@@ -5,7 +5,7 @@ import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
-import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.common.SerializableInteroperableStateMap;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

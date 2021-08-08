@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
-import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.common.SerializableInteroperableStateMap;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

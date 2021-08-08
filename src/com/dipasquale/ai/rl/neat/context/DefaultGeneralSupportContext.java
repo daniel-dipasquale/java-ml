@@ -5,7 +5,7 @@ import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.fitness.FitnessFunction;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.common.SerializableInteroperableStateMap;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

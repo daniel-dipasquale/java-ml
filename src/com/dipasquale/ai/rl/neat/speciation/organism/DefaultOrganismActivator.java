@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
+import com.dipasquale.common.SerializableInteroperableStateMap;
 import lombok.Getter;
 
 import java.io.IOException;

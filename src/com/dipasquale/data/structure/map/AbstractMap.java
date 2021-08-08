@@ -17,9 +17,9 @@ import java.util.stream.StreamSupport;
 public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Serializable {
     @Serial
     private static final long serialVersionUID = 152413418451406722L;
-    private final KeySet<TKey, TValue> keySet = new KeySet<>(this);
-    private final Values<TKey, TValue> values = new Values<>(this);
-    private final EntrySet<TKey, TValue> entrySet = new EntrySet<>(this);
+    private final MapKeySet<TKey, TValue> keySet = new MapKeySet<>(this);
+    private final MapValues<TKey, TValue> values = new MapValues<>(this);
+    private final MapEntrySet<TKey, TValue> entrySet = new MapEntrySet<>(this);
 
     @Override
     public boolean isEmpty() {

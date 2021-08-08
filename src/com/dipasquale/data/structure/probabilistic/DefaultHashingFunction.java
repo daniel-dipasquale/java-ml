@@ -12,9 +12,9 @@ final class DefaultHashingFunction implements HashingFunction, Serializable {
     @Serial
     private static final long serialVersionUID = -2119483978497376865L;
     private final HashingFunctionAlgorithm algorithm;
-    private transient ThreadLocal<MessageDigest> messageDigestThreadLocal;
     private final long offset;
     private final byte[] salt;
+    private transient ThreadLocal<MessageDigest> messageDigestThreadLocal;
 
     DefaultHashingFunction(final HashingFunctionAlgorithm algorithm, final long offset, final byte[] salt) {
         this.algorithm = algorithm;
@@ -49,10 +49,10 @@ final class DefaultHashingFunction implements HashingFunction, Serializable {
     }
 
     @Override
-    public long hashCode(final int hashCode, final int hashFunctionIndex) {
+    public long hashCode(final int itemHashCode, final int entropyId) {
         byte[] input = ByteBuffer.allocate(12 + salt.length)
-                .putInt(hashCode)
-                .putLong(offset - (long) hashFunctionIndex * 1_024L)
+                .putInt(itemHashCode)
+                .putLong(offset - (long) entropyId * 1_024L)
                 .put(salt)
                 .array();
 

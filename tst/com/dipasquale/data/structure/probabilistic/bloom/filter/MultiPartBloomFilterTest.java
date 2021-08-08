@@ -1,18 +1,17 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
-import com.dipasquale.data.structure.probabilistic.DefaultMultiHashingFunction;
+import com.dipasquale.data.structure.probabilistic.DefaultHashingFunctionFactory;
+import com.dipasquale.data.structure.probabilistic.HashingFunction;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
-import com.dipasquale.data.structure.probabilistic.MultiHashingFunction;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent.ConcurrentBloomFilterFactory;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent.RecyclableBloomFilterTest;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent.DefaultBloomFilterFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public final class MultiPartBloomFilterTest {
     private static final int CONSISTENCY_CHECK = 15;
-    private static final MultiHashingFunction MULTI_FUNCTION_HASHING = new DefaultMultiHashingFunction(25, HashingFunctionAlgorithm.MD5, RecyclableBloomFilterTest.class.getSimpleName());
-    private static final ConcurrentBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new ConcurrentBloomFilterFactory(MULTI_FUNCTION_HASHING);
-    private static final MultiPartBloomFilterFactory BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new DefaultBloomFilterPartitionFactory(BLOOM_FILTER_DEFAULT_FACTORY), 3);
+    private static final HashingFunction HASHING_FUNCTION = new DefaultHashingFunctionFactory().create(HashingFunctionAlgorithm.MD5, MultiPartBloomFilterTest.class.getSimpleName());
+    private static final DefaultBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
+    private static final MultiPartBloomFilterFactory BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new LiteralBloomFilterPartitionFactory(BLOOM_FILTER_DEFAULT_FACTORY), 3);
 
     @Test
     public void TEST_1() {

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class KeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TKey> {
+class MapKeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TKey> {
     @Serial
     private static final long serialVersionUID = -1450772736403367687L;
     private final AbstractMap<TKey, TValue> map;

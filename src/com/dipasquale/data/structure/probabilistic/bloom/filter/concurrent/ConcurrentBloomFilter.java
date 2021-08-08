@@ -2,81 +2,89 @@ package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirationFactory;
-import com.dipasquale.data.structure.probabilistic.DefaultMultiHashingFunction;
+import com.dipasquale.common.time.ExpirationFactoryProvider;
+import com.dipasquale.common.time.LiteralExpirationFactoryProvider;
+import com.dipasquale.common.time.StaggeringExpirationFactoryProvider;
+import com.dipasquale.data.structure.probabilistic.DefaultHashingFunctionFactory;
+import com.dipasquale.data.structure.probabilistic.HashingFunction;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
-import com.dipasquale.data.structure.probabilistic.MultiHashingFunction;
+import com.dipasquale.data.structure.probabilistic.HashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterFactory;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.DefaultBloomFilterPartitionFactory;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.LiteralBloomFilterPartitionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.MultiPartBloomFilterFactory;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.UUID;
 
 public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializable {
     @Serial
     private static final long serialVersionUID = -3477491277835878755L;
-    private static final int MAXIMUM_HASH_FUNCTIONS = 256;
-    private static final MultiHashingFunction MULTI_FUNCTION_HASHING = new DefaultMultiHashingFunction(MAXIMUM_HASH_FUNCTIONS, HashingFunctionAlgorithm.MURMUR_3_128, UUID.randomUUID().toString());
-    private static final ConcurrentBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new ConcurrentBloomFilterFactory(MULTI_FUNCTION_HASHING);
-    private static final MultiPartBloomFilterFactory BLOOM_FILTER_MULTI_FACTORY = new MultiPartBloomFilterFactory(new DefaultBloomFilterPartitionFactory(BLOOM_FILTER_DEFAULT_FACTORY), 1);
+    private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new DefaultHashingFunctionFactory();
+    private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.MURMUR_3_128, ConcurrentBloomFilter.class.getSimpleName());
+    private static final DefaultBloomFilterFactory DEFAULT_BLOOM_FILTER_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
+    private static final MultiPartBloomFilterFactory MULTI_PART_BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new LiteralBloomFilterPartitionFactory(DEFAULT_BLOOM_FILTER_FACTORY), 1);
     private final BloomFilter<T> bloomFilter;
 
     public ConcurrentBloomFilter(final int estimatedSize) {
-        this.bloomFilter = BLOOM_FILTER_MULTI_FACTORY.createEstimated(estimatedSize);
+        this.bloomFilter = MULTI_PART_BLOOM_FILTER_FACTORY.createEstimated(estimatedSize);
     }
 
     public ConcurrentBloomFilter(final int estimatedSize, final double falsePositiveRatio) {
-        this.bloomFilter = BLOOM_FILTER_MULTI_FACTORY.createEstimated(estimatedSize, falsePositiveRatio);
+        this.bloomFilter = MULTI_PART_BLOOM_FILTER_FACTORY.createEstimated(estimatedSize, falsePositiveRatio);
     }
 
-    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctionCount) {
-        this.bloomFilter = BLOOM_FILTER_MULTI_FACTORY.createEstimated(estimatedSize, hashingFunctionCount);
+    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctions) {
+        this.bloomFilter = MULTI_PART_BLOOM_FILTER_FACTORY.createEstimated(estimatedSize, hashingFunctions);
     }
 
-    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio) {
-        this.bloomFilter = BLOOM_FILTER_MULTI_FACTORY.createEstimated(estimatedSize, hashingFunctionCount, falsePositiveRatio);
+    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio) {
+        this.bloomFilter = MULTI_PART_BLOOM_FILTER_FACTORY.createEstimated(estimatedSize, hashingFunctions, falsePositiveRatio);
     }
 
     public ConcurrentBloomFilter(final int estimatedSize, final ExpirationFactory expirationFactory) {
-        this.bloomFilter = createMultiTimedRecyclableFactory(expirationFactory).createEstimated(estimatedSize);
+        this.bloomFilter = createMultiPartRecyclableFactory(expirationFactory).createEstimated(estimatedSize);
     }
 
     public ConcurrentBloomFilter(final int estimatedSize, final double falsePositiveRatio, final ExpirationFactory expirationFactory) {
-        this.bloomFilter = createMultiTimedRecyclableFactory(expirationFactory).createEstimated(estimatedSize, falsePositiveRatio);
+        this.bloomFilter = createMultiPartRecyclableFactory(expirationFactory).createEstimated(estimatedSize, falsePositiveRatio);
     }
 
-    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctionCount, final ExpirationFactory expirationFactory) {
-        this.bloomFilter = createMultiTimedRecyclableFactory(expirationFactory).createEstimated(estimatedSize, hashingFunctionCount);
+    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctions, final ExpirationFactory expirationFactory) {
+        this.bloomFilter = createMultiPartRecyclableFactory(expirationFactory).createEstimated(estimatedSize, hashingFunctions);
     }
 
-    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final ExpirationFactory expirationFactory) {
-        this.bloomFilter = createMultiTimedRecyclableFactory(expirationFactory).createEstimated(estimatedSize, hashingFunctionCount, falsePositiveRatio);
+    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final ExpirationFactory expirationFactory) {
+        this.bloomFilter = createMultiPartRecyclableFactory(expirationFactory).createEstimated(estimatedSize, hashingFunctions, falsePositiveRatio);
     }
 
     public ConcurrentBloomFilter(final int estimatedSize, final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
-        this.bloomFilter = createMultiTimedRecyclableFactory(dateTimeSupport::createBucketExpirationFactory, expirationTime, partitions).createEstimated(estimatedSize);
+        this.bloomFilter = createMultiPartStaggeringRecyclableFactory(dateTimeSupport, expirationTime, partitions).createEstimated(estimatedSize);
     }
 
     public ConcurrentBloomFilter(final int estimatedSize, final double falsePositiveRatio, final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
-        this.bloomFilter = createMultiTimedRecyclableFactory(dateTimeSupport::createBucketExpirationFactory, expirationTime, partitions).createEstimated(estimatedSize, falsePositiveRatio);
+        this.bloomFilter = createMultiPartStaggeringRecyclableFactory(dateTimeSupport, expirationTime, partitions).createEstimated(estimatedSize, falsePositiveRatio);
     }
 
-    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctionCount, final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
-        this.bloomFilter = createMultiTimedRecyclableFactory(dateTimeSupport::createBucketExpirationFactory, expirationTime, partitions).createEstimated(estimatedSize, hashingFunctionCount);
+    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctions, final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
+        this.bloomFilter = createMultiPartStaggeringRecyclableFactory(dateTimeSupport, expirationTime, partitions).createEstimated(estimatedSize, hashingFunctions);
     }
 
-    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
-        this.bloomFilter = createMultiTimedRecyclableFactory(dateTimeSupport::createBucketExpirationFactory, expirationTime, partitions).createEstimated(estimatedSize, hashingFunctionCount, falsePositiveRatio);
+    public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
+        this.bloomFilter = createMultiPartStaggeringRecyclableFactory(dateTimeSupport, expirationTime, partitions).createEstimated(estimatedSize, hashingFunctions, falsePositiveRatio);
     }
 
-    private static BloomFilterFactory createMultiTimedRecyclableFactory(final ExpirationFactory.Creator expirationFactoryCreator, final long expirationTime, final int partitions) {
-        return new MultiPartRecyclableBloomFilterFactory(BLOOM_FILTER_DEFAULT_FACTORY, expirationFactoryCreator, expirationTime, partitions);
+    private static BloomFilterFactory createMultiPartRecyclableFactory(final ExpirationFactory expirationFactory) {
+        return new MultiPartRecyclableBloomFilterFactory(DEFAULT_BLOOM_FILTER_FACTORY, new LiteralExpirationFactoryProvider(expirationFactory));
     }
 
-    private static BloomFilterFactory createMultiTimedRecyclableFactory(final ExpirationFactory expirationFactory) {
-        return new MultiPartRecyclableBloomFilterFactory(BLOOM_FILTER_DEFAULT_FACTORY, expirationFactory, 1);
+    private static BloomFilterFactory createMultiPartStaggeringRecyclableFactory(final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
+        DefaultExpirationFactoryCreator defaultExpirationFactoryCreator = new DefaultExpirationFactoryCreator(dateTimeSupport);
+        ExpirationFactoryProvider expirationFactoryProvider = new StaggeringExpirationFactoryProvider(defaultExpirationFactoryCreator, expirationTime, partitions);
+
+        return new MultiPartRecyclableBloomFilterFactory(DEFAULT_BLOOM_FILTER_FACTORY, expirationFactoryProvider);
     }
 
     @Override
@@ -87,5 +95,17 @@ public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializa
     @Override
     public boolean add(final T item) {
         return bloomFilter.add(item);
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class DefaultExpirationFactoryCreator implements ExpirationFactory.Creator, Serializable {
+        @Serial
+        private static final long serialVersionUID = 6504012671008909093L;
+        private final DateTimeSupport dateTimeSupport;
+
+        @Override
+        public ExpirationFactory create(final long expirationTime, final long offset) {
+            return dateTimeSupport.createBucketExpirationFactory(expirationTime, offset);
+        }
     }
 }

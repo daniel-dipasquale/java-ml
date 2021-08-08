@@ -4,9 +4,9 @@ import com.dipasquale.ai.rl.neat.factory.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationHistoricalMarkings;
+import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.switcher.ObjectSwitcher;
-import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;
 

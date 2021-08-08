@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.switcher.ObjectSwitcher;
-import com.dipasquale.data.structure.map.SerializableInteroperableStateMap;
 import com.dipasquale.threading.event.loop.EventLoopIterable;
 import lombok.AllArgsConstructor;
 

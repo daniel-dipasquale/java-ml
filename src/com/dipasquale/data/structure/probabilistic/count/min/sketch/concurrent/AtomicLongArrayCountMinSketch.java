@@ -1,46 +1,48 @@
-package com.dipasquale.data.structure.probabilistic.count.min.sketch;
+package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.bit.BitManipulator;
 import com.dipasquale.common.bit.concurrent.AtomicLongArrayBitManipulator;
-import com.dipasquale.data.structure.probabilistic.MultiHashingFunction;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import com.dipasquale.data.structure.probabilistic.HashingFunction;
+import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketch;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-final class CountMinSketchCasArrayBitManipulator<T> implements CountMinSketch<T> {
+final class AtomicLongArrayCountMinSketch<T> implements CountMinSketch<T> {
     private static final int MAXIMUM_SHIFTS = 32;
-    private final MultiHashingFunction multiHashingFunction;
+    private final HashingFunction multiHashingFunction;
     private final List<AtomicLongArrayBitManipulator> dataBitManipulators;
-    private final int hashingFunctionCount;
+    private final int hashingFunctions;
 
-    CountMinSketchCasArrayBitManipulator(final MultiHashingFunction multiHashingFunction, final int size, final int hashingFunctionCount, final int bits) {
+    AtomicLongArrayCountMinSketch(final HashingFunction multiHashingFunction, final int size, final int hashingFunctions, final int bitsForCounter) {
         this.multiHashingFunction = multiHashingFunction;
-        this.dataBitManipulators = createDataBitManipulators(hashingFunctionCount, size, bits);
-        this.hashingFunctionCount = hashingFunctionCount;
+        this.dataBitManipulators = createDataBitManipulators(hashingFunctions, size, bitsForCounter);
+        this.hashingFunctions = hashingFunctions;
     }
 
-    private static List<AtomicLongArrayBitManipulator> createDataBitManipulators(final int hashingFunctionCount, final int size, final int bits) {
-        return IntStream.range(0, hashingFunctionCount)
+    private static List<AtomicLongArrayBitManipulator> createDataBitManipulators(final int hashingFunctions, final int size, final int bitsForCounter) {
+        return IntStream.range(0, hashingFunctions)
                 .mapToObj(i -> new AtomicLongArray(size))
-                .map(a -> new AtomicLongArrayBitManipulator(a, bits))
+                .map(a -> new AtomicLongArrayBitManipulator(a, bitsForCounter))
                 .collect(Collectors.toList());
     }
 
     private long selectOrUpdateData(final T item, final BitsRetriever bitsRetriever) {
         long value = Long.MIN_VALUE;
         int hashCode = item.hashCode();
-        int hashFunctionIndex = Math.abs(hashCode) % hashingFunctionCount;
+        int hashFunctionIndex = Math.abs(hashCode) % hashingFunctions;
         long hashCodeMerged = multiHashingFunction.hashCode(hashCode, hashFunctionIndex);
 
-        for (int i = 0; i < hashingFunctionCount; i++) {
+        for (int i = 0; i < hashingFunctions; i++) {
             AtomicLongArrayBitManipulator dataBitManipulator = dataBitManipulators.get(i);
-            long hashCodeFixed = hashCodeMerged >= 0L ? hashCodeMerged : hashCodeMerged >>> (1 + (int) (~hashCodeMerged % MAXIMUM_SHIFTS));
+
+            long hashCodeFixed = hashCodeMerged >= 0L
+                    ? hashCodeMerged
+                    : hashCodeMerged >>> (1 + (int) (~hashCodeMerged % MAXIMUM_SHIFTS));
+
             long index = hashCodeFixed % dataBitManipulator.size();
             int shifts = 8 + (i + hashFunctionIndex) % MAXIMUM_SHIFTS;
 

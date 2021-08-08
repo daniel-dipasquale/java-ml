@@ -1,13 +1,17 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-final class CountMinSketchMulti<T> implements CountMinSketch<T> {
+final class MultiPartCountMinSketch<T> implements CountMinSketch<T>, Serializable {
+    @Serial
+    private static final long serialVersionUID = -7604605815397971535L;
     private final List<CountMinSketch<T>> countMinSketches;
 
-    CountMinSketchMulti(final CountMinSketchPartitionFactory.Proxy countMinSketchPartitionFactoryProxy, final int count) {
+    MultiPartCountMinSketch(final CountMinSketchPartitionFactoryProxy countMinSketchPartitionFactoryProxy, final int count) {
         this.countMinSketches = IntStream.range(0, count)
                 .mapToObj(countMinSketchPartitionFactoryProxy::<T>create)
                 .collect(Collectors.toList());

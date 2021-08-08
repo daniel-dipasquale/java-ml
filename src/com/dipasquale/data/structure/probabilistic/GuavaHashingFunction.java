@@ -13,10 +13,10 @@ final class GuavaHashingFunction implements HashingFunction, Serializable {
     private final byte[] salt;
 
     @Override
-    public long hashCode(final int hashCode, final int hashFunctionIndex) {
+    public long hashCode(final int itemHashCode, final int entropyId) {
         return hashFunction.newHasher()
-                .putInt(hashCode)
-                .putLong(offset - (long) hashFunctionIndex * 4_213L)
+                .putInt(itemHashCode)
+                .putLong(offset - (long) entropyId * 4_213L)
                 .putBytes(salt)
                 .hash()
                 .asLong();

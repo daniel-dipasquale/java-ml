@@ -9,16 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class BloomFilterPartitionFactoryProxyTest {
-    private static final AtomicInteger MAXIMUM_HASH_FUNCTIONS = new AtomicInteger();
     private static final Map<String, String> ITEMS = new HashMap<>();
-    private static final BloomFilterPartitionFactory BLOOM_FILTER_PARTITION_FACTORY = new BloomFilterPartitionFactoryProxyMock(MAXIMUM_HASH_FUNCTIONS, ITEMS);
+    private static final BloomFilterPartitionFactory BLOOM_FILTER_PARTITION_FACTORY = new BloomFilterPartitionFactoryProxyMock(ITEMS);
 
     @BeforeEach
     public void beforeEach() {
-        MAXIMUM_HASH_FUNCTIONS.set(21);
         ITEMS.clear();
     }
 
@@ -28,7 +25,7 @@ public final class BloomFilterPartitionFactoryProxyTest {
 
         Assertions.assertTrue(test.mightContain("index"));
         Assertions.assertTrue(test.mightContain("estimatedSize"));
-        Assertions.assertTrue(test.mightContain("hashingFunctionCount"));
+        Assertions.assertTrue(test.mightContain("hashingFunctions"));
         Assertions.assertTrue(test.mightContain("falsePositiveRatio"));
         Assertions.assertTrue(test.mightContain("size"));
         Assertions.assertFalse(test.add("size"));
@@ -42,7 +39,7 @@ public final class BloomFilterPartitionFactoryProxyTest {
         Assertions.assertEquals(ImmutableMap.<String, String>builder()
                 .put("index", "5")
                 .put("estimatedSize", "2000000")
-                .put("hashingFunctionCount", "21")
+                .put("hashingFunctions", "21")
                 .put("falsePositiveRatio", "0.5")
                 .put("size", "1000000")
                 .build(), ITEMS);
@@ -54,19 +51,13 @@ public final class BloomFilterPartitionFactoryProxyTest {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class BloomFilterPartitionFactoryProxyMock implements BloomFilterPartitionFactory {
-        private final AtomicInteger hashingFunctionCount;
         private final Map<String, String> items;
 
         @Override
-        public int getHashingFunctionCount() {
-            return hashingFunctionCount.get();
-        }
-
-        @Override
-        public <T> BloomFilter<T> create(final int index, final int estimatedSize, final int hashingFunctionCount, final double falsePositiveRatio, final long size) {
+        public <T> BloomFilter<T> create(final int index, final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size) {
             items.put("index", Integer.toString(index));
             items.put("estimatedSize", Integer.toString(estimatedSize));
-            items.put("hashingFunctionCount", Integer.toString(hashingFunctionCount));
+            items.put("hashingFunctions", Integer.toString(hashingFunctions));
             items.put("falsePositiveRatio", Double.toString(falsePositiveRatio));
             items.put("size", Long.toString(size));
 

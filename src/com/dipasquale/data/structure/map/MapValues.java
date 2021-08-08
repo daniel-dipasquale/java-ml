@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class Values<TKey, TValue> extends AbstractCollection<TValue> {
+final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     @Serial
     private static final long serialVersionUID = 5859039696728285129L;
     private final AbstractMap<TKey, TValue> map;

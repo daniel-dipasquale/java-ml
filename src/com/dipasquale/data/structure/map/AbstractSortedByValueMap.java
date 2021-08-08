@@ -29,7 +29,7 @@ abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, 
     private final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap;
     private final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory;
     private final EntryStrategyFactory<TKey, TValue> entryStrategyFactory;
-    private final KeySet<TKey, TValue> descendingKeySet = new KeySetCustomIterable<>(this, this::iteratorDescending);
+    private final MapKeySet<TKey, TValue> descendingKeySet = new MapKeySetIterableProxy<>(this, (Iterable<Map.Entry<TKey, TValue>> & Serializable) this::iteratorDescending);
 
     @Override
     public int size() {
@@ -159,6 +159,7 @@ abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, 
         return streamDescending(navigableMap).iterator();
     }
 
+    @Override
     public Set<TKey> descendingKeySet() {
         return descendingKeySet;
     }
@@ -189,26 +190,32 @@ abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, 
         return entry.getValue();
     }
 
+    @Override
     public Entry<TKey, TValue> headEntry() {
         return getEntry(navigableMap.firstEntry(), DequeSet::getFirst);
     }
 
+    @Override
     public TKey headKey() {
         return getKey(headEntry());
     }
 
+    @Override
     public TValue headValue() {
         return getValue(headEntry());
     }
 
+    @Override
     public Entry<TKey, TValue> tailEntry() {
         return getEntry(navigableMap.lastEntry(), DequeSet::getLast);
     }
 
+    @Override
     public TKey tailKey() {
         return getKey(tailEntry());
     }
 
+    @Override
     public TValue tailValue() {
         return getValue(tailEntry());
     }

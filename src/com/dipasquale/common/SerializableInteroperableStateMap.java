@@ -1,4 +1,4 @@
-package com.dipasquale.data.structure.map;
+package com.dipasquale.common;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

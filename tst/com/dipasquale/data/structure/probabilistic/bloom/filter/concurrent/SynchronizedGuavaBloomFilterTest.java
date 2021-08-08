@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 public class SynchronizedGuavaBloomFilterTest {
     private static final int CONSISTENCY_CHECK = 15;
-    private static final ConcurrentBloomFilterFactory BLOOM_FILTER_FACTORY = new ConcurrentBloomFilterFactory();
+    private static final DefaultBloomFilterFactory BLOOM_FILTER_FACTORY = new DefaultBloomFilterFactory();
 
     @Test
     public void TEST_1() {
