@@ -1,6 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,7 +83,7 @@ public final class BloomFilterFactoryTest {
         return (T) object;
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class BloomFilterFactoryMock implements BloomFilterFactory {
         private final Map<String, String> items;
 

@@ -11,22 +11,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
 final class MultiCondition implements Condition {
-    private static final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.unit());
-    private static final TimeUnit NS_TIME_UNIT = LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit();
+    private static final UnitConverter FROM_MS_TO_NS_UNIT_CONVERTER = SI.MILLI(SI.SECOND).getConverterTo(Constants.DATE_TIME_SUPPORT_NANOSECONDS.unit());
+    private static final TimeUnit NS_TIME_UNIT = Constants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit();
     private final List<Condition> conditions;
-    private final IterableErrorHandler<Condition> waitHandle;
-    private final MultiWaitHandle timedWaitHandle;
+    private final IterableErrorHandler<Condition> waitConditionsHandler;
+    private final MultiWaitHandle timedWaitConditionsHandle;
 
     MultiCondition(final List<Condition> conditions) {
         this.conditions = conditions;
-        this.waitHandle = new IterableErrorHandler<>(conditions, Condition::await);
-        this.timedWaitHandle = new MultiWaitHandle(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS, ConditionWaitHandle.translate(conditions));
+        this.waitConditionsHandler = new IterableErrorHandler<>(conditions, Condition::await);
+        this.timedWaitConditionsHandle = MultiWaitHandle.create(conditions, ConditionWaitHandle::new, Constants.DATE_TIME_SUPPORT_NANOSECONDS);
     }
 
     @Override
     public void await()
             throws InterruptedException {
-        waitHandle.handleAll(() -> new InterruptedException("unable to await on all conditions"));
+        waitConditionsHandler.handleAll(() -> new InterruptedException("unable to await on all conditions"));
     }
 
     @Override
@@ -37,27 +37,27 @@ final class MultiCondition implements Condition {
     @Override
     public long awaitNanos(final long nanosTimeout)
             throws InterruptedException {
-        long startDateTime = LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.now();
+        long startDateTime = Constants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
-        timedWaitHandle.await(nanosTimeout, NS_TIME_UNIT);
+        timedWaitConditionsHandle.await(nanosTimeout, NS_TIME_UNIT);
 
-        return nanosTimeout - LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.now() + startDateTime;
+        return nanosTimeout - Constants.DATE_TIME_SUPPORT_NANOSECONDS.now() + startDateTime;
     }
 
     @Override
     public boolean await(final long time, final TimeUnit unit)
             throws InterruptedException {
-        return timedWaitHandle.await(time, unit);
+        return timedWaitConditionsHandle.await(time, unit);
     }
 
     @Override
     public boolean awaitUntil(final Date deadline)
             throws InterruptedException {
         long deadlineDateTime = (long) FROM_MS_TO_NS_UNIT_CONVERTER.convert((double) deadline.getTime());
-        long currentDateTime = LockConstants.DATE_TIME_SUPPORT_NANOSECONDS.now();
+        long currentDateTime = Constants.DATE_TIME_SUPPORT_NANOSECONDS.now();
         long time = Math.max(deadlineDateTime - currentDateTime, 0L);
 
-        return timedWaitHandle.await(time, NS_TIME_UNIT);
+        return timedWaitConditionsHandle.await(time, NS_TIME_UNIT);
     }
 
     @Override

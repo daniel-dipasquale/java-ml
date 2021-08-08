@@ -34,6 +34,6 @@ public final class ZeroDateTimeSupportTest {
 
         Assertions.assertEquals(new ZeroDateTimeSupport(UNIT), TEST);
         Assertions.assertNotEquals(new ZeroDateTimeSupport(UNIT, formatter, parser), TEST);
-        Assertions.assertEquals(new ZeroDateTimeSupport(UNIT, DateTimeSupportConstants.DATE_TIME_FORMATTER, DateTimeSupportConstants.DATE_TIME_PARSER), TEST);
+        Assertions.assertEquals(new ZeroDateTimeSupport(UNIT, Constants.DATE_TIME_FORMATTER, Constants.DATE_TIME_PARSER), TEST);
     }
 }

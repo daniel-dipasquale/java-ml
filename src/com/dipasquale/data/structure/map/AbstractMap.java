@@ -200,7 +200,7 @@ public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Se
             return true;
         }
 
-        if (other instanceof Map) {
+        if (other instanceof Map<?, ?>) {
             try {
                 return equals((Map<TKey, TValue>) other);
             } catch (Exception e) {

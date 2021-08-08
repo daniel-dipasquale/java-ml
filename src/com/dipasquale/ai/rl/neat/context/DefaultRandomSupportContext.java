@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.switcher.ObjectSwitcher;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -26,7 +26,7 @@ public final class DefaultRandomSupportContext implements Context.RandomSupport 
         state.put("random.isLessThan", isLessThan);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
+    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         nextIndex = ObjectSwitcher.switchObject(state.get("random.nextIndex"), eventLoop != null);
         isLessThan = ObjectSwitcher.switchObject(state.get("random.isLessThan"), eventLoop != null);
     }

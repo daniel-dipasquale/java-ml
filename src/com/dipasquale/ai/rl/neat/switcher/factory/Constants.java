@@ -14,14 +14,16 @@ import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.random.float1.ThreadLocalRandomSupport;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.Generated;
 
 import java.util.List;
 import java.util.Map;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class Constants {
+    @Generated
+    private Constants() {
+    }
+
     private static final RandomSupport RANDOM_SUPPORT_UNIFORM_CONCURRENT = new ThreadLocalRandomSupport();
     private static final RandomSupport RANDOM_SUPPORT_UNIFORM = new DefaultRandomSupport();
     private static final RandomSupport RANDOM_SUPPORT_MEAN_DISTRIBUTED_CONCURRENT = new MeanDistributedRandomSupport(RANDOM_SUPPORT_UNIFORM_CONCURRENT, 5);

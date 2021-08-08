@@ -36,6 +36,6 @@ public final class NanosecondsDateTimeSupportTest {
 
         Assertions.assertEquals(new NanosecondsDateTimeSupport(), TEST);
         Assertions.assertNotEquals(new NanosecondsDateTimeSupport(formatter, parser), TEST);
-        Assertions.assertEquals(new NanosecondsDateTimeSupport(DateTimeSupportConstants.DATE_TIME_FORMATTER, DateTimeSupportConstants.DATE_TIME_PARSER), TEST);
+        Assertions.assertEquals(new NanosecondsDateTimeSupport(Constants.DATE_TIME_FORMATTER, Constants.DATE_TIME_PARSER), TEST);
     }
 }

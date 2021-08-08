@@ -162,7 +162,7 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
             return true;
         }
 
-        if (other instanceof Collection) {
+        if (other instanceof Collection<?>) {
             try {
                 return equals((Collection<T>) other);
             } catch (Exception e) {

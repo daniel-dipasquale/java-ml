@@ -11,11 +11,11 @@ public final class NanosecondsDateTimeSupport extends AbstractDateTimeSupport {
     private static final long serialVersionUID = -6749148050121918495L;
 
     public NanosecondsDateTimeSupport() {
-        super(DateTimeSupportConstants.NANOSECONDS_UNIT);
+        super(Constants.NANOSECONDS_UNIT);
     }
 
     public NanosecondsDateTimeSupport(final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
-        super(DateTimeSupportConstants.NANOSECONDS_UNIT, dateTimeFormatter, dateTimeParser);
+        super(Constants.NANOSECONDS_UNIT, dateTimeFormatter, dateTimeParser);
     }
 
     @Override

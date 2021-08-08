@@ -1,49 +1,42 @@
 package com.dipasquale.threading.wait.handle;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.io.Serial;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-// NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
 public final class ReusableCountDownLatch implements WaitHandle {
-    private final Sync sync;
-    @Getter(AccessLevel.PACKAGE)
-    private final UnitTest unitTest;
+    private final Synchronizer synchronizer;
 
+    // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
     public ReusableCountDownLatch(final int initialValue) {
-        this.sync = new Sync(initialValue);
-        this.unitTest = new UnitTest();
+        this.synchronizer = new Synchronizer(initialValue);
     }
 
     @Override
     public void await()
             throws InterruptedException {
-        sync.acquireSharedInterruptibly(1);
+        synchronizer.acquireSharedInterruptibly(1);
     }
 
     @Override
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return sync.tryAcquireSharedNanos(1, unit.toNanos(timeout));
+        return synchronizer.tryAcquireSharedNanos(1, unit.toNanos(timeout));
     }
 
     public void countUp() {
-        sync.increment();
+        synchronizer.increment();
     }
 
     public void countDown() {
-        sync.decrement();
+        synchronizer.decrement();
     }
 
-    private static class Sync extends AbstractQueuedSynchronizer {
+    private static class Synchronizer extends AbstractQueuedSynchronizer {
         @Serial
         private static final long serialVersionUID = 4435118903758077543L;
 
-        public Sync(final int count) {
+        public Synchronizer(final int count) {
             setState(count);
         }
 
@@ -81,13 +74,6 @@ public final class ReusableCountDownLatch implements WaitHandle {
                     return stateNew == 0;
                 }
             }
-        }
-    }
-
-    @NoArgsConstructor(access = AccessLevel.PACKAGE)
-    final class UnitTest {
-        public int getCount() {
-            return sync.getCount();
         }
     }
 }

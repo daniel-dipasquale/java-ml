@@ -8,6 +8,6 @@ public final class NodeDequeTest {
     public void TEST_1() {
         NodeDeque<String, SimpleNode<String>> result = NodeDeque.createSynchronized(new SimpleNodeDeque<>());
 
-        Assertions.assertTrue(result instanceof NodeDequeSynchronized);
+        Assertions.assertTrue(result instanceof SynchronizedNodeDeque<?, ?>);
     }
 }

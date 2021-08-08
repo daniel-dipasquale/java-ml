@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.provider.GateProvider;
 import com.dipasquale.common.switcher.ObjectSwitcher;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -47,7 +47,7 @@ public final class DefaultCrossOverSupportContext implements Context.CrossOverSu
         state.put("crossOver.shouldUseRandomParentConnectionWeight", shouldUseRandomParentConnectionWeight);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
+    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         shouldMateAndMutate = ObjectSwitcher.switchObject(state.get("crossOver.shouldMateAndMutate"), eventLoop != null);
         shouldMateOnly = ObjectSwitcher.switchObject(state.get("crossOver.shouldMateOnly"), eventLoop != null);
         shouldMutateOnly = ObjectSwitcher.switchObject(state.get("crossOver.shouldMutateOnly"), eventLoop != null);

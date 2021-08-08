@@ -11,7 +11,7 @@ final class MultiPartBloomFilter<T> implements BloomFilter<T>, Serializable {
     private static final long serialVersionUID = 3882809450291604624L;
     private final List<BloomFilter<T>> bloomFilters;
 
-    MultiPartBloomFilter(final BloomFilterPartitionFactoryProxy bloomFilterPartitionFactoryProxy, final int count) {
+    MultiPartBloomFilter(final BloomFilterPartitionFactory.Proxy bloomFilterPartitionFactoryProxy, final int count) {
         this.bloomFilters = IntStream.range(0, count)
                 .mapToObj(bloomFilterPartitionFactoryProxy::<T>create)
                 .collect(Collectors.toList());

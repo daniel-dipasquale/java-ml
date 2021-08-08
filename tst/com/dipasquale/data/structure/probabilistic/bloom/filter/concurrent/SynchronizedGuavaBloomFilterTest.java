@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class SynchronizedGuavaBloomFilterTest {
-    private static final int CONSISTENCY_CHECK = 15;
+    private static final int CONSISTENCY_CHECK_COUNT = 15;
     private static final DefaultBloomFilterFactory BLOOM_FILTER_FACTORY = new DefaultBloomFilterFactory();
 
     @Test
@@ -15,7 +15,7 @@ public class SynchronizedGuavaBloomFilterTest {
         Assertions.assertFalse(test.mightContain("one"));
         Assertions.assertTrue(test.add("one"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("one"));
             Assertions.assertFalse(test.add("one"));
         }
@@ -28,7 +28,7 @@ public class SynchronizedGuavaBloomFilterTest {
         Assertions.assertFalse(test.mightContain("one"));
         Assertions.assertTrue(test.add("one"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("one"));
             Assertions.assertFalse(test.add("one"));
         }
@@ -36,7 +36,7 @@ public class SynchronizedGuavaBloomFilterTest {
         Assertions.assertFalse(test.mightContain("two"));
         Assertions.assertTrue(test.add("two"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("two"));
             Assertions.assertFalse(test.add("two"));
         }
@@ -44,12 +44,12 @@ public class SynchronizedGuavaBloomFilterTest {
         Assertions.assertFalse(test.mightContain("three"));
         Assertions.assertTrue(test.add("three"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("three"));
             Assertions.assertFalse(test.add("three"));
         }
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("one"));
             Assertions.assertFalse(test.add("one"));
             Assertions.assertTrue(test.mightContain("two"));

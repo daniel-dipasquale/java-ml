@@ -11,11 +11,11 @@ public final class MillisecondsDateTimeSupport extends AbstractDateTimeSupport {
     private static final long serialVersionUID = 7552571945900875884L;
 
     public MillisecondsDateTimeSupport() {
-        super(DateTimeSupportConstants.MILLISECONDS_UNIT);
+        super(Constants.MILLISECONDS_UNIT);
     }
 
     public MillisecondsDateTimeSupport(final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
-        super(DateTimeSupportConstants.MILLISECONDS_UNIT, dateTimeFormatter, dateTimeParser);
+        super(Constants.MILLISECONDS_UNIT, dateTimeFormatter, dateTimeParser);
     }
 
     @Override

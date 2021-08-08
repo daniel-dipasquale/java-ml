@@ -1,30 +1,26 @@
 package com.dipasquale.threading.lock;
 
 import com.dipasquale.common.concurrent.ConcurrentId;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ComparableReadWriteLock implements ReadWriteLock {
-    private final ComparableLock readComparableLock;
-    private final ComparableLock writeComparableLock;
+public final class ComparableReadWriteLock<T extends Comparable<T>> implements ReadWriteLock {
+    private final ComparableLock<T> readComparableLock;
+    private final ComparableLock<T> writeComparableLock;
 
-    public static <T extends Comparable<T>> ComparableReadWriteLock create(final ReadWriteLock lock, final ConcurrentId<T> concurrentId) {
-        ComparableLock readComparableLock = ComparableLock.create(lock.readLock(), concurrentId);
-        ComparableLock writeComparableLock = ComparableLock.create(lock.writeLock(), concurrentId);
-
-        return new ComparableReadWriteLock(readComparableLock, writeComparableLock);
+    public ComparableReadWriteLock(final ReadWriteLock lock, final ConcurrentId<T> concurrentId) {
+        this.readComparableLock = new ComparableLock<>(lock.readLock(), concurrentId);
+        this.writeComparableLock = new ComparableLock<>(lock.writeLock(), concurrentId);
     }
 
     @Override
-    public ComparableLock readLock() {
+    public Lock readLock() {
         return readComparableLock;
     }
 
     @Override
-    public ComparableLock writeLock() {
+    public Lock writeLock() {
         return writeComparableLock;
     }
 

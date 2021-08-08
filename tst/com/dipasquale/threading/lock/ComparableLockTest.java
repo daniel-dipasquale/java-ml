@@ -2,6 +2,7 @@ package com.dipasquale.threading.lock;
 
 import com.dipasquale.common.concurrent.ConcurrentId;
 import com.dipasquale.common.error.ErrorComparer;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -32,65 +33,40 @@ public final class ComparableLockTest {
     @Test
     public void TEST_1() {
         Lock lock = createLock();
-        ComparableLock test = ComparableLock.create(lock, new ConcurrentId<>(0, 0, 0));
+        ComparableLock<Integer> test000 = new ComparableLock<>(lock, new ConcurrentId<>(0, 0, 0));
+        ComparableLock<Integer> test001 = new ComparableLock<>(lock, new ConcurrentId<>(0, 0, 1));
+        ComparableLock<Integer> test010 = new ComparableLock<>(lock, new ConcurrentId<>(0, 1, 0));
+        ComparableLock<Integer> test100 = new ComparableLock<>(lock, new ConcurrentId<>(1, 0, 0));
 
-        Assertions.assertEquals(lock, test.getUnitTest().getLock());
+        Assertions.assertEquals(0, test000.compareTo(test000));
+        Assertions.assertEquals(0, test001.compareTo(test001));
+        Assertions.assertEquals(-1, test001.compareTo(test010));
+        Assertions.assertEquals(-1, test001.compareTo(test100));
+        Assertions.assertEquals(1, test010.compareTo(test000));
+        Assertions.assertEquals(1, test010.compareTo(test001));
+        Assertions.assertEquals(0, test010.compareTo(test010));
+        Assertions.assertEquals(-1, test010.compareTo(test100));
+        Assertions.assertEquals(1, test100.compareTo(test001));
+        Assertions.assertEquals(1, test100.compareTo(test010));
+        Assertions.assertEquals(0, test100.compareTo(test100));
     }
 
     @Test
     public void TEST_2() {
         Lock lock = createLock();
-
-        Assertions.assertEquals(0, ComparableLock.create(lock, new ConcurrentId<>(0, 0, 0))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(0, 0, 0))));
-
-        Assertions.assertEquals(0, ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1))));
-
-        Assertions.assertEquals(-1, ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(0, 1, 0))));
-
-        Assertions.assertEquals(-1, ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(1, 0, 0))));
-
-        Assertions.assertEquals(1, ComparableLock.create(lock, new ConcurrentId<>(0, 1, 0))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(0, 0, 0))));
-
-        Assertions.assertEquals(1, ComparableLock.create(lock, new ConcurrentId<>(0, 1, 0))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1))));
-
-        Assertions.assertEquals(0, ComparableLock.create(lock, new ConcurrentId<>(0, 1, 0))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(0, 1, 0))));
-
-        Assertions.assertEquals(-1, ComparableLock.create(lock, new ConcurrentId<>(0, 1, 0))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(1, 0, 0))));
-
-        Assertions.assertEquals(1, ComparableLock.create(lock, new ConcurrentId<>(1, 0, 0))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1))));
-
-        Assertions.assertEquals(1, ComparableLock.create(lock, new ConcurrentId<>(1, 0, 0))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(0, 1, 0))));
-
-        Assertions.assertEquals(0, ComparableLock.create(lock, new ConcurrentId<>(1, 0, 0))
-                .compareTo(ComparableLock.create(lock, new ConcurrentId<>(1, 0, 0))));
-    }
-
-    @Test
-    public void TEST_3() {
-        Lock lock = createLock();
-        ComparableLock test = ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1));
+        ComparableLock<Integer> test = new ComparableLock<>(lock, new ConcurrentId<>(0, 0, 1));
 
         Assertions.assertEquals("0.0.1", test.toString());
     }
 
     @Test
-    public void TEST_4()
+    public void TEST_3()
             throws InterruptedException {
         LockState lockState = LockState.builder()
                 .build();
 
         Lock lock = createLock(lockState);
-        ComparableLock test = ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1));
+        ComparableLock<Integer> test = new ComparableLock<>(lock, new ConcurrentId<>(0, 0, 1));
 
         test.lock();
         Assertions.assertEquals(1, lockState.acquired);
@@ -116,14 +92,14 @@ public final class ComparableLockTest {
     }
 
     @Test
-    public void TEST_5()
+    public void TEST_4()
             throws InterruptedException {
         LockState lockState = LockState.builder()
                 .interruptedExceptionMessage("this is an interruption for unit test case purposes")
                 .build();
 
         Lock lock = createLock(lockState);
-        ComparableLock test = ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1));
+        ComparableLock<Integer> test = new ComparableLock<>(lock, new ConcurrentId<>(0, 0, 1));
 
         try {
             test.lockInterruptibly();
@@ -179,13 +155,13 @@ public final class ComparableLockTest {
     }
 
     @Test
-    public void TEST_6()
+    public void TEST_5()
             throws InterruptedException {
         LockState lockState = LockState.builder()
                 .build();
 
         Lock lock = createLock(lockState);
-        ComparableLock comparableLock = ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1));
+        ComparableLock<Integer> comparableLock = new ComparableLock<>(lock, new ConcurrentId<>(0, 0, 1));
         Condition test = comparableLock.newCondition();
 
         test.await();
@@ -217,7 +193,7 @@ public final class ComparableLockTest {
                 .build();
 
         Lock lock = createLock(lockState);
-        ComparableLock comparableLock = ComparableLock.create(lock, new ConcurrentId<>(0, 0, 1));
+        ComparableLock<Integer> comparableLock = new ComparableLock<>(lock, new ConcurrentId<>(0, 0, 1));
         Condition test = comparableLock.newCondition();
 
         try {
@@ -293,7 +269,7 @@ public final class ComparableLockTest {
         Assertions.assertEquals(0, lockState.conditions.get(0).acquired);
     }
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
     @ToString
     private static final class ConditionState {
@@ -302,8 +278,8 @@ public final class ComparableLockTest {
         private int signalAll;
     }
 
-    @Builder
-    @AllArgsConstructor
+    @Builder(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
     @ToString
     private static final class LockState {
@@ -314,7 +290,7 @@ public final class ComparableLockTest {
         private final String interruptedExceptionMessage;
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class ConditionMock implements Condition {
         private final LockState lockState;
         private final ConditionState conditionState;

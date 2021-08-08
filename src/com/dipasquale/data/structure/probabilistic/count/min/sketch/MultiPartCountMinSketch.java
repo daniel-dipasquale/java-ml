@@ -11,7 +11,7 @@ final class MultiPartCountMinSketch<T> implements CountMinSketch<T>, Serializabl
     private static final long serialVersionUID = -7604605815397971535L;
     private final List<CountMinSketch<T>> countMinSketches;
 
-    MultiPartCountMinSketch(final CountMinSketchPartitionFactoryProxy countMinSketchPartitionFactoryProxy, final int count) {
+    MultiPartCountMinSketch(final CountMinSketchPartitionFactory.Proxy countMinSketchPartitionFactoryProxy, final int count) {
         this.countMinSketches = IntStream.range(0, count)
                 .mapToObj(countMinSketchPartitionFactoryProxy::<T>create)
                 .collect(Collectors.toList());

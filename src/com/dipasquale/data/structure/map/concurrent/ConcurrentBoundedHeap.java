@@ -1,6 +1,5 @@
 package com.dipasquale.data.structure.map.concurrent;
 
-import com.dipasquale.data.structure.map.ConcurrentSortedByValueMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

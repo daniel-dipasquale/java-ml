@@ -20,6 +20,6 @@ public interface NodeDeque<TValue, TNode extends Node> extends Deque<TNode> {
     void addAfter(TNode node, TNode nextToNode);
 
     static <TValue, TNode extends Node> NodeDeque<TValue, TNode> createSynchronized(final NodeDeque<TValue, TNode> nodeDeque) {
-        return new NodeDequeSynchronized<>(nodeDeque);
+        return new SynchronizedNodeDeque<>(nodeDeque);
     }
 }

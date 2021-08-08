@@ -2,5 +2,5 @@ package com.dipasquale.threading.event.loop;
 
 @FunctionalInterface
 interface EventLoopFactoryProxy {
-    EventLoop create(String name, EventLoopRecordQueueFactory eventRecordsFactory, EventLoopDefaultParams params, EventLoop nextEventLoop);
+    EventLoop create(String name, ExclusiveRecordQueueFactory recordQueueFactory, DefaultEventLoopParams params, EventLoop nextEventLoop);
 }

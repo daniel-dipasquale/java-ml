@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.DefaultParallelismSupportContext;
 import com.dipasquale.ai.rl.neat.context.DefaultParallelismSupportMultiThreadContext;
 import com.dipasquale.ai.rl.neat.context.DefaultParallelismSupportSingleThreadContext;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import lombok.Builder;
 @Builder
 public final class ParallelismSupportSettings {
     @Builder.Default
-    private final EventLoopIterable eventLoop = null;
+    private final IterableEventLoop eventLoop = null;
 
     boolean isEnabled() {
         return eventLoop != null;

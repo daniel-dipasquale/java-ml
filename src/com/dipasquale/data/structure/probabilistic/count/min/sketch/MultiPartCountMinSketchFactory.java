@@ -18,7 +18,7 @@ public final class MultiPartCountMinSketchFactory implements CountMinSketchFacto
         this.count = count;
     }
 
-    private CountMinSketchPartitionFactoryProxy createPartitionFactoryProxy(final BitArrayCalculator.Result readjusted, final int hashingFunctions, final double falsePositiveRatio, final int bits) {
+    private CountMinSketchPartitionFactory.Proxy createPartitionFactoryProxy(final BitArrayCalculator.Result readjusted, final int hashingFunctions, final double falsePositiveRatio, final int bits) {
         return new DefaultCountMinSketchPartitionFactoryProxy(countMinSketchPartitionFactory, readjusted.getEstimatedSize(), hashingFunctions, falsePositiveRatio, readjusted.getSize(), bits);
     }
 
@@ -30,7 +30,7 @@ public final class MultiPartCountMinSketchFactory implements CountMinSketchFacto
             return countMinSketchPartitionFactory.create(0, readjusted.getEstimatedSize(), hashingFunctions, falsePositiveRatio, readjusted.getSize(), bitsForCounter);
         }
 
-        CountMinSketchPartitionFactoryProxy countMinSketchPartitionFactoryProxy = createPartitionFactoryProxy(readjusted, hashingFunctions, falsePositiveRatio, bitsForCounter);
+        CountMinSketchPartitionFactory.Proxy countMinSketchPartitionFactoryProxy = createPartitionFactoryProxy(readjusted, hashingFunctions, falsePositiveRatio, bitsForCounter);
 
         return new MultiPartCountMinSketch<>(countMinSketchPartitionFactoryProxy, readjusted.getCount());
     }

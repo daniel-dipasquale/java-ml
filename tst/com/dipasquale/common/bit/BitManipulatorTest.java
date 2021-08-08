@@ -1,5 +1,6 @@
 package com.dipasquale.common.bit;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -124,14 +125,14 @@ public final class BitManipulatorTest {
         Assertions.assertEquals(13L, VALUE.get());
     }
 
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class BitManipulatorMock implements BitManipulator {
-        private final AtomicLong sizeCas;
-        private final AtomicLong valueCas;
+        private final AtomicLong size;
+        private final AtomicLong value;
 
         @Override
         public long size() {
-            return sizeCas.get();
+            return size.get();
         }
 
         @Override
@@ -141,14 +142,14 @@ public final class BitManipulatorTest {
 
         @Override
         public long extract(final long offset) {
-            return valueCas.get() + offset;
+            return value.get() + offset;
         }
 
         @Override
         public long merge(final long offset, final long value) {
-            valueCas.set(offset + value);
+            this.value.set(offset + value);
 
-            return valueCas.get();
+            return this.value.get();
         }
     }
 }

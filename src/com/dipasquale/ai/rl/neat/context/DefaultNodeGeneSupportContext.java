@@ -8,7 +8,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.switcher.ObjectSwitcher;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 import java.util.Map;
@@ -50,7 +50,7 @@ public final class DefaultNodeGeneSupportContext implements Context.NodeGeneSupp
         state.put("nodes.biases", biases);
     }
 
-    private static <T> Map<NodeGeneType, ObjectSwitcher<T>> loadFactories(final Map<NodeGeneType, ObjectSwitcher<T>> factories, final EventLoopIterable eventLoop) {
+    private static <T> Map<NodeGeneType, ObjectSwitcher<T>> loadFactories(final Map<NodeGeneType, ObjectSwitcher<T>> factories, final IterableEventLoop eventLoop) {
         for (ObjectSwitcher<T> factory : factories.values()) {
             factory.switchObject(eventLoop != null);
         }
@@ -58,7 +58,7 @@ public final class DefaultNodeGeneSupportContext implements Context.NodeGeneSupp
         return factories;
     }
 
-    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
+    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         biasFactories = loadFactories(state.get("nodes.biasFactories"), eventLoop);
         activationFunctionFactories = loadFactories(state.get("nodes.activationFunctionFactories"), eventLoop);
         inputs = state.get("nodes.inputs");

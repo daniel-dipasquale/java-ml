@@ -239,7 +239,7 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
 
     @Override
     public final boolean remove(final Object node) {
-        if (node instanceof Node) {
+        if (node instanceof SimpleNode<?>) {
             SimpleNode<T> nodeFixed = (SimpleNode<T>) node;
 
             if (hasMembership(nodeFixed) && canBeRemoved(nodeFixed)) {

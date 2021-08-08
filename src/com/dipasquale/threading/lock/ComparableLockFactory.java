@@ -8,15 +8,15 @@ import lombok.RequiredArgsConstructor;
 import java.util.concurrent.locks.Lock;
 
 @RequiredArgsConstructor
-public final class ComparableLockFactory implements ObjectFactory<ComparableLock> {
+public final class ComparableLockFactory implements ObjectFactory<ComparableLock<Long>> {
     private final ObjectFactory<Lock> lockFactory;
     private final ConcurrentIdFactory concurrentIdFactory;
 
     @Override
-    public ComparableLock create() {
+    public ComparableLock<Long> create() {
         Lock lock = lockFactory.create();
         ConcurrentId<Long> concurrentId = concurrentIdFactory.createId();
 
-        return ComparableLock.create(lock, concurrentId);
+        return new ComparableLock<>(lock, concurrentId);
     }
 }

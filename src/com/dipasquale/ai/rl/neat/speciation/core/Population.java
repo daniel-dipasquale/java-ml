@@ -24,7 +24,7 @@ import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
 import com.dipasquale.data.structure.set.DequeSet;
-import com.dipasquale.data.structure.set.IdentityDequeSet;
+import com.dipasquale.data.structure.set.DequeIdentitySet;
 import com.google.common.collect.Iterables;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ public final class Population {
 
     public Population(final OrganismActivator mostFitOrganismActivator) {
         this.info = new PopulationState();
-        this.organismsWithoutSpecies = new IdentityDequeSet<>();
+        this.organismsWithoutSpecies = new DequeIdentitySet<>();
         this.organismsToBirth = new LinkedList<>();
         this.speciesNodes = new SimpleNodeDeque<>();
         this.mostFitOrganismActivator = mostFitOrganismActivator;

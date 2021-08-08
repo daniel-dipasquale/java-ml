@@ -67,7 +67,7 @@ final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey,
     @Override
     public final boolean retainAll(final Collection<?> entries) {
         Map<TKey, TValue> entriesToRetain = entries.stream()
-                .filter(e -> e instanceof Map.Entry)
+                .filter(e -> e instanceof Map.Entry<?, ?>)
                 .map(e -> (Map.Entry<TKey, TValue>) e)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 

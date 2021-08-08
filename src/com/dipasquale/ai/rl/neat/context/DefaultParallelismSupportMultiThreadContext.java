@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public final class DefaultParallelismSupportMultiThreadContext implements Context.ParallelismSupport {
-    private final EventLoopIterable eventLoop;
+    private final IterableEventLoop eventLoop;
     private final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
 
     @Override

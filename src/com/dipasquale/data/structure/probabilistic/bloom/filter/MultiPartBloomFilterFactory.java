@@ -18,7 +18,7 @@ public final class MultiPartBloomFilterFactory implements BloomFilterFactory, Se
         this.count = count;
     }
 
-    private BloomFilterPartitionFactoryProxy createPartitionFactoryProxy(final BitArrayCalculator.Result readjusted, final int hashingFunctions, final double falsePositiveRatio) {
+    private BloomFilterPartitionFactory.Proxy createPartitionFactoryProxy(final BitArrayCalculator.Result readjusted, final int hashingFunctions, final double falsePositiveRatio) {
         return new DefaultBloomFilterPartitionFactoryProxy(bloomFilterPartitionFactory, readjusted.getEstimatedSize(), hashingFunctions, falsePositiveRatio, readjusted.getSize());
     }
 
@@ -30,7 +30,7 @@ public final class MultiPartBloomFilterFactory implements BloomFilterFactory, Se
             return bloomFilterPartitionFactory.create(0, readjusted.getEstimatedSize(), hashingFunctions, falsePositiveRatio, readjusted.getSize());
         }
 
-        BloomFilterPartitionFactoryProxy bloomFilterPartitionFactoryProxy = createPartitionFactoryProxy(readjusted, hashingFunctions, falsePositiveRatio);
+        BloomFilterPartitionFactory.Proxy bloomFilterPartitionFactoryProxy = createPartitionFactoryProxy(readjusted, hashingFunctions, falsePositiveRatio);
 
         return new MultiPartBloomFilter<>(bloomFilterPartitionFactoryProxy, readjusted.getCount());
     }

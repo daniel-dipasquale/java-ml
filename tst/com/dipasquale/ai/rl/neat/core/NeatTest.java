@@ -26,9 +26,8 @@ import com.dipasquale.ai.rl.neat.settings.SpeciationSupportSettings;
 import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
-import com.dipasquale.threading.event.loop.EventLoop;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
-import com.dipasquale.threading.event.loop.EventLoopIterableSettings;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.threading.event.loop.IterableEventLoopSettings;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -58,14 +57,14 @@ public final class NeatTest {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
-    private static final EventLoopIterableSettings EVENT_LOOP_SETTINGS = EventLoopIterableSettings.builder()
+    private static final IterableEventLoopSettings EVENT_LOOP_SETTINGS = IterableEventLoopSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .errorLogger(EXCEPTIONS::add)
             .dateTimeSupport(new MillisecondsDateTimeSupport())
             .build();
 
-    private static final EventLoopIterable EVENT_LOOP = EventLoop.createForIterables(EVENT_LOOP_SETTINGS);
+    private static final IterableEventLoop EVENT_LOOP = new IterableEventLoop(EVENT_LOOP_SETTINGS);
 
     @BeforeAll
     public static void beforeAll() {

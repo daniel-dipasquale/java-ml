@@ -6,6 +6,7 @@ import com.dipasquale.common.time.ProxyDateTimeSupport;
 import com.dipasquale.data.structure.probabilistic.DefaultHashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.HashingFunction;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
+import com.dipasquale.data.structure.probabilistic.HashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +16,9 @@ import javax.measure.unit.SI;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class RecyclableBloomFilterTest {
-    private static final int CONSISTENCY_CHECK = 15;
-    private static final HashingFunction HASHING_FUNCTION = new DefaultHashingFunctionFactory().create(HashingFunctionAlgorithm.MD5, RecyclableBloomFilterTest.class.getSimpleName());
+    private static final int CONSISTENCY_CHECK_COUNT = 15;
+    private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new DefaultHashingFunctionFactory();
+    private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.MD5, RecyclableBloomFilterTest.class.getSimpleName());
     private static final DefaultBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
@@ -35,7 +37,7 @@ public final class RecyclableBloomFilterTest {
         Assertions.assertFalse(test.mightContain("one"));
         Assertions.assertTrue(test.add("one"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("one"));
             Assertions.assertFalse(test.add("one"));
         }
@@ -48,7 +50,7 @@ public final class RecyclableBloomFilterTest {
         Assertions.assertFalse(test.mightContain("one"));
         Assertions.assertTrue(test.add("one"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("one"));
             Assertions.assertFalse(test.add("one"));
         }
@@ -57,7 +59,7 @@ public final class RecyclableBloomFilterTest {
         Assertions.assertFalse(test.mightContain("one"));
         Assertions.assertTrue(test.add("one"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("one"));
             Assertions.assertFalse(test.add("one"));
         }
@@ -70,7 +72,7 @@ public final class RecyclableBloomFilterTest {
         Assertions.assertFalse(test.mightContain("one"));
         Assertions.assertTrue(test.add("one"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("one"));
             Assertions.assertFalse(test.add("one"));
         }
@@ -78,7 +80,7 @@ public final class RecyclableBloomFilterTest {
         Assertions.assertFalse(test.mightContain("two"));
         Assertions.assertTrue(test.add("two"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("two"));
             Assertions.assertFalse(test.add("two"));
         }
@@ -86,12 +88,12 @@ public final class RecyclableBloomFilterTest {
         Assertions.assertFalse(test.mightContain("three"));
         Assertions.assertTrue(test.add("three"));
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("three"));
             Assertions.assertFalse(test.add("three"));
         }
 
-        for (int i = 0; i < CONSISTENCY_CHECK; i++) {
+        for (int i = 0; i < CONSISTENCY_CHECK_COUNT; i++) {
             Assertions.assertTrue(test.mightContain("one"));
             Assertions.assertFalse(test.add("one"));
             Assertions.assertTrue(test.mightContain("two"));

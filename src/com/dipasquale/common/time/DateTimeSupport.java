@@ -33,11 +33,11 @@ public interface DateTimeSupport {
     Unit<Duration> unit();
 
     static Unit<Duration> getUnit(final TimeUnit unit) {
-        return DateTimeSupportConstants.TIME_UNITS.get(unit);
+        return Constants.TIME_UNITS.get(unit);
     }
 
     static TimeUnit getTimeUnit(final Unit<Duration> unit) {
-        return DateTimeSupportConstants.UNITS.get(unit);
+        return Constants.UNITS.get(unit);
     }
 
     default TimeUnit timeUnit() {
@@ -45,7 +45,7 @@ public interface DateTimeSupport {
     }
 
     static String format(final DateTimeFormatter dateTimeFormatter, final long dateTime, final Unit<Duration> unit) {
-        UnitConverter unitConverter = unit.getConverterTo(DateTimeSupportConstants.MILLISECONDS_UNIT);
+        UnitConverter unitConverter = unit.getConverterTo(Constants.MILLISECONDS_UNIT);
         long dateTimeFixed = (long) unitConverter.convert((double) dateTime);
         Instant dateTimeInstant = new Date(dateTimeFixed).toInstant();
 
@@ -59,7 +59,7 @@ public interface DateTimeSupport {
     }
 
     static long parse(final DateTimeFormatter dateTimeParser, final String dateTime, final Unit<Duration> unit) {
-        UnitConverter unitConverter = DateTimeSupportConstants.MILLISECONDS_UNIT.getConverterTo(unit);
+        UnitConverter unitConverter = Constants.MILLISECONDS_UNIT.getConverterTo(unit);
         TemporalAccessor dateTimeParsed = dateTimeParser.parse(dateTime);
         long dateTimeFixed = ZonedDateTime.from(dateTimeParsed).toInstant().toEpochMilli();
 

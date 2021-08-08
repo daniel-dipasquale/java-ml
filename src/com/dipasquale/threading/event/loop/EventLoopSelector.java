@@ -23,9 +23,9 @@ public interface EventLoopSelector {
 
     static EventLoopSelector createRandom(final boolean contended, final int size) {
         if (!contended) {
-            return createRandom(EventLoopConstants.RANDOM_SUPPORT_UNIFORM, size);
+            return createRandom(Constants.RANDOM_SUPPORT_UNIFORM, size);
         }
 
-        return createRandom(EventLoopConstants.RANDOM_SUPPORT_UNIFORM_CONCURRENT, size);
+        return createRandom(Constants.RANDOM_SUPPORT_UNIFORM_CONCURRENT, size);
     }
 }

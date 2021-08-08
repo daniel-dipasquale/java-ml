@@ -32,6 +32,6 @@ public interface DequeSet<T> extends Set<T>, Serializable {
     Iterator<T> descendingIterator();
 
     static <T> DequeSet<T> createSynchronized(final DequeSet<T> dequeSet) {
-        return new DequeSetSynchronized<>(dequeSet);
+        return new SynchronizedDequeSet<>(dequeSet);
     }
 }

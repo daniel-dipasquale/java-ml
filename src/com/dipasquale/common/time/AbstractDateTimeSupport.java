@@ -20,7 +20,7 @@ abstract class AbstractDateTimeSupport implements DateTimeSupport, Serializable 
     private final DateTimeFormatter dateTimeParser;
 
     protected AbstractDateTimeSupport(final Unit<Duration> unit) {
-        this(unit, DateTimeSupportConstants.DATE_TIME_FORMATTER, DateTimeSupportConstants.DATE_TIME_PARSER);
+        this(unit, Constants.DATE_TIME_FORMATTER, Constants.DATE_TIME_PARSER);
     }
 
     @Override

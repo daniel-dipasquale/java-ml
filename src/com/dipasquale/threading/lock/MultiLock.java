@@ -11,19 +11,19 @@ import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-final class MultiLock implements Lock {
-    private final List<ComparableLock> locks;
-    private final IterableErrorHandler<ComparableLock> lockInterruptiblyHandler;
-    private final MultiWaitHandle tryLockHandler;
+final class MultiLock<T extends Comparable<T>> implements Lock {
+    private final List<ComparableLock<T>> locks;
+    private final IterableErrorHandler<ComparableLock<T>> lockInterruptiblyLocksHandler;
+    private final MultiWaitHandle tryLockLocksHandle;
 
-    public MultiLock(final Iterable<ComparableLock> locks) {
-        List<ComparableLock> locksFixed = StreamSupport.stream(locks.spliterator(), false)
+    MultiLock(final Iterable<ComparableLock<T>> locks) {
+        List<ComparableLock<T>> locksFixed = StreamSupport.stream(locks.spliterator(), false)
                 .sorted()
                 .collect(Collectors.toList());
 
         this.locks = locksFixed;
-        this.lockInterruptiblyHandler = new IterableErrorHandler<>(locksFixed, ComparableLock::lockInterruptibly);
-        this.tryLockHandler = new MultiWaitHandle(LockConstants.DATE_TIME_SUPPORT_NANOSECONDS, LockWaitHandle.translate(locksFixed));
+        this.lockInterruptiblyLocksHandler = new IterableErrorHandler<>(locksFixed, ComparableLock::lockInterruptibly);
+        this.tryLockLocksHandle = MultiWaitHandle.create(locksFixed, LockWaitHandle::new, Constants.DATE_TIME_SUPPORT_NANOSECONDS);
     }
 
     @Override
@@ -37,7 +37,7 @@ final class MultiLock implements Lock {
     public void lockInterruptibly()
             throws InterruptedException {
         synchronized (locks) {
-            lockInterruptiblyHandler.handleAll(() -> new InterruptedException("unable to lock interruptibly on all locks"));
+            lockInterruptiblyLocksHandler.handleAll(() -> new InterruptedException("unable to lock interruptibly on all locks"));
         }
     }
 
@@ -68,7 +68,7 @@ final class MultiLock implements Lock {
     public boolean tryLock(final long time, final TimeUnit unit)
             throws InterruptedException {
         synchronized (locks) {
-            return tryLockHandler.await(time, unit);
+            return tryLockLocksHandle.await(time, unit);
         }
     }
 

@@ -8,15 +8,15 @@ import lombok.RequiredArgsConstructor;
 import java.util.concurrent.locks.ReadWriteLock;
 
 @RequiredArgsConstructor
-public final class ComparableReadWriteLockFactory implements ObjectFactory<ComparableReadWriteLock> {
+public final class ComparableReadWriteLockFactory implements ObjectFactory<ComparableReadWriteLock<Long>> {
     private final ObjectFactory<ReadWriteLock> lockFactory;
     private final ConcurrentIdFactory concurrentIdFactory;
 
     @Override
-    public ComparableReadWriteLock create() {
+    public ComparableReadWriteLock<Long> create() {
         ReadWriteLock readWriteLock = lockFactory.create();
         ConcurrentId<Long> concurrentId = concurrentIdFactory.createId();
 
-        return ComparableReadWriteLock.create(readWriteLock, concurrentId);
+        return new ComparableReadWriteLock<>(readWriteLock, concurrentId);
     }
 }

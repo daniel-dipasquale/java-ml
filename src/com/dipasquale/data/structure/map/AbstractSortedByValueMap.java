@@ -22,14 +22,14 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, TValue> implements SortedByValueMap<TKey, TValue>, Serializable {
+public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, TValue> implements SortedByValueMap<TKey, TValue>, Serializable {
     @Serial
     private static final long serialVersionUID = 2986439092892441609L;
     private final Map<TKey, Entry<TKey, TValue>> map;
     private final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap;
     private final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory;
     private final EntryStrategyFactory<TKey, TValue> entryStrategyFactory;
-    private final MapKeySet<TKey, TValue> descendingKeySet = new MapKeySetIterableProxy<>(this, (Iterable<Map.Entry<TKey, TValue>> & Serializable) this::iteratorDescending);
+    private final MapKeySet<TKey, TValue> descendingKeySet = new MapKeySetProxyIterable<>(this, (Iterable<Map.Entry<TKey, TValue>> & Serializable) this::iteratorDescending);
 
     @Override
     public int size() {

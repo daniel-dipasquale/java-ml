@@ -44,7 +44,7 @@ public final class ProxyDateTimeSupportTest {
 
         Assertions.assertEquals(new ProxyDateTimeSupport(NOW_FACTORY, UNIT), TEST);
         Assertions.assertNotEquals(new ProxyDateTimeSupport(NOW_FACTORY, UNIT, formatter, parser), TEST);
-        Assertions.assertEquals(new ProxyDateTimeSupport(NOW_FACTORY, UNIT, DateTimeSupportConstants.DATE_TIME_FORMATTER, DateTimeSupportConstants.DATE_TIME_PARSER), TEST);
+        Assertions.assertEquals(new ProxyDateTimeSupport(NOW_FACTORY, UNIT, Constants.DATE_TIME_FORMATTER, Constants.DATE_TIME_PARSER), TEST);
         Assertions.assertNotEquals(new ProxyDateTimeSupport(() -> 0L, UNIT), TEST);
     }
 

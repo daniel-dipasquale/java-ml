@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
 public enum EventLoopType {
-    EXPLICIT_DELAY,
-    NO_DELAY
+    NO_DELAY,
+    EXPLICIT_DELAY
 }

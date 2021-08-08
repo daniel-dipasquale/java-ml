@@ -94,7 +94,6 @@ public final class BitManipulatorSupportTest {
     public void TEST_14() {
         Assertions.assertTrue(BitManipulatorSupport.create(64) instanceof Only64BitManipulatorSupport);
         Assertions.assertTrue(BitManipulatorSupport.create(63) instanceof DefaultBitManipulatorSupport);
-        Assertions.assertEquals(63, ((DefaultBitManipulatorSupport) BitManipulatorSupport.create(63)).getUnitTest().getBits());
     }
 
     private static final class BitManipulatorSupportMock implements BitManipulatorSupport {

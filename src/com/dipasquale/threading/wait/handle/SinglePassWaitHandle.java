@@ -33,13 +33,13 @@ public final class SinglePassWaitHandle implements WaitHandle {
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
         boolean acquired = false;
-        long timeoutRemaining = (long) DateTimeSupport.getUnit(unit).getConverterTo(WaitHandleConstants.DATE_TIME_SUPPORT_NANOSECONDS.unit()).convert((double) timeout);
-        long offsetDateTime = WaitHandleConstants.DATE_TIME_SUPPORT_NANOSECONDS.now();
+        long timeoutRemaining = (long) DateTimeSupport.getUnit(unit).getConverterTo(Constants.DATE_TIME_SUPPORT_NANOSECONDS.unit()).convert((double) timeout);
+        long offsetDateTime = Constants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
         while (!acquire() && timeoutRemaining > 0L) {
-            acquired = reusableCountDownLatch.await(timeoutRemaining, WaitHandleConstants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit());
+            acquired = reusableCountDownLatch.await(timeoutRemaining, Constants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit());
 
-            long currentDateTime = WaitHandleConstants.DATE_TIME_SUPPORT_NANOSECONDS.now();
+            long currentDateTime = Constants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
             timeoutRemaining -= currentDateTime - offsetDateTime;
             offsetDateTime = currentDateTime;

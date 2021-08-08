@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.speciation.core.PopulationHistoricalMarkings;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.switcher.ObjectSwitcher;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -44,7 +44,7 @@ public final class DefaultConnectionGeneSupportContext implements Context.Connec
         state.put("connections.genomeGenesisConnector", genomeGenesisConnector);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
+    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         multipleRecurrentCyclesAllowed = state.get("connections.multipleRecurrentCyclesAllowed");
         weightFactory = ObjectSwitcher.switchObject(state.get("connections.weightFactory"), eventLoop != null);
         weightPerturber = ObjectSwitcher.switchObject(state.get("connections.weightPerturber"), eventLoop != null);

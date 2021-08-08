@@ -2,6 +2,7 @@ package com.dipasquale.threading.wait.handle;
 
 import com.dipasquale.common.time.DateTimeSupport;
 import com.google.common.collect.ImmutableList;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -14,16 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public final class MultiWaitHandle implements WaitHandle {
     private static final Map<TimeUnitConversionKey, UnitConverter> TIME_UNIT_CONVERTERS = createTimeUnitConverters();
-    private final DateTimeSupport dateTimeSupport;
-    private final Predicate predicate;
     private final List<? extends WaitHandle> waitHandles;
+    private final DateTimeSupport dateTimeSupport;
+    private final WaitHandleStrategy waitHandleStrategy;
 
-    public MultiWaitHandle(final DateTimeSupport dateTimeSupport, final List<? extends WaitHandle> waitHandles) {
-        this(dateTimeSupport, a -> a == 1, waitHandles);
+    public MultiWaitHandle(final List<? extends WaitHandle> waitHandles, final DateTimeSupport dateTimeSupport) {
+        this(waitHandles, dateTimeSupport, a -> a == 1);
     }
 
     private static Map<TimeUnitConversionKey, UnitConverter> createTimeUnitConverters() {
@@ -62,10 +64,28 @@ public final class MultiWaitHandle implements WaitHandle {
         return timeUnitConverters;
     }
 
+    private static <TWaitHandle extends WaitHandle, TItem> List<TWaitHandle> adapt(final List<TItem> items, final WaitHandleFactory<TItem, TWaitHandle> waitHandlerFactory) {
+        return items.stream()
+                .map(waitHandlerFactory::create)
+                .collect(Collectors.toList());
+    }
+
+    public static <TWaitHandle extends WaitHandle, TItem> MultiWaitHandle create(final List<TItem> items, final WaitHandleFactory<TItem, TWaitHandle> waitHandlerFactory, final DateTimeSupport dateTimeSupport, final WaitHandleStrategy waitHandleStrategy) {
+        List<TWaitHandle> waitHandles = adapt(items, waitHandlerFactory);
+
+        return new MultiWaitHandle(waitHandles, dateTimeSupport, waitHandleStrategy);
+    }
+
+    public static <TWaitHandle extends WaitHandle, TItem> MultiWaitHandle create(final List<TItem> items, final WaitHandleFactory<TItem, TWaitHandle> waitHandlerFactory, final DateTimeSupport dateTimeSupport) {
+        List<TWaitHandle> waitHandles = adapt(items, waitHandlerFactory);
+
+        return new MultiWaitHandle(waitHandles, dateTimeSupport);
+    }
+
     @Override
     public void await()
             throws InterruptedException {
-        for (int attempt = 0; predicate.shouldAwait(++attempt); ) {
+        for (int attempt = 0; waitHandleStrategy.shouldAwait(++attempt); ) {
             for (WaitHandle waitHandle : waitHandles) {
                 waitHandle.await();
             }
@@ -81,7 +101,7 @@ public final class MultiWaitHandle implements WaitHandle {
         long timeoutRemaining = (long) TIME_UNIT_CONVERTERS.get(conversionKey).convert((double) timeout);
         TimeUnit timeUnit = dateTimeSupport.timeUnit();
 
-        for (int attempt = 0; acquired && timeoutRemaining > 0L && predicate.shouldAwait(++attempt); ) {
+        for (int attempt = 0; acquired && timeoutRemaining > 0L && waitHandleStrategy.shouldAwait(++attempt); ) {
             for (int i = 0, c = waitHandles.size(); i < c && acquired && timeoutRemaining > 0L; i++) {
                 acquired = waitHandles.get(i).await(timeoutRemaining, timeUnit);
 
@@ -97,12 +117,7 @@ public final class MultiWaitHandle implements WaitHandle {
         return acquired;
     }
 
-    @FunctionalInterface
-    public interface Predicate {
-        boolean shouldAwait(int attempt);
-    }
-
-    @RequiredArgsConstructor
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
     private static final class TimeUnitConversionKey {
         private final TimeUnit timeUnit;

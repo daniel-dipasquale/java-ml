@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.settings.EvaluatorStateSettings;
 import com.dipasquale.ai.rl.neat.speciation.core.Population;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.SynchronizedOrganismActivator;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -121,7 +121,7 @@ final class SynchronizedNeatEvaluator implements NeatEvaluator {
             }
 
             @Override
-            public EventLoopIterable eventLoop() {
+            public IterableEventLoop eventLoop() {
                 return settings.getEventLoop();
             }
         };

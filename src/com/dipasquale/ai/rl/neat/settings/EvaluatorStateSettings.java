@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +13,6 @@ import lombok.Getter;
 public final class EvaluatorStateSettings {
     private final boolean meantToOverrideTopology;
     private final boolean meantToOverrideSettings;
-    private final EventLoopIterable eventLoop;
+    private final IterableEventLoop eventLoop;
     private final NeatEnvironment environment;
 }

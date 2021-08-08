@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.provider.GateProvider;
 import com.dipasquale.common.switcher.ObjectSwitcher;
-import com.dipasquale.threading.event.loop.EventLoopIterable;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -47,7 +47,7 @@ public final class DefaultMutationSupportContext implements Context.MutationSupp
         state.put("mutation.shouldDisableConnectionExpressed", shouldDisableConnectionExpressed);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final EventLoopIterable eventLoop) {
+    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         shouldAddNodeMutation = ObjectSwitcher.switchObject(state.get("mutation.shouldAddNodeMutation"), eventLoop != null);
         shouldAddConnectionMutation = ObjectSwitcher.switchObject(state.get("mutation.shouldAddConnectionMutation"), eventLoop != null);
         shouldPerturbConnectionWeight = ObjectSwitcher.switchObject(state.get("mutation.shouldPerturbConnectionWeight"), eventLoop != null);
