@@ -18,11 +18,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     @Serial
-    private static final long serialVersionUID = 5859039696728285129L;
-    private final AbstractMap<TKey, TValue> map;
+    private static final long serialVersionUID = -5066011364774171880L;
+    private final Map<TKey, TValue> map;
+    private final IteratorFactory<TKey, TValue> iteratorFactory;
 
     @Override
-    public final int size() {
+    public int size() {
         return map.size();
     }
 
@@ -32,18 +33,18 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     }
 
     @Override
-    public final boolean contains(final Object value) {
+    public boolean contains(final Object value) {
         return map.containsValue(value);
     }
 
     @Override
-    public final boolean add(final TValue value) {
+    public boolean add(final TValue value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public final boolean remove(final Object value) {
-        Optional<TKey> keyToRemove = map.stream()
+    public boolean remove(final Object value) {
+        Optional<TKey> keyToRemove = IteratorFactory.stream(iteratorFactory)
                 .filter(e -> Objects.equals(e.getValue(), value))
                 .map(Map.Entry::getKey)
                 .findFirst();
@@ -54,7 +55,7 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     }
 
     @Override
-    public final boolean addAll(final Collection<? extends TValue> values) {
+    public boolean addAll(final Collection<? extends TValue> values) {
         throw new UnsupportedOperationException();
     }
 
@@ -67,10 +68,10 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     }
 
     @Override
-    public final boolean removeAll(final Collection<?> values) {
+    public boolean removeAll(final Collection<?> values) {
         Set<?> valuesToRemove = ensureSet(values);
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = map.stream()
+        List<Map.Entry<TKey, TValue>> entriesToRemove = IteratorFactory.stream(iteratorFactory)
                 .filter(e -> valuesToRemove.contains(e.getValue()))
                 .collect(Collectors.toList());
 
@@ -80,10 +81,10 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     }
 
     @Override
-    public final boolean retainAll(final Collection<?> values) {
+    public boolean retainAll(final Collection<?> values) {
         Set<?> valuesToRetain = ensureSet(values);
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = map.stream()
+        List<Map.Entry<TKey, TValue>> entriesToRemove = IteratorFactory.stream(iteratorFactory)
                 .filter(e -> !valuesToRetain.contains(e.getValue()))
                 .collect(Collectors.toList());
 
@@ -93,13 +94,13 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     }
 
     @Override
-    public final void clear() {
+    public void clear() {
         map.clear();
     }
 
     @Override
     public Iterator<TValue> iterator() {
-        return map.stream()
+        return IteratorFactory.stream(iteratorFactory)
                 .map(Map.Entry::getValue)
                 .iterator();
     }

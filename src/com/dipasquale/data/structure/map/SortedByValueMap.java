@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Set;
 
 public interface SortedByValueMap<TKey, TValue> extends Map<TKey, TValue> { // TODO: finish this interface
+    Set<TKey> descendingKeySet();
+
     Map.Entry<TKey, TValue> headEntry();
 
     TKey headKey();
@@ -15,6 +17,4 @@ public interface SortedByValueMap<TKey, TValue> extends Map<TKey, TValue> { // T
     TKey tailKey();
 
     TValue tailValue();
-
-    Set<TKey> descendingKeySet();
 }

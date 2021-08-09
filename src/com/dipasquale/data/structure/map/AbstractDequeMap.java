@@ -133,7 +133,7 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
     }
 
     @Override
-    protected Iterator<? extends Entry<TKey, TValue>> iterator() {
+    protected Iterator<Entry<TKey, TValue>> iterator() {
         return nodesDeque.stream()
                 .map(nodesDeque::getValue)
                 .iterator();
@@ -142,7 +142,9 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Getter
     @EqualsAndHashCode
-    private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue> {
+    private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue>, Serializable {
+        @Serial
+        private static final long serialVersionUID = 4663468376592098127L;
         private final TKey key;
         private TValue value;
 
@@ -158,6 +160,6 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
 
     @FunctionalInterface
     private interface NodeReplacer<T extends Node> {
-        boolean replace(T node);
+        void replace(T node);
     }
 }

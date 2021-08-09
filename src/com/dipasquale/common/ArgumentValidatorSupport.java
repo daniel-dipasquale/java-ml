@@ -252,20 +252,20 @@ public final class ArgumentValidatorSupport {
         }
     }
 
-    public static void ensureFalse(final boolean predicate, final String name, final String additionalMessage) {
-        if (predicate) {
+    public static void ensureFalse(final boolean actual, final String name, final String additionalMessage) {
+        if (actual) {
             String message = String.format("%s %s", name, additionalMessage);
 
             throw new IllegalArgumentException(message);
         }
     }
 
-    public static void ensureTrue(final boolean predicate, final String name, final String additionalMessage) {
-        ensureFalse(!predicate, name, additionalMessage);
+    public static void ensureTrue(final boolean actual, final String name, final String additionalMessage) {
+        ensureFalse(!actual, name, additionalMessage);
     }
 
-    public static void ensureNotNull(final Object object, final String name) {
-        if (object == null) {
+    public static void ensureNotNull(final Object actual, final String name) {
+        if (actual == null) {
             String message = String.format("%s cannot be null", name);
 
             throw new IllegalArgumentException(message);

@@ -16,11 +16,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey, TValue>> implements Set<Map.Entry<TKey, TValue>> {
     @Serial
-    private static final long serialVersionUID = -8610531712006123072L;
-    private final AbstractMap<TKey, TValue> map;
+    private static final long serialVersionUID = -7876365235786372188L;
+    private final Map<TKey, TValue> map;
+    private final IteratorFactory<TKey, TValue> iteratorFactory;
 
     @Override
-    public final int size() {
+    public int size() {
         return map.size();
     }
 
@@ -30,7 +31,7 @@ final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey,
     }
 
     @Override
-    public final boolean contains(final Object object) {
+    public boolean contains(final Object object) {
         if (object == null) {
             return false;
         }
@@ -42,12 +43,12 @@ final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey,
     }
 
     @Override
-    public final boolean add(final Map.Entry<TKey, TValue> entry) {
+    public boolean add(final Map.Entry<TKey, TValue> entry) {
         return map.put(entry.getKey(), entry.getValue()) == null;
     }
 
     @Override
-    public final boolean remove(final Object object) {
+    public boolean remove(final Object object) {
         if (object == null) {
             return false;
         }
@@ -65,13 +66,13 @@ final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey,
     }
 
     @Override
-    public final boolean retainAll(final Collection<?> entries) {
+    public boolean retainAll(final Collection<?> entries) {
         Map<TKey, TValue> entriesToRetain = entries.stream()
                 .filter(e -> e instanceof Map.Entry<?, ?>)
                 .map(e -> (Map.Entry<TKey, TValue>) e)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = map.stream()
+        List<Map.Entry<TKey, TValue>> entriesToRemove = IteratorFactory.stream(iteratorFactory)
                 .filter(e -> !entriesToRetain.containsKey(e.getKey()) || !Objects.equals(entriesToRetain.get(e.getKey()), e.getValue()))
                 .collect(Collectors.toList());
 
@@ -81,14 +82,12 @@ final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey,
     }
 
     @Override
-    public final void clear() {
+    public void clear() {
         map.clear();
     }
 
     @Override
     public Iterator<Map.Entry<TKey, TValue>> iterator() {
-        return map.stream()
-                .map(e -> (Map.Entry<TKey, TValue>) e)
-                .iterator();
+        return iteratorFactory.iterator();
     }
 }

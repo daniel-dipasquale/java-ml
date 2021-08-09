@@ -12,8 +12,13 @@ import java.util.Set;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class MapKeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TKey> {
     @Serial
-    private static final long serialVersionUID = -1450772736403367687L;
-    private final AbstractMap<TKey, TValue> map;
+    private static final long serialVersionUID = 6980608787305274843L;
+    private final Map<TKey, TValue> map;
+    private final IteratorFactory<TKey, TValue> iteratorFactory;
+
+    MapKeySet(final Map<TKey, TValue> map) {
+        this(map, () -> map.entrySet().iterator());
+    }
 
     @Override
     public final int size() {
@@ -21,7 +26,7 @@ class MapKeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TK
     }
 
     @Override
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
         return map.isEmpty();
     }
 
@@ -46,8 +51,8 @@ class MapKeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TK
     }
 
     @Override
-    public Iterator<TKey> iterator() {
-        return map.stream()
+    public final Iterator<TKey> iterator() {
+        return IteratorFactory.stream(iteratorFactory)
                 .map(Map.Entry::getKey)
                 .iterator();
     }
