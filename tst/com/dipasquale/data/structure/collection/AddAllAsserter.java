@@ -1,4 +1,4 @@
-package com.dipasquale.data.structure.collection.test;
+package com.dipasquale.data.structure.collection;
 
 import com.google.common.collect.ImmutableList;
 import lombok.Generated;

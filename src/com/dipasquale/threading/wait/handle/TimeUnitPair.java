@@ -2,12 +2,14 @@ package com.dipasquale.threading.wait.handle;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.util.concurrent.TimeUnit;
 
+@Generated
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 @EqualsAndHashCode

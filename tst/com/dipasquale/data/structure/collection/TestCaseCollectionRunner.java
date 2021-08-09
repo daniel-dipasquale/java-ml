@@ -1,4 +1,4 @@
-package com.dipasquale.data.structure.collection.test;
+package com.dipasquale.data.structure.collection;
 
 import lombok.AccessLevel;
 import lombok.Generated;

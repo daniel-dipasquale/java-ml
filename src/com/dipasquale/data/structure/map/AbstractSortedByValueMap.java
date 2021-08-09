@@ -3,7 +3,6 @@ package com.dipasquale.data.structure.map;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.data.structure.set.DequeSet;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -24,26 +23,30 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, TValue> implements SortedByValueMap<TKey, TValue>, Serializable {
     @Serial
-    private static final long serialVersionUID = 2986439092892441609L;
-    private final Map<TKey, Entry<TKey, TValue>> map;
-    private final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap;
+    private static final long serialVersionUID = -6446020115083134726L;
     private final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory;
     private final EntryStrategyFactory<TKey, TValue> entryStrategyFactory;
     private final MapKeySet<TKey, TValue> descendingKeySet = new MapKeySetProxyIterable<>(this, (Iterable<Map.Entry<TKey, TValue>> & Serializable) this::iteratorDescending);
 
+    protected static <TKey, TValue> Storage<TKey, TValue> createStorage(final MapFactory<TKey, TValue> mapFactory, final NavigableMapFactory<TKey, TValue> navigableMapFactory) {
+        return new Storage<>(mapFactory.create(), navigableMapFactory.create());
+    }
+
+    protected abstract Storage<TKey, TValue> getStorage();
+
     @Override
     public int size() {
-        return map.size();
+        return getStorage().map.size();
     }
 
     @Override
     public boolean containsKey(final Object key) {
-        return map.containsKey(key);
+        return getStorage().map.containsKey(key);
     }
 
     @Override
     public boolean containsValue(final Object value) {
-        return navigableMap.containsKey(value);
+        return getStorage().navigableMap.containsKey(value);
     }
 
     private static <TKey, TValue> TValue extractValue(final Entry<TKey, TValue> entry) {
@@ -56,10 +59,10 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
 
     @Override
     public TValue get(final Object key) {
-        return extractValue(map.get(key));
+        return extractValue(getStorage().map.get(key));
     }
 
-    private void removeFromNavigableMap(final Entry<TKey, TValue> entry) {
+    private static <TKey, TValue> void removeFrom(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap, final Entry<TKey, TValue> entry) {
         Set<Entry<TKey, TValue>> entries = navigableMap.get(entry.getValue());
 
         entries.remove(entry);
@@ -69,7 +72,7 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
         }
     }
 
-    private void addToNavigableMap(final Entry<TKey, TValue> entry) {
+    private static <TKey, TValue> void addTo(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap, final Entry<TKey, TValue> entry, final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory) {
         Set<Entry<TKey, TValue>> entries = navigableMap.computeIfAbsent(entry.getValue(), k -> entriesSetFactory.create());
 
         entries.add(entry);
@@ -81,54 +84,49 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
 
     @Override
     public TValue put(final TKey key, final TValue value) {
-        ChangeAudit audit = new ChangeAudit();
+        Storage<TKey, TValue> storage = getStorage();
+        Entry<TKey, TValue> entryOld = storage.map.get(key);
 
-        map.compute(key, (k, oe) -> {
-            if (oe == null) {
-                Entry<TKey, TValue> entry = createEntry(key, value);
+        if (entryOld == null) {
+            Entry<TKey, TValue> entryNew = createEntry(key, value);
 
-                addToNavigableMap(entry);
-                audit.oldValue = null;
+            addTo(storage.navigableMap, entryNew, entriesSetFactory);
+            storage.map.put(key, entryNew);
 
-                return entry;
-            }
+            return null;
+        }
 
-            if (!Objects.equals(oe.getValue(), value)) {
-                Entry<TKey, TValue> entry = createEntry(key, value);
+        if (!Objects.equals(entryOld.getValue(), value)) {
+            Entry<TKey, TValue> entryNew = createEntry(key, value);
 
-                removeFromNavigableMap(oe);
-                addToNavigableMap(entry);
-                audit.oldValue = oe.getValue();
+            removeFrom(storage.navigableMap, entryOld);
+            addTo(storage.navigableMap, entryNew, entriesSetFactory);
+            storage.map.put(key, entryNew);
+        }
 
-                return entry;
-            }
+        return entryOld.getValue();
+    }
 
-            audit.oldValue = oe.getValue();
+    private static <TKey, TValue> TValue remove(final Storage<TKey, TValue> storage, final TKey key) {
+        Entry<TKey, TValue> entryOld = storage.map.remove(key);
 
-            return oe;
-        });
+        if (entryOld == null) {
+            return null;
+        }
 
-        return audit.oldValue;
+        removeFrom(storage.navigableMap, entryOld);
+
+        return entryOld.getValue();
     }
 
     @Override
     public TValue remove(final Object key) {
-        ChangeAudit audit = new ChangeAudit();
-
-        map.computeIfPresent((TKey) key, (k, oe) -> {
-            removeFromNavigableMap(oe);
-            audit.oldValue = oe.getValue();
-
-            return null;
-        });
-
-        return audit.oldValue;
+        return remove(getStorage(), (TKey) key);
     }
 
     @Override
     public void clear() {
-        map.clear();
-        navigableMap.clear();
+        getStorage().clear();
     }
 
     private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap, final Function<DequeSet<Entry<TKey, TValue>>, Stream<Entry<TKey, TValue>>> flatMapper) {
@@ -152,11 +150,11 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
 
     @Override
     protected Iterator<? extends Entry<TKey, TValue>> iterator() {
-        return stream(navigableMap).iterator();
+        return stream(getStorage().navigableMap).iterator();
     }
 
     protected Iterator<Entry<TKey, TValue>> iteratorDescending() {
-        return streamDescending(navigableMap).iterator();
+        return streamDescending(getStorage().navigableMap).iterator();
     }
 
     @Override
@@ -192,7 +190,7 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
 
     @Override
     public Entry<TKey, TValue> headEntry() {
-        return getEntry(navigableMap.firstEntry(), DequeSet::getFirst);
+        return getEntry(getStorage().navigableMap.firstEntry(), DequeSet::getFirst);
     }
 
     @Override
@@ -207,7 +205,7 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
 
     @Override
     public Entry<TKey, TValue> tailEntry() {
-        return getEntry(navigableMap.lastEntry(), DequeSet::getLast);
+        return getEntry(getStorage().navigableMap.lastEntry(), DequeSet::getLast);
     }
 
     @Override
@@ -221,13 +219,29 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
     }
 
     @FunctionalInterface
-    protected interface EntryStrategyFactory<TKey, TValue> {
+    protected interface MapFactory<TKey, TValue> extends ObjectFactory<Map<TKey, Entry<TKey, TValue>>>, Serializable {
+    }
+
+    @FunctionalInterface
+    protected interface NavigableMapFactory<TKey, TValue> extends ObjectFactory<NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>>>, Serializable {
+    }
+
+    @FunctionalInterface
+    protected interface EntryStrategyFactory<TKey, TValue> extends Serializable {
         Entry<TKey, TValue> create(TKey key, TValue value);
     }
 
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class ChangeAudit {
-        private TValue oldValue;
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    protected static final class Storage<TKey, TValue> implements Serializable {
+        @Serial
+        private static final long serialVersionUID = -4400114009879067230L;
+        private final Map<TKey, Entry<TKey, TValue>> map;
+        private final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap;
+
+        protected void clear() {
+            map.clear();
+            navigableMap.clear();
+        }
     }
 
     @FunctionalInterface

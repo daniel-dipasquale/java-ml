@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SlidingWaitHandleSingleThread implements SlidingWaitHandleInternal {
+final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
     private final String name;
-    private final ReusableCountDownLatch mainWaitHandle = new ReusableCountDownLatch(0);
+    private final ReusableCountLatch mainWaitHandle = new ReusableCountLatch(0);
     private boolean isMainWaitLockAcquired = false;
-    private final ReusableCountDownLatch timeoutChangeWaitHandle = new ReusableCountDownLatch(0);
+    private final ReusableCountLatch timeoutChangeWaitHandle = new ReusableCountLatch(0);
     private final ReferenceBox<TimeUnitPair> timeoutChangeTimeUnitPair = new ReferenceBox<>();
 
     private void ensureLocked() {
@@ -31,16 +31,10 @@ final class SlidingWaitHandleSingleThread implements SlidingWaitHandleInternal {
         }
     }
 
-    private void lockOrWaitTimeoutChange() {
+    private void lockOrWaitTimeoutChange()
+            throws InterruptedException {
         synchronized (timeoutChangeWaitHandle) {
-            try {
-                timeoutChangeWaitHandle.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-
-                throw new RuntimeException("thread was interrupted", e);
-            }
-
+            timeoutChangeWaitHandle.await();
             timeoutChangeWaitHandle.countUp();
         }
     }
@@ -105,7 +99,13 @@ final class SlidingWaitHandleSingleThread implements SlidingWaitHandleInternal {
 
     @Override
     public void changeTimeout(final long timeout, final TimeUnit unit) {
-        lockOrWaitTimeoutChange();
+        try {
+            lockOrWaitTimeoutChange();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+
+            throw new RuntimeException("thread was interrupted", e);
+        }
 
         if (timeout > 0L) {
             timeoutChangeTimeUnitPair.set(new TimeUnitPair(timeout, unit));

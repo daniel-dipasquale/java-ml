@@ -1,4 +1,4 @@
-package com.dipasquale.data.structure.collection.test;
+package com.dipasquale.data.structure.collection;
 
 @FunctionalInterface
 public interface AssertEquals {

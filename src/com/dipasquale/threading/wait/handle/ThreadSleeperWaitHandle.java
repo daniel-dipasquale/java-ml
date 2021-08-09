@@ -21,6 +21,7 @@ final class ThreadSleeperWaitHandle implements WaitHandle {
     @Override
     public void await()
             throws InterruptedException {
+        Thread.currentThread().join();
     }
 
     @Override

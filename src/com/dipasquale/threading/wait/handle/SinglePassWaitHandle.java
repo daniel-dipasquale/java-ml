@@ -2,17 +2,20 @@ package com.dipasquale.threading.wait.handle;
 
 import com.dipasquale.common.time.DateTimeSupport;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.quantity.Duration;
+import javax.measure.unit.Unit;
 import java.util.concurrent.TimeUnit;
 
 public final class SinglePassWaitHandle implements WaitHandle {
-    private final ReusableCountDownLatch reusableCountDownLatch = new ReusableCountDownLatch(0);
+    private final ReusableCountLatch reusableCountLatch = new ReusableCountLatch(0);
     private boolean acquired = false;
 
     public boolean acquire() {
-        synchronized (reusableCountDownLatch) {
+        synchronized (reusableCountLatch) {
             if (!acquired) {
                 acquired = true;
-                reusableCountDownLatch.countUp();
+                reusableCountLatch.countUp();
 
                 return true;
             }
@@ -25,7 +28,7 @@ public final class SinglePassWaitHandle implements WaitHandle {
     public void await()
             throws InterruptedException {
         while (!acquire()) {
-            reusableCountDownLatch.await();
+            reusableCountLatch.await();
         }
     }
 
@@ -33,11 +36,13 @@ public final class SinglePassWaitHandle implements WaitHandle {
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
         boolean acquired = false;
-        long timeoutRemaining = (long) DateTimeSupport.getUnit(unit).getConverterTo(Constants.DATE_TIME_SUPPORT_NANOSECONDS.unit()).convert((double) timeout);
+        Unit<Duration> unitFixed = DateTimeSupport.getUnit(unit);
+        UnitConverter unitConverter = unitFixed.getConverterTo(Constants.DATE_TIME_SUPPORT_NANOSECONDS.unit());
+        long timeoutRemaining = (long) unitConverter.convert((double) timeout);
         long offsetDateTime = Constants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
         while (!acquire() && timeoutRemaining > 0L) {
-            acquired = reusableCountDownLatch.await(timeoutRemaining, Constants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit());
+            acquired = reusableCountLatch.await(timeoutRemaining, Constants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit());
 
             long currentDateTime = Constants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
@@ -49,10 +54,10 @@ public final class SinglePassWaitHandle implements WaitHandle {
     }
 
     public void release() {
-        synchronized (reusableCountDownLatch) {
+        synchronized (reusableCountLatch) {
             if (acquired) {
                 acquired = false;
-                reusableCountDownLatch.countDown();
+                reusableCountLatch.countDown();
             }
         }
     }

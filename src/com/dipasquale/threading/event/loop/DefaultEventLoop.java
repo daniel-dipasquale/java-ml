@@ -2,7 +2,7 @@ package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.error.ErrorLogger;
 import com.dipasquale.common.time.DateTimeSupport;
-import com.dipasquale.threading.wait.handle.ReusableCountDownLatch;
+import com.dipasquale.threading.wait.handle.ReusableCountLatch;
 import com.dipasquale.threading.wait.handle.SlidingWaitHandle;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,7 +23,7 @@ final class DefaultEventLoop implements EventLoop {
     private boolean started;
     private final DateTimeSupport dateTimeSupport;
     private boolean isWaitUntilEmptyHandleLocked;
-    private final ReusableCountDownLatch waitUntilEmptyHandle;
+    private final ReusableCountLatch waitUntilEmptyHandle;
     private final SlidingWaitHandle waitWhileEmptyHandle;
     private final ErrorLogger errorLogger;
     private final EventLoop nextEventLoop;
@@ -39,7 +39,7 @@ final class DefaultEventLoop implements EventLoop {
         this.started = false;
         this.dateTimeSupport = params.getDateTimeSupport();
         this.isWaitUntilEmptyHandleLocked = false;
-        this.waitUntilEmptyHandle = new ReusableCountDownLatch(0);
+        this.waitUntilEmptyHandle = new ReusableCountLatch(0);
         this.waitWhileEmptyHandle = new SlidingWaitHandle(name);
         this.errorLogger = params.getErrorLogger();
         this.nextEventLoop = nextEventLoopFixed;

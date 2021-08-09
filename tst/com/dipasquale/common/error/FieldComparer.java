@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Generated
-@Builder
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 public final class FieldComparer<T extends Throwable> {

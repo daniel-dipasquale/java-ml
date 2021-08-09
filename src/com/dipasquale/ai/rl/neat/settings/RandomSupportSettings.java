@@ -11,8 +11,8 @@ import lombok.Builder;
 
 import java.util.Optional;
 
-@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public final class RandomSupportSettings {
     private final RandomType nextIndex;
     private final RandomType isLessThan;

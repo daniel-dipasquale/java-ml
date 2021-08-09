@@ -23,8 +23,8 @@ import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
-import com.dipasquale.data.structure.set.DequeSet;
 import com.dipasquale.data.structure.set.DequeIdentitySet;
+import com.dipasquale.data.structure.set.DequeSet;
 import com.google.common.collect.Iterables;
 
 import java.io.IOException;

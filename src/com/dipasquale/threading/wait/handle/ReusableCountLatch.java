@@ -4,11 +4,11 @@ import java.io.Serial;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-public final class ReusableCountDownLatch implements WaitHandle {
+public final class ReusableCountLatch implements WaitHandle {
     private final Synchronizer synchronizer;
 
     // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
-    public ReusableCountDownLatch(final int initialValue) {
+    public ReusableCountLatch(final int initialValue) {
         this.synchronizer = new Synchronizer(initialValue);
     }
 

@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.error.ErrorComparer;
-import com.dipasquale.data.structure.collection.test.CollectionAsserter;
+import com.dipasquale.data.structure.collection.CollectionAsserter;
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -2,16 +2,16 @@ package com.dipasquale.threading.wait.handle;
 
 import java.util.concurrent.TimeUnit;
 
-public final class SlidingWaitHandle implements SlidingWaitHandleInternal {
+public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
     private static final String NAME = SlidingWaitHandle.class.getSimpleName();
-    private final SlidingWaitHandleSingleThread firstThreadWaitHandle;
+    private final SingleThreadSlidingWaitHandle firstThreadWaitHandle;
     private boolean isFirstLockAcquired;
-    private final ReusableCountDownLatch otherThreadsWaitHandle;
+    private final ReusableCountLatch otherThreadsWaitHandle;
 
     public SlidingWaitHandle(final String name) {
-        this.firstThreadWaitHandle = new SlidingWaitHandleSingleThread(name);
+        this.firstThreadWaitHandle = new SingleThreadSlidingWaitHandle(name);
         this.isFirstLockAcquired = false;
-        this.otherThreadsWaitHandle = new ReusableCountDownLatch(0);
+        this.otherThreadsWaitHandle = new ReusableCountLatch(0);
     }
 
     public SlidingWaitHandle() {
@@ -38,29 +38,29 @@ public final class SlidingWaitHandle implements SlidingWaitHandleInternal {
         }
     }
 
-    private boolean await(final TimeUnitPair timeUnitPair)
+    private boolean await(final TimeUnitPair pair)
             throws InterruptedException {
         if (acquireFirstThreadLock()) {
             try {
-                if (timeUnitPair == null) {
+                if (pair == null) {
                     firstThreadWaitHandle.await();
 
                     return true;
                 }
 
-                return firstThreadWaitHandle.await(timeUnitPair.getTime(), timeUnitPair.getUnit());
+                return firstThreadWaitHandle.await(pair.getTime(), pair.getUnit());
             } finally {
                 releaseFirstThreadLock();
             }
         }
 
-        if (timeUnitPair == null) {
+        if (pair == null) {
             otherThreadsWaitHandle.await();
 
             return true;
         }
 
-        return otherThreadsWaitHandle.await(timeUnitPair.getTime(), timeUnitPair.getUnit());
+        return otherThreadsWaitHandle.await(pair.getTime(), pair.getUnit());
     }
 
     @Override
