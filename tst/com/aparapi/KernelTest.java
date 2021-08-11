@@ -18,6 +18,7 @@ public final class KernelTest {
     private static final float NN_BIAS = 1f;
 
     @Test
+    @Disabled
     public void TEST_1() {
         KernelPreferences preferences = KernelManager.instance().getDefaultPreferences();
 
@@ -229,6 +230,7 @@ public final class KernelTest {
     }
 
     @Test
+    @Disabled
     public void TEST_7() {
         int input = NN_INPUTS;
         int neurons = NN_NEURONS;
@@ -244,6 +246,7 @@ public final class KernelTest {
     }
 
     @Test
+    @Disabled
     public void TEST_8() {
         int input = NN_INPUTS;
         int neurons = NN_NEURONS;
@@ -293,6 +296,7 @@ public final class KernelTest {
     }
 
     @Test
+    @Disabled
     public void TEST_9() {
         int input = NN_INPUTS;
         int neurons = NN_NEURONS;

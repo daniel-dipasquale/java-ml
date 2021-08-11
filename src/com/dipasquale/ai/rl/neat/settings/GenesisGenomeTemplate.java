@@ -1,8 +1,5 @@
 package com.dipasquale.ai.rl.neat.settings;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
-import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.factory.LiteralFloatFactory;
@@ -23,15 +20,7 @@ import java.util.stream.IntStream;
 @Getter(AccessLevel.PACKAGE)
 public final class GenesisGenomeTemplate {
     private final IntegerNumber inputs;
-    @Builder.Default
-    private final FloatNumber inputBias = FloatNumber.literal(0f);
-    @Builder.Default
-    private final EnumValue<ActivationFunctionType> inputActivationFunction = EnumValue.literal(ActivationFunctionType.IDENTITY);
     private final IntegerNumber outputs;
-    @Builder.Default
-    private final FloatNumber outputBias = FloatNumber.random(RandomType.UNIFORM, -1f, 1f);
-    @Builder.Default
-    private final EnumValue<OutputActivationFunctionType> outputActivationFunction = EnumValue.literal(OutputActivationFunctionType.SIGMOID);
     @Builder.Default
     private final List<FloatNumber> biases = ImmutableList.of();
     @Builder.Default

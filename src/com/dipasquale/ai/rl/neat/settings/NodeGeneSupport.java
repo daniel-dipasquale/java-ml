@@ -28,6 +28,14 @@ import java.util.Map;
 @Builder
 public final class NodeGeneSupport {
     @Builder.Default
+    private final FloatNumber inputBias = FloatNumber.literal(0f);
+    @Builder.Default
+    private final EnumValue<ActivationFunctionType> inputActivationFunction = EnumValue.literal(ActivationFunctionType.IDENTITY);
+    @Builder.Default
+    private final FloatNumber outputBias = FloatNumber.random(RandomType.UNIFORM, -1f, 1f);
+    @Builder.Default
+    private final EnumValue<OutputActivationFunctionType> outputActivationFunction = EnumValue.literal(OutputActivationFunctionType.SIGMOID);
+    @Builder.Default
     private final FloatNumber hiddenBias = FloatNumber.random(RandomType.UNIFORM, -1f, 1f);
     @Builder.Default
     private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.TAN_H);
@@ -65,14 +73,14 @@ public final class NodeGeneSupport {
 
     DefaultNodeGeneSupportContext create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelism) {
         Map<NodeGeneType, ObjectSwitcher<FloatFactory>> biasFactorySwitchers = ImmutableMap.<NodeGeneType, ObjectSwitcher<FloatFactory>>builder()
-                .put(NodeGeneType.INPUT, genesisGenomeTemplate.getInputBias().createFactorySwitcher(parallelism))
-                .put(NodeGeneType.OUTPUT, genesisGenomeTemplate.getOutputBias().createFactorySwitcher(parallelism))
+                .put(NodeGeneType.INPUT, inputBias.createFactorySwitcher(parallelism))
+                .put(NodeGeneType.OUTPUT, outputBias.createFactorySwitcher(parallelism))
                 .put(NodeGeneType.BIAS, createBiasFactorySwitcher(genesisGenomeTemplate.getBiases(), parallelism))
                 .put(NodeGeneType.HIDDEN, hiddenBias.createFactorySwitcher(parallelism))
                 .build();
 
-        ObjectSwitcher<EnumFactory<ActivationFunctionType>> inputActivationFunctionTypeFactorySwitcher = genesisGenomeTemplate.getInputActivationFunction().createFactorySwitcher(parallelism);
-        ObjectSwitcher<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactorySwitcher = genesisGenomeTemplate.getOutputActivationFunction().createFactorySwitcher(parallelism);
+        ObjectSwitcher<EnumFactory<ActivationFunctionType>> inputActivationFunctionTypeFactorySwitcher = inputActivationFunction.createFactorySwitcher(parallelism);
+        ObjectSwitcher<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactorySwitcher = outputActivationFunction.createFactorySwitcher(parallelism);
         ObjectSwitcher<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactorySwitcher = hiddenActivationFunction.createFactorySwitcher(parallelism);
 
         Map<NodeGeneType, ObjectSwitcher<ActivationFunctionFactory>> activationFunctionFactorySwitchers = ImmutableMap.<NodeGeneType, ObjectSwitcher<ActivationFunctionFactory>>builder()
