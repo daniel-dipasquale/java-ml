@@ -44,9 +44,18 @@ I'm learning how some machine learning algorithms work by implementing them usin
     1. XOR test
 
    ```java
+        float[][] inputs = new float[][]{
+                new float[]{1f, 1f}, // 0f
+                new float[]{1f, 0f}, // 1f
+                new float[]{0f, 1f}, // 1f
+                new float[]{0f, 0f}  // 0f
+        };
+
+        float[] expectedOutputs = new float[]{0f, 1f, 1f, 0f};
+   
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
                         .general(GeneralEvaluatorSupportSettings.builder()
-                                .populationSize(populationSize)
+                                .populationSize(150)
                                 .genesisGenomeFactory(GenesisGenomeTemplateSettings.builder()
                                         .inputs(IntegerNumberSettings.literal(2))
                                         .inputBias(FloatNumberSettings.literal(0f))
@@ -124,7 +133,7 @@ I'm learning how some machine learning algorithms work by implementing them usin
    ```java
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
                         .general(GeneralEvaluatorSupportSettings.builder()
-                                .populationSize(populationSize)
+                                .populationSize(150)
                                 .genesisGenomeFactory(GenesisGenomeTemplateSettings.builder()
                                         .inputs(IntegerNumberSettings.literal(4))
                                         .inputBias(FloatNumberSettings.literal(0f))
@@ -144,21 +153,21 @@ I'm learning how some machine learning algorithms work by implementing them usin
                                                 CartPoleEnvironment cartPole = CartPoleEnvironment.builder()
                                                         .build();
 
-                                        while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
-                                            float[] input = convertToFloat(cartPole.getState());
-                                            float[] output = genome.activate(input);
+                                                while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
+                                                        float[] input = convertToFloat(cartPole.getState());
+                                                        float[] output = genome.activate(input);
 
-                                            cartPole.stepInDiscrete(output[0]);
+                                                        cartPole.stepInDiscrete(output[0]);
+                                                }
+
+                                                minimumTimeSpent = Math.min(minimumTimeSpent, (float) cartPole.getTimeSpent());
                                         }
 
-                                        minimumTimeSpent = Math.min(minimumTimeSpent, (float) cartPole.getTimeSpent());
-                                    }
+                                        if (Float.compare(minimumTimeSpent, Float.MAX_VALUE) == 0) {
+                                                return 0f;
+                                        }
 
-                                    if (Float.compare(minimumTimeSpent, Float.MAX_VALUE) == 0) {
-                                        return 0f;
-                                    }
-
-                                    return minimumTimeSpent;
+                                        return minimumTimeSpent;
                                 })
                                 .build())
                         .nodes(NodeGeneSupportSettings.builder()
