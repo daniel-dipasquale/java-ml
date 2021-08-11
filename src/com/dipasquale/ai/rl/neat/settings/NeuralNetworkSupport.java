@@ -16,7 +16,7 @@ import java.io.Serializable;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter(AccessLevel.PACKAGE)
-public final class NeuralNetworkSupportSettings {
+public final class NeuralNetworkSupport {
     @Builder.Default
     private final NeuralNetworkType type = NeuralNetworkType.MULTI_CYCLE_RECURRENT;
 

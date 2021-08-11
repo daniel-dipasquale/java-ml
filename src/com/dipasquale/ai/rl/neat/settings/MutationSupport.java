@@ -4,7 +4,6 @@ import com.dipasquale.ai.rl.neat.context.DefaultMutationSupportContext;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.provider.GateProvider;
 import com.dipasquale.common.provider.LiteralGateProvider;
-import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.switcher.DefaultObjectSwitcher;
 import com.dipasquale.common.switcher.ObjectSwitcher;
 import com.dipasquale.common.switcher.provider.IsLessThanRandomGateProviderSwitcher;
@@ -15,29 +14,29 @@ import lombok.RequiredArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class MutationSupportSettings {
+public final class MutationSupport {
     @Builder.Default
-    private final FloatNumberSettings addNodeMutationRate = FloatNumberSettings.literal(0.1f);
+    private final FloatNumber addNodeMutationRate = FloatNumber.literal(0.1f);
     @Builder.Default
-    private final FloatNumberSettings addConnectionMutationRate = FloatNumberSettings.literal(0.2f);
+    private final FloatNumber addConnectionMutationRate = FloatNumber.literal(0.2f);
     @Builder.Default
-    private final FloatNumberSettings perturbConnectionsWeightRate = FloatNumberSettings.literal(0.75f);
+    private final FloatNumber perturbConnectionsWeightRate = FloatNumber.literal(0.75f);
     @Builder.Default
-    private final FloatNumberSettings replaceConnectionsWeightRate = FloatNumberSettings.literal(0.5f);
+    private final FloatNumber replaceConnectionsWeightRate = FloatNumber.literal(0.5f);
     @Builder.Default
-    private final FloatNumberSettings disableConnectionExpressedRate = FloatNumberSettings.literal(0.05f);
+    private final FloatNumber disableConnectionExpressedRate = FloatNumber.literal(0.05f);
 
-    private static ObjectSwitcher<GateProvider> createLiteralProviderSwitcher(final boolean isOn, final ParallelismSupportSettings parallelism) {
+    private static ObjectSwitcher<GateProvider> createLiteralProviderSwitcher(final boolean isOn, final ParallelismSupport parallelism) {
         return new DefaultObjectSwitcher<>(parallelism.isEnabled(), new LiteralGateProvider(isOn));
     }
 
-    private static ObjectSwitcher<GateProvider> createIsLessThanProviderSwitcher(final ObjectSwitcher<RandomSupport> randomSupportSwitcher, final float max, final ParallelismSupportSettings parallelism) {
-        Pair<RandomSupport> randomSupportPair = ObjectSwitcher.deconstruct(randomSupportSwitcher);
+    private static ObjectSwitcher<GateProvider> createIsLessThanProviderSwitcher(final ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher, final float max, final ParallelismSupport parallelism) {
+        Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectSwitcher.deconstruct(randomSupportSwitcher);
 
         return new IsLessThanRandomGateProviderSwitcher(parallelism.isEnabled(), randomSupportPair, max);
     }
 
-    private ConnectionWeightProviderSwitchers createConnectionWeightProviderSwitchers(final ObjectSwitcher<RandomSupport> randomSupportSwitcher, final ParallelismSupportSettings parallelism) {
+    private ConnectionWeightProviderSwitchers createConnectionWeightProviderSwitchers(final ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher, final ParallelismSupport parallelism) {
         float perturbRate = perturbConnectionsWeightRate.createFactorySwitcher(parallelism).getObject().create();
         float replaceRate = replaceConnectionsWeightRate.createFactorySwitcher(parallelism).getObject().create();
         float totalRate = (float) Math.ceil(perturbRate + replaceRate);
@@ -56,14 +55,14 @@ public final class MutationSupportSettings {
         return new ConnectionWeightProviderSwitchers(perturbSwitcher, replaceSwitcher);
     }
 
-    private static ObjectSwitcher<GateProvider> createIsLessThanProviderSwitcher(final ObjectSwitcher<RandomSupport> randomSupportSwitcher, final FloatNumberSettings maximumNumber, final ParallelismSupportSettings parallelism) {
+    private static ObjectSwitcher<GateProvider> createIsLessThanProviderSwitcher(final ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher, final FloatNumber maximumNumber, final ParallelismSupport parallelism) {
         float max = maximumNumber.createFactorySwitcher(parallelism).getObject().create();
 
         return createIsLessThanProviderSwitcher(randomSupportSwitcher, max, parallelism);
     }
 
-    DefaultMutationSupportContext create(final ParallelismSupportSettings parallelism, final RandomSupportSettings random) {
-        ObjectSwitcher<RandomSupport> randomSupportSwitcher = random.createIsLessThanSwitcher(parallelism);
+    DefaultMutationSupportContext create(final ParallelismSupport parallelism, final RandomSupport random) {
+        ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher = random.createIsLessThanSwitcher(parallelism);
         ObjectSwitcher<GateProvider> shouldAddNodeMutationSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, addNodeMutationRate, parallelism);
         ObjectSwitcher<GateProvider> shouldAddConnectionMutationSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, addConnectionMutationRate, parallelism);
         ConnectionWeightProviderSwitchers connectionsWeightProviderSwitchers = createConnectionWeightProviderSwitchers(randomSupportSwitcher, parallelism);

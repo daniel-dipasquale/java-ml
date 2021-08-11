@@ -12,11 +12,11 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter(AccessLevel.PACKAGE)
-public final class GeneralEvaluatorSupportSettings {
+public final class GeneralEvaluatorSupport {
     @Builder.Default
     private final int populationSize = 150;
     @Builder.Default
-    private final GenesisGenomeTemplateSettings genesisGenomeFactory = null;
+    private final GenesisGenomeTemplate genesisGenomeFactory = null;
     @Builder.Default
     private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValue();
     @Builder.Default

@@ -26,13 +26,13 @@ import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class NodeGeneSupportSettings {
+public final class NodeGeneSupport {
     @Builder.Default
-    private final FloatNumberSettings hiddenBias = FloatNumberSettings.random(RandomType.UNIFORM, -1f, 1f);
+    private final FloatNumber hiddenBias = FloatNumber.random(RandomType.UNIFORM, -1f, 1f);
     @Builder.Default
-    private final EnumSettings<ActivationFunctionType> hiddenActivationFunction = EnumSettings.literal(ActivationFunctionType.TAN_H);
+    private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.TAN_H);
 
-    private static ObjectSwitcher<FloatFactory> createBiasFactorySwitcher(final List<FloatNumberSettings> biases, final ParallelismSupportSettings parallelism) {
+    private static ObjectSwitcher<FloatFactory> createBiasFactorySwitcher(final List<FloatNumber> biases, final ParallelismSupport parallelism) {
         if (biases.isEmpty()) {
             IllegalStateFloatFactory floatFactory = new IllegalStateFloatFactory("there are no biases allowed in this genome");
 
@@ -46,24 +46,24 @@ public final class NodeGeneSupportSettings {
         return new CyclicFloatFactorySwitcher(parallelism.isEnabled(), biasNodeBiasFactoryPairs);
     }
 
-    private static ObjectSwitcher<ActivationFunctionFactory> createActivationFunctionFactorySwitcher(final ObjectSwitcher<EnumFactory<ActivationFunctionType>> activationFunctionTypeFactorySwitcher, final ParallelismSupportSettings parallelism) {
+    private static ObjectSwitcher<ActivationFunctionFactory> createActivationFunctionFactorySwitcher(final ObjectSwitcher<EnumFactory<ActivationFunctionType>> activationFunctionTypeFactorySwitcher, final ParallelismSupport parallelism) {
         Pair<EnumFactory<ActivationFunctionType>> activationFunctionTypeFactoryPair = ObjectSwitcher.deconstruct(activationFunctionTypeFactorySwitcher);
 
         return new DefaultActivationFunctionFactorySwitcher(parallelism.isEnabled(), activationFunctionTypeFactoryPair);
     }
 
-    private static ObjectSwitcher<ActivationFunctionFactory> createActivationFunctionFactorySwitcher(final ObjectSwitcher<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactorySwitcher, final ObjectSwitcher<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactorySwitcher, final ParallelismSupportSettings parallelism) {
+    private static ObjectSwitcher<ActivationFunctionFactory> createActivationFunctionFactorySwitcher(final ObjectSwitcher<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactorySwitcher, final ObjectSwitcher<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactorySwitcher, final ParallelismSupport parallelism) {
         Pair<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactoryPair = ObjectSwitcher.deconstruct(outputActivationFunctionTypeFactorySwitcher);
         Pair<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactoryPair = ObjectSwitcher.deconstruct(hiddenActivationFunctionTypeFactorySwitcher);
 
         return new OutputActivationFunctionFactorySwitcher(parallelism.isEnabled(), outputActivationFunctionTypeFactoryPair, hiddenActivationFunctionTypeFactoryPair);
     }
 
-    private static ObjectSwitcher<ActivationFunctionFactory> createActivationFunctionFactorySwitcher(final ActivationFunctionType activationFunctionType, final ParallelismSupportSettings parallelism) {
+    private static ObjectSwitcher<ActivationFunctionFactory> createActivationFunctionFactorySwitcher(final ActivationFunctionType activationFunctionType, final ParallelismSupport parallelism) {
         return new LiteralActivationFunctionFactorySwitcher(parallelism.isEnabled(), activationFunctionType);
     }
 
-    DefaultNodeGeneSupportContext create(final GenesisGenomeTemplateSettings genesisGenomeTemplate, final ParallelismSupportSettings parallelism) {
+    DefaultNodeGeneSupportContext create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelism) {
         Map<NodeGeneType, ObjectSwitcher<FloatFactory>> biasFactorySwitchers = ImmutableMap.<NodeGeneType, ObjectSwitcher<FloatFactory>>builder()
                 .put(NodeGeneType.INPUT, genesisGenomeTemplate.getInputBias().createFactorySwitcher(parallelism))
                 .put(NodeGeneType.OUTPUT, genesisGenomeTemplate.getOutputBias().createFactorySwitcher(parallelism))

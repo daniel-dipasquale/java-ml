@@ -14,20 +14,20 @@ import lombok.Builder;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class ConnectionGeneSupportSettings {
+public final class ConnectionGeneSupport {
     @Builder.Default
-    private final FloatNumberSettings weightFactory = FloatNumberSettings.random(RandomType.UNIFORM, -1f, 1f);
+    private final FloatNumber weightFactory = FloatNumber.random(RandomType.UNIFORM, -1f, 1f);
     @Builder.Default
-    private final FloatNumberSettings weightPerturber = FloatNumberSettings.literal(2.5f);
+    private final FloatNumber weightPerturber = FloatNumber.literal(2.5f);
 
-    private ObjectSwitcher<WeightPerturber> createWeightPerturberSwitcher(final ParallelismSupportSettings parallelism) {
+    private ObjectSwitcher<WeightPerturber> createWeightPerturberSwitcher(final ParallelismSupport parallelism) {
         ObjectSwitcher<FloatFactory> floatFactorySwitcher = weightPerturber.createFactorySwitcher(parallelism);
         Pair<FloatFactory> floatFactoryPair = ObjectSwitcher.deconstruct(floatFactorySwitcher);
 
         return new WeightPerturberSwitcher(parallelism.isEnabled(), floatFactoryPair);
     }
 
-    DefaultConnectionGeneSupportContext create(final GenesisGenomeTemplateSettings genesisGenomeTemplate, final NeuralNetworkSupportSettings neuralNetwork, final ParallelismSupportSettings parallelism) {
+    DefaultConnectionGeneSupportContext create(final GenesisGenomeTemplate genesisGenomeTemplate, final NeuralNetworkSupport neuralNetwork, final ParallelismSupport parallelism) {
         boolean multipleRecurrentCyclesAllowed = neuralNetwork.getType() == NeuralNetworkType.MULTI_CYCLE_RECURRENT;
         ObjectSwitcher<FloatFactory> weightFactorySwitcher = weightFactory.createFactorySwitcher(parallelism);
         ObjectSwitcher<WeightPerturber> weightPerturberSwitcher = createWeightPerturberSwitcher(parallelism);

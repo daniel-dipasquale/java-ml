@@ -4,7 +4,6 @@ import com.dipasquale.ai.rl.neat.context.DefaultCrossOverSupportContext;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.provider.GateProvider;
 import com.dipasquale.common.provider.LiteralGateProvider;
-import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.switcher.DefaultObjectSwitcher;
 import com.dipasquale.common.switcher.ObjectSwitcher;
 import com.dipasquale.common.switcher.provider.IsLessThanRandomGateProviderSwitcher;
@@ -15,27 +14,27 @@ import lombok.RequiredArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class CrossOverSupportSettings {
+public final class CrossOverSupport {
     @Builder.Default
-    private final FloatNumberSettings mateOnlyRate = FloatNumberSettings.literal(0.2f);
+    private final FloatNumber mateOnlyRate = FloatNumber.literal(0.2f);
     @Builder.Default
-    private final FloatNumberSettings mutateOnlyRate = FloatNumberSettings.literal(0.25f);
+    private final FloatNumber mutateOnlyRate = FloatNumber.literal(0.25f);
     @Builder.Default
-    private final FloatNumberSettings overrideConnectionExpressedRate = FloatNumberSettings.literal(0.5f);
+    private final FloatNumber overrideConnectionExpressedRate = FloatNumber.literal(0.5f);
     @Builder.Default
-    private final FloatNumberSettings useRandomParentConnectionWeightRate = FloatNumberSettings.literal(0.6f);
+    private final FloatNumber useRandomParentConnectionWeightRate = FloatNumber.literal(0.6f);
 
-    private static ObjectSwitcher<GateProvider> createLiteralProviderSwitcher(final boolean isOn, final ParallelismSupportSettings parallelism) {
+    private static ObjectSwitcher<GateProvider> createLiteralProviderSwitcher(final boolean isOn, final ParallelismSupport parallelism) {
         return new DefaultObjectSwitcher<>(parallelism.isEnabled(), new LiteralGateProvider(isOn));
     }
 
-    private static ObjectSwitcher<GateProvider> createIsLessThanProviderSwitcher(final ObjectSwitcher<RandomSupport> randomSupportSwitcher, final float max, final ParallelismSupportSettings parallelism) {
-        Pair<RandomSupport> randomSupportPair = ObjectSwitcher.deconstruct(randomSupportSwitcher);
+    private static ObjectSwitcher<GateProvider> createIsLessThanProviderSwitcher(final ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher, final float max, final ParallelismSupport parallelism) {
+        Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectSwitcher.deconstruct(randomSupportSwitcher);
 
         return new IsLessThanRandomGateProviderSwitcher(parallelism.isEnabled(), randomSupportPair, max);
     }
 
-    private CrossOverProviderSwitchers createCrossOverProviderSwitchers(final ObjectSwitcher<RandomSupport> randomSupportSwitcher, final ParallelismSupportSettings parallelism) {
+    private CrossOverProviderSwitchers createCrossOverProviderSwitchers(final ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher, final ParallelismSupport parallelism) {
         float _mateOnlyRate = mateOnlyRate.createFactorySwitcher(parallelism).getObject().create();
         float _mutateOnlyRate = mutateOnlyRate.createFactorySwitcher(parallelism).getObject().create();
         float totalRate = (float) Math.ceil(_mateOnlyRate + _mutateOnlyRate);
@@ -57,14 +56,14 @@ public final class CrossOverSupportSettings {
         return new CrossOverProviderSwitchers(mateAndMutateSwitcher, mateOnlySwitcher, mutateOnlySwitcher);
     }
 
-    private static ObjectSwitcher<GateProvider> createIsLessThanProviderSwitcher(final ObjectSwitcher<RandomSupport> randomSupportSwitcher, final FloatNumberSettings maximumNumber, final ParallelismSupportSettings parallelism) {
+    private static ObjectSwitcher<GateProvider> createIsLessThanProviderSwitcher(final ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher, final FloatNumber maximumNumber, final ParallelismSupport parallelism) {
         float max = maximumNumber.createFactorySwitcher(parallelism).getObject().create();
 
         return createIsLessThanProviderSwitcher(randomSupportSwitcher, max, parallelism);
     }
 
-    DefaultCrossOverSupportContext create(final ParallelismSupportSettings parallelism, final RandomSupportSettings random) {
-        ObjectSwitcher<RandomSupport> randomSupportSwitcher = random.createIsLessThanSwitcher(parallelism);
+    DefaultCrossOverSupportContext create(final ParallelismSupport parallelism, final RandomSupport random) {
+        ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher = random.createIsLessThanSwitcher(parallelism);
         CrossOverProviderSwitchers crossOverProviderSwitchers = createCrossOverProviderSwitchers(randomSupportSwitcher, parallelism);
         ObjectSwitcher<GateProvider> shouldOverrideConnectionExpressedSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, overrideConnectionExpressedRate, parallelism);
         ObjectSwitcher<GateProvider> shouldUseRandomParentConnectionWeightSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, useRandomParentConnectionWeightRate, parallelism);

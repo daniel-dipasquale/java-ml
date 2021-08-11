@@ -10,27 +10,27 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class FloatNumberSettings {
+public final class FloatNumber {
     private final ObjectSwitcherFactoryCreator factoryCreator;
 
-    public static FloatNumberSettings literal(final float value) {
+    public static FloatNumber literal(final float value) {
         ObjectSwitcherFactoryCreator factoryCreator = p -> new DefaultObjectSwitcher<>(p.isEnabled(), new LiteralFloatFactory(value));
 
-        return new FloatNumberSettings(factoryCreator);
+        return new FloatNumber(factoryCreator);
     }
 
-    public static FloatNumberSettings random(final RandomType type, final float min, final float max) {
+    public static FloatNumber random(final RandomType type, final float min, final float max) {
         ObjectSwitcherFactoryCreator factoryCreator = p -> new BoundedRandomFloatFactorySwitcher(p.isEnabled(), type, min, max);
 
-        return new FloatNumberSettings(factoryCreator);
+        return new FloatNumber(factoryCreator);
     }
 
-    ObjectSwitcher<FloatFactory> createFactorySwitcher(final ParallelismSupportSettings parallelism) {
+    ObjectSwitcher<FloatFactory> createFactorySwitcher(final ParallelismSupport parallelism) {
         return factoryCreator.create(parallelism);
     }
 
     @FunctionalInterface
     private interface ObjectSwitcherFactoryCreator {
-        ObjectSwitcher<FloatFactory> create(ParallelismSupportSettings parallelism);
+        ObjectSwitcher<FloatFactory> create(ParallelismSupport parallelism);
     }
 }

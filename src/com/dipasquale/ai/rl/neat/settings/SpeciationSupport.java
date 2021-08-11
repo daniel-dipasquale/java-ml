@@ -13,33 +13,33 @@ import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class SpeciationSupportSettings {
+public final class SpeciationSupport {
     @Builder.Default
-    private final IntegerNumberSettings maximumSpecies = null;
+    private final IntegerNumber maximumSpecies = null;
     @Builder.Default
-    private final IntegerNumberSettings maximumGenomes = null;
+    private final IntegerNumber maximumGenomes = null;
     @Builder.Default
-    private final FloatNumberSettings weightDifferenceCoefficient = FloatNumberSettings.literal(0.5f);
+    private final FloatNumber weightDifferenceCoefficient = FloatNumber.literal(0.5f);
     @Builder.Default
-    private final FloatNumberSettings disjointCoefficient = FloatNumberSettings.literal(1f);
+    private final FloatNumber disjointCoefficient = FloatNumber.literal(1f);
     @Builder.Default
-    private final FloatNumberSettings excessCoefficient = FloatNumberSettings.literal(1f);
+    private final FloatNumber excessCoefficient = FloatNumber.literal(1f);
     @Builder.Default
-    private final FloatNumberSettings compatibilityThreshold = FloatNumberSettings.literal(3f);
+    private final FloatNumber compatibilityThreshold = FloatNumber.literal(3f);
     @Builder.Default
-    private final FloatNumberSettings compatibilityThresholdModifier = FloatNumberSettings.literal(1.2f);
+    private final FloatNumber compatibilityThresholdModifier = FloatNumber.literal(1.2f);
     @Builder.Default
-    private final FloatNumberSettings eugenicsThreshold = FloatNumberSettings.literal(0.2f);
+    private final FloatNumber eugenicsThreshold = FloatNumber.literal(0.2f);
     @Builder.Default
-    private final FloatNumberSettings elitistThreshold = FloatNumberSettings.literal(0.01f);
+    private final FloatNumber elitistThreshold = FloatNumber.literal(0.01f);
     @Builder.Default
-    private final IntegerNumberSettings elitistThresholdMinimum = IntegerNumberSettings.literal(2);
+    private final IntegerNumber elitistThresholdMinimum = IntegerNumber.literal(2);
     @Builder.Default
-    private final IntegerNumberSettings stagnationDropOffAge = IntegerNumberSettings.literal(15);
+    private final IntegerNumber stagnationDropOffAge = IntegerNumber.literal(15);
     @Builder.Default
-    private final FloatNumberSettings interSpeciesMatingRate = FloatNumberSettings.literal(0.001f);
+    private final FloatNumber interSpeciesMatingRate = FloatNumber.literal(0.001f);
 
-    DefaultSpeciationSupportContext create(final GeneralEvaluatorSupportSettings general, final ParallelismSupportSettings parallelism) {
+    DefaultSpeciationSupportContext create(final GeneralEvaluatorSupport general, final ParallelismSupport parallelism) {
         int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
                 .map(sin -> sin.createFactorySwitcher(parallelism))
                 .map(ObjectSwitcher::getObject)

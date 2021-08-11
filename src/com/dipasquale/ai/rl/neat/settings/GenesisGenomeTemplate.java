@@ -21,39 +21,39 @@ import java.util.stream.IntStream;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter(AccessLevel.PACKAGE)
-public final class GenesisGenomeTemplateSettings {
-    private final IntegerNumberSettings inputs;
+public final class GenesisGenomeTemplate {
+    private final IntegerNumber inputs;
     @Builder.Default
-    private final FloatNumberSettings inputBias = FloatNumberSettings.literal(0f);
+    private final FloatNumber inputBias = FloatNumber.literal(0f);
     @Builder.Default
-    private final EnumSettings<ActivationFunctionType> inputActivationFunction = EnumSettings.literal(ActivationFunctionType.IDENTITY);
-    private final IntegerNumberSettings outputs;
+    private final EnumValue<ActivationFunctionType> inputActivationFunction = EnumValue.literal(ActivationFunctionType.IDENTITY);
+    private final IntegerNumber outputs;
     @Builder.Default
-    private final FloatNumberSettings outputBias = FloatNumberSettings.random(RandomType.UNIFORM, -1f, 1f);
+    private final FloatNumber outputBias = FloatNumber.random(RandomType.UNIFORM, -1f, 1f);
     @Builder.Default
-    private final EnumSettings<OutputActivationFunctionType> outputActivationFunction = EnumSettings.literal(OutputActivationFunctionType.SIGMOID);
+    private final EnumValue<OutputActivationFunctionType> outputActivationFunction = EnumValue.literal(OutputActivationFunctionType.SIGMOID);
     @Builder.Default
-    private final List<FloatNumberSettings> biases = ImmutableList.of();
+    private final List<FloatNumber> biases = ImmutableList.of();
     @Builder.Default
     private final InitialConnectionType initialConnectionType = InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS;
     @Builder.Default
     private final InitialWeightType initialWeightType = InitialWeightType.RANDOM;
 
-    public static GenesisGenomeTemplateSettings createDefault(final int inputs, final int outputs, final float[] bias) {
-        return GenesisGenomeTemplateSettings.builder()
-                .inputs(IntegerNumberSettings.literal(inputs))
-                .outputs(IntegerNumberSettings.literal(outputs))
+    public static GenesisGenomeTemplate createDefault(final int inputs, final int outputs, final float[] bias) {
+        return GenesisGenomeTemplate.builder()
+                .inputs(IntegerNumber.literal(inputs))
+                .outputs(IntegerNumber.literal(outputs))
                 .biases(IntStream.range(0, bias.length)
-                        .mapToObj(i -> FloatNumberSettings.literal(bias[i]))
+                        .mapToObj(i -> FloatNumber.literal(bias[i]))
                         .collect(Collectors.toList()))
                 .build();
     }
 
-    public static GenesisGenomeTemplateSettings createDefault(final int inputs, final int outputs) {
+    public static GenesisGenomeTemplate createDefault(final int inputs, final int outputs) {
         return createDefault(inputs, outputs, new float[0]);
     }
 
-    private ObjectSwitcher<FloatFactory> createWeightFactory(final ObjectSwitcher<FloatFactory> weightFactorySwitcher, final ParallelismSupportSettings parallelism) {
+    private ObjectSwitcher<FloatFactory> createWeightFactory(final ObjectSwitcher<FloatFactory> weightFactorySwitcher, final ParallelismSupport parallelism) {
         if (initialWeightType == InitialWeightType.RANDOM) {
             return weightFactorySwitcher;
         }
@@ -64,7 +64,7 @@ public final class GenesisGenomeTemplateSettings {
         return new DefaultObjectSwitcher<>(parallelism.isEnabled(), weightFactory);
     }
 
-    public GenomeGenesisConnector createConnector(final ObjectSwitcher<FloatFactory> weightFactory, final ParallelismSupportSettings parallelism) {
+    public GenomeGenesisConnector createConnector(final ObjectSwitcher<FloatFactory> weightFactory, final ParallelismSupport parallelism) {
         ObjectSwitcher<FloatFactory> weightFactorySwitcher = createWeightFactory(weightFactory, parallelism);
 
         return switch (initialConnectionType) {

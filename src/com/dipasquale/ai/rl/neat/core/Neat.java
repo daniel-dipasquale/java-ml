@@ -2,8 +2,8 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.settings.EvaluatorSettings;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorStateSettings;
-import com.dipasquale.ai.rl.neat.settings.GeneralEvaluatorSupportSettings;
-import com.dipasquale.ai.rl.neat.settings.GenesisGenomeTemplateSettings;
+import com.dipasquale.ai.rl.neat.settings.GeneralEvaluatorSupport;
+import com.dipasquale.ai.rl.neat.settings.GenesisGenomeTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,8 +20,8 @@ public interface Neat {
     static NeatEvaluatorTrainer createEvaluatorTrainer(final InputStream inputStream, final EvaluatorStateSettings settings)
             throws IOException {
         EvaluatorSettings evaluatorTrainerSettings = EvaluatorSettings.builder()
-                .general(GeneralEvaluatorSupportSettings.builder()
-                        .genesisGenomeFactory(GenesisGenomeTemplateSettings.createDefault(1, 1))
+                .general(GeneralEvaluatorSupport.builder()
+                        .genesisGenomeFactory(GenesisGenomeTemplate.createDefault(1, 1))
                         .fitnessFunction(g -> 0f)
                         .build())
                 .build();

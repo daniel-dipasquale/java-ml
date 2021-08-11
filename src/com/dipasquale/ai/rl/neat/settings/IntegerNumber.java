@@ -10,27 +10,27 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class IntegerNumberSettings {
+public final class IntegerNumber {
     private final ObjectSwitcherFactoryCreator factoryCreator;
 
-    public static IntegerNumberSettings literal(final int value) {
+    public static IntegerNumber literal(final int value) {
         ObjectSwitcherFactoryCreator factoryCreator = p -> new DefaultObjectSwitcher<>(p.isEnabled(), new LiteralIntegerFactory(value));
 
-        return new IntegerNumberSettings(factoryCreator);
+        return new IntegerNumber(factoryCreator);
     }
 
-    public static IntegerNumberSettings random(final RandomType type, final int min, final int max) {
+    public static IntegerNumber random(final RandomType type, final int min, final int max) {
         ObjectSwitcherFactoryCreator factoryCreator = p -> new BoundedRandomIntegerFactorySwitcher(p.isEnabled(), type, min, max);
 
-        return new IntegerNumberSettings(factoryCreator);
+        return new IntegerNumber(factoryCreator);
     }
 
-    ObjectSwitcher<IntegerFactory> createFactorySwitcher(final ParallelismSupportSettings parallelism) {
+    ObjectSwitcher<IntegerFactory> createFactorySwitcher(final ParallelismSupport parallelism) {
         return factoryCreator.create(parallelism);
     }
 
     @FunctionalInterface
     private interface ObjectSwitcherFactoryCreator {
-        ObjectSwitcher<IntegerFactory> create(ParallelismSupportSettings parallelism);
+        ObjectSwitcher<IntegerFactory> create(ParallelismSupport parallelism);
     }
 }

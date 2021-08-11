@@ -19,39 +19,39 @@ import lombok.Builder;
 @Builder
 public final class EvaluatorSettings {
     @Builder.Default
-    private final GeneralEvaluatorSupportSettings general = GeneralEvaluatorSupportSettings.builder()
+    private final GeneralEvaluatorSupport general = GeneralEvaluatorSupport.builder()
             .build();
 
     @Builder.Default
-    private final NodeGeneSupportSettings nodes = NodeGeneSupportSettings.builder()
+    private final NodeGeneSupport nodes = NodeGeneSupport.builder()
             .build();
 
     @Builder.Default
-    private final ConnectionGeneSupportSettings connections = ConnectionGeneSupportSettings.builder()
+    private final ConnectionGeneSupport connections = ConnectionGeneSupport.builder()
             .build();
 
     @Builder.Default
-    private final NeuralNetworkSupportSettings neuralNetwork = NeuralNetworkSupportSettings.builder()
+    private final NeuralNetworkSupport neuralNetwork = NeuralNetworkSupport.builder()
             .build();
 
     @Builder.Default
-    private final ParallelismSupportSettings parallelism = ParallelismSupportSettings.builder()
+    private final ParallelismSupport parallelism = ParallelismSupport.builder()
             .build();
 
     @Builder.Default
-    private final RandomSupportSettings random = RandomSupportSettings.builder()
+    private final RandomSupport random = RandomSupport.builder()
             .build();
 
     @Builder.Default
-    private final MutationSupportSettings mutation = MutationSupportSettings.builder()
+    private final MutationSupport mutation = MutationSupport.builder()
             .build();
 
     @Builder.Default
-    private final CrossOverSupportSettings crossOver = CrossOverSupportSettings.builder()
+    private final CrossOverSupport crossOver = CrossOverSupport.builder()
             .build();
 
     @Builder.Default
-    private final SpeciationSupportSettings speciation = SpeciationSupportSettings.builder()
+    private final SpeciationSupport speciation = SpeciationSupport.builder()
             .build();
 
     public Context createContext() { // TODO: think of a better fix for this
