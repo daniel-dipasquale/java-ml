@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-final class MultiEventLoop implements EventLoop {
+final class RouterEventLoop implements EventLoop {
     @Getter
     private final String name;
     private final List<EventLoop> eventLoops;
@@ -19,8 +19,8 @@ final class MultiEventLoop implements EventLoop {
     private final MultiWaitHandle waitUntilEmptyEventLoopsHandle;
     private final IterableErrorHandler<EventLoop> shutdownEventLoopsHandler;
 
-    MultiEventLoop(final String name, final SingleEventLoopFactoryProxy eventLoopFactory, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
-        List<EventLoop> eventLoops = createEventLoops(eventLoopFactory, eventLoopSelector.size(), this);
+    RouterEventLoop(final String name, final EventLoopFactory.Proxy eventLoopFactoryProxy, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
+        List<EventLoop> eventLoops = createEventLoops(eventLoopFactoryProxy, eventLoopSelector.size(), this);
 
         this.name = name;
         this.eventLoops = eventLoops;
@@ -29,11 +29,11 @@ final class MultiEventLoop implements EventLoop {
         this.shutdownEventLoopsHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
-    private static List<EventLoop> createEventLoops(final SingleEventLoopFactoryProxy eventLoopFactory, final int count, final MultiEventLoop nextEntryPoint) {
+    private static List<EventLoop> createEventLoops(final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final RouterEventLoop nextEntryPoint) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
-            eventLoops.add(eventLoopFactory.create(nextEntryPoint));
+            eventLoops.add(eventLoopFactoryProxy.create(nextEntryPoint));
         }
 
         return eventLoops;

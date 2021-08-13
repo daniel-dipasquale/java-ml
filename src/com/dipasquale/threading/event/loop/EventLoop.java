@@ -43,23 +43,24 @@ public interface EventLoop {
     static EventLoop create(final EventLoopSettings settings) {
         ArgumentValidatorSupport.ensureGreaterThanZero(settings.getConcurrencyLevel(), "settings.concurrencyLevel");
 
-        DefaultEventLoopParams params = DefaultEventLoopParams.builder()
+        EventLoopParams params = EventLoopParams.builder()
+                .eventRecordQueueFactory(Constants.EVENT_RECORD_QUEUE_FACTORY)
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .errorLogger(settings.getErrorLogger())
                 .build();
 
         if (settings.getConcurrencyLevel() == 1) {
-            return settings.getFactoryProxy().create(settings.getName(), settings.getEventRecordQueueFactory(), params, null);
+            return settings.getFactory().create(settings.getName(), params, null);
         }
 
-        String name = String.format("%s-multi", settings.getName());
+        String name = String.format("%s-router", settings.getName());
         int[] index = new int[1];
-        SingleEventLoopFactoryProxy eventLoopFactory = nep -> settings.getFactoryProxy().create(String.format("%s-%d", settings.getName(), ++index[0]), settings.getEventRecordQueueFactory(), params, nep);
+        EventLoopFactory.Proxy eventLoopFactoryProxy = nep -> settings.getFactory().create(String.format("%s-%d", settings.getName(), ++index[0]), params, nep);
 
         EventLoopSelector eventLoopSelector = Optional.ofNullable(settings.getEventLoopSelector())
-                .orElseGet(() -> EventLoopSelector.createRandom(settings.isContended(), settings.getConcurrencyLevel()));
+                .orElseGet(() -> new ThreadLocalRandomEventLoopSelector(settings.getConcurrencyLevel()));
 
-        return new MultiEventLoop(name, eventLoopFactory, eventLoopSelector, settings.getDateTimeSupport());
+        return new RouterEventLoop(name, eventLoopFactoryProxy, eventLoopSelector, settings.getDateTimeSupport());
     }
 }

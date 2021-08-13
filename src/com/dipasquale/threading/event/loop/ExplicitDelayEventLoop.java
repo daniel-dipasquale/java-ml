@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-final class DefaultEventLoop implements EventLoop {
+final class ExplicitDelayEventLoop implements EventLoop {
     private static final int CONCURRENCY_LEVEL = 1;
     @Getter
     private final String name;
@@ -29,12 +29,9 @@ final class DefaultEventLoop implements EventLoop {
     private final EventLoop nextEntryPoint;
     private final AtomicBoolean shutdown;
 
-    DefaultEventLoop(final String name, final ExclusiveQueue<EventRecord> eventRecordQueue, final DefaultEventLoopParams params, final EventLoop nextEntryPoint) {
-        EventLoop nextEntryPointFixed = Optional.ofNullable(nextEntryPoint)
-                .orElse(this);
-
+    ExplicitDelayEventLoop(final String name, final ExplicitDelayEventLoopParams params, final EventLoop nextEntryPoint) {
         this.name = name;
-        this.eventRecordQueue = eventRecordQueue;
+        this.eventRecordQueue = params.getEventRecordQueue();
         this.executorService = params.getExecutorService();
         this.started = false;
         this.dateTimeSupport = params.getDateTimeSupport();
@@ -42,7 +39,7 @@ final class DefaultEventLoop implements EventLoop {
         this.eventRecordQueueWaitHandleUntilEmpty = new ReusableLatch(0);
         this.eventRecordQueueWaitHandleWhileEmpty = new SlidingWaitHandle(name);
         this.errorLogger = params.getErrorLogger();
-        this.nextEntryPoint = nextEntryPointFixed;
+        this.nextEntryPoint = Optional.ofNullable(nextEntryPoint).orElse(this);
         this.shutdown = new AtomicBoolean(true);
     }
 

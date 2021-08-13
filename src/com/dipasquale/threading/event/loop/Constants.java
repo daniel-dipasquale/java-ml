@@ -1,15 +1,13 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.random.float1.DefaultRandomSupport;
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.common.random.float1.ThreadLocalRandomSupport;
 import lombok.Generated;
+
+import java.util.concurrent.locks.ReentrantLock;
 
 final class Constants {
     @Generated
     private Constants() {
     }
 
-    static final RandomSupport RANDOM_SUPPORT_UNIFORM = new DefaultRandomSupport();
-    static final RandomSupport RANDOM_SUPPORT_UNIFORM_CONCURRENT = new ThreadLocalRandomSupport();
+    static final ExclusiveQueueFactory<EventRecord> EVENT_RECORD_QUEUE_FACTORY = erq -> new LockedExclusiveQueue<>(new ReentrantLock(), erq);
 }

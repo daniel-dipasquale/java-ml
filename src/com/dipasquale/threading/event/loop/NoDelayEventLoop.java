@@ -26,18 +26,17 @@ final class NoDelayEventLoop implements EventLoop {
             .put(NonSI.DAY, new ZeroDateTimeSupport(NonSI.DAY))
             .build();
 
-    private final DefaultEventLoop eventLoop;
+    private final ExplicitDelayEventLoop eventLoop;
 
-    NoDelayEventLoop(final String name, final ExclusiveQueueFactory<EventRecord> eventRecordQueueFactory, final DefaultEventLoopParams params, final EventLoop nextEntryPoint) {
-        ExclusiveQueue<EventRecord> eventRecordQueue = eventRecordQueueFactory.create(new LinkedList<>());
-
-        DefaultEventLoopParams paramsFixed = DefaultEventLoopParams.builder()
+    NoDelayEventLoop(final String name, final EventLoopParams params, final EventLoop nextEntryPoint) {
+        ExplicitDelayEventLoopParams paramsFixed = ExplicitDelayEventLoopParams.builder()
+                .eventRecordQueue(params.getEventRecordQueueFactory().create(new LinkedList<>()))
                 .executorService(params.getExecutorService())
                 .dateTimeSupport(DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().unit()))
                 .errorLogger(params.getErrorLogger())
                 .build();
 
-        this.eventLoop = new DefaultEventLoop(name, eventRecordQueue, paramsFixed, nextEntryPoint);
+        this.eventLoop = new ExplicitDelayEventLoop(name, paramsFixed, nextEntryPoint);
     }
 
     @Override

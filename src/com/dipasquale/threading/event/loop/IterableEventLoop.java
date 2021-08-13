@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public final class IterableEventLoop {
-    private static final ExclusiveQueueFactory<EventRecord> EVENT_RECORDS_FACTORY = q -> new LockedExclusiveQueue<>(new ReentrantLock(), q);
     private final List<EventLoop> eventLoops;
     private final MultiWaitHandle eventLoopsWaitHandleUntilDone;
     private final IterableErrorHandler<EventLoop> eventLoopsShutdownHandler;
@@ -31,14 +29,15 @@ public final class IterableEventLoop {
     private static List<EventLoop> createEventLoops(final IterableEventLoopSettings settings) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
-        DefaultEventLoopParams params = DefaultEventLoopParams.builder()
+        EventLoopParams params = EventLoopParams.builder()
+                .eventRecordQueueFactory(Constants.EVENT_RECORD_QUEUE_FACTORY)
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .errorLogger(settings.getErrorLogger())
                 .build();
 
         for (int i = 0, c = settings.getNumberOfThreads(); i < c; i++) {
-            EventLoop eventLoop = new NoDelayEventLoop(String.format("eventLoop-%d", i), EVENT_RECORDS_FACTORY, params, null);
+            EventLoop eventLoop = new NoDelayEventLoop(String.format("eventLoop-%d", i), params, null);
 
             eventLoops.add(eventLoop);
         }

@@ -9,10 +9,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.ExecutorService;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PACKAGE)
 @Getter
-final class DefaultEventLoopParams {
+final class EventLoopParams {
+    private final ExclusiveQueueFactory<EventRecord> eventRecordQueueFactory;
     private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
     private final ErrorLogger errorLogger;
