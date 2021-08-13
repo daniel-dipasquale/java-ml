@@ -71,7 +71,7 @@ final class DefaultEventLoop implements EventLoop {
         return Math.max(record.getExecutionDateTime() - dateTimeSupport.now(), 0L);
     }
 
-    private void releaseWaitUntilEmptyHandleIfEmpty(final boolean contended) {
+    private void releaseRecordQueueUntilEmptyWaitHandleIfEmpty(final boolean contended) {
         if (contended) {
             recordQueue.lock();
         }
@@ -94,7 +94,7 @@ final class DefaultEventLoop implements EventLoop {
 
             if (recordAudit.polled == null) {
                 try {
-                    releaseWaitUntilEmptyHandleIfEmpty(true);
+                    releaseRecordQueueUntilEmptyWaitHandleIfEmpty(true);
 
                     if (recordAudit.peeked != null) {
                         long timeout = getDelayTime(recordAudit.peeked);
@@ -117,7 +117,7 @@ final class DefaultEventLoop implements EventLoop {
                         errorLogger.log(e);
                     }
                 } finally {
-                    releaseWaitUntilEmptyHandleIfEmpty(true);
+                    releaseRecordQueueUntilEmptyWaitHandleIfEmpty(true);
                 }
             }
         }
@@ -193,7 +193,7 @@ final class DefaultEventLoop implements EventLoop {
 
             try {
                 recordQueue.clear();
-                releaseWaitUntilEmptyHandleIfEmpty(false);
+                releaseRecordQueueUntilEmptyWaitHandleIfEmpty(false);
                 recordQueueWhileEmptyWaitHandle.release();
             } finally {
                 recordQueue.unlock();
