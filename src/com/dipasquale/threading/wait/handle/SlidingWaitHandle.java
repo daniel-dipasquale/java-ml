@@ -33,8 +33,8 @@ public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
 
     private void ensureOtherThreadsWaitHandleIsOff() {
         synchronized (otherThreadsWaitHandle) {
-            otherThreadsWaitHandle.countDown();
             isOtherThreadsWaitHandleOn = false;
+            otherThreadsWaitHandle.countDown();
         }
     }
 

@@ -124,6 +124,7 @@ final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
 
     @Override
     public void release() {
+        latestAwaitOverride.set(null);
         ensureSingleThreadWaitHandleIsOff();
     }
 
