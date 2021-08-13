@@ -22,9 +22,9 @@ final class DefaultEventLoop implements EventLoop {
     private final ExecutorService executorService;
     private boolean started;
     private final DateTimeSupport dateTimeSupport;
-    private boolean isWaitUntilEmptyHandleLocked;
-    private final ReusableCountLatch waitUntilEmptyHandle;
-    private final SlidingWaitHandle waitWhileEmptyHandle;
+    private boolean isRecordQueueUntilEmptyWaitHandleOn;
+    private final ReusableCountLatch recordQueueUntilEmptyWaitHandle;
+    private final SlidingWaitHandle recordQueueWhileEmptyWaitHandle;
     private final ErrorLogger errorLogger;
     private final EventLoop nextEventLoop;
     private final AtomicBoolean shutdown;
@@ -38,9 +38,9 @@ final class DefaultEventLoop implements EventLoop {
         this.executorService = params.getExecutorService();
         this.started = false;
         this.dateTimeSupport = params.getDateTimeSupport();
-        this.isWaitUntilEmptyHandleLocked = false;
-        this.waitUntilEmptyHandle = new ReusableCountLatch(0);
-        this.waitWhileEmptyHandle = new SlidingWaitHandle(name);
+        this.isRecordQueueUntilEmptyWaitHandleOn = false;
+        this.recordQueueUntilEmptyWaitHandle = new ReusableCountLatch(0);
+        this.recordQueueWhileEmptyWaitHandle = new SlidingWaitHandle(name);
         this.errorLogger = params.getErrorLogger();
         this.nextEventLoop = nextEventLoopFixed;
         this.shutdown = new AtomicBoolean(true);
@@ -77,9 +77,9 @@ final class DefaultEventLoop implements EventLoop {
         }
 
         try {
-            if (recordQueue.isEmpty() && isWaitUntilEmptyHandleLocked) {
-                isWaitUntilEmptyHandleLocked = false;
-                waitUntilEmptyHandle.countDown();
+            if (recordQueue.isEmpty() && isRecordQueueUntilEmptyWaitHandleOn) {
+                isRecordQueueUntilEmptyWaitHandleOn = false;
+                recordQueueUntilEmptyWaitHandle.countDown();
             }
         } finally {
             if (contended) {
@@ -100,9 +100,9 @@ final class DefaultEventLoop implements EventLoop {
                         long timeout = getDelayTime(recordAudit.peeked);
                         TimeUnit unit = dateTimeSupport.timeUnit();
 
-                        waitWhileEmptyHandle.await(timeout, unit);
+                        recordQueueWhileEmptyWaitHandle.await(timeout, unit);
                     } else {
-                        waitWhileEmptyHandle.await();
+                        recordQueueWhileEmptyWaitHandle.await();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -137,12 +137,12 @@ final class DefaultEventLoop implements EventLoop {
                 long timeout = getDelayTime(recordQueue.peek());
                 TimeUnit unit = dateTimeSupport.timeUnit();
 
-                waitWhileEmptyHandle.changeTimeout(timeout, unit);
+                recordQueueWhileEmptyWaitHandle.changeTimeout(timeout, unit);
             }
 
-            if (!isWaitUntilEmptyHandleLocked) {
-                isWaitUntilEmptyHandleLocked = true;
-                waitUntilEmptyHandle.countUp();
+            if (!isRecordQueueUntilEmptyWaitHandleOn) {
+                isRecordQueueUntilEmptyWaitHandleOn = true;
+                recordQueueUntilEmptyWaitHandle.countUp();
             }
         } finally {
             recordQueue.unlock();
@@ -168,7 +168,7 @@ final class DefaultEventLoop implements EventLoop {
         recordQueue.lock();
 
         try {
-            return !isWaitUntilEmptyHandleLocked;
+            return !isRecordQueueUntilEmptyWaitHandleOn;
         } finally {
             recordQueue.unlock();
         }
@@ -177,13 +177,13 @@ final class DefaultEventLoop implements EventLoop {
     @Override
     public void awaitUntilEmpty()
             throws InterruptedException {
-        waitUntilEmptyHandle.await();
+        recordQueueUntilEmptyWaitHandle.await();
     }
 
     @Override
     public boolean awaitUntilEmpty(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return waitUntilEmptyHandle.await(timeout, unit);
+        return recordQueueUntilEmptyWaitHandle.await(timeout, unit);
     }
 
     @Override
@@ -194,7 +194,7 @@ final class DefaultEventLoop implements EventLoop {
             try {
                 recordQueue.clear();
                 releaseWaitUntilEmptyHandleIfEmpty(false);
-                waitWhileEmptyHandle.release();
+                recordQueueWhileEmptyWaitHandle.release();
             } finally {
                 recordQueue.unlock();
             }

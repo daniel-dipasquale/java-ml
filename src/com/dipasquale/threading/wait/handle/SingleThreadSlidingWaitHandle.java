@@ -32,11 +32,13 @@ final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
         }
     }
 
-    private void lockOrWaitForAwaitOverride()
+    private boolean lockOrWaitForAwaitOverride()
             throws InterruptedException {
         synchronized (awaitOverrideWaitHandle) {
             awaitOverrideWaitHandle.await();
             awaitOverrideWaitHandle.countUp();
+
+            return isSingleThreadWaitHandleOn;
         }
     }
 
@@ -100,15 +102,17 @@ final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
 
     @Override
     public void changeTimeout(final long timeout, final TimeUnit unit) {
+        boolean locked;
+
         try {
-            lockOrWaitForAwaitOverride();
+            locked = lockOrWaitForAwaitOverride();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 
             throw new RuntimeException("thread was interrupted", e);
         }
 
-        if (timeout > 0L) {
+        if (locked && timeout > 0L) {
             latestAwaitOverride.set(new TimeUnitPair(timeout, unit));
         } else {
             latestAwaitOverride.set(null);
