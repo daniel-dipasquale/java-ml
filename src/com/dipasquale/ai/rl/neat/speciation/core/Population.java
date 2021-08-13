@@ -17,7 +17,7 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.SpeciesEvolutionS
 import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.TotalSharedFitnessSpeciesEvolutionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.DefaultSpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateOrganismsSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSharedSpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSpeciesFitnessStrategy;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.deque.NodeDeque;
@@ -94,8 +94,8 @@ public final class Population {
         speciesFitnessStrategies.clear();
 
         if (context.parallelism().isEnabled()) {
-            speciesFitnessStrategies.add(new UpdateOrganismsSpeciesFitnessStrategy(context));
-            speciesFitnessStrategies.add(new UpdateSpeciesFitnessStrategy());
+            speciesFitnessStrategies.add(new UpdateSpeciesFitnessStrategy(context));
+            speciesFitnessStrategies.add(new UpdateSharedSpeciesFitnessStrategy());
         } else {
             speciesFitnessStrategies.add(new DefaultSpeciesFitnessStrategy(context.general()));
         }
