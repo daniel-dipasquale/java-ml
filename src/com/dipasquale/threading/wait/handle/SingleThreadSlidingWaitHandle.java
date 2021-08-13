@@ -4,82 +4,83 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
     private final String name;
-    private final ReusableCountLatch mainWaitHandle = new ReusableCountLatch(0);
-    private boolean isMainWaitLockAcquired = false;
-    private final ReusableCountLatch timeoutChangeWaitHandle = new ReusableCountLatch(0);
-    private final ReferenceBox<TimeUnitPair> timeoutChangeTimeUnitPair = new ReferenceBox<>();
+    private final ReusableCountLatch singleThreadWaitHandle = new ReusableCountLatch(0);
+    private boolean isSingleThreadWaitHandleOn = false;
+    private final ReusableCountLatch awaitOverrideWaitHandle = new ReusableCountLatch(0);
+    private final AtomicReference<TimeUnitPair> latestAwaitOverride = new AtomicReference<>();
 
-    private void ensureLocked() {
-        synchronized (mainWaitHandle) {
-            if (!isMainWaitLockAcquired) {
-                isMainWaitLockAcquired = true;
-                mainWaitHandle.countUp();
+    private void ensureSingleThreadWaitHandleIsOn() {
+        synchronized (singleThreadWaitHandle) {
+            if (!isSingleThreadWaitHandleOn) {
+                isSingleThreadWaitHandleOn = true;
+                singleThreadWaitHandle.countUp();
             }
         }
     }
 
-    private void ensureUnlocked() {
-        synchronized (mainWaitHandle) {
-            if (isMainWaitLockAcquired) {
-                isMainWaitLockAcquired = false;
-                mainWaitHandle.countDown();
+    private void ensureSingleThreadWaitHandleIsOff() {
+        synchronized (singleThreadWaitHandle) {
+            if (isSingleThreadWaitHandleOn) {
+                isSingleThreadWaitHandleOn = false;
+                singleThreadWaitHandle.countDown();
             }
         }
     }
 
-    private void lockOrWaitTimeoutChange()
+    private void lockOrWaitForAwaitOverride()
             throws InterruptedException {
-        synchronized (timeoutChangeWaitHandle) {
-            timeoutChangeWaitHandle.await();
-            timeoutChangeWaitHandle.countUp();
+        synchronized (awaitOverrideWaitHandle) {
+            awaitOverrideWaitHandle.await();
+            awaitOverrideWaitHandle.countUp();
         }
     }
 
-    private void releaseOneTimeoutChange() {
-        timeoutChangeWaitHandle.countDown();
+    private void releaseOneAwaitOverride() {
+        awaitOverrideWaitHandle.countDown();
     }
 
-    private boolean await(final TimeUnitPair mainTimeUnitPair)
+    private boolean await(final TimeUnitPair value)
             throws InterruptedException {
         boolean acquired;
-        boolean changeTimeoutLocked = false;
+        boolean awaitOverrideIsOn = false;
 
-        ensureLocked();
+        ensureSingleThreadWaitHandleIsOn();
 
         try {
-            if (mainTimeUnitPair == null) {
-                mainWaitHandle.await();
+            if (value == null) {
+                singleThreadWaitHandle.await();
                 acquired = true;
             } else {
-                acquired = mainWaitHandle.await(mainTimeUnitPair.getTime(), mainTimeUnitPair.getUnit());
+                acquired = singleThreadWaitHandle.await(value.getTime(), value.getUnit());
             }
 
-            if (acquired) {
-                lockOrWaitTimeoutChange();
-                changeTimeoutLocked = true;
-            }
+            for (boolean keepTrying = acquired; keepTrying; ) {
+                lockOrWaitForAwaitOverride();
+                awaitOverrideIsOn = true;
 
-            for (TimeUnitPair timeUnitPair = timeoutChangeTimeUnitPair.poll(acquired); timeUnitPair != null; timeUnitPair = timeoutChangeTimeUnitPair.poll(acquired)) {
-                releaseOneTimeoutChange();
-                changeTimeoutLocked = false;
-                ensureLocked();
-                acquired = mainWaitHandle.await(timeUnitPair.getTime(), timeUnitPair.getUnit());
+                TimeUnitPair latestValue = latestAwaitOverride.getAndSet(null);
 
-                if (acquired) {
-                    lockOrWaitTimeoutChange();
-                    changeTimeoutLocked = true;
+                if (latestValue != null) {
+                    releaseOneAwaitOverride();
+                    awaitOverrideIsOn = false;
+                    ensureSingleThreadWaitHandleIsOn();
+                    acquired = singleThreadWaitHandle.await(latestValue.getTime(), latestValue.getUnit());
+                    keepTrying = acquired;
+                } else {
+                    keepTrying = false;
                 }
             }
         } finally {
-            if (changeTimeoutLocked) {
-                releaseOneTimeoutChange();
+            if (awaitOverrideIsOn) {
+                releaseOneAwaitOverride();
             }
 
-            ensureUnlocked();
+            ensureSingleThreadWaitHandleIsOff();
         }
 
         return acquired;
@@ -100,7 +101,7 @@ final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
     @Override
     public void changeTimeout(final long timeout, final TimeUnit unit) {
         try {
-            lockOrWaitTimeoutChange();
+            lockOrWaitForAwaitOverride();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 
@@ -108,43 +109,22 @@ final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
         }
 
         if (timeout > 0L) {
-            timeoutChangeTimeUnitPair.set(new TimeUnitPair(timeout, unit));
+            latestAwaitOverride.set(new TimeUnitPair(timeout, unit));
         } else {
-            timeoutChangeTimeUnitPair.set(null);
+            latestAwaitOverride.set(null);
         }
 
-        releaseOneTimeoutChange();
-        ensureUnlocked();
+        releaseOneAwaitOverride();
+        ensureSingleThreadWaitHandleIsOff();
     }
 
     @Override
     public void release() {
-        ensureUnlocked();
+        ensureSingleThreadWaitHandleIsOff();
     }
 
     @Override
     public String toString() {
         return name;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ReferenceBox<T> {
-        private volatile T reference;
-
-        public T poll(final boolean acquired) {
-            if (acquired) {
-                try {
-                    return reference;
-                } finally {
-                    reference = null;
-                }
-            }
-
-            return reference = null;
-        }
-
-        public void set(final T value) {
-            reference = value;
-        }
     }
 }

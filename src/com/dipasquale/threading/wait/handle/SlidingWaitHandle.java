@@ -5,23 +5,23 @@ import java.util.concurrent.TimeUnit;
 public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
     private static final String NAME = SlidingWaitHandle.class.getSimpleName();
     private final SingleThreadSlidingWaitHandle firstThreadWaitHandle;
-    private boolean isFirstLockAcquired;
     private final ReusableCountLatch otherThreadsWaitHandle;
+    private boolean isOtherThreadsWaitHandleOn;
 
     public SlidingWaitHandle(final String name) {
         this.firstThreadWaitHandle = new SingleThreadSlidingWaitHandle(name);
-        this.isFirstLockAcquired = false;
         this.otherThreadsWaitHandle = new ReusableCountLatch(0);
+        this.isOtherThreadsWaitHandleOn = false;
     }
 
     public SlidingWaitHandle() {
         this(NAME);
     }
 
-    private boolean acquireFirstThreadLock() {
+    private boolean ensureOtherThreadsWaitHandleIsOn() {
         synchronized (otherThreadsWaitHandle) {
-            if (!isFirstLockAcquired) {
-                isFirstLockAcquired = true;
+            if (!isOtherThreadsWaitHandleOn) {
+                isOtherThreadsWaitHandleOn = true;
                 otherThreadsWaitHandle.countUp();
 
                 return true;
@@ -31,36 +31,36 @@ public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
         }
     }
 
-    private void releaseFirstThreadLock() {
+    private void ensureOtherThreadsWaitHandleIsOff() {
         synchronized (otherThreadsWaitHandle) {
             otherThreadsWaitHandle.countDown();
-            isFirstLockAcquired = false;
+            isOtherThreadsWaitHandleOn = false;
         }
     }
 
-    private boolean await(final TimeUnitPair pair)
+    private boolean await(final TimeUnitPair value)
             throws InterruptedException {
-        if (acquireFirstThreadLock()) {
+        if (ensureOtherThreadsWaitHandleIsOn()) {
             try {
-                if (pair == null) {
+                if (value == null) {
                     firstThreadWaitHandle.await();
 
                     return true;
                 }
 
-                return firstThreadWaitHandle.await(pair.getTime(), pair.getUnit());
+                return firstThreadWaitHandle.await(value.getTime(), value.getUnit());
             } finally {
-                releaseFirstThreadLock();
+                ensureOtherThreadsWaitHandleIsOff();
             }
         }
 
-        if (pair == null) {
+        if (value == null) {
             otherThreadsWaitHandle.await();
 
             return true;
         }
 
-        return otherThreadsWaitHandle.await(pair.getTime(), pair.getUnit());
+        return otherThreadsWaitHandle.await(value.getTime(), value.getUnit());
     }
 
     @Override
