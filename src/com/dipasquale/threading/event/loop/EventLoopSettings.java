@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Getter
 public final class EventLoopSettings {
     private static final Map<EventLoopType, EventLoopFactoryProxy> EVENT_LOOP_FACTORY_PROXIES = createEventLoopFactoryProxies();
-    private static final Map<Boolean, ExclusiveRecordQueueFactory> RECORD_QUEUE_FACTORIES = createRecordQueueFactories();
+    private static final Map<Boolean, ExclusiveQueueFactory<EventRecord>> EVENT_RECORD_QUEUE_FACTORIES = createEventRecordQueueFactories();
     private final ExecutorService executorService;
     @Builder.Default
     private final DateTimeSupport dateTimeSupport = new MillisecondsDateTimeSupport();
@@ -42,20 +42,20 @@ public final class EventLoopSettings {
         return eventLoopFactories;
     }
 
-    private static Map<Boolean, ExclusiveRecordQueueFactory> createRecordQueueFactories() {
-        Map<Boolean, ExclusiveRecordQueueFactory> recordQueueFactories = new HashMap<>();
+    private static Map<Boolean, ExclusiveQueueFactory<EventRecord>> createEventRecordQueueFactories() {
+        Map<Boolean, ExclusiveQueueFactory<EventRecord>> eventRecordQueueFactories = new HashMap<>();
 
-        recordQueueFactories.put(true, q -> new LockedExclusiveQueue<>(new ReentrantLock(), q));
-        recordQueueFactories.put(false, UnlockedExclusiveQueue::new);
+        eventRecordQueueFactories.put(true, erq -> new LockedExclusiveQueue<>(new ReentrantLock(), erq));
+        eventRecordQueueFactories.put(false, UnlockedExclusiveQueue::new);
 
-        return recordQueueFactories;
+        return eventRecordQueueFactories;
     }
 
     EventLoopFactoryProxy getFactoryProxy() {
         return EVENT_LOOP_FACTORY_PROXIES.get(type);
     }
 
-    ExclusiveRecordQueueFactory getRecordQueueFactory() {
-        return RECORD_QUEUE_FACTORIES.get(contended);
+    ExclusiveQueueFactory<EventRecord> getEventRecordQueueFactory() {
+        return EVENT_RECORD_QUEUE_FACTORIES.get(contended);
     }
 }

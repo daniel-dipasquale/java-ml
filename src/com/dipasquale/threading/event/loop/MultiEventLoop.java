@@ -29,11 +29,11 @@ final class MultiEventLoop implements EventLoop {
         this.shutdownEventLoopsHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
-    private static List<EventLoop> createEventLoops(final SingleEventLoopFactoryProxy eventLoopFactory, final int count, final MultiEventLoop eventLoopOwner) {
+    private static List<EventLoop> createEventLoops(final SingleEventLoopFactoryProxy eventLoopFactory, final int count, final MultiEventLoop nextEntryPoint) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
-            eventLoops.add(eventLoopFactory.create(eventLoopOwner));
+            eventLoops.add(eventLoopFactory.create(nextEntryPoint));
         }
 
         return eventLoops;

@@ -8,14 +8,14 @@ import javax.measure.unit.Unit;
 import java.util.concurrent.TimeUnit;
 
 public final class SinglePassWaitHandle implements WaitHandle {
-    private final ReusableCountLatch reusableCountLatch = new ReusableCountLatch(0);
+    private final ReusableLatch reusableLatch = new ReusableLatch(0);
     private boolean acquired = false;
 
     public boolean acquire() {
-        synchronized (reusableCountLatch) {
+        synchronized (reusableLatch) {
             if (!acquired) {
                 acquired = true;
-                reusableCountLatch.countUp();
+                reusableLatch.countUp();
 
                 return true;
             }
@@ -28,7 +28,7 @@ public final class SinglePassWaitHandle implements WaitHandle {
     public void await()
             throws InterruptedException {
         while (!acquire()) {
-            reusableCountLatch.await();
+            reusableLatch.await();
         }
     }
 
@@ -42,7 +42,7 @@ public final class SinglePassWaitHandle implements WaitHandle {
         long offsetDateTime = Constants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
         while (!acquire() && timeoutRemaining > 0L) {
-            acquired = reusableCountLatch.await(timeoutRemaining, Constants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit());
+            acquired = reusableLatch.await(timeoutRemaining, Constants.DATE_TIME_SUPPORT_NANOSECONDS.timeUnit());
 
             long currentDateTime = Constants.DATE_TIME_SUPPORT_NANOSECONDS.now();
 
@@ -54,10 +54,10 @@ public final class SinglePassWaitHandle implements WaitHandle {
     }
 
     public void release() {
-        synchronized (reusableCountLatch) {
+        synchronized (reusableLatch) {
             if (acquired) {
                 acquired = false;
-                reusableCountLatch.countDown();
+                reusableLatch.countDown();
             }
         }
     }

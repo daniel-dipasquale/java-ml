@@ -13,8 +13,8 @@ import java.util.stream.StreamSupport;
 
 final class MultiLock<T extends Comparable<T>> implements Lock {
     private final List<ComparableLock<T>> locks;
-    private final IterableErrorHandler<ComparableLock<T>> lockInterruptiblyLocksHandler;
-    private final MultiWaitHandle tryLockLocksHandle;
+    private final IterableErrorHandler<ComparableLock<T>> locksLockInterruptiblyHandler;
+    private final MultiWaitHandle locksWaitHandleUntilTimeout;
 
     MultiLock(final Iterable<ComparableLock<T>> locks) {
         List<ComparableLock<T>> locksFixed = StreamSupport.stream(locks.spliterator(), false)
@@ -22,8 +22,8 @@ final class MultiLock<T extends Comparable<T>> implements Lock {
                 .collect(Collectors.toList());
 
         this.locks = locksFixed;
-        this.lockInterruptiblyLocksHandler = new IterableErrorHandler<>(locksFixed, ComparableLock::lockInterruptibly);
-        this.tryLockLocksHandle = MultiWaitHandle.create(locksFixed, LockWaitHandle::new, Constants.DATE_TIME_SUPPORT_NANOSECONDS);
+        this.locksLockInterruptiblyHandler = new IterableErrorHandler<>(locksFixed, ComparableLock::lockInterruptibly);
+        this.locksWaitHandleUntilTimeout = MultiWaitHandle.create(locksFixed, LockWaitHandle::new, Constants.DATE_TIME_SUPPORT_NANOSECONDS);
     }
 
     @Override
@@ -37,7 +37,7 @@ final class MultiLock<T extends Comparable<T>> implements Lock {
     public void lockInterruptibly()
             throws InterruptedException {
         synchronized (locks) {
-            lockInterruptiblyLocksHandler.handleAll(() -> new InterruptedException("unable to lock interruptibly on all locks"));
+            locksLockInterruptiblyHandler.handleAll(() -> new InterruptedException("unable to lock interruptibly on all locks"));
         }
     }
 
@@ -68,7 +68,7 @@ final class MultiLock<T extends Comparable<T>> implements Lock {
     public boolean tryLock(final long time, final TimeUnit unit)
             throws InterruptedException {
         synchronized (locks) {
-            return tryLockLocksHandle.await(time, unit);
+            return locksWaitHandleUntilTimeout.await(time, unit);
         }
     }
 

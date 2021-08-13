@@ -9,9 +9,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
     private final String name;
-    private final ReusableCountLatch singleThreadWaitHandle = new ReusableCountLatch(0);
+    private final ReusableLatch singleThreadWaitHandle = new ReusableLatch(0);
     private boolean isSingleThreadWaitHandleOn = false;
-    private final ReusableCountLatch awaitOverrideWaitHandle = new ReusableCountLatch(0);
+    private final ReusableLatch awaitOverrideWaitHandle = new ReusableLatch(0);
     private final AtomicReference<TimeUnitPair> latestAwaitOverride = new AtomicReference<>();
 
     private void ensureSingleThreadWaitHandleIsOn() {

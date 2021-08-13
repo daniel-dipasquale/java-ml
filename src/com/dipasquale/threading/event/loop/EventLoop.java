@@ -50,12 +50,12 @@ public interface EventLoop {
                 .build();
 
         if (settings.getConcurrencyLevel() == 1) {
-            return settings.getFactoryProxy().create(settings.getName(), settings.getRecordQueueFactory(), params, null);
+            return settings.getFactoryProxy().create(settings.getName(), settings.getEventRecordQueueFactory(), params, null);
         }
 
         String name = String.format("%s-multi", settings.getName());
         int[] index = new int[1];
-        SingleEventLoopFactoryProxy eventLoopFactory = nel -> settings.getFactoryProxy().create(String.format("%s-%d", settings.getName(), ++index[0]), settings.getRecordQueueFactory(), params, nel);
+        SingleEventLoopFactoryProxy eventLoopFactory = nep -> settings.getFactoryProxy().create(String.format("%s-%d", settings.getName(), ++index[0]), settings.getEventRecordQueueFactory(), params, nep);
 
         EventLoopSelector eventLoopSelector = Optional.ofNullable(settings.getEventLoopSelector())
                 .orElseGet(() -> EventLoopSelector.createRandom(settings.isContended(), settings.getConcurrencyLevel()));

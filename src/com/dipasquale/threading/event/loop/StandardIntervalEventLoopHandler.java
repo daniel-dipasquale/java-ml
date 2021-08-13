@@ -10,15 +10,15 @@ final class StandardIntervalEventLoopHandler implements EventLoopHandler {
     private final ErrorLogger errorLogger;
     private final CountDownLatch invokedCountDownLatch;
     private final long delayTime;
-    private final EventLoop nextEventLoop;
+    private final EventLoop nextEntryPoint;
 
-    StandardIntervalEventLoopHandler(final IntervalEventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch, final EventLoop nextEventLoop) {
+    StandardIntervalEventLoopHandler(final IntervalEventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch, final EventLoop nextEntryPoint) {
         this.standardHandler = new StandardEventLoopHandler(handler, errorLogger, invokedCountDownLatch);
         this.underlyingHandler = handler;
         this.errorLogger = errorLogger;
         this.invokedCountDownLatch = invokedCountDownLatch;
         this.delayTime = delayTime;
-        this.nextEventLoop = nextEventLoop;
+        this.nextEntryPoint = nextEntryPoint;
     }
 
     @Override
@@ -26,7 +26,7 @@ final class StandardIntervalEventLoopHandler implements EventLoopHandler {
         standardHandler.handle(name);
 
         if (underlyingHandler.shouldRequeue()) {
-            nextEventLoop.queue(underlyingHandler, delayTime, errorLogger, invokedCountDownLatch);
+            nextEntryPoint.queue(underlyingHandler, delayTime, errorLogger, invokedCountDownLatch);
         }
     }
 }

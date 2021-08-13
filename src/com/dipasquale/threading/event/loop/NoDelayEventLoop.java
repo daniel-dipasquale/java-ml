@@ -12,7 +12,6 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,9 +28,8 @@ final class NoDelayEventLoop implements EventLoop {
 
     private final DefaultEventLoop eventLoop;
 
-    NoDelayEventLoop(final String name, final ExclusiveRecordQueueFactory recordQueueFactory, final DefaultEventLoopParams params, final EventLoop nextEventLoop) {
-        Queue<Record> queue = new LinkedList<>();
-        ExclusiveQueue<Record> recordQueue = recordQueueFactory.create(queue);
+    NoDelayEventLoop(final String name, final ExclusiveQueueFactory<EventRecord> eventRecordQueueFactory, final DefaultEventLoopParams params, final EventLoop nextEntryPoint) {
+        ExclusiveQueue<EventRecord> eventRecordQueue = eventRecordQueueFactory.create(new LinkedList<>());
 
         DefaultEventLoopParams paramsFixed = DefaultEventLoopParams.builder()
                 .executorService(params.getExecutorService())
@@ -39,7 +37,7 @@ final class NoDelayEventLoop implements EventLoop {
                 .errorLogger(params.getErrorLogger())
                 .build();
 
-        this.eventLoop = new DefaultEventLoop(name, recordQueue, paramsFixed, nextEventLoop);
+        this.eventLoop = new DefaultEventLoop(name, eventRecordQueue, paramsFixed, nextEntryPoint);
     }
 
     @Override
@@ -53,7 +51,7 @@ final class NoDelayEventLoop implements EventLoop {
     }
 
     private static void ensureDelayTimeIsValid(final long delayTime) {
-        ArgumentValidatorSupport.ensureEqual(delayTime, 0L, "delayTime", "must be 0 for FIFO ASAP event loops");
+        ArgumentValidatorSupport.ensureEqual(delayTime, 0L, "delayTime", "must be 0 for no delay event loops");
     }
 
     @Override

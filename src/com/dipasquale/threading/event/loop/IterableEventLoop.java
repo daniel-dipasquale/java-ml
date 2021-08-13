@@ -13,10 +13,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public final class IterableEventLoop {
-    private static final ExclusiveRecordQueueFactory EVENT_RECORDS_FACTORY = q -> new LockedExclusiveQueue<>(new ReentrantLock(), q);
+    private static final ExclusiveQueueFactory<EventRecord> EVENT_RECORDS_FACTORY = q -> new LockedExclusiveQueue<>(new ReentrantLock(), q);
     private final List<EventLoop> eventLoops;
-    private final MultiWaitHandle waitUntilDoneEventLoopsHandle;
-    private final IterableErrorHandler<EventLoop> shutdownEventLoopsHandler;
+    private final MultiWaitHandle eventLoopsWaitHandleUntilDone;
+    private final IterableErrorHandler<EventLoop> eventLoopsShutdownHandler;
 
     public IterableEventLoop(final IterableEventLoopSettings settings) {
         ArgumentValidatorSupport.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.numberOfThreads");
@@ -24,8 +24,8 @@ public final class IterableEventLoop {
         List<EventLoop> eventLoops = createEventLoops(settings);
 
         this.eventLoops = eventLoops;
-        this.waitUntilDoneEventLoopsHandle = MultiWaitHandle.create(eventLoops, EventLoopWaitHandle::new, settings.getDateTimeSupport(), a -> !isEmpty(eventLoops));
-        this.shutdownEventLoopsHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
+        this.eventLoopsWaitHandleUntilDone = MultiWaitHandle.create(eventLoops, EventLoopWaitHandle::new, settings.getDateTimeSupport(), a -> !isEmpty(eventLoops));
+        this.eventLoopsShutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
     private static List<EventLoop> createEventLoops(final IterableEventLoopSettings settings) {
@@ -77,9 +77,9 @@ public final class IterableEventLoop {
     }
 
     public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action, final ErrorLogger errorLogger) {
-        IteratorProducer<T> producer = IteratorProducer.createConcurrent(list);
+        IteratorProducer<T> iteratorProducer = IteratorProducer.createConcurrent(list);
 
-        return queue(producer, action, errorLogger);
+        return queue(iteratorProducer, action, errorLogger);
     }
 
     public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action) {
@@ -88,10 +88,10 @@ public final class IterableEventLoop {
 
     public void awaitUntilDone()
             throws InterruptedException {
-        waitUntilDoneEventLoopsHandle.await();
+        eventLoopsWaitHandleUntilDone.await();
     }
 
     public void shutdown() {
-        shutdownEventLoopsHandler.handleAll("unable to shutdown the event loops");
+        eventLoopsShutdownHandler.handleAll("unable to shutdown the event loops");
     }
 }

@@ -5,12 +5,12 @@ import java.util.concurrent.TimeUnit;
 public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
     private static final String NAME = SlidingWaitHandle.class.getSimpleName();
     private final SingleThreadSlidingWaitHandle firstThreadWaitHandle;
-    private final ReusableCountLatch otherThreadsWaitHandle;
+    private final ReusableLatch otherThreadsWaitHandle;
     private boolean isOtherThreadsWaitHandleOn;
 
     public SlidingWaitHandle(final String name) {
         this.firstThreadWaitHandle = new SingleThreadSlidingWaitHandle(name);
-        this.otherThreadsWaitHandle = new ReusableCountLatch(0);
+        this.otherThreadsWaitHandle = new ReusableLatch(0);
         this.isOtherThreadsWaitHandleOn = false;
     }
 

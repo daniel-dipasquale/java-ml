@@ -6,10 +6,10 @@ import java.util.Queue;
 
 final class ExplicitDelayEventLoopFactoryProxy implements EventLoopFactoryProxy {
     @Override
-    public EventLoop create(final String name, final ExclusiveRecordQueueFactory recordQueueFactory, final DefaultEventLoopParams params, final EventLoop nextEventLoop) {
-        Queue<Record> queue = new PriorityQueue<>(Comparator.comparing(Record::getExecutionDateTime));
-        ExclusiveQueue<Record> recordQueue = recordQueueFactory.create(queue);
+    public EventLoop create(final String name, final ExclusiveQueueFactory<EventRecord> eventRecordQueueFactory, final DefaultEventLoopParams params, final EventLoop nextEntryPoint) {
+        Queue<EventRecord> underlyingQueue = new PriorityQueue<>(Comparator.comparing(EventRecord::getExecutionDateTime));
+        ExclusiveQueue<EventRecord> eventRecordQueue = eventRecordQueueFactory.create(underlyingQueue);
 
-        return new DefaultEventLoop(name, recordQueue, params, nextEventLoop);
+        return new DefaultEventLoop(name, eventRecordQueue, params, nextEntryPoint);
     }
 }
