@@ -1,3 +1,9 @@
+/*
+ * java-ml
+ * (c) 2021 daniel-dipasquale
+ * released under the MIT license
+ */
+
 package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
 import com.dipasquale.ai.rl.neat.speciation.core.Species;

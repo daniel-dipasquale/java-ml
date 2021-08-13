@@ -1,3 +1,9 @@
+/*
+ * java-ml
+ * (c) 2021 daniel-dipasquale
+ * released under the MIT license
+ */
+
 package com.dipasquale.data.structure.map;
 
 import com.dipasquale.common.factory.ObjectFactory;

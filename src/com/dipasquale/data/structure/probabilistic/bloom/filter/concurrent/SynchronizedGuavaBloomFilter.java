@@ -1,3 +1,9 @@
+/*
+ * java-ml
+ * (c) 2021 daniel-dipasquale
+ * released under the MIT license
+ */
+
 package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
@@ -9,7 +15,7 @@ import java.io.Serializable;
 final class SynchronizedGuavaBloomFilter<T> implements BloomFilter<T>, Serializable {
     @Serial
     private static final long serialVersionUID = -7988783923116325694L;
-    private com.google.common.hash.BloomFilter<T> bloomFilter;
+    private final com.google.common.hash.BloomFilter<T> bloomFilter;
 
     SynchronizedGuavaBloomFilter(final int estimatedSize, final double falsePositiveRatio) {
         Funnel<T> funnel = (f, i) -> i.putInt(f.hashCode());

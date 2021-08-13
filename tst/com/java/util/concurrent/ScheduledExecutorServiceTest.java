@@ -1,3 +1,9 @@
+/*
+ * java-ml
+ * (c) 2021 daniel-dipasquale
+ * released under the MIT license
+ */
+
 package com.java.util.concurrent;
 
 import org.junit.jupiter.api.Disabled;

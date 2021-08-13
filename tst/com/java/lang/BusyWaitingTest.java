@@ -1,3 +1,9 @@
+/*
+ * java-ml
+ * (c) 2021 daniel-dipasquale
+ * released under the MIT license
+ */
+
 package com.java.lang;
 
 import com.dipasquale.common.time.DateTimeSupport;
