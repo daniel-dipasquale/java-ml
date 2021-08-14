@@ -1,9 +1,9 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.error.ErrorLogger;
-import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.ZeroDateTimeSupport;
+import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
 import com.google.common.collect.ImmutableMap;
 
 import javax.measure.quantity.Duration;
@@ -12,11 +12,10 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 final class NoDelayEventLoop implements EventLoop {
-    private static final Map<Unit<Duration>, DateTimeSupport> DATE_TIME_SUPPORTS = ImmutableMap.<Unit<Duration>, DateTimeSupport>builder()
+    private static final Map<Unit<Duration>, ZeroDateTimeSupport> ZERO_DATE_TIME_SUPPORTS = ImmutableMap.<Unit<Duration>, ZeroDateTimeSupport>builder()
             .put(SI.NANO(SI.SECOND), new ZeroDateTimeSupport(SI.NANO(SI.SECOND)))
             .put(SI.MICRO(SI.SECOND), new ZeroDateTimeSupport(SI.MICRO(SI.SECOND)))
             .put(SI.MILLI(SI.SECOND), new ZeroDateTimeSupport(SI.MILLI(SI.SECOND)))
@@ -32,8 +31,8 @@ final class NoDelayEventLoop implements EventLoop {
         ExplicitDelayEventLoopParams paramsFixed = ExplicitDelayEventLoopParams.builder()
                 .eventRecordQueue(params.getEventRecordQueueFactory().create(new LinkedList<>()))
                 .executorService(params.getExecutorService())
-                .dateTimeSupport(DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().unit()))
-                .errorLogger(params.getErrorLogger())
+                .dateTimeSupport(ZERO_DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().unit()))
+                .errorHandler(params.getErrorHandler())
                 .build();
 
         this.eventLoop = new ExplicitDelayEventLoop(name, paramsFixed, nextEntryPoint);
@@ -54,15 +53,15 @@ final class NoDelayEventLoop implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch) {
+    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
         ensureDelayTimeIsValid(delayTime);
-        eventLoop.queue(handler, delayTime, errorLogger, invokedCountDownLatch);
+        eventLoop.queue(handler, delayTime, errorHandler, invokedWaitHandle);
     }
 
     @Override
-    public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch) {
+    public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
         ensureDelayTimeIsValid(delayTime);
-        eventLoop.queue(handler, delayTime, errorLogger, invokedCountDownLatch);
+        eventLoop.queue(handler, delayTime, errorHandler, invokedWaitHandle);
     }
 
     @Override

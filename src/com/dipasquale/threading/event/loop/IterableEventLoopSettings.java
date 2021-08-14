@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,6 +15,6 @@ import java.util.concurrent.ExecutorService;
 public final class IterableEventLoopSettings {
     private final ExecutorService executorService;
     private final int numberOfThreads;
-    private final ErrorLogger errorLogger;
+    private final ErrorHandler errorHandler;
     private final DateTimeSupport dateTimeSupport;
 }

@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import lombok.AccessLevel;
@@ -26,7 +26,7 @@ public final class EventLoopSettings {
     @Builder.Default
     private final int concurrencyLevel = 1;
     private final EventLoopSelector eventLoopSelector;
-    private final ErrorLogger errorLogger;
+    private final ErrorHandler errorHandler;
 
     private static Map<EventLoopType, EventLoopFactory> createEventLoopFactories() {
         Map<EventLoopType, EventLoopFactory> eventLoopFactories = new EnumMap<>(EventLoopType.class);

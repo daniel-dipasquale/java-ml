@@ -7,7 +7,7 @@ import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class LockedExclusiveQueue<T> implements ExclusiveQueue<T> {
+final class DefaultExclusiveQueue<T> implements ExclusiveQueue<T> {
     private final Lock lock;
     private final Queue<T> queue;
 

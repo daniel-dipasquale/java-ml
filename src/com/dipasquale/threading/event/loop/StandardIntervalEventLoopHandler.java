@@ -1,22 +1,21 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.error.ErrorLogger;
-
-import java.util.concurrent.CountDownLatch;
+import com.dipasquale.common.error.ErrorHandler;
+import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
 
 final class StandardIntervalEventLoopHandler implements EventLoopHandler {
     private final StandardEventLoopHandler standardHandler;
     private final IntervalEventLoopHandler underlyingHandler;
-    private final ErrorLogger errorLogger;
-    private final CountDownLatch invokedCountDownLatch;
+    private final ErrorHandler errorHandler;
+    private final InteractiveWaitHandle invokedWaitHandle;
     private final long delayTime;
     private final EventLoop nextEntryPoint;
 
-    StandardIntervalEventLoopHandler(final IntervalEventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch, final EventLoop nextEntryPoint) {
-        this.standardHandler = new StandardEventLoopHandler(handler, errorLogger, invokedCountDownLatch);
+    StandardIntervalEventLoopHandler(final IntervalEventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle, final EventLoop nextEntryPoint) {
+        this.standardHandler = new StandardEventLoopHandler(handler, errorHandler, invokedWaitHandle);
         this.underlyingHandler = handler;
-        this.errorLogger = errorLogger;
-        this.invokedCountDownLatch = invokedCountDownLatch;
+        this.errorHandler = errorHandler;
+        this.invokedWaitHandle = invokedWaitHandle;
         this.delayTime = delayTime;
         this.nextEntryPoint = nextEntryPoint;
     }
@@ -26,7 +25,7 @@ final class StandardIntervalEventLoopHandler implements EventLoopHandler {
         standardHandler.handle(name);
 
         if (underlyingHandler.shouldRequeue()) {
-            nextEntryPoint.queue(underlyingHandler, delayTime, errorLogger, invokedCountDownLatch);
+            nextEntryPoint.queue(underlyingHandler, delayTime, errorHandler, invokedWaitHandle);
         }
     }
 }

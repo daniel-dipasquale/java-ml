@@ -1,22 +1,22 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public final class DefaultParallelismSupportMultiThreadContext implements Context.ParallelismSupport {
     private final IterableEventLoop eventLoop;
-    private final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
+    private final Collection<Throwable> unhandledExceptions = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
 
     @Override
     public boolean isEnabled() {
@@ -28,60 +28,61 @@ public final class DefaultParallelismSupportMultiThreadContext implements Contex
         return eventLoop.getConcurrencyLevel();
     }
 
-    private <T extends Exception> void addUncaughtExceptionsAsSuppressed(final T exception)
-            throws T {
-        exceptions.forEach(exception::addSuppressed);
-        exceptions.clear();
+    private <T extends Exception> void fillUnhandledAsSuppressed(final T exception) {
+        unhandledExceptions.forEach(exception::addSuppressed);
+        unhandledExceptions.clear();
     }
 
-    private void failIfThereAreUncaughtExceptions() {
-        if (exceptions.isEmpty()) {
+    private void failIfAnyUnhandled() {
+        if (unhandledExceptions.isEmpty()) {
             return;
         }
 
         RuntimeException exception = new IllegalStateException("exceptions were encountered in parallelism");
 
-        addUncaughtExceptionsAsSuppressed(exception);
+        fillUnhandledAsSuppressed(exception);
 
         throw exception;
     }
 
     @Override
-    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> action) {
-        failIfThereAreUncaughtExceptions();
+    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> handler) {
+        unhandledExceptions.clear();
 
-        return new CountDownLatchWaitHandle(eventLoop.queue(iterator, action));
+        InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(iterator, handler, unhandledExceptions::add);
+
+        return new DefaultWaitHandle(invokedWaitHandle);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class CountDownLatchWaitHandle implements WaitHandle {
-        private final CountDownLatch countDownLatch;
+    private final class DefaultWaitHandle implements WaitHandle {
+        private final InteractiveWaitHandle invokedWaitHandle;
 
         @Override
         public void await()
                 throws InterruptedException {
             try {
-                countDownLatch.await();
+                invokedWaitHandle.await();
             } catch (InterruptedException e) {
-                addUncaughtExceptionsAsSuppressed(e);
+                fillUnhandledAsSuppressed(e);
 
                 throw e;
             }
 
-            failIfThereAreUncaughtExceptions();
+            failIfAnyUnhandled();
         }
 
         @Override
         public boolean await(final long timeout, final TimeUnit unit)
                 throws InterruptedException {
             try {
-                boolean acquired = countDownLatch.await(timeout, unit);
+                boolean acquired = invokedWaitHandle.await(timeout, unit);
 
-                failIfThereAreUncaughtExceptions();
+                failIfAnyUnhandled();
 
                 return acquired;
             } catch (InterruptedException e) {
-                addUncaughtExceptionsAsSuppressed(e);
+                fillUnhandledAsSuppressed(e);
 
                 throw e;
             }

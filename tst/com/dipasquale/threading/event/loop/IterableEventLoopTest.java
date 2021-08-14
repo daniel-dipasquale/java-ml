@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ProxyDateTimeSupport;
 import lombok.AccessLevel;
@@ -24,14 +24,14 @@ public final class IterableEventLoopTest {
     private static final int NUMBER_OF_THREADS = 4;
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
-    private static final ErrorLogger EXCEPTION_LOGGER = EXCEPTIONS::add;
+    private static final ErrorHandler EXCEPTION_LOGGER = EXCEPTIONS::add;
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
 
     private static final IterableEventLoopSettings SETTINGS = IterableEventLoopSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
-            .errorLogger(EXCEPTION_LOGGER)
+            .errorHandler(EXCEPTION_LOGGER)
             .dateTimeSupport(DATE_TIME_SUPPORT)
             .build();
 

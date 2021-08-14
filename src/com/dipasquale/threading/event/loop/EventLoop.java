@@ -1,10 +1,10 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
+import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
 
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public interface EventLoop {
@@ -12,20 +12,20 @@ public interface EventLoop {
 
     int getConcurrencyLevel();
 
-    void queue(EventLoopHandler handler, long delayTime, ErrorLogger errorLogger, CountDownLatch invokedCountDownLatch);
+    void queue(EventLoopHandler handler, long delayTime, ErrorHandler errorHandler, InteractiveWaitHandle invokedWaitHandle);
 
-    default void queue(final EventLoopHandler handler, final long delayTime, final CountDownLatch invokedCountDownLatch) {
-        queue(handler, delayTime, null, invokedCountDownLatch);
+    default void queue(final EventLoopHandler handler, final long delayTime, final InteractiveWaitHandle invokedWaitHandle) {
+        queue(handler, delayTime, null, invokedWaitHandle);
     }
 
     default void queue(final EventLoopHandler handler, final long delayTime) {
         queue(handler, delayTime, null, null);
     }
 
-    void queue(IntervalEventLoopHandler handler, long delayTime, ErrorLogger errorLogger, CountDownLatch invokedCountDownLatch);
+    void queue(IntervalEventLoopHandler handler, long delayTime, ErrorHandler errorHandler, InteractiveWaitHandle invokedWaitHandle);
 
-    default void queue(final IntervalEventLoopHandler handler, final long delayTime, final CountDownLatch invokedCountDownLatch) {
-        queue(handler, delayTime, null, invokedCountDownLatch);
+    default void queue(final IntervalEventLoopHandler handler, final long delayTime, final InteractiveWaitHandle invokedWaitHandle) {
+        queue(handler, delayTime, null, invokedWaitHandle);
     }
 
     default void queue(final IntervalEventLoopHandler handler, final long delayTime) {
@@ -47,7 +47,7 @@ public interface EventLoop {
                 .eventRecordQueueFactory(Constants.EVENT_RECORD_QUEUE_FACTORY)
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
-                .errorLogger(settings.getErrorLogger())
+                .errorHandler(settings.getErrorHandler())
                 .build();
 
         if (settings.getConcurrencyLevel() == 1) {

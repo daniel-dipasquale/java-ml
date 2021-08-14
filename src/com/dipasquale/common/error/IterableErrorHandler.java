@@ -22,7 +22,7 @@ public final class IterableErrorHandler<T> {
             }
         }
 
-        ErrorHandlerSupport.throwAsSuppressedIfAny(errorFactory, suppressed);
+        ErrorHandlerSupport.failAsSuppressedIfAny(errorFactory, suppressed);
     }
 
     public void handleAll(final String message) {

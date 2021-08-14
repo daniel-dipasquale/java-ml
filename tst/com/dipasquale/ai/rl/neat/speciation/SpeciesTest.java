@@ -73,7 +73,7 @@ public final class SpeciesTest {
                     }
 
                     @Override
-                    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> action) {
+                    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> handler) {
                         return null;
                     }
                 };

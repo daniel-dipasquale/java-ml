@@ -14,7 +14,7 @@ public final class ErrorHandlerSupport {
     private ErrorHandlerSupport() {
     }
 
-    public static <T extends Throwable> void throwAsSuppressedIfAny(final Factory<T> errorFactory, final List<Throwable> suppressed)
+    public static <T extends Throwable> void failAsSuppressedIfAny(final Factory<T> errorFactory, final List<Throwable> suppressed)
             throws T {
         if (suppressed.isEmpty()) {
             return;
@@ -27,8 +27,8 @@ public final class ErrorHandlerSupport {
         throw exception;
     }
 
-    public static void throwAsSuppressedIfAny(final String message, final List<Throwable> suppressed) {
-        throwAsSuppressedIfAny(() -> new RuntimeException(message), suppressed);
+    public static void failAsSuppressedIfAny(final String message, final List<Throwable> suppressed) {
+        failAsSuppressedIfAny(() -> new RuntimeException(message), suppressed);
     }
 
     public static void print(final OutputStream outputStream, final Throwable error, final boolean autoFlush, final Charset charset)

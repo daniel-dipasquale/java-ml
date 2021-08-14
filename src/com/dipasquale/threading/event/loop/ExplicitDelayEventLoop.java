@@ -1,7 +1,8 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.threading.wait.handle.ReusableLatch;
 import com.dipasquale.threading.wait.handle.SlidingWaitHandle;
 import lombok.AccessLevel;
@@ -9,7 +10,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,7 +25,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
     private boolean isEventRecordQueueWaitHandleUntilEmptyOn;
     private final ReusableLatch eventRecordQueueWaitHandleUntilEmpty;
     private final SlidingWaitHandle eventRecordQueueWaitHandleWhileEmpty;
-    private final ErrorLogger errorLogger;
+    private final ErrorHandler errorHandler;
     private final EventLoop nextEntryPoint;
     private final AtomicBoolean shutdown;
 
@@ -38,7 +38,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
         this.isEventRecordQueueWaitHandleUntilEmptyOn = false;
         this.eventRecordQueueWaitHandleUntilEmpty = new ReusableLatch(0);
         this.eventRecordQueueWaitHandleWhileEmpty = new SlidingWaitHandle(name);
-        this.errorLogger = params.getErrorLogger();
+        this.errorHandler = params.getErrorHandler();
         this.nextEntryPoint = Optional.ofNullable(nextEntryPoint).orElse(this);
         this.shutdown = new AtomicBoolean(true);
     }
@@ -110,8 +110,8 @@ final class ExplicitDelayEventLoop implements EventLoop {
                 try {
                     eventRecordAudit.polled.getHandler().handle(name);
                 } catch (Throwable e) {
-                    if (errorLogger != null) {
-                        errorLogger.log(e);
+                    if (errorHandler != null) {
+                        errorHandler.handle(e);
                     }
                 } finally {
                     releaseQueueUntilEmptyWaitHandleIfEmpty(true);
@@ -147,15 +147,15 @@ final class ExplicitDelayEventLoop implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch) {
-        EventLoopHandler handlerFixed = new StandardEventLoopHandler(handler, errorLogger, invokedCountDownLatch);
+    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
+        EventLoopHandler handlerFixed = new StandardEventLoopHandler(handler, errorHandler, invokedWaitHandle);
 
         queue(new EventRecord(handlerFixed, dateTimeSupport.now() + delayTime));
     }
 
     @Override
-    public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch) {
-        EventLoopHandler handlerFixed = new StandardIntervalEventLoopHandler(handler, delayTime, errorLogger, invokedCountDownLatch, nextEntryPoint);
+    public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
+        EventLoopHandler handlerFixed = new StandardIntervalEventLoopHandler(handler, delayTime, errorHandler, invokedWaitHandle, nextEntryPoint);
 
         queue(new EventRecord(handlerFixed, dateTimeSupport.now() + delayTime));
     }

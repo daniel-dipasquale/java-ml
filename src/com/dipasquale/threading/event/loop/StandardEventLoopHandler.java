@@ -1,30 +1,31 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
+import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.concurrent.CountDownLatch;
-
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class StandardEventLoopHandler implements EventLoopHandler {
-    private final EventLoopHandler underlyingHandler;
-    private final ErrorLogger errorLogger;
-    private final CountDownLatch invokedCountDownLatch;
+    private final EventLoopHandler handler;
+    private final ErrorHandler errorHandler;
+    private final InteractiveWaitHandle invokedWaitHandle;
 
     @Override
     public void handle(final String name) {
+        if (invokedWaitHandle != null) {
+            invokedWaitHandle.start();
+        }
+
         try {
-            underlyingHandler.handle(name);
+            handler.handle(name);
         } catch (Throwable e) {
-            if (errorLogger == null) {
+            if (errorHandler == null || !errorHandler.handle(e)) {
                 throw e;
             }
-
-            errorLogger.log(e);
         } finally {
-            if (invokedCountDownLatch != null) {
-                invokedCountDownLatch.countDown();
+            if (invokedWaitHandle != null) {
+                invokedWaitHandle.complete();
             }
         }
     }

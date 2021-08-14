@@ -14,7 +14,7 @@ final class ExplicitDelayEventLoopFactory implements EventLoopFactory {
                 .eventRecordQueue(eventRecordQueue)
                 .executorService(params.getExecutorService())
                 .dateTimeSupport(params.getDateTimeSupport())
-                .errorLogger(params.getErrorLogger())
+                .errorHandler(params.getErrorHandler())
                 .build();
 
         return new ExplicitDelayEventLoop(name, paramsFixed, nextEntryPoint);

@@ -9,5 +9,5 @@ final class Constants {
     private Constants() {
     }
 
-    static final ExclusiveQueueFactory<EventRecord> EVENT_RECORD_QUEUE_FACTORY = erq -> new LockedExclusiveQueue<>(new ReentrantLock(), erq);
+    static final ExclusiveQueueFactory<EventRecord> EVENT_RECORD_QUEUE_FACTORY = erq -> new DefaultExclusiveQueue<>(new ReentrantLock(), erq);
 }

@@ -60,7 +60,7 @@ public final class NeatTest {
     private static final IterableEventLoopSettings EVENT_LOOP_SETTINGS = IterableEventLoopSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
-            .errorLogger(EXCEPTIONS::add)
+            .errorHandler(EXCEPTIONS::add)
             .dateTimeSupport(new MillisecondsDateTimeSupport())
             .build();
 

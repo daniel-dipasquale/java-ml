@@ -1,14 +1,15 @@
 package com.dipasquale.threading.event.loop;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.error.IterableErrorHandler;
+import com.dipasquale.threading.wait.handle.CountDownWaitHandle;
+import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
 public final class IterableEventLoop {
@@ -33,7 +34,7 @@ public final class IterableEventLoop {
                 .eventRecordQueueFactory(Constants.EVENT_RECORD_QUEUE_FACTORY)
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
-                .errorLogger(settings.getErrorLogger())
+                .errorHandler(settings.getErrorHandler())
                 .build();
 
         for (int i = 0, c = settings.getNumberOfThreads(); i < c; i++) {
@@ -54,35 +55,39 @@ public final class IterableEventLoop {
         return eventLoops.size();
     }
 
-    private <T> CountDownLatch queue(final IteratorProducer<T> iteratorProducer, final Consumer<T> action, final ErrorLogger errorLogger) {
-        EventLoopHandler handler = new IterableEventLoopHandler<>(iteratorProducer, action);
-        CountDownLatch invokedCountDownLatch = new CountDownLatch(eventLoops.size());
+    private <T> InteractiveWaitHandle queue(final IteratorProducerFactory<T> iteratorProducerFactory, final Consumer<T> handler, final ErrorHandler errorHandler) {
+        int size = eventLoops.size();
+        InteractiveWaitHandle invokedWaitHandle = new CountDownWaitHandle(size);
 
-        for (EventLoop eventLoop : eventLoops) {
-            eventLoop.queue(handler, 0L, errorLogger, invokedCountDownLatch);
+        for (int i = 0; i < size; i++) {
+            IteratorProducer<T> iteratorProducer = iteratorProducerFactory.create(i, size);
+            EventLoopHandler eventLoopHandler = new IterableEventLoopHandler<>(iteratorProducer, handler);
+
+            eventLoops.get(i).queue(eventLoopHandler, 0L, errorHandler, invokedWaitHandle);
         }
 
-        return invokedCountDownLatch;
+        return invokedWaitHandle;
     }
 
-    public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action, final ErrorLogger errorLogger) {
-        IteratorProducer<T> iteratorProducer = IteratorProducer.createSynchronized(iterator);
+    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> handler, final ErrorHandler errorHandler) {
+        IteratorProducer<T> iteratorProducer = new ContendedIteratorProducer<>(iterator);
+        IteratorProducerFactory<T> iteratorProducerFactory = (i, c) -> iteratorProducer;
 
-        return queue(iteratorProducer, action, errorLogger);
+        return queue(iteratorProducerFactory, handler, errorHandler);
     }
 
-    public <T> CountDownLatch queue(final Iterator<T> iterator, final Consumer<T> action) {
-        return queue(iterator, action, null);
+    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> handler) {
+        return queue(iterator, handler, null);
     }
 
-    public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action, final ErrorLogger errorLogger) {
-        IteratorProducer<T> iteratorProducer = IteratorProducer.createConcurrent(list);
+    public <T> InteractiveWaitHandle queue(final List<T> list, final Consumer<T> handler, final ErrorHandler errorHandler) {
+        IteratorProducerFactory<T> iteratorProducerFactory = (i, c) -> new IsolatedIteratorProducer<>(list, i, c);
 
-        return queue(iteratorProducer, action, errorLogger);
+        return queue(iteratorProducerFactory, handler, errorHandler);
     }
 
-    public <T> CountDownLatch queue(final List<T> list, final Consumer<T> action) {
-        return queue(list, action, null);
+    public <T> InteractiveWaitHandle queue(final List<T> list, final Consumer<T> handler) {
+        return queue(list, handler, null);
     }
 
     public void awaitUntilDone()
@@ -92,5 +97,10 @@ public final class IterableEventLoop {
 
     public void shutdown() {
         eventLoopsShutdownHandler.handleAll("unable to shutdown the event loops");
+    }
+
+    @FunctionalInterface
+    private interface IteratorProducerFactory<T> {
+        IteratorProducer<T> create(int offset, int count);
     }
 }

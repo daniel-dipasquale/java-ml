@@ -1,14 +1,14 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.error.IterableErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.threading.wait.handle.MultiWaitHandle;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 final class RouterEventLoop implements EventLoop {
@@ -51,13 +51,13 @@ final class RouterEventLoop implements EventLoop {
     }
 
     @Override
-    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch) {
-        getNextEventLoop().queue(handler, delayTime, errorLogger, invokedCountDownLatch);
+    public void queue(final EventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
+        getNextEventLoop().queue(handler, delayTime, errorHandler, invokedWaitHandle);
     }
 
     @Override
-    public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorLogger errorLogger, final CountDownLatch invokedCountDownLatch) {
-        getNextEventLoop().queue(handler, delayTime, errorLogger, invokedCountDownLatch);
+    public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
+        getNextEventLoop().queue(handler, delayTime, errorHandler, invokedWaitHandle);
     }
 
     @Override

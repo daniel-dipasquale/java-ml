@@ -1,6 +1,6 @@
 package com.dipasquale.threading.event.loop;
 
-import com.dipasquale.common.error.ErrorLogger;
+import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,5 +16,5 @@ final class ExplicitDelayEventLoopParams {
     private final ExclusiveQueue<EventRecord> eventRecordQueue;
     private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
-    private final ErrorLogger errorLogger;
+    private final ErrorHandler errorHandler;
 }
