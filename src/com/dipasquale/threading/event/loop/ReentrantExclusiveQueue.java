@@ -5,11 +5,16 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class DefaultExclusiveQueue<T> implements ExclusiveQueue<T> {
+final class ReentrantExclusiveQueue<T> implements ExclusiveQueue<T> {
     private final Lock lock;
     private final Queue<T> queue;
+
+    ReentrantExclusiveQueue(final Queue<T> queue) {
+        this(new ReentrantLock(), queue);
+    }
 
     @Override
     public void lock() {

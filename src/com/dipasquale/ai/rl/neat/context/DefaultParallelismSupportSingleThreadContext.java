@@ -17,9 +17,9 @@ public final class DefaultParallelismSupportSingleThreadContext implements Conte
     }
 
     @Override
-    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> handler) {
+    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
         while (iterator.hasNext()) {
-            handler.accept(iterator.next());
+            itemHandler.accept(iterator.next());
         }
 
         return WaitHandle.getEmpty();

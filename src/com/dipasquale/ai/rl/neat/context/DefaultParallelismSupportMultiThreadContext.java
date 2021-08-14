@@ -46,10 +46,10 @@ public final class DefaultParallelismSupportMultiThreadContext implements Contex
     }
 
     @Override
-    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> handler) {
+    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
         unhandledExceptions.clear();
 
-        InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(iterator, handler, unhandledExceptions::add);
+        InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(iterator, itemHandler, unhandledExceptions::add);
 
         return new DefaultWaitHandle(invokedWaitHandle);
     }

@@ -67,7 +67,7 @@ public abstract class AbstractDequeSet<TValue, TNode extends Node> extends Abstr
         return nodesDeque.getValue(nodesDeque.peekLast());
     }
 
-    private boolean add(final TValue value, final Supplier<TNode> nodeSupplier, final Pairer<TNode> nodePairer) {
+    private boolean add(final TValue value, final Supplier<TNode> nodeSupplier, final PairMaker<TNode> nodePairMaker) {
         TNode node = nodesMap.get(value);
 
         if (node == null) {
@@ -76,7 +76,7 @@ public abstract class AbstractDequeSet<TValue, TNode extends Node> extends Abstr
             if (otherNode != null) {
                 node = nodesDeque.createUnbound(value);
                 nodesMap.put(value, node);
-                nodePairer.pair(node, otherNode);
+                nodePairMaker.pair(node, otherNode);
 
                 return true;
             }
@@ -95,7 +95,7 @@ public abstract class AbstractDequeSet<TValue, TNode extends Node> extends Abstr
         return add(value, () -> nodesMap.get(nextToValue), nodesDeque::offerAfter);
     }
 
-    private boolean add(final TValue value, final Consumer<TNode> nodeConsumer) {
+    private boolean add(final TValue value, final Consumer<TNode> nodeHandler) {
         TNode node = nodesMap.get(value);
 
         if (node != null) {
@@ -104,7 +104,7 @@ public abstract class AbstractDequeSet<TValue, TNode extends Node> extends Abstr
 
         node = nodesDeque.createUnbound(value);
         nodesMap.put(value, node);
-        nodeConsumer.accept(node);
+        nodeHandler.accept(node);
 
         return true;
     }
@@ -207,7 +207,7 @@ public abstract class AbstractDequeSet<TValue, TNode extends Node> extends Abstr
     }
 
     @FunctionalInterface
-    private interface Pairer<T> {
+    private interface PairMaker<T> {
         void pair(T item1, T item2);
     }
 }

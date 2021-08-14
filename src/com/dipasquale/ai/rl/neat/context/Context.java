@@ -80,7 +80,7 @@ public interface Context {
 
         int numberOfThreads();
 
-        <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> handler);
+        <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> itemHandler);
     }
 
     interface RandomSupport {

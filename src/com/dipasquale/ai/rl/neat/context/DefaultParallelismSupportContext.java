@@ -23,8 +23,8 @@ public final class DefaultParallelismSupportContext implements Context.Paralleli
     }
 
     @Override
-    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> handler) {
-        return parallelism.forEach(iterator, handler);
+    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
+        return parallelism.forEach(iterator, itemHandler);
     }
 
     public void save(final SerializableInteroperableStateMap state) {

@@ -31,7 +31,7 @@ public final class IterableEventLoop {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         EventLoopParams params = EventLoopParams.builder()
-                .eventRecordQueueFactory(Constants.EVENT_RECORD_QUEUE_FACTORY)
+                .eventRecordQueueFactory(ReentrantExclusiveQueue::new)
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .errorHandler(settings.getErrorHandler())
@@ -55,39 +55,39 @@ public final class IterableEventLoop {
         return eventLoops.size();
     }
 
-    private <T> InteractiveWaitHandle queue(final IteratorProducerFactory<T> iteratorProducerFactory, final Consumer<T> handler, final ErrorHandler errorHandler) {
+    private <T> InteractiveWaitHandle queue(final IteratorProducerFactory<T> iteratorProducerFactory, final Consumer<T> itemHandler, final ErrorHandler errorHandler) {
         int size = eventLoops.size();
         InteractiveWaitHandle invokedWaitHandle = new CountDownWaitHandle(size);
 
         for (int i = 0; i < size; i++) {
             IteratorProducer<T> iteratorProducer = iteratorProducerFactory.create(i, size);
-            EventLoopHandler eventLoopHandler = new IterableEventLoopHandler<>(iteratorProducer, handler);
+            EventLoopHandler handler = new IterableEventLoopHandler<>(iteratorProducer, itemHandler);
 
-            eventLoops.get(i).queue(eventLoopHandler, 0L, errorHandler, invokedWaitHandle);
+            eventLoops.get(i).queue(handler, 0L, errorHandler, invokedWaitHandle);
         }
 
         return invokedWaitHandle;
     }
 
-    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> handler, final ErrorHandler errorHandler) {
+    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> itemHandler, final ErrorHandler errorHandler) {
         IteratorProducer<T> iteratorProducer = new ContendedIteratorProducer<>(iterator);
         IteratorProducerFactory<T> iteratorProducerFactory = (i, c) -> iteratorProducer;
 
-        return queue(iteratorProducerFactory, handler, errorHandler);
+        return queue(iteratorProducerFactory, itemHandler, errorHandler);
     }
 
-    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> handler) {
-        return queue(iterator, handler, null);
+    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> itemHandler) {
+        return queue(iterator, itemHandler, null);
     }
 
-    public <T> InteractiveWaitHandle queue(final List<T> list, final Consumer<T> handler, final ErrorHandler errorHandler) {
+    public <T> InteractiveWaitHandle queue(final List<T> list, final Consumer<T> itemHandler, final ErrorHandler errorHandler) {
         IteratorProducerFactory<T> iteratorProducerFactory = (i, c) -> new IsolatedIteratorProducer<>(list, i, c);
 
-        return queue(iteratorProducerFactory, handler, errorHandler);
+        return queue(iteratorProducerFactory, itemHandler, errorHandler);
     }
 
-    public <T> InteractiveWaitHandle queue(final List<T> list, final Consumer<T> handler) {
-        return queue(list, handler, null);
+    public <T> InteractiveWaitHandle queue(final List<T> list, final Consumer<T> itemHandler) {
+        return queue(list, itemHandler, null);
     }
 
     public void awaitUntilDone()
