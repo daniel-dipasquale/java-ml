@@ -1,9 +1,3 @@
-/*
- * java-ml
- * (c) 2021 daniel-dipasquale
- * released under the MIT license
- */
-
 package com.dipasquale.common.random.float2;
 
 import java.io.Serial;

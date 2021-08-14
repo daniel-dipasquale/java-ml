@@ -1,9 +1,3 @@
-/*
- * java-ml
- * (c) 2021 daniel-dipasquale
- * released under the MIT license
- */
-
 package com.dipasquale.ai.common.function.activation.function;
 
 import com.dipasquale.ai.common.function.activation.SigmoidActivationFunction;

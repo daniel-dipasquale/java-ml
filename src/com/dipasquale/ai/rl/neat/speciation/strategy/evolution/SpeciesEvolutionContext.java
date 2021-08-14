@@ -1,9 +1,3 @@
-/*
- * java-ml
- * (c) 2021 daniel-dipasquale
- * released under the MIT license
- */
-
 package com.dipasquale.ai.rl.neat.speciation.strategy.evolution;
 
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
