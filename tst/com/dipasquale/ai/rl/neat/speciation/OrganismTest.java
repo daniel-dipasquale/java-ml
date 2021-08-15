@@ -13,7 +13,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.common.test.SerializableSupport;
+import com.dipasquale.common.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,8 +33,8 @@ public final class OrganismTest {
         genome.addNode(new NodeGene(nodeId2, NodeGeneType.HIDDEN, 1.2f, SigmoidActivationFunction.getInstance()));
         genome.addConnection(new ConnectionGene(innovationId, 0.9f));
 
-        PopulationState population = new PopulationState();
-        Organism test = new Organism(genome, population);
+        PopulationState populationState = new PopulationState();
+        Organism test = new Organism(genome, populationState);
         byte[] bytes = SerializableSupport.serialize(test);
         Organism result = SerializableSupport.deserialize(bytes);
 

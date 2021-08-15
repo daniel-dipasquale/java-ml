@@ -9,15 +9,15 @@ import java.io.ObjectOutputStream;
 
 @RequiredArgsConstructor
 public final class DefaultContext implements Context {
-    private final DefaultGeneralSupportContext general;
-    private final DefaultNodeGeneSupportContext nodes;
-    private final DefaultConnectionGeneSupportContext connections;
-    private final DefaultNeuralNetworkSupportContext neuralNetwork;
-    private final DefaultParallelismSupportContext parallelism;
-    private final DefaultRandomSupportContext random;
-    private final DefaultMutationSupportContext mutation;
-    private final DefaultCrossOverSupportContext crossOver;
-    private final DefaultSpeciationSupportContext speciation;
+    private final DefaultContextGeneralSupport general;
+    private final DefaultContextNodeGeneSupport nodes;
+    private final DefaultContextConnectionGeneSupport connections;
+    private final DefaultContextNeuralNetworkSupport neuralNetwork;
+    private final DefaultContextParallelismSupport parallelism;
+    private final DefaultContextRandomSupport random;
+    private final DefaultContextMutationSupport mutation;
+    private final DefaultContextCrossOverSupport crossOver;
+    private final DefaultContextSpeciationSupport speciation;
 
     @Override
     public GeneralSupport general() {
@@ -82,12 +82,12 @@ public final class DefaultContext implements Context {
     }
 
     @Override
-    public void load(final ObjectInputStream inputStream, final Context.StateOverrideSupport override)
+    public void load(final ObjectInputStream inputStream, final StateOverrideSupport override)
             throws IOException, ClassNotFoundException {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
         state.readFrom(inputStream);
-        general.load(state, override.environment());
+        general.load(state, override.fitnessFunction());
         nodes.load(state, override.eventLoop());
         connections.load(state, override.eventLoop());
         neuralNetwork.load(state);

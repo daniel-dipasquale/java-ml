@@ -1,86 +1,73 @@
 package com.dipasquale.simulation.cart.pole;
 
-import com.dipasquale.common.random.float2.DefaultRandomSupport;
 import com.dipasquale.common.random.float2.RandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Optional;
-
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 public final class CartPoleEnvironment { // code based on: https://github.com/CodeReclaimers/neat-python/blob/master/examples/single-pole-balancing/cart_pole.py and source was http://coneural.org/florian/papers/05_cart_pole.pdf
-    private final double gravity;
-    private final Cart cart;
-    private final Pole pole;
-    private final double stepTime;
-    private final double positionLimit;
-    private final double angleRadiansLimit;
-    private double x;
-    private double theta;
-    private double dx;
-    private double dtheta;
-    private double accx;
-    private double acctheta;
+    private static final double POSITION_LIMIT = 2.4D;
+    private static final double ANGLE_RADIANS_LIMIT = 45D * Math.PI / 180D;
+    @Builder.Default
+    private final double gravity = 9.8D;
+    @Builder.Default
+    private final Cart cart = Cart.builder().build();
+    @Builder.Default
+    private final Pole pole = Pole.builder().build();
+    @Builder.Default
+    private final double stepTime = 0.01D;
+    @Builder.Default
+    private final double positionLimit = POSITION_LIMIT;
+    @Builder.Default
+    private final double angleRadiansLimit = ANGLE_RADIANS_LIMIT;
+    @Builder.Default
+    private double x = 0D;
+    @Builder.Default
+    private double theta = 0D;
+    @Builder.Default
+    private double dx = 0D;
+    @Builder.Default
+    private double dtheta = 0D;
+    @Builder.Default
+    private double accx = 0D;
+    @Builder.Default
+    private double acctheta = 0D;
+    @Builder.Default
     @Getter
-    private double timeSpent;
+    private double timeSpent = 0D;
 
-    @Builder
-    private static CartPoleEnvironment create(final Double gravity, final Cart cart, final Pole pole, final Double stepTime, final Double positionLimit, final Double angleRadiansLimit, final RandomSupport randomSupport, final Double x, final Double theta, final Double dx, final Double dtheta) {
-        double gravityFixed = Optional.ofNullable(gravity)
-                .orElse(9.8D);
+    public static CartPoleEnvironment createRandom(final RandomSupport randomSupport, final double positionLimit, final double angleRadiansLimit) {
+        double x = randomSupport.next(-0.5D * positionLimit, 0.5D * positionLimit);
+        double theta = randomSupport.next(-0.5D * angleRadiansLimit, 0.5D * angleRadiansLimit);
+        double dx = randomSupport.next(-1D, 1D);
+        double dtheta = randomSupport.next(-1D, 1D);
 
-        Cart cartFixed = Optional.ofNullable(cart)
-                .orElseGet(() -> Cart.builder()
-                        .build());
+        return CartPoleEnvironment.builder()
+                .x(x)
+                .theta(theta)
+                .dx(dx)
+                .dtheta(dtheta)
+                .build();
+    }
 
-        Pole poleFixed = Optional.ofNullable(pole)
-                .orElseGet(() -> Pole.builder()
-                        .build());
-
-        double stepTimeFixed = Optional.ofNullable(stepTime)
-                .orElse(0.01D);
-
-        RandomSupport randomSupportFixed = Optional.ofNullable(randomSupport)
-                .orElseGet(DefaultRandomSupport::new);
-
-        double positionLimitFixed = Optional.ofNullable(positionLimit)
-                .orElse(2.4D);
-
-        double angleRadiansLimitFixed = Optional.ofNullable(angleRadiansLimit)
-                .orElse(45D * Math.PI / 180D);
-
-        double xFixed = Optional.ofNullable(x)
-                .orElseGet(() -> randomSupportFixed.next(-0.5D * positionLimitFixed, 0.5D * positionLimitFixed));
-
-        double thetaFixed = Optional.ofNullable(theta)
-                .orElseGet(() -> randomSupportFixed.next(-0.5D * angleRadiansLimitFixed, 0.5 * angleRadiansLimitFixed));
-
-        double dxFixed = Optional.ofNullable(dx)
-                .orElseGet(() -> randomSupportFixed.next(-1D, 1D));
-
-        double dthetaFixed = Optional.ofNullable(dtheta)
-                .orElseGet(() -> randomSupportFixed.next(-1D, 1D));
-
-        double xacc = 0D;
-        double tacc = 0D;
-        double timeSpent = 0D;
-
-        return new CartPoleEnvironment(gravityFixed, cartFixed, poleFixed, stepTimeFixed, positionLimitFixed, angleRadiansLimitFixed, xFixed, thetaFixed, dxFixed, dthetaFixed, xacc, tacc, timeSpent);
+    public static CartPoleEnvironment createRandom(final RandomSupport randomSupport) {
+        return createRandom(randomSupport, POSITION_LIMIT, ANGLE_RADIANS_LIMIT);
     }
 
     public double[] getState() {
-        return new double[]{
-                0.5D * (x + positionLimit) / positionLimit,
-                (dx + 0.75D) / 1.5D,
-                0.5D * (theta + angleRadiansLimit) / angleRadiansLimit,
-                (dtheta + 1D) / 2D
-        };
+        double x_state = 0.5D * (x + positionLimit) / positionLimit;
+        double dx_state = (dx + 0.75D) / 1.5D;
+        double theta_state = 0.5D * (theta + ANGLE_RADIANS_LIMIT) / ANGLE_RADIANS_LIMIT;
+        double dtheta_state = (dtheta + 1D) / 2D;
+
+        return new double[]{x_state, dx_state, theta_state, dtheta_state};
     }
 
     public boolean isLimitHit() {
-        return Math.abs(x) >= positionLimit || Math.abs(theta) >= angleRadiansLimit;
+        return Math.abs(x) >= positionLimit || Math.abs(theta) >= ANGLE_RADIANS_LIMIT;
     }
 
     public double step(final double force) {

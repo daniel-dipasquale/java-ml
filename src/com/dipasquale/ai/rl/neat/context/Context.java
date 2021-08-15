@@ -51,7 +51,7 @@ public interface Context {
 
         FitnessDeterminer createFitnessDeterminer();
 
-        float calculateFitness(DefaultGenome genome);
+        float calculateFitness(Genome genome);
     }
 
     interface NodeGeneSupport {
@@ -72,7 +72,7 @@ public interface Context {
 
     @FunctionalInterface
     interface NeuralNetworkSupport {
-        NeuralNetwork create(DefaultGenome genome, NodeGeneMap nodes, ConnectionGeneMap connections);
+        NeuralNetwork create(NodeGeneMap nodes, ConnectionGeneMap connections);
     }
 
     interface ParallelismSupport {
@@ -169,6 +169,7 @@ public interface Context {
         default DefaultGenome crossOverByEqualTreatment(final Context context, final DefaultGenome parent1, final DefaultGenome parent2) {
             return DefaultGenome.crossOverByEqualTreatment(context, parent1, parent2);
         }
+
     }
 
     interface SpeciationSupport {
@@ -206,7 +207,7 @@ public interface Context {
     }
 
     interface StateOverrideSupport {
-        FitnessFunction<Genome> environment();
+        FitnessFunction<Genome> fitnessFunction();
 
         IterableEventLoop eventLoop();
     }

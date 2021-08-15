@@ -5,7 +5,7 @@ import com.dipasquale.ai.common.function.activation.IdentityActivationFunction;
 import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.common.sequence.SequentialIdFactory;
-import com.dipasquale.common.test.SerializableSupport;
+import com.dipasquale.common.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

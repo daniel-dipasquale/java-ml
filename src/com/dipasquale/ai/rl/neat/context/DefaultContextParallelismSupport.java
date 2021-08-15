@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 @AllArgsConstructor
-public final class DefaultParallelismSupportContext implements Context.ParallelismSupport {
+public final class DefaultContextParallelismSupport implements Context.ParallelismSupport {
     private Context.ParallelismSupport parallelism;
 
     @Override
@@ -32,9 +32,9 @@ public final class DefaultParallelismSupportContext implements Context.Paralleli
 
     public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         if (eventLoop != null) {
-            parallelism = new DefaultParallelismSupportMultiThreadContext(eventLoop);
+            parallelism = new DefaultContextParallelismSupportMultiThread(eventLoop);
         } else {
-            parallelism = new DefaultParallelismSupportSingleThreadContext();
+            parallelism = new DefaultContextParallelismSupportSingleThread();
         }
     }
 }

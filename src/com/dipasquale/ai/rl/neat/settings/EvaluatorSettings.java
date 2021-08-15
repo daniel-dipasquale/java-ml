@@ -1,16 +1,16 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.context.DefaultConnectionGeneSupportContext;
 import com.dipasquale.ai.rl.neat.context.DefaultContext;
-import com.dipasquale.ai.rl.neat.context.DefaultCrossOverSupportContext;
-import com.dipasquale.ai.rl.neat.context.DefaultGeneralSupportContext;
-import com.dipasquale.ai.rl.neat.context.DefaultMutationSupportContext;
-import com.dipasquale.ai.rl.neat.context.DefaultNeuralNetworkSupportContext;
-import com.dipasquale.ai.rl.neat.context.DefaultNodeGeneSupportContext;
-import com.dipasquale.ai.rl.neat.context.DefaultParallelismSupportContext;
-import com.dipasquale.ai.rl.neat.context.DefaultRandomSupportContext;
-import com.dipasquale.ai.rl.neat.context.DefaultSpeciationSupportContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneSupport;
+import com.dipasquale.ai.rl.neat.context.DefaultContextCrossOverSupport;
+import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
+import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
+import com.dipasquale.ai.rl.neat.context.DefaultContextNeuralNetworkSupport;
+import com.dipasquale.ai.rl.neat.context.DefaultContextNodeGeneSupport;
+import com.dipasquale.ai.rl.neat.context.DefaultContextParallelismSupport;
+import com.dipasquale.ai.rl.neat.context.DefaultContextRandomSupport;
+import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,15 +55,15 @@ public final class EvaluatorSettings {
             .build();
 
     public Context createContext() { // TODO: think of a better fix for this
-        DefaultGeneralSupportContext generalFixed = general.create();
-        DefaultNodeGeneSupportContext nodesFixed = nodes.create(general.getGenesisGenomeFactory(), parallelism);
-        DefaultConnectionGeneSupportContext connectionsFixed = connections.create(general.getGenesisGenomeFactory(), neuralNetwork, parallelism);
-        DefaultNeuralNetworkSupportContext neuralNetworkFixed = neuralNetwork.create();
-        DefaultParallelismSupportContext parallelismFixed = parallelism.create();
-        DefaultRandomSupportContext randomFixed = random.create(parallelism);
-        DefaultMutationSupportContext mutationFixed = mutation.create(parallelism, random);
-        DefaultCrossOverSupportContext crossOverFixed = crossOver.create(parallelism, random);
-        DefaultSpeciationSupportContext speciationFixed = speciation.create(general, parallelism);
+        DefaultContextGeneralSupport generalFixed = general.create();
+        DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeFactory(), parallelism);
+        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeFactory(), neuralNetwork, parallelism);
+        DefaultContextNeuralNetworkSupport neuralNetworkFixed = neuralNetwork.create();
+        DefaultContextParallelismSupport parallelismFixed = parallelism.create();
+        DefaultContextRandomSupport randomFixed = random.create(parallelism);
+        DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, random);
+        DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, random);
+        DefaultContextSpeciationSupport speciationFixed = speciation.create(general, parallelism);
 
         return new DefaultContext(generalFixed, nodesFixed, connectionsFixed, neuralNetworkFixed, parallelismFixed, randomFixed, mutationFixed, crossOverFixed, speciationFixed);
     }

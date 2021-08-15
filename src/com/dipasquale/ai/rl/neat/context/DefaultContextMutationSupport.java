@@ -7,7 +7,7 @@ import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public final class DefaultMutationSupportContext implements Context.MutationSupport {
+public final class DefaultContextMutationSupport implements Context.MutationSupport {
     private ObjectSwitcher<GateProvider> shouldAddNodeMutation;
     private ObjectSwitcher<GateProvider> shouldAddConnectionMutation;
     private ObjectSwitcher<GateProvider> shouldPerturbConnectionWeight;

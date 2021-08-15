@@ -15,7 +15,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.common.test.SerializableSupport;
+import com.dipasquale.common.SerializableSupport;
 import com.dipasquale.threading.wait.handle.WaitHandle;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -121,12 +121,12 @@ public final class SpeciesTest {
         genome.addNode(new NodeGene(nodeId2, NodeGeneType.HIDDEN, 1.2f, SigmoidActivationFunction.getInstance()));
         genome.addConnection(new ConnectionGene(innovationId, 0.9f));
 
-        PopulationState population = new PopulationState();
+        PopulationState populationState = new PopulationState();
 
-        population.getHistoricalMarkings().initialize(createContext());
+        populationState.getHistoricalMarkings().initialize(createContext());
 
-        Organism organism = new Organism(genome, population);
-        Species test = new Species(organism, population);
+        Organism organism = new Organism(genome, populationState);
+        Species test = new Species(organism, populationState);
         byte[] bytes = SerializableSupport.serialize(test);
         Species result = SerializableSupport.deserialize(bytes);
 

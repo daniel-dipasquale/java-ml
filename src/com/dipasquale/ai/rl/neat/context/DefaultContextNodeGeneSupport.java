@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 import java.util.Map;
 
 @AllArgsConstructor
-public final class DefaultNodeGeneSupportContext implements Context.NodeGeneSupport {
+public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupport {
     private Map<NodeGeneType, ObjectSwitcher<FloatFactory>> biasFactories;
     private Map<NodeGeneType, ObjectSwitcher<ActivationFunctionFactory>> activationFunctionFactories;
     private int inputs;

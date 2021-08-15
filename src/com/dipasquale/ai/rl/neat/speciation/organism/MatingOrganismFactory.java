@@ -18,7 +18,7 @@ public final class MatingOrganismFactory implements OrganismFactory, Serializabl
     public Organism create(final Context context) {
         Organism organism = parentOrganism1.mate(context, parentOrganism2);
 
-        organism.prepare(context);
+        organism.initialize(context);
 
         if (shouldMutate) {
             organism.mutate(context);

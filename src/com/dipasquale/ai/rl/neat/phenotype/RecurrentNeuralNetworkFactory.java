@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
-import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
+import com.dipasquale.common.factory.ObjectFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -15,10 +15,10 @@ public final class RecurrentNeuralNetworkFactory implements NeuralNetworkFactory
     private final NeuronFactory neuronFactory;
 
     @Override
-    public NeuralNetwork create(final DefaultGenome genome, final NodeGeneMap nodes, final ConnectionGeneMap connections) {
-        NeuronPromoter<DefaultNeuron> neuronPromoter = DefaultNeuron::cloneIntoSingleMemoryRecurrent;
-        NeuronPathBuilder neuronPathBuilder = new RecurrentNeuronPathBuilder<>(neuronPromoter);
+    public NeuralNetwork create(final NodeGeneMap nodes, final ConnectionGeneMap connections) {
+        NeuronPathBuilder neuronPathBuilder = new RecurrentNeuronPathBuilder();
+        ObjectFactory<NeuronValueMap> neuronValuesFactory = RecurrentNeuronValueMap::new;
 
-        return new DefaultNeuralNetwork(nodes, connections, neuronPathBuilder, neuronFactory);
+        return new DefaultNeuralNetwork(nodes, connections, neuronPathBuilder, neuronFactory, neuronValuesFactory);
     }
 }

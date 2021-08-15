@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
+import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.context.DefaultContextStateOverrideSupport;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
@@ -9,10 +11,15 @@ import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Getter // TODO: consider fixing this in some other way
-public final class EvaluatorStateSettings {
+public final class EvaluatorLoadSettings {
+    @Getter
     private final boolean meantToOverrideTopology;
+    @Getter
     private final boolean meantToOverrideSettings;
+    private final NeatEnvironment fitnessFunction;
     private final IterableEventLoop eventLoop;
-    private final NeatEnvironment environment;
+
+    public Context.StateOverrideSupport createContext() { // TODO: think of a better fix for this
+        return new DefaultContextStateOverrideSupport(fitnessFunction, eventLoop);
+    }
 }

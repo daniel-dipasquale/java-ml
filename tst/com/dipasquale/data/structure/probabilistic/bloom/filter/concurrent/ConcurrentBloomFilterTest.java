@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
+import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.common.test.JvmWarmup;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ProxyDateTimeSupport;

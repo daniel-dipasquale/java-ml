@@ -17,13 +17,13 @@ public final class DirectedEdge implements Serializable {
     private final SequentialId sourceNodeId;
     private final SequentialId targetNodeId;
 
-    public DirectedEdge(final NodeGene inNode, final NodeGene outNode) {
-        this.sourceNodeId = inNode.getId();
-        this.targetNodeId = outNode.getId();
+    public DirectedEdge(final NodeGene sourceNode, final NodeGene targetNode) {
+        this.sourceNodeId = sourceNode.getId();
+        this.targetNodeId = targetNode.getId();
     }
 
     @Override
     public String toString() {
-        return String.format("%s-%s", sourceNodeId, targetNodeId);
+        return String.format("%s:%s", sourceNodeId, targetNodeId);
     }
 }

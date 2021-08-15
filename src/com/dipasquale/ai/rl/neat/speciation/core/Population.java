@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 
 public final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
-    private PopulationState info;
+    private PopulationState populationState;
     private DequeSet<Organism> organismsWithoutSpecies;
     private Queue<OrganismFactory> organismsToBirth;
     private NodeDeque<Species, SimpleNode<Species>> speciesNodes;
@@ -50,7 +50,7 @@ public final class Population {
     private List<SpeciesBreedingStrategy> speciesBreedingStrategies;
 
     public Population(final OrganismActivator mostFitOrganismActivator) {
-        this.info = new PopulationState();
+        this.populationState = new PopulationState();
         this.organismsWithoutSpecies = new DequeIdentitySet<>();
         this.organismsToBirth = new LinkedList<>();
         this.speciesNodes = new SimpleNodeDeque<>();
@@ -62,7 +62,7 @@ public final class Population {
     }
 
     public int getGeneration() {
-        return info.getGeneration();
+        return populationState.getGeneration();
     }
 
     private boolean isInitialized() {
@@ -71,9 +71,9 @@ public final class Population {
 
     private void fillOrganismsWithoutSpeciesWithGenesisGenomes(final Context context) {
         IntStream.range(0, context.general().populationSize())
-                .mapToObj(i -> info.getHistoricalMarkings().createGenome(context))
-                .map(g -> new Organism(g, info))
-                .peek(o -> o.prepare(context))
+                .mapToObj(i -> populationState.getHistoricalMarkings().createGenome(context))
+                .map(g -> new Organism(g, populationState))
+                .peek(o -> o.initialize(context))
                 .peek(Organism::freeze)
                 .forEach(organismsWithoutSpecies::add);
     }
@@ -121,16 +121,16 @@ public final class Population {
             throw new IllegalStateException("unable to change the population size after initialization ... yet!");
         }
 
-        info.getHistoricalMarkings().initialize(context);
+        populationState.getHistoricalMarkings().initialize(context);
 
         if (isInitialized()) {
-            organismsWithoutSpecies.forEach(o -> o.prepare(context));
+            organismsWithoutSpecies.forEach(o -> o.initialize(context));
 
             speciesNodes.stream()
                     .map(speciesNodes::getValue)
                     .map(Species::getOrganisms)
                     .flatMap(List::stream)
-                    .forEach(o -> o.prepare(context));
+                    .forEach(o -> o.initialize(context));
         } else {
             fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
             mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
@@ -152,7 +152,7 @@ public final class Population {
     }
 
     private Species createSpecies(final Organism organism) {
-        return new Species(organism, info);
+        return new Species(organism, populationState);
     }
 
     private SimpleNode<Species> addSpecies(final Species species) {
@@ -172,7 +172,7 @@ public final class Population {
             if (!addOrganismToFirstCompatibleSpecies(context, organism)) {
                 if (speciesNodes.size() < context.speciation().maximumSpecies()) {
                     addSpecies(createSpecies(organism));
-                } else {
+                } else { // TODO: I feel like the statement below is a hack and I cannot think of a better fix, but the problem is that at higher generations, genomes fall so far apart from the distance metric that they all end up in singular species (FIX whenever I can think of a better solution)
                     organism.getMostCompatibleSpecies().add(context.speciation(), organism);
                 }
             }
@@ -242,22 +242,22 @@ public final class Population {
         SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
 
         assert context.general().populationSize() == countOrganismsEverywhere();
-        assert organismsToBirth.isEmpty() && info.getHistoricalMarkings().getGenomeKilledCount() == 0;
+        assert organismsToBirth.isEmpty() && populationState.getHistoricalMarkings().getGenomeKilledCount() == 0;
 
         prepareAllSpeciesForEvolution(context, evolutionContext);
 
         assert organismsToBirth.isEmpty();
 
         breedThroughAllSpecies(evolutionContext);
-        info.increaseGeneration();
+        populationState.increaseGeneration();
 
         assert context.general().populationSize() == countOrganismsEverywhere();
-        assert info.getHistoricalMarkings().getGenomeKilledCount() == organismsToBirth.size();
+        assert populationState.getHistoricalMarkings().getGenomeKilledCount() == organismsToBirth.size();
     }
 
     public void restart(final Context context) {
-        info.restartGeneration();
-        info.getHistoricalMarkings().reset(context.nodes());
+        populationState.restartGeneration();
+        populationState.getHistoricalMarkings().reset(context.nodes());
         organismsWithoutSpecies.clear();
         fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
         mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
@@ -270,11 +270,11 @@ public final class Population {
             throws IOException {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
-        state.put("population.info", info);
+        state.put("population.populationState", populationState);
         state.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
         state.put("population.organismsToBirth", organismsToBirth);
         state.put("population.speciesNodes", speciesNodes);
-        state.put("population.speciesBreedContext", speciesBreedingContext);
+        state.put("population.speciesBreedingContext", speciesBreedingContext);
         state.writeTo(outputStream);
     }
 
@@ -283,14 +283,14 @@ public final class Population {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
         state.readFrom(inputStream);
-        info = state.get("population.info");
+        populationState = state.get("population.populationState");
         organismsWithoutSpecies = state.get("population.organismsWithoutSpecies");
         organismsToBirth = state.get("population.organismsToBirth");
         speciesNodes = state.get("population.speciesNodes");
         mostFitOrganismActivator = mostFitOrganismActivatorOverride;
         speciesFitnessStrategies = new LinkedList<>();
         speciesEvolutionStrategies = new LinkedList<>();
-        speciesBreedingContext = state.get("population.speciesBreedContext");
+        speciesBreedingContext = state.get("population.speciesBreedingContext");
         speciesBreedingStrategies = new LinkedList<>();
     }
 }

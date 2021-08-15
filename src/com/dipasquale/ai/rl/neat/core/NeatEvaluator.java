@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.settings.EvaluatorStateSettings;
+import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,5 +23,5 @@ public interface NeatEvaluator {
 
     void save(OutputStream outputStream) throws IOException;
 
-    void load(InputStream inputStream, EvaluatorStateSettings settings) throws IOException;
+    void load(InputStream inputStream, EvaluatorLoadSettings settings) throws IOException;
 }

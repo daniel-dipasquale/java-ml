@@ -16,9 +16,8 @@ import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
-public final class RecurrentNeuronPathBuilder<T extends Neuron> implements NeuronPathBuilder {
-    private final Map<SequentialId, StrategyNeuron<T>> neurons = new HashMap<>();
-    private final NeuronPromoter<T> neuronPromoter;
+public final class RecurrentNeuronPathBuilder implements NeuronPathBuilder {
+    private final Map<SequentialId, Neuron> neurons = new HashMap<>();
     private final Set<CompositeId> alreadyOrdered = new HashSet<>();
     private final Collection<Neuron> ordered = new LinkedList<>();
 
@@ -34,11 +33,9 @@ public final class RecurrentNeuronPathBuilder<T extends Neuron> implements Neuro
 
     @Override
     public Neuron add(final Neuron neuron) {
-        StrategyNeuron<T> strategyNeuron = new StrategyNeuron<>(neuronPromoter, (T) neuron);
+        neurons.put(neuron.getId(), neuron);
 
-        neurons.put(neuron.getId(), strategyNeuron);
-
-        return strategyNeuron;
+        return neuron;
     }
 
     @Override
@@ -64,7 +61,6 @@ public final class RecurrentNeuronPathBuilder<T extends Neuron> implements Neuro
                         deque.putLast(compositeId, neuronOrderNew);
                     } else if (neuronOrderOld != null && neuronOrderOld.ordered || alreadyOrdered.contains(compositeId)) {
                         if (compositeId.cycle <= input.getRecurrentCyclesAllowed()) {
-                            neurons.get(input.getNeuronId()).promoteToRecurrent();
                             deque.putLast(new CompositeId(input.getNeuronId(), compositeId.cycle + 1), new NeuronOrder(neurons.get(input.getNeuronId()), false));
                         }
                     }

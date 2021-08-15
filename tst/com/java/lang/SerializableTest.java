@@ -1,6 +1,6 @@
 package com.java.lang;
 
-import com.dipasquale.common.test.SerializableSupport;
+import com.dipasquale.common.SerializableSupport;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Assertions;

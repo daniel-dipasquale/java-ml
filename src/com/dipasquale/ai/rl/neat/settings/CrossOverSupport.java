@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.settings;
 
-import com.dipasquale.ai.rl.neat.context.DefaultCrossOverSupportContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextCrossOverSupport;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.provider.GateProvider;
 import com.dipasquale.common.provider.LiteralGateProvider;
@@ -62,13 +62,13 @@ public final class CrossOverSupport {
         return createIsLessThanProviderSwitcher(randomSupportSwitcher, max, parallelism);
     }
 
-    DefaultCrossOverSupportContext create(final ParallelismSupport parallelism, final RandomSupport random) {
+    DefaultContextCrossOverSupport create(final ParallelismSupport parallelism, final RandomSupport random) {
         ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher = random.createIsLessThanSwitcher(parallelism);
         CrossOverProviderSwitchers crossOverProviderSwitchers = createCrossOverProviderSwitchers(randomSupportSwitcher, parallelism);
         ObjectSwitcher<GateProvider> shouldOverrideConnectionExpressedSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, overrideConnectionExpressedRate, parallelism);
         ObjectSwitcher<GateProvider> shouldUseRandomParentConnectionWeightSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, useRandomParentConnectionWeightRate, parallelism);
 
-        return new DefaultCrossOverSupportContext(crossOverProviderSwitchers.mateAndMutate, crossOverProviderSwitchers.mateOnly, crossOverProviderSwitchers.mutateOnly, shouldOverrideConnectionExpressedSwitcher, shouldUseRandomParentConnectionWeightSwitcher);
+        return new DefaultContextCrossOverSupport(crossOverProviderSwitchers.mateAndMutate, crossOverProviderSwitchers.mateOnly, crossOverProviderSwitchers.mutateOnly, shouldOverrideConnectionExpressedSwitcher, shouldUseRandomParentConnectionWeightSwitcher);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

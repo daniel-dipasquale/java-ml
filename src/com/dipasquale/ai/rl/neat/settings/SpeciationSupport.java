@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.settings;
 
-import com.dipasquale.ai.rl.neat.context.DefaultSpeciationSupportContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenomeCompatibilityCalculator;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.IntegerFactory;
@@ -39,7 +39,7 @@ public final class SpeciationSupport {
     @Builder.Default
     private final FloatNumber interSpeciesMatingRate = FloatNumber.literal(0.001f);
 
-    DefaultSpeciationSupportContext create(final GeneralEvaluatorSupport general, final ParallelismSupport parallelism) {
+    DefaultContextSpeciationSupport create(final GeneralEvaluatorSupport general, final ParallelismSupport parallelism) {
         int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
                 .map(sin -> sin.createFactorySwitcher(parallelism))
                 .map(ObjectSwitcher::getObject)
@@ -70,6 +70,6 @@ public final class SpeciationSupport {
         int stagnationDropOffAgeFixed = stagnationDropOffAge.createFactorySwitcher(parallelism).getObject().create();
         float interSpeciesMatingRateFixed = interSpeciesMatingRate.createFactorySwitcher(parallelism).getObject().create();
 
-        return new DefaultSpeciationSupportContext(maximumSpeciesFixed, maximumGenomesFixed, compatibilityThresholdFixed, compatibilityThresholdModifierFixed, genomeCompatibilityCalculator, eugenicsThresholdFixed, elitistThresholdFixed, elitistThresholdMinimumFixed, stagnationDropOffAgeFixed, interSpeciesMatingRateFixed);
+        return new DefaultContextSpeciationSupport(maximumSpeciesFixed, maximumGenomesFixed, compatibilityThresholdFixed, compatibilityThresholdModifierFixed, genomeCompatibilityCalculator, eugenicsThresholdFixed, elitistThresholdFixed, elitistThresholdMinimumFixed, stagnationDropOffAgeFixed, interSpeciesMatingRateFixed);
     }
 }

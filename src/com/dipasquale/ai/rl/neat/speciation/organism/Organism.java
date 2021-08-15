@@ -3,11 +3,13 @@ package com.dipasquale.ai.rl.neat.speciation.organism;
 import com.dipasquale.ai.common.fitness.FitnessDeterminer;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
+import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -19,68 +21,71 @@ public final class Organism implements Comparable<Organism>, Serializable {
     private static final double MINIMUM_COMPATIBILITY = Double.POSITIVE_INFINITY;
     @EqualsAndHashCode.Include
     private final DefaultGenome genome;
-    private final PopulationState population;
-    private final MostCompatibleSpecies mostCompatibleSpecies;
-    private transient Fitness fitness;
+    private transient ProxyGenome proxyGenome;
+    private final PopulationState populationState;
+    private final SpeciesCompatibility speciesCompatibility;
+    private transient FitnessState fitnessState;
 
-    public Organism(final DefaultGenome genome, final PopulationState population) {
+    public Organism(final DefaultGenome genome, final PopulationState populationState) {
         this.genome = genome;
-        this.population = population;
-        this.mostCompatibleSpecies = new MostCompatibleSpecies(MINIMUM_COMPATIBILITY, null);
-        this.fitness = null;
+        this.proxyGenome = null;
+        this.populationState = populationState;
+        this.speciesCompatibility = new SpeciesCompatibility(MINIMUM_COMPATIBILITY, null);
+        this.fitnessState = null;
     }
 
-    private Fitness createFitness(final Context.GeneralSupport general) {
-        if (fitness == null) {
-            return new Fitness(general.createFitnessDeterminer(), 0f, population.getGeneration());
+    private FitnessState createFitnessState(final Context.GeneralSupport general) {
+        if (fitnessState == null) {
+            return new FitnessState(general.createFitnessDeterminer(), 0f, populationState.getGeneration());
         }
 
-        return new Fitness(general.createFitnessDeterminer(), fitness.value, fitness.generation);
+        return new FitnessState(general.createFitnessDeterminer(), fitnessState.value, fitnessState.generation);
     }
 
-    public void prepare(final Context context) {
-        genome.prepare(context.neuralNetwork());
-        fitness = createFitness(context.general());
-    }
-
-    public Species getMostCompatibleSpecies() {
-        return mostCompatibleSpecies.reference;
+    public void initialize(final Context context) {
+        genome.initialize(context.neuralNetwork());
+        proxyGenome = new ProxyGenome();
+        fitnessState = createFitnessState(context.general());
     }
 
     public boolean isCompatible(final Context.SpeciationSupport speciation, final Species species) {
         double compatibility = speciation.calculateCompatibility(genome, species.getRepresentative().genome);
 
-        if (Double.compare(mostCompatibleSpecies.minimum, compatibility) > 0) {
-            mostCompatibleSpecies.minimum = compatibility;
-            mostCompatibleSpecies.reference = species;
+        if (Double.compare(speciesCompatibility.minimumCompatibility, compatibility) > 0) {
+            speciesCompatibility.minimumCompatibility = compatibility;
+            speciesCompatibility.species = species;
         }
 
-        double compatibilityThreshold = speciation.compatibilityThreshold(population.getGeneration());
+        double compatibilityThreshold = speciation.compatibilityThreshold(populationState.getGeneration());
 
         return Double.compare(compatibility, compatibilityThreshold) < 0;
     }
 
-    public void setMostCompatibleSpecies(final Species species) {
-        mostCompatibleSpecies.minimum = MINIMUM_COMPATIBILITY;
-        mostCompatibleSpecies.reference = species;
+    public Species getMostCompatibleSpecies() {
+        return speciesCompatibility.species;
     }
 
-    public float getFitness() {
-        return fitness.value;
+    public void setMostCompatibleSpecies(final Species species) {
+        speciesCompatibility.minimumCompatibility = MINIMUM_COMPATIBILITY;
+        speciesCompatibility.species = species;
+    }
+
+    public float getFitnessState() {
+        return fitnessState.value;
     }
 
     public float updateFitness(final Context.GeneralSupport general) {
-        if (fitness.generation != population.getGeneration()) {
-            fitness.generation = population.getGeneration();
-            fitness.determiner.clear();
+        if (fitnessState.generation != populationState.getGeneration()) {
+            fitnessState.generation = populationState.getGeneration();
+            fitnessState.determiner.clear();
         }
 
-        float fitnessNew = general.calculateFitness(genome);
+        float fitnessNew = general.calculateFitness(proxyGenome);
         float fitnessNewFixed = !Float.isFinite(fitnessNew) ? 0f : Math.max(fitnessNew, 0f);
 
-        fitness.determiner.add(fitnessNewFixed);
+        fitnessState.determiner.add(fitnessNewFixed);
 
-        return fitness.value = fitness.determiner.get();
+        return fitnessState.value = fitnessState.determiner.get();
     }
 
     public void mutate(final Context context) {
@@ -89,7 +94,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
 
     @Override
     public int compareTo(final Organism other) {
-        return Float.compare(fitness.value, other.fitness.value);
+        return Float.compare(fitnessState.value, other.fitnessState.value);
     }
 
     public Organism mate(final Context context, final Organism other) {
@@ -103,7 +108,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
             default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, other.genome, genome);
         };
 
-        return new Organism(genomeNew, population);
+        return new Organism(genomeNew, populationState);
     }
 
     public void freeze() {
@@ -115,34 +120,53 @@ public final class Organism implements Comparable<Organism>, Serializable {
     }
 
     public Organism createCopy() {
-        return new Organism(genome.createCopy(population.getHistoricalMarkings()), population);
+        return new Organism(genome.createCopy(populationState.getHistoricalMarkings()), populationState);
     }
 
     public Organism createClone(final Context context) {
-        Organism organism = new Organism(genome.createClone(population.getHistoricalMarkings()), population);
+        DefaultGenome clonedGenome = genome.createClone(populationState.getHistoricalMarkings());
+        Organism clonedOrganism = new Organism(clonedGenome, populationState);
 
-        organism.prepare(context);
+        clonedOrganism.initialize(context);
 
-        return organism;
+        return clonedOrganism;
     }
 
     public void kill() {
-        population.getHistoricalMarkings().markToKill(genome);
+        populationState.getHistoricalMarkings().markToKill(genome);
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
-    private static final class MostCompatibleSpecies implements Serializable {
+    private static final class SpeciesCompatibility implements Serializable {
         @Serial
         private static final long serialVersionUID = -6165184849094919071L;
-        private double minimum;
-        private Species reference;
+        private double minimumCompatibility;
+        private Species species;
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class Fitness {
+    private static final class FitnessState {
         private final FitnessDeterminer determiner;
         private float value;
         private int generation;
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private final class ProxyGenome implements Genome {
+        @Override
+        public String getId() {
+            return genome.getId();
+        }
+
+        @Override
+        public int getComplexity() {
+            return genome.getComplexity();
+        }
+
+        @Override
+        public float[] activate(final float[] input) {
+            return genome.activate(input);
+        }
     }
 }

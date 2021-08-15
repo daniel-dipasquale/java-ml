@@ -1,10 +1,10 @@
 package com.dipasquale.ai.rl.neat.core;
 
-public enum NeatEvaluatorTrainingResult {
+public enum NeatTrainingResult {
     EVALUATE_FITNESS,
     EVOLVE,
     EVALUATE_FITNESS_AND_EVOLVE,
     RESTART,
-    STOP,
+    SOLUTION_NOT_FOUND,
     WORKING_SOLUTION_FOUND
 }

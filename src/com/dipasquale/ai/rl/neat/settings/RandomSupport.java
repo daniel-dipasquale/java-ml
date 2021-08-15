@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.context.DefaultRandomSupportContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextRandomSupport;
 import com.dipasquale.ai.rl.neat.switcher.factory.RandomSupportFactorySwitcher;
 import com.dipasquale.common.switcher.ObjectSwitcher;
 import lombok.AccessLevel;
@@ -31,10 +31,10 @@ public final class RandomSupport {
         return createSwitcher(isLessThan, parallelism);
     }
 
-    DefaultRandomSupportContext create(final ParallelismSupport parallelism) {
+    DefaultContextRandomSupport create(final ParallelismSupport parallelism) {
         ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> nextIndexSwitcher = createNextIndexSwitcher(parallelism);
         ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> isLessThanSwitcher = createIsLessThanSwitcher(parallelism);
 
-        return new DefaultRandomSupportContext(nextIndexSwitcher, isLessThanSwitcher);
+        return new DefaultContextRandomSupport(nextIndexSwitcher, isLessThanSwitcher);
     }
 }

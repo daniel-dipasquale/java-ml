@@ -4,26 +4,26 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class NeatActivatorEvaluatorTrainer implements NeatActivator {
-    private final NeatEvaluatorTrainer evaluatorTrainer;
+final class NeatActivatorTrainer implements NeatActivator {
+    private final NeatTrainer trainer;
 
     @Override
     public int getGeneration() {
-        return evaluatorTrainer.getGeneration();
+        return trainer.getGeneration();
     }
 
     @Override
     public int getSpeciesCount() {
-        return evaluatorTrainer.getSpeciesCount();
+        return trainer.getSpeciesCount();
     }
 
     @Override
     public float getFitness() {
-        return evaluatorTrainer.getMaximumFitness();
+        return trainer.getMaximumFitness();
     }
 
     @Override
     public float[] activate(final float[] inputs) {
-        return evaluatorTrainer.activate(inputs);
+        return trainer.activate(inputs);
     }
 }

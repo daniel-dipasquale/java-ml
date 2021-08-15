@@ -88,9 +88,10 @@ public final class AtomicRecyclableReference<T> implements Serializable {
         }
 
         if (!tryReplaceRecycledDateTime(expirationRecord)) {
-            RecyclableReferenceEnvelope<T> recyclableReferenceEnvelopeFixed = referenceEnvelope;
+            RecyclableReferenceEnvelope<T> recyclableReferenceEnvelopeFixed = recyclableReferenceEnvelope.get();
 
             while (recyclableReferenceEnvelopeFixed == referenceEnvelope) {
+                Thread.onSpinWait();
                 recyclableReferenceEnvelopeFixed = recyclableReferenceEnvelope.get();
             }
 
@@ -191,6 +192,7 @@ public final class AtomicRecyclableReference<T> implements Serializable {
                 recyclableReferenceFixed = recyclableReference;
 
                 while (recyclableReferenceFixed == null) {
+                    Thread.onSpinWait();
                     recyclableReferenceFixed = recyclableReference;
                 }
             } else {

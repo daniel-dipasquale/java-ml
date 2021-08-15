@@ -3,13 +3,12 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.fitness.FitnessDeterminer;
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.fitness.FitnessFunction;
-import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public final class DefaultGeneralSupportContext implements Context.GeneralSupport {
+public final class DefaultContextGeneralSupport implements Context.GeneralSupport {
     private int populationSize;
     private FitnessDeterminerFactory fitnessDeterminerFactory;
     private FitnessFunction<Genome> fitnessFunction;
@@ -25,7 +24,7 @@ public final class DefaultGeneralSupportContext implements Context.GeneralSuppor
     }
 
     @Override
-    public float calculateFitness(final DefaultGenome genome) {
+    public float calculateFitness(final Genome genome) {
         return fitnessFunction.test(genome);
     }
 

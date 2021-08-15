@@ -7,7 +7,7 @@ import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public final class DefaultCrossOverSupportContext implements Context.CrossOverSupport {
+public final class DefaultContextCrossOverSupport implements Context.CrossOverSupport {
     private ObjectSwitcher<GateProvider> shouldMateAndMutate;
     private ObjectSwitcher<GateProvider> shouldMateOnly;
     private ObjectSwitcher<GateProvider> shouldMutateOnly;

@@ -11,19 +11,21 @@ public interface Neuron {
 
     NodeGeneType getType();
 
+    float getBias();
+
     ActivationFunction getActivationFunction();
 
     Collection<InputNeuron> getInputs();
 
     Collection<OutputNeuron> getOutputs();
 
-    float getValue(ActivationFunction activationFunction);
-
-    default float getValue() {
-        return getValue(getActivationFunction());
+    default float getValue(final float value) {
+        return getActivationFunction().forward(value + getBias());
     }
 
-    void setValue(float newValue);
+    default float getValue(final NeuronValueMap neuronValues) {
+        float value = neuronValues.getValue(getId());
 
-    void addToValue(SequentialId id, float delta);
+        return getValue(value);
+    }
 }

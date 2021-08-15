@@ -23,6 +23,7 @@ public final class AtomicLazyReference<T> implements Serializable {
             referenceEnvelopeFixed = referenceEnvelope;
 
             while (referenceEnvelopeFixed == null) {
+                Thread.onSpinWait();
                 referenceEnvelopeFixed = referenceEnvelope;
             }
         } else {

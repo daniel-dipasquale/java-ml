@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
-public final class DefaultParallelismSupportMultiThreadContext implements Context.ParallelismSupport {
+public final class DefaultContextParallelismSupportMultiThread implements Context.ParallelismSupport {
     private final IterableEventLoop eventLoop;
     private final Collection<Throwable> unhandledExceptions = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
 

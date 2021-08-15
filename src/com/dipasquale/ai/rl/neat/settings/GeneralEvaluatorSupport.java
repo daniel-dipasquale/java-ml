@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
-import com.dipasquale.ai.rl.neat.context.DefaultGeneralSupportContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import lombok.AccessLevel;
@@ -22,12 +22,12 @@ public final class GeneralEvaluatorSupport {
     @Builder.Default
     private final NeatEnvironment fitnessFunction = null;
 
-    DefaultGeneralSupportContext create() {
+    DefaultContextGeneralSupport create() {
         ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
         ArgumentValidatorSupport.ensureNotNull(genesisGenomeFactory, "genesisGenomeFactory");
         ArgumentValidatorSupport.ensureNotNull(fitnessDeterminerFactory, "fitnessDeterminerFactory");
         ArgumentValidatorSupport.ensureNotNull(fitnessFunction, "fitnessFunction");
 
-        return new DefaultGeneralSupportContext(populationSize, fitnessDeterminerFactory, fitnessFunction);
+        return new DefaultContextGeneralSupport(populationSize, fitnessDeterminerFactory, fitnessFunction);
     }
 }

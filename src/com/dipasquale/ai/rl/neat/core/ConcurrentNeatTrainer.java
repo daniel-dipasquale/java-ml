@@ -1,21 +1,27 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.settings.EvaluatorStateSettings;
+import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-final class SynchronizedNeatEvaluatorTrainer implements NeatEvaluatorTrainer {
-    private final NeatEvaluator evaluator;
-    private final NeatActivator activator;
+final class ConcurrentNeatTrainer implements NeatTrainer {
+    private final ConcurrentNeatEvaluator evaluator;
+    private final NeatActivatorEvaluator activator;
+    private final Lock lock;
 
-    SynchronizedNeatEvaluatorTrainer(final Context context) {
-        NeatEvaluator evaluator = new SynchronizedNeatEvaluator(context);
-
+    private ConcurrentNeatTrainer(final ConcurrentNeatEvaluator evaluator) {
         this.evaluator = evaluator;
         this.activator = new NeatActivatorEvaluator(evaluator);
+        this.lock = new ReentrantLock();
+    }
+
+    ConcurrentNeatTrainer(final Context context) {
+        this(new ConcurrentNeatEvaluator(context));
     }
 
     @Override
@@ -33,11 +39,10 @@ final class SynchronizedNeatEvaluatorTrainer implements NeatEvaluatorTrainer {
         return evaluator.getMaximumFitness();
     }
 
-    @Override
-    public boolean train(final NeatEvaluatorTrainingPolicy trainingPolicy) {
-        synchronized (evaluator) { // NOTE: all other methods can still be invoked while this is in the loop, however, because all actions within the loop are synchronized, it still not a problem to keep it working like this
+    private static boolean train(final NeatTrainingPolicy trainingPolicy, final ConcurrentNeatEvaluator evaluator, final NeatActivatorEvaluator activator) {
+        try {
             while (true) {
-                NeatEvaluatorTrainingResult result = trainingPolicy.test(activator);
+                NeatTrainingResult result = trainingPolicy.test(activator);
 
                 switch (result) {
                     case EVALUATE_FITNESS:
@@ -61,13 +66,26 @@ final class SynchronizedNeatEvaluatorTrainer implements NeatEvaluatorTrainer {
 
                         break;
 
-                    case STOP:
+                    case SOLUTION_NOT_FOUND:
                         return false;
 
                     case WORKING_SOLUTION_FOUND:
                         return true;
                 }
             }
+        } finally {
+            trainingPolicy.complete();
+        }
+    }
+
+    @Override
+    public boolean train(final NeatTrainingPolicy trainingPolicy) {
+        lock.lock();
+
+        try {
+            return train(trainingPolicy, evaluator, activator);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -83,7 +101,7 @@ final class SynchronizedNeatEvaluatorTrainer implements NeatEvaluatorTrainer {
     }
 
     @Override
-    public void load(final InputStream inputStream, final EvaluatorStateSettings settings)
+    public void load(final InputStream inputStream, final EvaluatorLoadSettings settings)
             throws IOException {
         evaluator.load(inputStream, settings);
     }

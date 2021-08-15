@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.settings;
 
-import com.dipasquale.ai.rl.neat.context.DefaultMutationSupportContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.provider.GateProvider;
 import com.dipasquale.common.provider.LiteralGateProvider;
@@ -61,14 +61,14 @@ public final class MutationSupport {
         return createIsLessThanProviderSwitcher(randomSupportSwitcher, max, parallelism);
     }
 
-    DefaultMutationSupportContext create(final ParallelismSupport parallelism, final RandomSupport random) {
+    DefaultContextMutationSupport create(final ParallelismSupport parallelism, final RandomSupport random) {
         ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher = random.createIsLessThanSwitcher(parallelism);
         ObjectSwitcher<GateProvider> shouldAddNodeMutationSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, addNodeMutationRate, parallelism);
         ObjectSwitcher<GateProvider> shouldAddConnectionMutationSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, addConnectionMutationRate, parallelism);
         ConnectionWeightProviderSwitchers connectionsWeightProviderSwitchers = createConnectionWeightProviderSwitchers(randomSupportSwitcher, parallelism);
         ObjectSwitcher<GateProvider> shouldDisableConnectionExpressedSwitcher = createIsLessThanProviderSwitcher(randomSupportSwitcher, disableConnectionExpressedRate, parallelism);
 
-        return new DefaultMutationSupportContext(shouldAddNodeMutationSwitcher, shouldAddConnectionMutationSwitcher, connectionsWeightProviderSwitchers.perturb, connectionsWeightProviderSwitchers.replace, shouldDisableConnectionExpressedSwitcher);
+        return new DefaultContextMutationSupport(shouldAddNodeMutationSwitcher, shouldAddConnectionMutationSwitcher, connectionsWeightProviderSwitchers.perturb, connectionsWeightProviderSwitchers.replace, shouldDisableConnectionExpressedSwitcher);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

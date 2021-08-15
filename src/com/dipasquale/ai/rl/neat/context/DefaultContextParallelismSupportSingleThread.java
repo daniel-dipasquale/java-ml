@@ -5,7 +5,7 @@ import com.dipasquale.threading.wait.handle.WaitHandle;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-public final class DefaultParallelismSupportSingleThreadContext implements Context.ParallelismSupport {
+public final class DefaultContextParallelismSupportSingleThread implements Context.ParallelismSupport {
     @Override
     public boolean isEnabled() {
         return false;

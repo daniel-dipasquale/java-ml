@@ -6,7 +6,7 @@ import com.dipasquale.common.SerializableInteroperableStateMap;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public final class DefaultSpeciationSupportContext implements Context.SpeciationSupport {
+public final class DefaultContextSpeciationSupport implements Context.SpeciationSupport {
     private int maximumSpecies;
     private int maximumGenomes;
     private float compatibilityThreshold;

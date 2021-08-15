@@ -1,7 +1,7 @@
 package com.dipasquale.ai.common.function.activation.function;
 
 import com.dipasquale.ai.common.function.activation.SigmoidActivationFunction;
-import com.dipasquale.common.test.SerializableSupport;
+import com.dipasquale.common.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

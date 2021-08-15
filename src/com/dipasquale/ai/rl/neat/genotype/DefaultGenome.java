@@ -38,8 +38,8 @@ public final class DefaultGenome implements Genome, Serializable {
         this.frozen = false;
     }
 
-    public void prepare(final Context.NeuralNetworkSupport neuralNetwork) {
-        this.neuralNetwork = neuralNetwork.create(this, nodes, connections);
+    public void initialize(final Context.NeuralNetworkSupport neuralNetwork) {
+        this.neuralNetwork = neuralNetwork.create(nodes, connections);
     }
 
     @Override

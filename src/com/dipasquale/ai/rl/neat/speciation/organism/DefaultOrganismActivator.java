@@ -16,7 +16,7 @@ public final class DefaultOrganismActivator implements OrganismActivator {
     @Override
     public void setOrganism(final Organism newOrganism) {
         organism = newOrganism;
-        fitness = newOrganism.getFitness();
+        fitness = newOrganism.getFitnessState();
     }
 
     @Override

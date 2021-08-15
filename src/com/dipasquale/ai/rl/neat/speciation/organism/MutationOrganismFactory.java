@@ -16,7 +16,7 @@ public final class MutationOrganismFactory implements OrganismFactory, Serializa
     public Organism create(final Context context) {
         Organism organism = originalOrganism.createCopy();
 
-        organism.prepare(context);
+        organism.initialize(context);
         organism.mutate(context);
         organism.freeze();
 

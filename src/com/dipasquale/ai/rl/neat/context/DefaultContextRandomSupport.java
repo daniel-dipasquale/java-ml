@@ -7,7 +7,7 @@ import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public final class DefaultRandomSupportContext implements Context.RandomSupport {
+public final class DefaultContextRandomSupport implements Context.RandomSupport {
     private ObjectSwitcher<RandomSupport> nextIndex;
     private ObjectSwitcher<RandomSupport> isLessThan;
 

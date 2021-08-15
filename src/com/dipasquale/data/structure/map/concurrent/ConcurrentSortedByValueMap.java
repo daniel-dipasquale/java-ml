@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public final class ConcurrentSortedByValueMap<TKey, TValue> extends AbstractSortedByValueMap<TKey, TValue> {
+public final class ConcurrentSortedByValueMap<TKey, TValue> extends AbstractSortedByValueMap<TKey, TValue> { // TODO: the default interface implementation isn't concurrent safe
     @Serial
     private static final long serialVersionUID = -2007543205420858049L;
     private final MapFactory<TKey, TValue> mapFactory;

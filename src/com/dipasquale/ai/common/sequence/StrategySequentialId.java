@@ -41,6 +41,6 @@ public final class StrategySequentialId implements SequentialId, Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s:%s", name, sequentialId);
+        return String.format("%s-%s", name, sequentialId);
     }
 }

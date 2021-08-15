@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.function.activation.ActivationFunctionFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.context.DefaultNodeGeneSupportContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextNodeGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.switcher.factory.DefaultActivationFunctionFactorySwitcher;
 import com.dipasquale.ai.rl.neat.switcher.factory.LiteralActivationFunctionFactorySwitcher;
@@ -71,7 +71,7 @@ public final class NodeGeneSupport {
         return new LiteralActivationFunctionFactorySwitcher(parallelism.isEnabled(), activationFunctionType);
     }
 
-    DefaultNodeGeneSupportContext create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelism) {
+    DefaultContextNodeGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelism) {
         Map<NodeGeneType, ObjectSwitcher<FloatFactory>> biasFactorySwitchers = ImmutableMap.<NodeGeneType, ObjectSwitcher<FloatFactory>>builder()
                 .put(NodeGeneType.INPUT, inputBias.createFactorySwitcher(parallelism))
                 .put(NodeGeneType.OUTPUT, outputBias.createFactorySwitcher(parallelism))
@@ -94,6 +94,6 @@ public final class NodeGeneSupport {
         int outputs = genesisGenomeTemplate.getOutputs().createFactorySwitcher(parallelism).getObject().create();
         int biases = genesisGenomeTemplate.getBiases().size();
 
-        return new DefaultNodeGeneSupportContext(biasFactorySwitchers, activationFunctionFactorySwitchers, inputs, outputs, biases);
+        return new DefaultContextNodeGeneSupport(biasFactorySwitchers, activationFunctionFactorySwitchers, inputs, outputs, biases);
     }
 }

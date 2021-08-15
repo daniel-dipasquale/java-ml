@@ -11,7 +11,7 @@ import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public final class DefaultConnectionGeneSupportContext implements Context.ConnectionGeneSupport {
+public final class DefaultContextConnectionGeneSupport implements Context.ConnectionGeneSupport {
     private boolean multipleRecurrentCyclesAllowed;
     private ObjectSwitcher<FloatFactory> weightFactory;
     private ObjectSwitcher<WeightPerturber> weightPerturber;

@@ -1,4 +1,4 @@
-package com.dipasquale.common.test;
+package com.dipasquale.common;
 
 import lombok.AccessLevel;
 import lombok.Generated;

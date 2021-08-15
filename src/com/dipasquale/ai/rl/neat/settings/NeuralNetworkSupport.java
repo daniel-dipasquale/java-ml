@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.settings;
 
-import com.dipasquale.ai.rl.neat.context.DefaultNeuralNetworkSupportContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextNeuralNetworkSupport;
 import com.dipasquale.ai.rl.neat.phenotype.DefaultNeuron;
 import com.dipasquale.ai.rl.neat.phenotype.FeedForwardNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
@@ -20,7 +20,7 @@ public final class NeuralNetworkSupport {
     @Builder.Default
     private final NeuralNetworkType type = NeuralNetworkType.MULTI_CYCLE_RECURRENT;
 
-    DefaultNeuralNetworkSupportContext create() {
+    DefaultContextNeuralNetworkSupport create() {
         NeuronFactory neuronFactory = (NeuronFactory & Serializable) DefaultNeuron::new;
 
         NeuralNetworkFactory neuralNetworkFactory = switch (type) {
@@ -29,6 +29,6 @@ public final class NeuralNetworkSupport {
             default -> new RecurrentNeuralNetworkFactory(neuronFactory);
         };
 
-        return new DefaultNeuralNetworkSupportContext(neuralNetworkFactory);
+        return new DefaultContextNeuralNetworkSupport(neuralNetworkFactory);
     }
 }
