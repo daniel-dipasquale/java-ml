@@ -5,7 +5,7 @@
 I'm learning how some machine learning algorithms work by implementing them using java. Below is the ordered list of the
 algorithms I'm interested in learning and using:
 
-- [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf)
+- [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf) (it has issues still)
     - [x] XOR test :+1:
 
          ```
@@ -20,21 +20,26 @@ algorithms I'm interested in learning and using:
          fitness: 3.577579
          ```
 
-    - [x] Cart-pole balancing test: :+1:
+    - [ ] Cart-pole balancing test: :-1:
 
          ```
-         generation: 16
+         generation: 16 (incorrect)
          species: 8
          fitness: 60.009998
          ```
 
          ```
-         generation: 7
+         generation: 7 (incorrect)
          species: 8
          fitness: 60.009998
          ```
 
       ![Cart-pole balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
+  - [ ] outstanding issues:
+      - remove all initialize from populationHistoricalMarkings/organism/genome
+      - remove all freeze from genome/organisms
+      - fix the amount of genomes created per generation
+      - among others ...
 
 - [ ] Feedforward Neural Networks
 - [ ] Soft Actor Critic
@@ -60,11 +65,10 @@ algorithms I'm interested in learning and using:
                                 .genesisGenomeFactory(GenesisGenomeTemplate.builder()
                                         .inputs(IntegerNumber.literal(2))
                                         .outputs(IntegerNumber.literal(1))
-                                        .biases(ImmutableList.of())
+                                        .biases(ImmutableList.of(FloatNumber.literal(1f)))
                                         .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                         .initialWeightType(InitialWeightType.RANDOM)
                                         .build())
-                                .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
                                 .fitnessFunction(genome -> {
                                         float error = 0f;
 
@@ -76,6 +80,7 @@ algorithms I'm interested in learning and using:
 
                                         return inputs.length - error;
                                 })
+                                .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
                                 .build())
                         .nodes(NodeGeneSupport.builder()
                                 .inputBias(FloatNumber.literal(0f))
@@ -93,15 +98,15 @@ algorithms I'm interested in learning and using:
                                 .type(NeuralNetworkType.MULTI_CYCLE_RECURRENT)
                                 .build())
                         .parallelism(ParallelismSupport.builder()
-                                .eventLoop(shouldUseParallelism ? EVENT_LOOP : null)
+                                .eventLoop(eventLoop)
                                 .build())
                         .random(RandomSupport.builder()
                                 .nextIndex(RandomType.UNIFORM)
                                 .isLessThan(RandomType.UNIFORM)
                                 .build())
                         .mutation(MutationSupport.builder()
-                                .addNodeMutationRate(FloatNumber.literal(0.1f))
-                                .addConnectionMutationRate(FloatNumber.literal(0.2f))
+                                .addNodeMutationRate(FloatNumber.literal(0.03f))
+                                .addConnectionMutationRate(FloatNumber.literal(0.05f))
                                 .perturbConnectionsWeightRate(FloatNumber.literal(0.75f))
                                 .replaceConnectionsWeightRate(FloatNumber.literal(0.5f))
                                 .disableConnectionExpressedRate(FloatNumber.literal(0.05f))
@@ -113,20 +118,20 @@ algorithms I'm interested in learning and using:
                                 .useRandomParentConnectionWeightRate(FloatNumber.literal(0.6f))
                                 .build())
                         .speciation(SpeciationSupport.builder()
-                                .maximumSpecies(IntegerNumber.literal(20))
-                                .maximumGenomes(IntegerNumber.literal(20))
-                                .weightDifferenceCoefficient(FloatNumber.literal(0.5f))
+                                .maximumSpecies(IntegerNumber.literal(75))
+                                .maximumGenomes(IntegerNumber.literal(75))
+                                .weightDifferenceCoefficient(FloatNumber.literal(0.4f))
                                 .disjointCoefficient(FloatNumber.literal(1f))
                                 .excessCoefficient(FloatNumber.literal(1f))
                                 .compatibilityThreshold(FloatNumber.literal(3f))
-                                .compatibilityThresholdModifier(FloatNumber.literal(1.2f))
+                                .compatibilityThresholdModifier(FloatNumber.literal(1.15f))
                                 .eugenicsThreshold(FloatNumber.literal(0.2f))
                                 .elitistThreshold(FloatNumber.literal(0.01f))
                                 .elitistThresholdMinimum(IntegerNumber.literal(2))
                                 .stagnationDropOffAge(IntegerNumber.literal(15))
                                 .interSpeciesMatingRate(FloatNumber.literal(0.001f))
                                 .build())
-                        .build());
+                                .build());
    ```
 
     1. Cart-pole balancing test:
@@ -142,7 +147,6 @@ algorithms I'm interested in learning and using:
                                         .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                         .initialWeightType(InitialWeightType.RANDOM)
                                         .build())
-                                .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
                                 .fitnessFunction(genome -> {
                                         float minimumTimeSpent = Float.MAX_VALUE;
 
@@ -166,6 +170,7 @@ algorithms I'm interested in learning and using:
 
                                         return minimumTimeSpent;
                                 })
+                                .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
                                 .build())
                         .nodes(NodeGeneSupport.builder()
                                 .inputBias(FloatNumber.literal(0f))

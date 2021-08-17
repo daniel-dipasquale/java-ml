@@ -12,13 +12,12 @@ import java.io.Serializable;
 public final class FeedForwardNeuralNetworkFactory implements NeuralNetworkFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -35249703641428233L;
-    private final NeuronFactory neuronFactory;
 
     @Override
     public NeuralNetwork create(final NodeGeneMap nodes, final ConnectionGeneMap connections) {
         NeuronPathBuilder neuronPathBuilder = new DefaultNeuronPathBuilder();
         ObjectFactory<NeuronValueMap> neuronValuesFactory = DefaultNeuronValueMap::new;
 
-        return new DefaultNeuralNetwork(nodes, connections, neuronPathBuilder, neuronFactory, neuronValuesFactory);
+        return new DefaultNeuralNetwork(nodes, connections, neuronPathBuilder, neuronValuesFactory);
     }
 }

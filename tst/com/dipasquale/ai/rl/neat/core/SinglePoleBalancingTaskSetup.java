@@ -114,12 +114,12 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
-                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
                         .fitnessFunction(g -> {
                             genomeIds.add(g.getId());
 
                             return calculateFitness(g);
                         })
+                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))

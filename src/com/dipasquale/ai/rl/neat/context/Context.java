@@ -49,9 +49,9 @@ public interface Context {
     interface GeneralSupport {
         int populationSize();
 
-        FitnessDeterminer createFitnessDeterminer();
-
         float calculateFitness(Genome genome);
+
+        FitnessDeterminer createFitnessDeterminer();
     }
 
     interface NodeGeneSupport {

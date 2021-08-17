@@ -23,17 +23,21 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
     private final OrganismActivator mostFitOrganismActivator;
     private final ReadWriteLock lock;
 
-    private ConcurrentNeatEvaluator(final Context context, final OrganismActivator mostFitOrganismActivator) {
+    ConcurrentNeatEvaluator(final Context context, final OrganismActivator mostFitOrganismActivator, final ReadWriteLock lock) {
         this.context = context;
         this.population = new Population(mostFitOrganismActivator);
         this.mostFitOrganismActivator = mostFitOrganismActivator;
         this.populationInitialized = new AtomicBoolean(false);
         this.populationFinalized = false;
-        this.lock = new ReentrantReadWriteLock();
+        this.lock = lock;
+    }
+
+    ConcurrentNeatEvaluator(final Context context, final ReadWriteLock lock) {
+        this(context, new DefaultOrganismActivator(), lock);
     }
 
     ConcurrentNeatEvaluator(final Context context) {
-        this(context, new DefaultOrganismActivator());
+        this(context, new DefaultOrganismActivator(), new ReentrantReadWriteLock());
     }
 
     private void ensureIsInitialized() {
@@ -68,6 +72,19 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
             ensureIsInitialized();
 
             return population.getSpeciesCount();
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int getCurrentComplexity() {
+        lock.readLock().lock();
+
+        try {
+            ensureIsInitialized();
+
+            return mostFitOrganismActivator.getComplexity();
         } finally {
             lock.readLock().unlock();
         }

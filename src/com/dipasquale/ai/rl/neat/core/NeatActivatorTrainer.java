@@ -23,6 +23,11 @@ final class NeatActivatorTrainer implements NeatActivator {
     }
 
     @Override
+    public int getComplexity() {
+        return trainer.getCurrentComplexity();
+    }
+
+    @Override
     public float[] activate(final float[] inputs) {
         return trainer.activate(inputs);
     }

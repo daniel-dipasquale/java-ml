@@ -6,22 +6,26 @@ import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 final class ConcurrentNeatTrainer implements NeatTrainer {
     private final ConcurrentNeatEvaluator evaluator;
     private final NeatActivatorEvaluator activator;
-    private final Lock lock;
+    private final ReadWriteLock lock;
 
-    private ConcurrentNeatTrainer(final ConcurrentNeatEvaluator evaluator) {
+    private ConcurrentNeatTrainer(final ConcurrentNeatEvaluator evaluator, final ReadWriteLock lock) {
         this.evaluator = evaluator;
         this.activator = new NeatActivatorEvaluator(evaluator);
-        this.lock = new ReentrantLock();
+        this.lock = lock;
+    }
+
+    private ConcurrentNeatTrainer(final Context context, final ReadWriteLock lock) {
+        this(new ConcurrentNeatEvaluator(context, lock), lock);
     }
 
     ConcurrentNeatTrainer(final Context context) {
-        this(new ConcurrentNeatEvaluator(context));
+        this(context, new ReentrantReadWriteLock());
     }
 
     @Override
@@ -32,6 +36,11 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
     @Override
     public int getSpeciesCount() {
         return evaluator.getSpeciesCount();
+    }
+
+    @Override
+    public int getCurrentComplexity() {
+        return evaluator.getCurrentComplexity();
     }
 
     @Override
@@ -80,12 +89,12 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
 
     @Override
     public boolean train(final NeatTrainingPolicy trainingPolicy) {
-        lock.lock();
+        lock.writeLock().lock();
 
         try {
             return train(trainingPolicy, evaluator, activator);
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 

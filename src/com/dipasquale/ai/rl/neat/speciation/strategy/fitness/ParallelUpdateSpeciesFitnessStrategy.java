@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 
 @RequiredArgsConstructor
-public final class UpdateSpeciesFitnessStrategy implements SpeciesFitnessStrategy, Serializable {
+public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnessStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = 5632936446515400703L;
     private final Context context;

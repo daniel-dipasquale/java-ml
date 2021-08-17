@@ -18,16 +18,16 @@ public final class GeneralEvaluatorSupport {
     @Builder.Default
     private final GenesisGenomeTemplate genesisGenomeFactory = null;
     @Builder.Default
-    private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValue();
-    @Builder.Default
     private final NeatEnvironment fitnessFunction = null;
+    @Builder.Default
+    private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValue();
 
     DefaultContextGeneralSupport create() {
         ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
         ArgumentValidatorSupport.ensureNotNull(genesisGenomeFactory, "genesisGenomeFactory");
-        ArgumentValidatorSupport.ensureNotNull(fitnessDeterminerFactory, "fitnessDeterminerFactory");
         ArgumentValidatorSupport.ensureNotNull(fitnessFunction, "fitnessFunction");
+        ArgumentValidatorSupport.ensureNotNull(fitnessDeterminerFactory, "fitnessDeterminerFactory");
 
-        return new DefaultContextGeneralSupport(populationSize, fitnessDeterminerFactory, fitnessFunction);
+        return new DefaultContextGeneralSupport(populationSize, fitnessFunction, fitnessDeterminerFactory);
     }
 }

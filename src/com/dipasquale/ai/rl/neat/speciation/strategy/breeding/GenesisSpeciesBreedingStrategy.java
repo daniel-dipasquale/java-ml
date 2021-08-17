@@ -22,7 +22,7 @@ public final class GenesisSpeciesBreedingStrategy implements SpeciesBreedingStra
     private final Queue<OrganismFactory> organismsToBirth;
 
     @Override
-    public void process(final SpeciesBreedingContext breedContext, final List<Species> speciesList) {
+    public void process(final SpeciesBreedingContext breedingContext, final List<Species> speciesList) {
         Context.RandomSupport random = context.random();
 
         for (Species species : speciesList) {

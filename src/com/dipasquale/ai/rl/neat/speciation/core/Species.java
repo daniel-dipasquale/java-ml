@@ -109,7 +109,7 @@ public final class Species implements Serializable {
     }
 
     public float updateSharedFitness() {
-        return updateFitness(Organism::getFitnessState);
+        return updateFitness(Organism::getFitness);
     }
 
     public float updateFitness(final Context.GeneralSupport general) {

@@ -9,6 +9,8 @@ import java.io.ObjectOutputStream;
 public interface OrganismActivator {
     void setOrganism(Organism newOrganism);
 
+    int getComplexity();
+
     float getFitness();
 
     float[] activate(Context context, float[] inputs);

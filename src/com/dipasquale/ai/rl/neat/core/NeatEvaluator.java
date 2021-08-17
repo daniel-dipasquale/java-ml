@@ -11,6 +11,8 @@ public interface NeatEvaluator {
 
     int getSpeciesCount();
 
+    int getCurrentComplexity();
+
     float getMaximumFitness();
 
     void evaluateFitness();

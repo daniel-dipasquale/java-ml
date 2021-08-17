@@ -17,16 +17,14 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
     private final NeuronNavigator neuronNavigator;
     private final AtomicBoolean neuronNavigatorInitialized;
     private volatile boolean neuronNavigatorFinalized;
-    private final NeuronFactory neuronFactory;
     private final ObjectFactory<NeuronValueMap> neuronValuesFactory;
 
-    public DefaultNeuralNetwork(final NodeGeneMap nodes, final ConnectionGeneMap connections, final NeuronPathBuilder neuronPathBuilder, final NeuronFactory neuronFactory, final ObjectFactory<NeuronValueMap> neuronValuesFactory) {
+    public DefaultNeuralNetwork(final NodeGeneMap nodes, final ConnectionGeneMap connections, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueMap> neuronValuesFactory) {
         this.nodes = nodes;
         this.connections = connections;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
         this.neuronNavigatorInitialized = new AtomicBoolean(false);
         this.neuronNavigatorFinalized = false;
-        this.neuronFactory = neuronFactory;
         this.neuronValuesFactory = neuronValuesFactory;
     }
 
@@ -47,7 +45,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
                 }
         }
 
-        return neuronFactory.create(node, inputs, outputs);
+        return new DefaultNeuron(node, inputs, outputs);
     }
 
     private void initializeNeuronValues(final NeuronValueMap neuronValues, final float[] input) {

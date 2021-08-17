@@ -7,5 +7,7 @@ public interface NeatActivator {
 
     float getFitness();
 
+    int getComplexity();
+
     float[] activate(float[] inputs);
 }

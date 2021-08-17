@@ -14,9 +14,14 @@ public final class DefaultOrganismActivator implements OrganismActivator {
     private float fitness = 0f;
 
     @Override
-    public void setOrganism(final Organism newOrganism) {
-        organism = newOrganism;
-        fitness = newOrganism.getFitnessState();
+    public void setOrganism(final Organism value) {
+        organism = value;
+        fitness = value.getFitness();
+    }
+
+    @Override
+    public int getComplexity() {
+        return organism.getComplexity();
     }
 
     @Override

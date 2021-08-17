@@ -22,13 +22,13 @@ public final class InterSpeciesBreedingStrategy implements SpeciesBreedingStrate
     private final Queue<OrganismFactory> organismsToBirth;
 
     @Override
-    public void process(final SpeciesBreedingContext breedContext, final List<Species> speciesList) {
+    public void process(final SpeciesBreedingContext breedingContext, final List<Species> speciesList) {
         int size = speciesList.size();
         float organismsNeeded = (float) (context.general().populationSize() - size - organismsWithoutSpecies.size() - organismsToBirth.size());
-        float organismsToReproduce = organismsNeeded * context.speciation().interSpeciesMatingRate() + breedContext.getInterSpeciesBreedingLeftOverRatio();
+        float organismsToReproduce = organismsNeeded * context.speciation().interSpeciesMatingRate() + breedingContext.getInterSpeciesBreedingLeftOverRatio();
         int organismsToReproduceFixed = (int) Math.floor(organismsToReproduce);
 
-        breedContext.setInterSpeciesBreedingLeftOverRatio(organismsToReproduce - (float) organismsToReproduceFixed); // TODO: revisit this algorithm
+        breedingContext.setInterSpeciesBreedingLeftOverRatio(organismsToReproduce - (float) organismsToReproduceFixed); // TODO: revisit this algorithm
 
         if (size >= 2) {
             for (int i = 0; i < organismsToReproduceFixed; i++) {

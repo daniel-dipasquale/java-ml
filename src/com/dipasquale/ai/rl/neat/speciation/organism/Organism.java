@@ -70,8 +70,12 @@ public final class Organism implements Comparable<Organism>, Serializable {
         speciesCompatibility.species = species;
     }
 
-    public float getFitnessState() {
+    public float getFitness() {
         return fitnessState.value;
+    }
+
+    public int getComplexity() {
+        return genome.getComplexity();
     }
 
     public float updateFitness(final Context.GeneralSupport general) {

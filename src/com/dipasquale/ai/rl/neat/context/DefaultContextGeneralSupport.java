@@ -10,8 +10,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public final class DefaultContextGeneralSupport implements Context.GeneralSupport {
     private int populationSize;
-    private FitnessDeterminerFactory fitnessDeterminerFactory;
     private FitnessFunction<Genome> fitnessFunction;
+    private FitnessDeterminerFactory fitnessDeterminerFactory;
 
     @Override
     public int populationSize() {
@@ -19,19 +19,19 @@ public final class DefaultContextGeneralSupport implements Context.GeneralSuppor
     }
 
     @Override
-    public FitnessDeterminer createFitnessDeterminer() {
-        return fitnessDeterminerFactory.create();
-    }
-
-    @Override
     public float calculateFitness(final Genome genome) {
         return fitnessFunction.test(genome);
     }
 
+    @Override
+    public FitnessDeterminer createFitnessDeterminer() {
+        return fitnessDeterminerFactory.create();
+    }
+
     public void save(final SerializableInteroperableStateMap state) {
         state.put("general.populationSize", populationSize);
-        state.put("general.fitnessDeterminerFactory", fitnessDeterminerFactory);
         state.put("general.fitnessFunction", fitnessFunction);
+        state.put("general.fitnessDeterminerFactory", fitnessDeterminerFactory);
     }
 
     private FitnessFunction<Genome> loadFitnessFunction(final SerializableInteroperableStateMap state, final FitnessFunction<Genome> loadFitnessFunctionOverride) {
@@ -56,7 +56,7 @@ public final class DefaultContextGeneralSupport implements Context.GeneralSuppor
 
     public void load(final SerializableInteroperableStateMap state, final FitnessFunction<Genome> environmentOverride) {
         populationSize = state.get("general.populationSize");
-        fitnessDeterminerFactory = state.get("general.fitnessDeterminerFactory");
         fitnessFunction = loadFitnessFunction(state, environmentOverride);
+        fitnessDeterminerFactory = state.get("general.fitnessDeterminerFactory");
     }
 }

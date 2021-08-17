@@ -18,7 +18,7 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.TotalSharedFitnes
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.DefaultSpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSharedSpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ParallelUpdateSpeciesFitnessStrategy;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
@@ -94,7 +94,7 @@ public final class Population {
         speciesFitnessStrategies.clear();
 
         if (context.parallelism().isEnabled()) {
-            speciesFitnessStrategies.add(new UpdateSpeciesFitnessStrategy(context));
+            speciesFitnessStrategies.add(new ParallelUpdateSpeciesFitnessStrategy(context));
             speciesFitnessStrategies.add(new UpdateSharedSpeciesFitnessStrategy());
         } else {
             speciesFitnessStrategies.add(new DefaultSpeciesFitnessStrategy(context.general()));
@@ -241,6 +241,10 @@ public final class Population {
     public void evolve(final Context context) {
         SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
 
+        if (context.general().populationSize() != countOrganismsEverywhere()) {
+            assert context.general().populationSize() == countOrganismsEverywhere();
+        }
+
         assert context.general().populationSize() == countOrganismsEverywhere();
         assert organismsToBirth.isEmpty() && populationState.getHistoricalMarkings().getGenomeKilledCount() == 0;
 
@@ -250,6 +254,10 @@ public final class Population {
 
         breedThroughAllSpecies(evolutionContext);
         populationState.increaseGeneration();
+
+        if (context.general().populationSize() != countOrganismsEverywhere()) {
+            assert context.general().populationSize() == countOrganismsEverywhere();
+        }
 
         assert context.general().populationSize() == countOrganismsEverywhere();
         assert populationState.getHistoricalMarkings().getGenomeKilledCount() == organismsToBirth.size();

@@ -21,7 +21,7 @@ public final class MatchingSpeciesBreedingStrategy implements SpeciesBreedingStr
     private final Queue<OrganismFactory> organismsToBirth;
 
     @Override
-    public void process(final SpeciesBreedingContext breedContext, final List<Species> speciesList) {
+    public void process(final SpeciesBreedingContext breedingContext, final List<Species> speciesList) {
         int populationSize = context.general().populationSize();
         int speciesSize = speciesList.size();
         float organismsNeeded = (float) (populationSize - speciesSize - organismsWithoutSpecies.size() - organismsToBirth.size());
@@ -29,7 +29,7 @@ public final class MatchingSpeciesBreedingStrategy implements SpeciesBreedingStr
         float organismsReproduced = 0f;
 
         for (Species species : speciesList) {
-            float reproductionFloat = organismsNeeded * species.getSharedFitness() / breedContext.getTotalSharedFitness();
+            float reproductionFloat = organismsNeeded * species.getSharedFitness() / breedingContext.getTotalSharedFitness();
 
             organismsReproducedPrevious = organismsReproduced;
             organismsReproduced += reproductionFloat;

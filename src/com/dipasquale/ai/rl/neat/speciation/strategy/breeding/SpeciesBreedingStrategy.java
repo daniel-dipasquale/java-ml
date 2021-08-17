@@ -6,5 +6,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface SpeciesBreedingStrategy {
-    void process(SpeciesBreedingContext breedContext, List<Species> speciesList);
+    void process(SpeciesBreedingContext breedingContext, List<Species> speciesList);
 }

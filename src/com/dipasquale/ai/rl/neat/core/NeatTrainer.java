@@ -11,6 +11,8 @@ public interface NeatTrainer {
 
     int getSpeciesCount();
 
+    int getCurrentComplexity();
+
     float getMaximumFitness();
 
     boolean train(NeatTrainingPolicy trainingPolicy);
