@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
-public final class DefaultNeuronPathBuilder implements NeuronPathBuilder {
+public final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder {
     private final Map<SequentialId, Neuron> neurons = new HashMap<>();
     private final Set<SequentialId> alreadyOrdered = new HashSet<>();
     private final Collection<Neuron> ordered = new LinkedList<>();

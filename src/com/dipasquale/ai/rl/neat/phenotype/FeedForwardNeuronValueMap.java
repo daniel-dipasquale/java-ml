@@ -7,12 +7,12 @@ import lombok.AllArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
-final class DefaultNeuronValueMap implements NeuronValueMap {
-    private final Map<SequentialId, Envelope> values = new HashMap<>();
+final class FeedForwardNeuronValueMap implements NeuronValueMap {
+    private final Map<SequentialId, Envelope> neuronValues = new HashMap<>();
 
     @Override
     public float getValue(final SequentialId id) {
-        Envelope envelope = values.get(id);
+        Envelope envelope = neuronValues.get(id);
 
         if (envelope == null) {
             return 0f;
@@ -23,17 +23,17 @@ final class DefaultNeuronValueMap implements NeuronValueMap {
 
     @Override
     public void setValue(final SequentialId id, final float value) {
-        values.put(id, new Envelope(value));
+        neuronValues.put(id, new Envelope(value));
     }
 
     @Override
-    public void addToValue(final SequentialId id, final SequentialId fromId, final float delta) {
-        values.computeIfAbsent(id, k -> new Envelope(0f)).value += delta;
+    public void addToValue(final SequentialId id, final float delta, final SequentialId sourceId) {
+        neuronValues.computeIfAbsent(id, k -> new Envelope(0f)).value += delta;
     }
 
     @Override
     public void clear() {
-        values.clear();
+        neuronValues.clear();
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)

@@ -9,36 +9,37 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class RecurrentNeuronValueMap implements NeuronValueMap {
-    private final Map<SequentialId, EnvelopeTable> table = new HashMap<>();
+    private final Map<SequentialId, EnvelopeGroup> neuronValues = new HashMap<>();
 
     @Override
     public float getValue(final SequentialId id) {
-        EnvelopeTable envelopes = table.get(id);
+        EnvelopeGroup envelopeGroup = neuronValues.get(id);
 
-        if (envelopes == null) {
+        if (envelopeGroup == null) {
             return 0f;
         }
 
-        return envelopes.total;
+        return envelopeGroup.totalValue;
     }
 
     @Override
     public void setValue(final SequentialId id, final float value) {
-        EnvelopeTable envelopes = table.computeIfAbsent(id, k -> new EnvelopeTable());
+        EnvelopeGroup envelopeGroup = neuronValues.computeIfAbsent(id, k -> new EnvelopeGroup());
 
-        envelopes.replace(id, value);
+        envelopeGroup.clear();
+        envelopeGroup.replace(id, value);
     }
 
     @Override
-    public void addToValue(final SequentialId id, final SequentialId fromId, final float delta) {
-        EnvelopeTable envelopes = table.computeIfAbsent(id, k -> new EnvelopeTable());
+    public void addToValue(final SequentialId id, final float delta, final SequentialId sourceId) {
+        EnvelopeGroup envelopeGroup = neuronValues.computeIfAbsent(id, k -> new EnvelopeGroup());
 
-        envelopes.replace(fromId, delta);
+        envelopeGroup.replace(sourceId, delta);
     }
 
     @Override
     public void clear() {
-        table.clear();
+        neuronValues.clear();
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -47,18 +48,23 @@ final class RecurrentNeuronValueMap implements NeuronValueMap {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class EnvelopeTable {
+    private static final class EnvelopeGroup {
         private final Map<SequentialId, Envelope> values = new HashMap<>();
-        private float total = 0f;
+        private float totalValue = 0f;
 
         private void replace(final SequentialId id, final float delta) {
-            Envelope oldDelta = values.replace(id, new Envelope(delta));
+            Envelope oldEnvelope = values.replace(id, new Envelope(delta));
 
-            total += delta;
+            totalValue += delta;
 
-            if (oldDelta != null) {
-                total -= oldDelta.value;
+            if (oldEnvelope != null) {
+                totalValue -= oldEnvelope.value;
             }
+        }
+
+        private void clear() {
+            values.clear();
+            totalValue = 0f;
         }
     }
 }

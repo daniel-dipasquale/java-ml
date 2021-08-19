@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.rl.neat.factory.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
-import com.dipasquale.ai.rl.neat.speciation.core.PopulationHistoricalMarkings;
+import com.dipasquale.ai.rl.neat.speciation.core.DefaultGenomeHistoricalMarkings;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.switcher.ObjectSwitcher;
@@ -33,7 +33,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     @Override
-    public void setupInitialConnections(final DefaultGenome genome, final PopulationHistoricalMarkings historicalMarkings) {
+    public void setupInitialConnections(final DefaultGenome genome, final DefaultGenomeHistoricalMarkings historicalMarkings) {
         genomeGenesisConnector.setupConnections(genome, historicalMarkings);
     }
 

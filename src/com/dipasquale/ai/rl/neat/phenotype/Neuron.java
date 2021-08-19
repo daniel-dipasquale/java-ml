@@ -1,31 +1,45 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunction;
 import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 
-public interface Neuron {
-    SequentialId getId();
+@RequiredArgsConstructor
+@Builder(access = AccessLevel.PACKAGE)
+public final class Neuron {
+    private final NodeGene node;
+    @Getter
+    private final Collection<InputNeuron> inputs;
+    @Getter
+    private final Collection<OutputNeuron> outputs;
 
-    NodeGeneType getType();
-
-    float getBias();
-
-    ActivationFunction getActivationFunction();
-
-    Collection<InputNeuron> getInputs();
-
-    Collection<OutputNeuron> getOutputs();
-
-    default float getValue(final float value) {
-        return getActivationFunction().forward(value + getBias());
+    public SequentialId getId() {
+        return node.getId();
     }
 
-    default float getValue(final NeuronValueMap neuronValues) {
+    public NodeGeneType getType() {
+        return node.getType();
+    }
+
+    public float getValue(final float value) {
+        return node.getActivationFunction().forward(value + node.getBias());
+    }
+
+    public float getValue(final NeuronValueMap neuronValues) {
         float value = neuronValues.getValue(getId());
 
         return getValue(value);
     }
+
+    @Override
+    public String toString() {
+        return node.toString();
+    }
 }
+

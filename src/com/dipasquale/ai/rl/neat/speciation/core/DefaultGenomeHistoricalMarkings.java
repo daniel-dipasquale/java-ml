@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class PopulationHistoricalMarkings implements GenomeHistoricalMarkings, Serializable {
+public final class DefaultGenomeHistoricalMarkings implements GenomeHistoricalMarkings, Serializable {
     @Serial
     private static final long serialVersionUID = -3580686562257388659L;
     private boolean initialized = false;

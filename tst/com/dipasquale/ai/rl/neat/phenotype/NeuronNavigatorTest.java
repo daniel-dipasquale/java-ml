@@ -60,7 +60,7 @@ public final class NeuronNavigatorTest {
         List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
 
         return ImmutableList.<Neuron>builder()
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(0))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
@@ -68,21 +68,21 @@ public final class NeuronNavigatorTest {
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(1))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(2))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
                                 .add(new OutputNeuron(nodes.get(3).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(3))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(0).getId(), 0))
@@ -91,7 +91,7 @@ public final class NeuronNavigatorTest {
                                 .build())
                         .outputs(ImmutableList.of())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(4))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(0).getId(), 0))
@@ -116,7 +116,7 @@ public final class NeuronNavigatorTest {
         List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
 
         return ImmutableList.<Neuron>builder()
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(0))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
@@ -124,21 +124,21 @@ public final class NeuronNavigatorTest {
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(1))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(2))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
                                 .add(new OutputNeuron(nodes.get(3).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(3))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(0).getId(), 0))
@@ -147,7 +147,7 @@ public final class NeuronNavigatorTest {
                                 .build())
                         .outputs(ImmutableList.of())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(4))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(0).getId(), 0))
@@ -174,7 +174,7 @@ public final class NeuronNavigatorTest {
         List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
 
         return ImmutableList.<Neuron>builder()
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(0))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
@@ -182,21 +182,21 @@ public final class NeuronNavigatorTest {
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(1))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(2))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
                                 .add(new OutputNeuron(nodes.get(3).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(3))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(0).getId(), 0))
@@ -207,7 +207,7 @@ public final class NeuronNavigatorTest {
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(4))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(0).getId(), 0))
@@ -232,21 +232,21 @@ public final class NeuronNavigatorTest {
         List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f, 5f));
 
         return ImmutableList.<Neuron>builder()
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(0))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
                                 .add(new OutputNeuron(nodes.get(3).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(1))
                         .inputs(ImmutableList.of())
                         .outputs(ImmutableList.<OutputNeuron>builder()
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(2))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(3).getId(), 0))
@@ -255,7 +255,7 @@ public final class NeuronNavigatorTest {
                                 .add(new OutputNeuron(nodes.get(4).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(3))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(0).getId(), 0))
@@ -265,7 +265,7 @@ public final class NeuronNavigatorTest {
                                 .add(new OutputNeuron(nodes.get(2).getId(), 1f))
                                 .build())
                         .build())
-                .add(DefaultNeuron.builder()
+                .add(Neuron.builder()
                         .node(nodes.get(4))
                         .inputs(ImmutableList.<InputNeuron>builder()
                                 .add(new InputNeuron(nodes.get(1).getId(), 0))
@@ -281,7 +281,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_1_feed_forward() {
         List<Neuron> neurons = createFeedForwardNetwork();
-        NeuronNavigator test = new NeuronNavigator(new DefaultNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new FeedForwardNeuronPathBuilder());
 
         neurons.forEach(test::add);
 
@@ -301,7 +301,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_2_recurrent_reflexive() {
         List<Neuron> neurons = createRecurrentReflexiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new DefaultNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new FeedForwardNeuronPathBuilder());
 
         neurons.forEach(test::add);
 
@@ -321,7 +321,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_3_recurrent_symmetric() {
         List<Neuron> neurons = createRecurrentSymmetricNetwork();
-        NeuronNavigator test = new NeuronNavigator(new DefaultNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new FeedForwardNeuronPathBuilder());
 
         neurons.forEach(test::add);
 
@@ -341,7 +341,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_4_recurrent_transitive() {
         List<Neuron> neurons = createRecurrentTransitiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new DefaultNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new FeedForwardNeuronPathBuilder());
 
         neurons.forEach(test::add);
 

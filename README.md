@@ -6,40 +6,29 @@ I'm learning how some machine learning algorithms work by implementing them usin
 algorithms I'm interested in learning and using:
 
 - [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf) (it has issues still)
-    - [x] XOR test :+1:
+    - [x] XOR test :+1: (random data sample)
 
          ```
          generation: 13
-         species: 8
-         fitness: 3.524689
+         species: 3
+         complexity: 7
+         fitness: 3.451786
          ```
 
-         ```
-         generation: 17
-         species: 9
-         fitness: 3.577579
-         ```
-
-    - [ ] Cart-pole balancing test: :-1:
+    - [ ] Single Pole Balancing test: :-1: (random data sample)
 
          ```
-         generation: 16 (incorrect)
-         species: 8
-         fitness: 60.009998
+         generation: (outstanding)
+         species: (outstanding)
+         fitness: (outstanding)
          ```
 
-         ```
-         generation: 7 (incorrect)
-         species: 8
-         fitness: 60.009998
-         ```
-
-      ![Cart-pole balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
-  - [ ] outstanding issues:
-      - remove all initialize from populationHistoricalMarkings/organism/genome
-      - remove all freeze from genome/organisms
-      - fix the amount of genomes created per generation
-      - among others ...
+      ![Single Pole Balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
+    - [ ] outstanding issues:
+        - remove all initialize from historicalMarkings/organism/genome
+        - remove all freeze from genome/organisms
+        - fix the amount of genomes created per generation
+        - among others ...
 
 - [ ] Feedforward Neural Networks
 - [ ] Soft Actor Critic

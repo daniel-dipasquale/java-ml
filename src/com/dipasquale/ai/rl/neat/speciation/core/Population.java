@@ -16,9 +16,9 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.SpeciesEvolutionC
 import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.SpeciesEvolutionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.TotalSharedFitnessSpeciesEvolutionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.DefaultSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ParallelUpdateSpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSharedSpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ParallelUpdateSpeciesFitnessStrategy;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;

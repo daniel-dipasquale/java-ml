@@ -18,6 +18,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
     private final AtomicBoolean neuronNavigatorInitialized;
     private volatile boolean neuronNavigatorFinalized;
     private final ObjectFactory<NeuronValueMap> neuronValuesFactory;
+    private final int inputSize;
 
     public DefaultNeuralNetwork(final NodeGeneMap nodes, final ConnectionGeneMap connections, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueMap> neuronValuesFactory) {
         this.nodes = nodes;
@@ -26,6 +27,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
         this.neuronNavigatorInitialized = new AtomicBoolean(false);
         this.neuronNavigatorFinalized = false;
         this.neuronValuesFactory = neuronValuesFactory;
+        this.inputSize = nodes.size(NodeGeneType.INPUT);
     }
 
     private Neuron createNeuron(final NodeGene node) {
@@ -45,7 +47,11 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
                 }
         }
 
-        return new DefaultNeuron(node, inputs, outputs);
+        return new Neuron(node, inputs, outputs);
+    }
+
+    private static void setValueTo(final NeuronValueMap neuronValues, final NodeGene node, final float value) {
+        neuronValues.setValue(node.getId(), value);
     }
 
     private void initializeNeuronValues(final NeuronValueMap neuronValues, final float[] input) {
@@ -53,8 +59,12 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
         int index = 0;
 
         for (NodeGene inputNode : inputNodes) {
-            neuronNavigator.setValueTo(neuronValues, inputNode, input[index++]);
+            setValueTo(neuronValues, inputNode, input[index++]);
         }
+    }
+
+    private static void setValueTo(final NeuronValueMap neuronValues, final Neuron neuron, final float value) {
+        neuronValues.setValue(neuron.getId(), value);
     }
 
     private void initializeNeuronsOrderAndValues(final NeuronValueMap neuronValues, final float[] input) {
@@ -67,7 +77,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
                 neuronNavigator.add(neuron);
 
                 if (neuron.getType() == NodeGeneType.INPUT) {
-                    neuronNavigator.setValueTo(neuronValues, neuron, input[index++]);
+                    setValueTo(neuronValues, neuron, input[index++]);
                 }
             }
         }
@@ -86,10 +96,16 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
         }
     }
 
+    private static void addToValueTo(final NeuronValueMap neuronValues, final OutputNeuron targetNeuron, final Neuron sourceNeuron) {
+        float value = sourceNeuron.getValue(neuronValues) * targetNeuron.getConnectionWeight();
+
+        neuronValues.addToValue(targetNeuron.getNeuronId(), value, sourceNeuron.getId());
+    }
+
     private void processNeurons(final NeuronValueMap neuronValues) {
         for (Neuron nextNeuron : neuronNavigator) {
             for (OutputNeuron outputNeuron : nextNeuron.getOutputs()) {
-                neuronNavigator.addToValueTo(neuronValues, outputNeuron, nextNeuron);
+                addToValueTo(neuronValues, outputNeuron, nextNeuron);
             }
         }
     }
@@ -103,7 +119,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
 
     @Override
     public float[] activate(final float[] input) {
-        ArgumentValidatorSupport.ensureEqual(input.length, nodes.size(NodeGeneType.INPUT), "input.length");
+        ArgumentValidatorSupport.ensureEqual(input.length, inputSize, "input.length");
 
         return activate(neuronValuesFactory.create(), input);
     }

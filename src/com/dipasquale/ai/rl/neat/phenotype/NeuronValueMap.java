@@ -7,7 +7,7 @@ interface NeuronValueMap {
 
     void setValue(SequentialId id, float value);
 
-    void addToValue(SequentialId id, SequentialId fromId, float delta);
+    void addToValue(SequentialId id, float delta, SequentialId sourceId);
 
     void clear();
 }
