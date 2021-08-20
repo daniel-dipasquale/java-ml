@@ -13,7 +13,7 @@ public final class DefaultContext implements Context {
     private final DefaultContextNodeGeneSupport nodes;
     private final DefaultContextConnectionGeneSupport connections;
     private final DefaultContextNeuralNetworkSupport neuralNetwork;
-    private final DefaultContextParallelismSupport parallelism;
+    private final StrategyContextParallelismSupport parallelism;
     private final DefaultContextRandomSupport random;
     private final DefaultContextMutationSupport mutation;
     private final DefaultContextCrossOverSupport crossOver;
@@ -95,6 +95,6 @@ public final class DefaultContext implements Context {
         random.load(state, override.eventLoop());
         mutation.load(state, override.eventLoop());
         crossOver.load(state, override.eventLoop());
-        speciation.load(state);
+        speciation.load(state, override.eventLoop());
     }
 }

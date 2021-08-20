@@ -63,13 +63,18 @@ public final class SpeciesTest {
             public ParallelismSupport parallelism() {
                 return new ParallelismSupport() {
                     @Override
-                    public boolean isEnabled() {
-                        return false;
-                    }
+                    public ParallelismParameters params() {
+                        return new ParallelismParameters() {
+                            @Override
+                            public boolean isEnabled() {
+                                return false;
+                            }
 
-                    @Override
-                    public int numberOfThreads() {
-                        return 1;
+                            @Override
+                            public int numberOfThreads() {
+                                return 1;
+                            }
+                        };
                     }
 
                     @Override

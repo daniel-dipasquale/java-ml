@@ -70,7 +70,7 @@ public final class Population {
     }
 
     private void fillOrganismsWithoutSpeciesWithGenesisGenomes(final Context context) {
-        IntStream.range(0, context.general().populationSize())
+        IntStream.range(0, context.general().params().populationSize())
                 .mapToObj(i -> populationState.getHistoricalMarkings().createGenome(context))
                 .map(g -> new Organism(g, populationState))
                 .peek(o -> o.initialize(context))
@@ -93,7 +93,7 @@ public final class Population {
     private void replaceSpeciesFitnessStrategies(final Context context) {
         speciesFitnessStrategies.clear();
 
-        if (context.parallelism().isEnabled()) {
+        if (context.parallelism().params().isEnabled()) {
             speciesFitnessStrategies.add(new ParallelUpdateSpeciesFitnessStrategy(context));
             speciesFitnessStrategies.add(new UpdateSharedSpeciesFitnessStrategy());
         } else {
@@ -117,7 +117,7 @@ public final class Population {
     }
 
     public void initialize(final Context context) {
-        if (isInitialized() && context.general().populationSize() != countOrganismsEverywhere()) {
+        if (isInitialized() && context.general().params().populationSize() != countOrganismsEverywhere()) {
             throw new IllegalStateException("unable to change the population size after initialization ... yet!");
         }
 
@@ -170,7 +170,7 @@ public final class Population {
 
         for (Organism organism : Iterables.concat(organismsWithoutSpecies, organismsNew)) {
             if (!addOrganismToFirstCompatibleSpecies(context, organism)) {
-                if (speciesNodes.size() < context.speciation().maximumSpecies()) {
+                if (speciesNodes.size() < context.speciation().params().maximumSpecies()) {
                     addSpecies(createSpecies(organism));
                 } else { // TODO: I feel like the statement below is a hack and I cannot think of a better fix, but the problem is that at higher generations, genomes fall so far apart from the distance metric that they all end up in singular species (FIX whenever I can think of a better solution)
                     organism.getMostCompatibleSpecies().add(context.speciation(), organism);
@@ -241,11 +241,11 @@ public final class Population {
     public void evolve(final Context context) {
         SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
 
-        if (context.general().populationSize() != countOrganismsEverywhere()) {
-            assert context.general().populationSize() == countOrganismsEverywhere();
+        if (context.general().params().populationSize() != countOrganismsEverywhere()) {
+            assert context.general().params().populationSize() == countOrganismsEverywhere();
         }
 
-        assert context.general().populationSize() == countOrganismsEverywhere();
+        assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert organismsToBirth.isEmpty() && populationState.getHistoricalMarkings().getGenomeKilledCount() == 0;
 
         prepareAllSpeciesForEvolution(context, evolutionContext);
@@ -255,11 +255,11 @@ public final class Population {
         breedThroughAllSpecies(evolutionContext);
         populationState.increaseGeneration();
 
-        if (context.general().populationSize() != countOrganismsEverywhere()) {
-            assert context.general().populationSize() == countOrganismsEverywhere();
+        if (context.general().params().populationSize() != countOrganismsEverywhere()) {
+            assert context.general().params().populationSize() == countOrganismsEverywhere();
         }
 
-        assert context.general().populationSize() == countOrganismsEverywhere();
+        assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert populationState.getHistoricalMarkings().getGenomeKilledCount() == organismsToBirth.size();
     }
 

@@ -143,7 +143,7 @@ public final class DefaultGenome implements Genome, Serializable {
                 return true;
             }
 
-            if (context.connections().multipleRecurrentCyclesAllowed()) {
+            if (context.connections().params().multipleRecurrentCyclesAllowed()) {
                 connection.increaseCyclesAllowed();
 
                 return true;

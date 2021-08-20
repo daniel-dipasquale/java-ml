@@ -12,14 +12,14 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextConnectionGeneSupport implements Context.ConnectionGeneSupport {
-    private boolean multipleRecurrentCyclesAllowed;
+    private DefaultContextConnectionGeneParameters params;
     private ObjectSwitcher<FloatFactory> weightFactory;
     private ObjectSwitcher<WeightPerturber> weightPerturber;
     private GenomeGenesisConnector genomeGenesisConnector;
 
     @Override
-    public boolean multipleRecurrentCyclesAllowed() {
-        return multipleRecurrentCyclesAllowed;
+    public Context.ConnectionGeneParameters params() {
+        return params;
     }
 
     @Override
@@ -38,14 +38,14 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     public void save(final SerializableInteroperableStateMap state) {
-        state.put("connections.multipleRecurrentCyclesAllowed", multipleRecurrentCyclesAllowed);
+        state.put("connections.params", params);
         state.put("connections.weightFactory", weightFactory);
         state.put("connections.weightPerturber", weightPerturber);
         state.put("connections.genomeGenesisConnector", genomeGenesisConnector);
     }
 
     public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
-        multipleRecurrentCyclesAllowed = state.get("connections.multipleRecurrentCyclesAllowed");
+        params = state.get("connections.params");
         weightFactory = ObjectSwitcher.switchObject(state.get("connections.weightFactory"), eventLoop != null);
         weightPerturber = ObjectSwitcher.switchObject(state.get("connections.weightPerturber"), eventLoop != null);
         genomeGenesisConnector = state.get("connections.genomeGenesisConnector");

@@ -7,19 +7,19 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class MutationOrganismFactory implements OrganismFactory, Serializable {
+public final class MutateSingleOrganismFactory implements OrganismFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -8710603695032354428L;
-    private final Organism originalOrganism;
+    private final Organism organism;
 
     @Override
     public Organism create(final Context context) {
-        Organism organism = originalOrganism.createCopy();
+        Organism newOrganism = organism.createCopy();
 
-        organism.initialize(context);
-        organism.mutate(context);
-        organism.freeze();
+        newOrganism.initialize(context);
+        newOrganism.mutate(context);
+        newOrganism.freeze();
 
-        return organism;
+        return newOrganism;
     }
 }

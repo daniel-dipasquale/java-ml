@@ -14,7 +14,7 @@ public final class IsLessThanRandomGateProviderSwitcher extends AbstractObjectSw
     @Serial
     private static final long serialVersionUID = -3883271729484274647L;
 
-    public IsLessThanRandomGateProviderSwitcher(final boolean isOn, final Pair<RandomSupport> randomSupportPair, final float max) { // TODO: fix this, Pair<RandomSupport> goes against the idea of controlling the singleton of it
+    public IsLessThanRandomGateProviderSwitcher(final boolean isOn, final Pair<RandomSupport> randomSupportPair, final float max) { // TODO: fix this, Pair<RandomSupport> goes against the idea of controlling the singleton of it @com.dipasquale.ai.rl.neat.switcher.factory.Constants
         super(isOn, new DefaultGateProvider(randomSupportPair.getLeft(), max), new DefaultGateProvider(randomSupportPair.getRight(), max));
     }
 

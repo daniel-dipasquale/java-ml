@@ -8,9 +8,9 @@ import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextNeuralNetworkSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextNodeGeneSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextParallelismSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextRandomSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
+import com.dipasquale.ai.rl.neat.context.StrategyContextParallelismSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -59,11 +59,11 @@ public final class EvaluatorSettings {
         DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeFactory(), parallelism);
         DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeFactory(), neuralNetwork, parallelism);
         DefaultContextNeuralNetworkSupport neuralNetworkFixed = neuralNetwork.create();
-        DefaultContextParallelismSupport parallelismFixed = parallelism.create();
+        StrategyContextParallelismSupport parallelismFixed = parallelism.create();
         DefaultContextRandomSupport randomFixed = random.create(parallelism);
         DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, random);
         DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, random);
-        DefaultContextSpeciationSupport speciationFixed = speciation.create(general, parallelism);
+        DefaultContextSpeciationSupport speciationFixed = speciation.create(general, parallelism, random);
 
         return new DefaultContext(generalFixed, nodesFixed, connectionsFixed, neuralNetworkFixed, parallelismFixed, randomFixed, mutationFixed, crossOverFixed, speciationFixed);
     }

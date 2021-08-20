@@ -151,8 +151,6 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .disableConnectionExpressedRate(FloatNumber.literal(0.05f))
                         .build())
                 .crossOver(CrossOverSupport.builder()
-                        .mateOnlyRate(FloatNumber.literal(0.2f))
-                        .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .overrideConnectionExpressedRate(FloatNumber.literal(0.5f))
                         .useRandomParentConnectionWeightRate(FloatNumber.literal(0.6f))
                         .build())
@@ -169,6 +167,8 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .elitistThresholdMinimum(IntegerNumber.literal(2))
                         .stagnationDropOffAge(IntegerNumber.literal(15))
                         .interSpeciesMatingRate(FloatNumber.literal(0.001f))
+                        .mateOnlyRate(FloatNumber.literal(0.2f))
+                        .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
                 .build();
     }

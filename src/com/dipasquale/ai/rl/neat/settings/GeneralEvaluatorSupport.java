@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
+import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralParameters;
 import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.common.ArgumentValidatorSupport;
@@ -28,6 +29,10 @@ public final class GeneralEvaluatorSupport {
         ArgumentValidatorSupport.ensureNotNull(fitnessFunction, "fitnessFunction");
         ArgumentValidatorSupport.ensureNotNull(fitnessDeterminerFactory, "fitnessDeterminerFactory");
 
-        return new DefaultContextGeneralSupport(populationSize, fitnessFunction, fitnessDeterminerFactory);
+        DefaultContextGeneralParameters params = DefaultContextGeneralParameters.builder()
+                .populationSize(populationSize)
+                .build();
+
+        return new DefaultContextGeneralSupport(params, fitnessFunction, fitnessDeterminerFactory);
     }
 }

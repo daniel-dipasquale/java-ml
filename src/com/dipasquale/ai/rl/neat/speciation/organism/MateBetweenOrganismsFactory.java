@@ -7,7 +7,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class MatingOrganismFactory implements OrganismFactory, Serializable {
+public final class MateBetweenOrganismsFactory implements OrganismFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -7040095868129331447L;
     private final Organism parentOrganism1;
@@ -16,17 +16,17 @@ public final class MatingOrganismFactory implements OrganismFactory, Serializabl
 
     @Override
     public Organism create(final Context context) {
-        Organism organism = parentOrganism1.mate(context, parentOrganism2);
+        Organism newOrganism = parentOrganism1.mate(context, parentOrganism2);
 
-        organism.initialize(context);
+        newOrganism.initialize(context);
 
         if (shouldMutate) {
-            organism.mutate(context);
+            newOrganism.mutate(context);
         }
 
-        organism.freeze();
+        newOrganism.freeze();
 
-        return organism;
+        return newOrganism;
     }
 }
 

@@ -56,7 +56,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
             speciesCompatibility.species = species;
         }
 
-        double compatibilityThreshold = speciation.compatibilityThreshold(populationState.getGeneration());
+        double compatibilityThreshold = speciation.params().compatibilityThreshold(populationState.getGeneration());
 
         return Double.compare(compatibility, compatibilityThreshold) < 0;
     }
@@ -124,7 +124,9 @@ public final class Organism implements Comparable<Organism>, Serializable {
     }
 
     public Organism createCopy() {
-        return new Organism(genome.createCopy(populationState.getHistoricalMarkings()), populationState);
+        DefaultGenome copiedGenome = genome.createCopy(populationState.getHistoricalMarkings());
+
+        return new Organism(copiedGenome, populationState);
     }
 
     public Organism createClone(final Context context) {

@@ -1,8 +1,9 @@
 package com.dipasquale.ai.rl.neat.speciation.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.speciation.organism.MatingOrganismFactory;
-import com.dipasquale.ai.rl.neat.speciation.organism.MutationOrganismFactory;
+import com.dipasquale.ai.rl.neat.speciation.organism.CloneSingleOrganismFactory;
+import com.dipasquale.ai.rl.neat.speciation.organism.MateBetweenOrganismsFactory;
+import com.dipasquale.ai.rl.neat.speciation.organism.MutateSingleOrganismFactory;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
 import com.dipasquale.common.Pair;
@@ -72,7 +73,7 @@ public final class Species implements Serializable {
     }
 
     public boolean addIfCompatible(final Context.SpeciationSupport speciation, final Organism organism) {
-        if (organisms.size() < speciation.maximumGenomes() && organism.isCompatible(speciation, this)) {
+        if (organisms.size() < speciation.params().maximumGenomes() && organism.isCompatible(speciation, this)) {
             organism.setMostCompatibleSpecies(this);
             organisms.add(organism);
             isOrganismsSorted = false;
@@ -84,7 +85,7 @@ public final class Species implements Serializable {
     }
 
     public void add(final Context.SpeciationSupport speciation, final Organism organism) {
-        if (organisms.size() < speciation.maximumGenomes()) {
+        if (organisms.size() < speciation.params().maximumGenomes()) {
             organism.setMostCompatibleSpecies(this);
             organisms.add(organism);
             isOrganismsSorted = false;
@@ -127,7 +128,7 @@ public final class Species implements Serializable {
         int size = organisms.size();
 
         if (size > 1) {
-            int keep = speciation.getFitCountToReproduce(size);
+            int keep = speciation.params().fitToReproduce(size);
             int remove = size - keep;
 
             if (remove > 0) {
@@ -149,19 +150,29 @@ public final class Species implements Serializable {
         int size = organisms.size();
 
         for (int i = 0; i < count; i++) {
-            boolean shouldMateAndMutate = context.crossOver().shouldMateAndMutate();
-            boolean shouldMate = shouldMateAndMutate || context.crossOver().shouldMateOnly();
-            boolean shouldMutate = shouldMateAndMutate || !shouldMate && context.crossOver().shouldMutateOnly();
+            ReproductionType reproductionType = context.speciation().nextReproductionType(size);
 
-            if (size > 1 && shouldMate) {
-                Pair<Organism> organismPair = context.random().nextUniquePair(organisms);
+            OrganismFactory organismToBirth = switch (reproductionType) {
+                case MATE_AND_MUTATE, MATE_ONLY -> {
+                    Pair<Organism> organismCouple = context.random().nextUniquePair(organisms);
 
-                organismsToBirth.add(new MatingOrganismFactory(organismPair.getLeft(), organismPair.getRight(), shouldMutate));
-            } else {
-                Organism organism = context.random().nextItem(organisms);
+                    yield new MateBetweenOrganismsFactory(organismCouple.getLeft(), organismCouple.getRight(), reproductionType == ReproductionType.MATE_AND_MUTATE);
+                }
 
-                organismsToBirth.add(new MutationOrganismFactory(organism));
-            }
+                case MUTATE_ONLY -> {
+                    Organism organism = context.random().nextItem(organisms);
+
+                    yield new MutateSingleOrganismFactory(organism);
+                }
+
+                case CLONE -> {
+                    Organism organism = context.random().nextItem(organisms);
+
+                    yield new CloneSingleOrganismFactory(organism);
+                }
+            };
+
+            organismsToBirth.add(organismToBirth);
         }
 
         return organismsToBirth;
@@ -175,7 +186,7 @@ public final class Species implements Serializable {
         Organism organism1 = random.nextItem(organisms);
         Organism organism2 = random.nextItem(other.organisms);
 
-        return new MatingOrganismFactory(organism1, organism2, false);
+        return new MateBetweenOrganismsFactory(organism1, organism2, false);
     }
 
     public Organism selectMostElite() {
@@ -186,7 +197,7 @@ public final class Species implements Serializable {
 
     public List<Organism> selectMostElites(final Context.SpeciationSupport speciation) {
         int size = organisms.size();
-        int select = speciation.getEliteCountToPreserve(size);
+        int select = speciation.params().eliteToPreserve(size);
 
         if (select == 0) {
             return ImmutableList.of();
@@ -198,7 +209,7 @@ public final class Species implements Serializable {
     }
 
     public boolean shouldSurvive(final Context.SpeciationSupport speciation) {
-        return getAge() - ageLastImproved < speciation.stagnationDropOffAge();
+        return getAge() - ageLastImproved < speciation.params().stagnationDropOffAge();
     }
 
     public List<Organism> restart(final Context.RandomSupport random) {

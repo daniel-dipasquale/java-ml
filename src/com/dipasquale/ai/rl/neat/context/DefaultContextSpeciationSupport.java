@@ -2,35 +2,22 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
+import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.common.SerializableInteroperableStateMap;
+import com.dipasquale.common.factory.ObjectAccessor;
+import com.dipasquale.common.switcher.ObjectSwitcher;
+import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextSpeciationSupport implements Context.SpeciationSupport {
-    private int maximumSpecies;
-    private int maximumGenomes;
-    private float compatibilityThreshold;
-    private float compatibilityThresholdModifier;
+    private DefaultContextSpeciationParameters params;
     private GenomeCompatibilityCalculator genomeCompatibilityCalculator;
-    private float eugenicsThreshold;
-    private float elitistThreshold;
-    private int elitistThresholdMinimum;
-    private int stagnationDropOffAge;
-    private float interSpeciesMatingRate;
+    private ObjectSwitcher<ObjectAccessor<ReproductionType>> randomReproductionTypeGenerator;
 
     @Override
-    public int maximumSpecies() {
-        return maximumSpecies;
-    }
-
-    @Override
-    public int maximumGenomes() {
-        return maximumGenomes;
-    }
-
-    @Override
-    public double compatibilityThreshold(final int generation) { // TODO: check if this needs a boundary check as well
-        return compatibilityThreshold * Math.pow(compatibilityThresholdModifier, generation);
+    public Context.SpeciationParameters params() {
+        return params;
     }
 
     @Override
@@ -45,53 +32,19 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     }
 
     @Override
-    public float eugenicsThreshold() {
-        return eugenicsThreshold;
-    }
-
-    @Override
-    public float elitistThreshold() {
-        return elitistThreshold;
-    }
-
-    @Override
-    public int elitistThresholdMinimum() {
-        return elitistThresholdMinimum;
-    }
-
-    @Override
-    public int stagnationDropOffAge() {
-        return stagnationDropOffAge;
-    }
-
-    @Override
-    public float interSpeciesMatingRate() {
-        return interSpeciesMatingRate;
+    public ReproductionType nextReproductionType(final int organisms) {
+        return randomReproductionTypeGenerator.getObject().get(organisms);
     }
 
     public void save(final SerializableInteroperableStateMap state) {
-        state.put("speciation.maximumSpecies", maximumSpecies);
-        state.put("speciation.maximumGenomes", maximumGenomes);
-        state.put("speciation.compatibilityThreshold", compatibilityThreshold);
-        state.put("speciation.compatibilityThresholdModifier", compatibilityThresholdModifier);
+        state.put("speciation.params", params);
         state.put("speciation.genomeCompatibilityCalculator", genomeCompatibilityCalculator);
-        state.put("speciation.eugenicsThreshold", eugenicsThreshold);
-        state.put("speciation.elitistThreshold", elitistThreshold);
-        state.put("speciation.elitistThresholdMinimum", elitistThresholdMinimum);
-        state.put("speciation.stagnationDropOffAge", stagnationDropOffAge);
-        state.put("speciation.interSpeciesMatingRate", interSpeciesMatingRate);
+        state.put("speciation.randomReproductionTypeGenerator", randomReproductionTypeGenerator);
     }
 
-    public void load(final SerializableInteroperableStateMap state) {
-        maximumSpecies = state.get("speciation.maximumSpecies");
-        maximumGenomes = state.get("speciation.maximumGenomes");
-        compatibilityThreshold = state.get("speciation.compatibilityThreshold");
-        compatibilityThresholdModifier = state.get("speciation.compatibilityThresholdModifier");
+    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
+        params = state.get("speciation.params");
         genomeCompatibilityCalculator = state.get("speciation.genomeCompatibilityCalculator");
-        eugenicsThreshold = state.get("speciation.eugenicsThreshold");
-        elitistThreshold = state.get("speciation.elitistThreshold");
-        elitistThresholdMinimum = state.get("speciation.elitistThresholdMinimum");
-        stagnationDropOffAge = state.get("speciation.stagnationDropOffAge");
-        interSpeciesMatingRate = state.get("speciation.interSpeciesMatingRate");
+        randomReproductionTypeGenerator = ObjectSwitcher.switchObject(state.get("speciation.randomReproductionTypeGenerator"), eventLoop != null);
     }
 }

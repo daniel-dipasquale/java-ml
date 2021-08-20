@@ -24,8 +24,8 @@ public final class InterSpeciesBreedingStrategy implements SpeciesBreedingStrate
     @Override
     public void process(final SpeciesBreedingContext breedingContext, final List<Species> speciesList) {
         int size = speciesList.size();
-        float organismsNeeded = (float) (context.general().populationSize() - size - organismsWithoutSpecies.size() - organismsToBirth.size());
-        float organismsToReproduce = organismsNeeded * context.speciation().interSpeciesMatingRate() + breedingContext.getInterSpeciesBreedingLeftOverRatio();
+        float organismsNeeded = (float) (context.general().params().populationSize() - size - organismsWithoutSpecies.size() - organismsToBirth.size());
+        float organismsToReproduce = organismsNeeded * context.speciation().params().interSpeciesMatingRate() + breedingContext.getInterSpeciesBreedingLeftOverRatio();
         int organismsToReproduceFixed = (int) Math.floor(organismsToReproduce);
 
         breedingContext.setInterSpeciesBreedingLeftOverRatio(organismsToReproduce - (float) organismsToReproduceFixed); // TODO: revisit this algorithm

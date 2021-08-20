@@ -9,13 +9,13 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextGeneralSupport implements Context.GeneralSupport {
-    private int populationSize;
+    private DefaultContextGeneralParameters params;
     private FitnessFunction<Genome> fitnessFunction;
     private FitnessDeterminerFactory fitnessDeterminerFactory;
 
     @Override
-    public int populationSize() {
-        return populationSize;
+    public Context.GeneralParams params() {
+        return params;
     }
 
     @Override
@@ -29,7 +29,7 @@ public final class DefaultContextGeneralSupport implements Context.GeneralSuppor
     }
 
     public void save(final SerializableInteroperableStateMap state) {
-        state.put("general.populationSize", populationSize);
+        state.put("general.params", params);
         state.put("general.fitnessFunction", fitnessFunction);
         state.put("general.fitnessDeterminerFactory", fitnessDeterminerFactory);
     }
@@ -55,7 +55,7 @@ public final class DefaultContextGeneralSupport implements Context.GeneralSuppor
     }
 
     public void load(final SerializableInteroperableStateMap state, final FitnessFunction<Genome> environmentOverride) {
-        populationSize = state.get("general.populationSize");
+        params = state.get("general.params");
         fitnessFunction = loadFitnessFunction(state, environmentOverride);
         fitnessDeterminerFactory = state.get("general.fitnessDeterminerFactory");
     }

@@ -56,21 +56,21 @@ public final class DefaultGenomeHistoricalMarkings implements GenomeHistoricalMa
     }
 
     private SequentialIdFactory createGenomeIdFactory(final Context.ParallelismSupport parallelism) {
-        return createSequentialIdFactory(parallelism.isEnabled(), "genome", genomeIdFactoryUnderlying);
+        return createSequentialIdFactory(parallelism.params().isEnabled(), "genome", genomeIdFactoryUnderlying);
     }
 
     private SequentialIdFactory createSpeciesIdFactory(final Context.ParallelismSupport parallelism) {
-        return createSequentialIdFactory(parallelism.isEnabled(), "species", speciesIdFactoryUnderlying);
+        return createSequentialIdFactory(parallelism.params().isEnabled(), "species", speciesIdFactoryUnderlying);
     }
 
     private SequentialIdFactory createInnovationIdFactory(final Context.ParallelismSupport parallelism) {
-        return createSequentialIdFactory(parallelism.isEnabled(), "innovation-id", innovationIdFactoryUnderlying);
+        return createSequentialIdFactory(parallelism.params().isEnabled(), "innovation-id", innovationIdFactoryUnderlying);
     }
 
     private Map<DirectedEdge, InnovationId> createInnovationIds(final Context.ParallelismSupport parallelism) {
-        Map<DirectedEdge, InnovationId> innovationIdsReplacement = !parallelism.isEnabled()
+        Map<DirectedEdge, InnovationId> innovationIdsReplacement = !parallelism.params().isEnabled()
                 ? new HashMap<>()
-                : new ConcurrentHashMap<>(16, 0.75f, parallelism.numberOfThreads());
+                : new ConcurrentHashMap<>(16, 0.75f, parallelism.params().numberOfThreads());
 
         if (innovationIds != null) {
             innovationIdsReplacement.putAll(innovationIds);
@@ -89,7 +89,7 @@ public final class DefaultGenomeHistoricalMarkings implements GenomeHistoricalMa
     }
 
     private Map<NodeGeneType, SequentialIdFactory> createNodeIdFactories(final Context.ParallelismSupport parallelism) {
-        boolean parallel = parallelism.isEnabled();
+        boolean parallel = parallelism.params().isEnabled();
 
         return ImmutableMap.<NodeGeneType, SequentialIdFactory>builder()
                 .put(NodeGeneType.INPUT, createSequentialIdFactory(parallel, "n1-input", nodeIdFactoriesUnderlying.get(NodeGeneType.INPUT)))
@@ -106,7 +106,7 @@ public final class DefaultGenomeHistoricalMarkings implements GenomeHistoricalMa
     }
 
     private Deque<String> replaceGenomeIdsKilled(final Context.ParallelismSupport parallelism) {
-        Deque<String> genomeIdsKilledReplacement = !parallelism.isEnabled()
+        Deque<String> genomeIdsKilledReplacement = !parallelism.params().isEnabled()
                 ? new LinkedList<>()
                 : new ConcurrentLinkedDeque<>();
 

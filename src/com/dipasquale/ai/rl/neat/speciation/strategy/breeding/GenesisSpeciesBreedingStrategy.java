@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.speciation.strategy.breeding;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
-import com.dipasquale.ai.rl.neat.speciation.organism.MutationOrganismFactory;
+import com.dipasquale.ai.rl.neat.speciation.organism.MutateSingleOrganismFactory;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public final class GenesisSpeciesBreedingStrategy implements SpeciesBreedingStra
                     .forEach(Organism::kill);
 
             if (organismsWithoutSpecies.remove(species.getRepresentative())) { // TODO: figure out a better way of doing this
-                organismsToBirth.add(new MutationOrganismFactory(species.getRepresentative()));
+                organismsToBirth.add(new MutateSingleOrganismFactory(species.getRepresentative()));
             }
         }
     }

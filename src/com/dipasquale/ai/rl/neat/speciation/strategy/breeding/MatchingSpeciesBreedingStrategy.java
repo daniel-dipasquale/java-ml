@@ -22,7 +22,7 @@ public final class MatchingSpeciesBreedingStrategy implements SpeciesBreedingStr
 
     @Override
     public void process(final SpeciesBreedingContext breedingContext, final List<Species> speciesList) {
-        int populationSize = context.general().populationSize();
+        int populationSize = context.general().params().populationSize();
         int speciesSize = speciesList.size();
         float organismsNeeded = (float) (populationSize - speciesSize - organismsWithoutSpecies.size() - organismsToBirth.size());
         float organismsReproducedPrevious;

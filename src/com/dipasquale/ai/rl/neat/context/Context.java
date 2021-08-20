@@ -12,6 +12,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.speciation.core.DefaultGenomeHistoricalMarkings;
+import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.common.Pair;
 import com.dipasquale.threading.event.loop.IterableEventLoop;
 import com.dipasquale.threading.wait.handle.WaitHandle;
@@ -46,8 +47,13 @@ public interface Context {
 
     void load(ObjectInputStream inputStream, StateOverrideSupport override) throws IOException, ClassNotFoundException;
 
-    interface GeneralSupport {
+    @FunctionalInterface
+    interface GeneralParams {
         int populationSize();
+    }
+
+    interface GeneralSupport {
+        GeneralParams params();
 
         float calculateFitness(Genome genome);
 
@@ -60,8 +66,13 @@ public interface Context {
         int size(NodeGeneType type);
     }
 
-    interface ConnectionGeneSupport {
+    @FunctionalInterface
+    interface ConnectionGeneParameters {
         boolean multipleRecurrentCyclesAllowed();
+    }
+
+    interface ConnectionGeneSupport {
+        ConnectionGeneParameters params();
 
         float nextWeight();
 
@@ -75,10 +86,14 @@ public interface Context {
         NeuralNetwork create(NodeGeneMap nodes, ConnectionGeneMap connections);
     }
 
-    interface ParallelismSupport {
+    interface ParallelismParameters {
         boolean isEnabled();
 
         int numberOfThreads();
+    }
+
+    interface ParallelismSupport {
+        ParallelismParameters params();
 
         <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> itemHandler);
     }
@@ -152,12 +167,6 @@ public interface Context {
     }
 
     interface CrossOverSupport {
-        boolean shouldMateAndMutate();
-
-        boolean shouldMateOnly();
-
-        boolean shouldMutateOnly();
-
         boolean shouldOverrideConnectionExpressed();
 
         boolean shouldUseRandomParentConnectionWeight();
@@ -169,21 +178,18 @@ public interface Context {
         default DefaultGenome crossOverByEqualTreatment(final Context context, final DefaultGenome parent1, final DefaultGenome parent2) {
             return DefaultGenome.crossOverByEqualTreatment(context, parent1, parent2);
         }
-
     }
 
-    interface SpeciationSupport {
+    interface SpeciationParameters {
         int maximumSpecies();
 
         int maximumGenomes();
 
         double compatibilityThreshold(int generation);
 
-        double calculateCompatibility(DefaultGenome genome1, DefaultGenome genome2);
-
         float eugenicsThreshold();
 
-        default int getFitCountToReproduce(final int size) {
+        default int fitToReproduce(final int size) {
             int count = (int) Math.floor((double) eugenicsThreshold() * (double) size);
             int countFixed = Math.max(count, 1);
 
@@ -194,7 +200,7 @@ public interface Context {
 
         int elitistThresholdMinimum();
 
-        default int getEliteCountToPreserve(final int size) {
+        default int eliteToPreserve(final int size) {
             int count = (int) Math.floor((double) elitistThreshold() * (double) size);
             int countFixed = Math.max(count, elitistThresholdMinimum());
 
@@ -204,6 +210,14 @@ public interface Context {
         int stagnationDropOffAge();
 
         float interSpeciesMatingRate();
+    }
+
+    interface SpeciationSupport {
+        SpeciationParameters params();
+
+        double calculateCompatibility(DefaultGenome genome1, DefaultGenome genome2);
+
+        ReproductionType nextReproductionType(int organisms);
     }
 
     interface StateOverrideSupport {
