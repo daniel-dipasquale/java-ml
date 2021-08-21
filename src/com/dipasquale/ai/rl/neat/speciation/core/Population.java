@@ -4,21 +4,9 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
-import com.dipasquale.ai.rl.neat.speciation.strategy.breeding.GenesisSpeciesBreedingStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.breeding.InterSpeciesBreedingStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.breeding.MatchingSpeciesBreedingStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.breeding.SpeciesBreedingContext;
-import com.dipasquale.ai.rl.neat.speciation.strategy.breeding.SpeciesBreedingStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.RemoveLeastFitSpeciesEvolutionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.SelectMostEliteSpeciesEvolutionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.SelectMostElitesSpeciesEvolutionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.SpeciesEvolutionContext;
-import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.SpeciesEvolutionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.evolution.TotalSharedFitnessSpeciesEvolutionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.DefaultSpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ParallelUpdateSpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSharedSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionContext;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
@@ -43,22 +31,14 @@ public final class Population {
     private DequeSet<Organism> organismsWithoutSpecies;
     private Queue<OrganismFactory> organismsToBirth;
     private NodeDeque<Species, SimpleNode<Species>> speciesNodes;
-    private OrganismActivator mostFitOrganismActivator;
-    private List<SpeciesFitnessStrategy> speciesFitnessStrategies;
-    private List<SpeciesEvolutionStrategy> speciesEvolutionStrategies;
-    private SpeciesBreedingContext speciesBreedingContext;
-    private List<SpeciesBreedingStrategy> speciesBreedingStrategies;
+    private OrganismActivator championOrganismActivator;
 
-    public Population(final OrganismActivator mostFitOrganismActivator) {
+    public Population(final OrganismActivator championOrganismActivator) {
         this.populationState = new PopulationState();
         this.organismsWithoutSpecies = new DequeIdentitySet<>();
         this.organismsToBirth = new LinkedList<>();
         this.speciesNodes = new SimpleNodeDeque<>();
-        this.mostFitOrganismActivator = mostFitOrganismActivator;
-        this.speciesFitnessStrategies = new LinkedList<>();
-        this.speciesEvolutionStrategies = new LinkedList<>();
-        this.speciesBreedingContext = null;
-        this.speciesBreedingStrategies = new LinkedList<>();
+        this.championOrganismActivator = championOrganismActivator;
     }
 
     public int getGeneration() {
@@ -78,7 +58,7 @@ public final class Population {
                 .forEach(organismsWithoutSpecies::add);
     }
 
-    private int countOrganismsInSpecies() {
+    private int countOrganismsInAllSpecies() {
         return speciesNodes.stream()
                 .map(speciesNodes::getValue)
                 .map(Species::getOrganisms)
@@ -87,33 +67,7 @@ public final class Population {
     }
 
     private int countOrganismsEverywhere() {
-        return organismsWithoutSpecies.size() + organismsToBirth.size() + countOrganismsInSpecies();
-    }
-
-    private void replaceSpeciesFitnessStrategies(final Context context) {
-        speciesFitnessStrategies.clear();
-
-        if (context.parallelism().params().isEnabled()) {
-            speciesFitnessStrategies.add(new ParallelUpdateSpeciesFitnessStrategy(context));
-            speciesFitnessStrategies.add(new UpdateSharedSpeciesFitnessStrategy());
-        } else {
-            speciesFitnessStrategies.add(new DefaultSpeciesFitnessStrategy(context.general()));
-        }
-    }
-
-    private void replaceSpeciesEvolutionStrategies(final Context context) {
-        speciesEvolutionStrategies.clear();
-        speciesEvolutionStrategies.add(new RemoveLeastFitSpeciesEvolutionStrategy(context));
-        speciesEvolutionStrategies.add(new TotalSharedFitnessSpeciesEvolutionStrategy());
-        speciesEvolutionStrategies.add(new SelectMostElitesSpeciesEvolutionStrategy(context.speciation(), organismsWithoutSpecies));
-        speciesEvolutionStrategies.add(new SelectMostEliteSpeciesEvolutionStrategy(organismsWithoutSpecies, mostFitOrganismActivator));
-    }
-
-    private void replaceSpeciesBreedStrategies(final Context context) {
-        speciesBreedingStrategies.clear();
-        speciesBreedingStrategies.add(new InterSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
-        speciesBreedingStrategies.add(new MatchingSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
-        speciesBreedingStrategies.add(new GenesisSpeciesBreedingStrategy(context, organismsWithoutSpecies, organismsToBirth));
+        return organismsWithoutSpecies.size() + organismsToBirth.size() + countOrganismsInAllSpecies();
     }
 
     public void initialize(final Context context) {
@@ -133,22 +87,8 @@ public final class Population {
                     .forEach(o -> o.initialize(context));
         } else {
             fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-            mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
+            championOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
         }
-
-        replaceSpeciesFitnessStrategies(context);
-        replaceSpeciesEvolutionStrategies(context);
-        replaceSpeciesBreedStrategies(context);
-    }
-
-    private boolean addOrganismToFirstCompatibleSpecies(final Context context, final Organism organism) {
-        for (SimpleNode<Species> speciesNode : speciesNodes) {
-            if (speciesNodes.getValue(speciesNode).addIfCompatible(context.speciation(), organism)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private Species createSpecies(final Organism organism) {
@@ -164,28 +104,27 @@ public final class Population {
     }
 
     private void assignOrganismsToSpecies(final Context context) {
-        Iterable<Organism> organismsNew = organismsToBirth.stream()
+        ClosestSpeciesCollector closestSpeciesCollector = new ClosestSpeciesCollector(context.speciation());
+
+        Iterable<Organism> organismsBirthed = organismsToBirth.stream()
                 .map(of -> of.create(context))
                 ::iterator;
 
-        for (Organism organism : Iterables.concat(organismsWithoutSpecies, organismsNew)) {
-            if (!addOrganismToFirstCompatibleSpecies(context, organism)) {
-                if (speciesNodes.size() < context.speciation().params().maximumSpecies()) {
-                    addSpecies(createSpecies(organism));
-                } else { // TODO: I feel like the statement below is a hack and I cannot think of a better fix, but the problem is that at higher generations, genomes fall so far apart from the distance metric that they all end up in singular species (FIX whenever I can think of a better solution)
-                    organism.getMostCompatibleSpecies().add(context.speciation(), organism);
-                }
+        for (Organism organism : Iterables.concat(organismsWithoutSpecies, organismsBirthed)) {
+            for (SimpleNode<Species> speciesNode : speciesNodes) {
+                closestSpeciesCollector.collectIfCloser(organism, speciesNodes.getValue(speciesNode));
+            }
+
+            if (!closestSpeciesCollector.isClosestCompatible(populationState.getGeneration())) {
+                addSpecies(createSpecies(organism));
+                closestSpeciesCollector.clear();
+            } else {
+                closestSpeciesCollector.getAndClear().add(organism);
             }
         }
 
         organismsWithoutSpecies.clear();
         organismsToBirth.clear();
-    }
-
-    private void updateFitnessInAllSpecies() {
-        for (SpeciesFitnessStrategy speciesFitnessStrategy : speciesFitnessStrategies) {
-            speciesFitnessStrategy.process(speciesNodes);
-        }
     }
 
     public int getSpeciesCount() {
@@ -194,61 +133,33 @@ public final class Population {
 
     public void updateFitness(final Context context) {
         assignOrganismsToSpecies(context);
-        updateFitnessInAllSpecies();
+        context.speciation().fitnessStrategy().update(new SpeciesFitnessContext(context, speciesNodes));
     }
 
-    private void prepareAllSpeciesForEvolution(final Context context, final SpeciesEvolutionContext evolutionContext) {
-        for (SimpleNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
-            Species species = speciesNodes.getValue(speciesNode);
-            boolean shouldSurvive = speciesNodes.size() <= 2 || species.shouldSurvive(context.speciation());
-
-            for (SpeciesEvolutionStrategy speciesEvolutionStrategy : speciesEvolutionStrategies) {
-                speciesEvolutionStrategy.process(evolutionContext, species, shouldSurvive);
-            }
-
-            if (!shouldSurvive) {
-                SimpleNode<Species> speciesNodeNext = speciesNodes.peekNext(speciesNode);
-
-                speciesNodes.remove(speciesNode);
-                speciesNode = speciesNodeNext;
-            } else {
-                speciesNode = speciesNodes.peekNext(speciesNode);
-            }
-        }
-
-        for (SpeciesEvolutionStrategy speciesEvolutionStrategy : speciesEvolutionStrategies) {
-            speciesEvolutionStrategy.postProcess(evolutionContext);
-        }
-    }
-
-    private void breedThroughAllSpecies(final SpeciesEvolutionContext evolutionContext) {
-        if (speciesBreedingContext == null) {
-            speciesBreedingContext = new SpeciesBreedingContext(evolutionContext);
-        } else {
-            speciesBreedingContext = new SpeciesBreedingContext(evolutionContext, speciesBreedingContext.getInterSpeciesBreedingLeftOverRatio());
-        }
-
-        List<Species> speciesList = speciesNodes.stream()
+    private void reproduceThroughAllSpecies(final SpeciesSelectionContext selectionContext) {
+        List<Species> rankedSpecies = speciesNodes.stream()
                 .map(speciesNodes::getValue)
                 .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 
-        for (SpeciesBreedingStrategy speciesBreedingStrategy : speciesBreedingStrategies) {
-            speciesBreedingStrategy.process(speciesBreedingContext, speciesList);
-        }
+        SpeciesReproductionContext reproductionContext = new SpeciesReproductionContext(selectionContext, rankedSpecies, organismsWithoutSpecies, organismsToBirth);
+
+        selectionContext.getParent().speciation().reproductionStrategy().reproduce(reproductionContext);
     }
 
     public void evolve(final Context context) {
-        SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
-
         assert context.general().params().populationSize() == countOrganismsEverywhere();
+        assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty() && populationState.getHistoricalMarkings().getGenomeKilledCount() == 0;
 
-        prepareAllSpeciesForEvolution(context, evolutionContext);
+        SpeciesSelectionContext selectionContext = new SpeciesSelectionContext(context, championOrganismActivator);
 
+        context.speciation().selectionStrategy().select(selectionContext, speciesNodes);
+
+        assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty();
 
-        breedThroughAllSpecies(evolutionContext);
+        reproduceThroughAllSpecies(selectionContext);
         populationState.increaseGeneration();
 
         assert context.general().params().populationSize() == countOrganismsEverywhere();
@@ -260,10 +171,9 @@ public final class Population {
         populationState.getHistoricalMarkings().reset(context.nodes());
         organismsWithoutSpecies.clear();
         fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-        mostFitOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
+        championOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
         organismsToBirth.clear();
         speciesNodes.clear();
-        speciesBreedingContext = null;
     }
 
     public void save(final ObjectOutputStream outputStream)
@@ -274,11 +184,10 @@ public final class Population {
         state.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
         state.put("population.organismsToBirth", organismsToBirth);
         state.put("population.speciesNodes", speciesNodes);
-        state.put("population.speciesBreedingContext", speciesBreedingContext);
         state.writeTo(outputStream);
     }
 
-    public void load(final ObjectInputStream inputStream, final OrganismActivator mostFitOrganismActivatorOverride)
+    public void load(final ObjectInputStream inputStream, final OrganismActivator championOrganismActivatorOverride)
             throws IOException, ClassNotFoundException {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
@@ -287,10 +196,6 @@ public final class Population {
         organismsWithoutSpecies = state.get("population.organismsWithoutSpecies");
         organismsToBirth = state.get("population.organismsToBirth");
         speciesNodes = state.get("population.speciesNodes");
-        mostFitOrganismActivator = mostFitOrganismActivatorOverride;
-        speciesFitnessStrategies = new LinkedList<>();
-        speciesEvolutionStrategies = new LinkedList<>();
-        speciesBreedingContext = state.get("population.speciesBreedingContext");
-        speciesBreedingStrategies = new LinkedList<>();
+        championOrganismActivator = championOrganismActivatorOverride;
     }
 }

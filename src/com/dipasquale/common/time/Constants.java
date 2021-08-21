@@ -14,10 +14,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 final class Constants {
-    @Generated
-    private Constants() {
-    }
-
     private static final ZoneId UTC = ZoneId.of("UTC");
     static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS").withZone(UTC);
     static final DateTimeFormatter DATE_TIME_PARSER = DateTimeFormatter.ofPattern("yyyy-MM-dd[[ ]['T']HH:mm[:ss[.SSS][z][Z]]]").withZone(UTC);
@@ -25,6 +21,10 @@ final class Constants {
     static final Map<Unit<Duration>, TimeUnit> UNITS = createUnits();
     static final Unit<Duration> MILLISECONDS_UNIT = TIME_UNITS.get(TimeUnit.MILLISECONDS);
     static final Unit<Duration> NANOSECONDS_UNIT = TIME_UNITS.get(TimeUnit.NANOSECONDS);
+
+    @Generated
+    private Constants() {
+    }
 
     private static EnumMap<TimeUnit, Unit<Duration>> createTimeUnits() {
         EnumMap<TimeUnit, Unit<Duration>> timeUnits = new EnumMap<>(TimeUnit.class);

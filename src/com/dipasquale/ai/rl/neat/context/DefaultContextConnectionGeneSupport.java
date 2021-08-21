@@ -6,15 +6,15 @@ import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
 import com.dipasquale.ai.rl.neat.speciation.core.DefaultGenomeHistoricalMarkings;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
-import com.dipasquale.common.switcher.ObjectSwitcher;
+import com.dipasquale.common.profile.ObjectProfile;
 import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextConnectionGeneSupport implements Context.ConnectionGeneSupport {
     private DefaultContextConnectionGeneParameters params;
-    private ObjectSwitcher<FloatFactory> weightFactory;
-    private ObjectSwitcher<WeightPerturber> weightPerturber;
+    private ObjectProfile<FloatFactory> weightFactory;
+    private ObjectProfile<WeightPerturber> weightPerturber;
     private GenomeGenesisConnector genomeGenesisConnector;
 
     @Override
@@ -46,8 +46,8 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
 
     public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         params = state.get("connections.params");
-        weightFactory = ObjectSwitcher.switchObject(state.get("connections.weightFactory"), eventLoop != null);
-        weightPerturber = ObjectSwitcher.switchObject(state.get("connections.weightPerturber"), eventLoop != null);
+        weightFactory = ObjectProfile.switchProfile(state.get("connections.weightFactory"), eventLoop != null);
+        weightPerturber = ObjectProfile.switchProfile(state.get("connections.weightPerturber"), eventLoop != null);
         genomeGenesisConnector = state.get("connections.genomeGenesisConnector");
     }
 }

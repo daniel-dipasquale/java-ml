@@ -40,6 +40,5 @@ public final class OrganismTest {
 
         Assertions.assertNotSame(test, result);
         Assertions.assertEquals(test, result);
-        Assertions.assertEquals(test.getMostCompatibleSpecies(), result.getMostCompatibleSpecies());
     }
 }

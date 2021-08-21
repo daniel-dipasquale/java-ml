@@ -1,18 +1,19 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.common.SerializableInteroperableStateMap;
+import com.dipasquale.common.factory.ObjectFactory;
+import com.dipasquale.common.profile.ObjectProfile;
 import com.dipasquale.common.provider.GateProvider;
-import com.dipasquale.common.switcher.ObjectSwitcher;
 import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextMutationSupport implements Context.MutationSupport {
-    private ObjectSwitcher<GateProvider> shouldAddNodeMutation;
-    private ObjectSwitcher<GateProvider> shouldAddConnectionMutation;
-    private ObjectSwitcher<GateProvider> shouldPerturbConnectionWeight;
-    private ObjectSwitcher<GateProvider> shouldReplaceConnectionWeight;
-    private ObjectSwitcher<GateProvider> shouldDisableConnectionExpressed;
+    private ObjectProfile<GateProvider> shouldAddNodeMutation;
+    private ObjectProfile<GateProvider> shouldAddConnectionMutation;
+    private ObjectProfile<ObjectFactory<WeightMutationType>> randomWeightMutationTypeGenerator;
+    private ObjectProfile<GateProvider> shouldDisableConnectionExpressed;
 
     @Override
     public boolean shouldAddNodeMutation() {
@@ -25,13 +26,8 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     }
 
     @Override
-    public boolean shouldPerturbConnectionWeight() {
-        return shouldPerturbConnectionWeight.getObject().isOn();
-    }
-
-    @Override
-    public boolean shouldReplaceConnectionWeight() {
-        return shouldReplaceConnectionWeight.getObject().isOn();
+    public WeightMutationType nextWeightMutationType() {
+        return randomWeightMutationTypeGenerator.getObject().create();
     }
 
     @Override
@@ -42,16 +38,14 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     public void save(final SerializableInteroperableStateMap state) {
         state.put("mutation.shouldAddNodeMutation", shouldAddNodeMutation);
         state.put("mutation.shouldAddConnectionMutation", shouldAddConnectionMutation);
-        state.put("mutation.shouldPerturbConnectionWeight", shouldPerturbConnectionWeight);
-        state.put("mutation.shouldReplaceConnectionWeight", shouldReplaceConnectionWeight);
+        state.put("mutation.randomWeightMutationTypeGenerator", randomWeightMutationTypeGenerator);
         state.put("mutation.shouldDisableConnectionExpressed", shouldDisableConnectionExpressed);
     }
 
     public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
-        shouldAddNodeMutation = ObjectSwitcher.switchObject(state.get("mutation.shouldAddNodeMutation"), eventLoop != null);
-        shouldAddConnectionMutation = ObjectSwitcher.switchObject(state.get("mutation.shouldAddConnectionMutation"), eventLoop != null);
-        shouldPerturbConnectionWeight = ObjectSwitcher.switchObject(state.get("mutation.shouldPerturbConnectionWeight"), eventLoop != null);
-        shouldReplaceConnectionWeight = ObjectSwitcher.switchObject(state.get("mutation.shouldReplaceConnectionWeight"), eventLoop != null);
-        shouldDisableConnectionExpressed = ObjectSwitcher.switchObject(state.get("mutation.shouldDisableConnectionExpressed"), eventLoop != null);
+        shouldAddNodeMutation = ObjectProfile.switchProfile(state.get("mutation.shouldAddNodeMutation"), eventLoop != null);
+        shouldAddConnectionMutation = ObjectProfile.switchProfile(state.get("mutation.shouldAddConnectionMutation"), eventLoop != null);
+        randomWeightMutationTypeGenerator = ObjectProfile.switchProfile(state.get("mutation.randomWeightMutationTypeGenerator"), eventLoop != null);
+        shouldDisableConnectionExpressed = ObjectProfile.switchProfile(state.get("mutation.shouldDisableConnectionExpressed"), eventLoop != null);
     }
 }

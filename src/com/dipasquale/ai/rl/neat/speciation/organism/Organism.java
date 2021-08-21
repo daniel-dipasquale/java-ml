@@ -18,19 +18,16 @@ import java.io.Serializable;
 public final class Organism implements Comparable<Organism>, Serializable {
     @Serial
     private static final long serialVersionUID = -1411966258093431863L;
-    private static final double MINIMUM_COMPATIBILITY = Double.POSITIVE_INFINITY;
     @EqualsAndHashCode.Include
     private final DefaultGenome genome;
     private transient ProxyGenome proxyGenome;
     private final PopulationState populationState;
-    private final SpeciesCompatibility speciesCompatibility;
     private transient FitnessState fitnessState;
 
     public Organism(final DefaultGenome genome, final PopulationState populationState) {
         this.genome = genome;
         this.proxyGenome = null;
         this.populationState = populationState;
-        this.speciesCompatibility = new SpeciesCompatibility(MINIMUM_COMPATIBILITY, null);
         this.fitnessState = null;
     }
 
@@ -48,26 +45,8 @@ public final class Organism implements Comparable<Organism>, Serializable {
         fitnessState = createFitnessState(context.general());
     }
 
-    public boolean isCompatible(final Context.SpeciationSupport speciation, final Species species) {
-        double compatibility = speciation.calculateCompatibility(genome, species.getRepresentative().genome);
-
-        if (Double.compare(speciesCompatibility.minimumCompatibility, compatibility) > 0) {
-            speciesCompatibility.minimumCompatibility = compatibility;
-            speciesCompatibility.species = species;
-        }
-
-        double compatibilityThreshold = speciation.params().compatibilityThreshold(populationState.getGeneration());
-
-        return Double.compare(compatibility, compatibilityThreshold) < 0;
-    }
-
-    public Species getMostCompatibleSpecies() {
-        return speciesCompatibility.species;
-    }
-
-    public void setMostCompatibleSpecies(final Species species) {
-        speciesCompatibility.minimumCompatibility = MINIMUM_COMPATIBILITY;
-        speciesCompatibility.species = species;
+    public double calculateCompatibility(final Context.SpeciationSupport speciation, final Species species) {
+        return speciation.calculateCompatibility(genome, species.getRepresentative().genome);
     }
 
     public float getFitness() {
@@ -140,15 +119,6 @@ public final class Organism implements Comparable<Organism>, Serializable {
 
     public void kill() {
         populationState.getHistoricalMarkings().markToKill(genome);
-    }
-
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @EqualsAndHashCode
-    private static final class SpeciesCompatibility implements Serializable {
-        @Serial
-        private static final long serialVersionUID = -6165184849094919071L;
-        private double minimumCompatibility;
-        private Species species;
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)

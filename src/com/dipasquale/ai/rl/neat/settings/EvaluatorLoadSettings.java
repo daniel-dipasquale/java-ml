@@ -19,7 +19,7 @@ public final class EvaluatorLoadSettings {
     private final NeatEnvironment fitnessFunction;
     private final IterableEventLoop eventLoop;
 
-    public Context.StateOverrideSupport createContext() { // TODO: think of a better fix for this
+    public Context.StateOverrideSupport createContext() { // TODO: think of a better fix for this (as a reminder, the fact this is public, is not ideal)
         return new DefaultContextStateOverrideSupport(fitnessFunction, eventLoop);
     }
 }

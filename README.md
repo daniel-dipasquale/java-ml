@@ -9,10 +9,10 @@ algorithms I'm interested in learning and using:
     - [x] XOR test :+1: (random data sample)
 
          ```
-         generation: 13
-         species: 3
-         complexity: 7
-         fitness: 3.451786
+         generation: 14
+         species: 12
+         complexity: 6
+         fitness: 3.391424
          ```
 
     - [ ] Single Pole Balancing test: :-1: (random data sample)
@@ -20,6 +20,7 @@ algorithms I'm interested in learning and using:
          ```
          generation: (outstanding)
          species: (outstanding)
+         complexity: (outstanding)
          fitness: (outstanding)
          ```
 
@@ -49,78 +50,76 @@ algorithms I'm interested in learning and using:
         float[] expectedOutputs = new float[]{0f, 1f, 1f, 0f};
    
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
-                        .general(GeneralEvaluatorSupportSettings.builder()
-                                .populationSize(150)
-                                .genesisGenomeFactory(GenesisGenomeTemplate.builder()
-                                        .inputs(IntegerNumber.literal(2))
-                                        .outputs(IntegerNumber.literal(1))
-                                        .biases(ImmutableList.of(FloatNumber.literal(1f)))
-                                        .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
-                                        .initialWeightType(InitialWeightType.RANDOM)
-                                        .build())
-                                .fitnessFunction(genome -> {
-                                        float error = 0f;
+                .general(GeneralEvaluatorSupportSettings.builder()
+                        .populationSize(150)
+                        .genesisGenomeFactory(GenesisGenomeTemplate.builder()
+                                .inputs(IntegerNumber.literal(2))
+                                .outputs(IntegerNumber.literal(1))
+                                .biases(ImmutableList.of())
+                                .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
+                                .initialWeightType(InitialWeightType.RANDOM)
+                                .build())
+                        .fitnessFunction(genome -> {
+                                float error = 0f;
 
-                                        for (int i = 0; i < inputs.length; i++) {
-                                                float[] output = genome.activate(inputs[i]);
+                                for (int i = 0; i < inputs.length; i++) {
+                                        float[] output = genome.activate(inputs[i]);
 
-                                                error += (float) Math.pow(expectedOutputs[i] - output[0], 2D);
-                                        }
+                                        error += (float) Math.pow(expectedOutputs[i] - output[0], 2D);
+                                }
 
-                                        return inputs.length - error;
-                                })
-                                .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
-                                .build())
-                        .nodes(NodeGeneSupport.builder()
-                                .inputBias(FloatNumber.literal(0f))
-                                .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
-                                .outputBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                                .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
-                                .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                                .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
-                                .build())
-                        .connections(ConnectionGeneSupport.builder()
-                                .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                                .weightPerturber(FloatNumber.literal(2.5f))
-                                .build())
-                        .neuralNetwork(NeuralNetworkSupport.builder()
-                                .type(NeuralNetworkType.MULTI_CYCLE_RECURRENT)
-                                .build())
-                        .parallelism(ParallelismSupport.builder()
-                                .eventLoop(eventLoop)
-                                .build())
-                        .random(RandomSupport.builder()
-                                .nextIndex(RandomType.UNIFORM)
-                                .isLessThan(RandomType.UNIFORM)
-                                .build())
-                        .mutation(MutationSupport.builder()
-                                .addNodeMutationRate(FloatNumber.literal(0.03f))
-                                .addConnectionMutationRate(FloatNumber.literal(0.05f))
-                                .perturbConnectionsWeightRate(FloatNumber.literal(0.75f))
-                                .replaceConnectionsWeightRate(FloatNumber.literal(0.5f))
-                                .disableConnectionExpressedRate(FloatNumber.literal(0.05f))
-                                .build())
-                        .crossOver(CrossOverSupport.builder()
-                                .mateOnlyRate(FloatNumber.literal(0.2f))
-                                .mutateOnlyRate(FloatNumber.literal(0.25f))
-                                .overrideConnectionExpressedRate(FloatNumber.literal(0.5f))
-                                .useRandomParentConnectionWeightRate(FloatNumber.literal(0.6f))
-                                .build())
-                        .speciation(SpeciationSupport.builder()
-                                .maximumSpecies(IntegerNumber.literal(75))
-                                .maximumGenomes(IntegerNumber.literal(75))
-                                .weightDifferenceCoefficient(FloatNumber.literal(0.4f))
-                                .disjointCoefficient(FloatNumber.literal(1f))
-                                .excessCoefficient(FloatNumber.literal(1f))
-                                .compatibilityThreshold(FloatNumber.literal(3f))
-                                .compatibilityThresholdModifier(FloatNumber.literal(1.15f))
-                                .eugenicsThreshold(FloatNumber.literal(0.2f))
-                                .elitistThreshold(FloatNumber.literal(0.01f))
-                                .elitistThresholdMinimum(IntegerNumber.literal(2))
-                                .stagnationDropOffAge(IntegerNumber.literal(15))
-                                .interSpeciesMatingRate(FloatNumber.literal(0.001f))
-                                .build())
-                                .build());
+                                return inputs.length - error;
+                        })
+                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
+                        .build())
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .weightPerturber(FloatNumber.literal(2.5f))
+                        .build())
+                .neuralNetwork(NeuralNetworkSupport.builder()
+                        .type(NeuralNetworkType.MULTI_CYCLE_RECURRENT)
+                        .build())
+                .parallelism(ParallelismSupport.builder()
+                        .eventLoop(eventLoop)
+                        .build())
+                .random(RandomSupport.builder()
+                        .nextIndex(RandomType.UNIFORM)
+                        .isLessThan(RandomType.UNIFORM)
+                        .build())
+                .mutation(MutationSupport.builder()
+                        .addNodeMutationRate(FloatNumber.literal(0.06f))
+                        .addConnectionMutationRate(FloatNumber.literal(0.12f))
+                        .perturbWeightRate(FloatNumber.literal(0.75f))
+                        .replaceWeightRate(FloatNumber.literal(0.5f))
+                        .disableExpressedRate(FloatNumber.literal(0.03f))
+                        .build())
+                .crossOver(CrossOverSupport.builder()
+                        .overrideConnectionExpressedRate(FloatNumber.literal(0.5f))
+                        .useRandomParentConnectionWeightRate(FloatNumber.literal(0.6f))
+                        .build())
+                .speciation(SpeciationSupport.builder()
+                        .weightDifferenceCoefficient(FloatNumber.literal(0.4f))
+                        .disjointCoefficient(FloatNumber.literal(1f))
+                        .excessCoefficient(FloatNumber.literal(1f))
+                        .compatibilityThreshold(FloatNumber.literal(3f))
+                        .compatibilityThresholdModifier(FloatNumber.literal(1f))
+                        .eugenicsThreshold(FloatNumber.literal(0.2f))
+                        .elitistThreshold(FloatNumber.literal(0.01f))
+                        .elitistThresholdMinimum(IntegerNumber.literal(2))
+                        .stagnationDropOffAge(IntegerNumber.literal(15))
+                        .interSpeciesMatingRate(FloatNumber.literal(0.001f))
+                        .mateOnlyRate(FloatNumber.literal(0.2f))
+                        .mutateOnlyRate(FloatNumber.literal(0.25f))
+                        .build())
+                .build());
    ```
 
     1. Cart-pole balancing test:

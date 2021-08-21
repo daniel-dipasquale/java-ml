@@ -7,6 +7,7 @@ import com.dipasquale.ai.rl.neat.speciation.organism.MutateSingleOrganismFactory
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
 import com.dipasquale.common.Pair;
+import com.dipasquale.data.structure.set.DequeSet;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import lombok.EqualsAndHashCode;
@@ -17,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class Species implements Serializable {
@@ -31,28 +33,24 @@ public final class Species implements Serializable {
     private List<Organism> organisms;
     private List<Organism> organismsReadOnly;
     private boolean isOrganismsSorted;
-    private final PopulationState population;
+    private final PopulationState populationState;
     @Getter
     @EqualsAndHashCode.Include
     private float sharedFitness;
     private float maximumSharedFitness;
     private final int createdOnGeneration;
-    private int ageLastImproved;
+    private int improvedAtAge;
 
-    public Species(final Organism representativeOrganism, final PopulationState population) {
-        List<Organism> organisms = Lists.newArrayList(representativeOrganism);
-
-        this.id = population.getHistoricalMarkings().createSpecies();
+    public Species(final Organism representativeOrganism, final PopulationState populationState) {
+        this.id = populationState.getHistoricalMarkings().createSpeciesId();
         this.representativeOrganism = representativeOrganism;
-        representativeOrganism.setMostCompatibleSpecies(this);
-        this.organisms = organisms;
-        this.organismsReadOnly = Collections.unmodifiableList(organisms);
+        setOrganisms(Lists.newArrayList(representativeOrganism));
         this.isOrganismsSorted = true;
-        this.population = population;
+        this.populationState = populationState;
         this.sharedFitness = 0f;
         this.maximumSharedFitness = 0f;
-        this.createdOnGeneration = population.getGeneration();
-        this.ageLastImproved = 0;
+        this.createdOnGeneration = populationState.getGeneration();
+        this.improvedAtAge = 0;
     }
 
     public Organism getRepresentative() {
@@ -63,65 +61,52 @@ public final class Species implements Serializable {
         return organismsReadOnly;
     }
 
-    private void setOrganisms(final List<Organism> newOrganisms) {
-        organisms = newOrganisms;
-        organismsReadOnly = Collections.unmodifiableList(newOrganisms);
+    private void setOrganisms(final List<Organism> value) {
+        organisms = value;
+        organismsReadOnly = Collections.unmodifiableList(value);
     }
 
     private int getAge() {
-        return population.getGeneration() - createdOnGeneration;
+        return populationState.getGeneration() - createdOnGeneration;
     }
 
-    public boolean addIfCompatible(final Context.SpeciationSupport speciation, final Organism organism) {
-        if (organisms.size() < speciation.params().maximumGenomes() && organism.isCompatible(speciation, this)) {
-            organism.setMostCompatibleSpecies(this);
-            organisms.add(organism);
-            isOrganismsSorted = false;
-
-            return true;
-        }
-
-        return false;
+    public void add(final Organism organism) {
+        organisms.add(organism);
+        isOrganismsSorted = false;
     }
 
-    public void add(final Context.SpeciationSupport speciation, final Organism organism) {
-        if (organisms.size() < speciation.params().maximumGenomes()) {
-            organism.setMostCompatibleSpecies(this);
-            organisms.add(organism);
-            isOrganismsSorted = false;
-        }
-    }
-
-    private float updateFitness(final OrganismFitness organismFitness) {
+    private float updateAllFitness(final OrganismFitness organismFitness) {
         float fitnessTotal = organisms.stream()
                 .map(organismFitness::getOrUpdate)
                 .reduce(0f, Float::sum);
 
-        float sharedFitnessNew = fitnessTotal / organisms.size();
+        float sharedFitnessFixed = fitnessTotal / organisms.size();
 
-        sharedFitness = sharedFitnessNew;
+        sharedFitness = sharedFitnessFixed;
 
-        if (Float.compare(sharedFitnessNew, maximumSharedFitness) > 0) {
-            maximumSharedFitness = sharedFitnessNew;
-            ageLastImproved = getAge();
-        }
+        if (Float.compare(sharedFitnessFixed, maximumSharedFitness) > 0) {
+            maximumSharedFitness = sharedFitnessFixed;
+            improvedAtAge = getAge();
+        } // TODO: provide adjustFitness algorithm
 
         return sharedFitness;
     }
 
-    public float updateSharedFitness() {
-        return updateFitness(Organism::getFitness);
+    public float updateSharedFitnessOnly() {
+        return updateAllFitness(Organism::getFitness);
     }
 
-    public float updateFitness(final Context.GeneralSupport general) {
-        return updateFitness(o -> o.updateFitness(general));
+    public float updateAllFitness(final Context.GeneralSupport general) {
+        return updateAllFitness(o -> o.updateFitness(general));
     }
 
-    private void ensureOrganismsIsSorted() {
+    private List<Organism> ensureOrganismsIsSorted() {
         if (!isOrganismsSorted) {
             isOrganismsSorted = true;
             Collections.sort(organisms);
         }
+
+        return organisms;
     }
 
     public List<Organism> removeUnfitToReproduce(final Context.SpeciationSupport speciation) {
@@ -132,9 +117,7 @@ public final class Species implements Serializable {
             int remove = size - keep;
 
             if (remove > 0) {
-                ensureOrganismsIsSorted();
-
-                List<Organism> organismsRemoved = organisms.subList(0, remove);
+                List<Organism> organismsRemoved = ensureOrganismsIsSorted().subList(0, remove);
 
                 setOrganisms(organisms.subList(remove, size));
 
@@ -145,7 +128,7 @@ public final class Species implements Serializable {
         return ImmutableList.of();
     }
 
-    public List<OrganismFactory> getOrganismsToBirth(final Context context, final int count) {
+    public List<OrganismFactory> reproduce(final Context context, final int count) {
         List<OrganismFactory> organismsToBirth = new ArrayList<>();
         int size = organisms.size();
 
@@ -178,8 +161,8 @@ public final class Species implements Serializable {
         return organismsToBirth;
     }
 
-    public OrganismFactory getOrganismToBirth(final Context.RandomSupport random, final Species other) {
-        if (organisms.isEmpty() || other.getOrganisms().isEmpty()) {
+    public OrganismFactory reproduce(final Context.RandomSupport random, final Species other) {
+        if (organisms.isEmpty() || other.organisms.isEmpty()) {
             return null;
         }
 
@@ -189,13 +172,11 @@ public final class Species implements Serializable {
         return new MateBetweenOrganismsFactory(organism1, organism2, false);
     }
 
-    public Organism selectMostElite() {
-        ensureOrganismsIsSorted();
-
-        return organisms.get(organisms.size() - 1);
+    public Organism getChampionOrganism() {
+        return ensureOrganismsIsSorted().get(organisms.size() - 1);
     }
 
-    public List<Organism> selectMostElites(final Context.SpeciationSupport speciation) {
+    public List<Organism> getTopOrganismsExcludingRepresentative(final Context.SpeciationSupport speciation) {
         int size = organisms.size();
         int select = speciation.params().eliteToPreserve(size);
 
@@ -203,26 +184,27 @@ public final class Species implements Serializable {
             return ImmutableList.of();
         }
 
-        ensureOrganismsIsSorted();
-
-        return organisms.subList(size - select, size);
+        return ensureOrganismsIsSorted().subList(size - select, size);
     }
 
     public boolean shouldSurvive(final Context.SpeciationSupport speciation) {
-        return getAge() - ageLastImproved < speciation.params().stagnationDropOffAge();
+        return organisms.size() > 1 && getAge() - improvedAtAge < speciation.params().stagnationDropOffAge();
     }
 
-    public List<Organism> restart(final Context.RandomSupport random) {
-        int index = random.nextIndex(organisms.size());
-        Organism representativeOrganismNew = organisms.remove(index);
-        List<Organism> organismsOld = organisms;
+    public List<Organism> restart(final Context.RandomSupport random, final DequeSet<Organism> organismsTaken) {
+        List<Organism> organismsFixed = organisms.stream()
+                .filter(o -> !organismsTaken.contains(o))
+                .collect(Collectors.toList());
 
-        representativeOrganism = representativeOrganismNew;
-        setOrganisms(Lists.newArrayList(representativeOrganismNew));
+        int index = random.nextIndex(organismsFixed.size());
+        Organism representativeOrganismFixed = organismsFixed.remove(index);
+
+        representativeOrganism = representativeOrganismFixed;
+        setOrganisms(Lists.newArrayList(representativeOrganismFixed));
         isOrganismsSorted = true;
         sharedFitness = 0f;
 
-        return organismsOld;
+        return organismsFixed;
     }
 
     @FunctionalInterface

@@ -16,7 +16,6 @@ import java.util.function.Consumer;
 public final class MultiThreadContextParallelismSupport implements Context.ParallelismSupport {
     private final DefaultParameters params = new DefaultParameters();
     private final IterableEventLoop eventLoop;
-    private final Collection<Throwable> unhandledExceptions = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
 
     @Override
     public Context.ParallelismParameters params() {
@@ -25,8 +24,7 @@ public final class MultiThreadContextParallelismSupport implements Context.Paral
 
     @Override
     public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        unhandledExceptions.clear();
-
+        Collection<Throwable> unhandledExceptions = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
         InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(iterator, itemHandler, unhandledExceptions::add);
 
         return new ParallelismWaitHandle(invokedWaitHandle, unhandledExceptions);

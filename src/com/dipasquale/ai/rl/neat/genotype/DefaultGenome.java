@@ -67,16 +67,20 @@ public final class DefaultGenome implements Genome, Serializable {
         connections.put(connection);
     }
 
-    private boolean mutateConnectionWeights(final Context context) {
+    private boolean mutateWeights(final Context context) {
         boolean mutated = false;
 
         for (ConnectionGene connection : connections) {
-            if (context.mutation().shouldPerturbConnectionWeight()) {
-                connection.setWeight(context.connections().perturbWeight(connection.getWeight()));
-                mutated = true;
-            } else if (context.mutation().shouldReplaceConnectionWeight()) {
-                connection.setWeight(context.connections().nextWeight());
-                mutated = true;
+            switch (context.mutation().nextWeightMutationType()) {
+                case PERTURB -> {
+                    connection.setWeight(context.connections().perturbWeight(connection.getWeight()));
+                    mutated = true;
+                }
+
+                case REPLACE -> {
+                    connection.setWeight(context.connections().nextWeight());
+                    mutated = true;
+                }
             }
         }
 
@@ -221,7 +225,7 @@ public final class DefaultGenome implements Genome, Serializable {
     public void mutate(final Context context) {
         ensureIsNotFrozen();
 
-        boolean mutated = mutateConnectionWeights(context);
+        boolean mutated = mutateWeights(context);
 
         if (context.mutation().shouldDisableConnectionExpressed()) {
             mutated |= disableRandomConnection(context.random());

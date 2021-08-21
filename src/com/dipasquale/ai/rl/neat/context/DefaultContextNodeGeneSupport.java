@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
-import com.dipasquale.common.switcher.ObjectSwitcher;
+import com.dipasquale.common.profile.ObjectProfile;
 import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
@@ -15,8 +15,8 @@ import java.util.Map;
 
 @AllArgsConstructor
 public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupport {
-    private Map<NodeGeneType, ObjectSwitcher<FloatFactory>> biasFactories;
-    private Map<NodeGeneType, ObjectSwitcher<ActivationFunctionFactory>> activationFunctionFactories;
+    private Map<NodeGeneType, ObjectProfile<FloatFactory>> biasFactories;
+    private Map<NodeGeneType, ObjectProfile<ActivationFunctionFactory>> activationFunctionFactories;
     private int inputs;
     private int outputs;
     private int biases;
@@ -50,9 +50,9 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         state.put("nodes.biases", biases);
     }
 
-    private static <T> Map<NodeGeneType, ObjectSwitcher<T>> loadFactories(final Map<NodeGeneType, ObjectSwitcher<T>> factories, final IterableEventLoop eventLoop) {
-        for (ObjectSwitcher<T> factory : factories.values()) {
-            factory.switchObject(eventLoop != null);
+    private static <T> Map<NodeGeneType, ObjectProfile<T>> loadFactories(final Map<NodeGeneType, ObjectProfile<T>> factories, final IterableEventLoop eventLoop) {
+        for (ObjectProfile<T> factory : factories.values()) {
+            factory.switchProfile(eventLoop != null);
         }
 
         return factories;

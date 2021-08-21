@@ -1,26 +1,26 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.switcher.factory.RandomEnumFactorySwitcher;
+import com.dipasquale.ai.rl.neat.profile.factory.RandomEnumFactoryProfile;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.LiteralEnumFactory;
-import com.dipasquale.common.switcher.DefaultObjectSwitcher;
-import com.dipasquale.common.switcher.ObjectSwitcher;
+import com.dipasquale.common.profile.DefaultObjectProfile;
+import com.dipasquale.common.profile.ObjectProfile;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EnumValue<T extends Enum<T>> {
-    private final ObjectSwitcherFactoryCreator<T> factoryCreator;
+    private final ObjectProfileFactoryCreator<T> factoryCreator;
 
     public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
-        ObjectSwitcherFactoryCreator<T> factoryCreator = p -> new DefaultObjectSwitcher<>(p.isEnabled(), new LiteralEnumFactory<>(value));
+        ObjectProfileFactoryCreator<T> factoryCreator = p -> new DefaultObjectProfile<>(p.isEnabled(), new LiteralEnumFactory<>(value));
 
         return new EnumValue<>(factoryCreator);
     }
 
     private static <T extends Enum<T>> EnumValue<T> createRandom(final RandomType type, final T[] values) {
-        ObjectSwitcherFactoryCreator<T> factoryCreator = p -> new RandomEnumFactorySwitcher<>(p.isEnabled(), type, values);
+        ObjectProfileFactoryCreator<T> factoryCreator = p -> new RandomEnumFactoryProfile<>(p.isEnabled(), type, values);
 
         return new EnumValue<>(factoryCreator);
     }
@@ -33,12 +33,12 @@ public final class EnumValue<T extends Enum<T>> {
         return createRandom(RandomType.UNIFORM, values);
     }
 
-    ObjectSwitcher<EnumFactory<T>> createFactorySwitcher(final ParallelismSupport parallelism) {
+    ObjectProfile<EnumFactory<T>> createFactoryProfile(final ParallelismSupport parallelism) {
         return factoryCreator.create(parallelism);
     }
 
     @FunctionalInterface
-    private interface ObjectSwitcherFactoryCreator<T extends Enum<T>> {
-        ObjectSwitcher<EnumFactory<T>> create(ParallelismSupport parallelism);
+    private interface ObjectProfileFactoryCreator<T extends Enum<T>> {
+        ObjectProfile<EnumFactory<T>> create(ParallelismSupport parallelism);
     }
 }

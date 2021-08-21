@@ -5,10 +5,10 @@ import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneParameters;
 import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.factory.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
-import com.dipasquale.ai.rl.neat.switcher.factory.WeightPerturberSwitcher;
+import com.dipasquale.ai.rl.neat.profile.factory.WeightPerturberProfile;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.factory.FloatFactory;
-import com.dipasquale.common.switcher.ObjectSwitcher;
+import com.dipasquale.common.profile.ObjectProfile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,11 +21,11 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber weightPerturber = FloatNumber.literal(2.5f);
 
-    private ObjectSwitcher<WeightPerturber> createWeightPerturberSwitcher(final ParallelismSupport parallelism) {
-        ObjectSwitcher<FloatFactory> floatFactorySwitcher = weightPerturber.createFactorySwitcher(parallelism);
-        Pair<FloatFactory> floatFactoryPair = ObjectSwitcher.deconstruct(floatFactorySwitcher);
+    private ObjectProfile<WeightPerturber> createWeightPerturberProfile(final ParallelismSupport parallelism) {
+        ObjectProfile<FloatFactory> floatFactoryProfile = weightPerturber.createFactoryProfile(parallelism);
+        Pair<FloatFactory> floatFactoryPair = ObjectProfile.deconstruct(floatFactoryProfile);
 
-        return new WeightPerturberSwitcher(parallelism.isEnabled(), floatFactoryPair);
+        return new WeightPerturberProfile(parallelism.isEnabled(), floatFactoryPair);
     }
 
     DefaultContextConnectionGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final NeuralNetworkSupport neuralNetwork, final ParallelismSupport parallelism) {
@@ -33,10 +33,10 @@ public final class ConnectionGeneSupport {
                 .multipleRecurrentCyclesAllowed(neuralNetwork.getType() == NeuralNetworkType.MULTI_CYCLE_RECURRENT)
                 .build();
 
-        ObjectSwitcher<FloatFactory> weightFactorySwitcher = weightFactory.createFactorySwitcher(parallelism);
-        ObjectSwitcher<WeightPerturber> weightPerturberSwitcher = createWeightPerturberSwitcher(parallelism);
-        GenomeGenesisConnector genomeGenesisConnector = genesisGenomeTemplate.createConnector(weightFactorySwitcher, parallelism);
+        ObjectProfile<FloatFactory> weightFactoryProfile = weightFactory.createFactoryProfile(parallelism);
+        ObjectProfile<WeightPerturber> weightPerturberProfile = createWeightPerturberProfile(parallelism);
+        GenomeGenesisConnector genomeGenesisConnector = genesisGenomeTemplate.createConnector(parallelism, weightFactoryProfile);
 
-        return new DefaultContextConnectionGeneSupport(params, weightFactorySwitcher, weightPerturberSwitcher, genomeGenesisConnector);
+        return new DefaultContextConnectionGeneSupport(params, weightFactoryProfile, weightPerturberProfile, genomeGenesisConnector);
     }
 }

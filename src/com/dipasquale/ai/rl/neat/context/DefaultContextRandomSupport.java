@@ -1,15 +1,15 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.common.SerializableInteroperableStateMap;
+import com.dipasquale.common.profile.ObjectProfile;
 import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.common.switcher.ObjectSwitcher;
 import com.dipasquale.threading.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextRandomSupport implements Context.RandomSupport {
-    private ObjectSwitcher<RandomSupport> nextIndex;
-    private ObjectSwitcher<RandomSupport> isLessThan;
+    private ObjectProfile<RandomSupport> nextIndex;
+    private ObjectProfile<RandomSupport> isLessThan;
 
     @Override
     public int nextIndex(final int offset, final int count) {
@@ -27,7 +27,7 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
     }
 
     public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
-        nextIndex = ObjectSwitcher.switchObject(state.get("random.nextIndex"), eventLoop != null);
-        isLessThan = ObjectSwitcher.switchObject(state.get("random.isLessThan"), eventLoop != null);
+        nextIndex = ObjectProfile.switchProfile(state.get("random.nextIndex"), eventLoop != null);
+        isLessThan = ObjectProfile.switchProfile(state.get("random.isLessThan"), eventLoop != null);
     }
 }

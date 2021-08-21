@@ -10,9 +10,13 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.speciation.core.DefaultGenomeHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
 import com.dipasquale.common.Pair;
 import com.dipasquale.threading.event.loop.IterableEventLoop;
 import com.dipasquale.threading.wait.handle.WaitHandle;
@@ -159,9 +163,7 @@ public interface Context {
 
         boolean shouldAddConnectionMutation();
 
-        boolean shouldPerturbConnectionWeight();
-
-        boolean shouldReplaceConnectionWeight();
+        WeightMutationType nextWeightMutationType();
 
         boolean shouldDisableConnectionExpressed();
     }
@@ -181,19 +183,15 @@ public interface Context {
     }
 
     interface SpeciationParameters {
-        int maximumSpecies();
-
-        int maximumGenomes();
-
         double compatibilityThreshold(int generation);
 
         float eugenicsThreshold();
 
         default int fitToReproduce(final int size) {
-            int count = (int) Math.floor((double) eugenicsThreshold() * (double) size);
-            int countFixed = Math.max(count, 1);
+            int count1 = (int) Math.floor((double) eugenicsThreshold() * (double) size);
+            int count2 = Math.max(count1, 1);
 
-            return Math.min(countFixed, size);
+            return Math.min(count2, size);
         }
 
         float elitistThreshold();
@@ -201,10 +199,10 @@ public interface Context {
         int elitistThresholdMinimum();
 
         default int eliteToPreserve(final int size) {
-            int count = (int) Math.floor((double) elitistThreshold() * (double) size);
-            int countFixed = Math.max(count, elitistThresholdMinimum());
+            int count1 = (int) Math.floor((double) elitistThreshold() * (double) size);
+            int count2 = Math.max(count1, elitistThresholdMinimum());
 
-            return Math.min(countFixed, size);
+            return Math.min(count2, size - 1);
         }
 
         int stagnationDropOffAge();
@@ -218,6 +216,12 @@ public interface Context {
         double calculateCompatibility(DefaultGenome genome1, DefaultGenome genome2);
 
         ReproductionType nextReproductionType(int organisms);
+
+        SpeciesFitnessStrategy fitnessStrategy();
+
+        SpeciesSelectionStrategyExecutor selectionStrategy();
+
+        SpeciesReproductionStrategy reproductionStrategy();
     }
 
     interface StateOverrideSupport {

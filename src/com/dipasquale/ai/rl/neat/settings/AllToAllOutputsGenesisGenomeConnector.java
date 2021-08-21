@@ -8,7 +8,7 @@ import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.factory.FloatFactory;
-import com.dipasquale.common.switcher.ObjectSwitcher;
+import com.dipasquale.common.profile.ObjectProfile;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +19,7 @@ import java.io.Serializable;
 final class AllToAllOutputsGenesisGenomeConnector implements GenomeGenesisConnector, Serializable {
     @Serial
     private static final long serialVersionUID = 4200039748076194340L;
-    private final ObjectSwitcher<FloatFactory> weightFactory;
+    private final ObjectProfile<FloatFactory> weightFactory;
     private final boolean shouldConnectBiasNodes;
 
     @Override

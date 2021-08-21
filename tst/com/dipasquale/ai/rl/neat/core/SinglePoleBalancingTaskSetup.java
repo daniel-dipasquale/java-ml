@@ -35,8 +35,8 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     private static final String NAME = "Single Pole Balancing";
     private static final double TIME_SPENT_GOAL = 3D;
     private static final com.dipasquale.common.random.float2.RandomSupport RANDOM_SUPPORT = new ThreadLocalRandomSupport();
-    private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
-    private static final int SUCCESSFUL_SCENARIOS = SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST * 1;
+    private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 3;
+    private static final int SUCCESSFUL_SCENARIOS = SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST * 2;
     @Getter
     private final int populationSize = 150;
 
@@ -131,7 +131,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .build())
                 .connections(ConnectionGeneSupport.builder()
                         .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                        .weightPerturber(FloatNumber.literal(1.8f))
+                        .weightPerturber(FloatNumber.literal(2.5f))
                         .build())
                 .neuralNetwork(NeuralNetworkSupport.builder()
                         .type(NeuralNetworkType.MULTI_CYCLE_RECURRENT)
@@ -144,31 +144,29 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .isLessThan(RandomType.UNIFORM)
                         .build())
                 .mutation(MutationSupport.builder()
-                        .addNodeMutationRate(FloatNumber.literal(0.1f))
-                        .addConnectionMutationRate(FloatNumber.literal(0.2f))
-                        .perturbConnectionsWeightRate(FloatNumber.literal(0.75f))
-                        .replaceConnectionsWeightRate(FloatNumber.literal(0.5f))
-                        .disableConnectionExpressedRate(FloatNumber.literal(0.05f))
+                        .addNodeMutationRate(FloatNumber.literal(0.06f))
+                        .addConnectionMutationRate(FloatNumber.literal(0.12f))
+                        .perturbWeightRate(FloatNumber.literal(0.75f))
+                        .replaceWeightRate(FloatNumber.literal(0.5f))
+                        .disableExpressedRate(FloatNumber.literal(0.03f))
                         .build())
                 .crossOver(CrossOverSupport.builder()
                         .overrideConnectionExpressedRate(FloatNumber.literal(0.5f))
                         .useRandomParentConnectionWeightRate(FloatNumber.literal(0.6f))
                         .build())
                 .speciation(SpeciationSupport.builder()
-                        .maximumSpecies(IntegerNumber.literal(20))
-                        .maximumGenomes(IntegerNumber.literal(20))
                         .weightDifferenceCoefficient(FloatNumber.literal(0.5f))
                         .disjointCoefficient(FloatNumber.literal(1f))
                         .excessCoefficient(FloatNumber.literal(1f))
-                        .compatibilityThreshold(FloatNumber.literal(4f))
-                        .compatibilityThresholdModifier(FloatNumber.literal(1.2f))
-                        .eugenicsThreshold(FloatNumber.literal(0.4f))
+                        .compatibilityThreshold(FloatNumber.literal(3f))
+                        .compatibilityThresholdModifier(FloatNumber.literal(1.05f))
+                        .eugenicsThreshold(FloatNumber.literal(0.2f))
                         .elitistThreshold(FloatNumber.literal(0.01f))
                         .elitistThresholdMinimum(IntegerNumber.literal(2))
                         .stagnationDropOffAge(IntegerNumber.literal(15))
                         .interSpeciesMatingRate(FloatNumber.literal(0.001f))
-                        .mateOnlyRate(FloatNumber.literal(0.2f))
-                        .mutateOnlyRate(FloatNumber.literal(0.25f))
+                        .mateOnlyRate(FloatNumber.literal(0.4f))
+                        .mutateOnlyRate(FloatNumber.literal(0.5f))
                         .build())
                 .build();
     }

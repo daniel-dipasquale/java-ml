@@ -5,12 +5,27 @@ import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationParameters;
 import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
-import com.dipasquale.common.ArgumentValidatorSupport;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.MultiSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ParallelUpdateSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateAllFitnessSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSharedSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.GenesisSpeciesReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MateAndMutateSpeciesReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MultiSpeciesReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.PreserveMostFitSpeciesReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionPromoterSpeciesSelectionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSpeciesSelectionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SharedFitnessAccumulatorSpeciesSelectionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
 import com.dipasquale.common.Pair;
-import com.dipasquale.common.factory.IntegerFactory;
 import com.dipasquale.common.factory.ObjectAccessor;
-import com.dipasquale.common.switcher.AbstractObjectSwitcher;
-import com.dipasquale.common.switcher.ObjectSwitcher;
+import com.dipasquale.common.profile.AbstractObjectProfile;
+import com.dipasquale.common.profile.DefaultObjectProfile;
+import com.dipasquale.common.profile.ObjectProfile;
+import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,15 +33,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Optional;
+import java.util.List;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public final class SpeciationSupport {
-    @Builder.Default
-    private final IntegerNumber maximumSpecies = null;
-    @Builder.Default
-    private final IntegerNumber maximumGenomes = null;
     @Builder.Default
     private final FloatNumber weightDifferenceCoefficient = FloatNumber.literal(0.5f);
     @Builder.Default
@@ -53,82 +64,103 @@ public final class SpeciationSupport {
     private final FloatNumber mutateOnlyRate = FloatNumber.literal(0.25f);
 
     private static OutputClassifier<ReproductionType> createReproductionTypeClassifier(final float mateOnlyRate, final float mutateOnlyRate) {
-        float totalRate = mateOnlyRate * mutateOnlyRate + mateOnlyRate + mutateOnlyRate;
-        float totalRateFixed = (float) Math.ceil(totalRate);
+        float totalRate = mateOnlyRate * 2 + mutateOnlyRate * 2;
         OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
 
-        reproductionTypeClassifier.addUpUntil(ReproductionType.MATE_AND_MUTATE, mateOnlyRate * mutateOnlyRate / totalRateFixed);
-        reproductionTypeClassifier.addUpUntil(ReproductionType.MATE_ONLY, mateOnlyRate / totalRateFixed);
-        reproductionTypeClassifier.addUpUntil(ReproductionType.MUTATE_ONLY, mutateOnlyRate / totalRateFixed);
-        reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.CLONE);
+        if (Float.compare(totalRate, 0f) > 0) {
+            reproductionTypeClassifier.addUpUntil(ReproductionType.MATE_ONLY, mateOnlyRate / totalRate);
+            reproductionTypeClassifier.addUpUntil(ReproductionType.MUTATE_ONLY, mutateOnlyRate / totalRate);
+        }
+
+        reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.MATE_AND_MUTATE);
 
         return reproductionTypeClassifier;
     }
 
     private static OutputClassifier<ReproductionType> createLessThan2ReproductionTypeClassifier(final float mutateOnlyRate) {
-        float totalRate = (float) Math.ceil(mutateOnlyRate);
         OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
 
-        reproductionTypeClassifier.addUpUntil(ReproductionType.MUTATE_ONLY, mutateOnlyRate / totalRate);
-        reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.CLONE);
+        if (Float.compare(mutateOnlyRate, 0f) > 0) {
+            reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.MUTATE_ONLY);
+        } else {
+            reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.CLONE);
+        }
 
         return reproductionTypeClassifier;
     }
 
-    private DefaultReproductionTypeFactorySwitcher createRandomReproductionTypeGeneratorSwitcher(final ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher, final ParallelismSupport parallelism) {
-        float _mateOnlyRate = mateOnlyRate.createFactorySwitcher(parallelism).getObject().create();
-        float _mutateOnlyRate = mutateOnlyRate.createFactorySwitcher(parallelism).getObject().create();
+    private DefaultReproductionTypeFactoryProfile createRandomReproductionTypeGeneratorProfile(final ParallelismSupport parallelism, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair) {
+        float _mateOnlyRate = mateOnlyRate.createFactoryProfile(parallelism).getObject().create();
+        float _mutateOnlyRate = mutateOnlyRate.createFactoryProfile(parallelism).getObject().create();
         OutputClassifier<ReproductionType> reproductionTypeClassifier = createReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
         OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier = createLessThan2ReproductionTypeClassifier(_mutateOnlyRate);
 
-        return new DefaultReproductionTypeFactorySwitcher(parallelism.isEnabled(), ObjectSwitcher.deconstruct(randomSupportSwitcher), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
+        return new DefaultReproductionTypeFactoryProfile(parallelism.isEnabled(), randomSupportPair, reproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
     }
 
-    DefaultContextSpeciationSupport create(final GeneralEvaluatorSupport general, final ParallelismSupport parallelism, final RandomSupport random) {
-        int maximumSpeciesFixed = Optional.ofNullable(maximumSpecies)
-                .map(sin -> sin.createFactorySwitcher(parallelism))
-                .map(ObjectSwitcher::getObject)
-                .map(IntegerFactory::create)
-                .orElse(general.getPopulationSize() / 8);
-
-        ArgumentValidatorSupport.ensureGreaterThanZero(maximumSpeciesFixed, "maximumSpecies");
-        ArgumentValidatorSupport.ensureLessThan(maximumSpeciesFixed, general.getPopulationSize(), "maximumSpecies");
-
-        int maximumGenomesFixed = Optional.ofNullable(maximumGenomes)
-                .map(sin -> sin.createFactorySwitcher(parallelism))
-                .map(ObjectSwitcher::getObject)
-                .map(IntegerFactory::create)
-                .orElse(general.getPopulationSize() / 2);
-
-        ArgumentValidatorSupport.ensureGreaterThanZero(maximumGenomesFixed, "maximumGenomes");
-        ArgumentValidatorSupport.ensureLessThan(maximumGenomesFixed, general.getPopulationSize(), "maximumGenomes");
-
-        DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
-                .maximumSpecies(maximumSpeciesFixed)
-                .maximumGenomes(maximumGenomesFixed)
-                .compatibilityThreshold(compatibilityThreshold.createFactorySwitcher(parallelism).getObject().create())
-                .compatibilityThresholdModifier(compatibilityThresholdModifier.createFactorySwitcher(parallelism).getObject().create())
-                .eugenicsThreshold(eugenicsThreshold.createFactorySwitcher(parallelism).getObject().create())
-                .elitistThreshold(elitistThreshold.createFactorySwitcher(parallelism).getObject().create())
-                .elitistThresholdMinimum(elitistThresholdMinimum.createFactorySwitcher(parallelism).getObject().create())
-                .stagnationDropOffAge(stagnationDropOffAge.createFactorySwitcher(parallelism).getObject().create())
-                .interSpeciesMatingRate(interSpeciesMatingRate.createFactorySwitcher(parallelism).getObject().create())
+    private static ObjectProfile<SpeciesFitnessStrategy> createFitnessStrategyProfile(final ParallelismSupport parallelism) {
+        List<SpeciesFitnessStrategy> strategies = ImmutableList.<SpeciesFitnessStrategy>builder()
+                .add(new ParallelUpdateSpeciesFitnessStrategy())
+                .add(new UpdateSharedSpeciesFitnessStrategy())
                 .build();
 
-        float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactorySwitcher(parallelism).getObject().create();
-        float disjointCoefficientFixed = disjointCoefficient.createFactorySwitcher(parallelism).getObject().create();
-        float excessCoefficientFixed = excessCoefficient.createFactorySwitcher(parallelism).getObject().create();
-        DefaultGenomeCompatibilityCalculator genomeCompatibilityCalculator = new DefaultGenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
-        ObjectSwitcher<com.dipasquale.common.random.float1.RandomSupport> randomSupportSwitcher = random.createIsLessThanSwitcher(parallelism);
-        DefaultReproductionTypeFactorySwitcher randomReproductionTypeGeneratorSwitcher = createRandomReproductionTypeGeneratorSwitcher(randomSupportSwitcher, parallelism);
+        SpeciesFitnessStrategy onStrategy = new MultiSpeciesFitnessStrategy(strategies);
+        SpeciesFitnessStrategy offStrategy = new UpdateAllFitnessSpeciesFitnessStrategy();
 
-        return new DefaultContextSpeciationSupport(params, genomeCompatibilityCalculator, randomReproductionTypeGeneratorSwitcher);
+        return new DefaultObjectProfile<>(parallelism.isEnabled(), onStrategy, offStrategy);
+    }
+
+    private static ObjectProfile<SpeciesSelectionStrategyExecutor> createEvolutionStrategyProfile(final ParallelismSupport parallelism) {
+        List<SpeciesSelectionStrategy> strategies = ImmutableList.<SpeciesSelectionStrategy>builder()
+                .add(new LeastFitRemoverSpeciesSelectionStrategy())
+                .add(new SharedFitnessAccumulatorSpeciesSelectionStrategy())
+                .add(new ChampionPromoterSpeciesSelectionStrategy())
+                .build();
+
+        return new DefaultObjectProfile<>(parallelism.isEnabled(), new SpeciesSelectionStrategyExecutor(strategies));
+    }
+
+    private static ObjectProfile<SpeciesReproductionStrategy> createBreedingStrategyProfile(final ParallelismSupport parallelism) {
+        List<SpeciesReproductionStrategy> strategies = ImmutableList.<SpeciesReproductionStrategy>builder()
+                .add(new PreserveMostFitSpeciesReproductionStrategy())
+                .add(new MateAndMutateSpeciesReproductionStrategy())
+                .add(new GenesisSpeciesReproductionStrategy())
+                .build();
+
+        SpeciesReproductionStrategy strategy = new MultiSpeciesReproductionStrategy(strategies);
+
+        return new DefaultObjectProfile<>(parallelism.isEnabled(), strategy);
+    }
+
+    DefaultContextSpeciationSupport create(final ParallelismSupport parallelism, final RandomSupport random) {
+        DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
+                .compatibilityThreshold(compatibilityThreshold.createFactoryProfile(parallelism).getObject().create())
+                .compatibilityThresholdModifier(compatibilityThresholdModifier.createFactoryProfile(parallelism).getObject().create())
+                .eugenicsThreshold(eugenicsThreshold.createFactoryProfile(parallelism).getObject().create())
+                .elitistThreshold(elitistThreshold.createFactoryProfile(parallelism).getObject().create())
+                .elitistThresholdMinimum(elitistThresholdMinimum.createFactoryProfile(parallelism).getObject().create())
+                .stagnationDropOffAge(stagnationDropOffAge.createFactoryProfile(parallelism).getObject().create())
+                .interSpeciesMatingRate(interSpeciesMatingRate.createFactoryProfile(parallelism).getObject().create())
+                .build();
+
+        float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactoryProfile(parallelism).getObject().create();
+        float disjointCoefficientFixed = disjointCoefficient.createFactoryProfile(parallelism).getObject().create();
+        float excessCoefficientFixed = excessCoefficient.createFactoryProfile(parallelism).getObject().create();
+        DefaultGenomeCompatibilityCalculator genomeCompatibilityCalculator = new DefaultGenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createIsLessThanProfile(parallelism);
+        Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
+        DefaultReproductionTypeFactoryProfile randomReproductionTypeGeneratorProfile = createRandomReproductionTypeGeneratorProfile(parallelism, randomSupportPair);
+        ObjectProfile<SpeciesFitnessStrategy> fitnessStrategyProfile = createFitnessStrategyProfile(parallelism);
+        ObjectProfile<SpeciesSelectionStrategyExecutor> evolutionStrategyProfile = createEvolutionStrategyProfile(parallelism);
+        ObjectProfile<SpeciesReproductionStrategy> breedingStrategyProfile = createBreedingStrategyProfile(parallelism);
+
+        return new DefaultContextSpeciationSupport(params, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, breedingStrategyProfile);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class DefaultReproductionTypeFactory implements ObjectAccessor<ReproductionType>, Serializable {
         @Serial
-        private static final long serialVersionUID = -3577796023989570060L;
+        private static final long serialVersionUID = 6964985109827111473L;
         private final com.dipasquale.common.random.float1.RandomSupport randomSupport;
         private final OutputClassifier<ReproductionType> reproductionTypeClassifier;
         private final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier;
@@ -145,14 +177,14 @@ public final class SpeciationSupport {
         }
     }
 
-    private static final class DefaultReproductionTypeFactorySwitcher extends AbstractObjectSwitcher<ObjectAccessor<ReproductionType>> {
+    private static final class DefaultReproductionTypeFactoryProfile extends AbstractObjectProfile<ObjectAccessor<ReproductionType>> {
         @Serial
-        private static final long serialVersionUID = -5289301053039117522L;
+        private static final long serialVersionUID = -976465186511988776L;
 
-        private DefaultReproductionTypeFactorySwitcher(final boolean isOn,
-                                                       final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair,
-                                                       final OutputClassifier<ReproductionType> reproductionTypeClassifier,
-                                                       final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier) { // TODO: fix this, Pair<com.dipasquale.common.random.float1.RandomSupport> goes against the idea of controlling the singleton of it @com.dipasquale.ai.rl.neat.switcher.factory.Constants
+        private DefaultReproductionTypeFactoryProfile(final boolean isOn,
+                                                      final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair,
+                                                      final OutputClassifier<ReproductionType> reproductionTypeClassifier,
+                                                      final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier) {
             super(isOn, new DefaultReproductionTypeFactory(randomSupportPair.getLeft(), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier), new DefaultReproductionTypeFactory(randomSupportPair.getRight(), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier));
         }
     }

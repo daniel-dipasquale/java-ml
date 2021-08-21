@@ -115,6 +115,14 @@ https://github.com/ivan-vasilev/neuralnetworks
 activation functions:
 https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
 
+speciation:
+- https://stackoverflow.com/questions/53798089/how-does-the-neat-speciation-algorithm-work
+- https://ai.stackexchange.com/questions/8333/neat-managing-species-across-generations
+- https://towardsdatascience.com/neat-an-awesome-approach-to-neuroevolution-3eca5cc7930f
+- https://stackoverflow.com/questions/47898104/adjusted-fitness-in-neat-algorithm
+- https://ai.stackexchange.com/questions/9550/how-does-the-neat-speciation-algorithm-work
+
+
 random:
 //        return () -> -Math.log(1D - (1D - Math.exp(-5D)) * randomSupport.next()) / 5D; // -> negative exponential
 //        return () -> Math.log(1D - randomSupport.next()) / -5D; // -> exponential

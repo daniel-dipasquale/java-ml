@@ -165,7 +165,7 @@ public final class DefaultGenomeHistoricalMarkings implements GenomeHistoricalMa
         return genome;
     }
 
-    public String createSpecies() {
+    public String createSpeciesId() {
         return speciesIdFactory.create().toString();
     }
 

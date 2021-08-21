@@ -6,7 +6,7 @@ import com.dipasquale.common.factory.ObjectFactory;
 
 import java.io.Serializable;
 
-public interface BloomFilterFactory { // TODO: consider enclosing parameters to single object (int estimatedSize, int hashingFunctions, double falsePositiveRatio, long size)
+public interface BloomFilterFactory {
     default int getSizePerRecord() {
         return BitManipulatorSupport.MAXIMUM_BITS;
     }
