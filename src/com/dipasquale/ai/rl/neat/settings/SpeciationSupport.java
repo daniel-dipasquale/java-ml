@@ -57,9 +57,9 @@ public final class SpeciationSupport {
         float totalRateFixed = (float) Math.ceil(totalRate);
         OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
 
-        reproductionTypeClassifier.AddUpUntil(ReproductionType.MATE_AND_MUTATE, mateOnlyRate * mutateOnlyRate / totalRateFixed);
-        reproductionTypeClassifier.AddUpUntil(ReproductionType.MATE_ONLY, mateOnlyRate / totalRateFixed);
-        reproductionTypeClassifier.AddUpUntil(ReproductionType.MUTATE_ONLY, mutateOnlyRate / totalRateFixed);
+        reproductionTypeClassifier.addUpUntil(ReproductionType.MATE_AND_MUTATE, mateOnlyRate * mutateOnlyRate / totalRateFixed);
+        reproductionTypeClassifier.addUpUntil(ReproductionType.MATE_ONLY, mateOnlyRate / totalRateFixed);
+        reproductionTypeClassifier.addUpUntil(ReproductionType.MUTATE_ONLY, mutateOnlyRate / totalRateFixed);
         reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.CLONE);
 
         return reproductionTypeClassifier;
@@ -69,7 +69,7 @@ public final class SpeciationSupport {
         float totalRate = (float) Math.ceil(mutateOnlyRate);
         OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
 
-        reproductionTypeClassifier.AddUpUntil(ReproductionType.MUTATE_ONLY, mutateOnlyRate / totalRate);
+        reproductionTypeClassifier.addUpUntil(ReproductionType.MUTATE_ONLY, mutateOnlyRate / totalRate);
         reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.CLONE);
 
         return reproductionTypeClassifier;

@@ -11,8 +11,8 @@ public final class OutputClassifierTest {
     public void TEST_1() {
         OutputClassifier<Integer> test = new OutputClassifier<>();
 
-        test.AddUpUntil(0, 0.25f);
-        test.AddUpUntil(1, 0.5f);
+        test.addUpUntil(0, 0.25f);
+        test.addUpUntil(1, 0.5f);
         test.addOtherwiseRoundedUp(2);
 
         Assertions.assertEquals(0, test.resolve(0f));
@@ -37,8 +37,8 @@ public final class OutputClassifierTest {
     public void TEST_2() {
         OutputClassifier<Integer> test = new OutputClassifier<>();
 
-        test.AddUpUntil(0, 0f);
-        test.AddUpUntil(1, 0f);
+        test.addUpUntil(0, 0f);
+        test.addUpUntil(1, 0f);
         test.addOtherwiseRoundedUp(2);
 
         Assertions.assertEquals(2, test.resolve(0f));

@@ -241,10 +241,6 @@ public final class Population {
     public void evolve(final Context context) {
         SpeciesEvolutionContext evolutionContext = new SpeciesEvolutionContext();
 
-        if (context.general().params().populationSize() != countOrganismsEverywhere()) {
-            assert context.general().params().populationSize() == countOrganismsEverywhere();
-        }
-
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert organismsToBirth.isEmpty() && populationState.getHistoricalMarkings().getGenomeKilledCount() == 0;
 
@@ -254,10 +250,6 @@ public final class Population {
 
         breedThroughAllSpecies(evolutionContext);
         populationState.increaseGeneration();
-
-        if (context.general().params().populationSize() != countOrganismsEverywhere()) {
-            assert context.general().params().populationSize() == countOrganismsEverywhere();
-        }
 
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert populationState.getHistoricalMarkings().getGenomeKilledCount() == organismsToBirth.size();
