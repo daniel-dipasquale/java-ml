@@ -169,9 +169,9 @@ public interface Context {
     }
 
     interface CrossOverSupport {
-        boolean shouldOverrideConnectionExpressed();
+        boolean shouldOverrideExpressed();
 
-        boolean shouldUseRandomParentConnectionWeight();
+        boolean shouldUseRandomParentWeight();
 
         default DefaultGenome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final DefaultGenome fitParent, final DefaultGenome unfitParent) {
             return DefaultGenome.crossOverBySkippingUnfitDisjointOrExcess(context, fitParent, unfitParent);

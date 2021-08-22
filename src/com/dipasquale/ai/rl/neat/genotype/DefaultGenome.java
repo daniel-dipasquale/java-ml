@@ -263,9 +263,9 @@ public final class DefaultGenome implements Genome, Serializable {
 
     private static ConnectionGene createChildConnection(final Context context, final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
         ConnectionGene randomParentConnection = getRandom(context.random(), parent1Connection, parent2Connection);
-        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || context.crossOver().shouldOverrideConnectionExpressed();
+        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || context.crossOver().shouldOverrideExpressed();
 
-        if (context.crossOver().shouldUseRandomParentConnectionWeight()) {
+        if (context.crossOver().shouldUseRandomParentWeight()) {
             return randomParentConnection.createCopy(expressed);
         }
 
@@ -294,7 +294,7 @@ public final class DefaultGenome implements Genome, Serializable {
             if (unfitConnection != null) {
                 childConnection = createChildConnection(context, fitConnection, unfitConnection);
             } else {
-                childConnection = fitConnection.createCopy(fitConnection.isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
+                childConnection = fitConnection.createCopy(fitConnection.isExpressed() || context.crossOver().shouldOverrideExpressed());
             }
 
             child.connections.put(childConnection);
@@ -322,11 +322,11 @@ public final class DefaultGenome implements Genome, Serializable {
 
                 child.connections.put(childConnection);
             } else if (connections.getLeft() != null) {
-                ConnectionGene childConnection = connections.getLeft().createCopy(connections.getLeft().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
+                ConnectionGene childConnection = connections.getLeft().createCopy(connections.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressed());
 
                 child.connections.put(childConnection);
             } else {
-                ConnectionGene childConnection = connections.getRight().createCopy(connections.getRight().isExpressed() || context.crossOver().shouldOverrideConnectionExpressed());
+                ConnectionGene childConnection = connections.getRight().createCopy(connections.getRight().isExpressed() || context.crossOver().shouldOverrideExpressed());
 
                 child.connections.put(childConnection);
             }
