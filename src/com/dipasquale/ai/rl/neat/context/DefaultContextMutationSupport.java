@@ -12,8 +12,8 @@ import lombok.AllArgsConstructor;
 public final class DefaultContextMutationSupport implements Context.MutationSupport {
     private ObjectProfile<GateProvider> shouldAddNodeMutation;
     private ObjectProfile<GateProvider> shouldAddConnectionMutation;
-    private ObjectProfile<ObjectFactory<WeightMutationType>> randomWeightMutationTypeGenerator;
-    private ObjectProfile<GateProvider> shouldDisableConnectionExpressed;
+    private ObjectProfile<ObjectFactory<WeightMutationType>> weightMutationTypeFactory;
+    private ObjectProfile<GateProvider> shouldDisableExpressed;
 
     @Override
     public boolean shouldAddNodeMutation() {
@@ -27,25 +27,25 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
 
     @Override
     public WeightMutationType nextWeightMutationType() {
-        return randomWeightMutationTypeGenerator.getObject().create();
+        return weightMutationTypeFactory.getObject().create();
     }
 
     @Override
-    public boolean shouldDisableConnectionExpressed() {
-        return shouldDisableConnectionExpressed.getObject().isOn();
+    public boolean shouldDisableExpressed() {
+        return shouldDisableExpressed.getObject().isOn();
     }
 
     public void save(final SerializableInteroperableStateMap state) {
         state.put("mutation.shouldAddNodeMutation", shouldAddNodeMutation);
         state.put("mutation.shouldAddConnectionMutation", shouldAddConnectionMutation);
-        state.put("mutation.randomWeightMutationTypeGenerator", randomWeightMutationTypeGenerator);
-        state.put("mutation.shouldDisableConnectionExpressed", shouldDisableConnectionExpressed);
+        state.put("mutation.weightMutationTypeFactory", weightMutationTypeFactory);
+        state.put("mutation.shouldDisableExpressed", shouldDisableExpressed);
     }
 
     public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         shouldAddNodeMutation = ObjectProfile.switchProfile(state.get("mutation.shouldAddNodeMutation"), eventLoop != null);
         shouldAddConnectionMutation = ObjectProfile.switchProfile(state.get("mutation.shouldAddConnectionMutation"), eventLoop != null);
-        randomWeightMutationTypeGenerator = ObjectProfile.switchProfile(state.get("mutation.randomWeightMutationTypeGenerator"), eventLoop != null);
-        shouldDisableConnectionExpressed = ObjectProfile.switchProfile(state.get("mutation.shouldDisableConnectionExpressed"), eventLoop != null);
+        weightMutationTypeFactory = ObjectProfile.switchProfile(state.get("mutation.weightMutationTypeFactory"), eventLoop != null);
+        shouldDisableExpressed = ObjectProfile.switchProfile(state.get("mutation.shouldDisableExpressed"), eventLoop != null);
     }
 }

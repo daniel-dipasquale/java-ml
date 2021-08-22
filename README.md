@@ -9,10 +9,10 @@ algorithms I'm interested in learning and using:
     - [x] XOR test :+1: (random data sample)
 
          ```
-         generation: 14
-         species: 12
-         complexity: 6
-         fitness: 3.391424
+         generation: 19
+         species: 16
+         complexity: 8
+         fitness: 3.507003
          ```
 
     - [ ] Single Pole Balancing test: :-1: (random data sample)

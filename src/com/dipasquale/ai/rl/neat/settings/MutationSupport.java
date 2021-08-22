@@ -63,9 +63,9 @@ public final class MutationSupport {
         ObjectProfile<GateProvider> shouldAddNodeMutationProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, addNodeMutationRate);
         ObjectProfile<GateProvider> shouldAddConnectionMutationProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, addConnectionMutationRate);
         DefaultReproductionTypeFactoryProfile weightMutationTypeFactoryProfile = createWeightMutationTypeFactoryProfile(parallelism, randomSupportPair);
-        ObjectProfile<GateProvider> shouldDisableConnectionExpressedProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, disableExpressedRate);
+        ObjectProfile<GateProvider> shouldDisableExpressedProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, disableExpressedRate);
 
-        return new DefaultContextMutationSupport(shouldAddNodeMutationProfile, shouldAddConnectionMutationProfile, weightMutationTypeFactoryProfile, shouldDisableConnectionExpressedProfile);
+        return new DefaultContextMutationSupport(shouldAddNodeMutationProfile, shouldAddConnectionMutationProfile, weightMutationTypeFactoryProfile, shouldDisableExpressedProfile);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

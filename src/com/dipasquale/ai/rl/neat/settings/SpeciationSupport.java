@@ -120,7 +120,7 @@ public final class SpeciationSupport {
         return new DefaultObjectProfile<>(parallelism.isEnabled(), new SpeciesSelectionStrategyExecutor(strategies));
     }
 
-    private static ObjectProfile<SpeciesReproductionStrategy> createBreedingStrategyProfile(final ParallelismSupport parallelism) {
+    private static ObjectProfile<SpeciesReproductionStrategy> createReproductionStrategyProfile(final ParallelismSupport parallelism) {
         List<SpeciesReproductionStrategy> strategies = ImmutableList.<SpeciesReproductionStrategy>builder()
                 .add(new PreserveMostFitSpeciesReproductionStrategy())
                 .add(new MateAndMutateSpeciesReproductionStrategy())
@@ -152,9 +152,9 @@ public final class SpeciationSupport {
         DefaultReproductionTypeFactoryProfile randomReproductionTypeGeneratorProfile = createRandomReproductionTypeGeneratorProfile(parallelism, randomSupportPair);
         ObjectProfile<SpeciesFitnessStrategy> fitnessStrategyProfile = createFitnessStrategyProfile(parallelism);
         ObjectProfile<SpeciesSelectionStrategyExecutor> evolutionStrategyProfile = createEvolutionStrategyProfile(parallelism);
-        ObjectProfile<SpeciesReproductionStrategy> breedingStrategyProfile = createBreedingStrategyProfile(parallelism);
+        ObjectProfile<SpeciesReproductionStrategy> reproductionStrategyProfile = createReproductionStrategyProfile(parallelism);
 
-        return new DefaultContextSpeciationSupport(params, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, breedingStrategyProfile);
+        return new DefaultContextSpeciationSupport(params, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, reproductionStrategyProfile);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

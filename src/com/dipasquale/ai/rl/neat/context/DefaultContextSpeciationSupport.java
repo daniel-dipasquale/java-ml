@@ -16,7 +16,7 @@ import lombok.AllArgsConstructor;
 public final class DefaultContextSpeciationSupport implements Context.SpeciationSupport {
     private DefaultContextSpeciationParameters params;
     private GenomeCompatibilityCalculator genomeCompatibilityCalculator;
-    private ObjectProfile<ObjectAccessor<ReproductionType>> randomReproductionTypeGenerator;
+    private ObjectProfile<ObjectAccessor<ReproductionType>> reproductionTypeFactory;
     private ObjectProfile<SpeciesFitnessStrategy> fitnessStrategy;
     private ObjectProfile<SpeciesSelectionStrategyExecutor> selectionStrategy;
     private ObjectProfile<SpeciesReproductionStrategy> reproductionStrategy;
@@ -39,7 +39,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
 
     @Override
     public ReproductionType nextReproductionType(final int organisms) {
-        return randomReproductionTypeGenerator.getObject().get(organisms);
+        return reproductionTypeFactory.getObject().get(organisms);
     }
 
     @Override
@@ -60,7 +60,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     public void save(final SerializableInteroperableStateMap state) {
         state.put("speciation.params", params);
         state.put("speciation.genomeCompatibilityCalculator", genomeCompatibilityCalculator);
-        state.put("speciation.randomReproductionTypeGenerator", randomReproductionTypeGenerator);
+        state.put("speciation.reproductionTypeFactory", reproductionTypeFactory);
         state.put("speciation.fitnessStrategy", fitnessStrategy);
         state.put("speciation.selectionStrategy", selectionStrategy);
         state.put("speciation.reproductionStrategy", reproductionStrategy);
@@ -69,7 +69,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         params = state.get("speciation.params");
         genomeCompatibilityCalculator = state.get("speciation.genomeCompatibilityCalculator");
-        randomReproductionTypeGenerator = ObjectProfile.switchProfile(state.get("speciation.randomReproductionTypeGenerator"), eventLoop != null);
+        reproductionTypeFactory = ObjectProfile.switchProfile(state.get("speciation.reproductionTypeFactory"), eventLoop != null);
         fitnessStrategy = ObjectProfile.switchProfile(state.get("speciation.fitnessStrategy"), eventLoop != null);
         selectionStrategy = ObjectProfile.switchProfile(state.get("speciation.selectionStrategy"), eventLoop != null);
         reproductionStrategy = ObjectProfile.switchProfile(state.get("speciation.reproductionStrategy"), eventLoop != null);

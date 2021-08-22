@@ -165,7 +165,7 @@ public interface Context {
 
         WeightMutationType nextWeightMutationType();
 
-        boolean shouldDisableConnectionExpressed();
+        boolean shouldDisableExpressed();
     }
 
     interface CrossOverSupport {
@@ -198,9 +198,13 @@ public interface Context {
 
         int elitistThresholdMinimum();
 
-        default int eliteToPreserve(final int size) {
+        default int elitesToPreserve(final int size, final boolean includeRepresentative) {
             int count1 = (int) Math.floor((double) elitistThreshold() * (double) size);
             int count2 = Math.max(count1, elitistThresholdMinimum());
+
+            if (includeRepresentative) {
+                return Math.min(count2, size);
+            }
 
             return Math.min(count2, size - 1);
         }

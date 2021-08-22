@@ -176,9 +176,9 @@ public final class Species implements Serializable {
         return ensureOrganismsIsSorted().get(organisms.size() - 1);
     }
 
-    public List<Organism> getTopOrganismsExcludingRepresentative(final Context.SpeciationSupport speciation) {
+    public List<Organism> getFittestOrganisms(final Context.SpeciationSupport speciation, final boolean includeRepresentative) {
         int size = organisms.size();
-        int select = speciation.params().eliteToPreserve(size);
+        int select = speciation.params().elitesToPreserve(size, includeRepresentative);
 
         if (select == 0) {
             return ImmutableList.of();

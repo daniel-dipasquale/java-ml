@@ -227,7 +227,7 @@ public final class DefaultGenome implements Genome, Serializable {
 
         boolean mutated = mutateWeights(context);
 
-        if (context.mutation().shouldDisableConnectionExpressed()) {
+        if (context.mutation().shouldDisableExpressed()) {
             mutated |= disableRandomConnection(context.random());
         }
 
