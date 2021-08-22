@@ -189,9 +189,9 @@ public interface Context {
 
         default int fitToReproduce(final int size) {
             int count1 = (int) Math.floor((double) eugenicsThreshold() * (double) size);
-            int count2 = Math.max(count1, 1);
+            int countFixed = Math.max(count1, 1);
 
-            return Math.min(count2, size);
+            return Math.min(countFixed, size);
         }
 
         float elitistThreshold();
@@ -200,13 +200,13 @@ public interface Context {
 
         default int elitesToPreserve(final int size, final boolean includeRepresentative) {
             int count1 = (int) Math.floor((double) elitistThreshold() * (double) size);
-            int count2 = Math.max(count1, elitistThresholdMinimum());
+            int countFixed = Math.max(count1, elitistThresholdMinimum());
 
             if (includeRepresentative) {
-                return Math.min(count2, size);
+                return Math.min(countFixed, size);
             }
 
-            return Math.min(count2, size - 1);
+            return Math.min(countFixed, size - 1);
         }
 
         int stagnationDropOffAge();

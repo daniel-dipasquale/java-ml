@@ -11,10 +11,10 @@ public interface RandomSupport {
     }
 
     default int next(final int min, final int max) {
-        int maxStep1 = max - 1;
+        int max1 = max - 1;
         float value = next();
         float minFixed = (float) min;
-        float maxFixed = (float) maxStep1;
+        float maxFixed = (float) max1;
 
         return (int) (value * maxFixed - value * minFixed + value + minFixed);
     }

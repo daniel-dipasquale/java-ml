@@ -18,16 +18,16 @@ public interface BloomFilterFactory {
     }
 
     private static long calculateSize(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio) {
-        double sizeStep1 = (double) -hashingFunctions / Math.log(1D - Math.exp(Math.log(falsePositiveRatio) / (double) hashingFunctions));
-        double sizeStep2 = (double) estimatedSize * sizeStep1;
+        double size1 = (double) -hashingFunctions / Math.log(1D - Math.exp(Math.log(falsePositiveRatio) / (double) hashingFunctions));
+        double size2 = (double) estimatedSize * size1;
 
-        return (long) Math.ceil(sizeStep2); // NOTE: based on: https://hur.st/bloomfilter
+        return (long) Math.ceil(size2); // NOTE: based on: https://hur.st/bloomfilter
     }
 
     private static long calculateSize(final int estimatedSize, final double falsePositiveRatio) {
-        double sizeStep1 = (double) estimatedSize * Math.log(falsePositiveRatio) / Math.log(1D / Math.pow(2D, Math.log(2D)));
+        double size1 = (double) estimatedSize * Math.log(falsePositiveRatio) / Math.log(1D / Math.pow(2D, Math.log(2D)));
 
-        return (long) Math.ceil(sizeStep1);
+        return (long) Math.ceil(size1);
     }
 
     private <T> BloomFilter<T> createEstimatedIfValid(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size) {
@@ -37,8 +37,8 @@ public interface BloomFilterFactory {
         ArgumentValidatorSupport.ensureLessThanOrEqualTo(falsePositiveRatio, 1D, "falsePositiveRatio");
         ArgumentValidatorSupport.ensureGreaterThanZero(size, "size", String.format("estimatedSize '%d', hashingFunctions '%d' and falsePositiveRatio '%f' yields a size lesser than 0", estimatedSize, hashingFunctions, falsePositiveRatio));
 
-        double sizeStep1 = (double) size / (double) getSizePerRecord();
-        long sizeFixed = (long) Math.ceil(sizeStep1);
+        double size1 = (double) size / (double) getSizePerRecord();
+        long sizeFixed = (long) Math.ceil(size1);
 
         return create(estimatedSize, hashingFunctions, falsePositiveRatio, sizeFixed);
     }

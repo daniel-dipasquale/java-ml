@@ -14,22 +14,16 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 
+@RequiredArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class Organism implements Comparable<Organism>, Serializable {
     @Serial
     private static final long serialVersionUID = -1411966258093431863L;
     @EqualsAndHashCode.Include
     private final DefaultGenome genome;
-    private transient ProxyGenome proxyGenome;
+    private transient ProxyGenome proxyGenome = null;
     private final PopulationState populationState;
-    private transient FitnessState fitnessState;
-
-    public Organism(final DefaultGenome genome, final PopulationState populationState) {
-        this.genome = genome;
-        this.proxyGenome = null;
-        this.populationState = populationState;
-        this.fitnessState = null;
-    }
+    private transient FitnessState fitnessState = null;
 
     private FitnessState createFitnessState(final Context.GeneralSupport general) {
         if (fitnessState == null) {
@@ -63,10 +57,10 @@ public final class Organism implements Comparable<Organism>, Serializable {
             fitnessState.determiner.clear();
         }
 
-        float fitnessNew = general.calculateFitness(proxyGenome);
-        float fitnessNewFixed = !Float.isFinite(fitnessNew) ? 0f : Math.max(fitnessNew, 0f);
+        float fitness1 = general.calculateFitness(proxyGenome);
+        float fitnessFixed = !Float.isFinite(fitness1) ? 0f : Math.max(fitness1, 0f);
 
-        fitnessState.determiner.add(fitnessNewFixed);
+        fitnessState.determiner.add(fitnessFixed);
 
         return fitnessState.value = fitnessState.determiner.get();
     }
