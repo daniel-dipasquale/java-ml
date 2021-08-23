@@ -271,9 +271,9 @@ public final class DefaultGenome implements Genome, Serializable {
 
         InnovationId innovationId = randomParentConnection.getInnovationId();
         float weight = (parent1Connection.getWeight() + parent2Connection.getWeight()) / 2f;
-        int cyclesAllowed = randomParentConnection.getRecurrentCyclesAllowed();
+        int recurrentCyclesAllowed = randomParentConnection.getRecurrentCyclesAllowed();
 
-        return new ConnectionGene(innovationId, weight, cyclesAllowed, expressed);
+        return new ConnectionGene(innovationId, weight, recurrentCyclesAllowed, expressed);
     }
 
     public static DefaultGenome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final DefaultGenome fitParent, final DefaultGenome unfitParent) {

@@ -26,7 +26,17 @@ public final class WeightPerturberProfile extends AbstractObjectProfile<WeightPe
 
         @Override
         public float perturb(final float value) {
-            return floatFactory.create() * value;
+            float perturbed = floatFactory.create() * value;
+
+            if (perturbed == Float.POSITIVE_INFINITY) {
+                return Float.MAX_VALUE;
+            }
+
+            if (perturbed == Float.NEGATIVE_INFINITY) {
+                return Float.MIN_VALUE;
+            }
+
+            return perturbed;
         }
     }
 }

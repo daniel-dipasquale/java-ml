@@ -6,6 +6,14 @@ I'm learning how some machine learning algorithms work by implementing them usin
 algorithms I'm interested in learning and using:
 
 - [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf) (it has issues still)
+    - [x] outstanding issues:
+        - remove all initialize methods from historicalMarkings/organism/genome
+        - remove all freeze methods from genome/organisms
+        - provide a mechanism for cleaning up innovations that will never happen again in the historical markings
+          container
+        - fix adjusted fitness for organisms after evaluation
+        - consider handling a full species extinction by restarting the whole process again with a genesis genome
+        - among others ...
     - [x] XOR test :+1: (random data sample)
 
          ```
@@ -25,11 +33,6 @@ algorithms I'm interested in learning and using:
          ```
 
       ![Single Pole Balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
-    - [ ] outstanding issues:
-        - remove all initialize from historicalMarkings/organism/genome
-        - remove all freeze from genome/organisms
-        - fix the amount of genomes created per generation
-        - among others ...
 
 - [ ] Feedforward Neural Networks
 - [ ] Soft Actor Critic

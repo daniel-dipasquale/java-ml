@@ -170,7 +170,7 @@ public final class DefaultGenomeHistoricalMarkings implements GenomeHistoricalMa
     }
 
     public InnovationId getOrCreateInnovationId(final DirectedEdge directedEdge) {
-        return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId(de, innovationIdFactory.create()));
+        return innovationIds.computeIfAbsent(directedEdge, de -> new InnovationId(de, innovationIdFactory.create())); // TODO: provide a custom implementation of the innovation ids container, that can remove the innovations upon genome's death (if genome dies with the last gene available)
     }
 
     public InnovationId getOrCreateInnovationId(final SequentialId inputNodeId, final SequentialId outputNodeId) {
