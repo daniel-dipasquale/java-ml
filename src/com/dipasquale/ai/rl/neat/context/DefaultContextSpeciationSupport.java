@@ -31,11 +31,11 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         double compatibility = genomeCompatibilityCalculator.calculateCompatibility(genome1, genome2);
 
         if (compatibility == Double.POSITIVE_INFINITY) {
-            return Float.MAX_VALUE;
+            return Double.MAX_VALUE;
         }
 
         if (compatibility == Double.NEGATIVE_INFINITY) {
-            return Float.MIN_VALUE;
+            return -Double.MAX_VALUE;
         }
 
         return compatibility;

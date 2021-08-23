@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public final class ConnectionGeneMap implements Iterable<ConnectionGene>, Serializable {
+public final class ConnectionGeneMap implements Iterable<ConnectionGene>, Serializable { // TODO: redo this class
     @Serial
     private static final long serialVersionUID = 6378529672148503435L;
     @EqualsAndHashCode.Include

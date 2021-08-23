@@ -33,7 +33,7 @@ public final class WeightPerturberProfile extends AbstractObjectProfile<WeightPe
             }
 
             if (perturbed == Float.NEGATIVE_INFINITY) {
-                return Float.MIN_VALUE;
+                return -Float.MAX_VALUE;
             }
 
             return perturbed;
