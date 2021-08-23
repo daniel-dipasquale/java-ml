@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
+import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.ObjectFactory;
@@ -12,15 +12,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public final class DefaultNeuralNetwork implements NeuralNetwork {
-    private final NodeGeneMap nodes;
-    private final ConnectionGeneMap connections;
+    private final NodeGeneGroup nodes;
+    private final ConnectionGeneGroup connections;
     private final NeuronNavigator neuronNavigator;
     private final AtomicBoolean neuronNavigatorInitialized;
     private volatile boolean neuronNavigatorFinalized;
     private final ObjectFactory<NeuronValueMap> neuronValuesFactory;
     private final int inputSize;
 
-    public DefaultNeuralNetwork(final NodeGeneMap nodes, final ConnectionGeneMap connections, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueMap> neuronValuesFactory) {
+    public DefaultNeuralNetwork(final NodeGeneGroup nodes, final ConnectionGeneGroup connections, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueMap> neuronValuesFactory) {
         this.nodes = nodes;
         this.connections = connections;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
@@ -31,11 +31,11 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
     }
 
     private Neuron createNeuron(final NodeGene node) {
-        List<InputNeuron> inputs = connections.getIncomingToNodeFromExpressed(node).values().stream()
+        List<InputNeuron> inputs = connections.getExpressed().getIncomingToNode(node).values().stream()
                 .map(c -> new InputNeuron(c.getInnovationId().getSourceNodeId(), c.getRecurrentCyclesAllowed()))
                 .collect(Collectors.toList());
 
-        List<OutputNeuron> outputs = connections.getOutgoingFromNodeFromExpressed(node).values().stream()
+        List<OutputNeuron> outputs = connections.getExpressed().getOutgoingFromNode(node).values().stream()
                 .map(c -> new OutputNeuron(c.getInnovationId().getTargetNodeId(), c.getWeight()))
                 .collect(Collectors.toList());
 

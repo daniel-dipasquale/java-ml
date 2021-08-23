@@ -14,11 +14,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Optional;
 import java.util.TreeMap;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public final class SequentialMap<TId extends Comparable<TId>, TItem> implements Iterable<TItem>, Serializable {
+public final class OrderedGroup<TId extends Comparable<TId>, TItem> implements Iterable<TItem>, Serializable {
     @Serial
     private static final long serialVersionUID = 2209041596810668817L;
     @EqualsAndHashCode.Include
@@ -33,10 +32,6 @@ public final class SequentialMap<TId extends Comparable<TId>, TItem> implements 
         return list.size();
     }
 
-    public boolean containsId(final TId id) {
-        return navigableMap.containsKey(id);
-    }
-
     public TItem getByIndex(final int index) {
         return list.get(index).item;
     }
@@ -46,9 +41,13 @@ public final class SequentialMap<TId extends Comparable<TId>, TItem> implements 
     }
 
     public TItem getLast() {
-        return Optional.ofNullable(navigableMap.lastEntry())
-                .map(Map.Entry::getValue)
-                .orElse(null);
+        Map.Entry<TId, TItem> entry = navigableMap.lastEntry();
+
+        if (entry == null) {
+            return null;
+        }
+
+        return entry.getValue();
     }
 
     public TItem put(final TId id, final TItem item) {
@@ -58,7 +57,7 @@ public final class SequentialMap<TId extends Comparable<TId>, TItem> implements 
     }
 
     public TItem removeByIndex(final int index) {
-        ItemIdEntry<TId, TItem> entry = list.remove(index); // TODO: rethink strategy for this method
+        ItemIdEntry<TId, TItem> entry = list.remove(index);
 
         return navigableMap.remove(entry.id);
     }
@@ -66,7 +65,7 @@ public final class SequentialMap<TId extends Comparable<TId>, TItem> implements 
     public TItem removeById(final TId id) {
         TItem item = navigableMap.remove(id);
 
-        list.removeIf(e -> e.item == item); // TODO: rethink strategy for this method
+        list.removeIf(e -> e.item == item);
 
         return item;
     }
@@ -78,8 +77,8 @@ public final class SequentialMap<TId extends Comparable<TId>, TItem> implements 
                 .iterator();
     }
 
-    public Iterable<Pair<TItem>> fullJoin(final SequentialMap<TId, TItem> other) {
-        return () -> new SequentialMapIterator<>(navigableMap, other.navigableMap);
+    public Iterator<Pair<TItem>> fullJoin(final OrderedGroup<TId, TItem> other) {
+        return new OrderedGroupIterator<>(navigableMap, other.navigableMap);
     }
 
     @Generated

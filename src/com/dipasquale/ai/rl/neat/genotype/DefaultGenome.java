@@ -7,6 +7,7 @@ import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,18 +22,18 @@ public final class DefaultGenome implements Genome, Serializable {
     private final String id;
     @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Include
-    private final NodeGeneMap nodes;
+    private final NodeGeneGroup nodes;
     @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Include
-    private final ConnectionGeneMap connections;
+    private final ConnectionGeneGroup connections;
     private final GenomeHistoricalMarkings historicalMarkings;
     private transient NeuralNetwork neuralNetwork;
     private boolean frozen;
 
     public DefaultGenome(final String id, final GenomeHistoricalMarkings historicalMarkings) {
         this.id = id;
-        this.nodes = new NodeGeneMap();
-        this.connections = new ConnectionGeneMap();
+        this.nodes = new NodeGeneGroup();
+        this.connections = new ConnectionGeneGroup();
         this.historicalMarkings = historicalMarkings;
         this.neuralNetwork = null;
         this.frozen = false;
@@ -44,7 +45,7 @@ public final class DefaultGenome implements Genome, Serializable {
 
     @Override
     public int getComplexity() {
-        return connections.sizeFromExpressed() + 1;
+        return connections.getExpressed().size() + 1;
     }
 
     public Iterable<NodeGene> getNodes(final NodeGeneType type) {
@@ -70,7 +71,7 @@ public final class DefaultGenome implements Genome, Serializable {
     private boolean mutateWeights(final Context context) {
         boolean mutated = false;
 
-        for (ConnectionGene connection : connections) {
+        for (ConnectionGene connection : connections.getAll()) {
             switch (context.mutation().nextWeightMutationType()) {
                 case PERTURB -> {
                     connection.setWeight(context.connections().perturbWeight(connection.getWeight()));
@@ -88,13 +89,13 @@ public final class DefaultGenome implements Genome, Serializable {
     }
 
     private boolean disableRandomConnection(final Context.RandomSupport random) {
-        int size = connections.sizeFromExpressed();
+        int size = connections.getExpressed().size();
 
         if (size == 0) {
             return false;
         }
 
-        connections.disableByIndex(random.nextIndex(size));
+        connections.getExpressed().disableByIndex(random.nextIndex(size));
 
         return true;
     }
@@ -108,14 +109,14 @@ public final class DefaultGenome implements Genome, Serializable {
     }
 
     private boolean addRandomNodeMutation(final Context context) {
-        int size = connections.sizeFromExpressed();
+        int size = connections.getExpressed().size();
 
         if (size == 0) {
             return false;
         }
 
         int index = context.random().nextIndex(size);
-        ConnectionGene connection = connections.disableByIndex(index);
+        ConnectionGene connection = connections.getExpressed().disableByIndex(index);
         NodeGene inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
         NodeGene outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
         NodeGene newNode = context.nodes().create(createHiddenNodeId(), NodeGeneType.HIDDEN);
@@ -133,7 +134,7 @@ public final class DefaultGenome implements Genome, Serializable {
         InnovationId innovationId = createRandomInnovationId(context.random());
 
         if (innovationId != null) {
-            ConnectionGene connection = connections.getByIdFromAll(innovationId);
+            ConnectionGene connection = connections.getAll().getById(innovationId);
 
             if (connection == null) {
                 addConnection(new ConnectionGene(innovationId, context.connections().nextWeight()));
@@ -235,7 +236,7 @@ public final class DefaultGenome implements Genome, Serializable {
             mutated |= addRandomNodeMutation(context);
         }
 
-        if (connections.sizeFromExpressed() == 0 || context.mutation().shouldAddConnectionMutation()) {
+        if (connections.getExpressed().isEmpty() || context.mutation().shouldAddConnectionMutation()) {
             mutated |= addRandomConnectionMutation(context); // TODO: determine if this algorithm is consistent enough when converging
         }
 
@@ -279,16 +280,16 @@ public final class DefaultGenome implements Genome, Serializable {
     public static DefaultGenome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final DefaultGenome fitParent, final DefaultGenome unfitParent) {
         DefaultGenome child = new DefaultGenome(fitParent.createGenomeId(), fitParent.historicalMarkings);
 
-        for (Pair<NodeGene> nodes : fitParent.nodes.fullJoin(unfitParent.nodes)) {
-            if (nodes.getLeft() != null && nodes.getRight() != null) {
-                child.nodes.put(getRandom(context.random(), nodes.getLeft(), nodes.getRight()));
-            } else if (nodes.getLeft() != null) {
-                child.nodes.put(nodes.getLeft());
+        for (Pair<NodeGene> nodePair : (Iterable<Pair<NodeGene>>) () -> fitParent.nodes.fullJoin(unfitParent.nodes)) {
+            if (nodePair.getLeft() != null && nodePair.getRight() != null) {
+                child.nodes.put(getRandom(context.random(), nodePair.getLeft(), nodePair.getRight()));
+            } else if (nodePair.getLeft() != null) {
+                child.nodes.put(nodePair.getLeft());
             }
         }
 
-        for (ConnectionGene fitConnection : fitParent.connections) {
-            ConnectionGene unfitConnection = unfitParent.connections.getByIdFromAll(fitConnection.getInnovationId());
+        for (ConnectionGene fitConnection : fitParent.connections.getAll()) {
+            ConnectionGene unfitConnection = unfitParent.connections.getAll().getById(fitConnection.getInnovationId());
             ConnectionGene childConnection;
 
             if (unfitConnection != null) {
@@ -306,27 +307,29 @@ public final class DefaultGenome implements Genome, Serializable {
     public static DefaultGenome crossOverByEqualTreatment(final Context context, final DefaultGenome parent1, final DefaultGenome parent2) {
         DefaultGenome child = new DefaultGenome(parent1.createGenomeId(), parent1.historicalMarkings);
 
-        for (Pair<NodeGene> nodes : parent1.nodes.fullJoin(parent2.nodes)) {
-            if (nodes.getLeft() != null && nodes.getRight() != null) {
-                child.nodes.put(getRandom(context.random(), nodes.getLeft(), nodes.getRight()));
-            } else if (nodes.getLeft() != null) {
-                child.nodes.put(nodes.getLeft());
+        for (Pair<NodeGene> nodePair : (Iterable<Pair<NodeGene>>) () -> parent1.nodes.fullJoin(parent2.nodes)) {
+            if (nodePair.getLeft() != null && nodePair.getRight() != null) {
+                child.nodes.put(getRandom(context.random(), nodePair.getLeft(), nodePair.getRight()));
+            } else if (nodePair.getLeft() != null) {
+                child.nodes.put(nodePair.getLeft());
             } else {
-                child.nodes.put(nodes.getRight());
+                child.nodes.put(nodePair.getRight());
             }
         }
 
-        for (Pair<ConnectionGene> connections : parent1.connections.fullJoinFromAll(parent2.connections)) {
-            if (connections.getLeft() != null && connections.getRight() != null) {
-                ConnectionGene childConnection = createChildConnection(context, connections.getLeft(), connections.getRight());
+        for (Pair<ConnectionGene> connectionPair : (Iterable<Pair<ConnectionGene>>) () -> parent1.connections.getAll().fullJoin(parent2.connections)) {
+            if (connectionPair.getLeft() != null && connectionPair.getRight() != null) {
+                ConnectionGene childConnection = createChildConnection(context, connectionPair.getLeft(), connectionPair.getRight());
 
                 child.connections.put(childConnection);
-            } else if (connections.getLeft() != null) {
-                ConnectionGene childConnection = connections.getLeft().createCopy(connections.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressed());
+            } else if (connectionPair.getLeft() != null) {
+                boolean expressed = connectionPair.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressed();
+                ConnectionGene childConnection = connectionPair.getLeft().createCopy(expressed);
 
                 child.connections.put(childConnection);
             } else {
-                ConnectionGene childConnection = connections.getRight().createCopy(connections.getRight().isExpressed() || context.crossOver().shouldOverrideExpressed());
+                boolean expressed = connectionPair.getRight().isExpressed() || context.crossOver().shouldOverrideExpressed();
+                ConnectionGene childConnection = connectionPair.getRight().createCopy(expressed);
 
                 child.connections.put(childConnection);
             }
@@ -339,7 +342,7 @@ public final class DefaultGenome implements Genome, Serializable {
         DefaultGenome genome = new DefaultGenome(id, historicalMarkings);
 
         nodes.forEach(genome.nodes::put);
-        connections.forEach(c -> genome.connections.put(c.createClone()));
+        connections.getAll().forEach(c -> genome.connections.put(c.createClone()));
 
         return genome;
     }
@@ -352,5 +355,73 @@ public final class DefaultGenome implements Genome, Serializable {
 
     public DefaultGenome createClone(final GenomeHistoricalMarkings historicalMarkings) {
         return createCopy(id, historicalMarkings);
+    }
+
+    private static boolean isMatching(final Pair<ConnectionGene> connections) {
+        return connections.getLeft() != null && connections.getRight() != null;
+    }
+
+    private static boolean isExcess(final ConnectionGene connection, final ConnectionGene excessConnection) {
+        return connection.getInnovationId().compareTo(excessConnection.getInnovationId()) > 0;
+    }
+
+    private static boolean isDisjoint(final Pair<ConnectionGene> connections, final ConnectionGene excessConnection) {
+        return excessConnection == null || connections.getLeft() != null && !isExcess(connections.getLeft(), excessConnection) || connections.getRight() != null && !isExcess(connections.getRight(), excessConnection);
+    }
+
+    private static ConnectionGene getExcessConnection(final DefaultGenome genome1, final DefaultGenome genome2) {
+        ConnectionGene lastConnection1 = genome1.connections.getAll().getLast();
+        ConnectionGene lastConnection2 = genome2.connections.getAll().getLast();
+
+        if (lastConnection1 == null || lastConnection2 == null) {
+            return null;
+        }
+
+        int comparison = lastConnection1.getInnovationId().compareTo(lastConnection2.getInnovationId());
+
+        if (comparison == 0) {
+            return null;
+        }
+
+        if (comparison < 0) {
+            return lastConnection1;
+        }
+
+        return lastConnection2;
+    }
+
+    @RequiredArgsConstructor
+    public static final class CompatibilityCalculator implements GenomeCompatibilityCalculator, Serializable {
+        @Serial
+        private static final long serialVersionUID = 8186925797297865215L;
+        private final float excessCoefficient; // c1;
+        private final float disjointCoefficient; // c2;
+        private final float weightDifferenceCoefficient; // c3
+
+        @Override
+        public double calculateCompatibility(final DefaultGenome genome1, final DefaultGenome genome2) {
+            ConnectionGene excessFromConnection = getExcessConnection(genome1, genome2);
+            int matchingCount = 0;
+            double weightDifference = 0D;
+            int disjointCount = 0;
+            int excessCount = 0;
+
+            for (Pair<ConnectionGene> connectionPair : (Iterable<Pair<ConnectionGene>>) () -> genome1.connections.getAll().fullJoin(genome2.connections)) {
+                if (isMatching(connectionPair)) {
+                    matchingCount++;
+                    weightDifference += Math.abs(connectionPair.getLeft().getWeight() - connectionPair.getRight().getWeight());
+                } else if (isDisjoint(connectionPair, excessFromConnection)) {
+                    disjointCount++;
+                } else {
+                    excessCount++;
+                }
+            }
+
+            int maximumNodes = Math.max(genome1.nodes.size(), genome2.nodes.size());
+            double n = maximumNodes < 20 ? 1D : (double) maximumNodes;
+            double averageWeightDifference = matchingCount == 0 ? 0D : weightDifference / (double) matchingCount;
+
+            return excessCoefficient * (double) excessCount / n + disjointCoefficient * (double) disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
+        }
     }
 }

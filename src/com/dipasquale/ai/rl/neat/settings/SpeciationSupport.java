@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.settings;
 
-import com.dipasquale.ai.common.OutputClassifier;
+import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationParameters;
 import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
-import com.dipasquale.ai.rl.neat.genotype.DefaultGenomeCompatibilityCalculator;
+import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.MultiSpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ParallelUpdateSpeciesFitnessStrategy;
@@ -146,7 +146,7 @@ public final class SpeciationSupport {
         float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactoryProfile(parallelism).getObject().create();
         float disjointCoefficientFixed = disjointCoefficient.createFactoryProfile(parallelism).getObject().create();
         float excessCoefficientFixed = excessCoefficient.createFactoryProfile(parallelism).getObject().create();
-        DefaultGenomeCompatibilityCalculator genomeCompatibilityCalculator = new DefaultGenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
+        DefaultGenome.CompatibilityCalculator genomeCompatibilityCalculator = new DefaultGenome.CompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createIsLessThanProfile(parallelism);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
         DefaultReproductionTypeFactoryProfile randomReproductionTypeGeneratorProfile = createRandomReproductionTypeGeneratorProfile(parallelism, randomSupportPair);

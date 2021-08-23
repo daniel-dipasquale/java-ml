@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.settings;
 
-import com.dipasquale.ai.common.OutputClassifier;
+import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
 import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.common.Pair;

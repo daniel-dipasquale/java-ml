@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
+import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.common.factory.ObjectFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +14,7 @@ public final class FeedForwardNeuralNetworkFactory implements NeuralNetworkFacto
     private static final long serialVersionUID = -35249703641428233L;
 
     @Override
-    public NeuralNetwork create(final NodeGeneMap nodes, final ConnectionGeneMap connections) {
+    public NeuralNetwork create(final NodeGeneGroup nodes, final ConnectionGeneGroup connections) {
         NeuronPathBuilder neuronPathBuilder = new FeedForwardNeuronPathBuilder();
         ObjectFactory<NeuronValueMap> neuronValuesFactory = FeedForwardNeuronValueMap::new;
 

@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.function.activation.ActivationFunction;
 import com.dipasquale.ai.common.function.activation.IdentityActivationFunction;
-import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
+import com.dipasquale.ai.common.sequence.LongSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.common.sequence.SequentialIdFactory;
 import com.dipasquale.common.SerializableSupport;
@@ -15,7 +15,7 @@ public final class NodeGeneTest {
     @Test
     public void TEST_1()
             throws IOException, ClassNotFoundException {
-        SequentialIdFactory sequentialIdFactory = new DefaultSequentialIdFactory();
+        SequentialIdFactory sequentialIdFactory = new LongSequentialIdFactory();
         SequentialId nodeId = sequentialIdFactory.create();
         NodeGeneType type = NodeGeneType.HIDDEN;
         float bias = 1.1f;

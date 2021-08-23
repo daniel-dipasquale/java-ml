@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.core;
 
-import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
+import com.dipasquale.ai.common.sequence.LongSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.common.sequence.SequentialIdFactory;
 import com.dipasquale.ai.common.sequence.StrategySequentialIdFactory;
@@ -33,14 +33,14 @@ public final class DefaultGenomeHistoricalMarkings implements GenomeHistoricalMa
     @Serial
     private static final long serialVersionUID = -3580686562257388659L;
     private boolean initialized = false;
-    private final DefaultSequentialIdFactory genomeIdFactoryUnderlying = new DefaultSequentialIdFactory();
+    private final LongSequentialIdFactory genomeIdFactoryUnderlying = new LongSequentialIdFactory();
     private SequentialIdFactory genomeIdFactory = null;
-    private final DefaultSequentialIdFactory speciesIdFactoryUnderlying = new DefaultSequentialIdFactory();
+    private final LongSequentialIdFactory speciesIdFactoryUnderlying = new LongSequentialIdFactory();
     private SequentialIdFactory speciesIdFactory = null;
-    private final DefaultSequentialIdFactory innovationIdFactoryUnderlying = new DefaultSequentialIdFactory();
+    private final LongSequentialIdFactory innovationIdFactoryUnderlying = new LongSequentialIdFactory();
     private SequentialIdFactory innovationIdFactory = null;
     private Map<DirectedEdge, InnovationId> innovationIds = null;
-    private final Map<NodeGeneType, DefaultSequentialIdFactory> nodeIdFactoriesUnderlying = createSequentialIdFactories();
+    private final Map<NodeGeneType, LongSequentialIdFactory> nodeIdFactoriesUnderlying = createSequentialIdFactories();
     private Map<NodeGeneType, SequentialIdFactory> nodeIdFactories = null;
     private List<SequentialId> inputNodesIds = null;
     private List<SequentialId> outputNodeIds = null;
@@ -79,12 +79,12 @@ public final class DefaultGenomeHistoricalMarkings implements GenomeHistoricalMa
         return innovationIdsReplacement;
     }
 
-    private static Map<NodeGeneType, DefaultSequentialIdFactory> createSequentialIdFactories() {
-        return ImmutableMap.<NodeGeneType, DefaultSequentialIdFactory>builder()
-                .put(NodeGeneType.INPUT, new DefaultSequentialIdFactory())
-                .put(NodeGeneType.OUTPUT, new DefaultSequentialIdFactory())
-                .put(NodeGeneType.BIAS, new DefaultSequentialIdFactory())
-                .put(NodeGeneType.HIDDEN, new DefaultSequentialIdFactory())
+    private static Map<NodeGeneType, LongSequentialIdFactory> createSequentialIdFactories() {
+        return ImmutableMap.<NodeGeneType, LongSequentialIdFactory>builder()
+                .put(NodeGeneType.INPUT, new LongSequentialIdFactory())
+                .put(NodeGeneType.OUTPUT, new LongSequentialIdFactory())
+                .put(NodeGeneType.BIAS, new LongSequentialIdFactory())
+                .put(NodeGeneType.HIDDEN, new LongSequentialIdFactory())
                 .build();
     }
 

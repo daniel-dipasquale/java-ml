@@ -1,4 +1,4 @@
-package com.dipasquale.ai.common;
+package com.dipasquale.ai.common.output;
 
 import java.io.Serial;
 import java.io.Serializable;

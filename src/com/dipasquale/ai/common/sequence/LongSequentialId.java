@@ -9,19 +9,19 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @EqualsAndHashCode
-public final class DefaultSequentialId implements SequentialId, Serializable {
+public final class LongSequentialId implements SequentialId, Serializable {
     @Serial
     private static final long serialVersionUID = 8593186826114247631L;
     private final long value;
 
-    private int compareTo(final DefaultSequentialId other) {
+    private int compareTo(final LongSequentialId other) {
         return Long.compare(value, other.value);
     }
 
     @Override
     public int compareTo(final SequentialId other) {
-        if (other instanceof DefaultSequentialId) {
-            return compareTo((DefaultSequentialId) other);
+        if (other instanceof LongSequentialId) {
+            return compareTo((LongSequentialId) other);
         }
 
         String otherTypeName = other == null

@@ -1,5 +1,6 @@
 package com.dipasquale.ai.common;
 
+import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.common.error.ErrorComparer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

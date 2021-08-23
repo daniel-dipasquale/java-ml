@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
+import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.common.sequence.SequentialId;
-import com.dipasquale.ai.common.sequence.SequentialMap;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
@@ -16,20 +16,20 @@ import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public final class NodeGeneMap implements Iterable<NodeGene>, Serializable {
+public final class NodeGeneGroup implements Iterable<NodeGene>, Serializable {
     @Serial
     private static final long serialVersionUID = -414060625780283286L;
     @EqualsAndHashCode.Include
-    private final SequentialMap<SequentialId, NodeGene> nodes = new SequentialMap<>();
-    private final Map<NodeGeneType, SequentialMap<SequentialId, NodeGene>> nodesByType = createNodesByType();
+    private final OrderedGroup<SequentialId, NodeGene> nodes = new OrderedGroup<>();
+    private final Map<NodeGeneType, OrderedGroup<SequentialId, NodeGene>> nodesByType = createNodesByType();
 
-    private static Map<NodeGeneType, SequentialMap<SequentialId, NodeGene>> createNodesByType() {
-        EnumMap<NodeGeneType, SequentialMap<SequentialId, NodeGene>> nodesByType = new EnumMap<>(NodeGeneType.class);
+    private static Map<NodeGeneType, OrderedGroup<SequentialId, NodeGene>> createNodesByType() {
+        EnumMap<NodeGeneType, OrderedGroup<SequentialId, NodeGene>> nodesByType = new EnumMap<>(NodeGeneType.class);
 
-        nodesByType.put(NodeGeneType.INPUT, new SequentialMap<>());
-        nodesByType.put(NodeGeneType.OUTPUT, new SequentialMap<>());
-        nodesByType.put(NodeGeneType.BIAS, new SequentialMap<>());
-        nodesByType.put(NodeGeneType.HIDDEN, new SequentialMap<>());
+        nodesByType.put(NodeGeneType.INPUT, new OrderedGroup<>());
+        nodesByType.put(NodeGeneType.OUTPUT, new OrderedGroup<>());
+        nodesByType.put(NodeGeneType.BIAS, new OrderedGroup<>());
+        nodesByType.put(NodeGeneType.HIDDEN, new OrderedGroup<>());
 
         return nodesByType;
     }
@@ -42,16 +42,8 @@ public final class NodeGeneMap implements Iterable<NodeGene>, Serializable {
         return nodesByType.get(type).size();
     }
 
-    public boolean isEmpty() {
-        return nodes.isEmpty();
-    }
-
     public NodeGene getByIndex(final int index) {
         return nodes.getByIndex(index);
-    }
-
-    public NodeGene getByIndex(final NodeGeneType type, final int index) {
-        return nodesByType.get(type).getByIndex(index);
     }
 
     public NodeGene getById(final SequentialId id) {
@@ -71,10 +63,6 @@ public final class NodeGeneMap implements Iterable<NodeGene>, Serializable {
         nodesByType.get(node.getType()).put(node.getId(), node);
     }
 
-    public Iterable<Pair<NodeGene>> fullJoin(final NodeGeneMap other) {
-        return nodes.fullJoin(other.nodes);
-    }
-
     @Override
     public Iterator<NodeGene> iterator() {
         return nodes.iterator();
@@ -82,5 +70,9 @@ public final class NodeGeneMap implements Iterable<NodeGene>, Serializable {
 
     public Iterator<NodeGene> iterator(final NodeGeneType type) {
         return nodesByType.get(type).iterator();
+    }
+
+    public Iterator<Pair<NodeGene>> fullJoin(final NodeGeneGroup other) {
+        return nodes.fullJoin(other.nodes);
     }
 }

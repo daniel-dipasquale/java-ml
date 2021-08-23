@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
+import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
 import com.dipasquale.common.SerializableInteroperableStateMap;
@@ -12,7 +12,7 @@ public final class DefaultContextNeuralNetworkSupport implements Context.NeuralN
     private NeuralNetworkFactory factory;
 
     @Override
-    public NeuralNetwork create(final NodeGeneMap nodes, final ConnectionGeneMap connections) {
+    public NeuralNetwork create(final NodeGeneGroup nodes, final ConnectionGeneGroup connections) {
         return factory.create(nodes, connections);
     }
 

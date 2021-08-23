@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.function.activation.IdentityActivationFunction;
 import com.dipasquale.ai.common.function.activation.SigmoidActivationFunction;
-import com.dipasquale.ai.common.sequence.DefaultSequentialIdFactory;
+import com.dipasquale.ai.common.sequence.LongSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.common.sequence.SequentialIdFactory;
 import com.dipasquale.common.SerializableSupport;
@@ -15,7 +15,7 @@ public final class DefaultGenomeTest {
     @Test
     public void TEST_1()
             throws IOException, ClassNotFoundException {
-        SequentialIdFactory sequentialIdFactory = new DefaultSequentialIdFactory();
+        SequentialIdFactory sequentialIdFactory = new LongSequentialIdFactory();
         DefaultGenome test = new DefaultGenome("id", null);
         SequentialId nodeId1 = sequentialIdFactory.create();
         SequentialId nodeId2 = sequentialIdFactory.create();

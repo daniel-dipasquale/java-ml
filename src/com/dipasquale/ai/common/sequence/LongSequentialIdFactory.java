@@ -3,16 +3,16 @@ package com.dipasquale.ai.common.sequence;
 import java.io.Serial;
 import java.io.Serializable;
 
-public final class DefaultSequentialIdFactory implements SequentialIdFactory, Serializable {
+public final class LongSequentialIdFactory implements SequentialIdFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -2914528594779687249L;
     private long current;
 
-    public DefaultSequentialIdFactory() {
+    public LongSequentialIdFactory() {
         this.current = 0L;
     }
 
-    public DefaultSequentialIdFactory(final DefaultSequentialIdFactory other) {
+    public LongSequentialIdFactory(final LongSequentialIdFactory other) {
         this.current = other.current;
     }
 
@@ -24,7 +24,7 @@ public final class DefaultSequentialIdFactory implements SequentialIdFactory, Se
 
         long value = ++current;
 
-        return new DefaultSequentialId(value);
+        return new LongSequentialId(value);
     }
 
     @Override

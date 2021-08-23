@@ -21,7 +21,7 @@ public final class DefaultContextSpeciationParameters implements Context.Speciat
     private final float interSpeciesMatingRate;
 
     @Override
-    public double compatibilityThreshold(final int generation) { // TODO: check if this needs a boundary check as well
+    public double compatibilityThreshold(final int generation) {
         return compatibilityThreshold * Math.pow(compatibilityThresholdModifier, generation);
     }
 

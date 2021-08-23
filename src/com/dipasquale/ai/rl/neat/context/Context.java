@@ -2,13 +2,13 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminer;
 import com.dipasquale.ai.common.fitness.FitnessFunction;
+import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.common.sequence.SequentialId;
-import com.dipasquale.ai.common.sequence.SequentialMap;
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneMap;
+import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneMap;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
@@ -87,7 +87,7 @@ public interface Context {
 
     @FunctionalInterface
     interface NeuralNetworkSupport {
-        NeuralNetwork create(NodeGeneMap nodes, ConnectionGeneMap connections);
+        NeuralNetwork create(NodeGeneGroup nodes, ConnectionGeneGroup connections);
     }
 
     interface ParallelismParameters {
@@ -145,7 +145,7 @@ public interface Context {
             return new Pair<>(items.get(index1), items.get(index2));
         }
 
-        default <T> T nextItem(final SequentialMap<? extends Comparable<?>, T> items) {
+        default <T> T nextItem(final OrderedGroup<? extends Comparable<?>, T> items) {
             int size = items.size();
 
             if (size == 0) {
