@@ -45,16 +45,16 @@ public final class ErrorHandlerSupportTest {
             ErrorHandlerSupport.failAsSuppressedIfAny(() -> new IllegalStateException("test-message"), ImmutableList.of(new IllegalStateException("illegal-state-exception")));
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparer.builder()
+            Assertions.assertEquals(ErrorComparator.builder()
                     .type(IllegalStateException.class)
                     .message("test-message")
-                    .suppressed(ImmutableList.<ErrorComparer>builder()
-                            .add(ErrorComparer.builder()
+                    .suppressed(ImmutableList.<ErrorComparator>builder()
+                            .add(ErrorComparator.builder()
                                     .type(IllegalStateException.class)
                                     .message("illegal-state-exception")
                                     .build())
                             .build())
-                    .build(), ErrorComparer.create(e));
+                    .build(), ErrorComparator.create(e));
         }
     }
 
@@ -64,16 +64,16 @@ public final class ErrorHandlerSupportTest {
             ErrorHandlerSupport.failAsSuppressedIfAny("test-message", ImmutableList.of(new IllegalStateException("illegal-state-exception")));
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparer.builder()
+            Assertions.assertEquals(ErrorComparator.builder()
                     .type(RuntimeException.class)
                     .message("test-message")
-                    .suppressed(ImmutableList.<ErrorComparer>builder()
-                            .add(ErrorComparer.builder()
+                    .suppressed(ImmutableList.<ErrorComparator>builder()
+                            .add(ErrorComparator.builder()
                                     .type(IllegalStateException.class)
                                     .message("illegal-state-exception")
                                     .build())
                             .build())
-                    .build(), ErrorComparer.create(e));
+                    .build(), ErrorComparator.create(e));
         }
     }
 

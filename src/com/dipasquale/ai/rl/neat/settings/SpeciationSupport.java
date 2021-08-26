@@ -20,11 +20,13 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSp
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SharedFitnessAccumulatorSpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomeHub;
 import com.dipasquale.common.Pair;
-import com.dipasquale.common.factory.ObjectAccessor;
-import com.dipasquale.common.profile.AbstractObjectProfile;
-import com.dipasquale.common.profile.DefaultObjectProfile;
-import com.dipasquale.common.profile.ObjectProfile;
+import com.dipasquale.common.factory.ObjectIndexer;
+import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
+import com.dipasquale.synchronization.dual.profile.DefaultObjectProfile;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -68,11 +70,11 @@ public final class SpeciationSupport {
         OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
 
         if (Float.compare(totalRate, 0f) > 0) {
-            reproductionTypeClassifier.addUpUntil(ReproductionType.MATE_ONLY, mateOnlyRate / totalRate);
-            reproductionTypeClassifier.addUpUntil(ReproductionType.MUTATE_ONLY, mutateOnlyRate / totalRate);
+            reproductionTypeClassifier.addRangeFor(mateOnlyRate / totalRate, ReproductionType.MATE_ONLY);
+            reproductionTypeClassifier.addRangeFor(mutateOnlyRate / totalRate, ReproductionType.MUTATE_ONLY);
         }
 
-        reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.MATE_AND_MUTATE);
+        reproductionTypeClassifier.addRemainingRangeFor(ReproductionType.MATE_AND_MUTATE);
 
         return reproductionTypeClassifier;
     }
@@ -81,9 +83,9 @@ public final class SpeciationSupport {
         OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
 
         if (Float.compare(mutateOnlyRate, 0f) > 0) {
-            reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.MUTATE_ONLY);
+            reproductionTypeClassifier.addRemainingRangeFor(ReproductionType.MUTATE_ONLY);
         } else {
-            reproductionTypeClassifier.addOtherwiseRoundedUp(ReproductionType.CLONE);
+            reproductionTypeClassifier.addRemainingRangeFor(ReproductionType.CLONE);
         }
 
         return reproductionTypeClassifier;
@@ -146,6 +148,8 @@ public final class SpeciationSupport {
         float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactoryProfile(parallelism).getObject().create();
         float disjointCoefficientFixed = disjointCoefficient.createFactoryProfile(parallelism).getObject().create();
         float excessCoefficientFixed = excessCoefficient.createFactoryProfile(parallelism).getObject().create();
+        DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelism.isEnabled(), "species");
+        DualModeGenomeHub genomeHub = new DualModeGenomeHub(parallelism.isEnabled());
         DefaultGenome.CompatibilityCalculator genomeCompatibilityCalculator = new DefaultGenome.CompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createIsLessThanProfile(parallelism);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
@@ -154,22 +158,22 @@ public final class SpeciationSupport {
         ObjectProfile<SpeciesSelectionStrategyExecutor> evolutionStrategyProfile = createEvolutionStrategyProfile(parallelism);
         ObjectProfile<SpeciesReproductionStrategy> reproductionStrategyProfile = createReproductionStrategyProfile(parallelism);
 
-        return new DefaultContextSpeciationSupport(params, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, reproductionStrategyProfile);
+        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomeHub, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, reproductionStrategyProfile);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultReproductionTypeFactory implements ObjectAccessor<ReproductionType>, Serializable {
+    private static final class DefaultReproductionTypeFactory implements ObjectIndexer<ReproductionType>, Serializable {
         @Serial
-        private static final long serialVersionUID = 6964985109827111473L;
+        private static final long serialVersionUID = 6788712949153539093L;
         private final com.dipasquale.common.random.float1.RandomSupport randomSupport;
         private final OutputClassifier<ReproductionType> reproductionTypeClassifier;
         private final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier;
 
         @Override
-        public ReproductionType get(final int value) {
+        public ReproductionType get(final int organisms) {
             float random = randomSupport.next();
 
-            if (value >= 2) {
+            if (organisms >= 2) {
                 return reproductionTypeClassifier.resolve(random);
             }
 
@@ -177,15 +181,12 @@ public final class SpeciationSupport {
         }
     }
 
-    private static final class DefaultReproductionTypeFactoryProfile extends AbstractObjectProfile<ObjectAccessor<ReproductionType>> {
+    private static final class DefaultReproductionTypeFactoryProfile extends AbstractObjectProfile<ObjectIndexer<ReproductionType>> {
         @Serial
         private static final long serialVersionUID = -976465186511988776L;
 
-        private DefaultReproductionTypeFactoryProfile(final boolean isOn,
-                                                      final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair,
-                                                      final OutputClassifier<ReproductionType> reproductionTypeClassifier,
-                                                      final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier) {
-            super(isOn, new DefaultReproductionTypeFactory(randomSupportPair.getLeft(), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier), new DefaultReproductionTypeFactory(randomSupportPair.getRight(), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier));
+        private DefaultReproductionTypeFactoryProfile(final boolean concurrent, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final OutputClassifier<ReproductionType> reproductionTypeClassifier, final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier) {
+            super(concurrent, new DefaultReproductionTypeFactory(randomSupportPair.getLeft(), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier), new DefaultReproductionTypeFactory(randomSupportPair.getRight(), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier));
         }
     }
 }

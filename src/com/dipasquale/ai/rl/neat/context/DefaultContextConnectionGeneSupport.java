@@ -1,13 +1,18 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.rl.neat.factory.WeightPerturber;
+import com.dipasquale.ai.common.factory.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
-import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
-import com.dipasquale.ai.rl.neat.speciation.core.DefaultGenomeHistoricalMarkings;
+import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
+import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
+import com.dipasquale.ai.rl.neat.genotype.InnovationId;
+import com.dipasquale.ai.rl.neat.genotype.NodeGene;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeHistoricalMarkings;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
-import com.dipasquale.common.profile.ObjectProfile;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.dual.mode.DualModeObject;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -15,7 +20,8 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     private DefaultContextConnectionGeneParameters params;
     private ObjectProfile<FloatFactory> weightFactory;
     private ObjectProfile<WeightPerturber> weightPerturber;
-    private GenomeGenesisConnector genomeGenesisConnector;
+    private GenesisGenomeConnector genesisGenomeConnector;
+    private DualModeHistoricalMarkings historicalMarkings;
 
     @Override
     public Context.ConnectionGeneParameters params() {
@@ -23,7 +29,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     @Override
-    public float nextWeight() {
+    public float generateWeight() {
         return weightFactory.getObject().create();
     }
 
@@ -33,21 +39,86 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     @Override
-    public void setupInitialConnections(final DefaultGenome genome, final DefaultGenomeHistoricalMarkings historicalMarkings) {
-        genomeGenesisConnector.setupConnections(genome, historicalMarkings);
+    public void setupInitialConnections(final DefaultGenome genome) {
+        genesisGenomeConnector.setupConnections(genome, this);
+    }
+
+    @Override
+    public InnovationId getOrCreateInnovationId(final NodeGene inputNode, final NodeGene outputNode) {
+        return historicalMarkings.getOrCreateInnovationId(new DirectedEdge(inputNode, outputNode));
+    }
+
+    @Override
+    public boolean isInnovationIdExtinct(final InnovationId innovationId) {
+        return historicalMarkings.containsInnovationId(innovationId.getDirectedEdge());
+    }
+
+    @Override
+    public void registerNodes(final DefaultGenome genome) {
+        for (NodeGene node : genome.getNodes(NodeGeneType.INPUT)) {
+            historicalMarkings.registerNodeId(node.getId());
+        }
+
+        for (NodeGene node : genome.getNodes(NodeGeneType.OUTPUT)) {
+            historicalMarkings.registerNodeId(node.getId());
+        }
+
+        for (NodeGene node : genome.getNodes(NodeGeneType.BIAS)) {
+            historicalMarkings.registerNodeId(node.getId());
+        }
+
+        for (NodeGene node : genome.getNodes(NodeGeneType.HIDDEN)) {
+            historicalMarkings.registerNodeId(node.getId());
+        }
+    }
+
+    @Override
+    public void deregisterNodes(final DefaultGenome genome) {
+        for (NodeGene node : genome.getNodes(NodeGeneType.INPUT)) {
+            historicalMarkings.deregisterNodeId(node.getId());
+        }
+
+        for (NodeGene node : genome.getNodes(NodeGeneType.OUTPUT)) {
+            historicalMarkings.deregisterNodeId(node.getId());
+        }
+
+        for (NodeGene node : genome.getNodes(NodeGeneType.BIAS)) {
+            historicalMarkings.deregisterNodeId(node.getId());
+        }
+
+        for (NodeGene node : genome.getNodes(NodeGeneType.HIDDEN)) {
+            historicalMarkings.deregisterNodeId(node.getId());
+        }
+    }
+
+    @Override
+    public void clearHistoricalMarkings() {
+        historicalMarkings.clear();
     }
 
     public void save(final SerializableInteroperableStateMap state) {
         state.put("connections.params", params);
         state.put("connections.weightFactory", weightFactory);
         state.put("connections.weightPerturber", weightPerturber);
-        state.put("connections.genomeGenesisConnector", genomeGenesisConnector);
+        state.put("connections.genomeGenesisConnector", genesisGenomeConnector);
+        state.put("connections.historicalMarkings", historicalMarkings);
+    }
+
+    private static DualModeHistoricalMarkings loadHistoricalMarkings(final DualModeHistoricalMarkings historicalMarkings, final IterableEventLoop eventLoop) {
+        DualModeHistoricalMarkings historicalMarkingsFixed = DualModeObject.switchMode(historicalMarkings, eventLoop != null);
+
+        if (eventLoop == null) {
+            return new DualModeHistoricalMarkings(false, 1, historicalMarkingsFixed);
+        }
+
+        return new DualModeHistoricalMarkings(true, eventLoop.getConcurrencyLevel(), historicalMarkingsFixed);
     }
 
     public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
         params = state.get("connections.params");
         weightFactory = ObjectProfile.switchProfile(state.get("connections.weightFactory"), eventLoop != null);
         weightPerturber = ObjectProfile.switchProfile(state.get("connections.weightPerturber"), eventLoop != null);
-        genomeGenesisConnector = state.get("connections.genomeGenesisConnector");
+        genesisGenomeConnector = state.get("connections.genomeGenesisConnector");
+        historicalMarkings = loadHistoricalMarkings(state.get("connections.historicalMarkings"), eventLoop);
     }
 }

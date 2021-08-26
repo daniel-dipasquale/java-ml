@@ -1,10 +1,11 @@
 package com.dipasquale.ai.rl.neat.settings;
 
-import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
+import com.dipasquale.ai.rl.neat.genotype.AllToAllOutputsGenesisGenomeConnector;
+import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.factory.LiteralFloatFactory;
-import com.dipasquale.common.profile.DefaultObjectProfile;
-import com.dipasquale.common.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.profile.DefaultObjectProfile;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -53,7 +54,7 @@ public final class GenesisGenomeTemplate {
         return new DefaultObjectProfile<>(parallelism.isEnabled(), weightFactory);
     }
 
-    public GenomeGenesisConnector createConnector(final ParallelismSupport parallelism, final ObjectProfile<FloatFactory> weightFactory) {
+    public GenesisGenomeConnector createConnector(final ParallelismSupport parallelism, final ObjectProfile<FloatFactory> weightFactory) {
         ObjectProfile<FloatFactory> weightFactoryProfile = createWeightFactory(parallelism, weightFactory);
 
         return switch (initialConnectionType) {

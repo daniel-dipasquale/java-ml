@@ -1,70 +1,50 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
+import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.common.Pair;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Optional;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public final class DefaultGenome implements Genome, Serializable {
+public final class DefaultGenome implements Serializable {
     @Serial
     private static final long serialVersionUID = 1467592503532949541L;
     @Getter
     @EqualsAndHashCode.Include
     private final String id;
-    @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Include
     private final NodeGeneGroup nodes;
-    @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Include
     private final ConnectionGeneGroup connections;
-    private final GenomeHistoricalMarkings historicalMarkings;
-    private transient NeuralNetwork neuralNetwork;
-    private boolean frozen;
 
-    public DefaultGenome(final String id, final GenomeHistoricalMarkings historicalMarkings) {
+    public DefaultGenome(final String id) {
         this.id = id;
         this.nodes = new NodeGeneGroup();
         this.connections = new ConnectionGeneGroup();
-        this.historicalMarkings = historicalMarkings;
-        this.neuralNetwork = null;
-        this.frozen = false;
     }
 
-    public void initialize(final Context.NeuralNetworkSupport neuralNetwork) {
-        this.neuralNetwork = neuralNetwork.create(nodes, connections);
-    }
-
-    @Override
     public int getComplexity() {
-        return connections.getExpressed().size() + 1;
+        return connections.getExpressed().size();
+    }
+
+    public float calculateFitness(final Context.NeuralNetworkSupport neuralNetworkSupport, final PopulationState populationState) {
+        return neuralNetworkSupport.calculateFitness(this, nodes, connections, populationState);
     }
 
     public Iterable<NodeGene> getNodes(final NodeGeneType type) {
         return () -> nodes.iterator(type);
     }
 
-    private void ensureIsNotFrozen() {
-        if (frozen) {
-            throw new IllegalStateException("the genome is frozen");
-        }
-    }
-
     public void addNode(final NodeGene node) {
-        ensureIsNotFrozen();
         nodes.put(node);
     }
 
     public void addConnection(final ConnectionGene connection) {
-        ensureIsNotFrozen();
         connections.put(connection);
     }
 
@@ -72,14 +52,14 @@ public final class DefaultGenome implements Genome, Serializable {
         boolean mutated = false;
 
         for (ConnectionGene connection : connections.getAll()) {
-            switch (context.mutation().nextWeightMutationType()) {
+            switch (context.mutation().generateWeightMutationType()) {
                 case PERTURB -> {
                     connection.setWeight(context.connections().perturbWeight(connection.getWeight()));
                     mutated = true;
                 }
 
                 case REPLACE -> {
-                    connection.setWeight(context.connections().nextWeight());
+                    connection.setWeight(context.connections().generateWeight());
                     mutated = true;
                 }
             }
@@ -88,24 +68,16 @@ public final class DefaultGenome implements Genome, Serializable {
         return mutated;
     }
 
-    private boolean disableRandomConnection(final Context.RandomSupport random) {
+    private boolean disableRandomConnection(final Context.RandomSupport randomSupport) {
         int size = connections.getExpressed().size();
 
         if (size == 0) {
             return false;
         }
 
-        connections.getExpressed().disableByIndex(random.nextIndex(size));
+        connections.getExpressed().disableByIndex(randomSupport.generateIndex(size));
 
         return true;
-    }
-
-    private SequentialId createHiddenNodeId() {
-        return historicalMarkings.createNodeId(NodeGeneType.HIDDEN);
-    }
-
-    private InnovationId getOrCreateInnovationId(final NodeGene inNode, final NodeGene outNode) {
-        return historicalMarkings.getOrCreateInnovationId(inNode, outNode);
     }
 
     private boolean addRandomNodeMutation(final Context context) {
@@ -115,13 +87,13 @@ public final class DefaultGenome implements Genome, Serializable {
             return false;
         }
 
-        int index = context.random().nextIndex(size);
+        int index = context.random().generateIndex(size);
         ConnectionGene connection = connections.getExpressed().disableByIndex(index);
         NodeGene inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
         NodeGene outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
-        NodeGene newNode = context.nodes().create(createHiddenNodeId(), NodeGeneType.HIDDEN);
-        ConnectionGene inToNewConnection = new ConnectionGene(getOrCreateInnovationId(inNode, newNode), 1f);
-        ConnectionGene newToOutConnection = new ConnectionGene(getOrCreateInnovationId(newNode, outNode), connection.getWeight());
+        NodeGene newNode = context.nodes().create(NodeGeneType.HIDDEN);
+        ConnectionGene inToNewConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
+        ConnectionGene newToOutConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
 
         addNode(newNode);
         addConnection(inToNewConnection);
@@ -131,13 +103,13 @@ public final class DefaultGenome implements Genome, Serializable {
     }
 
     private boolean addRandomConnectionMutation(final Context context) {
-        InnovationId innovationId = createRandomInnovationId(context.random());
+        InnovationId innovationId = createRandomInnovationId(context);
 
         if (innovationId != null) {
             ConnectionGene connection = connections.getAll().getById(innovationId);
 
             if (connection == null) {
-                addConnection(new ConnectionGene(innovationId, context.connections().nextWeight()));
+                addConnection(new ConnectionGene(innovationId, context.connections().generateWeight()));
 
                 return true;
             }
@@ -158,74 +130,97 @@ public final class DefaultGenome implements Genome, Serializable {
         return false;
     }
 
-    private NodeGene getRandomNode(final Context.RandomSupport random, final NodeGeneType type1, final NodeGeneType type2) {
+    private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType type1, final NodeGeneType type2) {
         float size1 = (float) nodes.size(type1);
         float size2 = (float) nodes.size(type2);
         float size = size1 + size2;
 
-        if (random.isLessThan(size1 / size)) {
-            return Optional.ofNullable(nodes.getRandom(random, type1))
-                    .orElseGet(() -> nodes.getRandom(random, type2));
+        if (randomSupport.isLessThan(size1 / size)) {
+            NodeGene node = nodes.getRandom(randomSupport, type1);
+
+            if (node == null) {
+                node = nodes.getRandom(randomSupport, type2);
+            }
+
+            return node;
         }
 
-        return Optional.ofNullable(nodes.getRandom(random, type2))
-                .orElseGet(() -> nodes.getRandom(random, type1));
+        NodeGene node = nodes.getRandom(randomSupport, type2);
+
+        if (node == null) {
+            node = nodes.getRandom(randomSupport, type1);
+        }
+
+        return node;
     }
 
-    private NodeGene getRandomNode(final Context.RandomSupport random, final NodeGeneType type1, final NodeGeneType type2, final NodeGeneType type3) {
+    private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType type1, final NodeGeneType type2, final NodeGeneType type3) {
         float size1 = (float) nodes.size(type1);
         float size2 = (float) nodes.size(type2);
         float size3 = (float) nodes.size(type3);
         float size = size1 + size2 + size3;
 
-        if (random.isLessThan(size1 / size)) {
-            return Optional.ofNullable(nodes.getRandom(random, type1))
-                    .orElseGet(() -> getRandomNode(random, type2, type3));
+        if (randomSupport.isLessThan(size1 / size)) {
+            NodeGene node = nodes.getRandom(randomSupport, type1);
+
+            if (node == null) {
+                node = getRandomNode(randomSupport, type2, type3);
+            }
+
+            return node;
         }
 
-        if (random.isLessThan(size2 / (size2 + size3))) {
-            return Optional.ofNullable(nodes.getRandom(random, type2))
-                    .orElseGet(() -> getRandomNode(random, type1, type3));
+        if (randomSupport.isLessThan(size2 / (size2 + size3))) {
+            NodeGene node = nodes.getRandom(randomSupport, type2);
+
+            if (node == null) {
+                node = getRandomNode(randomSupport, type1, type3);
+            }
+
+            return node;
         }
 
-        return Optional.ofNullable(nodes.getRandom(random, type3))
-                .orElseGet(() -> getRandomNode(random, type1, type2));
+        NodeGene node = nodes.getRandom(randomSupport, type3);
+
+        if (node == null) {
+            node = getRandomNode(randomSupport, type1, type2);
+        }
+
+        return node;
     }
 
-    private NodeGene getRandomNodeToMatch(final Context.RandomSupport random, final NodeGeneType type) {
+    private NodeGene getRandomNodeToMatch(final Context.RandomSupport randomSupport, final NodeGeneType type) {
         return switch (type) {
-            case INPUT, BIAS -> getRandomNode(random, NodeGeneType.OUTPUT, NodeGeneType.HIDDEN);
+            case INPUT, BIAS -> getRandomNode(randomSupport, NodeGeneType.OUTPUT, NodeGeneType.HIDDEN);
 
-            case HIDDEN -> nodes.getRandom(random);
+            case HIDDEN -> nodes.getRandom(randomSupport);
 
-            case OUTPUT -> getRandomNode(random, NodeGeneType.INPUT, NodeGeneType.BIAS, NodeGeneType.HIDDEN);
+            case OUTPUT -> getRandomNode(randomSupport, NodeGeneType.INPUT, NodeGeneType.BIAS, NodeGeneType.HIDDEN);
         };
     }
 
-    private InnovationId createRandomInnovationId(final Context.RandomSupport random) {
+    private InnovationId createRandomInnovationId(final Context context) {
         if (nodes.size() <= 1) {
             return null;
         }
 
-        NodeGene node1 = nodes.getByIndex(random.nextIndex(nodes.size()));
-        NodeGene node2 = getRandomNodeToMatch(random, node1.getType());
+        NodeGene node1 = nodes.getByIndex(context.random().generateIndex(nodes.size()));
+        NodeGene node2 = getRandomNodeToMatch(context.random(), node1.getType());
 
         return switch (node1.getType()) {
-            case INPUT, BIAS -> getOrCreateInnovationId(node1, node2);
+            case INPUT, BIAS -> context.connections().getOrCreateInnovationId(node1, node2);
 
-            case OUTPUT -> getOrCreateInnovationId(node2, node1);
+            case OUTPUT -> context.connections().getOrCreateInnovationId(node2, node1);
 
             case HIDDEN -> switch (node2.getType()) {
-                case INPUT, BIAS -> getOrCreateInnovationId(node2, node1);
+                case INPUT, BIAS -> context.connections().getOrCreateInnovationId(node2, node1);
 
-                case OUTPUT, HIDDEN -> getOrCreateInnovationId(node1, node2);
+                case OUTPUT, HIDDEN -> context.connections().getOrCreateInnovationId(node1, node2);
             };
         };
     }
 
-    public void mutate(final Context context) {
-        ensureIsNotFrozen();
-
+    public boolean mutate(final Context context) {
         boolean mutated = mutateWeights(context);
 
         if (context.mutation().shouldDisableExpressed()) {
@@ -240,26 +235,11 @@ public final class DefaultGenome implements Genome, Serializable {
             mutated |= addRandomConnectionMutation(context); // TODO: determine if this algorithm is consistent enough when converging
         }
 
-        if (mutated) {
-            neuralNetwork.reset();
-        }
+        return mutated;
     }
 
-    public void freeze() {
-        frozen = true;
-    }
-
-    @Override
-    public float[] activate(final float[] input) {
-        return neuralNetwork.activate(input);
-    }
-
-    private String createGenomeId() {
-        return historicalMarkings.createGenomeId();
-    }
-
-    private static <T> T getRandom(final Context.RandomSupport random, final T item1, final T item2) {
-        return random.isLessThan(0.5f) ? item1 : item2;
+    private static <T> T getRandom(final Context.RandomSupport randomSupport, final T item1, final T item2) {
+        return randomSupport.isLessThan(0.5f) ? item1 : item2;
     }
 
     private static ConnectionGene createChildConnection(final Context context, final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
@@ -278,7 +258,7 @@ public final class DefaultGenome implements Genome, Serializable {
     }
 
     public static DefaultGenome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final DefaultGenome fitParent, final DefaultGenome unfitParent) {
-        DefaultGenome child = new DefaultGenome(fitParent.createGenomeId(), fitParent.historicalMarkings);
+        DefaultGenome child = new DefaultGenome(context.speciation().createGenomeId());
 
         for (Pair<NodeGene> nodePair : (Iterable<Pair<NodeGene>>) () -> fitParent.nodes.fullJoin(unfitParent.nodes)) {
             if (nodePair.getLeft() != null && nodePair.getRight() != null) {
@@ -305,7 +285,7 @@ public final class DefaultGenome implements Genome, Serializable {
     }
 
     public static DefaultGenome crossOverByEqualTreatment(final Context context, final DefaultGenome parent1, final DefaultGenome parent2) {
-        DefaultGenome child = new DefaultGenome(parent1.createGenomeId(), parent1.historicalMarkings);
+        DefaultGenome child = new DefaultGenome(context.speciation().createGenomeId());
 
         for (Pair<NodeGene> nodePair : (Iterable<Pair<NodeGene>>) () -> parent1.nodes.fullJoin(parent2.nodes)) {
             if (nodePair.getLeft() != null && nodePair.getRight() != null) {
@@ -338,8 +318,8 @@ public final class DefaultGenome implements Genome, Serializable {
         return child;
     }
 
-    private DefaultGenome createCopy(final String id, final GenomeHistoricalMarkings historicalMarkings) {
-        DefaultGenome genome = new DefaultGenome(id, historicalMarkings);
+    private DefaultGenome createCopy(final String id) {
+        DefaultGenome genome = new DefaultGenome(id);
 
         nodes.forEach(genome.nodes::put);
         connections.getAll().forEach(c -> genome.connections.put(c.createClone()));
@@ -347,14 +327,14 @@ public final class DefaultGenome implements Genome, Serializable {
         return genome;
     }
 
-    public DefaultGenome createCopy(final GenomeHistoricalMarkings historicalMarkings) {
-        String id = historicalMarkings.createGenomeId();
+    public DefaultGenome createCopy(final Context.SpeciationSupport speciationSupport) {
+        String id = speciationSupport.createGenomeId();
 
-        return createCopy(id, historicalMarkings);
+        return createCopy(id);
     }
 
-    public DefaultGenome createClone(final GenomeHistoricalMarkings historicalMarkings) {
-        return createCopy(id, historicalMarkings);
+    public DefaultGenome createClone() {
+        return createCopy(id);
     }
 
     private static boolean isMatching(final Pair<ConnectionGene> connections) {

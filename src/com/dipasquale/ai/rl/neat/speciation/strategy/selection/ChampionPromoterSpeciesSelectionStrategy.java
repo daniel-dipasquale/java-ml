@@ -31,6 +31,6 @@ public final class ChampionPromoterSpeciesSelectionStrategy implements SpeciesSe
 
         assert championOrganism != null; // TODO: what should happen if all species go extinct at the same time
 
-        context.getChampionOrganismActivator().setOrganism(championOrganism); // TODO: consider cloning
+        context.getChampionOrganismActivator().initialize(championOrganism, context.getParent().neuralNetwork()); // TODO: consider cloning
     }
 }

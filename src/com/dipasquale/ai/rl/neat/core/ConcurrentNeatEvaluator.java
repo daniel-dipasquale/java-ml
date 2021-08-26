@@ -11,24 +11,19 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 final class ConcurrentNeatEvaluator implements NeatEvaluator {
     private final Context context;
-    private final Population population;
-    private final AtomicBoolean populationInitialized;
-    private volatile boolean populationFinalized;
     private final OrganismActivator championOrganismActivator;
+    private final Population population;
     private final ReadWriteLock lock;
 
     ConcurrentNeatEvaluator(final Context context, final OrganismActivator championOrganismActivator, final ReadWriteLock lock) {
         this.context = context;
-        this.population = new Population(championOrganismActivator);
         this.championOrganismActivator = championOrganismActivator;
-        this.populationInitialized = new AtomicBoolean(false);
-        this.populationFinalized = false;
+        this.population = createPopulation(context, championOrganismActivator);
         this.lock = lock;
     }
 
@@ -40,15 +35,12 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         this(context, new DefaultOrganismActivator(), new ReentrantReadWriteLock());
     }
 
-    private void ensureIsInitialized() {
-        if (!populationInitialized.compareAndSet(false, true)) {
-            while (!populationFinalized) {
-                Thread.onSpinWait();
-            }
-        } else {
-            population.initialize(context);
-            populationFinalized = true;
-        }
+    private static Population createPopulation(final Context context, final OrganismActivator championOrganismActivator) {
+        Population population = new Population();
+
+        population.initialize(context, championOrganismActivator);
+
+        return population;
     }
 
     @Override
@@ -56,8 +48,6 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.readLock().lock();
 
         try {
-            ensureIsInitialized();
-
             return population.getGeneration();
         } finally {
             lock.readLock().unlock();
@@ -69,8 +59,6 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.readLock().lock();
 
         try {
-            ensureIsInitialized();
-
             return population.getSpeciesCount();
         } finally {
             lock.readLock().unlock();
@@ -82,8 +70,6 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.readLock().lock();
 
         try {
-            ensureIsInitialized();
-
             return championOrganismActivator.getComplexity();
         } finally {
             lock.readLock().unlock();
@@ -95,8 +81,6 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.readLock().lock();
 
         try {
-            ensureIsInitialized();
-
             return championOrganismActivator.getFitness();
         } finally {
             lock.readLock().unlock();
@@ -108,7 +92,6 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.writeLock().lock();
 
         try {
-            ensureIsInitialized();
             population.updateFitness(context);
         } finally {
             lock.writeLock().unlock();
@@ -120,8 +103,7 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.writeLock().lock();
 
         try {
-            ensureIsInitialized();
-            population.evolve(context);
+            population.evolve(context, championOrganismActivator);
         } finally {
             lock.writeLock().unlock();
         }
@@ -132,8 +114,7 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.writeLock().lock();
 
         try {
-            ensureIsInitialized();
-            population.restart(context);
+            population.restart(context, championOrganismActivator);
         } finally {
             lock.writeLock().unlock();
         }
@@ -144,9 +125,7 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.readLock().lock();
 
         try {
-            ensureIsInitialized();
-
-            return championOrganismActivator.activate(context, input);
+            return championOrganismActivator.activate(input);
         } finally {
             lock.readLock().unlock();
         }
@@ -158,9 +137,9 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.writeLock().lock();
 
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            context.save(objectOutputStream);
             championOrganismActivator.save(objectOutputStream);
             population.save(objectOutputStream);
-            context.save(objectOutputStream);
         } finally {
             lock.writeLock().unlock();
         }
@@ -172,28 +151,20 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.writeLock().lock();
 
         try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
-            if (settings.isMeantToOverrideTopology()) {
-                try {
-                    championOrganismActivator.load(objectInputStream);
-                    population.load(objectInputStream, championOrganismActivator);
-                } catch (ClassNotFoundException e) {
-                    throw new IOException("unable to load the topology", e);
-                }
+            try {
+                context.load(objectInputStream, settings.createContext());
+            } catch (ClassNotFoundException e) {
+                throw new IOException("unable to load the settings", e);
             }
 
-            if (settings.isMeantToOverrideSettings()) {
-                try {
-                    context.load(objectInputStream, settings.createContext());
-                } catch (ClassNotFoundException e) {
-                    throw new IOException("unable to load the settings", e);
-                }
+            try {
+                championOrganismActivator.load(objectInputStream);
+                population.load(objectInputStream);
+            } catch (ClassNotFoundException e) {
+                throw new IOException("unable to load the topology", e);
             }
 
-            if (settings.isMeantToOverrideTopology() || settings.isMeantToOverrideSettings()) {
-                population.initialize(context);
-                populationInitialized.set(true);
-                populationFinalized = true;
-            }
+            population.initialize(context, championOrganismActivator);
         } finally {
             lock.writeLock().unlock();
         }

@@ -6,17 +6,21 @@ import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomeHub;
 import com.dipasquale.common.SerializableInteroperableStateMap;
-import com.dipasquale.common.factory.ObjectAccessor;
-import com.dipasquale.common.profile.ObjectProfile;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.common.factory.ObjectIndexer;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextSpeciationSupport implements Context.SpeciationSupport {
     private DefaultContextSpeciationParameters params;
+    private DualModeSequentialIdFactory speciesIdFactory;
+    private DualModeGenomeHub genomeHub;
     private GenomeCompatibilityCalculator genomeCompatibilityCalculator;
-    private ObjectProfile<ObjectAccessor<ReproductionType>> reproductionTypeFactory;
+    private ObjectProfile<ObjectIndexer<ReproductionType>> reproductionTypeFactory;
     private ObjectProfile<SpeciesFitnessStrategy> fitnessStrategy;
     private ObjectProfile<SpeciesSelectionStrategyExecutor> selectionStrategy;
     private ObjectProfile<SpeciesReproductionStrategy> reproductionStrategy;
@@ -24,6 +28,21 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     @Override
     public Context.SpeciationParameters params() {
         return params;
+    }
+
+    @Override
+    public String createSpeciesId() {
+        return speciesIdFactory.create().toString();
+    }
+
+    @Override
+    public String createGenomeId() {
+        return genomeHub.createGenomeId();
+    }
+
+    @Override
+    public DefaultGenome createGenome(final Context context) {
+        return genomeHub.createGenome(context);
     }
 
     @Override
@@ -42,23 +61,33 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     }
 
     @Override
-    public ReproductionType nextReproductionType(final int organisms) {
+    public ReproductionType generateReproductionType(final int organisms) {
         return reproductionTypeFactory.getObject().get(organisms);
     }
 
     @Override
-    public SpeciesFitnessStrategy fitnessStrategy() {
+    public SpeciesFitnessStrategy getFitnessStrategy() {
         return fitnessStrategy.getObject();
     }
 
     @Override
-    public SpeciesSelectionStrategyExecutor selectionStrategy() {
+    public SpeciesSelectionStrategyExecutor getSelectionStrategy() {
         return selectionStrategy.getObject();
     }
 
     @Override
-    public SpeciesReproductionStrategy reproductionStrategy() {
+    public SpeciesReproductionStrategy getReproductionStrategy() {
         return reproductionStrategy.getObject();
+    }
+
+    @Override
+    public int getGenomeKilledCount() {
+        return genomeHub.getGenomeKilledCount();
+    }
+
+    @Override
+    public void markToKill(final DefaultGenome genome) {
+        genomeHub.markToKill(genome);
     }
 
     public void save(final SerializableInteroperableStateMap state) {

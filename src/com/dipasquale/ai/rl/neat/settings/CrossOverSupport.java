@@ -2,9 +2,9 @@ package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.context.DefaultContextCrossOverSupport;
 import com.dipasquale.common.Pair;
-import com.dipasquale.common.profile.ObjectProfile;
-import com.dipasquale.common.profile.provider.IsLessThanRandomGateProviderProfile;
 import com.dipasquale.common.provider.GateProvider;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.profile.provider.IsLessThanRandomGateProviderProfile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

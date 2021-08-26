@@ -12,14 +12,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
 public final class RecurrentNeuronPathBuilder implements NeuronPathBuilder {
     private final Map<SequentialId, Neuron> neurons = new HashMap<>();
-    private final Set<CompositeId> alreadyOrdered = new HashSet<>();
-    private final Collection<Neuron> ordered = new LinkedList<>();
+    private final Set<NeuronOrderId> orderedNeuronIds = new HashSet<>();
+    private final Collection<Neuron> orderedNeurons = new LinkedList<>();
 
     @Override
     public boolean hasNeurons() {
@@ -38,35 +37,62 @@ public final class RecurrentNeuronPathBuilder implements NeuronPathBuilder {
         return neuron;
     }
 
+    private OrderableNeuron getOrderableOrCreateUnordered(final OrderableNeuron orderableNeuron, final NeuronOrderId neuronOrderId) {
+        if (orderableNeuron != null) {
+            return orderableNeuron;
+        }
+
+        Neuron neuron = neurons.get(neuronOrderId.neuronId);
+
+        return new OrderableNeuron(neuronOrderId, neuron, false);
+    }
+
+    private static OrderableNeuron createUnordered(final Neuron neuron) {
+        NeuronOrderId neuronOrderId = new NeuronOrderId(neuron.getId(), 0);
+
+        return new OrderableNeuron(neuronOrderId, neuron, false);
+    }
+
+    private static void addRootTo(final HashDequeMap<NeuronOrderId, OrderableNeuron> deque, final Neuron neuron) {
+        OrderableNeuron orderableNeuron = createUnordered(neuron);
+
+        deque.putLast(orderableNeuron.neuronOrderId, orderableNeuron);
+    }
+
+    private OrderableNeuron createNextUnordered(final NeuronOrderId neuronOrderId) {
+        return new OrderableNeuron(neuronOrderId.createNext(), neurons.get(neuronOrderId.neuronId), false);
+    }
+
     @Override
     public void addPathLeadingTo(final Neuron neuron) {
-        HashDequeMap<CompositeId, NeuronOrder> deque = new HashDequeMap<>();
+        HashDequeMap<NeuronOrderId, OrderableNeuron> deque = new HashDequeMap<>();
 
-        deque.putLast(new CompositeId(neuron.getId(), 0), new NeuronOrder(neuron, false));
+        addRootTo(deque, neuron);
 
         while (!deque.isEmpty()) {
-            Map.Entry<CompositeId, NeuronOrder> entry = deque.withdrawLast();
+            OrderableNeuron orderableNeuron = deque.removeLast();
 
-            if (!entry.getValue().ordered) {
-                deque.putLast(entry.getKey(), new NeuronOrder(entry.getValue().neuron, true));
+            if (!orderableNeuron.ordered) {
+                deque.putLast(orderableNeuron.neuronOrderId, orderableNeuron.createOrdered());
 
-                for (InputNeuron input : entry.getValue().neuron.getInputs()) {
-                    CompositeId compositeId = new CompositeId(input.getNeuronId(), entry.getKey().cycle);
-                    NeuronOrder neuronOrderOld = deque.get(compositeId);
+                for (InputNeuron inputNeuron : orderableNeuron.neuron.getInputs()) {
+                    NeuronOrderId inputNeuronOrderId = new NeuronOrderId(inputNeuron.getNeuronId(), orderableNeuron.neuronOrderId.cycle);
+                    OrderableNeuron orderableInputNeuron = deque.get(inputNeuronOrderId);
 
-                    if ((neuronOrderOld == null || !neuronOrderOld.ordered) && !alreadyOrdered.contains(compositeId)) {
-                        NeuronOrder neuronOrderNew = Optional.ofNullable(neuronOrderOld)
-                                .orElseGet(() -> new NeuronOrder(neurons.get(input.getNeuronId()), false));
+                    if ((orderableInputNeuron == null || !orderableInputNeuron.ordered) && !orderedNeuronIds.contains(inputNeuronOrderId)) {
+                        OrderableNeuron orderableInputNeuronFixed = getOrderableOrCreateUnordered(orderableInputNeuron, inputNeuronOrderId);
 
-                        deque.putLast(compositeId, neuronOrderNew);
-                    } else if (neuronOrderOld != null && neuronOrderOld.ordered || alreadyOrdered.contains(compositeId)) {
-                        if (compositeId.cycle <= input.getRecurrentCyclesAllowed()) {
-                            deque.putLast(new CompositeId(input.getNeuronId(), compositeId.cycle + 1), new NeuronOrder(neurons.get(input.getNeuronId()), false));
+                        deque.putLast(inputNeuronOrderId, orderableInputNeuronFixed);
+                    } else if (orderableInputNeuron != null && orderableInputNeuron.ordered || orderedNeuronIds.contains(inputNeuronOrderId)) {
+                        if (inputNeuronOrderId.cycle <= inputNeuron.getRecurrentCyclesAllowed()) {
+                            OrderableNeuron orderableInputNeuronFixed = createNextUnordered(inputNeuronOrderId);
+
+                            deque.putLast(orderableInputNeuronFixed.neuronOrderId, orderableInputNeuronFixed);
                         }
                     }
                 }
-            } else if (alreadyOrdered.add(entry.getKey())) {
-                ordered.add(entry.getValue().neuron);
+            } else if (orderedNeuronIds.add(orderableNeuron.neuronOrderId)) {
+                orderedNeurons.add(orderableNeuron.neuron);
             }
         }
     }
@@ -74,30 +100,39 @@ public final class RecurrentNeuronPathBuilder implements NeuronPathBuilder {
     @Override
     public void clear() {
         neurons.clear();
-        ordered.clear();
+        orderedNeurons.clear();
     }
 
     @Override
     public Iterator<Neuron> iterator() {
-        return ordered.iterator();
+        return orderedNeurons.iterator();
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
-    private static final class CompositeId {
-        private final SequentialId id;
+    private static final class NeuronOrderId {
+        private final SequentialId neuronId;
         private final int cycle;
+
+        private NeuronOrderId createNext() {
+            return new NeuronOrderId(neuronId, cycle + 1);
+        }
 
         @Override
         public String toString() {
-            return String.format("%s:%d", id, cycle);
+            return String.format("%s:%d", neuronId, cycle);
         }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class NeuronOrder {
+    private static final class OrderableNeuron {
+        private final NeuronOrderId neuronOrderId;
         private final Neuron neuron;
         private final boolean ordered;
+
+        public OrderableNeuron createOrdered() {
+            return new OrderableNeuron(neuronOrderId, neuron, true);
+        }
 
         @Override
         public String toString() {

@@ -50,12 +50,12 @@ public final class NodeGeneGroup implements Iterable<NodeGene>, Serializable {
         return nodes.getById(id);
     }
 
-    public NodeGene getRandom(final Context.RandomSupport random) {
-        return random.nextItem(nodes);
+    public NodeGene getRandom(final Context.RandomSupport randomSupport) {
+        return randomSupport.generateItem(nodes);
     }
 
-    public NodeGene getRandom(final Context.RandomSupport random, final NodeGeneType type) {
-        return random.nextItem(nodesByType.get(type));
+    public NodeGene getRandom(final Context.RandomSupport randomSupport, final NodeGeneType type) {
+        return randomSupport.generateItem(nodesByType.get(type));
     }
 
     public void put(final NodeGene node) {

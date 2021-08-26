@@ -1,25 +1,24 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.common.fitness.FitnessDeterminer;
-import com.dipasquale.ai.common.fitness.FitnessFunction;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.DefaultGenome;
-import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
-import com.dipasquale.ai.rl.neat.speciation.core.DefaultGenomeHistoricalMarkings;
+import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
 import com.dipasquale.common.Pair;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
-import com.dipasquale.threading.wait.handle.WaitHandle;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.wait.handle.WaitHandle;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -58,16 +57,20 @@ public interface Context {
 
     interface GeneralSupport {
         GeneralParams params();
-
-        float calculateFitness(Genome genome);
-
-        FitnessDeterminer createFitnessDeterminer();
     }
 
     interface NodeGeneSupport {
+        SequentialId createId(NodeGeneType type);
+
         NodeGene create(SequentialId id, NodeGeneType type);
 
-        int size(NodeGeneType type);
+        default NodeGene create(final NodeGeneType type) {
+            SequentialId id = createId(type);
+
+            return create(id, type);
+        }
+
+        void setupInitialNodes(DefaultGenome genome);
     }
 
     @FunctionalInterface
@@ -78,16 +81,27 @@ public interface Context {
     interface ConnectionGeneSupport {
         ConnectionGeneParameters params();
 
-        float nextWeight();
+        float generateWeight();
 
         float perturbWeight(float weight);
 
-        void setupInitialConnections(DefaultGenome genome, DefaultGenomeHistoricalMarkings historicalMarkings);
+        void setupInitialConnections(DefaultGenome genome);
+
+        InnovationId getOrCreateInnovationId(NodeGene inputNode, NodeGene outputNode);
+
+        boolean isInnovationIdExtinct(InnovationId innovationId); // TODO: add this to cross overs
+
+        void registerNodes(DefaultGenome genome);
+
+        void deregisterNodes(DefaultGenome genome);
+
+        void clearHistoricalMarkings();
     }
 
-    @FunctionalInterface
     interface NeuralNetworkSupport {
-        NeuralNetwork create(NodeGeneGroup nodes, ConnectionGeneGroup connections);
+        float calculateFitness(DefaultGenome genome, NodeGeneGroup nodes, ConnectionGeneGroup connections, PopulationState populationState);
+
+        NeuralNetwork getPhenotype(DefaultGenome genome);
     }
 
     interface ParallelismParameters {
@@ -103,27 +117,27 @@ public interface Context {
     }
 
     interface RandomSupport {
-        int nextIndex(int offset, int count);
+        int generateIndex(int offset, int count);
 
-        default int nextIndex(final int count) {
-            return nextIndex(0, count);
+        default int generateIndex(final int count) {
+            return generateIndex(0, count);
         }
 
-        default <T> T nextItem(final List<T> items) {
+        default <T> T generateItem(final List<T> items) {
             int size = items.size();
 
             if (size == 0) {
                 return null;
             }
 
-            int index = nextIndex(size);
+            int index = generateIndex(size);
 
             return items.get(index);
         }
 
         boolean isLessThan(float rate);
 
-        default <T> Pair<T> nextUniquePair(final List<T> items) {
+        default <T> Pair<T> generateItemPair(final List<T> items) {
             int size = items.size();
 
             if (size <= 1) {
@@ -134,25 +148,25 @@ public interface Context {
                 return new Pair<>(items.get(0), items.get(1));
             }
 
-            int index1 = nextIndex(size);
+            int index1 = generateIndex(size);
             float first = (float) index1;
             float total = (float) (size - 1);
 
             int index2 = isLessThan(first / total)
-                    ? nextIndex(index1)
-                    : nextIndex(index1 + 1, size);
+                    ? generateIndex(index1)
+                    : generateIndex(index1 + 1, size);
 
             return new Pair<>(items.get(index1), items.get(index2));
         }
 
-        default <T> T nextItem(final OrderedGroup<? extends Comparable<?>, T> items) {
+        default <T> T generateItem(final OrderedGroup<? extends Comparable<?>, T> items) {
             int size = items.size();
 
             if (size == 0) {
                 return null;
             }
 
-            int index = nextIndex(size);
+            int index = generateIndex(size);
 
             return items.getByIndex(index);
         }
@@ -163,7 +177,7 @@ public interface Context {
 
         boolean shouldAddConnectionMutation();
 
-        WeightMutationType nextWeightMutationType();
+        WeightMutationType generateWeightMutationType();
 
         boolean shouldDisableExpressed();
     }
@@ -217,19 +231,29 @@ public interface Context {
     interface SpeciationSupport {
         SpeciationParameters params();
 
+        String createSpeciesId();
+
+        String createGenomeId();
+
+        DefaultGenome createGenome(Context context);
+
         double calculateCompatibility(DefaultGenome genome1, DefaultGenome genome2);
 
-        ReproductionType nextReproductionType(int organisms);
+        ReproductionType generateReproductionType(int organisms);
 
-        SpeciesFitnessStrategy fitnessStrategy();
+        SpeciesFitnessStrategy getFitnessStrategy();
 
-        SpeciesSelectionStrategyExecutor selectionStrategy();
+        SpeciesSelectionStrategyExecutor getSelectionStrategy();
 
-        SpeciesReproductionStrategy reproductionStrategy();
+        SpeciesReproductionStrategy getReproductionStrategy();
+
+        int getGenomeKilledCount();
+
+        void markToKill(DefaultGenome genome);
     }
 
     interface StateOverrideSupport {
-        FitnessFunction<Genome> fitnessFunction();
+        NeatEnvironment fitnessFunction();
 
         IterableEventLoop eventLoop();
     }

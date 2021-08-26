@@ -11,14 +11,14 @@ public final class OutputClassifier<T> implements Serializable {
     private final TreeMap<Float, T> ranges = new TreeMap<>();
     private float total = 0f;
 
-    public void addUpUntil(final T type, final float range) {
+    public void addRangeFor(final float range, final T type) {
         if (Float.compare(range, 0f) > 0) {
             ranges.put(total + range, type);
             total += range;
         }
     }
 
-    public void addOtherwiseRoundedUp(final T type) {
+    public void addRemainingRangeFor(final T type) {
         if (Float.compare(total, 0f) > 0) {
             float totalFixed = (float) Math.ceil(total);
 

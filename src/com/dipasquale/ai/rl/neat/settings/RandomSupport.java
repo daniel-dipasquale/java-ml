@@ -2,33 +2,26 @@ package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextRandomSupport;
-import com.dipasquale.ai.rl.neat.profile.factory.RandomSupportFactoryProfile;
-import com.dipasquale.common.profile.ObjectProfile;
+import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.RandomSupportFactoryProfile;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.util.Optional;
-
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public final class RandomSupport {
-    private final RandomType nextIndex;
-    private final RandomType isLessThan;
+    @Builder.Default
+    private final RandomType nextIndex = RandomType.UNIFORM;
+    @Builder.Default
+    private final RandomType isLessThan = RandomType.UNIFORM;
 
-    private static ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createProfile(final ParallelismSupport parallelism, final RandomType type) {
-        RandomType typeFixed = Optional.ofNullable(type)
-                .orElse(RandomType.UNIFORM);
-
-        return new RandomSupportFactoryProfile(parallelism.isEnabled(), typeFixed);
+    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createNextIndexProfile(final ParallelismSupport parallelism) {
+        return new RandomSupportFactoryProfile(parallelism.isEnabled(), nextIndex);
     }
 
-    ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createNextIndexProfile(final ParallelismSupport parallelism) {
-        return createProfile(parallelism, nextIndex);
-    }
-
-    ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createIsLessThanProfile(final ParallelismSupport parallelism) {
-        return createProfile(parallelism, isLessThan);
+    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createIsLessThanProfile(final ParallelismSupport parallelism) {
+        return new RandomSupportFactoryProfile(parallelism.isEnabled(), isLessThan);
     }
 
     DefaultContextRandomSupport create(final ParallelismSupport parallelism) {

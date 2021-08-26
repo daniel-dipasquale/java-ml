@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +16,18 @@ public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSel
 
     @Override
     public void prepareSurvival(final SpeciesSelectionContext context, final Species species) {
-        List<Organism> organisms = species.removeUnfitToReproduce(context.getParent().speciation());
+        Context.SpeciationSupport speciation = context.getParent().speciation();
+        List<Organism> organisms = species.removeUnfitToReproduce(speciation);
 
-        organisms.forEach(Organism::kill);
+        organisms.forEach(o -> o.kill(speciation));
     }
 
     @Override
     public void prepareExtinction(final SpeciesSelectionContext context, final Species species) {
+        Context.SpeciationSupport speciation = context.getParent().speciation();
         List<Organism> organisms = species.getOrganisms();
 
-        organisms.forEach(Organism::kill);
+        organisms.forEach(o -> o.kill(speciation));
     }
 
     @Override

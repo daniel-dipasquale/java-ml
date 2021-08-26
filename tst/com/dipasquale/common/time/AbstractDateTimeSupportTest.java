@@ -1,6 +1,6 @@
 package com.dipasquale.common.time;
 
-import com.dipasquale.common.error.ErrorComparer;
+import com.dipasquale.common.error.ErrorComparator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -47,10 +47,10 @@ public final class AbstractDateTimeSupportTest {
             TEST.parse("invalid format");
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparer.builder()
+            Assertions.assertEquals(ErrorComparator.builder()
                     .type(DateTimeParseException.class)
                     .message("Text 'invalid format' could not be parsed at index 0")
-                    .build(), ErrorComparer.create(e));
+                    .build(), ErrorComparator.create(e));
         }
     }
 

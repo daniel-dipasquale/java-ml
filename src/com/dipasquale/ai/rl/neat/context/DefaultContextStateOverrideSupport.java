@@ -1,17 +1,16 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.common.fitness.FitnessFunction;
-import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class DefaultContextStateOverrideSupport implements Context.StateOverrideSupport {
-    private final FitnessFunction<Genome> fitnessFunction;
+    private final NeatEnvironment fitnessFunction;
     private final IterableEventLoop eventLoop;
 
     @Override
-    public FitnessFunction<Genome> fitnessFunction() {
+    public NeatEnvironment fitnessFunction() {
         return fitnessFunction;
     }
 

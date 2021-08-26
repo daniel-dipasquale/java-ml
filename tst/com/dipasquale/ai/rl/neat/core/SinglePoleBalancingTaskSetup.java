@@ -22,10 +22,10 @@ import com.dipasquale.ai.rl.neat.settings.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.settings.RandomSupport;
 import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
-import com.dipasquale.common.random.float2.ConstantRandomSupport;
+import com.dipasquale.common.random.float2.CyclicRandomSupport;
 import com.dipasquale.common.random.float2.ThreadLocalRandomSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
@@ -75,7 +75,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
     private static NeatTrainingResult determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
-        ConstantRandomSupport randomSupport = new ConstantRandomSupport(SUCCESSFUL_SCENARIOS * 4);
+        CyclicRandomSupport randomSupport = new CyclicRandomSupport(SUCCESSFUL_SCENARIOS * 4);
 
         for (int i = 0; success && i < SUCCESSFUL_SCENARIOS; i++) {
             CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);

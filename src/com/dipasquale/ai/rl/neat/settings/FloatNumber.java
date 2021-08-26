@@ -1,11 +1,11 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.profile.factory.BoundedRandomFloatFactoryProfile;
+import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.BoundedRandomFloatFactoryProfile;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.factory.LiteralFloatFactory;
-import com.dipasquale.common.profile.DefaultObjectProfile;
-import com.dipasquale.common.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.profile.DefaultObjectProfile;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

@@ -6,16 +6,17 @@ import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextNodeGeneSupport;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.profile.factory.DefaultActivationFunctionFactoryProfile;
-import com.dipasquale.ai.rl.neat.profile.factory.LiteralActivationFunctionFactoryProfile;
-import com.dipasquale.ai.rl.neat.profile.factory.OutputActivationFunctionFactoryProfile;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeNodeIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.DefaultActivationFunctionFactoryProfile;
+import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.LiteralActivationFunctionFactoryProfile;
+import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.OutputActivationFunctionFactoryProfile;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.factory.IllegalStateFloatFactory;
-import com.dipasquale.common.profile.DefaultObjectProfile;
-import com.dipasquale.common.profile.ObjectProfile;
-import com.dipasquale.common.profile.factory.CyclicFloatFactoryProfile;
+import com.dipasquale.synchronization.dual.profile.DefaultObjectProfile;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.profile.factory.CyclicFloatFactoryProfile;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -68,6 +69,8 @@ public final class NodeGeneSupport {
     }
 
     DefaultContextNodeGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelism) {
+        DualModeNodeIdFactory nodeIdFactory = new DualModeNodeIdFactory(parallelism.isEnabled());
+
         Map<NodeGeneType, ObjectProfile<FloatFactory>> biasFactoryProfiles = ImmutableMap.<NodeGeneType, ObjectProfile<FloatFactory>>builder()
                 .put(NodeGeneType.INPUT, inputBias.createFactoryProfile(parallelism))
                 .put(NodeGeneType.OUTPUT, outputBias.createFactoryProfile(parallelism))
@@ -90,6 +93,6 @@ public final class NodeGeneSupport {
         int outputs = genesisGenomeTemplate.getOutputs().createFactoryProfile(parallelism).getObject().create();
         int biases = genesisGenomeTemplate.getBiases().size();
 
-        return new DefaultContextNodeGeneSupport(biasFactoryProfiles, activationFunctionFactoryProfiles, inputs, outputs, biases);
+        return new DefaultContextNodeGeneSupport(nodeIdFactory, biasFactoryProfiles, activationFunctionFactoryProfiles, inputs, outputs, biases);
     }
 }

@@ -7,13 +7,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public interface OrganismActivator {
-    void setOrganism(Organism newOrganism);
+    void initialize(Organism organism, Context.NeuralNetworkSupport neuralNetwork);
 
     int getComplexity();
 
     float getFitness();
 
-    float[] activate(Context context, float[] inputs);
+    float[] activate(float[] inputs);
 
     void save(ObjectOutputStream outputStream) throws IOException;
 
