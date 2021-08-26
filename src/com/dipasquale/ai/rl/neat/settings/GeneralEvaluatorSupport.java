@@ -22,6 +22,8 @@ public final class GeneralEvaluatorSupport {
     private final NeatEnvironment fitnessFunction = null;
     @Builder.Default
     private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValue();
+    @Builder.Default
+    private final NeuralNetworkType type = NeuralNetworkType.MULTI_CYCLE_RECURRENT;
 
     DefaultContextGeneralSupport create() {
         ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
@@ -33,6 +35,6 @@ public final class GeneralEvaluatorSupport {
                 .populationSize(populationSize)
                 .build();
 
-        return new DefaultContextGeneralSupport(params, fitnessFunction, fitnessDeterminerFactory);
+        return new DefaultContextGeneralSupport(params);
     }
 }

@@ -8,12 +8,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ClosestSpeciesCollector {
     private static final double MINIMUM_COMPATIBILITY = Double.POSITIVE_INFINITY;
-    private final Context.SpeciationSupport speciation;
+    private final Context.SpeciationSupport speciationSupport;
     private double minimumCompatibility = MINIMUM_COMPATIBILITY;
     private Species closestSpecies = null;
 
     public boolean collectIfCloser(final Organism organism, final Species species) {
-        double compatibility = organism.calculateCompatibility(speciation, species);
+        double compatibility = organism.calculateCompatibility(speciationSupport, species);
 
         if (Double.compare(minimumCompatibility, compatibility) <= 0) {
             return false;
@@ -26,21 +26,17 @@ final class ClosestSpeciesCollector {
     }
 
     public boolean isClosestCompatible(final int generation) {
-        double compatibilityThreshold = speciation.params().compatibilityThreshold(generation);
+        double compatibilityThreshold = speciationSupport.params().compatibilityThreshold(generation);
 
         return Double.compare(minimumCompatibility, compatibilityThreshold) < 0;
+    }
+
+    public Species get() {
+        return closestSpecies;
     }
 
     public void clear() {
         minimumCompatibility = MINIMUM_COMPATIBILITY;
         closestSpecies = null;
-    }
-
-    public Species getAndClear() {
-        try {
-            return closestSpecies;
-        } finally {
-            clear();
-        }
     }
 }

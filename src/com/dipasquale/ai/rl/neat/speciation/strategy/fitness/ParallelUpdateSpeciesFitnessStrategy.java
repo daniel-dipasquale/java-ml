@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.threading.wait.handle.WaitHandle;
+import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -21,8 +21,8 @@ public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnes
                 .flatMap(s -> s.getOrganisms().stream())
                 .iterator();
 
-        Context.GeneralSupport general = context.getParent().general();
-        WaitHandle waitHandle = context.getParent().parallelism().forEach(organisms, o -> o.updateFitness(general));
+        Context.NeuralNetworkSupport neuralNetwork = context.getParent().neuralNetwork();
+        WaitHandle waitHandle = context.getParent().parallelism().forEach(organisms, o -> o.updateFitness(neuralNetwork));
 
         try {
             waitHandle.await();

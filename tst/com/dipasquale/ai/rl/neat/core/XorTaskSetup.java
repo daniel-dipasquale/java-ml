@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.settings.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.CrossOverSupport;
 import com.dipasquale.ai.rl.neat.settings.EnumValue;
@@ -22,7 +22,7 @@ import com.dipasquale.ai.rl.neat.settings.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.settings.RandomSupport;
 import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
@@ -42,11 +42,11 @@ final class XorTaskSetup implements TaskSetup {
     @Getter
     private final int populationSize = 150;
 
-    private static float calculateFitness(final Genome genome) {
+    private static float calculateFitness(final GenomeActivator genomeActivator) {
         float error = 0f;
 
         for (int i = 0; i < INPUTS.length; i++) {
-            float[] output = genome.activate(INPUTS[i]);
+            float[] output = genomeActivator.activate(INPUTS[i]);
 
             error += (float) Math.pow(EXPECTED_OUTPUTS[i] - output[0], 2D);
         }
@@ -108,7 +108,7 @@ final class XorTaskSetup implements TaskSetup {
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .build())
                 .neuralNetwork(NeuralNetworkSupport.builder()
-                        .type(NeuralNetworkType.MULTI_CYCLE_RECURRENT)
+                        .type(NeuralNetworkType.FEED_FORWARD)
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -147,15 +147,18 @@ final class XorTaskSetup implements TaskSetup {
 
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
-        return new NeatTrainingPolicy() {
-            @Override
-            public NeatTrainingResult test(final NeatActivator activator) {
-                return determineTrainingResult(activator);
-            }
+        return NeatTrainingPolicies.builder()
+                .add(new MaximumGenerationsTrainingPolicy(300, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 0))
+                .add(new NeatTrainingPolicy() {
+                    @Override
+                    public NeatTrainingResult test(final NeatActivator activator) {
+                        return determineTrainingResult(activator);
+                    }
 
-            @Override
-            public void complete() {
-            }
-        };
+                    @Override
+                    public void complete() {
+                    }
+                })
+                .build();
     }
 }

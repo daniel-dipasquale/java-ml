@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.settings.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.CrossOverSupport;
 import com.dipasquale.ai.rl.neat.settings.EnumValue;
@@ -22,10 +22,10 @@ import com.dipasquale.ai.rl.neat.settings.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.settings.RandomSupport;
 import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
-import com.dipasquale.common.random.float2.ConstantRandomSupport;
+import com.dipasquale.common.random.float2.CyclicRandomSupport;
 import com.dipasquale.common.random.float2.ThreadLocalRandomSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
@@ -33,10 +33,10 @@ import java.util.Set;
 
 final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this test might not be working as expected
     private static final String NAME = "Single Pole Balancing";
-    private static final double TIME_SPENT_GOAL = 3D;
+    private static final double TIME_SPENT_GOAL = 30D;
     private static final com.dipasquale.common.random.float2.RandomSupport RANDOM_SUPPORT = new ThreadLocalRandomSupport();
     private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 3;
-    private static final int SUCCESSFUL_SCENARIOS = SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST * 2;
+    private static final int SUCCESSFUL_SCENARIOS = 1;
     @Getter
     private final int populationSize = 150;
 
@@ -50,7 +50,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
         return output;
     }
 
-    private static float calculateFitness(final Genome genome) {
+    private static float calculateFitness(final GenomeActivator genomeActivator) {
         float minimumTimeSpent = Float.MAX_VALUE;
 
         for (int i = 0; i < SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST; i++) {
@@ -58,7 +58,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
             while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) < 0) {
                 float[] input = convertToFloat(cartPole.getState());
-                float[] output = genome.activate(input);
+                float[] output = genomeActivator.activate(input);
 
                 cartPole.stepInDiscrete(output[0]);
             }
@@ -75,7 +75,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
     private static NeatTrainingResult determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
-        ConstantRandomSupport randomSupport = new ConstantRandomSupport(SUCCESSFUL_SCENARIOS * 4);
+        CyclicRandomSupport randomSupport = new CyclicRandomSupport(SUCCESSFUL_SCENARIOS * 4);
 
         for (int i = 0; success && i < SUCCESSFUL_SCENARIOS; i++) {
             CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
@@ -134,7 +134,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .build())
                 .neuralNetwork(NeuralNetworkSupport.builder()
-                        .type(NeuralNetworkType.MULTI_CYCLE_RECURRENT)
+                        .type(NeuralNetworkType.RECURRENT)
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -173,15 +173,18 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
-        return new NeatTrainingPolicy() {
-            @Override
-            public NeatTrainingResult test(final NeatActivator activator) {
-                return determineTrainingResult(activator);
-            }
+        return NeatTrainingPolicies.builder()
+                .add(new MaximumGenerationsTrainingPolicy(1_000, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 0))
+                .add(new NeatTrainingPolicy() {
+                    @Override
+                    public NeatTrainingResult test(final NeatActivator activator) {
+                        return determineTrainingResult(activator);
+                    }
 
-            @Override
-            public void complete() {
-            }
-        };
+                    @Override
+                    public void complete() {
+                    }
+                })
+                .build();
     }
 }

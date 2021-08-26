@@ -4,8 +4,8 @@ import com.dipasquale.ai.rl.neat.settings.EvaluatorOverrideSettings;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorSettings;
 import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
-import com.dipasquale.threading.event.loop.IterableEventLoopSettings;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.event.loop.IterableEventLoopSettings;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
 
 public final class NeatTest {
     private static final boolean XOR_TASK_ENABLED = true;
-    private static final boolean SINGLE_POLE_BALANCING_TASK_ENABLED = false; // TODO: look into these tests, they were always fishy
+    private static final boolean SINGLE_POLE_BALANCING_TASK_ENABLED = true; // TODO: look into these tests, they were always fishy
     private static final Set<String> GENOME_IDS = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
@@ -89,10 +89,7 @@ public final class NeatTest {
                 .name(testSetup.task.getName())
                 .shouldTestParallelism(testSetup.shouldTestParallelism)
                 .settings(testSetup.task.createSettings(GENOME_IDS, eventLoop))
-                .trainingPolicy(NeatTrainingPolicies.builder()
-                        .add(new MaximumGenerationsTrainingPolicy(300, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 3))
-                        .add(testSetup.task.createTrainingPolicy())
-                        .build())
+                .trainingPolicy(testSetup.task.createTrainingPolicy())
                 .build();
     }
 
@@ -150,11 +147,10 @@ public final class NeatTest {
         NeatTrainerSetup trainerSetup = createTrainerSetup(testSetup);
         NeatTrainer trainer = Neat.createTrainer(trainerSetup.settings);
         int populationSize = testSetup.task.getPopulationSize();
-        boolean shouldTestPersistence = testSetup.shouldTestPersistence;
 
         assertTrainingResults(trainer, trainerSetup, populationSize);
 
-        if (shouldTestPersistence) {
+        if (testSetup.shouldTestPersistence) {
             assertPersistence(trainer, trainerSetup, !trainerSetup.shouldTestParallelism);
         }
     }
@@ -200,32 +196,12 @@ public final class NeatTest {
     }
 
     @Test
-    @Order(5)
-    public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
-        assertTaskSolution(NeatTestSetup.builder()
-                .task(new SinglePoleBalancingTaskSetup())
-                .shouldTestParallelism(false)
-                .shouldTestPersistence(false)
-                .build());
-    }
-
-    @Test
     @Order(6)
     public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(new SinglePoleBalancingTaskSetup())
                 .shouldTestParallelism(true)
                 .shouldTestPersistence(false)
-                .build());
-    }
-
-    @Test
-    @Order(7)
-    public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
-        assertTaskSolution(NeatTestSetup.builder()
-                .task(new SinglePoleBalancingTaskSetup())
-                .shouldTestParallelism(false)
-                .shouldTestPersistence(true)
                 .build());
     }
 

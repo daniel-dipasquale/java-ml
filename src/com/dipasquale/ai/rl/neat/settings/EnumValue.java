@@ -1,11 +1,11 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.profile.factory.RandomEnumFactoryProfile;
+import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.RandomEnumFactoryProfile;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.LiteralEnumFactory;
-import com.dipasquale.common.profile.DefaultObjectProfile;
-import com.dipasquale.common.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.profile.DefaultObjectProfile;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

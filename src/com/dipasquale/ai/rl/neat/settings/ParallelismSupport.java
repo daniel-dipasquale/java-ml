@@ -1,10 +1,10 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.context.DefaultContextParallelismSupport;
 import com.dipasquale.ai.rl.neat.context.MultiThreadContextParallelismSupport;
 import com.dipasquale.ai.rl.neat.context.SingleThreadContextParallelismSupport;
-import com.dipasquale.ai.rl.neat.context.StrategyContextParallelismSupport;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,15 +19,23 @@ public final class ParallelismSupport {
         return eventLoop != null;
     }
 
-    StrategyContextParallelismSupport create() {
+    int getNumberOfThreads() {
+        if (eventLoop == null) {
+            return 1;
+        }
+
+        return eventLoop.getConcurrencyLevel();
+    }
+
+    DefaultContextParallelismSupport create() {
         if (!isEnabled()) {
             Context.ParallelismSupport parallelism = new SingleThreadContextParallelismSupport();
 
-            return new StrategyContextParallelismSupport(parallelism);
+            return new DefaultContextParallelismSupport(parallelism);
         }
 
         Context.ParallelismSupport parallelism = new MultiThreadContextParallelismSupport(eventLoop);
 
-        return new StrategyContextParallelismSupport(parallelism);
+        return new DefaultContextParallelismSupport(parallelism);
     }
 }

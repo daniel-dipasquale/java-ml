@@ -1,14 +1,15 @@
 package com.dipasquale.ai.rl.neat.settings;
 
+import com.dipasquale.ai.common.factory.WeightPerturber;
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneParameters;
 import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.factory.WeightPerturber;
-import com.dipasquale.ai.rl.neat.genotype.GenomeGenesisConnector;
-import com.dipasquale.ai.rl.neat.profile.factory.WeightPerturberProfile;
+import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeHistoricalMarkings;
+import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.WeightPerturberProfile;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.factory.FloatFactory;
-import com.dipasquale.common.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,8 +36,9 @@ public final class ConnectionGeneSupport {
 
         ObjectProfile<FloatFactory> weightFactoryProfile = weightFactory.createFactoryProfile(parallelism);
         ObjectProfile<WeightPerturber> weightPerturberProfile = createWeightPerturberProfile(parallelism);
-        GenomeGenesisConnector genomeGenesisConnector = genesisGenomeTemplate.createConnector(parallelism, weightFactoryProfile);
+        GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(parallelism, weightFactoryProfile);
+        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(parallelism.isEnabled(), parallelism.getNumberOfThreads());
 
-        return new DefaultContextConnectionGeneSupport(params, weightFactoryProfile, weightPerturberProfile, genomeGenesisConnector);
+        return new DefaultContextConnectionGeneSupport(params, weightFactoryProfile, weightPerturberProfile, genesisGenomeConnector, historicalMarkings);
     }
 }

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.settings.EvaluatorSettings;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 
 import java.util.Set;
 

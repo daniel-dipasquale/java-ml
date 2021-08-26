@@ -18,9 +18,9 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
     @Serial
     private static final long serialVersionUID = -8229774363987716310L;
 
-    private void reproduceInterSpecies(final Context.RandomSupport random, final List<Species> rankedSpecies, final Queue<OrganismFactory> organismsToBirth) {
-        Pair<Species> speciesPair = random.nextUniquePair(rankedSpecies);
-        OrganismFactory organismToBirth = speciesPair.getLeft().reproduce(random, speciesPair.getRight());
+    private void reproduceInterSpecies(final Context.RandomSupport randomSupport, final List<Species> rankedSpecies, final Queue<OrganismFactory> organismsToBirth) {
+        Pair<Species> speciesPair = randomSupport.generateItemPair(rankedSpecies);
+        OrganismFactory organismToBirth = speciesPair.getLeft().reproduce(randomSupport, speciesPair.getRight());
 
         organismsToBirth.add(organismToBirth);
     }

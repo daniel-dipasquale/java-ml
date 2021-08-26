@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.common.SerializableInteroperableStateMap;
-import com.dipasquale.common.profile.ObjectProfile;
 import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -12,7 +12,7 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
     private ObjectProfile<RandomSupport> isLessThan;
 
     @Override
-    public int nextIndex(final int offset, final int count) {
+    public int generateIndex(final int offset, final int count) {
         return nextIndex.getObject().next(offset, count);
     }
 

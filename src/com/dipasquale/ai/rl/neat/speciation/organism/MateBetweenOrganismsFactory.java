@@ -18,13 +18,9 @@ public final class MateBetweenOrganismsFactory implements OrganismFactory, Seria
     public Organism create(final Context context) {
         Organism newOrganism = parentOrganism1.mate(context, parentOrganism2);
 
-        newOrganism.initialize(context);
-
         if (shouldMutate) {
             newOrganism.mutate(context);
         }
-
-        newOrganism.freeze();
 
         return newOrganism;
     }

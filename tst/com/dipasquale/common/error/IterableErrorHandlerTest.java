@@ -42,16 +42,16 @@ public class IterableErrorHandlerTest {
         try {
             test.handleAll(() -> new RuntimeException("unit test failure"));
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparer.builder()
+            Assertions.assertEquals(ErrorComparator.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
-                    .suppressed(ImmutableList.<ErrorComparer>builder()
-                            .add(ErrorComparer.builder()
+                    .suppressed(ImmutableList.<ErrorComparator>builder()
+                            .add(ErrorComparator.builder()
                                     .type(ArrayIndexOutOfBoundsException.class)
                                     .message("Index -1 out of bounds for length 3")
                                     .build())
                             .build())
-                    .build(), ErrorComparer.create(e));
+                    .build(), ErrorComparator.create(e));
         }
 
         Assertions.assertEquals(3, data.get(0));
@@ -92,16 +92,16 @@ public class IterableErrorHandlerTest {
         try {
             test.handleAll("unit test failure");
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparer.builder()
+            Assertions.assertEquals(ErrorComparator.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
-                    .suppressed(ImmutableList.<ErrorComparer>builder()
-                            .add(ErrorComparer.builder()
+                    .suppressed(ImmutableList.<ErrorComparator>builder()
+                            .add(ErrorComparator.builder()
                                     .type(ArrayIndexOutOfBoundsException.class)
                                     .message("Index -1 out of bounds for length 3")
                                     .build())
                             .build())
-                    .build(), ErrorComparer.create(e));
+                    .build(), ErrorComparator.create(e));
         }
 
         Assertions.assertEquals(3, data.get(0));

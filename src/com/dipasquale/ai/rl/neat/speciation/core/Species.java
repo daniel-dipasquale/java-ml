@@ -41,8 +41,8 @@ public final class Species implements Serializable {
     private final int createdOnGeneration;
     private int improvedAtAge;
 
-    public Species(final Organism representativeOrganism, final PopulationState populationState) {
-        this.id = populationState.getHistoricalMarkings().createSpeciesId();
+    public Species(final String id, final Organism representativeOrganism, final PopulationState populationState) {
+        this.id = id;
         this.representativeOrganism = representativeOrganism;
         setOrganisms(Lists.newArrayList(representativeOrganism));
         this.isOrganismsSorted = true;
@@ -96,8 +96,8 @@ public final class Species implements Serializable {
         return updateAllFitness(Organism::getFitness);
     }
 
-    public float updateAllFitness(final Context.GeneralSupport general) {
-        return updateAllFitness(o -> o.updateFitness(general));
+    public float updateAllFitness(final Context.NeuralNetworkSupport neuralNetworkSupport) {
+        return updateAllFitness(o -> o.updateFitness(neuralNetworkSupport));
     }
 
     private List<Organism> ensureOrganismsIsSorted() {
@@ -109,11 +109,11 @@ public final class Species implements Serializable {
         return organisms;
     }
 
-    public List<Organism> removeUnfitToReproduce(final Context.SpeciationSupport speciation) {
+    public List<Organism> removeUnfitToReproduce(final Context.SpeciationSupport speciationSupport) {
         int size = organisms.size();
 
         if (size > 1) {
-            int keep = speciation.params().fitToReproduce(size);
+            int keep = speciationSupport.params().fitToReproduce(size);
             int remove = size - keep;
 
             if (remove > 0) {
@@ -133,23 +133,23 @@ public final class Species implements Serializable {
         int size = organisms.size();
 
         for (int i = 0; i < count; i++) {
-            ReproductionType reproductionType = context.speciation().nextReproductionType(size);
+            ReproductionType reproductionType = context.speciation().generateReproductionType(size);
 
             OrganismFactory organismToBirth = switch (reproductionType) {
                 case MATE_AND_MUTATE, MATE_ONLY -> {
-                    Pair<Organism> organismCouple = context.random().nextUniquePair(organisms);
+                    Pair<Organism> organismCouple = context.random().generateItemPair(organisms);
 
                     yield new MateBetweenOrganismsFactory(organismCouple.getLeft(), organismCouple.getRight(), reproductionType == ReproductionType.MATE_AND_MUTATE);
                 }
 
                 case MUTATE_ONLY -> {
-                    Organism organism = context.random().nextItem(organisms);
+                    Organism organism = context.random().generateItem(organisms);
 
                     yield new MutateSingleOrganismFactory(organism);
                 }
 
                 case CLONE -> {
-                    Organism organism = context.random().nextItem(organisms);
+                    Organism organism = context.random().generateItem(organisms);
 
                     yield new CloneSingleOrganismFactory(organism);
                 }
@@ -161,13 +161,13 @@ public final class Species implements Serializable {
         return organismsToBirth;
     }
 
-    public OrganismFactory reproduce(final Context.RandomSupport random, final Species other) {
+    public OrganismFactory reproduce(final Context.RandomSupport randomSupport, final Species other) {
         if (organisms.isEmpty() || other.organisms.isEmpty()) {
             return null;
         }
 
-        Organism organism1 = random.nextItem(organisms);
-        Organism organism2 = random.nextItem(other.organisms);
+        Organism organism1 = randomSupport.generateItem(organisms);
+        Organism organism2 = randomSupport.generateItem(other.organisms);
 
         return new MateBetweenOrganismsFactory(organism1, organism2, false);
     }
@@ -176,9 +176,9 @@ public final class Species implements Serializable {
         return ensureOrganismsIsSorted().get(organisms.size() - 1);
     }
 
-    public List<Organism> getFittestOrganisms(final Context.SpeciationSupport speciation, final boolean includeRepresentative) {
+    public List<Organism> getFittestOrganisms(final Context.SpeciationSupport speciationSupport, final boolean includeRepresentative) {
         int size = organisms.size();
-        int select = speciation.params().elitesToPreserve(size, includeRepresentative);
+        int select = speciationSupport.params().elitesToPreserve(size, includeRepresentative);
 
         if (select == 0) {
             return ImmutableList.of();
@@ -187,16 +187,16 @@ public final class Species implements Serializable {
         return ensureOrganismsIsSorted().subList(size - select, size);
     }
 
-    public boolean shouldSurvive(final Context.SpeciationSupport speciation) {
-        return organisms.size() > 1 && getAge() - improvedAtAge < speciation.params().stagnationDropOffAge();
+    public boolean shouldSurvive(final Context.SpeciationSupport speciationSupport) {
+        return organisms.size() > 1 && getAge() - improvedAtAge < speciationSupport.params().stagnationDropOffAge();
     }
 
-    public List<Organism> restart(final Context.RandomSupport random, final DequeSet<Organism> organismsTaken) {
+    public List<Organism> restart(final Context.RandomSupport randomSupport, final DequeSet<Organism> organismsTaken) {
         List<Organism> organismsFixed = organisms.stream()
                 .filter(o -> !organismsTaken.contains(o))
                 .collect(Collectors.toList());
 
-        int index = random.nextIndex(organismsFixed.size());
+        int index = randomSupport.generateIndex(organismsFixed.size());
         Organism representativeOrganismFixed = organismsFixed.remove(index);
 
         representativeOrganism = representativeOrganismFixed;

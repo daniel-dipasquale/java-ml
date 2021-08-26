@@ -13,7 +13,7 @@ public final class DefaultContext implements Context {
     private final DefaultContextNodeGeneSupport nodes;
     private final DefaultContextConnectionGeneSupport connections;
     private final DefaultContextNeuralNetworkSupport neuralNetwork;
-    private final StrategyContextParallelismSupport parallelism;
+    private final DefaultContextParallelismSupport parallelism;
     private final DefaultContextRandomSupport random;
     private final DefaultContextMutationSupport mutation;
     private final DefaultContextCrossOverSupport crossOver;
@@ -87,10 +87,10 @@ public final class DefaultContext implements Context {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
         state.readFrom(inputStream);
-        general.load(state, override.fitnessFunction());
+        general.load(state);
         nodes.load(state, override.eventLoop());
         connections.load(state, override.eventLoop());
-        neuralNetwork.load(state);
+        neuralNetwork.load(state, override.eventLoop(), override.fitnessFunction());
         parallelism.load(state, override.eventLoop());
         random.load(state, override.eventLoop());
         mutation.load(state, override.eventLoop());

@@ -31,30 +31,22 @@ public final class Population {
     private DequeSet<Organism> organismsWithoutSpecies;
     private Queue<OrganismFactory> organismsToBirth;
     private NodeDeque<Species, SimpleNode<Species>> speciesNodes;
-    private OrganismActivator championOrganismActivator;
 
-    public Population(final OrganismActivator championOrganismActivator) {
+    public Population() {
         this.populationState = new PopulationState();
         this.organismsWithoutSpecies = new DequeIdentitySet<>();
         this.organismsToBirth = new LinkedList<>();
         this.speciesNodes = new SimpleNodeDeque<>();
-        this.championOrganismActivator = championOrganismActivator;
     }
 
     public int getGeneration() {
         return populationState.getGeneration();
     }
 
-    private boolean isInitialized() {
-        return !(organismsWithoutSpecies.isEmpty() && organismsToBirth.isEmpty() && speciesNodes.isEmpty());
-    }
-
     private void fillOrganismsWithoutSpeciesWithGenesisGenomes(final Context context) {
         IntStream.range(0, context.general().params().populationSize())
-                .mapToObj(i -> populationState.getHistoricalMarkings().createGenome(context))
+                .mapToObj(i -> context.speciation().createGenome(context))
                 .map(g -> new Organism(g, populationState))
-                .peek(o -> o.initialize(context))
-                .peek(Organism::freeze)
                 .forEach(organismsWithoutSpecies::add);
     }
 
@@ -70,29 +62,13 @@ public final class Population {
         return organismsWithoutSpecies.size() + organismsToBirth.size() + countOrganismsInAllSpecies();
     }
 
-    public void initialize(final Context context) {
-        if (isInitialized() && context.general().params().populationSize() != countOrganismsEverywhere()) {
-            throw new IllegalStateException("unable to change the population size after initialization ... yet!");
-        }
-
-        populationState.getHistoricalMarkings().initialize(context);
-
-        if (isInitialized()) {
-            organismsWithoutSpecies.forEach(o -> o.initialize(context));
-
-            speciesNodes.stream()
-                    .map(speciesNodes::getValue)
-                    .map(Species::getOrganisms)
-                    .flatMap(List::stream)
-                    .forEach(o -> o.initialize(context));
-        } else {
-            fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-            championOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
-        }
+    public void initialize(final Context context, final OrganismActivator championOrganismActivator) {
+        fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
+        championOrganismActivator.initialize(organismsWithoutSpecies.getFirst(), context.neuralNetwork());
     }
 
-    private Species createSpecies(final Organism organism) {
-        return new Species(organism, populationState);
+    private Species createSpecies(final Context.SpeciationSupport speciationSupport, final Organism organism) {
+        return new Species(speciationSupport.createSpeciesId(), organism, populationState);
     }
 
     private SimpleNode<Species> addSpecies(final Species species) {
@@ -116,11 +92,12 @@ public final class Population {
             }
 
             if (!closestSpeciesCollector.isClosestCompatible(populationState.getGeneration())) {
-                addSpecies(createSpecies(organism));
-                closestSpeciesCollector.clear();
+                addSpecies(createSpecies(context.speciation(), organism));
             } else {
-                closestSpeciesCollector.getAndClear().add(organism);
+                closestSpeciesCollector.get().add(organism);
             }
+
+            closestSpeciesCollector.clear();
         }
 
         organismsWithoutSpecies.clear();
@@ -133,7 +110,7 @@ public final class Population {
 
     public void updateFitness(final Context context) {
         assignOrganismsToSpecies(context);
-        context.speciation().fitnessStrategy().update(new SpeciesFitnessContext(context, speciesNodes));
+        context.speciation().getFitnessStrategy().update(new SpeciesFitnessContext(context, speciesNodes));
     }
 
     private void reproduceThroughAllSpecies(final SpeciesSelectionContext selectionContext) {
@@ -144,17 +121,17 @@ public final class Population {
 
         SpeciesReproductionContext reproductionContext = new SpeciesReproductionContext(selectionContext, rankedSpecies, organismsWithoutSpecies, organismsToBirth);
 
-        selectionContext.getParent().speciation().reproductionStrategy().reproduce(reproductionContext);
+        selectionContext.getParent().speciation().getReproductionStrategy().reproduce(reproductionContext);
     }
 
-    public void evolve(final Context context) {
+    public void evolve(final Context context, final OrganismActivator championOrganismActivator) {
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert organismsWithoutSpecies.isEmpty();
-        assert organismsToBirth.isEmpty() && populationState.getHistoricalMarkings().getGenomeKilledCount() == 0;
+        assert organismsToBirth.isEmpty() && context.speciation().getGenomeKilledCount() == 0;
 
         SpeciesSelectionContext selectionContext = new SpeciesSelectionContext(context, championOrganismActivator);
 
-        context.speciation().selectionStrategy().select(selectionContext, speciesNodes);
+        context.speciation().getSelectionStrategy().select(selectionContext, speciesNodes);
 
         assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty();
@@ -163,17 +140,16 @@ public final class Population {
         populationState.increaseGeneration();
 
         assert context.general().params().populationSize() == countOrganismsEverywhere();
-        assert populationState.getHistoricalMarkings().getGenomeKilledCount() == organismsToBirth.size();
+        assert context.speciation().getGenomeKilledCount() == organismsToBirth.size();
     }
 
-    public void restart(final Context context) {
+    public void restart(final Context context, final OrganismActivator championOrganismActivator) {
         populationState.restartGeneration();
-        populationState.getHistoricalMarkings().reset(context.nodes());
+        context.connections().clearHistoricalMarkings();
         organismsWithoutSpecies.clear();
-        fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-        championOrganismActivator.setOrganism(organismsWithoutSpecies.getFirst());
         organismsToBirth.clear();
         speciesNodes.clear();
+        initialize(context, championOrganismActivator);
     }
 
     public void save(final ObjectOutputStream outputStream)
@@ -187,7 +163,7 @@ public final class Population {
         state.writeTo(outputStream);
     }
 
-    public void load(final ObjectInputStream inputStream, final OrganismActivator championOrganismActivatorOverride)
+    public void load(final ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
@@ -196,6 +172,5 @@ public final class Population {
         organismsWithoutSpecies = state.get("population.organismsWithoutSpecies");
         organismsToBirth = state.get("population.organismsToBirth");
         speciesNodes = state.get("population.speciesNodes");
-        championOrganismActivator = championOrganismActivatorOverride;
     }
 }

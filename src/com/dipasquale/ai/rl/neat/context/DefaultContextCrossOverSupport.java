@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.common.SerializableInteroperableStateMap;
-import com.dipasquale.common.profile.ObjectProfile;
 import com.dipasquale.common.provider.GateProvider;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

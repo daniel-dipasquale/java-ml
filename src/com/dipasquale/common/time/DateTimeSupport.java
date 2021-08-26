@@ -16,10 +16,10 @@ public interface DateTimeSupport {
     long now();
 
     static long getTimeBucket(final long dateTime, final long bucketSize, final long bucketOffset) {
-        long timeBucketProgress = dateTime % bucketSize;
-        long timeBucket = dateTime - timeBucketProgress - bucketOffset;
+        long timeBucketProgress = (dateTime + bucketOffset) % bucketSize;
+        long timeBucket = dateTime - timeBucketProgress;
 
-        return timeBucket + bucketSize * Math.floorDiv(timeBucketProgress + bucketOffset, bucketSize);
+        return timeBucket + bucketSize * Math.floorDiv(timeBucketProgress, bucketSize);
     }
 
     static long getTimeBucket(final long dateTime, final long bucketSize) {

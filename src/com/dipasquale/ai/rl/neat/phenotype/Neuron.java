@@ -8,11 +8,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 
 @RequiredArgsConstructor
 @Builder(access = AccessLevel.PACKAGE)
-public final class Neuron {
+public final class Neuron implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -7305330143842774982L;
     private final NodeGene node;
     @Getter
     private final Collection<InputNeuron> inputs;
@@ -31,7 +35,7 @@ public final class Neuron {
         return node.getActivationFunction().forward(value + node.getBias());
     }
 
-    public float getValue(final NeuronValueMap neuronValues) {
+    public float getValue(final NeuronValueGroup neuronValues) {
         float value = neuronValues.getValue(getId());
 
         return getValue(value);

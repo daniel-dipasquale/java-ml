@@ -7,8 +7,8 @@ algorithms I'm interested in learning and using:
 
 - [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf) (it has issues still)
     - [x] outstanding issues:
-        - remove all initialize methods from historicalMarkings/organism/genome
-        - remove all freeze methods from genome/organisms
+        - restarting is buggy, the genome ids aren't reused properly
+        - single pole balancing is still outstanding
         - provide a mechanism for cleaning up innovations that will never happen again in the historical markings
           container
         - fix adjusted fitness for organisms after evaluation
@@ -62,11 +62,11 @@ algorithms I'm interested in learning and using:
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
-                        .fitnessFunction(genome -> {
+                        .fitnessFunction(genomeActivator -> {
                                 float error = 0f;
 
                                 for (int i = 0; i < inputs.length; i++) {
-                                        float[] output = genome.activate(inputs[i]);
+                                        float[] output = genomeActivator.activate(inputs[i]);
 
                                         error += (float) Math.pow(expectedOutputs[i] - output[0], 2D);
                                 }
@@ -138,7 +138,7 @@ algorithms I'm interested in learning and using:
                                         .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                         .initialWeightType(InitialWeightType.RANDOM)
                                         .build())
-                                .fitnessFunction(genome -> {
+                                .fitnessFunction(genomeActivator -> {
                                         float minimumTimeSpent = Float.MAX_VALUE;
 
                                         for (int i = 0, attempts = 5; i < attempts; i++) {
@@ -147,7 +147,7 @@ algorithms I'm interested in learning and using:
 
                                                 while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
                                                         float[] input = convertToFloat(cartPole.getState());
-                                                        float[] output = genome.activate(input);
+                                                        float[] output = genomeActivator.activate(input);
 
                                                         cartPole.stepInDiscrete(output[0]);
                                                 }

@@ -5,10 +5,10 @@ import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
 import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.common.profile.AbstractObjectProfile;
-import com.dipasquale.common.profile.ObjectProfile;
-import com.dipasquale.common.profile.provider.IsLessThanRandomGateProviderProfile;
 import com.dipasquale.common.provider.GateProvider;
+import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.profile.provider.IsLessThanRandomGateProviderProfile;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,11 +42,11 @@ public final class MutationSupport {
         OutputClassifier<WeightMutationType> weightMutationTypeClassifier = new OutputClassifier<>();
 
         if (Float.compare(totalRate, 0f) > 0) {
-            weightMutationTypeClassifier.addUpUntil(WeightMutationType.PERTURB, perturbRate / totalRate);
-            weightMutationTypeClassifier.addUpUntil(WeightMutationType.REPLACE, replaceRate / totalRate);
+            weightMutationTypeClassifier.addRangeFor(perturbRate / totalRate, WeightMutationType.PERTURB);
+            weightMutationTypeClassifier.addRangeFor(replaceRate / totalRate, WeightMutationType.REPLACE);
         }
 
-        weightMutationTypeClassifier.addOtherwiseRoundedUp(WeightMutationType.NONE);
+        weightMutationTypeClassifier.addRemainingRangeFor(WeightMutationType.NONE);
 
         return new DefaultReproductionTypeFactoryProfile(parallelism.isEnabled(), randomSupportPair, weightMutationTypeClassifier);
     }
@@ -87,10 +87,10 @@ public final class MutationSupport {
         @Serial
         private static final long serialVersionUID = -6073304827549187092L;
 
-        private DefaultReproductionTypeFactoryProfile(final boolean isOn,
+        private DefaultReproductionTypeFactoryProfile(final boolean concurrent,
                                                       final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair,
                                                       final OutputClassifier<WeightMutationType> weightMutationTypeClassifier) {
-            super(isOn, new DefaultWeightMutationTypeFactory(randomSupportPair.getLeft(), weightMutationTypeClassifier), new DefaultWeightMutationTypeFactory(randomSupportPair.getRight(), weightMutationTypeClassifier));
+            super(concurrent, new DefaultWeightMutationTypeFactory(randomSupportPair.getLeft(), weightMutationTypeClassifier), new DefaultWeightMutationTypeFactory(randomSupportPair.getRight(), weightMutationTypeClassifier));
         }
     }
 }

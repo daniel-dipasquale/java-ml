@@ -7,27 +7,29 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.ObjectFactory;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-public final class DefaultNeuralNetwork implements NeuralNetwork {
+public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
+    @Serial
+    private static final long serialVersionUID = 2271165226501445902L;
     private final NodeGeneGroup nodes;
     private final ConnectionGeneGroup connections;
     private final NeuronNavigator neuronNavigator;
     private final AtomicBoolean neuronNavigatorInitialized;
     private volatile boolean neuronNavigatorFinalized;
-    private final ObjectFactory<NeuronValueMap> neuronValuesFactory;
-    private final int inputSize;
+    private final ObjectFactory<NeuronValueGroup> neuronValuesFactory;
 
-    public DefaultNeuralNetwork(final NodeGeneGroup nodes, final ConnectionGeneGroup connections, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueMap> neuronValuesFactory) {
+    public DefaultNeuralNetwork(final NodeGeneGroup nodes, final ConnectionGeneGroup connections, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueGroup> neuronValuesFactory) {
         this.nodes = nodes;
         this.connections = connections;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
         this.neuronNavigatorInitialized = new AtomicBoolean(false);
         this.neuronNavigatorFinalized = false;
         this.neuronValuesFactory = neuronValuesFactory;
-        this.inputSize = nodes.size(NodeGeneType.INPUT);
     }
 
     private Neuron createNeuron(final NodeGene node) {
@@ -50,11 +52,11 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
         return new Neuron(node, inputs, outputs);
     }
 
-    private static void setValueTo(final NeuronValueMap neuronValues, final NodeGene node, final float value) {
+    private static void setValueTo(final NeuronValueGroup neuronValues, final NodeGene node, final float value) {
         neuronValues.setValue(node.getId(), value);
     }
 
-    private void initializeNeuronValues(final NeuronValueMap neuronValues, final float[] input) {
+    private void initializeNeuronValues(final NeuronValueGroup neuronValues, final float[] input) {
         Iterable<NodeGene> inputNodes = () -> nodes.iterator(NodeGeneType.INPUT);
         int index = 0;
 
@@ -63,11 +65,11 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
         }
     }
 
-    private static void setValueTo(final NeuronValueMap neuronValues, final Neuron neuron, final float value) {
+    private static void setValueTo(final NeuronValueGroup neuronValues, final Neuron neuron, final float value) {
         neuronValues.setValue(neuron.getId(), value);
     }
 
-    private void initializeNeuronsOrderAndValues(final NeuronValueMap neuronValues, final float[] input) {
+    private void initializeNeuronsOrderAndValues(final NeuronValueGroup neuronValues, final float[] input) {
         int index = 0;
 
         for (NodeGene node : nodes) {
@@ -83,7 +85,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
         }
     }
 
-    private void initializeNeurons(final NeuronValueMap neuronValues, final float[] input) {
+    private void initializeNeurons(final NeuronValueGroup neuronValues, final float[] input) {
         if (!neuronNavigatorInitialized.compareAndSet(false, true)) {
             while (!neuronNavigatorFinalized) {
                 Thread.onSpinWait();
@@ -96,13 +98,13 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
         }
     }
 
-    private static void addToValueTo(final NeuronValueMap neuronValues, final OutputNeuron targetNeuron, final Neuron sourceNeuron) {
+    private static void addToValueTo(final NeuronValueGroup neuronValues, final OutputNeuron targetNeuron, final Neuron sourceNeuron) {
         float value = sourceNeuron.getValue(neuronValues) * targetNeuron.getConnectionWeight();
 
         neuronValues.addToValue(targetNeuron.getNeuronId(), value, sourceNeuron.getId());
     }
 
-    private void processNeurons(final NeuronValueMap neuronValues) {
+    private void processNeurons(final NeuronValueGroup neuronValues) {
         for (Neuron nextNeuron : neuronNavigator) {
             for (OutputNeuron outputNeuron : nextNeuron.getOutputs()) {
                 addToValueTo(neuronValues, outputNeuron, nextNeuron);
@@ -110,7 +112,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
         }
     }
 
-    private float[] activate(final NeuronValueMap neuronValues, final float[] input) {
+    private float[] activate(final NeuronValueGroup neuronValues, final float[] input) {
         initializeNeurons(neuronValues, input);
         processNeurons(neuronValues);
 
@@ -119,12 +121,11 @@ public final class DefaultNeuralNetwork implements NeuralNetwork {
 
     @Override
     public float[] activate(final float[] input) {
-        ArgumentValidatorSupport.ensureEqual(input.length, inputSize, "input.length");
+        ArgumentValidatorSupport.ensureEqual(input.length, nodes.size(NodeGeneType.INPUT), "input.length");
 
         return activate(neuronValuesFactory.create(), input);
     }
 
-    @Override
     public void reset() {
         neuronNavigator.clear();
         neuronNavigatorInitialized.set(false);

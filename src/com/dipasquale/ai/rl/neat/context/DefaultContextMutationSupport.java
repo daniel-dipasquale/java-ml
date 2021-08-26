@@ -3,9 +3,9 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.common.profile.ObjectProfile;
 import com.dipasquale.common.provider.GateProvider;
-import com.dipasquale.threading.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -26,7 +26,7 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     }
 
     @Override
-    public WeightMutationType nextWeightMutationType() {
+    public WeightMutationType generateWeightMutationType() {
         return weightMutationTypeFactory.getObject().create();
     }
 

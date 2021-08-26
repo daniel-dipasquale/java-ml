@@ -12,7 +12,6 @@ public final class PopulationState implements Serializable {
     @Serial
     private static final long serialVersionUID = -5060171919286103840L;
     private int generation = 1;
-    private final DefaultGenomeHistoricalMarkings historicalMarkings = new DefaultGenomeHistoricalMarkings();
 
     public void increaseGeneration() {
         generation++;

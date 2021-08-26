@@ -1,34 +1,30 @@
 package com.dipasquale.ai.common.sequence;
 
+import com.dipasquale.common.LongCounter;
+import lombok.RequiredArgsConstructor;
+
 import java.io.Serial;
 import java.io.Serializable;
 
+@RequiredArgsConstructor
 public final class LongSequentialIdFactory implements SequentialIdFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -2914528594779687249L;
-    private long current;
-
-    public LongSequentialIdFactory() {
-        this.current = 0L;
-    }
-
-    public LongSequentialIdFactory(final LongSequentialIdFactory other) {
-        this.current = other.current;
-    }
+    private final LongCounter counter;
 
     @Override
     public SequentialId create() {
-        if (current == Long.MAX_VALUE) {
+        long value = counter.increment();
+
+        if (value == Long.MIN_VALUE) {
             throw new IllegalStateException("SequentialId reach its end");
         }
-
-        long value = ++current;
 
         return new LongSequentialId(value);
     }
 
     @Override
     public void reset() {
-        current = 0L;
+        counter.current(0L);
     }
 }

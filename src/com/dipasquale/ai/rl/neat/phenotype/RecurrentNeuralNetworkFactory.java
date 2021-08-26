@@ -16,7 +16,7 @@ public final class RecurrentNeuralNetworkFactory implements NeuralNetworkFactory
     @Override
     public NeuralNetwork create(final NodeGeneGroup nodes, final ConnectionGeneGroup connections) {
         NeuronPathBuilder neuronPathBuilder = new RecurrentNeuronPathBuilder();
-        ObjectFactory<NeuronValueMap> neuronValuesFactory = RecurrentNeuronValueMap::new;
+        ObjectFactory<NeuronValueGroup> neuronValuesFactory = (ObjectFactory<NeuronValueGroup> & Serializable) RecurrentNeuronValueGroup::new;
 
         return new DefaultNeuralNetwork(nodes, connections, neuronPathBuilder, neuronValuesFactory);
     }

@@ -20,7 +20,7 @@ public final class LongSequentialId implements SequentialId, Serializable {
 
     @Override
     public int compareTo(final SequentialId other) {
-        if (other instanceof LongSequentialId) {
+        if (other instanceof LongSequentialId) { // TODO: not great to have to do this >.<
             return compareTo((LongSequentialId) other);
         }
 

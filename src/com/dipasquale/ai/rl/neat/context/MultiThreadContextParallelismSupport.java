@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.threading.event.loop.IterableEventLoop;
-import com.dipasquale.threading.wait.handle.InteractiveWaitHandle;
-import com.dipasquale.threading.wait.handle.WaitHandle;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
+import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
+import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

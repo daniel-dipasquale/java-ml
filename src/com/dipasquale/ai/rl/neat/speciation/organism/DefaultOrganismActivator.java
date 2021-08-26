@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import lombok.Getter;
 
@@ -9,24 +10,22 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public final class DefaultOrganismActivator implements OrganismActivator {
-    private Organism organism = null;
+    @Getter
+    private int complexity = 0;
     @Getter
     private float fitness = 0f;
+    private GenomeActivator genomeActivator = null;
 
     @Override
-    public void setOrganism(final Organism value) {
-        organism = value;
-        fitness = value.getFitness();
+    public void initialize(final Organism organism, final Context.NeuralNetworkSupport neuralNetworkSupport) {
+        complexity = organism.getComplexity();
+        fitness = organism.getFitness();
+        genomeActivator = organism.getGenomeActivator(neuralNetworkSupport);
     }
 
     @Override
-    public int getComplexity() {
-        return organism.getComplexity();
-    }
-
-    @Override
-    public float[] activate(final Context context, final float[] inputs) {
-        return organism.activate(inputs);
+    public float[] activate(final float[] inputs) {
+        return genomeActivator.activate(inputs);
     }
 
     @Override
@@ -34,8 +33,9 @@ public final class DefaultOrganismActivator implements OrganismActivator {
             throws IOException {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
-        state.put("organismActivator.organism", organism);
+        state.put("organismActivator.complexity", complexity);
         state.put("organismActivator.fitness", fitness);
+        state.put("organismActivator.genomeActivator", genomeActivator);
         state.writeTo(outputStream);
     }
 
@@ -45,7 +45,8 @@ public final class DefaultOrganismActivator implements OrganismActivator {
         SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
 
         state.readFrom(inputStream);
-        organism = state.get("organismActivator.organism");
+        complexity = state.get("organismActivator.complexity");
         fitness = state.get("organismActivator.fitness");
+        genomeActivator = state.get("organismActivator.genomeActivator");
     }
 }

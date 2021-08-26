@@ -30,8 +30,6 @@ public interface Neat {
         NeatTrainer trainer = Neat.createTrainer(settings);
 
         EvaluatorLoadSettings loadSettings = EvaluatorLoadSettings.builder()
-                .meantToOverrideTopology(true)
-                .meantToOverrideSettings(true)
                 .fitnessFunction(overrideSettings.getFitnessFunction())
                 .eventLoop(overrideSettings.getEventLoop())
                 .build();

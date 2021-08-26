@@ -16,7 +16,7 @@ public final class FeedForwardNeuralNetworkFactory implements NeuralNetworkFacto
     @Override
     public NeuralNetwork create(final NodeGeneGroup nodes, final ConnectionGeneGroup connections) {
         NeuronPathBuilder neuronPathBuilder = new FeedForwardNeuronPathBuilder();
-        ObjectFactory<NeuronValueMap> neuronValuesFactory = FeedForwardNeuronValueMap::new;
+        ObjectFactory<NeuronValueGroup> neuronValuesFactory = (ObjectFactory<NeuronValueGroup> & Serializable) FeedForwardNeuronValueGroup::new;
 
         return new DefaultNeuralNetwork(nodes, connections, neuronPathBuilder, neuronValuesFactory);
     }
