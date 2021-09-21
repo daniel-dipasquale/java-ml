@@ -233,7 +233,11 @@ public interface Context {
 
         String createSpeciesId();
 
+        void clearSpeciesIds();
+
         String createGenomeId();
+
+        void clearGenomeIds();
 
         Genome createGenome(Context context);
 

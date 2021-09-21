@@ -32,6 +32,10 @@ public final class DualModeGenomeHub implements DualModeObject, Serializable {
         return genomeIdFactory.create().toString();
     }
 
+    public void clearGenomeIds() {
+        genomeIdFactory.reset();
+    }
+
     public Genome createGenome(final Context context) {
         Genome genome = new Genome(createGenomeId());
 

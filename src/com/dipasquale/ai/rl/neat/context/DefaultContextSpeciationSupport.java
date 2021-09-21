@@ -36,8 +36,18 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     }
 
     @Override
+    public void clearSpeciesIds() {
+        speciesIdFactory.reset();
+    }
+
+    @Override
     public String createGenomeId() {
         return genomeHub.createGenomeId();
+    }
+
+    @Override
+    public void clearGenomeIds() {
+        genomeHub.clearGenomeIds();
     }
 
     @Override
