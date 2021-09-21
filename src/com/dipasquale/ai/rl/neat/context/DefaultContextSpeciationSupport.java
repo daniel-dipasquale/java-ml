@@ -51,8 +51,8 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     }
 
     @Override
-    public Genome createGenome(final Context context) {
-        return genomeHub.createGenome(context);
+    public Genome createGenesisGenome(final Context context) {
+        return genomeHub.createGenesisGenome(context);
     }
 
     @Override

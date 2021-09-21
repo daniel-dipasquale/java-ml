@@ -239,7 +239,7 @@ public interface Context {
 
         void clearGenomeIds();
 
-        Genome createGenome(Context context);
+        Genome createGenesisGenome(Context context);
 
         double calculateCompatibility(Genome genome1, Genome genome2);
 

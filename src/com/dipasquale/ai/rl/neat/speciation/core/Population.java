@@ -46,7 +46,7 @@ public final class Population {
 
     private void fillOrganismsWithoutSpeciesWithGenesisGenomes(final Context context) {
         IntStream.range(0, context.general().params().populationSize())
-                .mapToObj(i -> context.speciation().createGenome(context))
+                .mapToObj(i -> context.speciation().createGenesisGenome(context))
                 .map(g -> new Organism(g, populationState))
                 .forEach(organismsWithoutSpecies::add);
     }
