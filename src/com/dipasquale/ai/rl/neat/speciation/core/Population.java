@@ -6,6 +6,7 @@ import com.dipasquale.ai.rl.neat.speciation.organism.OrganismActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessContext;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionOrganismMissingException;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionContext;
 import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.data.structure.deque.NodeDeque;
@@ -131,7 +132,11 @@ public final class Population {
 
         SpeciesSelectionContext selectionContext = new SpeciesSelectionContext(context, championOrganismActivator);
 
-        context.speciation().getSelectionStrategy().select(selectionContext, speciesNodes);
+        try {
+            context.speciation().getSelectionStrategy().select(selectionContext, speciesNodes);
+        } catch (ChampionOrganismMissingException e) {
+            throw new PopulationExtinctionException("the population has gone extinct", e);
+        }
 
         assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty();

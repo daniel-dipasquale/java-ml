@@ -29,7 +29,9 @@ public final class ChampionPromoterSpeciesSelectionStrategy implements SpeciesSe
     public void finalizeSelection(final SpeciesSelectionContext context) {
         Organism championOrganism = context.getChampionOrganism();
 
-        assert championOrganism != null; // TODO: what should happen if all species go extinct at the same time
+        if (championOrganism == null) {
+            throw new ChampionOrganismMissingException("the champion organism is missing");
+        }
 
         context.getChampionOrganismActivator().initialize(championOrganism, context.getParent().neuralNetwork()); // TODO: consider cloning
     }
