@@ -134,6 +134,18 @@ public interface Context {
             return items.get(index);
         }
 
+        default <T> T generateItem(final OrderedGroup<? extends Comparable<?>, T> items) {
+            int size = items.size();
+
+            if (size == 0) {
+                return null;
+            }
+
+            int index = generateIndex(size);
+
+            return items.getByIndex(index);
+        }
+
         boolean isLessThan(float rate);
 
         default <T> Pair<T> generateItemPair(final List<T> items) {
@@ -156,18 +168,6 @@ public interface Context {
                     : generateIndex(index1 + 1, size);
 
             return new Pair<>(items.get(index1), items.get(index2));
-        }
-
-        default <T> T generateItem(final OrderedGroup<? extends Comparable<?>, T> items) {
-            int size = items.size();
-
-            if (size == 0) {
-                return null;
-            }
-
-            int index = generateIndex(size);
-
-            return items.getByIndex(index);
         }
 
         <T> T generateItem(OutputClassifier<T> outputClassifier);
