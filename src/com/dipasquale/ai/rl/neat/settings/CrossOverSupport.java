@@ -28,7 +28,7 @@ public final class CrossOverSupport {
     }
 
     DefaultContextCrossOverSupport create(final ParallelismSupport parallelism, final RandomSupport random) {
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createIsLessThanProfile(parallelism);
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createFloatRandomSupportProfile(parallelism);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
         ObjectProfile<GateProvider> shouldOverrideExpressedProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, overrideExpressedRate);
         ObjectProfile<GateProvider> shouldUseRandomParentWeightProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, useRandomParentWeightRate);

@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.profile.ObjectProfile;
@@ -8,26 +9,31 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextRandomSupport implements Context.RandomSupport {
-    private ObjectProfile<RandomSupport> nextIndex;
-    private ObjectProfile<RandomSupport> isLessThan;
+    private ObjectProfile<RandomSupport> integerRandomSupport;
+    private ObjectProfile<RandomSupport> floatRandomSupport;
 
     @Override
     public int generateIndex(final int offset, final int count) {
-        return nextIndex.getObject().next(offset, count);
+        return integerRandomSupport.getObject().next(offset, count);
     }
 
     @Override
     public boolean isLessThan(final float rate) {
-        return isLessThan.getObject().isLessThan(rate);
+        return floatRandomSupport.getObject().isLessThan(rate);
+    }
+
+    @Override
+    public <T> T generateItem(final OutputClassifier<T> outputClassifier) {
+        return outputClassifier.resolve(floatRandomSupport.getObject().next());
     }
 
     public void save(final SerializableStateGroup state) {
-        state.put("random.nextIndex", nextIndex);
-        state.put("random.isLessThan", isLessThan);
+        state.put("random.integerRandomSupport", integerRandomSupport);
+        state.put("random.floatRandomSupport", floatRandomSupport);
     }
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
-        nextIndex = ObjectProfile.switchProfile(state.get("random.nextIndex"), eventLoop != null);
-        isLessThan = ObjectProfile.switchProfile(state.get("random.isLessThan"), eventLoop != null);
+        integerRandomSupport = ObjectProfile.switchProfile(state.get("random.integerRandomSupport"), eventLoop != null);
+        floatRandomSupport = ObjectProfile.switchProfile(state.get("random.floatRandomSupport"), eventLoop != null);
     }
 }

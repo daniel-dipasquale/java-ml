@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
+import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.common.Pair;
 import lombok.EqualsAndHashCode;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @Getter
@@ -105,63 +107,22 @@ public final class Genome implements Serializable {
         return false;
     }
 
-    private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType type1, final NodeGeneType type2) {
-        float size1 = (float) nodes.size(type1);
-        float size2 = (float) nodes.size(type2);
-        float size = size1 + size2;
+    private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType... types) {
+        float totalSize = (float) Arrays.stream(types)
+                .map(nodes::size)
+                .reduce(0, Integer::sum);
 
-        if (randomSupport.isLessThan(size1 / size)) {
-            NodeGene node = nodes.getRandom(randomSupport, type1);
+        OutputClassifier<NodeGeneType> typeOutputClassifier = new OutputClassifier<>();
 
-            if (node != null) {
-                return node;
-            }
+        for (int i = 0, c = types.length - 1; i < c; i++) {
+            NodeGeneType type = types[i];
 
-            return nodes.getRandom(randomSupport, type2);
+            typeOutputClassifier.addRangeFor(nodes.size(type) / totalSize, type);
         }
 
-        NodeGene node = nodes.getRandom(randomSupport, type2);
+        typeOutputClassifier.addRemainingRangeFor(types[types.length - 1]);
 
-        if (node != null) {
-            return node;
-        }
-
-        return nodes.getRandom(randomSupport, type1);
-    }
-
-    private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType type1, final NodeGeneType type2, final NodeGeneType type3) {
-        float size1 = (float) nodes.size(type1);
-        float size2 = (float) nodes.size(type2);
-        float size3 = (float) nodes.size(type3);
-        float size = size1 + size2 + size3;
-
-        if (randomSupport.isLessThan(size1 / size)) {
-            NodeGene node = nodes.getRandom(randomSupport, type1);
-
-            if (node != null) {
-                return node;
-            }
-
-            return getRandomNode(randomSupport, type2, type3);
-        }
-
-        if (randomSupport.isLessThan(size2 / (size2 + size3))) {
-            NodeGene node = nodes.getRandom(randomSupport, type2);
-
-            if (node != null) {
-                return node;
-            }
-
-            return getRandomNode(randomSupport, type1, type3);
-        }
-
-        NodeGene node = nodes.getRandom(randomSupport, type3);
-
-        if (node != null) {
-            return node;
-        }
-
-        return getRandomNode(randomSupport, type1, type2);
+        return nodes.getRandom(randomSupport, randomSupport.generateItem(typeOutputClassifier));
     }
 
     private NodeGene getRandomNodeToMatch(final Context.RandomSupport randomSupport, final NodeGeneType type) {

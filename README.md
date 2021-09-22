@@ -88,14 +88,14 @@ algorithms I'm interested in learning and using:
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .build())
                 .neuralNetwork(NeuralNetworkSupport.builder()
-                        .type(NeuralNetworkType.MULTI_CYCLE_RECURRENT)
+                        .type(NeuralNetworkType.FEED_FORWARD)
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
                         .build())
                 .random(RandomSupport.builder()
-                        .nextIndex(RandomType.UNIFORM)
-                        .isLessThan(RandomType.UNIFORM)
+                        .integerGenerator(RandomType.UNIFORM)
+                        .floatGenerator(RandomType.UNIFORM)
                         .build())
                 .mutation(MutationSupport.builder()
                         .addNodeMutationRate(FloatNumber.literal(0.03f))
@@ -128,89 +128,89 @@ algorithms I'm interested in learning and using:
     1. Cart-pole balancing test:
 
    ```java
+        double timeSpentGoal = 60D;
+        RandomSupport randomSupport = new ThreadLocalRandomSupport();
+
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
-                        .general(GeneralEvaluatorSupportSettings.builder()
-                                .populationSize(150)
-                                .genesisGenomeFactory(GenesisGenomeTemplate.builder()
-                                        .inputs(IntegerNumber.literal(4))
-                                        .outputs(IntegerNumber.literal(1))
-                                        .biases(ImmutableList.of())
-                                        .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
-                                        .initialWeightType(InitialWeightType.RANDOM)
-                                        .build())
-                                .fitnessFunction(genomeActivator -> {
-                                        float minimumTimeSpent = Float.MAX_VALUE;
+                .general(GeneralEvaluatorSupportSettings.builder()
+                        .populationSize(150)
+                        .genesisGenomeFactory(GenesisGenomeTemplate.builder()
+                                .inputs(IntegerNumber.literal(4))
+                                .outputs(IntegerNumber.literal(1))
+                                .biases(ImmutableList.of())
+                                .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
+                                .initialWeightType(InitialWeightType.RANDOM)
+                                .build())
+                        .fitnessFunction(genomeActivator -> {
+                                float minimumTimeSpent = Float.MAX_VALUE;
 
-                                        for (int i = 0, attempts = 5; i < attempts; i++) {
-                                                CartPoleEnvironment cartPole = CartPoleEnvironment.builder()
-                                                        .build();
+                                for (int i = 0; i < 5; i++) {
+                                    CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
 
-                                                while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
-                                                        float[] input = convertToFloat(cartPole.getState());
-                                                        float[] output = genomeActivator.activate(input);
+                                    while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
+                                        float[] input = convertToFloat(cartPole.getState());
+                                        float[] output = genomeActivator.activate(input);
 
-                                                        cartPole.stepInDiscrete(output[0]);
-                                                }
+                                        cartPole.stepInDiscrete(output[0]);
+                                    }
 
-                                                minimumTimeSpent = Math.min(minimumTimeSpent, (float) cartPole.getTimeSpent());
-                                        }
+                                    minimumTimeSpent = Math.min(minimumTimeSpent, (float) cartPole.getTimeSpent());
+                                }
 
-                                        if (Float.compare(minimumTimeSpent, Float.MAX_VALUE) == 0) {
-                                                return 0f;
-                                        }
+                                if (Float.compare(minimumTimeSpent, Float.MAX_VALUE) == 0) {
+                                    return 0f;
+                                }
 
-                                        return minimumTimeSpent;
-                                })
-                                .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
-                                .build())
-                        .nodes(NodeGeneSupport.builder()
-                                .inputBias(FloatNumber.literal(0f))
-                                .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
-                                .outputBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                                .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.TAN_H))
-                                .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                                .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.SIGMOID))
-                                .build())
-                        .connections(ConnectionGeneSupport.builder()
-                                .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                                .weightPerturber(FloatNumber.literal(1.8f))
-                                .build())
-                        .neuralNetwork(NeuralNetworkSupport.builder()
-                                .type(NeuralNetworkType.MULTI_CYCLE_RECURRENT)
-                                .build())
-                        .parallelism(ParallelismSupport.builder()
-                                .eventLoop(shouldUseParallelism ? EVENT_LOOP : null)
-                                .build())
-                        .random(RandomSupport.builder()
-                                .nextIndex(RandomType.UNIFORM)
-                                .isLessThan(RandomType.UNIFORM)
-                                .build())
-                        .mutation(MutationSupport.builder()
-                                .addNodeMutationRate(FloatNumber.literal(0.1f))
-                                .addConnectionMutationRate(FloatNumber.literal(0.2f))
-                                .perturbConnectionsWeightRate(FloatNumber.literal(0.75f))
-                                .replaceConnectionsWeightRate(FloatNumber.literal(0.5f))
-                                .disableConnectionExpressedRate(FloatNumber.literal(0.05f))
-                                .build())
-                        .crossOver(CrossOverSupport.builder()
-                                .mateOnlyRate(FloatNumber.literal(0.2f))
-                                .mutateOnlyRate(FloatNumber.literal(0.25f))
-                                .overrideConnectionExpressedRate(FloatNumber.literal(0.5f))
-                                .useRandomParentConnectionWeightRate(FloatNumber.literal(0.6f))
-                                .build())
-                        .speciation(SpeciationSupport.builder()
-                                .maximumSpecies(IntegerNumber.literal(20))
-                                .maximumGenomes(IntegerNumber.literal(20))
-                                .weightDifferenceCoefficient(FloatNumber.literal(0.5f))
-                                .disjointCoefficient(FloatNumber.literal(1f))
-                                .excessCoefficient(FloatNumber.literal(1f))
-                                .compatibilityThreshold(FloatNumber.literal(4f))
-                                .compatibilityThresholdModifier(FloatNumber.literal(1.2f))
-                                .eugenicsThreshold(FloatNumber.literal(0.4f))
-                                .elitistThreshold(FloatNumber.literal(0.01f))
-                                .elitistThresholdMinimum(IntegerNumber.literal(2))
-                                .stagnationDropOffAge(IntegerNumber.literal(15))
-                                .interSpeciesMatingRate(FloatNumber.literal(0.001f))
-                                .build())
-                        .build());
+                                return minimumTimeSpent;
+                        })
+                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
+                        .build())
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.TAN_H))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.SIGMOID))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .weightPerturber(FloatNumber.literal(2.5f))
+                        .build())
+                .neuralNetwork(NeuralNetworkSupport.builder()
+                        .type(NeuralNetworkType.RECURRENT)
+                        .build())
+                .parallelism(ParallelismSupport.builder()
+                        .eventLoop(eventLoop)
+                        .build())
+                .random(RandomSupport.builder()
+                        .integerGenerator(RandomType.UNIFORM)
+                        .floatGenerator(RandomType.UNIFORM)
+                        .build())
+                .mutation(MutationSupport.builder()
+                        .addNodeMutationRate(FloatNumber.literal(0.06f))
+                        .addConnectionMutationRate(FloatNumber.literal(0.12f))
+                        .perturbWeightRate(FloatNumber.literal(0.75f))
+                        .replaceWeightRate(FloatNumber.literal(0.5f))
+                        .disableExpressedRate(FloatNumber.literal(0.03f))
+                        .build())
+                .crossOver(CrossOverSupport.builder()
+                        .overrideExpressedRate(FloatNumber.literal(0.5f))
+                        .useRandomParentWeightRate(FloatNumber.literal(0.6f))
+                        .build())
+                .speciation(SpeciationSupport.builder()
+                        .weightDifferenceCoefficient(FloatNumber.literal(0.5f))
+                        .disjointCoefficient(FloatNumber.literal(1f))
+                        .excessCoefficient(FloatNumber.literal(1f))
+                        .compatibilityThreshold(FloatNumber.literal(3f))
+                        .compatibilityThresholdModifier(FloatNumber.literal(1.05f))
+                        .eugenicsThreshold(FloatNumber.literal(0.2f))
+                        .elitistThreshold(FloatNumber.literal(0.01f))
+                        .elitistThresholdMinimum(IntegerNumber.literal(2))
+                        .stagnationDropOffAge(IntegerNumber.literal(15))
+                        .interSpeciesMatingRate(FloatNumber.literal(0.001f))
+                        .mateOnlyRate(FloatNumber.literal(0.4f))
+                        .mutateOnlyRate(FloatNumber.literal(0.5f))
+                        .build())
+                .build());
    ```

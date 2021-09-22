@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
@@ -168,6 +169,8 @@ public interface Context {
 
             return items.getByIndex(index);
         }
+
+        <T> T generateItem(OutputClassifier<T> outputClassifier);
     }
 
     interface MutationSupport {

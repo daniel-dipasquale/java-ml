@@ -58,7 +58,7 @@ public final class MutationSupport {
     }
 
     DefaultContextMutationSupport create(final ParallelismSupport parallelism, final RandomSupport random) {
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createIsLessThanProfile(parallelism);
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createFloatRandomSupportProfile(parallelism);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
         ObjectProfile<GateProvider> shouldAddNodeMutationProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, addNodeMutationRate);
         ObjectProfile<GateProvider> shouldAddConnectionMutationProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, addConnectionMutationRate);

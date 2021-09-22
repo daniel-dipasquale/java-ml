@@ -12,22 +12,22 @@ import lombok.Builder;
 @Builder
 public final class RandomSupport {
     @Builder.Default
-    private final RandomType nextIndex = RandomType.UNIFORM;
+    private final RandomType integerGenerator = RandomType.UNIFORM;
     @Builder.Default
-    private final RandomType isLessThan = RandomType.UNIFORM;
+    private final RandomType floatGenerator = RandomType.UNIFORM;
 
-    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createNextIndexProfile(final ParallelismSupport parallelism) {
-        return new RandomSupportFactoryProfile(parallelism.isEnabled(), nextIndex);
+    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createIntegerRandomSupportProfile(final ParallelismSupport parallelism) {
+        return new RandomSupportFactoryProfile(parallelism.isEnabled(), integerGenerator);
     }
 
-    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createIsLessThanProfile(final ParallelismSupport parallelism) {
-        return new RandomSupportFactoryProfile(parallelism.isEnabled(), isLessThan);
+    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createFloatRandomSupportProfile(final ParallelismSupport parallelism) {
+        return new RandomSupportFactoryProfile(parallelism.isEnabled(), floatGenerator);
     }
 
     DefaultContextRandomSupport create(final ParallelismSupport parallelism) {
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> nextIndexProfile = createNextIndexProfile(parallelism);
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> isLessThanProfile = createIsLessThanProfile(parallelism);
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> integerRandomSupportProfile = createIntegerRandomSupportProfile(parallelism);
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> floatRandomSupportProfile = createFloatRandomSupportProfile(parallelism);
 
-        return new DefaultContextRandomSupport(nextIndexProfile, isLessThanProfile);
+        return new DefaultContextRandomSupport(integerRandomSupportProfile, floatRandomSupportProfile);
     }
 }

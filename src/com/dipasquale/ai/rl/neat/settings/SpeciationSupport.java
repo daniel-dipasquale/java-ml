@@ -151,7 +151,7 @@ public final class SpeciationSupport {
         DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelism.isEnabled(), "species");
         DualModeGenomeHub genomeHub = new DualModeGenomeHub(parallelism.isEnabled());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createIsLessThanProfile(parallelism);
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createFloatRandomSupportProfile(parallelism);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
         DefaultReproductionTypeFactoryProfile randomReproductionTypeGeneratorProfile = createRandomReproductionTypeGeneratorProfile(parallelism, randomSupportPair);
         ObjectProfile<SpeciesFitnessStrategy> fitnessStrategyProfile = createFitnessStrategyProfile(parallelism);
