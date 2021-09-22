@@ -8,8 +8,8 @@ import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeHistoricalMarkings;
-import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
+import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
@@ -53,40 +53,44 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
         return historicalMarkings.containsInnovationId(innovationId.getDirectedEdge());
     }
 
+    private static Iterable<? extends NodeGene> getNodes(final Genome genome, final NodeGeneType type) {
+        return () -> genome.getNodes().iterator(type);
+    }
+
     @Override
     public void registerNodes(final Genome genome) {
-        for (NodeGene node : genome.getNodes(NodeGeneType.INPUT)) {
+        for (NodeGene node : getNodes(genome, NodeGeneType.INPUT)) {
             historicalMarkings.registerNodeId(node.getId());
         }
 
-        for (NodeGene node : genome.getNodes(NodeGeneType.OUTPUT)) {
+        for (NodeGene node : getNodes(genome, NodeGeneType.OUTPUT)) {
             historicalMarkings.registerNodeId(node.getId());
         }
 
-        for (NodeGene node : genome.getNodes(NodeGeneType.BIAS)) {
+        for (NodeGene node : getNodes(genome, NodeGeneType.BIAS)) {
             historicalMarkings.registerNodeId(node.getId());
         }
 
-        for (NodeGene node : genome.getNodes(NodeGeneType.HIDDEN)) {
+        for (NodeGene node : getNodes(genome, NodeGeneType.HIDDEN)) {
             historicalMarkings.registerNodeId(node.getId());
         }
     }
 
     @Override
-    public void deregisterNodes(final Genome genome) {
-        for (NodeGene node : genome.getNodes(NodeGeneType.INPUT)) {
+    public void unregisterNodes(final Genome genome) {
+        for (NodeGene node : getNodes(genome, NodeGeneType.INPUT)) {
             historicalMarkings.deregisterNodeId(node.getId());
         }
 
-        for (NodeGene node : genome.getNodes(NodeGeneType.OUTPUT)) {
+        for (NodeGene node : getNodes(genome, NodeGeneType.OUTPUT)) {
             historicalMarkings.deregisterNodeId(node.getId());
         }
 
-        for (NodeGene node : genome.getNodes(NodeGeneType.BIAS)) {
+        for (NodeGene node : getNodes(genome, NodeGeneType.BIAS)) {
             historicalMarkings.deregisterNodeId(node.getId());
         }
 
-        for (NodeGene node : genome.getNodes(NodeGeneType.HIDDEN)) {
+        for (NodeGene node : getNodes(genome, NodeGeneType.HIDDEN)) {
             historicalMarkings.deregisterNodeId(node.getId());
         }
     }
@@ -96,7 +100,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
         historicalMarkings.clear();
     }
 
-    public void save(final SerializableInteroperableStateMap state) {
+    public void save(final SerializableStateGroup state) {
         state.put("connections.params", params);
         state.put("connections.weightFactory", weightFactory);
         state.put("connections.weightPerturber", weightPerturber);
@@ -114,7 +118,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
         return new DualModeHistoricalMarkings(true, eventLoop.getConcurrencyLevel(), historicalMarkingsFixed);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
+    public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
         params = state.get("connections.params");
         weightFactory = ObjectProfile.switchProfile(state.get("connections.weightFactory"), eventLoop != null);
         weightPerturber = ObjectProfile.switchProfile(state.get("connections.weightPerturber"), eventLoop != null);

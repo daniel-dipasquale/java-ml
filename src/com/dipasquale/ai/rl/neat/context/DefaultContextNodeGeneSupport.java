@@ -7,8 +7,8 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeNodeIdFactory;
-import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.FloatFactory;
+import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
@@ -57,19 +57,19 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
     @Override
     public void setupInitialNodes(final Genome genome) {
         for (SequentialId nodeId : inputNodeIds) {
-            genome.addNode(create(nodeId, NodeGeneType.INPUT));
+            genome.getNodes().put(create(nodeId, NodeGeneType.INPUT));
         }
 
         for (SequentialId nodeId : outputNodeIds) {
-            genome.addNode(create(nodeId, NodeGeneType.OUTPUT));
+            genome.getNodes().put(create(nodeId, NodeGeneType.OUTPUT));
         }
 
         for (SequentialId nodeId : biasNodeIds) {
-            genome.addNode(create(nodeId, NodeGeneType.BIAS));
+            genome.getNodes().put(create(nodeId, NodeGeneType.BIAS));
         }
     }
 
-    public void save(final SerializableInteroperableStateMap state) {
+    public void save(final SerializableStateGroup state) {
         state.put("nodes.nodeIdFactory", nodeIdFactory);
         state.put("nodes.biasFactories", biasFactories);
         state.put("nodes.activationFunctionFactories", activationFunctionFactories);
@@ -78,7 +78,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         state.put("nodes.biasNodeIds", biasNodeIds);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
+    public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
         nodeIdFactory = DualModeObject.switchMode(state.get("nodes.nodeIdFactory"), eventLoop != null);
         biasFactories = ObjectProfile.switchProfileMap(state.get("nodes.biasFactories"), eventLoop != null);
         activationFunctionFactories = ObjectProfile.switchProfileMap(state.get("nodes.activationFunctionFactories"), eventLoop != null);

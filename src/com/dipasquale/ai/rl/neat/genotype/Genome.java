@@ -1,7 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.common.Pair;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,42 +9,21 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 
+@RequiredArgsConstructor
+@Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class Genome implements Serializable {
     @Serial
     private static final long serialVersionUID = 1467592503532949541L;
-    @Getter
     @EqualsAndHashCode.Include
     private final String id;
     @EqualsAndHashCode.Include
-    private final NodeGeneGroup nodes;
+    private final NodeGeneGroup nodes = new NodeGeneGroup();
     @EqualsAndHashCode.Include
-    private final ConnectionGeneGroup connections;
-
-    public Genome(final String id) {
-        this.id = id;
-        this.nodes = new NodeGeneGroup();
-        this.connections = new ConnectionGeneGroup();
-    }
+    private final ConnectionGeneGroup connections = new ConnectionGeneGroup();
 
     public int getComplexity() {
         return connections.getExpressed().size();
-    }
-
-    public GenomeActivator getActivator(final Context.NeuralNetworkSupport neuralNetworkSupport, final PopulationState populationState) {
-        return neuralNetworkSupport.getOrCreateGenomeActivator(this, nodes, connections, populationState);
-    }
-
-    public Iterable<NodeGene> getNodes(final NodeGeneType type) {
-        return () -> nodes.iterator(type);
-    }
-
-    public void addNode(final NodeGene node) {
-        nodes.put(node);
-    }
-
-    public void addConnection(final ConnectionGene connection) {
-        connections.put(connection);
     }
 
     private boolean mutateWeights(final Context context) {
@@ -95,9 +73,9 @@ public final class Genome implements Serializable {
         ConnectionGene inToNewConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
         ConnectionGene newToOutConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
 
-        addNode(newNode);
-        addConnection(inToNewConnection);
-        addConnection(newToOutConnection);
+        getNodes().put(newNode);
+        getConnections().put(inToNewConnection);
+        getConnections().put(newToOutConnection);
 
         return true;
     }
@@ -109,7 +87,7 @@ public final class Genome implements Serializable {
             ConnectionGene connection = connections.getAll().getById(innovationId);
 
             if (connection == null) {
-                addConnection(new ConnectionGene(innovationId, context.connections().generateWeight()));
+                getConnections().put(new ConnectionGene(innovationId, context.connections().generateWeight()));
 
                 return true;
             }
@@ -138,20 +116,20 @@ public final class Genome implements Serializable {
         if (randomSupport.isLessThan(size1 / size)) {
             NodeGene node = nodes.getRandom(randomSupport, type1);
 
-            if (node == null) {
-                node = nodes.getRandom(randomSupport, type2);
+            if (node != null) {
+                return node;
             }
 
-            return node;
+            return nodes.getRandom(randomSupport, type2);
         }
 
         NodeGene node = nodes.getRandom(randomSupport, type2);
 
-        if (node == null) {
-            node = nodes.getRandom(randomSupport, type1);
+        if (node != null) {
+            return node;
         }
 
-        return node;
+        return nodes.getRandom(randomSupport, type1);
     }
 
     private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType type1, final NodeGeneType type2, final NodeGeneType type3) {
@@ -163,30 +141,30 @@ public final class Genome implements Serializable {
         if (randomSupport.isLessThan(size1 / size)) {
             NodeGene node = nodes.getRandom(randomSupport, type1);
 
-            if (node == null) {
-                node = getRandomNode(randomSupport, type2, type3);
+            if (node != null) {
+                return node;
             }
 
-            return node;
+            return getRandomNode(randomSupport, type2, type3);
         }
 
         if (randomSupport.isLessThan(size2 / (size2 + size3))) {
             NodeGene node = nodes.getRandom(randomSupport, type2);
 
-            if (node == null) {
-                node = getRandomNode(randomSupport, type1, type3);
+            if (node != null) {
+                return node;
             }
 
-            return node;
+            return getRandomNode(randomSupport, type1, type3);
         }
 
         NodeGene node = nodes.getRandom(randomSupport, type3);
 
-        if (node == null) {
-            node = getRandomNode(randomSupport, type1, type2);
+        if (node != null) {
+            return node;
         }
 
-        return node;
+        return getRandomNode(randomSupport, type1, type2);
     }
 
     private NodeGene getRandomNodeToMatch(final Context.RandomSupport randomSupport, final NodeGeneType type) {
@@ -257,10 +235,14 @@ public final class Genome implements Serializable {
         return new ConnectionGene(innovationId, weight, recurrentCyclesAllowed, expressed);
     }
 
+    private static Iterable<Pair<NodeGene>> fullJoinBetweenNodes(final Genome genome1, final Genome genome2) {
+        return () -> genome1.nodes.fullJoin(genome2.nodes);
+    }
+
     public static Genome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final Genome fitParent, final Genome unfitParent) {
         Genome child = new Genome(context.speciation().createGenomeId());
 
-        for (Pair<NodeGene> nodePair : (Iterable<Pair<NodeGene>>) () -> fitParent.nodes.fullJoin(unfitParent.nodes)) {
+        for (Pair<NodeGene> nodePair : fullJoinBetweenNodes(fitParent, unfitParent)) {
             if (nodePair.getLeft() != null && nodePair.getRight() != null) {
                 child.nodes.put(getRandom(context.random(), nodePair.getLeft(), nodePair.getRight()));
             } else if (nodePair.getLeft() != null) {
@@ -284,10 +266,14 @@ public final class Genome implements Serializable {
         return child;
     }
 
+    private static Iterable<Pair<ConnectionGene>> fullJoinBetweenConnections(final Genome genome1, final Genome genome2) {
+        return () -> genome1.connections.getAll().fullJoin(genome2.connections);
+    }
+
     public static Genome crossOverByEqualTreatment(final Context context, final Genome parent1, final Genome parent2) {
         Genome child = new Genome(context.speciation().createGenomeId());
 
-        for (Pair<NodeGene> nodePair : (Iterable<Pair<NodeGene>>) () -> parent1.nodes.fullJoin(parent2.nodes)) {
+        for (Pair<NodeGene> nodePair : fullJoinBetweenNodes(parent1, parent2)) {
             if (nodePair.getLeft() != null && nodePair.getRight() != null) {
                 child.nodes.put(getRandom(context.random(), nodePair.getLeft(), nodePair.getRight()));
             } else if (nodePair.getLeft() != null) {
@@ -297,7 +283,7 @@ public final class Genome implements Serializable {
             }
         }
 
-        for (Pair<ConnectionGene> connectionPair : (Iterable<Pair<ConnectionGene>>) () -> parent1.connections.getAll().fullJoin(parent2.connections)) {
+        for (Pair<ConnectionGene> connectionPair : fullJoinBetweenConnections(parent1, parent2)) {
             if (connectionPair.getLeft() != null && connectionPair.getRight() != null) {
                 ConnectionGene childConnection = createChildConnection(context, connectionPair.getLeft(), connectionPair.getRight());
 
@@ -335,73 +321,5 @@ public final class Genome implements Serializable {
 
     public Genome createClone() {
         return createCopy(id);
-    }
-
-    private static boolean isMatching(final Pair<ConnectionGene> connections) {
-        return connections.getLeft() != null && connections.getRight() != null;
-    }
-
-    private static boolean isExcess(final ConnectionGene connection, final ConnectionGene excessConnection) {
-        return connection.getInnovationId().compareTo(excessConnection.getInnovationId()) > 0;
-    }
-
-    private static boolean isDisjoint(final Pair<ConnectionGene> connections, final ConnectionGene excessConnection) {
-        return excessConnection == null || connections.getLeft() != null && !isExcess(connections.getLeft(), excessConnection) || connections.getRight() != null && !isExcess(connections.getRight(), excessConnection);
-    }
-
-    private static ConnectionGene getExcessConnection(final Genome genome1, final Genome genome2) {
-        ConnectionGene lastConnection1 = genome1.connections.getAll().getLast();
-        ConnectionGene lastConnection2 = genome2.connections.getAll().getLast();
-
-        if (lastConnection1 == null || lastConnection2 == null) {
-            return null;
-        }
-
-        int comparison = lastConnection1.getInnovationId().compareTo(lastConnection2.getInnovationId());
-
-        if (comparison == 0) {
-            return null;
-        }
-
-        if (comparison < 0) {
-            return lastConnection1;
-        }
-
-        return lastConnection2;
-    }
-
-    @RequiredArgsConstructor
-    public static final class CompatibilityCalculator implements GenomeCompatibilityCalculator, Serializable {
-        @Serial
-        private static final long serialVersionUID = 8186925797297865215L;
-        private final float excessCoefficient; // c1;
-        private final float disjointCoefficient; // c2;
-        private final float weightDifferenceCoefficient; // c3
-
-        @Override
-        public double calculateCompatibility(final Genome genome1, final Genome genome2) {
-            ConnectionGene excessFromConnection = getExcessConnection(genome1, genome2);
-            int matchingCount = 0;
-            double weightDifference = 0D;
-            int disjointCount = 0;
-            int excessCount = 0;
-
-            for (Pair<ConnectionGene> connectionPair : (Iterable<Pair<ConnectionGene>>) () -> genome1.connections.getAll().fullJoin(genome2.connections)) {
-                if (isMatching(connectionPair)) {
-                    matchingCount++;
-                    weightDifference += Math.abs(connectionPair.getLeft().getWeight() - connectionPair.getRight().getWeight());
-                } else if (isDisjoint(connectionPair, excessFromConnection)) {
-                    disjointCount++;
-                } else {
-                    excessCount++;
-                }
-            }
-
-            int maximumNodes = Math.max(genome1.nodes.size(), genome2.nodes.size());
-            double n = maximumNodes < 20 ? 1D : (double) maximumNodes;
-            double averageWeightDifference = matchingCount == 0 ? 0D : weightDifference / (double) matchingCount;
-
-            return excessCoefficient * (double) excessCount / n + disjointCoefficient * (double) disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
-        }
     }
 }

@@ -1,4 +1,4 @@
-package com.dipasquale.common;
+package com.dipasquale.common.serialization;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class SerializableInteroperableStateMap {
+public final class SerializableStateGroup {
     private final Map<String, Object> state = new HashMap<>();
 
     public <T> T get(final String name) {

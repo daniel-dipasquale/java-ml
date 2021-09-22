@@ -1,8 +1,7 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
+import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.ObjectFactory;
@@ -16,16 +15,14 @@ import java.util.stream.Collectors;
 public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
     @Serial
     private static final long serialVersionUID = 2271165226501445902L;
-    private final NodeGeneGroup nodes;
-    private final ConnectionGeneGroup connections;
+    private final Genome genome;
     private final NeuronNavigator neuronNavigator;
     private final AtomicBoolean neuronNavigatorInitialized;
     private volatile boolean neuronNavigatorFinalized;
     private final ObjectFactory<NeuronValueGroup> neuronValuesFactory;
 
-    public DefaultNeuralNetwork(final NodeGeneGroup nodes, final ConnectionGeneGroup connections, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueGroup> neuronValuesFactory) {
-        this.nodes = nodes;
-        this.connections = connections;
+    public DefaultNeuralNetwork(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueGroup> neuronValuesFactory) {
+        this.genome = genome;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
         this.neuronNavigatorInitialized = new AtomicBoolean(false);
         this.neuronNavigatorFinalized = false;
@@ -33,11 +30,11 @@ public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
     }
 
     private Neuron createNeuron(final NodeGene node) {
-        List<InputNeuron> inputs = connections.getExpressed().getIncomingToNode(node).values().stream()
+        List<InputNeuron> inputs = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
                 .map(c -> new InputNeuron(c.getInnovationId().getSourceNodeId(), c.getRecurrentCyclesAllowed()))
                 .collect(Collectors.toList());
 
-        List<OutputNeuron> outputs = connections.getExpressed().getOutgoingFromNode(node).values().stream()
+        List<OutputNeuron> outputs = genome.getConnections().getExpressed().getOutgoingFromNode(node).values().stream()
                 .map(c -> new OutputNeuron(c.getInnovationId().getTargetNodeId(), c.getWeight()))
                 .collect(Collectors.toList());
 
@@ -56,11 +53,14 @@ public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
         neuronValues.setValue(node.getId(), value);
     }
 
+    private Iterable<NodeGene> getInputNodes() {
+        return () -> genome.getNodes().iterator(NodeGeneType.INPUT);
+    }
+
     private void initializeNeuronValues(final NeuronValueGroup neuronValues, final float[] input) {
-        Iterable<NodeGene> inputNodes = () -> nodes.iterator(NodeGeneType.INPUT);
         int index = 0;
 
-        for (NodeGene inputNode : inputNodes) {
+        for (NodeGene inputNode : getInputNodes()) {
             setValueTo(neuronValues, inputNode, input[index++]);
         }
     }
@@ -72,7 +72,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
     private void initializeNeuronsOrderAndValues(final NeuronValueGroup neuronValues, final float[] input) {
         int index = 0;
 
-        for (NodeGene node : nodes) {
+        for (NodeGene node : genome.getNodes()) {
             Neuron neuron = createNeuron(node);
 
             if (neuron != null) {
@@ -121,7 +121,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
 
     @Override
     public float[] activate(final float[] input) {
-        ArgumentValidatorSupport.ensureEqual(input.length, nodes.size(NodeGeneType.INPUT), "input.length");
+        ArgumentValidatorSupport.ensureEqual(input.length, genome.getNodes().size(NodeGeneType.INPUT), "input.length");
 
         return activate(neuronValuesFactory.create(), input);
     }

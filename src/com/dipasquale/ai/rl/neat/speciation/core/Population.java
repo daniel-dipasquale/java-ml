@@ -8,13 +8,14 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessConte
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionContext;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionOrganismMissingException;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionContext;
-import com.dipasquale.common.SerializableInteroperableStateMap;
+import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
 import com.dipasquale.data.structure.set.DequeIdentitySet;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.google.common.collect.Iterables;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,19 +27,13 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@RequiredArgsConstructor
 public final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
-    private PopulationState populationState;
-    private DequeSet<Organism> organismsWithoutSpecies;
-    private Queue<OrganismFactory> organismsToBirth;
-    private NodeDeque<Species, SimpleNode<Species>> speciesNodes;
-
-    public Population() {
-        this.populationState = new PopulationState();
-        this.organismsWithoutSpecies = new DequeIdentitySet<>();
-        this.organismsToBirth = new LinkedList<>();
-        this.speciesNodes = new SimpleNodeDeque<>();
-    }
+    private PopulationState populationState = new PopulationState();
+    private DequeSet<Organism> organismsWithoutSpecies = new DequeIdentitySet<>();
+    private Queue<OrganismFactory> organismsToBirth = new LinkedList<>();
+    private NodeDeque<Species, SimpleNode<Species>> speciesNodes = new SimpleNodeDeque<>();
 
     public int getGeneration() {
         return populationState.getGeneration();
@@ -161,7 +156,7 @@ public final class Population {
 
     public void save(final ObjectOutputStream outputStream)
             throws IOException {
-        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+        SerializableStateGroup state = new SerializableStateGroup();
 
         state.put("population.populationState", populationState);
         state.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
@@ -172,7 +167,7 @@ public final class Population {
 
     public void load(final ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException {
-        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+        SerializableStateGroup state = new SerializableStateGroup();
 
         state.readFrom(inputStream);
         populationState = state.get("population.populationState");

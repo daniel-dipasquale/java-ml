@@ -1,7 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
+import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.common.factory.ObjectFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -14,10 +13,10 @@ public final class RecurrentNeuralNetworkFactory implements NeuralNetworkFactory
     private static final long serialVersionUID = -7222558913199103708L;
 
     @Override
-    public NeuralNetwork create(final NodeGeneGroup nodes, final ConnectionGeneGroup connections) {
+    public NeuralNetwork create(final Genome genome) {
         NeuronPathBuilder neuronPathBuilder = new RecurrentNeuronPathBuilder();
         ObjectFactory<NeuronValueGroup> neuronValuesFactory = (ObjectFactory<NeuronValueGroup> & Serializable) RecurrentNeuronValueGroup::new;
 
-        return new DefaultNeuralNetwork(nodes, connections, neuronPathBuilder, neuronValuesFactory);
+        return new DefaultNeuralNetwork(genome, neuronPathBuilder, neuronValuesFactory);
     }
 }

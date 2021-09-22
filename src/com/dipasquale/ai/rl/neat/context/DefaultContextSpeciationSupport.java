@@ -8,8 +8,9 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReprodu
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomeHub;
-import com.dipasquale.common.SerializableInteroperableStateMap;
 import com.dipasquale.common.factory.ObjectIndexer;
+import com.dipasquale.common.serialization.SerializableStateGroup;
+import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AllArgsConstructor;
@@ -100,8 +101,10 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         genomeHub.markToKill(genome);
     }
 
-    public void save(final SerializableInteroperableStateMap state) {
+    public void save(final SerializableStateGroup state) {
         state.put("speciation.params", params);
+        state.put("speciation.speciesIdFactory", speciesIdFactory);
+        state.put("speciation.genomeHub", genomeHub);
         state.put("speciation.genomeCompatibilityCalculator", genomeCompatibilityCalculator);
         state.put("speciation.reproductionTypeFactory", reproductionTypeFactory);
         state.put("speciation.fitnessStrategy", fitnessStrategy);
@@ -109,8 +112,10 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         state.put("speciation.reproductionStrategy", reproductionStrategy);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop) {
+    public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
         params = state.get("speciation.params");
+        speciesIdFactory = DualModeObject.switchMode(state.get("speciation.speciesIdFactory"), eventLoop != null);
+        genomeHub = DualModeObject.switchMode(state.get("speciation.genomeHub"), eventLoop != null);
         genomeCompatibilityCalculator = state.get("speciation.genomeCompatibilityCalculator");
         reproductionTypeFactory = ObjectProfile.switchProfile(state.get("speciation.reproductionTypeFactory"), eventLoop != null);
         fitnessStrategy = ObjectProfile.switchProfile(state.get("speciation.fitnessStrategy"), eventLoop != null);

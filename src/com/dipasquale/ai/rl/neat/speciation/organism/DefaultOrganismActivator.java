@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.speciation.organism;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
-import com.dipasquale.common.SerializableInteroperableStateMap;
+import com.dipasquale.common.serialization.SerializableStateGroup;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public final class DefaultOrganismActivator implements OrganismActivator {
     @Override
     public void save(final ObjectOutputStream outputStream)
             throws IOException {
-        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+        SerializableStateGroup state = new SerializableStateGroup();
 
         state.put("organismActivator.complexity", complexity);
         state.put("organismActivator.fitness", fitness);
@@ -42,7 +42,7 @@ public final class DefaultOrganismActivator implements OrganismActivator {
     @Override
     public void load(final ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException {
-        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+        SerializableStateGroup state = new SerializableStateGroup();
 
         state.readFrom(inputStream);
         complexity = state.get("organismActivator.complexity");

@@ -1,9 +1,7 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype;
 
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
@@ -30,16 +28,16 @@ public final class DualModeNeuralNetworkHub implements DualModeObject, Serializa
         this(factory, new DualModeMap<>(concurrent, numberOfThreads));
     }
 
-    private DefaultGenomeActivator getOrCreateGenomeActivator(final DefaultGenomeActivator oldGenomeActivator, final Genome genome, final NodeGeneGroup nodes, final ConnectionGeneGroup connections, final PopulationState populationState) {
+    private DefaultGenomeActivator getOrCreateGenomeActivator(final DefaultGenomeActivator oldGenomeActivator, final Genome genome, final PopulationState populationState) {
         if (oldGenomeActivator != null && oldGenomeActivator.genome == genome) {
             return oldGenomeActivator;
         }
 
-        return new DefaultGenomeActivator(genome, populationState, factory.create(nodes, connections));
+        return new DefaultGenomeActivator(genome, populationState, factory.create(genome));
     }
 
-    public GenomeActivator getOrCreateGenomeActivator(final Genome genome, final NodeGeneGroup nodes, final ConnectionGeneGroup connections, final PopulationState populationState) {
-        return genomeActivators.compute(genome.getId(), (gid, oga) -> getOrCreateGenomeActivator(oga, genome, nodes, connections, populationState));
+    public GenomeActivator getOrCreateGenomeActivator(final Genome genome, final PopulationState populationState) {
+        return genomeActivators.compute(genome.getId(), (gid, oga) -> getOrCreateGenomeActivator(oga, genome, populationState));
     }
 
     @Override

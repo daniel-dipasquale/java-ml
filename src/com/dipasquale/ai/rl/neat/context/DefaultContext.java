@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.common.SerializableInteroperableStateMap;
+import com.dipasquale.common.serialization.SerializableStateGroup;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
@@ -67,7 +67,7 @@ public final class DefaultContext implements Context {
     @Override
     public void save(final ObjectOutputStream outputStream)
             throws IOException {
-        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+        SerializableStateGroup state = new SerializableStateGroup();
 
         general.save(state);
         nodes.save(state);
@@ -84,7 +84,7 @@ public final class DefaultContext implements Context {
     @Override
     public void load(final ObjectInputStream inputStream, final StateOverrideSupport override)
             throws IOException, ClassNotFoundException {
-        SerializableInteroperableStateMap state = new SerializableInteroperableStateMap();
+        SerializableStateGroup state = new SerializableStateGroup();
 
         state.readFrom(inputStream);
         general.load(state);

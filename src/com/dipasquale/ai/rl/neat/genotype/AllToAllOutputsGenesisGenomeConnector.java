@@ -15,26 +15,30 @@ public final class AllToAllOutputsGenesisGenomeConnector implements GenesisGenom
     private final ObjectProfile<FloatFactory> weightFactory;
     private final boolean shouldConnectBiasNodes;
 
+    private static Iterable<? extends NodeGene> getNodes(final Genome genome, final NodeGeneType type) {
+        return () -> genome.getNodes().iterator(type);
+    }
+
     @Override
     public void setupConnections(final Genome genome, final Context.ConnectionGeneSupport connectionGeneSupport) {
         FloatFactory weightFactoryFixed = weightFactory.getObject();
 
-        for (NodeGene inputNode : genome.getNodes(NodeGeneType.INPUT)) {
-            for (NodeGene outputNode : genome.getNodes(NodeGeneType.OUTPUT)) {
+        for (NodeGene inputNode : getNodes(genome, NodeGeneType.INPUT)) {
+            for (NodeGene outputNode : getNodes(genome, NodeGeneType.OUTPUT)) {
                 InnovationId innovationId = connectionGeneSupport.getOrCreateInnovationId(inputNode, outputNode);
                 ConnectionGene connection = new ConnectionGene(innovationId, weightFactoryFixed.create());
 
-                genome.addConnection(connection);
+                genome.getConnections().put(connection);
             }
         }
 
         if (shouldConnectBiasNodes) {
-            for (NodeGene biasNode : genome.getNodes(NodeGeneType.BIAS)) {
-                for (NodeGene outputNode : genome.getNodes(NodeGeneType.OUTPUT)) {
+            for (NodeGene biasNode : getNodes(genome, NodeGeneType.BIAS)) {
+                for (NodeGene outputNode : getNodes(genome, NodeGeneType.OUTPUT)) {
                     InnovationId innovationId = connectionGeneSupport.getOrCreateInnovationId(biasNode, outputNode);
                     ConnectionGene connection = new ConnectionGene(innovationId, 1f); // TODO: double check if this is correct
 
-                    genome.addConnection(connection);
+                    genome.getConnections().put(connection);
                 }
             }
         }

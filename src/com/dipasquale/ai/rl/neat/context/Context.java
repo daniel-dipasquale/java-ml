@@ -3,12 +3,10 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
@@ -93,13 +91,13 @@ public interface Context {
 
         void registerNodes(Genome genome);
 
-        void deregisterNodes(Genome genome);
+        void unregisterNodes(Genome genome);
 
         void clearHistoricalMarkings();
     }
 
     interface NeuralNetworkSupport {
-        GenomeActivator getOrCreateGenomeActivator(Genome genome, NodeGeneGroup nodes, ConnectionGeneGroup connections, PopulationState populationState);
+        GenomeActivator getOrCreateGenomeActivator(Genome genome, PopulationState populationState);
 
         float calculateFitness(GenomeActivator genomeActivator);
     }

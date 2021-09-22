@@ -4,13 +4,11 @@ import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.common.FitnessBucket;
 import com.dipasquale.ai.rl.neat.common.StandardNeatEnvironment;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
-import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneGroup;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneGroup;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype.DualModeNeuralNetworkHub;
-import com.dipasquale.common.SerializableInteroperableStateMap;
+import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
@@ -31,8 +29,8 @@ public final class DefaultContextNeuralNetworkSupport implements Context.NeuralN
     }
 
     @Override
-    public GenomeActivator getOrCreateGenomeActivator(final Genome genome, NodeGeneGroup nodes, ConnectionGeneGroup connections, PopulationState populationState) {
-        return neuralNetworkHub.getOrCreateGenomeActivator(genome, nodes, connections, populationState);
+    public GenomeActivator getOrCreateGenomeActivator(final Genome genome, final PopulationState populationState) {
+        return neuralNetworkHub.getOrCreateGenomeActivator(genome, populationState);
     }
 
     @Override
@@ -40,7 +38,7 @@ public final class DefaultContextNeuralNetworkSupport implements Context.NeuralN
         return standardNeatEnvironment.test(genomeActivator);
     }
 
-    public void save(final SerializableInteroperableStateMap state) {
+    public void save(final SerializableStateGroup state) {
         state.put("neuralNetwork.neuralNetworkHub", neuralNetworkHub);
         state.put("neuralNetwork.neatEnvironment", neatEnvironment);
         state.put("neuralNetwork.fitnessDeterminerFactory", fitnessDeterminerFactory);
@@ -83,7 +81,7 @@ public final class DefaultContextNeuralNetworkSupport implements Context.NeuralN
         return new DualModeMap<>(true, eventLoop.getConcurrencyLevel(), fitnessBucketsFixed);
     }
 
-    public void load(final SerializableInteroperableStateMap state, final IterableEventLoop eventLoop, final NeatEnvironment neatEnvironmentOverride) {
+    public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop, final NeatEnvironment neatEnvironmentOverride) {
         neuralNetworkHub = loadNeuralNetworkHub(state.get("neuralNetwork.neuralNetworkHub"), eventLoop);
         neatEnvironment = loadNeatEnvironment(state.get("neuralNetwork.neatEnvironment"), neatEnvironmentOverride);
         fitnessDeterminerFactory = state.get("neuralNetwork.fitnessDeterminerFactory");

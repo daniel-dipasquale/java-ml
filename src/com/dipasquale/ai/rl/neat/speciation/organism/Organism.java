@@ -19,6 +19,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     private static final long serialVersionUID = 752524381932687603L;
     @EqualsAndHashCode.Include
     private final Genome genome;
+    @EqualsAndHashCode.Include
     private final PopulationState populationState;
     @Getter
     private float fitness = 0f;
@@ -32,7 +33,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     }
 
     public GenomeActivator getGenomeActivator(final Context.NeuralNetworkSupport neuralNetworkSupport) {
-        return genome.getActivator(neuralNetworkSupport, populationState);
+        return neuralNetworkSupport.getOrCreateGenomeActivator(genome, populationState);
     }
 
     public float updateFitness(final Context.NeuralNetworkSupport neuralNetworkSupport) {
@@ -41,13 +42,13 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return fitness = neuralNetworkSupport.calculateFitness(genomeActivator);
     }
 
-    public void mutate(final Context context) {
-        genome.mutate(context);
-    }
-
     @Override
     public int compareTo(final Organism other) {
         return Float.compare(fitness, other.fitness);
+    }
+
+    public boolean mutate(final Context context) {
+        return genome.mutate(context);
     }
 
     public Organism mate(final Context context, final Organism other) {
