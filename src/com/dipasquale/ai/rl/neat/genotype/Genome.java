@@ -11,15 +11,12 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor
 @Getter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode
 public final class Genome implements Serializable {
     @Serial
     private static final long serialVersionUID = 1467592503532949541L;
-    @EqualsAndHashCode.Include
     private final String id;
-    @EqualsAndHashCode.Include
     private final NodeGeneGroup nodes = new NodeGeneGroup();
-    @EqualsAndHashCode.Include
     private final ConnectionGeneGroup connections = new ConnectionGeneGroup();
 
     public int getComplexity() {
