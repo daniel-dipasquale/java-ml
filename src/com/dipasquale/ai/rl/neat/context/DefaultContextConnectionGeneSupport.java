@@ -49,8 +49,8 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     @Override
-    public boolean containsInnovationId(final DirectedEdge directedEdge) {
-        return historicalMarkings.containsInnovationId(directedEdge);
+    public boolean containsInnovationId(final InnovationId innovationId) {
+        return historicalMarkings.containsInnovationId(innovationId.getDirectedEdge());
     }
 
     private static Iterable<? extends NodeGene> getNodes(final Genome genome, final NodeGeneType type) {

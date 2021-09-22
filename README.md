@@ -9,8 +9,6 @@ algorithms I'm interested in learning and using:
     - [x] outstanding issues:
         - restarting is buggy, the genome ids aren't reused properly
         - single pole balancing is still outstanding
-        - provide a mechanism for cleaning up innovations that will never happen again in the historical markings
-          container
         - fix adjusted fitness for organisms after evaluation
         - consider handling a full species extinction by restarting the whole process again with a genesis genome
         - among others ...

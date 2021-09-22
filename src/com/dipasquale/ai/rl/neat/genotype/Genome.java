@@ -199,10 +199,10 @@ public final class Genome implements Serializable {
 
     private static boolean isInnovationIdValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connection1, final ConnectionGene connection2) {
         if (connection1 != null) {
-            return connectionGeneSupport.containsInnovationId(connection1.getInnovationId().getDirectedEdge());
+            return connectionGeneSupport.containsInnovationId(connection1.getInnovationId());
         }
 
-        return connectionGeneSupport.containsInnovationId(connection2.getInnovationId().getDirectedEdge());
+        return connectionGeneSupport.containsInnovationId(connection2.getInnovationId());
     }
 
     private static boolean isInnovationIdValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connection) {

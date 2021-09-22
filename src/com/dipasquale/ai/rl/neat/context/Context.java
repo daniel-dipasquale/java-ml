@@ -3,7 +3,6 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
-import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
@@ -81,7 +80,7 @@ public interface Context {
 
         InnovationId getOrCreateInnovationId(NodeGene inputNode, NodeGene outputNode);
 
-        boolean containsInnovationId(DirectedEdge directedEdge);
+        boolean containsInnovationId(InnovationId innovationId);
 
         void registerNodes(Genome genome);
 
