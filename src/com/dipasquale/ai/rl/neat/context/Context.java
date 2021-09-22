@@ -2,13 +2,11 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
-import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
@@ -59,17 +57,11 @@ public interface Context {
     }
 
     interface NodeGeneSupport {
-        SequentialId createId(NodeGeneType type);
-
-        NodeGene create(SequentialId id, NodeGeneType type);
-
-        default NodeGene create(final NodeGeneType type) {
-            SequentialId id = createId(type);
-
-            return create(id, type);
-        }
+        NodeGene createHidden();
 
         void setupInitialNodes(Genome genome);
+
+        void reset();
     }
 
     @FunctionalInterface
@@ -94,7 +86,7 @@ public interface Context {
 
         void unregisterNodes(Genome genome);
 
-        void clearHistoricalMarkings();
+        void reset();
     }
 
     interface NeuralNetworkSupport {

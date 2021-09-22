@@ -19,7 +19,7 @@ public final class PopulationState implements Serializable {
         generation++;
     }
 
-    public void restartGeneration() {
+    public void restart() {
         generation = 1;
     }
 }

@@ -144,8 +144,9 @@ public final class Population {
     }
 
     public void restart(final Context context, final OrganismActivator championOrganismActivator) {
-        populationState.restartGeneration();
-        context.connections().clearHistoricalMarkings();
+        populationState.restart();
+        context.connections().reset();
+        context.nodes().reset();
         context.speciation().clearGenomeIds();
         organismsWithoutSpecies.clear();
         organismsToBirth.clear();

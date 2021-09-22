@@ -46,6 +46,7 @@ public final class HistoricalMarkings {
     }
 
     public void clear() {
+        innovationIdFactory.reset();
         innovationIds.clear();
         nodeIdDependencyTrackers.clear();
     }

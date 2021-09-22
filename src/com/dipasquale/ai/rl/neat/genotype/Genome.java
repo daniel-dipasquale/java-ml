@@ -68,7 +68,7 @@ public final class Genome implements Serializable {
         ConnectionGene connection = connections.getExpressed().disableByIndex(index);
         NodeGene inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
         NodeGene outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
-        NodeGene newNode = context.nodes().create(NodeGeneType.HIDDEN);
+        NodeGene newNode = context.nodes().createHidden();
         ConnectionGene inToNewConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
         ConnectionGene newToOutConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
 

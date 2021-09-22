@@ -96,7 +96,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     @Override
-    public void clearHistoricalMarkings() {
+    public void reset() {
         historicalMarkings.clear();
     }
 

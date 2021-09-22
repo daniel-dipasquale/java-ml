@@ -40,4 +40,10 @@ public final class DualModeNodeIdFactory implements DualModeObject, Serializable
             sequentialIdFactory.switchMode(concurrent);
         }
     }
+
+    public void reset() {
+        for (DualModeSequentialIdFactory sequentialIdFactory : nodeIdFactories.values()) {
+            sequentialIdFactory.reset();
+        }
+    }
 }

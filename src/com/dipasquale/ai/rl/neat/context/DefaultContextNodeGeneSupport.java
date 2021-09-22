@@ -22,6 +22,9 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
     private DualModeNodeIdFactory nodeIdFactory;
     private Map<NodeGeneType, ObjectProfile<FloatFactory>> biasFactories;
     private Map<NodeGeneType, ObjectProfile<ActivationFunctionFactory>> activationFunctionFactories;
+    private int inputs;
+    private int outputs;
+    private int biases;
     private List<SequentialId> inputNodeIds;
     private List<SequentialId> outputNodeIds;
     private List<SequentialId> biasNodeIds;
@@ -30,6 +33,9 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         this.nodeIdFactory = nodeIdFactory;
         this.biasFactories = biasFactories;
         this.activationFunctionFactories = activationFunctionFactories;
+        this.inputs = inputs;
+        this.outputs = outputs;
+        this.biases = biases;
         this.inputNodeIds = createNodeIds(nodeIdFactory, NodeGeneType.INPUT, inputs);
         this.outputNodeIds = createNodeIds(nodeIdFactory, NodeGeneType.OUTPUT, outputs);
         this.biasNodeIds = createNodeIds(nodeIdFactory, NodeGeneType.BIAS, biases);
@@ -41,17 +47,18 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public SequentialId createId(final NodeGeneType type) {
-        return nodeIdFactory.createNodeId(type);
-    }
-
-    @Override
-    public NodeGene create(final SequentialId id, final NodeGeneType type) {
+    private NodeGene create(final SequentialId id, final NodeGeneType type) {
         float bias = biasFactories.get(type).getObject().create();
         ActivationFunction activationFunction = activationFunctionFactories.get(type).getObject().create();
 
         return new NodeGene(id, type, bias, activationFunction);
+    }
+
+    @Override
+    public NodeGene createHidden() {
+        SequentialId id = nodeIdFactory.createNodeId(NodeGeneType.HIDDEN);
+
+        return create(id, NodeGeneType.HIDDEN);
     }
 
     @Override
@@ -69,10 +76,21 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         }
     }
 
+    @Override
+    public void reset() {
+        nodeIdFactory.reset();
+        inputNodeIds = createNodeIds(nodeIdFactory, NodeGeneType.INPUT, inputs);
+        outputNodeIds = createNodeIds(nodeIdFactory, NodeGeneType.OUTPUT, outputs);
+        biasNodeIds = createNodeIds(nodeIdFactory, NodeGeneType.BIAS, biases);
+    }
+
     public void save(final SerializableStateGroup state) {
         state.put("nodes.nodeIdFactory", nodeIdFactory);
         state.put("nodes.biasFactories", biasFactories);
         state.put("nodes.activationFunctionFactories", activationFunctionFactories);
+        state.put("nodes.inputs", inputs);
+        state.put("nodes.outputs", outputs);
+        state.put("nodes.biases", biases);
         state.put("nodes.inputNodeIds", inputNodeIds);
         state.put("nodes.outputNodeIds", outputNodeIds);
         state.put("nodes.biasNodeIds", biasNodeIds);
@@ -82,6 +100,9 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         nodeIdFactory = DualModeObject.switchMode(state.get("nodes.nodeIdFactory"), eventLoop != null);
         biasFactories = ObjectProfile.switchProfileMap(state.get("nodes.biasFactories"), eventLoop != null);
         activationFunctionFactories = ObjectProfile.switchProfileMap(state.get("nodes.activationFunctionFactories"), eventLoop != null);
+        inputs = state.get("nodes.inputs");
+        outputs = state.get("nodes.outputs");
+        biases = state.get("nodes.biases");
         inputNodeIds = state.get("nodes.inputNodeIds");
         outputNodeIds = state.get("nodes.outputNodeIds");
         biasNodeIds = state.get("nodes.biasNodeIds");
