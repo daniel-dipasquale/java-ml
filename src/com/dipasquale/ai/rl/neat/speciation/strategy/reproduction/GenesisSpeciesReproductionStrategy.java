@@ -14,15 +14,19 @@ public final class GenesisSpeciesReproductionStrategy implements SpeciesReproduc
     @Serial
     private static final long serialVersionUID = -4687936745852249338L;
 
+    private static void killOrganism(final Organism organism, final Context context) {
+        organism.kill(context.speciation());
+        organism.deregisterNodes(context.connections());
+    }
+
     @Override
     public void reproduce(final SpeciesReproductionContext context) {
         Context.RandomSupport random = context.getParent().random();
-        Context.SpeciationSupport speciation = context.getParent().speciation();
 
         for (Species species : context.getRankedSpecies()) {
-            List<Organism> organismsKilled = species.restart(random, context.getOrganismsWithoutSpecies());
+            List<Organism> organismsToKill = species.restart(random, context.getOrganismsWithoutSpecies());
 
-            organismsKilled.forEach(ok -> ok.kill(speciation));
+            organismsToKill.forEach(otk -> killOrganism(otk, context.getParent()));
         }
     }
 }

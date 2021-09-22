@@ -41,14 +41,12 @@ public final class DualModeGenomeHub implements DualModeObject, Serializable {
 
         context.nodes().setupInitialNodes(genome);
         context.connections().setupInitialConnections(genome);
-        // TODO: register nodes here
 
         return genome;
     }
 
     public void markToKill(final Genome genome) {
         genomeIdsKilled.add(genome.getId());
-        // TODO: deregister nodes here
     }
 
     public int getGenomeKilledCount() {

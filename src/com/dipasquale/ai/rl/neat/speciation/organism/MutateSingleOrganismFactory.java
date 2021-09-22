@@ -14,10 +14,11 @@ public final class MutateSingleOrganismFactory implements OrganismFactory, Seria
 
     @Override
     public Organism create(final Context context) {
-        Organism newOrganism = organism.createCopy(context.speciation());
+        Organism mutatedOrganism = organism.createCopy(context);
 
-        newOrganism.mutate(context);
+        mutatedOrganism.mutate(context);
+        mutatedOrganism.registerNodes(context.connections());
 
-        return newOrganism;
+        return mutatedOrganism;
     }
 }

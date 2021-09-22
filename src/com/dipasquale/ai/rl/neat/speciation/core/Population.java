@@ -43,6 +43,7 @@ public final class Population {
         IntStream.range(0, context.general().params().populationSize())
                 .mapToObj(i -> context.speciation().createGenesisGenome(context))
                 .map(g -> new Organism(g, populationState))
+                .peek(o -> o.registerNodes(context.connections()))
                 .forEach(organismsWithoutSpecies::add);
     }
 

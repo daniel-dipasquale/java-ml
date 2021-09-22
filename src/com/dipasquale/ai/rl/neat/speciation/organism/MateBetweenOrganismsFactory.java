@@ -16,13 +16,15 @@ public final class MateBetweenOrganismsFactory implements OrganismFactory, Seria
 
     @Override
     public Organism create(final Context context) {
-        Organism newOrganism = parentOrganism1.mate(context, parentOrganism2);
+        Organism organism = parentOrganism1.mate(context, parentOrganism2);
 
         if (shouldMutate) {
-            newOrganism.mutate(context);
+            organism.mutate(context);
         }
 
-        return newOrganism;
+        organism.registerNodes(context.connections());
+
+        return organism;
     }
 }
 

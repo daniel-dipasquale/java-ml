@@ -14,20 +14,24 @@ public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSel
     @Serial
     private static final long serialVersionUID = -8972350994440640462L;
 
+    private static void killOrganism(final Organism organism, final Context context) {
+        organism.kill(context.speciation());
+        organism.deregisterNodes(context.connections());
+    }
+
     @Override
     public void prepareSurvival(final SpeciesSelectionContext context, final Species species) {
         Context.SpeciationSupport speciation = context.getParent().speciation();
         List<Organism> organisms = species.removeUnfitToReproduce(speciation);
 
-        organisms.forEach(o -> o.kill(speciation));
+        organisms.forEach(o -> killOrganism(o, context.getParent()));
     }
 
     @Override
     public void prepareExtinction(final SpeciesSelectionContext context, final Species species) {
-        Context.SpeciationSupport speciation = context.getParent().speciation();
         List<Organism> organisms = species.getOrganisms();
 
-        organisms.forEach(o -> o.kill(speciation));
+        organisms.forEach(o -> killOrganism(o, context.getParent()));
     }
 
     @Override

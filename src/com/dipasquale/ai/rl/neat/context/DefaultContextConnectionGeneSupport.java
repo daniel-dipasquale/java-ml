@@ -49,8 +49,8 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     @Override
-    public boolean isInnovationIdExtinct(final InnovationId innovationId) {
-        return historicalMarkings.containsInnovationId(innovationId.getDirectedEdge());
+    public boolean containsInnovationId(final DirectedEdge directedEdge) {
+        return historicalMarkings.containsInnovationId(directedEdge);
     }
 
     private static Iterable<? extends NodeGene> getNodes(final Genome genome, final NodeGeneType type) {
@@ -77,7 +77,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     @Override
-    public void unregisterNodes(final Genome genome) {
+    public void deregisterNodes(final Genome genome) {
         for (NodeGene node : getNodes(genome, NodeGeneType.INPUT)) {
             historicalMarkings.deregisterNodeId(node.getId());
         }

@@ -197,6 +197,18 @@ public final class Genome implements Serializable {
         return () -> genome1.nodes.fullJoin(genome2.nodes);
     }
 
+    private static boolean isInnovationIdValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connection1, final ConnectionGene connection2) {
+        if (connection1 != null) {
+            return connectionGeneSupport.containsInnovationId(connection1.getInnovationId().getDirectedEdge());
+        }
+
+        return connectionGeneSupport.containsInnovationId(connection2.getInnovationId().getDirectedEdge());
+    }
+
+    private static boolean isInnovationIdValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connection) {
+        return isInnovationIdValid(connectionGeneSupport, connection, null);
+    }
+
     public static Genome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final Genome fitParent, final Genome unfitParent) {
         Genome child = new Genome(context.speciation().createGenomeId());
 
@@ -209,16 +221,18 @@ public final class Genome implements Serializable {
         }
 
         for (ConnectionGene fitConnection : fitParent.connections.getAll()) {
-            ConnectionGene unfitConnection = unfitParent.connections.getAll().getById(fitConnection.getInnovationId());
-            ConnectionGene childConnection;
+            if (isInnovationIdValid(context.connections(), fitConnection)) {
+                ConnectionGene unfitConnection = unfitParent.connections.getAll().getById(fitConnection.getInnovationId());
+                ConnectionGene childConnection;
 
-            if (unfitConnection != null) {
-                childConnection = createChildConnection(context, fitConnection, unfitConnection);
-            } else {
-                childConnection = fitConnection.createCopy(fitConnection.isExpressed() || context.crossOver().shouldOverrideExpressed());
+                if (unfitConnection != null) {
+                    childConnection = createChildConnection(context, fitConnection, unfitConnection);
+                } else {
+                    childConnection = fitConnection.createCopy(fitConnection.isExpressed() || context.crossOver().shouldOverrideExpressed());
+                }
+
+                child.connections.put(childConnection);
             }
-
-            child.connections.put(childConnection);
         }
 
         return child;
@@ -242,42 +256,50 @@ public final class Genome implements Serializable {
         }
 
         for (Pair<ConnectionGene> connectionPair : fullJoinBetweenConnections(parent1, parent2)) {
-            if (connectionPair.getLeft() != null && connectionPair.getRight() != null) {
-                ConnectionGene childConnection = createChildConnection(context, connectionPair.getLeft(), connectionPair.getRight());
+            if (isInnovationIdValid(context.connections(), connectionPair.getLeft(), connectionPair.getRight())) {
+                if (connectionPair.getLeft() != null && connectionPair.getRight() != null) {
+                    ConnectionGene childConnection = createChildConnection(context, connectionPair.getLeft(), connectionPair.getRight());
 
-                child.connections.put(childConnection);
-            } else if (connectionPair.getLeft() != null) {
-                boolean expressed = connectionPair.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressed();
-                ConnectionGene childConnection = connectionPair.getLeft().createCopy(expressed);
+                    child.connections.put(childConnection);
+                } else if (connectionPair.getLeft() != null) {
+                    boolean expressed = connectionPair.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressed();
+                    ConnectionGene childConnection = connectionPair.getLeft().createCopy(expressed);
 
-                child.connections.put(childConnection);
-            } else {
-                boolean expressed = connectionPair.getRight().isExpressed() || context.crossOver().shouldOverrideExpressed();
-                ConnectionGene childConnection = connectionPair.getRight().createCopy(expressed);
+                    child.connections.put(childConnection);
+                } else {
+                    boolean expressed = connectionPair.getRight().isExpressed() || context.crossOver().shouldOverrideExpressed();
+                    ConnectionGene childConnection = connectionPair.getRight().createCopy(expressed);
 
-                child.connections.put(childConnection);
+                    child.connections.put(childConnection);
+                }
             }
         }
 
         return child;
     }
 
-    private Genome createCopy(final String id) {
+    private static void addIfValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connection, final Genome genome) {
+        if (isInnovationIdValid(connectionGeneSupport, connection)) {
+            genome.connections.put(connection.createClone());
+        }
+    }
+
+    private Genome createCopy(final String id, final Context.ConnectionGeneSupport connectionGeneSupport) {
         Genome genome = new Genome(id);
 
         nodes.forEach(genome.nodes::put);
-        connections.getAll().forEach(c -> genome.connections.put(c.createClone()));
+        connections.getAll().forEach(c -> addIfValid(connectionGeneSupport, c, genome));
 
         return genome;
     }
 
-    public Genome createCopy(final Context.SpeciationSupport speciationSupport) {
-        String id = speciationSupport.createGenomeId();
+    public Genome createCopy(final Context context) {
+        String id = context.speciation().createGenomeId();
 
-        return createCopy(id);
+        return createCopy(id, context.connections());
     }
 
-    public Genome createClone() {
-        return createCopy(id);
+    public Genome createClone(final Context.ConnectionGeneSupport connectionGeneSupport) {
+        return createCopy(id, connectionGeneSupport);
     }
 }

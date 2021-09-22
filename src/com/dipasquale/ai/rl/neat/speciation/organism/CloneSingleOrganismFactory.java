@@ -14,6 +14,10 @@ public final class CloneSingleOrganismFactory implements OrganismFactory, Serial
 
     @Override
     public Organism create(final Context context) {
-        return organism.createCopy(context.speciation());
+        Organism copiedOrganism = organism.createCopy(context);
+
+        copiedOrganism.registerNodes(context.connections());
+
+        return copiedOrganism;
     }
 }
