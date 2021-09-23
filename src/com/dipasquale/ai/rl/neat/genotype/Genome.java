@@ -57,7 +57,7 @@ public final class Genome implements Serializable {
         return true;
     }
 
-    private boolean addRandomNodeMutation(final Context context) {
+    private boolean addRandomNode(final Context context) {
         int size = connections.getExpressed().size();
 
         if (size == 0) {
@@ -128,7 +128,7 @@ public final class Genome implements Serializable {
         };
     }
 
-    private boolean addRandomConnectionMutation(final Context context) {
+    private boolean addRandomConnection(final Context context) {
         InnovationId innovationId = createRandomInnovationId(context);
 
         if (innovationId != null) {
@@ -164,11 +164,11 @@ public final class Genome implements Serializable {
         }
 
         if (context.mutation().shouldAddNode()) {
-            mutated |= addRandomNodeMutation(context);
+            mutated |= addRandomNode(context);
         }
 
         if (connections.getExpressed().isEmpty() || context.mutation().shouldAddConnection()) {
-            mutated |= addRandomConnectionMutation(context); // TODO: determine if this algorithm is consistent enough when converging
+            mutated |= addRandomConnection(context); // TODO: determine if this algorithm is consistent enough when converging
         }
 
         return mutated;
