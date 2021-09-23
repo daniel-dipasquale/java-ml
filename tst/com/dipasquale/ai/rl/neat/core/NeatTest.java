@@ -108,11 +108,7 @@ public final class NeatTest {
     }
 
     private static NeatTrainingResult test(final NeatTrainingPolicy trainingPolicy, final NeatTrainer trainer) {
-        try {
-            return trainingPolicy.test(new NeatActivatorTrainer(trainer));
-        } finally {
-            trainingPolicy.reset();
-        }
+        return trainingPolicy.testOnce(new NeatActivatorTrainer(trainer));
     }
 
     private static void assertPersistence(final NeatTrainer trainer, final NeatTrainerSetup trainerSetup, final boolean shouldTestParallelism) {

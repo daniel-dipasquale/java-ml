@@ -49,31 +49,35 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
     }
 
     private boolean executeTrainingPolicy(final NeatTrainingPolicy trainingPolicy) {
-        while (true) {
-            NeatTrainingResult result = trainingPolicy.test(activator);
+        try {
+            while (true) {
+                NeatTrainingResult result = trainingPolicy.test(activator);
 
-            switch (result) {
-                case EVALUATE_FITNESS:
-                    evaluator.evaluateFitness();
+                switch (result) {
+                    case EVALUATE_FITNESS:
+                        evaluator.evaluateFitness();
 
-                    break;
+                        break;
 
-                case EVOLVE:
-                    evaluator.evolve();
+                    case EVOLVE:
+                        evaluator.evolve();
 
-                    break;
+                        break;
 
-                case RESTART:
-                    evaluator.restart();
+                    case RESTART:
+                        evaluator.restart();
 
-                    break;
+                        break;
 
-                case STOP_TRAINING:
-                    return false;
+                    case STOP_TRAINING:
+                        return false;
 
-                case WORKING_SOLUTION_FOUND:
-                    return true;
+                    case WORKING_SOLUTION_FOUND:
+                        return true;
+                }
             }
+        } finally {
+            trainingPolicy.reset();
         }
     }
 
