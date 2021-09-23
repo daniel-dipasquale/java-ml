@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.speciation.organism;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import lombok.EqualsAndHashCode;
@@ -32,14 +32,14 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return genome.getComplexity();
     }
 
-    public GenomeActivator getGenomeActivator(final Context.NeuralNetworkSupport neuralNetworkSupport) {
-        return neuralNetworkSupport.getOrCreateGenomeActivator(genome, populationState);
+    public GenomeActivator getGenomeActivator(final Context.ActivationSupport activationSupport) {
+        return activationSupport.getOrCreateGenomeActivator(genome, populationState);
     }
 
-    public float updateFitness(final Context.NeuralNetworkSupport neuralNetworkSupport) {
-        GenomeActivator genomeActivator = getGenomeActivator(neuralNetworkSupport);
+    public float updateFitness(final Context.ActivationSupport activationSupport) {
+        GenomeActivator genomeActivator = getGenomeActivator(activationSupport);
 
-        return fitness = neuralNetworkSupport.calculateFitness(genomeActivator);
+        return fitness = activationSupport.calculateFitness(genomeActivator);
     }
 
     @Override
@@ -82,7 +82,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     }
 
     public void kill(final Context.SpeciationSupport speciationSupport) {
-        speciationSupport.markToKill(genome);
+        speciationSupport.disposeGenomeId(genome);
     }
 
     public void deregisterNodes(final Context.ConnectionGeneSupport connectionGeneSupport) {

@@ -96,8 +96,8 @@ public final class Species implements Serializable {
         return updateAllFitness(Organism::getFitness);
     }
 
-    public float updateAllFitness(final Context.NeuralNetworkSupport neuralNetworkSupport) {
-        return updateAllFitness(o -> o.updateFitness(neuralNetworkSupport));
+    public float updateAllFitness(final Context.ActivationSupport activationSupport) {
+        return updateAllFitness(o -> o.updateFitness(activationSupport));
     }
 
     private List<Organism> ensureOrganismsIsSorted() {

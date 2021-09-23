@@ -12,18 +12,18 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DualModeGenomeHub implements DualModeObject, Serializable {
+public final class DualModeGenomePool implements DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 6680979157037947466L;
     private final DualModeSequentialIdFactory genomeIdFactory;
-    private final DualModeDeque<String> genomeIdsKilled;
+    private final DualModeDeque<String> disposedGenomeIds;
 
-    public DualModeGenomeHub(final boolean concurrent) {
+    public DualModeGenomePool(final boolean concurrent) {
         this(new DualModeSequentialIdFactory(concurrent, "genome"), new DualModeDeque<>(concurrent));
     }
 
-    public String createGenomeId() {
-        String id = genomeIdsKilled.pollFirst();
+    public String createId() {
+        String id = disposedGenomeIds.pollFirst();
 
         if (id != null) {
             return id;
@@ -32,12 +32,12 @@ public final class DualModeGenomeHub implements DualModeObject, Serializable {
         return genomeIdFactory.create().toString();
     }
 
-    public void clearGenomeIds() {
+    public void clearIds() {
         genomeIdFactory.reset();
     }
 
-    public Genome createGenesisGenome(final Context context) {
-        Genome genome = new Genome(createGenomeId());
+    public Genome createGenesis(final Context context) {
+        Genome genome = new Genome(createId());
 
         context.nodes().setupInitialNodes(genome);
         context.connections().setupInitialConnections(genome);
@@ -45,17 +45,17 @@ public final class DualModeGenomeHub implements DualModeObject, Serializable {
         return genome;
     }
 
-    public void markToKill(final Genome genome) {
-        genomeIdsKilled.add(genome.getId());
+    public void disposeId(final Genome genome) {
+        disposedGenomeIds.add(genome.getId());
     }
 
-    public int getGenomeKilledCount() {
-        return genomeIdsKilled.size();
+    public int getDisposedCount() {
+        return disposedGenomeIds.size();
     }
 
     @Override
     public void switchMode(final boolean concurrent) {
         genomeIdFactory.switchMode(concurrent);
-        genomeIdsKilled.switchMode(concurrent);
+        disposedGenomeIds.switchMode(concurrent);
     }
 }

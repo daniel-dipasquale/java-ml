@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
@@ -14,30 +14,30 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DualModeNeuralNetworkHub implements DualModeObject, Serializable {
+public final class DualModeGenomeActivatorPool implements DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -8461491541333740085L;
-    private final NeuralNetworkFactory factory;
+    private final NeuralNetworkFactory neuralNetworkFactory;
     private final DualModeMap<String, DefaultGenomeActivator> genomeActivators;
 
-    public DualModeNeuralNetworkHub(final boolean concurrent, final int numberOfThreads, final DualModeNeuralNetworkHub neuralNetworkHub) {
-        this(neuralNetworkHub.factory, new DualModeMap<>(concurrent, numberOfThreads, neuralNetworkHub.genomeActivators));
+    public DualModeGenomeActivatorPool(final boolean concurrent, final int numberOfThreads, final DualModeGenomeActivatorPool genomeActivatorPool) {
+        this(genomeActivatorPool.neuralNetworkFactory, new DualModeMap<>(concurrent, numberOfThreads, genomeActivatorPool.genomeActivators));
     }
 
-    public DualModeNeuralNetworkHub(final boolean concurrent, final int numberOfThreads, final NeuralNetworkFactory factory) {
-        this(factory, new DualModeMap<>(concurrent, numberOfThreads));
+    public DualModeGenomeActivatorPool(final boolean concurrent, final int numberOfThreads, final NeuralNetworkFactory neuralNetworkFactory) {
+        this(neuralNetworkFactory, new DualModeMap<>(concurrent, numberOfThreads));
     }
 
-    private DefaultGenomeActivator getOrCreateGenomeActivator(final DefaultGenomeActivator oldGenomeActivator, final Genome genome, final PopulationState populationState) {
+    private DefaultGenomeActivator getOrCreate(final DefaultGenomeActivator oldGenomeActivator, final Genome genome, final PopulationState populationState) {
         if (oldGenomeActivator != null && oldGenomeActivator.genome == genome) {
             return oldGenomeActivator;
         }
 
-        return new DefaultGenomeActivator(genome, populationState, factory.create(genome));
+        return new DefaultGenomeActivator(genome, populationState, neuralNetworkFactory.create(genome));
     }
 
-    public GenomeActivator getOrCreateGenomeActivator(final Genome genome, final PopulationState populationState) {
-        return genomeActivators.compute(genome.getId(), (gid, oga) -> getOrCreateGenomeActivator(oga, genome, populationState));
+    public GenomeActivator getOrCreate(final Genome genome, final PopulationState populationState) {
+        return genomeActivators.compute(genome.getId(), (gid, oga) -> getOrCreate(oga, genome, populationState));
     }
 
     @Override

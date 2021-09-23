@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.genotype;
+package com.dipasquale.ai.rl.neat.phenotype;
 
 public interface GenomeActivator {
     String getId();

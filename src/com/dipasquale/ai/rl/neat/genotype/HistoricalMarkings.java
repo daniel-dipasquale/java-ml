@@ -33,12 +33,12 @@ public final class HistoricalMarkings {
         return innovationIds.containsKey(directedEdge);
     }
 
-    public void registerNodeId(final SequentialId nodeId) {
-        nodeIdDependencyTrackers.computeIfAbsent(nodeId, nid -> nodeIdDependencyTrackerFactory.create()).increaseBlastRadius();
+    public void registerNode(final NodeGene node) {
+        nodeIdDependencyTrackers.computeIfAbsent(node.getId(), nid -> nodeIdDependencyTrackerFactory.create()).increaseBlastRadius();
     }
 
-    public void deregisterNodeId(final SequentialId nodeId) {
-        NodeGeneIdDependencyTracker nodeIdDependencyTracker = nodeIdDependencyTrackers.get(nodeId);
+    public void deregisterNode(final NodeGene node) {
+        NodeGeneIdDependencyTracker nodeIdDependencyTracker = nodeIdDependencyTrackers.get(node.getId());
 
         if (nodeIdDependencyTracker.decreaseBlastRadius() == 0) {
             nodeIdDependencyTracker.removeFrom(innovationIds);

@@ -124,7 +124,7 @@ public final class Population {
     public void evolve(final Context context, final OrganismActivator championOrganismActivator) {
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert organismsWithoutSpecies.isEmpty();
-        assert organismsToBirth.isEmpty() && context.speciation().getGenomeKilledCount() == 0;
+        assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
 
         SpeciesSelectionContext selectionContext = new SpeciesSelectionContext(context, championOrganismActivator);
 
@@ -141,7 +141,7 @@ public final class Population {
         populationState.increaseGeneration();
 
         assert context.general().params().populationSize() == countOrganismsEverywhere();
-        assert context.speciation().getGenomeKilledCount() == organismsToBirth.size();
+        assert context.speciation().getDisposedGenomeIdCount() == organismsToBirth.size();
     }
 
     public void restart(final Context context, final OrganismActivator championOrganismActivator) {

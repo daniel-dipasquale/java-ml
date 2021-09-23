@@ -21,7 +21,7 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SharedFitnessAccu
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomeHub;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomePool;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.factory.ObjectIndexer;
 import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
@@ -149,7 +149,7 @@ public final class SpeciationSupport {
         float disjointCoefficientFixed = disjointCoefficient.createFactoryProfile(parallelism).getObject().create();
         float excessCoefficientFixed = excessCoefficient.createFactoryProfile(parallelism).getObject().create();
         DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelism.isEnabled(), "species");
-        DualModeGenomeHub genomeHub = new DualModeGenomeHub(parallelism.isEnabled());
+        DualModeGenomePool genomePool = new DualModeGenomePool(parallelism.isEnabled());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createFloatRandomSupportProfile(parallelism);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
@@ -158,7 +158,7 @@ public final class SpeciationSupport {
         ObjectProfile<SpeciesSelectionStrategyExecutor> evolutionStrategyProfile = createEvolutionStrategyProfile(parallelism);
         ObjectProfile<SpeciesReproductionStrategy> reproductionStrategyProfile = createReproductionStrategyProfile(parallelism);
 
-        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomeHub, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, reproductionStrategyProfile);
+        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePool, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, reproductionStrategyProfile);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

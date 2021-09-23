@@ -4,10 +4,10 @@ import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
+import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
@@ -31,7 +31,7 @@ public interface Context {
 
     ConnectionGeneSupport connections();
 
-    NeuralNetworkSupport neuralNetwork();
+    ActivationSupport neuralNetwork();
 
     ParallelismSupport parallelism();
 
@@ -89,7 +89,7 @@ public interface Context {
         void reset();
     }
 
-    interface NeuralNetworkSupport {
+    interface ActivationSupport {
         GenomeActivator getOrCreateGenomeActivator(Genome genome, PopulationState populationState);
 
         float calculateFitness(GenomeActivator genomeActivator);
@@ -244,9 +244,9 @@ public interface Context {
 
         SpeciesReproductionStrategy getReproductionStrategy();
 
-        int getGenomeKilledCount();
+        void disposeGenomeId(Genome genome);
 
-        void markToKill(Genome genome);
+        int getDisposedGenomeIdCount();
     }
 
     interface StateOverrideSupport {

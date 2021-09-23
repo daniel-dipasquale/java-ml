@@ -4,6 +4,7 @@ import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
+import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneIdDependencyTracker;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
 import com.dipasquale.common.factory.ObjectFactory;
@@ -59,12 +60,12 @@ public final class DualModeHistoricalMarkings implements DualModeObject, Seriali
         return historicalMarkings.containsInnovationId(directedEdge);
     }
 
-    public void registerNodeId(final SequentialId nodeId) {
-        historicalMarkings.registerNodeId(nodeId);
+    public void registerNode(final NodeGene node) {
+        historicalMarkings.registerNode(node);
     }
 
-    public void deregisterNodeId(final SequentialId nodeId) {
-        historicalMarkings.deregisterNodeId(nodeId);
+    public void deregisterNode(final NodeGene node) {
+        historicalMarkings.deregisterNode(node);
     }
 
     public void clear() {

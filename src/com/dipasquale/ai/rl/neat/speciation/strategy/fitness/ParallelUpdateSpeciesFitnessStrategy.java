@@ -21,7 +21,7 @@ public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnes
                 .flatMap(s -> s.getOrganisms().stream())
                 .iterator();
 
-        Context.NeuralNetworkSupport neuralNetwork = context.getParent().neuralNetwork();
+        Context.ActivationSupport neuralNetwork = context.getParent().neuralNetwork();
         WaitHandle waitHandle = context.getParent().parallelism().forEach(organisms, o -> o.updateFitness(neuralNetwork));
 
         try {

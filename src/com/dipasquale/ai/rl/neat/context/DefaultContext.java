@@ -12,7 +12,7 @@ public final class DefaultContext implements Context {
     private final DefaultContextGeneralSupport general;
     private final DefaultContextNodeGeneSupport nodes;
     private final DefaultContextConnectionGeneSupport connections;
-    private final DefaultContextNeuralNetworkSupport neuralNetwork;
+    private final DefaultContextActivationSupport neuralNetwork;
     private final DefaultContextParallelismSupport parallelism;
     private final DefaultContextRandomSupport random;
     private final DefaultContextMutationSupport mutation;
@@ -35,7 +35,7 @@ public final class DefaultContext implements Context {
     }
 
     @Override
-    public NeuralNetworkSupport neuralNetwork() {
+    public ActivationSupport neuralNetwork() {
         return neuralNetwork;
     }
 

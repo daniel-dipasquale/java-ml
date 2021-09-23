@@ -60,38 +60,38 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     @Override
     public void registerNodes(final Genome genome) {
         for (NodeGene node : getNodes(genome, NodeGeneType.INPUT)) {
-            historicalMarkings.registerNodeId(node.getId());
+            historicalMarkings.registerNode(node);
         }
 
         for (NodeGene node : getNodes(genome, NodeGeneType.OUTPUT)) {
-            historicalMarkings.registerNodeId(node.getId());
+            historicalMarkings.registerNode(node);
         }
 
         for (NodeGene node : getNodes(genome, NodeGeneType.BIAS)) {
-            historicalMarkings.registerNodeId(node.getId());
+            historicalMarkings.registerNode(node);
         }
 
         for (NodeGene node : getNodes(genome, NodeGeneType.HIDDEN)) {
-            historicalMarkings.registerNodeId(node.getId());
+            historicalMarkings.registerNode(node);
         }
     }
 
     @Override
     public void deregisterNodes(final Genome genome) {
         for (NodeGene node : getNodes(genome, NodeGeneType.INPUT)) {
-            historicalMarkings.deregisterNodeId(node.getId());
+            historicalMarkings.deregisterNode(node);
         }
 
         for (NodeGene node : getNodes(genome, NodeGeneType.OUTPUT)) {
-            historicalMarkings.deregisterNodeId(node.getId());
+            historicalMarkings.deregisterNode(node);
         }
 
         for (NodeGene node : getNodes(genome, NodeGeneType.BIAS)) {
-            historicalMarkings.deregisterNodeId(node.getId());
+            historicalMarkings.deregisterNode(node);
         }
 
         for (NodeGene node : getNodes(genome, NodeGeneType.HIDDEN)) {
-            historicalMarkings.deregisterNodeId(node.getId());
+            historicalMarkings.deregisterNode(node);
         }
     }
 

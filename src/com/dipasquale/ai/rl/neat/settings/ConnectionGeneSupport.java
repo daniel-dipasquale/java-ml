@@ -29,9 +29,9 @@ public final class ConnectionGeneSupport {
         return new WeightPerturberProfile(parallelism.isEnabled(), floatFactoryPair);
     }
 
-    DefaultContextConnectionGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final NeuralNetworkSupport neuralNetwork, final ParallelismSupport parallelism) {
+    DefaultContextConnectionGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ActivationSupport neuralNetwork, final ParallelismSupport parallelism) {
         DefaultContextConnectionGeneParameters params = DefaultContextConnectionGeneParameters.builder()
-                .multipleRecurrentCyclesAllowed(neuralNetwork.getType() == NeuralNetworkType.MULTI_CYCLE_RECURRENT)
+                .multipleRecurrentCyclesAllowed(neuralNetwork.getNeuralNetworkType() == NeuralNetworkType.MULTI_CYCLE_RECURRENT)
                 .build();
 
         ObjectProfile<FloatFactory> weightFactoryProfile = weightFactory.createFactoryProfile(parallelism);

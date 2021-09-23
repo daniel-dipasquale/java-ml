@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.common;
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.fitness.FitnessFunction;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
-import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;

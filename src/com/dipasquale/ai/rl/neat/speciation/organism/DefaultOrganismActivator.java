@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
 import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.common.serialization.SerializableStateGroup;
 import lombok.Getter;
 
@@ -17,10 +17,10 @@ public final class DefaultOrganismActivator implements OrganismActivator {
     private GenomeActivator genomeActivator = null;
 
     @Override
-    public void initialize(final Organism organism, final Context.NeuralNetworkSupport neuralNetworkSupport) {
+    public void initialize(final Organism organism, final Context.ActivationSupport activationSupport) {
         complexity = organism.getComplexity();
         fitness = organism.getFitness();
-        genomeActivator = organism.getGenomeActivator(neuralNetworkSupport);
+        genomeActivator = organism.getGenomeActivator(activationSupport);
     }
 
     @Override

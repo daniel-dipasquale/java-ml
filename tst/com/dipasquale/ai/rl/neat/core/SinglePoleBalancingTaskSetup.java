@@ -4,7 +4,8 @@ import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.genotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.settings.ActivationSupport;
 import com.dipasquale.ai.rl.neat.settings.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.CrossOverSupport;
 import com.dipasquale.ai.rl.neat.settings.EnumValue;
@@ -16,7 +17,6 @@ import com.dipasquale.ai.rl.neat.settings.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.settings.InitialWeightType;
 import com.dipasquale.ai.rl.neat.settings.IntegerNumber;
 import com.dipasquale.ai.rl.neat.settings.MutationSupport;
-import com.dipasquale.ai.rl.neat.settings.NeuralNetworkSupport;
 import com.dipasquale.ai.rl.neat.settings.NeuralNetworkType;
 import com.dipasquale.ai.rl.neat.settings.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
@@ -133,8 +133,8 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .build())
-                .neuralNetwork(NeuralNetworkSupport.builder()
-                        .type(NeuralNetworkType.RECURRENT)
+                .activation(ActivationSupport.builder()
+                        .neuralNetworkType(NeuralNetworkType.RECURRENT)
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)

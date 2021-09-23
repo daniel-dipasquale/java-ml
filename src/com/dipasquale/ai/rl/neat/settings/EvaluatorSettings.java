@@ -2,11 +2,11 @@ package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.DefaultContext;
+import com.dipasquale.ai.rl.neat.context.DefaultContextActivationSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextCrossOverSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextNeuralNetworkSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextNodeGeneSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextParallelismSupport;
 import com.dipasquale.ai.rl.neat.context.DefaultContextRandomSupport;
@@ -31,7 +31,7 @@ public final class EvaluatorSettings {
             .build();
 
     @Builder.Default
-    private final NeuralNetworkSupport neuralNetwork = NeuralNetworkSupport.builder()
+    private final ActivationSupport activation = ActivationSupport.builder()
             .build();
 
     @Builder.Default
@@ -57,8 +57,8 @@ public final class EvaluatorSettings {
     public Context createContext() { // TODO: think of a better fix for this (as a reminder, the fact this is public, is not ideal)
         DefaultContextGeneralSupport generalFixed = general.create();
         DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeFactory(), parallelism);
-        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeFactory(), neuralNetwork, parallelism);
-        DefaultContextNeuralNetworkSupport neuralNetworkFixed = neuralNetwork.create(general, parallelism);
+        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeFactory(), activation, parallelism);
+        DefaultContextActivationSupport neuralNetworkFixed = activation.create(general, parallelism);
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
         DefaultContextRandomSupport randomFixed = random.create(parallelism);
         DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, random);
