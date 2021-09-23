@@ -35,7 +35,7 @@ public final class DefaultContext implements Context {
     }
 
     @Override
-    public ActivationSupport neuralNetwork() {
+    public ActivationSupport activation() {
         return neuralNetwork;
     }
 

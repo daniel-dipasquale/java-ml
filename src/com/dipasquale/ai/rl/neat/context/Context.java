@@ -31,7 +31,7 @@ public interface Context {
 
     ConnectionGeneSupport connections();
 
-    ActivationSupport neuralNetwork();
+    ActivationSupport activation();
 
     ParallelismSupport parallelism();
 

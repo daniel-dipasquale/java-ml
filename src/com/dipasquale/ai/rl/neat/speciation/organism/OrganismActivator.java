@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public interface OrganismActivator {
-    void initialize(Organism organism, Context.ActivationSupport neuralNetwork);
+    void initialize(Organism organism, Context.ActivationSupport activationSupport);
 
     int getComplexity();
 

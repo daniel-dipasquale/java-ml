@@ -21,10 +21,10 @@ public final class GenesisSpeciesReproductionStrategy implements SpeciesReproduc
 
     @Override
     public void reproduce(final SpeciesReproductionContext context) {
-        Context.RandomSupport random = context.getParent().random();
+        Context.RandomSupport randomSupport = context.getParent().random();
 
         for (Species species : context.getRankedSpecies()) {
-            List<Organism> organismsToKill = species.restart(random, context.getOrganismsWithoutSpecies());
+            List<Organism> organismsToKill = species.restart(randomSupport, context.getOrganismsWithoutSpecies());
 
             organismsToKill.forEach(otk -> killOrganism(otk, context.getParent()));
         }

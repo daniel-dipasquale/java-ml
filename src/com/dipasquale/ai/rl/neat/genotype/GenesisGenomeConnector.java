@@ -4,5 +4,5 @@ import com.dipasquale.ai.rl.neat.context.Context;
 
 @FunctionalInterface
 public interface GenesisGenomeConnector {
-    void setupConnections(Genome genome, Context.ConnectionGeneSupport connections);
+    void setupConnections(Genome genome, Context.ConnectionGeneSupport connectionGeneSupport);
 }

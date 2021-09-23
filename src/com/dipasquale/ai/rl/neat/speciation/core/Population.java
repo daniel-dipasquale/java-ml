@@ -61,7 +61,7 @@ public final class Population {
 
     public void initialize(final Context context, final OrganismActivator championOrganismActivator) {
         fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-        championOrganismActivator.initialize(organismsWithoutSpecies.getFirst(), context.neuralNetwork());
+        championOrganismActivator.initialize(organismsWithoutSpecies.getFirst(), context.activation());
     }
 
     private Species createSpecies(final Context.SpeciationSupport speciationSupport, final Organism organism) {

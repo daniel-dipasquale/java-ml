@@ -17,10 +17,10 @@ public final class PreserveMostFitSpeciesReproductionStrategy implements Species
 
     @Override
     public void reproduce(final SpeciesReproductionContext context) {
-        Context.SpeciationSupport speciation = context.getParent().speciation();
+        Context.SpeciationSupport speciationSupport = context.getParent().speciation();
 
         for (Species species : context.getRankedSpecies()) {
-            List<Organism> organisms = species.getFittestOrganisms(speciation, INCLUDE_REPRESENTATIVE_ORGANISM);
+            List<Organism> organisms = species.getFittestOrganisms(speciationSupport, INCLUDE_REPRESENTATIVE_ORGANISM);
 
             context.getOrganismsWithoutSpecies().addAll(organisms);
         }

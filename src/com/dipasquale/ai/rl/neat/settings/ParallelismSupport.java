@@ -29,13 +29,13 @@ public final class ParallelismSupport {
 
     DefaultContextParallelismSupport create() {
         if (!isEnabled()) {
-            Context.ParallelismSupport parallelism = new SingleThreadContextParallelismSupport();
+            Context.ParallelismSupport parallelismSupport = new SingleThreadContextParallelismSupport();
 
-            return new DefaultContextParallelismSupport(parallelism);
+            return new DefaultContextParallelismSupport(parallelismSupport);
         }
 
-        Context.ParallelismSupport parallelism = new MultiThreadContextParallelismSupport(eventLoop);
+        Context.ParallelismSupport parallelismSupport = new MultiThreadContextParallelismSupport(eventLoop);
 
-        return new DefaultContextParallelismSupport(parallelism);
+        return new DefaultContextParallelismSupport(parallelismSupport);
     }
 }

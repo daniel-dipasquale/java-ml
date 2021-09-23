@@ -33,6 +33,6 @@ public final class ChampionPromoterSpeciesSelectionStrategy implements SpeciesSe
             throw new ChampionOrganismMissingException("the champion organism is missing");
         }
 
-        context.getChampionOrganismActivator().initialize(championOrganism, context.getParent().neuralNetwork()); // TODO: consider cloning
+        context.getChampionOrganismActivator().initialize(championOrganism, context.getParent().activation()); // TODO: consider cloning
     }
 }

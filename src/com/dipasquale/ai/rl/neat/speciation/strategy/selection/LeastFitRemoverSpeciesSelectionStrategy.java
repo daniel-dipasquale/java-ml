@@ -21,8 +21,8 @@ public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSel
 
     @Override
     public void prepareSurvival(final SpeciesSelectionContext context, final Species species) {
-        Context.SpeciationSupport speciation = context.getParent().speciation();
-        List<Organism> organisms = species.removeUnfitToReproduce(speciation);
+        Context.SpeciationSupport speciationSupport = context.getParent().speciation();
+        List<Organism> organisms = species.removeUnfitToReproduce(speciationSupport);
 
         organisms.forEach(o -> killOrganism(o, context.getParent()));
     }
