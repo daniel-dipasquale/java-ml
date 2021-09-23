@@ -20,7 +20,7 @@ algorithms I'm interested in learning and using:
          fitness: 3.507003
          ```
 
-    - [x] Single Pole Balancing test: :-1: (random data sample)
+    - [x] Single Pole Balancing test: :+1: (random data sample)
 
          ```
          generation: 77
