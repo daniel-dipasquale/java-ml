@@ -16,17 +16,17 @@ public final class RandomSupport {
     @Builder.Default
     private final RandomType floatGenerator = RandomType.UNIFORM;
 
-    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createIntegerRandomSupportProfile(final ParallelismSupport parallelism) {
-        return new RandomSupportFactoryProfile(parallelism.isEnabled(), integerGenerator);
+    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createIntegerRandomSupportProfile(final ParallelismSupport parallelismSupport) {
+        return new RandomSupportFactoryProfile(parallelismSupport.isEnabled(), integerGenerator);
     }
 
-    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createFloatRandomSupportProfile(final ParallelismSupport parallelism) {
-        return new RandomSupportFactoryProfile(parallelism.isEnabled(), floatGenerator);
+    public ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> createFloatRandomSupportProfile(final ParallelismSupport parallelismSupport) {
+        return new RandomSupportFactoryProfile(parallelismSupport.isEnabled(), floatGenerator);
     }
 
-    DefaultContextRandomSupport create(final ParallelismSupport parallelism) {
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> integerRandomSupportProfile = createIntegerRandomSupportProfile(parallelism);
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> floatRandomSupportProfile = createFloatRandomSupportProfile(parallelism);
+    DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport) {
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> integerRandomSupportProfile = createIntegerRandomSupportProfile(parallelismSupport);
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> floatRandomSupportProfile = createFloatRandomSupportProfile(parallelismSupport);
 
         return new DefaultContextRandomSupport(integerRandomSupportProfile, floatRandomSupportProfile);
     }

@@ -22,22 +22,22 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber weightPerturber = FloatNumber.literal(2.5f);
 
-    private ObjectProfile<WeightPerturber> createWeightPerturberProfile(final ParallelismSupport parallelism) {
-        ObjectProfile<FloatFactory> floatFactoryProfile = weightPerturber.createFactoryProfile(parallelism);
+    private ObjectProfile<WeightPerturber> createWeightPerturberProfile(final ParallelismSupport parallelismSupport) {
+        ObjectProfile<FloatFactory> floatFactoryProfile = weightPerturber.createFactoryProfile(parallelismSupport);
         Pair<FloatFactory> floatFactoryPair = ObjectProfile.deconstruct(floatFactoryProfile);
 
-        return new WeightPerturberProfile(parallelism.isEnabled(), floatFactoryPair);
+        return new WeightPerturberProfile(parallelismSupport.isEnabled(), floatFactoryPair);
     }
 
-    DefaultContextConnectionGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ActivationSupport neuralNetwork, final ParallelismSupport parallelism) {
+    DefaultContextConnectionGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ActivationSupport activationSupport, final ParallelismSupport parallelismSupport) {
         DefaultContextConnectionGeneParameters params = DefaultContextConnectionGeneParameters.builder()
-                .multipleRecurrentCyclesAllowed(neuralNetwork.getNeuralNetworkType() == NeuralNetworkType.MULTI_CYCLE_RECURRENT)
+                .multipleRecurrentCyclesAllowed(activationSupport.getNeuralNetworkType() == NeuralNetworkType.MULTI_CYCLE_RECURRENT)
                 .build();
 
-        ObjectProfile<FloatFactory> weightFactoryProfile = weightFactory.createFactoryProfile(parallelism);
-        ObjectProfile<WeightPerturber> weightPerturberProfile = createWeightPerturberProfile(parallelism);
-        GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(parallelism, weightFactoryProfile);
-        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(parallelism.isEnabled(), parallelism.getNumberOfThreads());
+        ObjectProfile<FloatFactory> weightFactoryProfile = weightFactory.createFactoryProfile(parallelismSupport);
+        ObjectProfile<WeightPerturber> weightPerturberProfile = createWeightPerturberProfile(parallelismSupport);
+        GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(parallelismSupport, weightFactoryProfile);
+        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(parallelismSupport.isEnabled(), parallelismSupport.getNumberOfThreads());
 
         return new DefaultContextConnectionGeneSupport(params, weightFactoryProfile, weightPerturberProfile, genesisGenomeConnector, historicalMarkings);
     }

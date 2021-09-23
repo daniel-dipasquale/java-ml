@@ -22,7 +22,7 @@ public interface Neat {
             throws IOException {
         EvaluatorSettings settings = EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupport.builder()
-                        .genesisGenomeFactory(GenesisGenomeTemplate.createDefault(1, 1)) // NOTE: shamelessly avoiding a null pointer exception instead of coming up with a better design
+                        .genesisGenomeTemplate(GenesisGenomeTemplate.createDefault(1, 1)) // NOTE: shamelessly avoiding a null pointer exception instead of coming up with a better design
                         .fitnessFunction(g -> 0f)
                         .build())
                 .build();

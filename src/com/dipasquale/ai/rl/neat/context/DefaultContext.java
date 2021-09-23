@@ -9,59 +9,59 @@ import java.io.ObjectOutputStream;
 
 @RequiredArgsConstructor
 public final class DefaultContext implements Context {
-    private final DefaultContextGeneralSupport general;
-    private final DefaultContextNodeGeneSupport nodes;
-    private final DefaultContextConnectionGeneSupport connections;
-    private final DefaultContextActivationSupport neuralNetwork;
-    private final DefaultContextParallelismSupport parallelism;
-    private final DefaultContextRandomSupport random;
-    private final DefaultContextMutationSupport mutation;
-    private final DefaultContextCrossOverSupport crossOver;
-    private final DefaultContextSpeciationSupport speciation;
+    private final DefaultContextGeneralSupport generalSupport;
+    private final DefaultContextNodeGeneSupport nodeGeneSupport;
+    private final DefaultContextConnectionGeneSupport connectionGeneSupport;
+    private final DefaultContextActivationSupport activationSupport;
+    private final DefaultContextParallelismSupport parallelismSupport;
+    private final DefaultContextRandomSupport randomSupport;
+    private final DefaultContextMutationSupport mutationSupport;
+    private final DefaultContextCrossOverSupport crossOverSupport;
+    private final DefaultContextSpeciationSupport speciationSupport;
 
     @Override
     public GeneralSupport general() {
-        return general;
+        return generalSupport;
     }
 
     @Override
     public NodeGeneSupport nodes() {
-        return nodes;
+        return nodeGeneSupport;
     }
 
     @Override
     public ConnectionGeneSupport connections() {
-        return connections;
+        return connectionGeneSupport;
     }
 
     @Override
     public ActivationSupport activation() {
-        return neuralNetwork;
+        return activationSupport;
     }
 
     @Override
     public ParallelismSupport parallelism() {
-        return parallelism;
+        return parallelismSupport;
     }
 
     @Override
     public RandomSupport random() {
-        return random;
+        return randomSupport;
     }
 
     @Override
     public MutationSupport mutation() {
-        return mutation;
+        return mutationSupport;
     }
 
     @Override
     public CrossOverSupport crossOver() {
-        return crossOver;
+        return crossOverSupport;
     }
 
     @Override
     public SpeciationSupport speciation() {
-        return speciation;
+        return speciationSupport;
     }
 
     @Override
@@ -69,15 +69,15 @@ public final class DefaultContext implements Context {
             throws IOException {
         SerializableStateGroup state = new SerializableStateGroup();
 
-        general.save(state);
-        nodes.save(state);
-        connections.save(state);
-        neuralNetwork.save(state);
-        parallelism.save(state);
-        random.save(state);
-        mutation.save(state);
-        crossOver.save(state);
-        speciation.save(state);
+        generalSupport.save(state);
+        nodeGeneSupport.save(state);
+        connectionGeneSupport.save(state);
+        activationSupport.save(state);
+        parallelismSupport.save(state);
+        randomSupport.save(state);
+        mutationSupport.save(state);
+        crossOverSupport.save(state);
+        speciationSupport.save(state);
         state.writeTo(outputStream);
     }
 
@@ -87,14 +87,14 @@ public final class DefaultContext implements Context {
         SerializableStateGroup state = new SerializableStateGroup();
 
         state.readFrom(inputStream);
-        general.load(state);
-        nodes.load(state, override.eventLoop());
-        connections.load(state, override.eventLoop());
-        neuralNetwork.load(state, override.eventLoop(), override.fitnessFunction());
-        parallelism.load(state, override.eventLoop());
-        random.load(state, override.eventLoop());
-        mutation.load(state, override.eventLoop());
-        crossOver.load(state, override.eventLoop());
-        speciation.load(state, override.eventLoop());
+        generalSupport.load(state);
+        nodeGeneSupport.load(state, override.eventLoop());
+        connectionGeneSupport.load(state, override.eventLoop());
+        activationSupport.load(state, override.eventLoop(), override.fitnessFunction());
+        parallelismSupport.load(state, override.eventLoop());
+        randomSupport.load(state, override.eventLoop());
+        mutationSupport.load(state, override.eventLoop());
+        crossOverSupport.load(state, override.eventLoop());
+        speciationSupport.load(state, override.eventLoop());
     }
 }

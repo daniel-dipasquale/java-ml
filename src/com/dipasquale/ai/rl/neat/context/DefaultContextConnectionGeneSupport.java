@@ -18,8 +18,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public final class DefaultContextConnectionGeneSupport implements Context.ConnectionGeneSupport {
     private DefaultContextConnectionGeneParameters params;
-    private ObjectProfile<FloatFactory> weightFactory;
-    private ObjectProfile<WeightPerturber> weightPerturber;
+    private ObjectProfile<FloatFactory> weightFactoryProfile;
+    private ObjectProfile<WeightPerturber> weightPerturberProfile;
     private GenesisGenomeConnector genesisGenomeConnector;
     private DualModeHistoricalMarkings historicalMarkings;
 
@@ -30,12 +30,12 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
 
     @Override
     public float generateWeight() {
-        return weightFactory.getObject().create();
+        return weightFactoryProfile.getObject().create();
     }
 
     @Override
     public float perturbWeight(final float weight) {
-        return weightPerturber.getObject().perturb(weight);
+        return weightPerturberProfile.getObject().perturb(weight);
     }
 
     @Override
@@ -102,8 +102,8 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
 
     public void save(final SerializableStateGroup state) {
         state.put("connections.params", params);
-        state.put("connections.weightFactory", weightFactory);
-        state.put("connections.weightPerturber", weightPerturber);
+        state.put("connections.weightFactoryProfile", weightFactoryProfile);
+        state.put("connections.weightPerturberProfile", weightPerturberProfile);
         state.put("connections.genomeGenesisConnector", genesisGenomeConnector);
         state.put("connections.historicalMarkings", historicalMarkings);
     }
@@ -120,8 +120,8 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
         params = state.get("connections.params");
-        weightFactory = ObjectProfile.switchProfile(state.get("connections.weightFactory"), eventLoop != null);
-        weightPerturber = ObjectProfile.switchProfile(state.get("connections.weightPerturber"), eventLoop != null);
+        weightFactoryProfile = ObjectProfile.switchProfile(state.get("connections.weightFactoryProfile"), eventLoop != null);
+        weightPerturberProfile = ObjectProfile.switchProfile(state.get("connections.weightPerturberProfile"), eventLoop != null);
         genesisGenomeConnector = state.get("connections.genomeGenesisConnector");
         historicalMarkings = loadHistoricalMarkings(state.get("connections.historicalMarkings"), eventLoop);
     }

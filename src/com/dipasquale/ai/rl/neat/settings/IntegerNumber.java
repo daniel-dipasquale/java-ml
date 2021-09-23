@@ -14,23 +14,23 @@ public final class IntegerNumber {
     private final ObjectProfileFactoryCreator factoryCreator;
 
     public static IntegerNumber literal(final int value) {
-        ObjectProfileFactoryCreator factoryCreator = p -> new DefaultObjectProfile<>(p.isEnabled(), new LiteralIntegerFactory(value));
+        ObjectProfileFactoryCreator factoryCreator = ps -> new DefaultObjectProfile<>(ps.isEnabled(), new LiteralIntegerFactory(value));
 
         return new IntegerNumber(factoryCreator);
     }
 
     public static IntegerNumber random(final RandomType type, final int min, final int max) {
-        ObjectProfileFactoryCreator factoryCreator = p -> new BoundedRandomIntegerFactoryProfile(p.isEnabled(), type, min, max);
+        ObjectProfileFactoryCreator factoryCreator = ps -> new BoundedRandomIntegerFactoryProfile(ps.isEnabled(), type, min, max);
 
         return new IntegerNumber(factoryCreator);
     }
 
-    ObjectProfile<IntegerFactory> createFactoryProfile(final ParallelismSupport parallelism) {
-        return factoryCreator.create(parallelism);
+    ObjectProfile<IntegerFactory> createFactoryProfile(final ParallelismSupport parallelismSupport) {
+        return factoryCreator.create(parallelismSupport);
     }
 
     @FunctionalInterface
     private interface ObjectProfileFactoryCreator {
-        ObjectProfile<IntegerFactory> create(ParallelismSupport parallelism);
+        ObjectProfile<IntegerFactory> create(ParallelismSupport parallelismSupport);
     }
 }

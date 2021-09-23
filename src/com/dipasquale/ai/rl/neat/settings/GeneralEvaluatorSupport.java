@@ -17,7 +17,7 @@ public final class GeneralEvaluatorSupport {
     @Builder.Default
     private final int populationSize = 150;
     @Builder.Default
-    private final GenesisGenomeTemplate genesisGenomeFactory = null;
+    private final GenesisGenomeTemplate genesisGenomeTemplate = null;
     @Builder.Default
     private final NeatEnvironment fitnessFunction = null;
     @Builder.Default
@@ -27,7 +27,7 @@ public final class GeneralEvaluatorSupport {
 
     DefaultContextGeneralSupport create() {
         ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
-        ArgumentValidatorSupport.ensureNotNull(genesisGenomeFactory, "genesisGenomeFactory");
+        ArgumentValidatorSupport.ensureNotNull(genesisGenomeTemplate, "genesisGenomeTemplate");
         ArgumentValidatorSupport.ensureNotNull(fitnessFunction, "fitnessFunction");
         ArgumentValidatorSupport.ensureNotNull(fitnessDeterminerFactory, "fitnessDeterminerFactory");
 

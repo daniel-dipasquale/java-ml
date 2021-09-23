@@ -17,21 +17,21 @@ public final class CrossOverSupport {
     @Builder.Default
     private final FloatNumber useRandomParentWeightRate = FloatNumber.literal(0.6f);
 
-    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelism, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final float max) {
-        return new IsLessThanRandomGateProviderProfile(parallelism.isEnabled(), randomSupportPair, max);
+    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final float max) {
+        return new IsLessThanRandomGateProviderProfile(parallelismSupport.isEnabled(), randomSupportPair, max);
     }
 
-    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelism, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final FloatNumber maximumNumber) {
-        float max = maximumNumber.createFactoryProfile(parallelism).getObject().create();
+    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final FloatNumber maximumNumber) {
+        float max = maximumNumber.createFactoryProfile(parallelismSupport).getObject().create();
 
-        return createIsLessThanProviderProfile(parallelism, randomSupportPair, max);
+        return createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, max);
     }
 
-    DefaultContextCrossOverSupport create(final ParallelismSupport parallelism, final RandomSupport random) {
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createFloatRandomSupportProfile(parallelism);
+    DefaultContextCrossOverSupport create(final ParallelismSupport parallelismSupport, final RandomSupport randomSupport) {
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = randomSupport.createFloatRandomSupportProfile(parallelismSupport);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
-        ObjectProfile<GateProvider> shouldOverrideExpressedProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, overrideExpressedRate);
-        ObjectProfile<GateProvider> shouldUseRandomParentWeightProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, useRandomParentWeightRate);
+        ObjectProfile<GateProvider> shouldOverrideExpressedProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, overrideExpressedRate);
+        ObjectProfile<GateProvider> shouldUseRandomParentWeightProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, useRandomParentWeightRate);
 
         return new DefaultContextCrossOverSupport(shouldOverrideExpressedProfile, shouldUseRandomParentWeightProfile);
     }

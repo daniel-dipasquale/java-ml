@@ -91,16 +91,16 @@ public final class SpeciationSupport {
         return reproductionTypeClassifier;
     }
 
-    private DefaultReproductionTypeFactoryProfile createRandomReproductionTypeGeneratorProfile(final ParallelismSupport parallelism, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair) {
-        float _mateOnlyRate = mateOnlyRate.createFactoryProfile(parallelism).getObject().create();
-        float _mutateOnlyRate = mutateOnlyRate.createFactoryProfile(parallelism).getObject().create();
+    private DefaultReproductionTypeFactoryProfile createRandomReproductionTypeGeneratorProfile(final ParallelismSupport parallelismSupport, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair) {
+        float _mateOnlyRate = mateOnlyRate.createFactoryProfile(parallelismSupport).getObject().create();
+        float _mutateOnlyRate = mutateOnlyRate.createFactoryProfile(parallelismSupport).getObject().create();
         OutputClassifier<ReproductionType> reproductionTypeClassifier = createReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
         OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier = createLessThan2ReproductionTypeClassifier(_mutateOnlyRate);
 
-        return new DefaultReproductionTypeFactoryProfile(parallelism.isEnabled(), randomSupportPair, reproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
+        return new DefaultReproductionTypeFactoryProfile(parallelismSupport.isEnabled(), randomSupportPair, reproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
     }
 
-    private static ObjectProfile<SpeciesFitnessStrategy> createFitnessStrategyProfile(final ParallelismSupport parallelism) {
+    private static ObjectProfile<SpeciesFitnessStrategy> createFitnessStrategyProfile(final ParallelismSupport parallelismSupport) {
         List<SpeciesFitnessStrategy> strategies = ImmutableList.<SpeciesFitnessStrategy>builder()
                 .add(new ParallelUpdateSpeciesFitnessStrategy())
                 .add(new UpdateSharedSpeciesFitnessStrategy())
@@ -109,20 +109,20 @@ public final class SpeciationSupport {
         SpeciesFitnessStrategy onStrategy = new MultiSpeciesFitnessStrategy(strategies);
         SpeciesFitnessStrategy offStrategy = new UpdateAllFitnessSpeciesFitnessStrategy();
 
-        return new DefaultObjectProfile<>(parallelism.isEnabled(), onStrategy, offStrategy);
+        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), onStrategy, offStrategy);
     }
 
-    private static ObjectProfile<SpeciesSelectionStrategyExecutor> createEvolutionStrategyProfile(final ParallelismSupport parallelism) {
+    private static ObjectProfile<SpeciesSelectionStrategyExecutor> createEvolutionStrategyProfile(final ParallelismSupport parallelismSupport) {
         List<SpeciesSelectionStrategy> strategies = ImmutableList.<SpeciesSelectionStrategy>builder()
                 .add(new LeastFitRemoverSpeciesSelectionStrategy())
                 .add(new SharedFitnessAccumulatorSpeciesSelectionStrategy())
                 .add(new ChampionPromoterSpeciesSelectionStrategy())
                 .build();
 
-        return new DefaultObjectProfile<>(parallelism.isEnabled(), new SpeciesSelectionStrategyExecutor(strategies));
+        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), new SpeciesSelectionStrategyExecutor(strategies));
     }
 
-    private static ObjectProfile<SpeciesReproductionStrategy> createReproductionStrategyProfile(final ParallelismSupport parallelism) {
+    private static ObjectProfile<SpeciesReproductionStrategy> createReproductionStrategyProfile(final ParallelismSupport parallelismSupport) {
         List<SpeciesReproductionStrategy> strategies = ImmutableList.<SpeciesReproductionStrategy>builder()
                 .add(new PreserveMostFitSpeciesReproductionStrategy())
                 .add(new MateAndMutateSpeciesReproductionStrategy())
@@ -131,32 +131,32 @@ public final class SpeciationSupport {
 
         SpeciesReproductionStrategy strategy = new MultiSpeciesReproductionStrategy(strategies);
 
-        return new DefaultObjectProfile<>(parallelism.isEnabled(), strategy);
+        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), strategy);
     }
 
-    DefaultContextSpeciationSupport create(final ParallelismSupport parallelism, final RandomSupport random) {
+    DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final RandomSupport randomSupport) {
         DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
-                .compatibilityThreshold(compatibilityThreshold.createFactoryProfile(parallelism).getObject().create())
-                .compatibilityThresholdModifier(compatibilityThresholdModifier.createFactoryProfile(parallelism).getObject().create())
-                .eugenicsThreshold(eugenicsThreshold.createFactoryProfile(parallelism).getObject().create())
-                .elitistThreshold(elitistThreshold.createFactoryProfile(parallelism).getObject().create())
-                .elitistThresholdMinimum(elitistThresholdMinimum.createFactoryProfile(parallelism).getObject().create())
-                .stagnationDropOffAge(stagnationDropOffAge.createFactoryProfile(parallelism).getObject().create())
-                .interSpeciesMatingRate(interSpeciesMatingRate.createFactoryProfile(parallelism).getObject().create())
+                .compatibilityThreshold(compatibilityThreshold.createFactoryProfile(parallelismSupport).getObject().create())
+                .compatibilityThresholdModifier(compatibilityThresholdModifier.createFactoryProfile(parallelismSupport).getObject().create())
+                .eugenicsThreshold(eugenicsThreshold.createFactoryProfile(parallelismSupport).getObject().create())
+                .elitistThreshold(elitistThreshold.createFactoryProfile(parallelismSupport).getObject().create())
+                .elitistThresholdMinimum(elitistThresholdMinimum.createFactoryProfile(parallelismSupport).getObject().create())
+                .stagnationDropOffAge(stagnationDropOffAge.createFactoryProfile(parallelismSupport).getObject().create())
+                .interSpeciesMatingRate(interSpeciesMatingRate.createFactoryProfile(parallelismSupport).getObject().create())
                 .build();
 
-        float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactoryProfile(parallelism).getObject().create();
-        float disjointCoefficientFixed = disjointCoefficient.createFactoryProfile(parallelism).getObject().create();
-        float excessCoefficientFixed = excessCoefficient.createFactoryProfile(parallelism).getObject().create();
-        DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelism.isEnabled(), "species");
-        DualModeGenomePool genomePool = new DualModeGenomePool(parallelism.isEnabled());
+        float weightDifferenceCoefficientFixed = weightDifferenceCoefficient.createFactoryProfile(parallelismSupport).getObject().create();
+        float disjointCoefficientFixed = disjointCoefficient.createFactoryProfile(parallelismSupport).getObject().create();
+        float excessCoefficientFixed = excessCoefficient.createFactoryProfile(parallelismSupport).getObject().create();
+        DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelismSupport.isEnabled(), "species");
+        DualModeGenomePool genomePool = new DualModeGenomePool(parallelismSupport.isEnabled());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createFloatRandomSupportProfile(parallelism);
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = randomSupport.createFloatRandomSupportProfile(parallelismSupport);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
-        DefaultReproductionTypeFactoryProfile randomReproductionTypeGeneratorProfile = createRandomReproductionTypeGeneratorProfile(parallelism, randomSupportPair);
-        ObjectProfile<SpeciesFitnessStrategy> fitnessStrategyProfile = createFitnessStrategyProfile(parallelism);
-        ObjectProfile<SpeciesSelectionStrategyExecutor> evolutionStrategyProfile = createEvolutionStrategyProfile(parallelism);
-        ObjectProfile<SpeciesReproductionStrategy> reproductionStrategyProfile = createReproductionStrategyProfile(parallelism);
+        DefaultReproductionTypeFactoryProfile randomReproductionTypeGeneratorProfile = createRandomReproductionTypeGeneratorProfile(parallelismSupport, randomSupportPair);
+        ObjectProfile<SpeciesFitnessStrategy> fitnessStrategyProfile = createFitnessStrategyProfile(parallelismSupport);
+        ObjectProfile<SpeciesSelectionStrategyExecutor> evolutionStrategyProfile = createEvolutionStrategyProfile(parallelismSupport);
+        ObjectProfile<SpeciesReproductionStrategy> reproductionStrategyProfile = createReproductionStrategyProfile(parallelismSupport);
 
         return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePool, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, reproductionStrategyProfile);
     }

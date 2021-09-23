@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
+import com.dipasquale.ai.rl.neat.common.WeightMutationType;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.provider.GateProvider;
 import com.dipasquale.common.serialization.SerializableStateGroup;
@@ -10,42 +10,42 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextMutationSupport implements Context.MutationSupport {
-    private ObjectProfile<GateProvider> shouldAddNodeMutation;
-    private ObjectProfile<GateProvider> shouldAddConnectionMutation;
-    private ObjectProfile<ObjectFactory<WeightMutationType>> weightMutationTypeFactory;
-    private ObjectProfile<GateProvider> shouldDisableExpressed;
+    private ObjectProfile<GateProvider> shouldAddNodeMutationProfile;
+    private ObjectProfile<GateProvider> shouldAddConnectionMutationProfile;
+    private ObjectProfile<ObjectFactory<WeightMutationType>> weightMutationTypeFactoryProfile;
+    private ObjectProfile<GateProvider> shouldDisableExpressedProfile;
 
     @Override
     public boolean shouldAddNodeMutation() {
-        return shouldAddNodeMutation.getObject().isOn();
+        return shouldAddNodeMutationProfile.getObject().isOn();
     }
 
     @Override
     public boolean shouldAddConnectionMutation() {
-        return shouldAddConnectionMutation.getObject().isOn();
+        return shouldAddConnectionMutationProfile.getObject().isOn();
     }
 
     @Override
     public WeightMutationType generateWeightMutationType() {
-        return weightMutationTypeFactory.getObject().create();
+        return weightMutationTypeFactoryProfile.getObject().create();
     }
 
     @Override
     public boolean shouldDisableExpressed() {
-        return shouldDisableExpressed.getObject().isOn();
+        return shouldDisableExpressedProfile.getObject().isOn();
     }
 
     public void save(final SerializableStateGroup state) {
-        state.put("mutation.shouldAddNodeMutation", shouldAddNodeMutation);
-        state.put("mutation.shouldAddConnectionMutation", shouldAddConnectionMutation);
-        state.put("mutation.weightMutationTypeFactory", weightMutationTypeFactory);
-        state.put("mutation.shouldDisableExpressed", shouldDisableExpressed);
+        state.put("mutation.shouldAddNodeMutationProfile", shouldAddNodeMutationProfile);
+        state.put("mutation.shouldAddConnectionMutationProfile", shouldAddConnectionMutationProfile);
+        state.put("mutation.weightMutationTypeFactoryProfile", weightMutationTypeFactoryProfile);
+        state.put("mutation.shouldDisableExpressedProfile", shouldDisableExpressedProfile);
     }
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
-        shouldAddNodeMutation = ObjectProfile.switchProfile(state.get("mutation.shouldAddNodeMutation"), eventLoop != null);
-        shouldAddConnectionMutation = ObjectProfile.switchProfile(state.get("mutation.shouldAddConnectionMutation"), eventLoop != null);
-        weightMutationTypeFactory = ObjectProfile.switchProfile(state.get("mutation.weightMutationTypeFactory"), eventLoop != null);
-        shouldDisableExpressed = ObjectProfile.switchProfile(state.get("mutation.shouldDisableExpressed"), eventLoop != null);
+        shouldAddNodeMutationProfile = ObjectProfile.switchProfile(state.get("mutation.shouldAddNodeMutationProfile"), eventLoop != null);
+        shouldAddConnectionMutationProfile = ObjectProfile.switchProfile(state.get("mutation.shouldAddConnectionMutationProfile"), eventLoop != null);
+        weightMutationTypeFactoryProfile = ObjectProfile.switchProfile(state.get("mutation.weightMutationTypeFactoryProfile"), eventLoop != null);
+        shouldDisableExpressedProfile = ObjectProfile.switchProfile(state.get("mutation.shouldDisableExpressedProfile"), eventLoop != null);
     }
 }

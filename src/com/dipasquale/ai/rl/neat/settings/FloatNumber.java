@@ -14,23 +14,23 @@ public final class FloatNumber {
     private final ObjectProfileFactoryCreator factoryCreator;
 
     public static FloatNumber literal(final float value) {
-        ObjectProfileFactoryCreator factoryCreator = p -> new DefaultObjectProfile<>(p.isEnabled(), new LiteralFloatFactory(value));
+        ObjectProfileFactoryCreator factoryCreator = ps -> new DefaultObjectProfile<>(ps.isEnabled(), new LiteralFloatFactory(value));
 
         return new FloatNumber(factoryCreator);
     }
 
     public static FloatNumber random(final RandomType type, final float min, final float max) {
-        ObjectProfileFactoryCreator factoryCreator = p -> new BoundedRandomFloatFactoryProfile(p.isEnabled(), type, min, max);
+        ObjectProfileFactoryCreator factoryCreator = ps -> new BoundedRandomFloatFactoryProfile(ps.isEnabled(), type, min, max);
 
         return new FloatNumber(factoryCreator);
     }
 
-    ObjectProfile<FloatFactory> createFactoryProfile(final ParallelismSupport parallelism) {
-        return factoryCreator.create(parallelism);
+    ObjectProfile<FloatFactory> createFactoryProfile(final ParallelismSupport parallelismSupport) {
+        return factoryCreator.create(parallelismSupport);
     }
 
     @FunctionalInterface
     private interface ObjectProfileFactoryCreator {
-        ObjectProfile<FloatFactory> create(ParallelismSupport parallelism);
+        ObjectProfile<FloatFactory> create(ParallelismSupport parallelismSupport);
     }
 }

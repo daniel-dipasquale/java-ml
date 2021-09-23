@@ -21,10 +21,10 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     private DualModeSequentialIdFactory speciesIdFactory;
     private DualModeGenomePool genomePool;
     private GenomeCompatibilityCalculator genomeCompatibilityCalculator;
-    private ObjectProfile<ObjectIndexer<ReproductionType>> reproductionTypeFactory;
-    private ObjectProfile<SpeciesFitnessStrategy> fitnessStrategy;
-    private ObjectProfile<SpeciesSelectionStrategyExecutor> selectionStrategy;
-    private ObjectProfile<SpeciesReproductionStrategy> reproductionStrategy;
+    private ObjectProfile<ObjectIndexer<ReproductionType>> reproductionTypeFactoryProfile;
+    private ObjectProfile<SpeciesFitnessStrategy> fitnessStrategyProfile;
+    private ObjectProfile<SpeciesSelectionStrategyExecutor> selectionStrategyProfile;
+    private ObjectProfile<SpeciesReproductionStrategy> reproductionStrategyProfile;
 
     @Override
     public Context.SpeciationParameters params() {
@@ -73,22 +73,22 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
 
     @Override
     public ReproductionType generateReproductionType(final int organisms) {
-        return reproductionTypeFactory.getObject().get(organisms);
+        return reproductionTypeFactoryProfile.getObject().get(organisms);
     }
 
     @Override
     public SpeciesFitnessStrategy getFitnessStrategy() {
-        return fitnessStrategy.getObject();
+        return fitnessStrategyProfile.getObject();
     }
 
     @Override
     public SpeciesSelectionStrategyExecutor getSelectionStrategy() {
-        return selectionStrategy.getObject();
+        return selectionStrategyProfile.getObject();
     }
 
     @Override
     public SpeciesReproductionStrategy getReproductionStrategy() {
-        return reproductionStrategy.getObject();
+        return reproductionStrategyProfile.getObject();
     }
 
     @Override
@@ -106,10 +106,10 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         state.put("speciation.speciesIdFactory", speciesIdFactory);
         state.put("speciation.genomePool", genomePool);
         state.put("speciation.genomeCompatibilityCalculator", genomeCompatibilityCalculator);
-        state.put("speciation.reproductionTypeFactory", reproductionTypeFactory);
-        state.put("speciation.fitnessStrategy", fitnessStrategy);
-        state.put("speciation.selectionStrategy", selectionStrategy);
-        state.put("speciation.reproductionStrategy", reproductionStrategy);
+        state.put("speciation.reproductionTypeFactoryProfile", reproductionTypeFactoryProfile);
+        state.put("speciation.fitnessStrategyProfile", fitnessStrategyProfile);
+        state.put("speciation.selectionStrategyProfile", selectionStrategyProfile);
+        state.put("speciation.reproductionStrategyProfile", reproductionStrategyProfile);
     }
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
@@ -117,9 +117,9 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         speciesIdFactory = DualModeObject.switchMode(state.get("speciation.speciesIdFactory"), eventLoop != null);
         genomePool = DualModeObject.switchMode(state.get("speciation.genomePool"), eventLoop != null);
         genomeCompatibilityCalculator = state.get("speciation.genomeCompatibilityCalculator");
-        reproductionTypeFactory = ObjectProfile.switchProfile(state.get("speciation.reproductionTypeFactory"), eventLoop != null);
-        fitnessStrategy = ObjectProfile.switchProfile(state.get("speciation.fitnessStrategy"), eventLoop != null);
-        selectionStrategy = ObjectProfile.switchProfile(state.get("speciation.selectionStrategy"), eventLoop != null);
-        reproductionStrategy = ObjectProfile.switchProfile(state.get("speciation.reproductionStrategy"), eventLoop != null);
+        reproductionTypeFactoryProfile = ObjectProfile.switchProfile(state.get("speciation.reproductionTypeFactoryProfile"), eventLoop != null);
+        fitnessStrategyProfile = ObjectProfile.switchProfile(state.get("speciation.fitnessStrategyProfile"), eventLoop != null);
+        selectionStrategyProfile = ObjectProfile.switchProfile(state.get("speciation.selectionStrategyProfile"), eventLoop != null);
+        reproductionStrategyProfile = ObjectProfile.switchProfile(state.get("speciation.reproductionStrategyProfile"), eventLoop != null);
     }
 }

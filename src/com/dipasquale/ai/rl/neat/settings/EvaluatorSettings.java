@@ -56,15 +56,15 @@ public final class EvaluatorSettings {
 
     public Context createContext() { // TODO: think of a better fix for this (as a reminder, the fact this is public, is not ideal)
         DefaultContextGeneralSupport generalFixed = general.create();
-        DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeFactory(), parallelism);
-        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeFactory(), activation, parallelism);
-        DefaultContextActivationSupport neuralNetworkFixed = activation.create(general, parallelism);
+        DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeTemplate(), parallelism);
+        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeTemplate(), activation, parallelism);
+        DefaultContextActivationSupport activationFixed = activation.create(general, parallelism);
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
         DefaultContextRandomSupport randomFixed = random.create(parallelism);
         DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, random);
         DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, random);
         DefaultContextSpeciationSupport speciationFixed = speciation.create(parallelism, random);
 
-        return new DefaultContext(generalFixed, nodesFixed, connectionsFixed, neuralNetworkFixed, parallelismFixed, randomFixed, mutationFixed, crossOverFixed, speciationFixed);
+        return new DefaultContext(generalFixed, nodesFixed, connectionsFixed, activationFixed, parallelismFixed, randomFixed, mutationFixed, crossOverFixed, speciationFixed);
     }
 }

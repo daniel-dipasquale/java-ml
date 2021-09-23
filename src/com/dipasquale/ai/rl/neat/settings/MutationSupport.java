@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
+import com.dipasquale.ai.rl.neat.common.WeightMutationType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
-import com.dipasquale.ai.rl.neat.genotype.WeightMutationType;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.provider.GateProvider;
@@ -31,13 +31,13 @@ public final class MutationSupport {
     @Builder.Default
     private final FloatNumber disableExpressedRate = FloatNumber.literal(0.05f);
 
-    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelism, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final float max) {
-        return new IsLessThanRandomGateProviderProfile(parallelism.isEnabled(), randomSupportPair, max);
+    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final float max) {
+        return new IsLessThanRandomGateProviderProfile(parallelismSupport.isEnabled(), randomSupportPair, max);
     }
 
-    private DefaultReproductionTypeFactoryProfile createWeightMutationTypeFactoryProfile(final ParallelismSupport parallelism, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair) {
-        float perturbRate = perturbWeightRate.createFactoryProfile(parallelism).getObject().create();
-        float replaceRate = replaceWeightRate.createFactoryProfile(parallelism).getObject().create();
+    private DefaultReproductionTypeFactoryProfile createWeightMutationTypeFactoryProfile(final ParallelismSupport parallelismSupport, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair) {
+        float perturbRate = perturbWeightRate.createFactoryProfile(parallelismSupport).getObject().create();
+        float replaceRate = replaceWeightRate.createFactoryProfile(parallelismSupport).getObject().create();
         float totalRate = (float) Math.ceil(perturbRate + replaceRate);
         OutputClassifier<WeightMutationType> weightMutationTypeClassifier = new OutputClassifier<>();
 
@@ -48,22 +48,22 @@ public final class MutationSupport {
 
         weightMutationTypeClassifier.addRemainingRangeFor(WeightMutationType.NONE);
 
-        return new DefaultReproductionTypeFactoryProfile(parallelism.isEnabled(), randomSupportPair, weightMutationTypeClassifier);
+        return new DefaultReproductionTypeFactoryProfile(parallelismSupport.isEnabled(), randomSupportPair, weightMutationTypeClassifier);
     }
 
-    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelism, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final FloatNumber maximumNumber) {
-        float max = maximumNumber.createFactoryProfile(parallelism).getObject().create();
+    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final FloatNumber maximumNumber) {
+        float max = maximumNumber.createFactoryProfile(parallelismSupport).getObject().create();
 
-        return createIsLessThanProviderProfile(parallelism, randomSupportPair, max);
+        return createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, max);
     }
 
-    DefaultContextMutationSupport create(final ParallelismSupport parallelism, final RandomSupport random) {
-        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = random.createFloatRandomSupportProfile(parallelism);
+    DefaultContextMutationSupport create(final ParallelismSupport parallelismSupport, final RandomSupport randomSupport) {
+        ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = randomSupport.createFloatRandomSupportProfile(parallelismSupport);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
-        ObjectProfile<GateProvider> shouldAddNodeMutationProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, addNodeMutationRate);
-        ObjectProfile<GateProvider> shouldAddConnectionMutationProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, addConnectionMutationRate);
-        DefaultReproductionTypeFactoryProfile weightMutationTypeFactoryProfile = createWeightMutationTypeFactoryProfile(parallelism, randomSupportPair);
-        ObjectProfile<GateProvider> shouldDisableExpressedProfile = createIsLessThanProviderProfile(parallelism, randomSupportPair, disableExpressedRate);
+        ObjectProfile<GateProvider> shouldAddNodeMutationProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, addNodeMutationRate);
+        ObjectProfile<GateProvider> shouldAddConnectionMutationProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, addConnectionMutationRate);
+        DefaultReproductionTypeFactoryProfile weightMutationTypeFactoryProfile = createWeightMutationTypeFactoryProfile(parallelismSupport, randomSupportPair);
+        ObjectProfile<GateProvider> shouldDisableExpressedProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, disableExpressedRate);
 
         return new DefaultContextMutationSupport(shouldAddNodeMutationProfile, shouldAddConnectionMutationProfile, weightMutationTypeFactoryProfile, shouldDisableExpressedProfile);
     }
@@ -77,9 +77,9 @@ public final class MutationSupport {
 
         @Override
         public WeightMutationType create() {
-            float random = randomSupport.next();
+            float value = randomSupport.next();
 
-            return weightMutationTypeClassifier.resolve(random);
+            return weightMutationTypeClassifier.resolve(value);
         }
     }
 

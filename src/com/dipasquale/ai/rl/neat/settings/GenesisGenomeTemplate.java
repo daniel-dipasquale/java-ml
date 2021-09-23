@@ -43,7 +43,7 @@ public final class GenesisGenomeTemplate {
         return createDefault(inputs, outputs, new float[0]);
     }
 
-    private ObjectProfile<FloatFactory> createWeightFactory(final ParallelismSupport parallelism, final ObjectProfile<FloatFactory> weightFactoryProfile) {
+    private ObjectProfile<FloatFactory> createWeightFactory(final ParallelismSupport parallelismSupport, final ObjectProfile<FloatFactory> weightFactoryProfile) {
         if (initialWeightType == InitialWeightType.RANDOM) {
             return weightFactoryProfile;
         }
@@ -51,11 +51,11 @@ public final class GenesisGenomeTemplate {
         float weight = weightFactoryProfile.getObject().create();
         LiteralFloatFactory weightFactory = new LiteralFloatFactory(weight);
 
-        return new DefaultObjectProfile<>(parallelism.isEnabled(), weightFactory);
+        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), weightFactory);
     }
 
-    public GenesisGenomeConnector createConnector(final ParallelismSupport parallelism, final ObjectProfile<FloatFactory> weightFactory) {
-        ObjectProfile<FloatFactory> weightFactoryProfile = createWeightFactory(parallelism, weightFactory);
+    public GenesisGenomeConnector createConnector(final ParallelismSupport parallelismSupport, final ObjectProfile<FloatFactory> weightFactory) {
+        ObjectProfile<FloatFactory> weightFactoryProfile = createWeightFactory(parallelismSupport, weightFactory);
 
         return switch (initialConnectionType) {
             case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new AllToAllOutputsGenesisGenomeConnector(weightFactoryProfile, true);

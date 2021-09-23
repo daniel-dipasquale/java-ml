@@ -107,7 +107,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
         return EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupport.builder()
                         .populationSize(populationSize)
-                        .genesisGenomeFactory(GenesisGenomeTemplate.builder()
+                        .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(4))
                                 .outputs(IntegerNumber.literal(1))
                                 .biases(ImmutableList.of())

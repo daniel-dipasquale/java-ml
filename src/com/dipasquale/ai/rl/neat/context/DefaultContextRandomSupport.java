@@ -9,31 +9,31 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextRandomSupport implements Context.RandomSupport {
-    private ObjectProfile<RandomSupport> integerRandomSupport;
-    private ObjectProfile<RandomSupport> floatRandomSupport;
+    private ObjectProfile<RandomSupport> integerRandomSupportProfile;
+    private ObjectProfile<RandomSupport> floatRandomSupportProfile;
 
     @Override
     public int generateIndex(final int offset, final int count) {
-        return integerRandomSupport.getObject().next(offset, count);
+        return integerRandomSupportProfile.getObject().next(offset, count);
     }
 
     @Override
     public boolean isLessThan(final float rate) {
-        return floatRandomSupport.getObject().isLessThan(rate);
+        return floatRandomSupportProfile.getObject().isLessThan(rate);
     }
 
     @Override
     public <T> T generateItem(final OutputClassifier<T> outputClassifier) {
-        return outputClassifier.resolve(floatRandomSupport.getObject().next());
+        return outputClassifier.resolve(floatRandomSupportProfile.getObject().next());
     }
 
     public void save(final SerializableStateGroup state) {
-        state.put("random.integerRandomSupport", integerRandomSupport);
-        state.put("random.floatRandomSupport", floatRandomSupport);
+        state.put("random.integerRandomSupportProfile", integerRandomSupportProfile);
+        state.put("random.floatRandomSupportProfile", floatRandomSupportProfile);
     }
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
-        integerRandomSupport = ObjectProfile.switchProfile(state.get("random.integerRandomSupport"), eventLoop != null);
-        floatRandomSupport = ObjectProfile.switchProfile(state.get("random.floatRandomSupport"), eventLoop != null);
+        integerRandomSupportProfile = ObjectProfile.switchProfile(state.get("random.integerRandomSupportProfile"), eventLoop != null);
+        floatRandomSupportProfile = ObjectProfile.switchProfile(state.get("random.floatRandomSupportProfile"), eventLoop != null);
     }
 }

@@ -8,26 +8,26 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextCrossOverSupport implements Context.CrossOverSupport {
-    private ObjectProfile<GateProvider> shouldOverrideExpressed;
-    private ObjectProfile<GateProvider> shouldUseRandomParentWeight;
+    private ObjectProfile<GateProvider> shouldOverrideExpressedProfile;
+    private ObjectProfile<GateProvider> shouldUseRandomParentWeightProfile;
 
     @Override
     public boolean shouldOverrideExpressed() {
-        return shouldOverrideExpressed.getObject().isOn();
+        return shouldOverrideExpressedProfile.getObject().isOn();
     }
 
     @Override
     public boolean shouldUseRandomParentWeight() {
-        return shouldUseRandomParentWeight.getObject().isOn();
+        return shouldUseRandomParentWeightProfile.getObject().isOn();
     }
 
     public void save(final SerializableStateGroup state) {
-        state.put("crossOver.shouldOverrideExpressed", shouldOverrideExpressed);
-        state.put("crossOver.shouldUseRandomParentWeight", shouldUseRandomParentWeight);
+        state.put("crossOver.shouldOverrideExpressedProfile", shouldOverrideExpressedProfile);
+        state.put("crossOver.shouldUseRandomParentWeightProfile", shouldUseRandomParentWeightProfile);
     }
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
-        shouldOverrideExpressed = ObjectProfile.switchProfile(state.get("crossOver.shouldOverrideExpressed"), eventLoop != null);
-        shouldUseRandomParentWeight = ObjectProfile.switchProfile(state.get("crossOver.shouldUseRandomParentWeight"), eventLoop != null);
+        shouldOverrideExpressedProfile = ObjectProfile.switchProfile(state.get("crossOver.shouldOverrideExpressedProfile"), eventLoop != null);
+        shouldUseRandomParentWeightProfile = ObjectProfile.switchProfile(state.get("crossOver.shouldUseRandomParentWeightProfile"), eventLoop != null);
     }
 }

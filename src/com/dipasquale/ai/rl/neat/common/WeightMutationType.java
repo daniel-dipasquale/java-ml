@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.genotype;
+package com.dipasquale.ai.rl.neat.common;
 
 public enum WeightMutationType {
     NONE,

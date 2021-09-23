@@ -41,56 +41,56 @@ public final class NodeGeneSupport {
     @Builder.Default
     private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.TAN_H);
 
-    private static ObjectProfile<FloatFactory> createBiasFactoryProfile(final ParallelismSupport parallelism, final List<FloatNumber> biases) {
+    private static ObjectProfile<FloatFactory> createBiasFactoryProfile(final ParallelismSupport parallelismSupport, final List<FloatNumber> biases) {
         if (biases.isEmpty()) {
             IllegalStateFloatFactory floatFactory = new IllegalStateFloatFactory("there are no biases allowed in this genome");
 
-            return new DefaultObjectProfile<>(parallelism.isEnabled(), floatFactory);
+            return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), floatFactory);
         }
 
         Iterable<Pair<FloatFactory>> biasNodeBiasFactoryPairs = biases.stream()
-                .map(sfn -> ObjectProfile.deconstruct(sfn.createFactoryProfile(parallelism)))
+                .map(sfn -> ObjectProfile.deconstruct(sfn.createFactoryProfile(parallelismSupport)))
                 ::iterator;
 
-        return new CyclicFloatFactoryProfile(parallelism.isEnabled(), biasNodeBiasFactoryPairs);
+        return new CyclicFloatFactoryProfile(parallelismSupport.isEnabled(), biasNodeBiasFactoryPairs);
     }
 
-    private static ObjectProfile<ActivationFunctionFactory> createActivationFunctionFactoryProfile(final ParallelismSupport parallelism, final ObjectProfile<EnumFactory<ActivationFunctionType>> activationFunctionTypeFactoryProfile) {
+    private static ObjectProfile<ActivationFunctionFactory> createActivationFunctionFactoryProfile(final ParallelismSupport parallelismSupport, final ObjectProfile<EnumFactory<ActivationFunctionType>> activationFunctionTypeFactoryProfile) {
         Pair<EnumFactory<ActivationFunctionType>> activationFunctionTypeFactoryPair = ObjectProfile.deconstruct(activationFunctionTypeFactoryProfile);
 
-        return new DefaultActivationFunctionFactoryProfile(parallelism.isEnabled(), activationFunctionTypeFactoryPair);
+        return new DefaultActivationFunctionFactoryProfile(parallelismSupport.isEnabled(), activationFunctionTypeFactoryPair);
     }
 
-    private static ObjectProfile<ActivationFunctionFactory> createActivationFunctionFactoryProfile(final ParallelismSupport parallelism, final ObjectProfile<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactoryProfile, final ObjectProfile<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactoryProfile) {
+    private static ObjectProfile<ActivationFunctionFactory> createActivationFunctionFactoryProfile(final ParallelismSupport parallelismSupport, final ObjectProfile<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactoryProfile, final ObjectProfile<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactoryProfile) {
         Pair<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactoryPair = ObjectProfile.deconstruct(outputActivationFunctionTypeFactoryProfile);
         Pair<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactoryPair = ObjectProfile.deconstruct(hiddenActivationFunctionTypeFactoryProfile);
 
-        return new OutputActivationFunctionFactoryProfile(parallelism.isEnabled(), outputActivationFunctionTypeFactoryPair, hiddenActivationFunctionTypeFactoryPair);
+        return new OutputActivationFunctionFactoryProfile(parallelismSupport.isEnabled(), outputActivationFunctionTypeFactoryPair, hiddenActivationFunctionTypeFactoryPair);
     }
 
-    DefaultContextNodeGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelism) {
-        DualModeNodeIdFactory nodeIdFactory = new DualModeNodeIdFactory(parallelism.isEnabled());
+    DefaultContextNodeGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelismSupport) {
+        DualModeNodeIdFactory nodeIdFactory = new DualModeNodeIdFactory(parallelismSupport.isEnabled());
 
         Map<NodeGeneType, ObjectProfile<FloatFactory>> biasFactoryProfiles = ImmutableMap.<NodeGeneType, ObjectProfile<FloatFactory>>builder()
-                .put(NodeGeneType.INPUT, inputBias.createFactoryProfile(parallelism))
-                .put(NodeGeneType.OUTPUT, outputBias.createFactoryProfile(parallelism))
-                .put(NodeGeneType.BIAS, createBiasFactoryProfile(parallelism, genesisGenomeTemplate.getBiases()))
-                .put(NodeGeneType.HIDDEN, hiddenBias.createFactoryProfile(parallelism))
+                .put(NodeGeneType.INPUT, inputBias.createFactoryProfile(parallelismSupport))
+                .put(NodeGeneType.OUTPUT, outputBias.createFactoryProfile(parallelismSupport))
+                .put(NodeGeneType.BIAS, createBiasFactoryProfile(parallelismSupport, genesisGenomeTemplate.getBiases()))
+                .put(NodeGeneType.HIDDEN, hiddenBias.createFactoryProfile(parallelismSupport))
                 .build();
 
-        ObjectProfile<EnumFactory<ActivationFunctionType>> inputActivationFunctionTypeFactoryProfile = inputActivationFunction.createFactoryProfile(parallelism);
-        ObjectProfile<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactoryProfile = outputActivationFunction.createFactoryProfile(parallelism);
-        ObjectProfile<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactoryProfile = hiddenActivationFunction.createFactoryProfile(parallelism);
+        ObjectProfile<EnumFactory<ActivationFunctionType>> inputActivationFunctionTypeFactoryProfile = inputActivationFunction.createFactoryProfile(parallelismSupport);
+        ObjectProfile<EnumFactory<OutputActivationFunctionType>> outputActivationFunctionTypeFactoryProfile = outputActivationFunction.createFactoryProfile(parallelismSupport);
+        ObjectProfile<EnumFactory<ActivationFunctionType>> hiddenActivationFunctionTypeFactoryProfile = hiddenActivationFunction.createFactoryProfile(parallelismSupport);
 
         Map<NodeGeneType, ObjectProfile<ActivationFunctionFactory>> activationFunctionFactoryProfiles = ImmutableMap.<NodeGeneType, ObjectProfile<ActivationFunctionFactory>>builder()
-                .put(NodeGeneType.INPUT, createActivationFunctionFactoryProfile(parallelism, inputActivationFunctionTypeFactoryProfile))
-                .put(NodeGeneType.OUTPUT, createActivationFunctionFactoryProfile(parallelism, outputActivationFunctionTypeFactoryProfile, hiddenActivationFunctionTypeFactoryProfile))
-                .put(NodeGeneType.BIAS, new LiteralActivationFunctionFactoryProfile(parallelism.isEnabled(), ActivationFunctionType.IDENTITY))
-                .put(NodeGeneType.HIDDEN, createActivationFunctionFactoryProfile(parallelism, hiddenActivationFunctionTypeFactoryProfile))
+                .put(NodeGeneType.INPUT, createActivationFunctionFactoryProfile(parallelismSupport, inputActivationFunctionTypeFactoryProfile))
+                .put(NodeGeneType.OUTPUT, createActivationFunctionFactoryProfile(parallelismSupport, outputActivationFunctionTypeFactoryProfile, hiddenActivationFunctionTypeFactoryProfile))
+                .put(NodeGeneType.BIAS, new LiteralActivationFunctionFactoryProfile(parallelismSupport.isEnabled(), ActivationFunctionType.IDENTITY))
+                .put(NodeGeneType.HIDDEN, createActivationFunctionFactoryProfile(parallelismSupport, hiddenActivationFunctionTypeFactoryProfile))
                 .build();
 
-        int inputs = genesisGenomeTemplate.getInputs().createFactoryProfile(parallelism).getObject().create();
-        int outputs = genesisGenomeTemplate.getOutputs().createFactoryProfile(parallelism).getObject().create();
+        int inputs = genesisGenomeTemplate.getInputs().createFactoryProfile(parallelismSupport).getObject().create();
+        int outputs = genesisGenomeTemplate.getOutputs().createFactoryProfile(parallelismSupport).getObject().create();
         int biases = genesisGenomeTemplate.getBiases().size();
 
         return new DefaultContextNodeGeneSupport(nodeIdFactory, biasFactoryProfiles, activationFunctionFactoryProfiles, inputs, outputs, biases);

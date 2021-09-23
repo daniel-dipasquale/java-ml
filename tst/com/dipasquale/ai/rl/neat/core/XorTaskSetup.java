@@ -81,7 +81,7 @@ final class XorTaskSetup implements TaskSetup {
         return EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupport.builder()
                         .populationSize(populationSize)
-                        .genesisGenomeFactory(GenesisGenomeTemplate.builder()
+                        .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(2))
                                 .outputs(IntegerNumber.literal(1))
                                 .biases(ImmutableList.of())

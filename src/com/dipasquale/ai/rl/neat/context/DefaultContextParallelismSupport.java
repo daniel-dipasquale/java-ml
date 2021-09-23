@@ -10,16 +10,16 @@ import java.util.function.Consumer;
 
 @AllArgsConstructor
 public final class DefaultContextParallelismSupport implements Context.ParallelismSupport {
-    private Context.ParallelismSupport parallelismSupport;
+    private Context.ParallelismSupport parallelism;
 
     @Override
     public Context.ParallelismParameters params() {
-        return parallelismSupport.params();
+        return parallelism.params();
     }
 
     @Override
     public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        return parallelismSupport.forEach(iterator, itemHandler);
+        return parallelism.forEach(iterator, itemHandler);
     }
 
     public void save(final SerializableStateGroup state) {
@@ -27,9 +27,9 @@ public final class DefaultContextParallelismSupport implements Context.Paralleli
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
         if (eventLoop != null) {
-            parallelismSupport = new MultiThreadContextParallelismSupport(eventLoop);
+            parallelism = new MultiThreadContextParallelismSupport(eventLoop);
         } else {
-            parallelismSupport = new SingleThreadContextParallelismSupport();
+            parallelism = new SingleThreadContextParallelismSupport();
         }
     }
 }
