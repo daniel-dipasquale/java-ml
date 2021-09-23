@@ -111,7 +111,7 @@ public final class NeatTest {
         try {
             return trainingPolicy.test(new NeatActivatorTrainer(trainer));
         } finally {
-            trainingPolicy.complete();
+            trainingPolicy.reset();
         }
     }
 

@@ -94,7 +94,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
             return NeatTrainingResult.WORKING_SOLUTION_FOUND;
         }
 
-        return NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE;
+        return NeatTrainingResult.CONTINUE_TRAINING;
     }
 
     @Override
@@ -174,17 +174,12 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
-                .add(new MaximumGenerationsTrainingPolicy(300, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 0))
-                .add(new NeatTrainingPolicy() {
-                    @Override
-                    public NeatTrainingResult test(final NeatActivator activator) {
-                        return determineTrainingResult(activator);
-                    }
-
-                    @Override
-                    public void complete() {
-                    }
-                })
+                .add(SupervisorTrainingPolicy.builder()
+                        .maximumGeneration(300)
+                        .maximumRestartCount(0)
+                        .build())
+                .add(new StateLessTrainingPolicy(SinglePoleBalancingTaskSetup::determineTrainingResult))
+                .add(new ContinuousTrainingPolicy())
                 .build();
     }
 }

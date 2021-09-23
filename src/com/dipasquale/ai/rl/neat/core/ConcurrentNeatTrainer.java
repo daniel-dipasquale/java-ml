@@ -48,42 +48,32 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
         return evaluator.getMaximumFitness();
     }
 
-    private static boolean train(final NeatTrainingPolicy trainingPolicy, final ConcurrentNeatEvaluator evaluator, final NeatActivatorEvaluator activator) {
-        try {
-            while (true) {
-                NeatTrainingResult result = trainingPolicy.test(activator);
+    private boolean executeTrainingPolicy(final NeatTrainingPolicy trainingPolicy) {
+        while (true) {
+            NeatTrainingResult result = trainingPolicy.test(activator);
 
-                switch (result) {
-                    case EVALUATE_FITNESS:
-                        evaluator.evaluateFitness();
+            switch (result) {
+                case EVALUATE_FITNESS:
+                    evaluator.evaluateFitness();
 
-                        break;
+                    break;
 
-                    case EVOLVE:
-                        evaluator.evolve();
+                case EVOLVE:
+                    evaluator.evolve();
 
-                        break;
+                    break;
 
-                    case EVALUATE_FITNESS_AND_EVOLVE:
-                        evaluator.evaluateFitness();
-                        evaluator.evolve();
+                case RESTART:
+                    evaluator.restart();
 
-                        break;
+                    break;
 
-                    case RESTART:
-                        evaluator.restart();
+                case STOP_TRAINING:
+                    return false;
 
-                        break;
-
-                    case SOLUTION_NOT_FOUND:
-                        return false;
-
-                    case WORKING_SOLUTION_FOUND:
-                        return true;
-                }
+                case WORKING_SOLUTION_FOUND:
+                    return true;
             }
-        } finally {
-            trainingPolicy.complete();
         }
     }
 
@@ -92,7 +82,7 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
         lock.writeLock().lock();
 
         try {
-            return train(trainingPolicy, evaluator, activator);
+            return executeTrainingPolicy(trainingPolicy);
         } finally {
             lock.writeLock().unlock();
         }

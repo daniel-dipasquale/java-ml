@@ -68,7 +68,7 @@ final class XorTaskSetup implements TaskSetup {
             return NeatTrainingResult.WORKING_SOLUTION_FOUND;
         }
 
-        return NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE;
+        return NeatTrainingResult.CONTINUE_TRAINING;
     }
 
     @Override
@@ -148,17 +148,12 @@ final class XorTaskSetup implements TaskSetup {
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
-                .add(new MaximumGenerationsTrainingPolicy(250, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 0))
-                .add(new NeatTrainingPolicy() {
-                    @Override
-                    public NeatTrainingResult test(final NeatActivator activator) {
-                        return determineTrainingResult(activator);
-                    }
-
-                    @Override
-                    public void complete() {
-                    }
-                })
+                .add(SupervisorTrainingPolicy.builder()
+                        .maximumGeneration(250)
+                        .maximumRestartCount(0)
+                        .build())
+                .add(new StateLessTrainingPolicy(XorTaskSetup::determineTrainingResult))
+                .add(new ContinuousTrainingPolicy())
                 .build();
     }
 }
