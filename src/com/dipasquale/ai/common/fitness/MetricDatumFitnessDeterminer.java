@@ -28,9 +28,4 @@ final class MetricDatumFitnessDeterminer implements FitnessDeterminer, Serializa
     public void clear() {
         metricDatum.clear();
     }
-
-    @FunctionalInterface
-    public interface MetricDatumSelector extends Serializable {
-        float selectValue(MetricDatum metricDatum);
-    }
 }

@@ -1,8 +1,9 @@
 package com.dipasquale.ai.common.fitness;
 
-import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.metric.MetricDatum;
+
+import java.io.Serializable;
 
 @FunctionalInterface
 public interface FitnessDeterminerFactory extends ObjectFactory<FitnessDeterminer> {
@@ -11,33 +12,22 @@ public interface FitnessDeterminerFactory extends ObjectFactory<FitnessDetermine
     }
 
     static FitnessDeterminerFactory createSum() {
-        return new MetricDatumFitnessDeterminerFactory(MetricDatum::getSum);
+        return new MetricDatumFitnessDeterminerFactory((MetricDatumSelector & Serializable) MetricDatum::getSum);
     }
 
     static FitnessDeterminerFactory createAverage() {
-        return new MetricDatumFitnessDeterminerFactory(MetricDatum::getAverage);
+        return new MetricDatumFitnessDeterminerFactory((MetricDatumSelector & Serializable) MetricDatum::getAverage);
     }
 
     static FitnessDeterminerFactory createMinimum() {
-        return new MetricDatumFitnessDeterminerFactory(MetricDatum::getMinimum);
+        return new MetricDatumFitnessDeterminerFactory((MetricDatumSelector & Serializable) MetricDatum::getMinimum);
     }
 
     static FitnessDeterminerFactory createMaximum() {
-        return new MetricDatumFitnessDeterminerFactory(MetricDatum::getMaximum);
+        return new MetricDatumFitnessDeterminerFactory((MetricDatumSelector & Serializable) MetricDatum::getMaximum);
     }
 
     static FitnessDeterminerFactory createPth(final float percentage) {
-        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(percentage, 0f, "percentage");
-        ArgumentValidatorSupport.ensureLessThanOrEqualTo(percentage, 1f, "percentage");
-
-        if (Float.compare(percentage, 0f) == 0) {
-            return createMinimum();
-        }
-
-        if (Float.compare(percentage, 1f) == 0) {
-            return createMaximum();
-        }
-
-        return new MetricDatumFitnessDeterminerFactory(md -> md.getPth(percentage));
+        return new MetricDatumFitnessDeterminerFactory((MetricDatumSelector & Serializable) md -> md.getPercentile(percentage));
     }
 }

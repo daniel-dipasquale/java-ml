@@ -10,7 +10,7 @@ import java.io.Serializable;
 final class MetricDatumFitnessDeterminerFactory implements FitnessDeterminerFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -2840305259809237496L;
-    private final MetricDatumFitnessDeterminer.MetricDatumSelector metricDatumSelector;
+    private final MetricDatumSelector metricDatumSelector;
 
     @Override
     public FitnessDeterminer create() {

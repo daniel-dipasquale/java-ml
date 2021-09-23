@@ -13,7 +13,7 @@ public interface MetricDatum {
 
     float getMaximum();
 
-    float getPth(float percentage);
+    float getPercentile(float percentage);
 
     void add(float value);
 

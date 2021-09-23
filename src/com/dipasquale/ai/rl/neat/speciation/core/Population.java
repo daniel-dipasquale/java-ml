@@ -64,6 +64,10 @@ public final class Population {
         championOrganismActivator.initialize(organismsWithoutSpecies.getFirst(), context.activation());
     }
 
+    public int getSpeciesCount() {
+        return speciesNodes.size();
+    }
+
     private Species createSpecies(final Context.SpeciationSupport speciationSupport, final Organism organism) {
         return new Species(speciationSupport.createSpeciesId(), organism, populationState);
     }
@@ -101,12 +105,11 @@ public final class Population {
         organismsToBirth.clear();
     }
 
-    public int getSpeciesCount() {
-        return speciesNodes.size();
-    }
-
     public void updateFitness(final Context context) {
-        assignOrganismsToSpecies(context);
+        if (!organismsWithoutSpecies.isEmpty() || !organismsToBirth.isEmpty()) {
+            assignOrganismsToSpecies(context);
+        }
+
         context.speciation().getFitnessStrategy().update(new SpeciesFitnessContext(context, speciesNodes));
     }
 

@@ -7,9 +7,9 @@ public final class ContinuousTrainingPolicy implements NeatTrainingPolicy {
     private final int fitnessEvaluationCycle;
 
     @Builder
-    public ContinuousTrainingPolicy(final int fitnessEvaluationCount) {
+    public ContinuousTrainingPolicy(final int fitnessTestCount) {
         this.cycle = 1;
-        this.fitnessEvaluationCycle = fitnessEvaluationCount + 1;
+        this.fitnessEvaluationCycle = fitnessTestCount + 1;
     }
 
     public ContinuousTrainingPolicy() {

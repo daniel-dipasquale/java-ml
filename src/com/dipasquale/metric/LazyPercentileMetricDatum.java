@@ -39,7 +39,7 @@ public final class LazyPercentileMetricDatum implements MetricDatum, Serializabl
     }
 
     @Override
-    public float getPth(final float percentage) {
+    public float getPercentile(final float percentage) {
         if (Float.compare(percentage, 0f) <= 0) {
             return minimum;
         }
@@ -57,13 +57,21 @@ public final class LazyPercentileMetricDatum implements MetricDatum, Serializabl
 
     @Override
     public void add(final float value) {
+        int size = values.size();
+
         values.add(value);
         isValuesSorted = false;
         lastValue = value;
         sum += value;
-        average = sum / (float) values.size();
-        minimum = Math.min(minimum, value);
-        maximum = Math.max(maximum, value);
+        average = sum / (float) (size + 1);
+
+        if (size == 0) {
+            minimum = value;
+            maximum = value;
+        } else {
+            minimum = Math.min(minimum, value);
+            maximum = Math.max(maximum, value);
+        }
     }
 
     @Override

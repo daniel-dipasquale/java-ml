@@ -125,8 +125,8 @@ algorithms I'm interested in learning and using:
     1. Cart-pole balancing test:
 
    ```java
-        double timeSpentGoal = 60D;
         RandomSupport randomSupport = new ThreadLocalRandomSupport();
+        double timeSpentGoal = 60D;
 
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupportSettings.builder()
@@ -139,28 +139,18 @@ algorithms I'm interested in learning and using:
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
                         .fitnessFunction(genomeActivator -> {
-                                float minimumTimeSpent = Float.MAX_VALUE;
+                                CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
 
-                                for (int i = 0; i < 5; i++) {
-                                    CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
+                                while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
+                                    float[] input = convertToFloat(cartPole.getState());
+                                    float[] output = genomeActivator.activate(input);
 
-                                    while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
-                                        float[] input = convertToFloat(cartPole.getState());
-                                        float[] output = genomeActivator.activate(input);
-
-                                        cartPole.stepInDiscrete(output[0]);
-                                    }
-
-                                    minimumTimeSpent = Math.min(minimumTimeSpent, (float) cartPole.getTimeSpent());
+                                    cartPole.stepInDiscrete(output[0]);
                                 }
 
-                                if (Float.compare(minimumTimeSpent, Float.MAX_VALUE) == 0) {
-                                    return 0f;
-                                }
-
-                                return minimumTimeSpent;
+                                return (float) cartPole.getTimeSpent();
                         })
-                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
+                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createMinimum())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))

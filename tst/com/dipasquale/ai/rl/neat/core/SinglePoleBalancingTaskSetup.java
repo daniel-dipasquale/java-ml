@@ -51,26 +51,16 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     }
 
     private static float calculateFitness(final GenomeActivator genomeActivator) {
-        float minimumTimeSpent = Float.MAX_VALUE;
+        CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(RANDOM_SUPPORT);
 
-        for (int i = 0; i < SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST; i++) {
-            CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(RANDOM_SUPPORT);
+        while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) < 0) {
+            float[] input = convertToFloat(cartPole.getState());
+            float[] output = genomeActivator.activate(input);
 
-            while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) < 0) {
-                float[] input = convertToFloat(cartPole.getState());
-                float[] output = genomeActivator.activate(input);
-
-                cartPole.stepInDiscrete(output[0]);
-            }
-
-            minimumTimeSpent = Math.min(minimumTimeSpent, (float) cartPole.getTimeSpent());
+            cartPole.stepInDiscrete(output[0]);
         }
 
-        if (Float.compare(minimumTimeSpent, Float.MAX_VALUE) == 0) {
-            return 0f;
-        }
-
-        return minimumTimeSpent;
+        return (float) cartPole.getTimeSpent();
     }
 
     private static NeatTrainingResult determineTrainingResult(final NeatActivator activator) {
@@ -119,7 +109,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
                             return calculateFitness(g);
                         })
-                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
+                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createMinimum())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -179,7 +169,9 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .maximumRestartCount(0)
                         .build())
                 .add(new StateLessTrainingPolicy(SinglePoleBalancingTaskSetup::determineTrainingResult))
-                .add(new ContinuousTrainingPolicy())
+                .add(ContinuousTrainingPolicy.builder()
+                        .fitnessTestCount(SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST)
+                        .build())
                 .build();
     }
 }
