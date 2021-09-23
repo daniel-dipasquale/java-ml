@@ -73,7 +73,6 @@ public final class DefaultContext implements Context {
         nodeGeneSupport.save(state);
         connectionGeneSupport.save(state);
         activationSupport.save(state);
-        parallelismSupport.save(state);
         randomSupport.save(state);
         mutationSupport.save(state);
         crossOverSupport.save(state);
@@ -91,7 +90,7 @@ public final class DefaultContext implements Context {
         nodeGeneSupport.load(state, override.eventLoop());
         connectionGeneSupport.load(state, override.eventLoop());
         activationSupport.load(state, override.eventLoop(), override.fitnessFunction());
-        parallelismSupport.load(state, override.eventLoop());
+        parallelismSupport.load(override.eventLoop());
         randomSupport.load(state, override.eventLoop());
         mutationSupport.load(state, override.eventLoop());
         crossOverSupport.load(state, override.eventLoop());

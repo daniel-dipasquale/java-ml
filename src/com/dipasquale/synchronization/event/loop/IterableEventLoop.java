@@ -101,6 +101,6 @@ public final class IterableEventLoop {
 
     @FunctionalInterface
     private interface IteratorProducerFactory<T> {
-        IteratorProducer<T> create(int offset, int count);
+        IteratorProducer<T> create(int offset, int step);
     }
 }

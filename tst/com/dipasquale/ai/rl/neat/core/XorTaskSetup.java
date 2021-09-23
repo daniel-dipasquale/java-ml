@@ -51,7 +51,7 @@ final class XorTaskSetup implements TaskSetup {
             error += (float) Math.pow(EXPECTED_OUTPUTS[i] - output[0], 2D);
         }
 
-        return INPUTS.length - error;
+        return (float) INPUTS.length - error;
     }
 
     private static NeatTrainingResult determineTrainingResult(final NeatActivator activator) {

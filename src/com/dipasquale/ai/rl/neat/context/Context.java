@@ -106,6 +106,8 @@ public interface Context {
         ParallelismParameters params();
 
         <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> itemHandler);
+
+        <T> WaitHandle forEach(List<T> list, Consumer<T> itemHandler);
     }
 
     interface RandomSupport {

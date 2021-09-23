@@ -68,7 +68,7 @@ algorithms I'm interested in learning and using:
                                         error += (float) Math.pow(expectedOutputs[i] - output[0], 2D);
                                 }
 
-                                return inputs.length - error;
+                                return (float) inputs.length - error;
                         })
                         .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
                         .build())

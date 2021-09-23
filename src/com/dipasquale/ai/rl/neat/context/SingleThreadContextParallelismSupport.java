@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 
 public final class SingleThreadContextParallelismSupport implements Context.ParallelismSupport {
@@ -32,6 +33,11 @@ public final class SingleThreadContextParallelismSupport implements Context.Para
         }
 
         return new ParallelismWaitHandle(unhandledExceptions);
+    }
+
+    @Override
+    public <T> WaitHandle forEach(final List<T> list, final Consumer<T> itemHandler) {
+        return forEach(list.iterator(), itemHandler);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

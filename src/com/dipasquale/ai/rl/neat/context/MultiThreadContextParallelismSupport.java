@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
@@ -22,10 +23,22 @@ public final class MultiThreadContextParallelismSupport implements Context.Paral
         return params;
     }
 
+    private static Collection<Throwable> createUnhandledExceptionsContainer() {
+        return Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
+    }
+
     @Override
     public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        Collection<Throwable> unhandledExceptions = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
+        Collection<Throwable> unhandledExceptions = createUnhandledExceptionsContainer();
         InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(iterator, itemHandler, unhandledExceptions::add);
+
+        return new ParallelismWaitHandle(invokedWaitHandle, unhandledExceptions);
+    }
+
+    @Override
+    public <T> WaitHandle forEach(final List<T> list, final Consumer<T> itemHandler) {
+        Collection<Throwable> unhandledExceptions = createUnhandledExceptionsContainer();
+        InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(list, itemHandler, unhandledExceptions::add);
 
         return new ParallelismWaitHandle(invokedWaitHandle, unhandledExceptions);
     }
