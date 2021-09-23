@@ -148,7 +148,7 @@ final class XorTaskSetup implements TaskSetup {
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
-                .add(new MaximumGenerationsTrainingPolicy(300, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 0))
+                .add(new MaximumGenerationsTrainingPolicy(250, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 0))
                 .add(new NeatTrainingPolicy() {
                     @Override
                     public NeatTrainingResult test(final NeatActivator activator) {

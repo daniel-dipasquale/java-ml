@@ -79,34 +79,6 @@ public final class Genome implements Serializable {
         return true;
     }
 
-    private boolean addRandomConnectionMutation(final Context context) {
-        InnovationId innovationId = createRandomInnovationId(context);
-
-        if (innovationId != null) {
-            ConnectionGene connection = connections.getAll().getById(innovationId);
-
-            if (connection == null) {
-                getConnections().put(new ConnectionGene(innovationId, context.connections().generateWeight()));
-
-                return true;
-            }
-
-            if (!connection.isExpressed()) {
-                connection.toggleExpressed();
-
-                return true;
-            }
-
-            if (context.connections().params().multipleRecurrentCyclesAllowed()) {
-                connection.increaseCyclesAllowed();
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType... types) {
         float totalSize = (float) Arrays.stream(types)
                 .map(nodes::size)
@@ -154,6 +126,34 @@ public final class Genome implements Serializable {
                 case OUTPUT, HIDDEN -> context.connections().getOrCreateInnovationId(node1, node2);
             };
         };
+    }
+
+    private boolean addRandomConnectionMutation(final Context context) {
+        InnovationId innovationId = createRandomInnovationId(context);
+
+        if (innovationId != null) {
+            ConnectionGene connection = connections.getAll().getById(innovationId);
+
+            if (connection == null) {
+                getConnections().put(new ConnectionGene(innovationId, context.connections().generateWeight()));
+
+                return true;
+            }
+
+            if (!connection.isExpressed()) {
+                connection.toggleExpressed();
+
+                return true;
+            }
+
+            if (context.connections().params().multipleRecurrentCyclesAllowed()) {
+                connection.increaseCyclesAllowed();
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean mutate(final Context context) {

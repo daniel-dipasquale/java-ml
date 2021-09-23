@@ -46,7 +46,7 @@ public final class NeatTest {
 
     @BeforeAll
     public static void beforeAll() {
-        JvmWarmup.start(250_000);
+        JvmWarmup.start(100_000);
     }
 
     @AfterAll

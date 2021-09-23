@@ -33,10 +33,10 @@ import java.util.Set;
 
 final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this test might not be working as expected
     private static final String NAME = "Single Pole Balancing";
-    private static final double TIME_SPENT_GOAL = 30D;
+    private static final double TIME_SPENT_GOAL = 60D;
     private static final com.dipasquale.common.random.float2.RandomSupport RANDOM_SUPPORT = new ThreadLocalRandomSupport();
-    private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 3;
-    private static final int SUCCESSFUL_SCENARIOS = 1;
+    private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
+    private static final int SUCCESSFUL_SCENARIOS = 1; // NOTE: the higher this number the more consistent the solution will be
     @Getter
     private final int populationSize = 150;
 
@@ -174,7 +174,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
-                .add(new MaximumGenerationsTrainingPolicy(1_000, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 0))
+                .add(new MaximumGenerationsTrainingPolicy(300, NeatTrainingResult.EVALUATE_FITNESS_AND_EVOLVE, 0))
                 .add(new NeatTrainingPolicy() {
                     @Override
                     public NeatTrainingResult test(final NeatActivator activator) {

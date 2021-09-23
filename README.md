@@ -8,7 +8,6 @@ algorithms I'm interested in learning and using:
 - [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf) (it has issues still)
     - [x] outstanding issues:
         - restarting is buggy, the genome ids aren't reused properly
-        - single pole balancing is still outstanding
         - fix adjusted fitness for organisms after evaluation
         - consider handling a full species extinction by restarting the whole process again with a genesis genome
         - among others ...
@@ -21,13 +20,13 @@ algorithms I'm interested in learning and using:
          fitness: 3.507003
          ```
 
-    - [ ] Single Pole Balancing test: :-1: (random data sample)
+    - [x] Single Pole Balancing test: :-1: (random data sample)
 
          ```
-         generation: (outstanding)
-         species: (outstanding)
-         complexity: (outstanding)
-         fitness: (outstanding)
+         generation: 77
+         species: 26
+         complexity: 12
+         fitness: 60.009998
          ```
 
       ![Single Pole Balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
