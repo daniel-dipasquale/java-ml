@@ -21,15 +21,15 @@ import java.io.Serializable;
 @Builder
 public final class MutationSupport {
     @Builder.Default
-    private final FloatNumber addNodeMutationRate = FloatNumber.literal(0.1f);
+    private final FloatNumber addNodeRate = FloatNumber.literal(0.03f);
     @Builder.Default
-    private final FloatNumber addConnectionMutationRate = FloatNumber.literal(0.2f);
+    private final FloatNumber addConnectionRate = FloatNumber.literal(0.06f);
     @Builder.Default
     private final FloatNumber perturbWeightRate = FloatNumber.literal(0.75f);
     @Builder.Default
     private final FloatNumber replaceWeightRate = FloatNumber.literal(0.5f);
     @Builder.Default
-    private final FloatNumber disableExpressedRate = FloatNumber.literal(0.05f);
+    private final FloatNumber disableExpressedConnectionRate = FloatNumber.literal(0.015f);
 
     private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final float max) {
         return new IsLessThanRandomGateProviderProfile(parallelismSupport.isEnabled(), randomSupportPair, max);
@@ -60,12 +60,12 @@ public final class MutationSupport {
     DefaultContextMutationSupport create(final ParallelismSupport parallelismSupport, final RandomSupport randomSupport) {
         ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = randomSupport.createFloatRandomSupportProfile(parallelismSupport);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
-        ObjectProfile<GateProvider> shouldAddNodeMutationProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, addNodeMutationRate);
-        ObjectProfile<GateProvider> shouldAddConnectionMutationProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, addConnectionMutationRate);
+        ObjectProfile<GateProvider> shouldAddNodeProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, addNodeRate);
+        ObjectProfile<GateProvider> shouldAddConnectionProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, addConnectionRate);
         DefaultReproductionTypeFactoryProfile weightMutationTypeFactoryProfile = createWeightMutationTypeFactoryProfile(parallelismSupport, randomSupportPair);
-        ObjectProfile<GateProvider> shouldDisableExpressedProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, disableExpressedRate);
+        ObjectProfile<GateProvider> shouldDisableExpressedConnectionProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, disableExpressedConnectionRate);
 
-        return new DefaultContextMutationSupport(shouldAddNodeMutationProfile, shouldAddConnectionMutationProfile, weightMutationTypeFactoryProfile, shouldDisableExpressedProfile);
+        return new DefaultContextMutationSupport(shouldAddNodeProfile, shouldAddConnectionProfile, weightMutationTypeFactoryProfile, shouldDisableExpressedConnectionProfile);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

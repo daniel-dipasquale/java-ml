@@ -10,19 +10,19 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextMutationSupport implements Context.MutationSupport {
-    private ObjectProfile<GateProvider> shouldAddNodeMutationProfile;
-    private ObjectProfile<GateProvider> shouldAddConnectionMutationProfile;
+    private ObjectProfile<GateProvider> shouldAddNodeProfile;
+    private ObjectProfile<GateProvider> shouldAddConnectionProfile;
     private ObjectProfile<ObjectFactory<WeightMutationType>> weightMutationTypeFactoryProfile;
-    private ObjectProfile<GateProvider> shouldDisableExpressedProfile;
+    private ObjectProfile<GateProvider> shouldDisableExpressedConnectionProfile;
 
     @Override
-    public boolean shouldAddNodeMutation() {
-        return shouldAddNodeMutationProfile.getObject().isOn();
+    public boolean shouldAddNode() {
+        return shouldAddNodeProfile.getObject().isOn();
     }
 
     @Override
-    public boolean shouldAddConnectionMutation() {
-        return shouldAddConnectionMutationProfile.getObject().isOn();
+    public boolean shouldAddConnection() {
+        return shouldAddConnectionProfile.getObject().isOn();
     }
 
     @Override
@@ -31,21 +31,21 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     }
 
     @Override
-    public boolean shouldDisableExpressed() {
-        return shouldDisableExpressedProfile.getObject().isOn();
+    public boolean shouldDisableExpressedConnection() {
+        return shouldDisableExpressedConnectionProfile.getObject().isOn();
     }
 
     public void save(final SerializableStateGroup state) {
-        state.put("mutation.shouldAddNodeMutationProfile", shouldAddNodeMutationProfile);
-        state.put("mutation.shouldAddConnectionMutationProfile", shouldAddConnectionMutationProfile);
+        state.put("mutation.shouldAddNodeProfile", shouldAddNodeProfile);
+        state.put("mutation.shouldAddConnectionProfile", shouldAddConnectionProfile);
         state.put("mutation.weightMutationTypeFactoryProfile", weightMutationTypeFactoryProfile);
-        state.put("mutation.shouldDisableExpressedProfile", shouldDisableExpressedProfile);
+        state.put("mutation.shouldDisableExpressedConnectionProfile", shouldDisableExpressedConnectionProfile);
     }
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
-        shouldAddNodeMutationProfile = ObjectProfile.switchProfile(state.get("mutation.shouldAddNodeMutationProfile"), eventLoop != null);
-        shouldAddConnectionMutationProfile = ObjectProfile.switchProfile(state.get("mutation.shouldAddConnectionMutationProfile"), eventLoop != null);
+        shouldAddNodeProfile = ObjectProfile.switchProfile(state.get("mutation.shouldAddNodeProfile"), eventLoop != null);
+        shouldAddConnectionProfile = ObjectProfile.switchProfile(state.get("mutation.shouldAddConnectionProfile"), eventLoop != null);
         weightMutationTypeFactoryProfile = ObjectProfile.switchProfile(state.get("mutation.weightMutationTypeFactoryProfile"), eventLoop != null);
-        shouldDisableExpressedProfile = ObjectProfile.switchProfile(state.get("mutation.shouldDisableExpressedProfile"), eventLoop != null);
+        shouldDisableExpressedConnectionProfile = ObjectProfile.switchProfile(state.get("mutation.shouldDisableExpressedConnectionProfile"), eventLoop != null);
     }
 }

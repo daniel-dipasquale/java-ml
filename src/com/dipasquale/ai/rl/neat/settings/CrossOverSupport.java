@@ -13,9 +13,9 @@ import lombok.Builder;
 @Builder
 public final class CrossOverSupport {
     @Builder.Default
-    private final FloatNumber overrideExpressedRate = FloatNumber.literal(0.5f);
+    private final FloatNumber overrideExpressedConnectionRate = FloatNumber.literal(0.5f);
     @Builder.Default
-    private final FloatNumber useRandomParentWeightRate = FloatNumber.literal(0.6f);
+    private final FloatNumber useWeightFromRandomParentRate = FloatNumber.literal(0.6f);
 
     private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair, final float max) {
         return new IsLessThanRandomGateProviderProfile(parallelismSupport.isEnabled(), randomSupportPair, max);
@@ -30,9 +30,9 @@ public final class CrossOverSupport {
     DefaultContextCrossOverSupport create(final ParallelismSupport parallelismSupport, final RandomSupport randomSupport) {
         ObjectProfile<com.dipasquale.common.random.float1.RandomSupport> randomSupportProfile = randomSupport.createFloatRandomSupportProfile(parallelismSupport);
         Pair<com.dipasquale.common.random.float1.RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
-        ObjectProfile<GateProvider> shouldOverrideExpressedProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, overrideExpressedRate);
-        ObjectProfile<GateProvider> shouldUseRandomParentWeightProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, useRandomParentWeightRate);
+        ObjectProfile<GateProvider> shouldOverrideExpressedConnectionProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, overrideExpressedConnectionRate);
+        ObjectProfile<GateProvider> shouldUseWeightFromRandomParentProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, useWeightFromRandomParentRate);
 
-        return new DefaultContextCrossOverSupport(shouldOverrideExpressedProfile, shouldUseRandomParentWeightProfile);
+        return new DefaultContextCrossOverSupport(shouldOverrideExpressedConnectionProfile, shouldUseWeightFromRandomParentProfile);
     }
 }

@@ -52,6 +52,7 @@ public interface Context {
         int populationSize();
     }
 
+    @FunctionalInterface
     interface GeneralSupport {
         GeneralParams params();
     }
@@ -166,19 +167,19 @@ public interface Context {
     }
 
     interface MutationSupport {
-        boolean shouldAddNodeMutation();
+        boolean shouldAddNode();
 
-        boolean shouldAddConnectionMutation();
+        boolean shouldAddConnection();
 
         WeightMutationType generateWeightMutationType();
 
-        boolean shouldDisableExpressed();
+        boolean shouldDisableExpressedConnection();
     }
 
     interface CrossOverSupport {
-        boolean shouldOverrideExpressed();
+        boolean shouldOverrideExpressedConnection();
 
-        boolean shouldUseRandomParentWeight();
+        boolean shouldUseWeightFromRandomParent();
 
         default Genome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final Genome fitParent, final Genome unfitParent) {
             return Genome.crossOverBySkippingUnfitDisjointOrExcess(context, fitParent, unfitParent);

@@ -8,26 +8,26 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public final class DefaultContextCrossOverSupport implements Context.CrossOverSupport {
-    private ObjectProfile<GateProvider> shouldOverrideExpressedProfile;
-    private ObjectProfile<GateProvider> shouldUseRandomParentWeightProfile;
+    private ObjectProfile<GateProvider> shouldOverrideExpressedConnectionProfile;
+    private ObjectProfile<GateProvider> shouldUseWeightFromRandomParentProfile;
 
     @Override
-    public boolean shouldOverrideExpressed() {
-        return shouldOverrideExpressedProfile.getObject().isOn();
+    public boolean shouldOverrideExpressedConnection() {
+        return shouldOverrideExpressedConnectionProfile.getObject().isOn();
     }
 
     @Override
-    public boolean shouldUseRandomParentWeight() {
-        return shouldUseRandomParentWeightProfile.getObject().isOn();
+    public boolean shouldUseWeightFromRandomParent() {
+        return shouldUseWeightFromRandomParentProfile.getObject().isOn();
     }
 
     public void save(final SerializableStateGroup state) {
-        state.put("crossOver.shouldOverrideExpressedProfile", shouldOverrideExpressedProfile);
-        state.put("crossOver.shouldUseRandomParentWeightProfile", shouldUseRandomParentWeightProfile);
+        state.put("crossOver.shouldOverrideExpressedConnectionProfile", shouldOverrideExpressedConnectionProfile);
+        state.put("crossOver.shouldUseWeightFromRandomParentProfile", shouldUseWeightFromRandomParentProfile);
     }
 
     public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
-        shouldOverrideExpressedProfile = ObjectProfile.switchProfile(state.get("crossOver.shouldOverrideExpressedProfile"), eventLoop != null);
-        shouldUseRandomParentWeightProfile = ObjectProfile.switchProfile(state.get("crossOver.shouldUseRandomParentWeightProfile"), eventLoop != null);
+        shouldOverrideExpressedConnectionProfile = ObjectProfile.switchProfile(state.get("crossOver.shouldOverrideExpressedConnectionProfile"), eventLoop != null);
+        shouldUseWeightFromRandomParentProfile = ObjectProfile.switchProfile(state.get("crossOver.shouldUseWeightFromRandomParentProfile"), eventLoop != null);
     }
 }

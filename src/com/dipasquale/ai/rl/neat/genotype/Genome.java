@@ -159,15 +159,15 @@ public final class Genome implements Serializable {
     public boolean mutate(final Context context) {
         boolean mutated = mutateWeights(context);
 
-        if (context.mutation().shouldDisableExpressed()) {
+        if (context.mutation().shouldDisableExpressedConnection()) {
             mutated |= disableRandomConnection(context.random());
         }
 
-        if (context.mutation().shouldAddNodeMutation()) {
+        if (context.mutation().shouldAddNode()) {
             mutated |= addRandomNodeMutation(context);
         }
 
-        if (connections.getExpressed().isEmpty() || context.mutation().shouldAddConnectionMutation()) {
+        if (connections.getExpressed().isEmpty() || context.mutation().shouldAddConnection()) {
             mutated |= addRandomConnectionMutation(context); // TODO: determine if this algorithm is consistent enough when converging
         }
 
@@ -180,9 +180,9 @@ public final class Genome implements Serializable {
 
     private static ConnectionGene createChildConnection(final Context context, final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
         ConnectionGene randomParentConnection = getRandom(context.random(), parent1Connection, parent2Connection);
-        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || context.crossOver().shouldOverrideExpressed();
+        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
 
-        if (context.crossOver().shouldUseRandomParentWeight()) {
+        if (context.crossOver().shouldUseWeightFromRandomParent()) {
             return randomParentConnection.createCopy(expressed);
         }
 
@@ -228,7 +228,7 @@ public final class Genome implements Serializable {
                 if (unfitConnection != null) {
                     childConnection = createChildConnection(context, fitConnection, unfitConnection);
                 } else {
-                    childConnection = fitConnection.createCopy(fitConnection.isExpressed() || context.crossOver().shouldOverrideExpressed());
+                    childConnection = fitConnection.createCopy(fitConnection.isExpressed() || context.crossOver().shouldOverrideExpressedConnection());
                 }
 
                 child.connections.put(childConnection);
@@ -262,12 +262,12 @@ public final class Genome implements Serializable {
 
                     child.connections.put(childConnection);
                 } else if (connectionPair.getLeft() != null) {
-                    boolean expressed = connectionPair.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressed();
+                    boolean expressed = connectionPair.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
                     ConnectionGene childConnection = connectionPair.getLeft().createCopy(expressed);
 
                     child.connections.put(childConnection);
                 } else {
-                    boolean expressed = connectionPair.getRight().isExpressed() || context.crossOver().shouldOverrideExpressed();
+                    boolean expressed = connectionPair.getRight().isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
                     ConnectionGene childConnection = connectionPair.getRight().createCopy(expressed);
 
                     child.connections.put(childConnection);

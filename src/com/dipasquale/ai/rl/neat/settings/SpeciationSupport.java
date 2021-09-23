@@ -41,7 +41,7 @@ import java.util.List;
 @Builder
 public final class SpeciationSupport {
     @Builder.Default
-    private final FloatNumber weightDifferenceCoefficient = FloatNumber.literal(0.5f);
+    private final FloatNumber weightDifferenceCoefficient = FloatNumber.literal(0.4f);
     @Builder.Default
     private final FloatNumber disjointCoefficient = FloatNumber.literal(1f);
     @Builder.Default
@@ -49,7 +49,7 @@ public final class SpeciationSupport {
     @Builder.Default
     private final FloatNumber compatibilityThreshold = FloatNumber.literal(3f);
     @Builder.Default
-    private final FloatNumber compatibilityThresholdModifier = FloatNumber.literal(1.2f);
+    private final FloatNumber compatibilityThresholdModifier = FloatNumber.literal(1f);
     @Builder.Default
     private final FloatNumber eugenicsThreshold = FloatNumber.literal(0.2f);
     @Builder.Default
