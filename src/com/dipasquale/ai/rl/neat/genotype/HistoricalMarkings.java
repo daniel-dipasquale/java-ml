@@ -14,13 +14,15 @@ public final class HistoricalMarkings {
     private final ObjectFactory<NodeGeneIdDependencyTracker> nodeIdDependencyTrackerFactory;
     private final Map<SequentialId, NodeGeneIdDependencyTracker> nodeIdDependencyTrackers;
 
-    private void add(final SequentialId nodeId, final DirectedEdge directedEdge) {
-        nodeIdDependencyTrackers.computeIfAbsent(nodeId, nid -> nodeIdDependencyTrackerFactory.create()).add(directedEdge);
+    private void addDependency(final SequentialId nodeId, final DirectedEdge directedEdge) {
+        NodeGeneIdDependencyTracker nodeIdDependencyTracker = nodeIdDependencyTrackers.computeIfAbsent(nodeId, nid -> nodeIdDependencyTrackerFactory.create());
+
+        nodeIdDependencyTracker.add(directedEdge);
     }
 
     private InnovationId createInnovationId(final DirectedEdge directedEdge) {
-        add(directedEdge.getSourceNodeId(), directedEdge);
-        add(directedEdge.getTargetNodeId(), directedEdge);
+        addDependency(directedEdge.getSourceNodeId(), directedEdge);
+        addDependency(directedEdge.getTargetNodeId(), directedEdge);
 
         return new InnovationId(directedEdge, innovationIdFactory.create());
     }
@@ -34,7 +36,9 @@ public final class HistoricalMarkings {
     }
 
     public void registerNode(final NodeGene node) {
-        nodeIdDependencyTrackers.computeIfAbsent(node.getId(), nid -> nodeIdDependencyTrackerFactory.create()).increaseBlastRadius();
+        NodeGeneIdDependencyTracker nodeIdDependencyTracker = nodeIdDependencyTrackers.computeIfAbsent(node.getId(), nid -> nodeIdDependencyTrackerFactory.create());
+
+        nodeIdDependencyTracker.increaseBlastRadius();
     }
 
     public void deregisterNode(final NodeGene node) {
