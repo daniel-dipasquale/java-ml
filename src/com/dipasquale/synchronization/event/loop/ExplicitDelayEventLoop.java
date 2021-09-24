@@ -83,10 +83,10 @@ final class ExplicitDelayEventLoop implements EventLoop {
     }
 
     private void handleNextEvent() {
-        while (!shutdown.get()) {
-            singleLock.lock();
+        singleLock.lock();
 
-            try {
+        try {
+            while (!shutdown.get()) {
                 EventRecordAudit eventRecordAudit = pollNextEventIfAvailable();
 
                 if (eventRecordAudit.polled == null) {
@@ -117,9 +117,9 @@ final class ExplicitDelayEventLoop implements EventLoop {
                         releaseUntilEmptyWaitHandleIfEmpty();
                     }
                 }
-            } finally {
-                singleLock.unlock();
             }
+        } finally {
+            singleLock.unlock();
         }
     }
 
