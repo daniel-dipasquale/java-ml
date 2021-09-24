@@ -9,15 +9,13 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
     private final String name;
-    private final ReusableCountingWaitHandle singleThreadWaitHandle = new ReusableCountingWaitHandle(0);
-    private boolean isSingleThreadWaitHandleOn = false;
+    private final TogglingWaitHandle singleThreadWaitHandle = new TogglingWaitHandle();
     private final ReusableCountingWaitHandle awaitOverrideWaitHandle = new ReusableCountingWaitHandle(0);
     private final AtomicReference<TimeUnitPair> latestAwaitOverride = new AtomicReference<>();
 
     private void ensureSingleThreadWaitHandleIsOn() {
         synchronized (singleThreadWaitHandle) {
-            if (!isSingleThreadWaitHandleOn) {
-                isSingleThreadWaitHandleOn = true;
+            if (!singleThreadWaitHandle.isOn()) {
                 singleThreadWaitHandle.countUp();
             }
         }
@@ -25,10 +23,7 @@ final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
 
     private void ensureSingleThreadWaitHandleIsOff() {
         synchronized (singleThreadWaitHandle) {
-            if (isSingleThreadWaitHandleOn) {
-                isSingleThreadWaitHandleOn = false;
-                singleThreadWaitHandle.countDown();
-            }
+            singleThreadWaitHandle.countDown();
         }
     }
 
@@ -38,7 +33,7 @@ final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
             awaitOverrideWaitHandle.await();
             awaitOverrideWaitHandle.countUp();
 
-            return isSingleThreadWaitHandleOn;
+            return singleThreadWaitHandle.isOn();
         }
     }
 

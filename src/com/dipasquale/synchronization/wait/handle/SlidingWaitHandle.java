@@ -5,13 +5,11 @@ import java.util.concurrent.TimeUnit;
 public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
     private static final String NAME = SlidingWaitHandle.class.getSimpleName();
     private final SingleThreadSlidingWaitHandle firstThreadWaitHandle;
-    private final ReusableCountingWaitHandle otherThreadsWaitHandle;
-    private boolean isOtherThreadsWaitHandleOn;
+    private final TogglingWaitHandle otherThreadsWaitHandle;
 
     public SlidingWaitHandle(final String name) {
         this.firstThreadWaitHandle = new SingleThreadSlidingWaitHandle(name);
-        this.otherThreadsWaitHandle = new ReusableCountingWaitHandle(0);
-        this.isOtherThreadsWaitHandleOn = false;
+        this.otherThreadsWaitHandle = new TogglingWaitHandle();
     }
 
     public SlidingWaitHandle() {
@@ -20,8 +18,7 @@ public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
 
     private boolean ensureOtherThreadsWaitHandleIsOn() {
         synchronized (otherThreadsWaitHandle) {
-            if (!isOtherThreadsWaitHandleOn) {
-                isOtherThreadsWaitHandleOn = true;
+            if (!otherThreadsWaitHandle.isOn()) {
                 otherThreadsWaitHandle.countUp();
 
                 return true;
@@ -33,7 +30,6 @@ public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
 
     private void ensureOtherThreadsWaitHandleIsOff() {
         synchronized (otherThreadsWaitHandle) {
-            isOtherThreadsWaitHandleOn = false;
             otherThreadsWaitHandle.countDown();
         }
     }

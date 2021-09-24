@@ -3,8 +3,8 @@ package com.dipasquale.synchronization.event.loop;
 import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
-import com.dipasquale.synchronization.wait.handle.ReusableCountingWaitHandle;
 import com.dipasquale.synchronization.wait.handle.SlidingWaitHandle;
+import com.dipasquale.synchronization.wait.handle.TogglingWaitHandle;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
     private final ExecutorService executorService;
     private boolean started;
     private final DateTimeSupport dateTimeSupport;
-    private boolean isEventRecordQueueWaitHandleUntilEmptyOn;
-    private final ReusableCountingWaitHandle eventRecordQueueWaitHandleUntilEmpty;
+    private final TogglingWaitHandle eventRecordQueueWaitHandleUntilEmpty;
     private final SlidingWaitHandle eventRecordQueueWaitHandleWhileEmpty;
     private final ErrorHandler errorHandler;
     private final EventLoop nextEntryPoint;
@@ -34,8 +33,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
         this.executorService = params.getExecutorService();
         this.started = false;
         this.dateTimeSupport = params.getDateTimeSupport();
-        this.isEventRecordQueueWaitHandleUntilEmptyOn = false;
-        this.eventRecordQueueWaitHandleUntilEmpty = new ReusableCountingWaitHandle(0);
+        this.eventRecordQueueWaitHandleUntilEmpty = new TogglingWaitHandle();
         this.eventRecordQueueWaitHandleWhileEmpty = new SlidingWaitHandle(name);
         this.errorHandler = params.getErrorHandler();
         this.nextEntryPoint = ensureNotNull(nextEntryPoint, this);
@@ -75,20 +73,15 @@ final class ExplicitDelayEventLoop implements EventLoop {
         return Math.max(eventRecord.getExecutionDateTime() - dateTimeSupport.now(), 0L);
     }
 
-    private void releaseQueueUntilEmptyWaitHandleIfEmpty(final boolean concurrent) {
-        if (concurrent) {
-            eventRecordQueue.lock();
-        }
+    private void releaseQueueUntilEmptyWaitHandleIfEmpty() {
+        eventRecordQueue.lock();
 
         try {
-            if (eventRecordQueue.isEmpty() && isEventRecordQueueWaitHandleUntilEmptyOn) {
-                isEventRecordQueueWaitHandleUntilEmptyOn = false;
+            if (eventRecordQueue.isEmpty()) {
                 eventRecordQueueWaitHandleUntilEmpty.countDown();
             }
         } finally {
-            if (concurrent) {
-                eventRecordQueue.unlock();
-            }
+            eventRecordQueue.unlock();
         }
     }
 
@@ -98,7 +91,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
             if (eventRecordAudit.polled == null) {
                 try {
-                    releaseQueueUntilEmptyWaitHandleIfEmpty(true);
+                    releaseQueueUntilEmptyWaitHandleIfEmpty();
 
                     if (eventRecordAudit.peeked != null) {
                         long timeout = getDelayTime(eventRecordAudit.peeked);
@@ -121,7 +114,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
                         errorHandler.handle(e);
                     }
                 } finally {
-                    releaseQueueUntilEmptyWaitHandleIfEmpty(true);
+                    releaseQueueUntilEmptyWaitHandleIfEmpty();
                 }
             }
         }
@@ -144,10 +137,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
                 eventRecordQueueWaitHandleWhileEmpty.changeTimeout(timeout, unit);
             }
 
-            if (!isEventRecordQueueWaitHandleUntilEmptyOn) {
-                isEventRecordQueueWaitHandleUntilEmptyOn = true;
-                eventRecordQueueWaitHandleUntilEmpty.countUp();
-            }
+            eventRecordQueueWaitHandleUntilEmpty.countUp();
         } finally {
             eventRecordQueue.unlock();
         }
@@ -172,7 +162,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
         eventRecordQueue.lock();
 
         try {
-            return !isEventRecordQueueWaitHandleUntilEmptyOn;
+            return !eventRecordQueueWaitHandleUntilEmpty.isOn();
         } finally {
             eventRecordQueue.unlock();
         }
@@ -197,7 +187,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
             try {
                 eventRecordQueue.clear();
-                releaseQueueUntilEmptyWaitHandleIfEmpty(false);
+                releaseQueueUntilEmptyWaitHandleIfEmpty();
                 eventRecordQueueWaitHandleWhileEmpty.release();
             } finally {
                 eventRecordQueue.unlock();
