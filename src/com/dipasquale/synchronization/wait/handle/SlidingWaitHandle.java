@@ -1,16 +1,15 @@
 package com.dipasquale.synchronization.wait.handle;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.concurrent.TimeUnit;
 
+@RequiredArgsConstructor
 public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
     private static final String NAME = SlidingWaitHandle.class.getSimpleName();
-    private final SingleThreadSlidingWaitHandle firstThreadWaitHandle;
-    private final TogglingWaitHandle otherThreadsWaitHandle;
-
-    public SlidingWaitHandle(final String name) {
-        this.firstThreadWaitHandle = new SingleThreadSlidingWaitHandle(name);
-        this.otherThreadsWaitHandle = new TogglingWaitHandle();
-    }
+    private final String name;
+    private final SingleThreadSlidingWaitHandle firstThreadWaitHandle = new SingleThreadSlidingWaitHandle();
+    private final TogglingWaitHandle otherThreadsWaitHandle = new TogglingWaitHandle();
 
     public SlidingWaitHandle() {
         this(NAME);
@@ -83,6 +82,6 @@ public final class SlidingWaitHandle implements InternalSlidingWaitHandle {
 
     @Override
     public String toString() {
-        return firstThreadWaitHandle.toString();
+        return name;
     }
 }

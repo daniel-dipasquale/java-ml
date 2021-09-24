@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
-    private final String name;
     private final TogglingWaitHandle singleThreadWaitHandle = new TogglingWaitHandle();
     private final ReusableCountingWaitHandle awaitOverrideWaitHandle = new ReusableCountingWaitHandle(0);
     private final AtomicReference<TimeUnitPair> latestAwaitOverride = new AtomicReference<>();
@@ -121,10 +120,5 @@ final class SingleThreadSlidingWaitHandle implements InternalSlidingWaitHandle {
     public void release() {
         latestAwaitOverride.set(null);
         ensureSingleThreadWaitHandleIsOff();
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 }
