@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class NeatTest {
     private static final boolean XOR_TASK_ENABLED = true;
-    private static final boolean SINGLE_POLE_BALANCING_TASK_ENABLED = true; // TODO: look into these tests, they were always fishy
+    private static final boolean SINGLE_POLE_BALANCING_TASK_ENABLED = true;
     private static final Set<String> GENOME_IDS = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);

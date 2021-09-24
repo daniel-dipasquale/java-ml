@@ -28,7 +28,7 @@ final class NoDelayEventLoop implements EventLoop {
 
     NoDelayEventLoop(final String name, final EventLoopParams params, final EventLoop nextEntryPoint) {
         ExplicitDelayEventLoopParams paramsFixed = ExplicitDelayEventLoopParams.builder()
-                .eventRecordQueue(params.getEventRecordQueueFactory().create(new LinkedList<>()))
+                .eventRecords(new LinkedList<>())
                 .executorService(params.getExecutorService())
                 .dateTimeSupport(ZERO_DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().unit()))
                 .errorHandler(params.getErrorHandler())

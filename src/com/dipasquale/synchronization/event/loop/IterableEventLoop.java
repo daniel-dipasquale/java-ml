@@ -31,7 +31,6 @@ public final class IterableEventLoop {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         EventLoopParams params = EventLoopParams.builder()
-                .eventRecordQueueFactory(ReentrantExclusiveQueue::new)
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .errorHandler(settings.getErrorHandler())

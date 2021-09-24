@@ -1,28 +1,31 @@
 package com.dipasquale.synchronization.event.loop;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class IsolatedIteratorProducer<T> implements IteratorProducer<T> {
     private final List<T> list;
-    private int index;
+    private int index = 0;
+    private final int offset;
     private final int step;
-
-    IsolatedIteratorProducer(final List<T> list, final int offset, final int step) {
-        this.list = list;
-        this.index = offset;
-        this.step = step;
-    }
 
     @Override
     public Envelope<T> next() {
-        if (index >= list.size()) {
+        int i = index + offset;
+
+        if (i >= list.size()) {
             return null;
         }
 
-        T item = list.get(index);
+        try {
+            T item = list.get(i);
 
-        index += step;
-
-        return new Envelope<>(item);
+            return new Envelope<>(item);
+        } finally {
+            index += step;
+        }
     }
 }

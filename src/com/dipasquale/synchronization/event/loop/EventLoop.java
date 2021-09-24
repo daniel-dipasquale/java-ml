@@ -44,7 +44,6 @@ public interface EventLoop {
         ArgumentValidatorSupport.ensureGreaterThanZero(settings.getConcurrencyLevel(), "settings.concurrencyLevel");
 
         EventLoopParams params = EventLoopParams.builder()
-                .eventRecordQueueFactory(ReentrantExclusiveQueue::new)
                 .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .errorHandler(settings.getErrorHandler())

@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class RandomSupportTest {
+    private static final double MAXIMUM_VALUE = Double.longBitsToDouble(Double.doubleToRawLongBits(1D) - 1L);
     private static final AtomicDouble RANDOM_SEED = new AtomicDouble();
     private static final RandomSupport TEST = RANDOM_SEED::get;
     private static final int RANDOM_TEST_COUNT = 1_000_000;
@@ -43,9 +44,9 @@ public final class RandomSupportTest {
         Assertions.assertEquals(0.75D, TEST.next(0D, 1D), 0D);
         Assertions.assertEquals(0.6500000000000001D, TEST.next(0.2D, 0.8D), 0D);
         Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
-        RANDOM_SEED.set(0.99D);
-        Assertions.assertEquals(0.99D, TEST.next(0D, 1D), 0D);
-        Assertions.assertEquals(0.794D, TEST.next(0.2D, 0.8D), 0D);
+        RANDOM_SEED.set(MAXIMUM_VALUE);
+        Assertions.assertEquals(MAXIMUM_VALUE, TEST.next(0D, 1D), 0D);
+        Assertions.assertEquals(0.8D, TEST.next(0.2D, 0.8D), 0D);
         Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
     }
 
@@ -68,13 +69,13 @@ public final class RandomSupportTest {
         Assertions.assertEquals(3L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.8D);
         Assertions.assertEquals(4L, TEST.next(0L, 5L));
-        RANDOM_SEED.set(0.99D);
+        RANDOM_SEED.set(MAXIMUM_VALUE);
         Assertions.assertEquals(4L, TEST.next(0L, 5L));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_getting_a_random_whole_number_bounded_by_the_same_minimum_and_maximum_THEN_get_the_minimum_number() {
-        Assertions.assertEquals(1L, TEST.next(1L, 1L));
+        Assertions.assertEquals(0L, TEST.next(1L, 1L));
     }
 
     @Test
@@ -86,9 +87,9 @@ public final class RandomSupportTest {
         RANDOM_SEED.set(0.5D);
         Assertions.assertEquals(0.5D, test.next(), 0);
         Assertions.assertEquals(0.5D, test.next(0.3D, 0.7D), 0);
-        RANDOM_SEED.set(0.99D);
-        Assertions.assertEquals(0.794D, test.next(), 0);
-        Assertions.assertEquals(0.5588D, test.next(0.4D, 0.6D), 0);
+        RANDOM_SEED.set(MAXIMUM_VALUE);
+        Assertions.assertEquals(0.8D, test.next(), 0);
+        Assertions.assertEquals(0.56D, test.next(0.4D, 0.6D), 0);
     }
 
     @Test
