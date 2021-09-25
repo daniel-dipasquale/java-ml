@@ -1,4 +1,4 @@
-package com.dipasquale.common.factory;
+package com.dipasquale.common.factory.data.structure.set;
 
 import java.util.Set;
 

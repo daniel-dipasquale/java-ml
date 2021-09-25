@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
@@ -64,8 +65,13 @@ public final class DualModeGenomeActivatorPool implements DualModeObject, Serial
         }
 
         @Override
-        public int getComplexity() {
-            return genome.getComplexity();
+        public int getHiddenNodes() {
+            return genome.getNodes().size(NodeGeneType.HIDDEN);
+        }
+
+        @Override
+        public int getConnections() {
+            return genome.getConnections().getExpressed().size();
         }
 
         @Override

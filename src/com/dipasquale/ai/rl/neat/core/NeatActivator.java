@@ -5,9 +5,9 @@ public interface NeatActivator {
 
     int getSpeciesCount();
 
-    float getFitness();
+    int getConnections();
 
-    int getComplexity();
+    float getFitness();
 
     float[] activate(float[] inputs);
 }

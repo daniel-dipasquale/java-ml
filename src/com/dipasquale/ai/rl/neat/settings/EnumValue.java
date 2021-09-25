@@ -33,7 +33,7 @@ public final class EnumValue<T extends Enum<T>> {
         return createRandom(RandomType.UNIFORM, values);
     }
 
-    ObjectProfile<EnumFactory<T>> createFactoryProfile(final ParallelismSupport parallelismSupport) {
+    public ObjectProfile<EnumFactory<T>> createFactoryProfile(final ParallelismSupport parallelismSupport) {
         return factoryCreator.create(parallelismSupport);
     }
 

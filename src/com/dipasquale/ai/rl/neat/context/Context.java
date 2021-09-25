@@ -10,6 +10,7 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
+import com.dipasquale.ai.rl.neat.speciation.metric.MetricData;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
@@ -22,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public interface Context {
@@ -42,6 +44,8 @@ public interface Context {
     CrossOverSupport crossOver();
 
     SpeciationSupport speciation();
+
+    MetricSupport metrics();
 
     void save(ObjectOutputStream outputStream) throws IOException;
 
@@ -250,6 +254,20 @@ public interface Context {
         void disposeGenomeId(Genome genome);
 
         int getDisposedGenomeIdCount();
+    }
+
+    interface MetricSupport {
+        Map<Integer, MetricData> getMetrics();
+
+        void addTopology(String speciesId, int hiddenNodes, int connections);
+
+        void addFitness(String speciesId, float fitness);
+
+        void prepareNextFitnessCalculation();
+
+        void prepareNextGeneration();
+
+        void prepareNextIteration();
     }
 
     interface StateOverrideSupport {

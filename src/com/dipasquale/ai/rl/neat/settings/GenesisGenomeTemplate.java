@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Getter(AccessLevel.PACKAGE)
+@Getter
 public final class GenesisGenomeTemplate {
     private final IntegerNumber inputs;
     private final IntegerNumber outputs;

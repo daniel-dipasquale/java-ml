@@ -25,7 +25,7 @@ public final class IntegerNumber {
         return new IntegerNumber(factoryCreator);
     }
 
-    ObjectProfile<IntegerFactory> createFactoryProfile(final ParallelismSupport parallelismSupport) {
+    public ObjectProfile<IntegerFactory> createFactoryProfile(final ParallelismSupport parallelismSupport) {
         return factoryCreator.create(parallelismSupport);
     }
 

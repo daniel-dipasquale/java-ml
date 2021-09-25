@@ -1,16 +1,28 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
+import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.RandomSupportFactoryProfile;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.profile.ObjectProfile;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public final class DefaultContextRandomSupport implements Context.RandomSupport {
     private ObjectProfile<RandomSupport> integerRandomSupportProfile;
     private ObjectProfile<RandomSupport> floatRandomSupportProfile;
+
+    public static DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport, final com.dipasquale.ai.rl.neat.settings.RandomSupport randomSupport) {
+        ObjectProfile<RandomSupport> integerRandomSupportProfile = new RandomSupportFactoryProfile(parallelismSupport.isEnabled(), randomSupport.getIntegerGenerator());
+        ObjectProfile<RandomSupport> floatRandomSupportProfile = new RandomSupportFactoryProfile(parallelismSupport.isEnabled(), randomSupport.getFloatGenerator());
+
+        return new DefaultContextRandomSupport(integerRandomSupportProfile, floatRandomSupportProfile);
+    }
 
     @Override
     public int generateIndex(final int offset, final int count) {
@@ -27,13 +39,13 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
         return outputClassifier.resolve(floatRandomSupportProfile.getObject().next());
     }
 
-    public void save(final SerializableStateGroup state) {
-        state.put("random.integerRandomSupportProfile", integerRandomSupportProfile);
-        state.put("random.floatRandomSupportProfile", floatRandomSupportProfile);
+    public void save(final SerializableStateGroup stateGroup) {
+        stateGroup.put("random.integerRandomSupportProfile", integerRandomSupportProfile);
+        stateGroup.put("random.floatRandomSupportProfile", floatRandomSupportProfile);
     }
 
-    public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop) {
-        integerRandomSupportProfile = ObjectProfile.switchProfile(state.get("random.integerRandomSupportProfile"), eventLoop != null);
-        floatRandomSupportProfile = ObjectProfile.switchProfile(state.get("random.floatRandomSupportProfile"), eventLoop != null);
+    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
+        integerRandomSupportProfile = ObjectProfile.switchProfile(stateGroup.get("random.integerRandomSupportProfile"), eventLoop != null);
+        floatRandomSupportProfile = ObjectProfile.switchProfile(stateGroup.get("random.floatRandomSupportProfile"), eventLoop != null);
     }
 }

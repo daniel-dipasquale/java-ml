@@ -25,7 +25,7 @@ public final class FloatNumber {
         return new FloatNumber(factoryCreator);
     }
 
-    ObjectProfile<FloatFactory> createFactoryProfile(final ParallelismSupport parallelismSupport) {
+    public ObjectProfile<FloatFactory> createFactoryProfile(final ParallelismSupport parallelismSupport) {
         return factoryCreator.create(parallelismSupport);
     }
 

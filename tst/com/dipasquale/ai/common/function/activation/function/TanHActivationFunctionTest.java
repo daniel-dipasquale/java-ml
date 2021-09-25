@@ -1,7 +1,7 @@
 package com.dipasquale.ai.common.function.activation.function;
 
 import com.dipasquale.ai.common.function.activation.TanHActivationFunction;
-import com.dipasquale.common.SerializableSupport;
+import com.dipasquale.common.serialization.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -44,8 +44,8 @@ public final class TanHActivationFunctionTest {
     @Test
     public void TEST_3() {
         try {
-            byte[] activationFunction = SerializableSupport.serialize(TEST);
-            TanHActivationFunction result = SerializableSupport.deserialize(activationFunction);
+            byte[] activationFunction = SerializableSupport.serializeObject(TEST);
+            TanHActivationFunction result = SerializableSupport.deserializeObject(activationFunction);
 
             Assertions.assertSame(TEST, result);
         } catch (Throwable e) {

@@ -39,8 +39,8 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
     }
 
     @Override
-    public int getCurrentComplexity() {
-        return evaluator.getCurrentComplexity();
+    public int getCurrentConnections() {
+        return evaluator.getCurrentConnections();
     }
 
     @Override

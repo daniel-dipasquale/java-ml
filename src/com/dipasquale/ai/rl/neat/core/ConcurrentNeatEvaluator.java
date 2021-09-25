@@ -66,11 +66,11 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
     }
 
     @Override
-    public int getCurrentComplexity() {
+    public int getCurrentConnections() {
         lock.readLock().lock();
 
         try {
-            return championOrganismActivator.getComplexity();
+            return championOrganismActivator.getConnections();
         } finally {
             lock.readLock().unlock();
         }

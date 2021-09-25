@@ -18,13 +18,13 @@ final class NeatActivatorTrainer implements NeatActivator {
     }
 
     @Override
-    public float getFitness() {
-        return trainer.getMaximumFitness();
+    public int getConnections() {
+        return trainer.getCurrentConnections();
     }
 
     @Override
-    public int getComplexity() {
-        return trainer.getCurrentComplexity();
+    public float getFitness() {
+        return trainer.getMaximumFitness();
     }
 
     @Override

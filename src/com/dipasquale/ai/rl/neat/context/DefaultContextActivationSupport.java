@@ -5,7 +5,13 @@ import com.dipasquale.ai.rl.neat.common.FitnessBucket;
 import com.dipasquale.ai.rl.neat.common.StandardNeatEnvironment;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.phenotype.FeedForwardNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
+import com.dipasquale.ai.rl.neat.phenotype.RecurrentNeuralNetworkFactory;
+import com.dipasquale.ai.rl.neat.settings.ActivationSupport;
+import com.dipasquale.ai.rl.neat.settings.GeneralEvaluatorSupport;
+import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype.DualModeGenomeActivatorPool;
 import com.dipasquale.common.serialization.SerializableStateGroup;
@@ -20,12 +26,27 @@ public final class DefaultContextActivationSupport implements Context.Activation
     private DualModeMap<String, FitnessBucket> fitnessBuckets;
     private StandardNeatEnvironment standardNeatEnvironment;
 
-    public DefaultContextActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final NeatEnvironment neatEnvironment, final FitnessDeterminerFactory fitnessDeterminerFactory, final DualModeMap<String, FitnessBucket> fitnessBuckets) {
+    private DefaultContextActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final NeatEnvironment neatEnvironment, final FitnessDeterminerFactory fitnessDeterminerFactory, final DualModeMap<String, FitnessBucket> fitnessBuckets) {
         this.genomeActivatorPool = genomeActivatorPool;
         this.neatEnvironment = neatEnvironment;
         this.fitnessDeterminerFactory = fitnessDeterminerFactory;
         this.fitnessBuckets = fitnessBuckets;
         this.standardNeatEnvironment = new StandardNeatEnvironment(neatEnvironment, fitnessDeterminerFactory, fitnessBuckets);
+    }
+
+    public static DefaultContextActivationSupport create(final ParallelismSupport parallelismSupport, final GeneralEvaluatorSupport generalEvaluatorSupport, final ActivationSupport activationSupport) {
+        NeuralNetworkFactory neuralNetworkFactory = switch (activationSupport.getNeuralNetworkType()) {
+            case FEED_FORWARD -> new FeedForwardNeuralNetworkFactory();
+
+            default -> new RecurrentNeuralNetworkFactory();
+        };
+
+        DualModeGenomeActivatorPool genomeActivatorPool = new DualModeGenomeActivatorPool(parallelismSupport.isEnabled(), parallelismSupport.getNumberOfThreads(), neuralNetworkFactory);
+        NeatEnvironment neatEnvironment = generalEvaluatorSupport.getFitnessFunction();
+        FitnessDeterminerFactory fitnessDeterminerFactory = generalEvaluatorSupport.getFitnessDeterminerFactory();
+        DualModeMap<String, FitnessBucket> fitnessBuckets = new DualModeMap<>(parallelismSupport.isEnabled(), parallelismSupport.getNumberOfThreads());
+
+        return new DefaultContextActivationSupport(genomeActivatorPool, neatEnvironment, fitnessDeterminerFactory, fitnessBuckets);
     }
 
     @Override
@@ -38,11 +59,11 @@ public final class DefaultContextActivationSupport implements Context.Activation
         return standardNeatEnvironment.test(genomeActivator);
     }
 
-    public void save(final SerializableStateGroup state) {
-        state.put("neuralNetwork.genomeActivatorPool", genomeActivatorPool);
-        state.put("neuralNetwork.neatEnvironment", neatEnvironment);
-        state.put("neuralNetwork.fitnessDeterminerFactory", fitnessDeterminerFactory);
-        state.put("neuralNetwork.fitnessBuckets", fitnessBuckets);
+    public void save(final SerializableStateGroup stateGroup) {
+        stateGroup.put("neuralNetwork.genomeActivatorPool", genomeActivatorPool);
+        stateGroup.put("neuralNetwork.neatEnvironment", neatEnvironment);
+        stateGroup.put("neuralNetwork.fitnessDeterminerFactory", fitnessDeterminerFactory);
+        stateGroup.put("neuralNetwork.fitnessBuckets", fitnessBuckets);
     }
 
     private static DualModeGenomeActivatorPool loadGenomeActivatorPool(final DualModeGenomeActivatorPool genomeActivatorPool, final IterableEventLoop eventLoop) {
@@ -71,21 +92,11 @@ public final class DefaultContextActivationSupport implements Context.Activation
         throw new RuntimeException("unable to load the neat environment (aka: fitness function)");
     }
 
-    private static DualModeMap<String, FitnessBucket> loadFitnessBuckets(final DualModeMap<String, FitnessBucket> fitnessBuckets, final IterableEventLoop eventLoop) {
-        DualModeMap<String, FitnessBucket> fitnessBucketsFixed = DualModeObject.switchMode(fitnessBuckets, eventLoop != null);
-
-        if (eventLoop == null) {
-            return new DualModeMap<>(false, 1, fitnessBucketsFixed);
-        }
-
-        return new DualModeMap<>(true, eventLoop.getConcurrencyLevel(), fitnessBucketsFixed);
-    }
-
-    public void load(final SerializableStateGroup state, final IterableEventLoop eventLoop, final NeatEnvironment neatEnvironmentOverride) {
-        genomeActivatorPool = loadGenomeActivatorPool(state.get("neuralNetwork.genomeActivatorPool"), eventLoop);
-        neatEnvironment = loadNeatEnvironment(state.get("neuralNetwork.neatEnvironment"), neatEnvironmentOverride);
-        fitnessDeterminerFactory = state.get("neuralNetwork.fitnessDeterminerFactory");
-        fitnessBuckets = loadFitnessBuckets(state.get("neuralNetwork.fitnessBuckets"), eventLoop);
+    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop, final NeatEnvironment neatEnvironmentOverride) {
+        genomeActivatorPool = loadGenomeActivatorPool(stateGroup.get("neuralNetwork.genomeActivatorPool"), eventLoop);
+        neatEnvironment = loadNeatEnvironment(stateGroup.get("neuralNetwork.neatEnvironment"), neatEnvironmentOverride);
+        fitnessDeterminerFactory = stateGroup.get("neuralNetwork.fitnessDeterminerFactory");
+        fitnessBuckets = DefaultContext.loadMap(stateGroup.get("neuralNetwork.fitnessBuckets"), eventLoop);
         standardNeatEnvironment = new StandardNeatEnvironment(neatEnvironment, fitnessDeterminerFactory, fitnessBuckets);
     }
 }

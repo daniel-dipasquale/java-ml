@@ -1,22 +1,31 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.common.serialization.SerializableStateGroup;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextGeneralSupport implements Context.GeneralSupport {
     private DefaultContextGeneralParameters params;
+
+    public static DefaultContextGeneralSupport create(final int populationSize) {
+        DefaultContextGeneralParameters params = DefaultContextGeneralParameters.builder()
+                .populationSize(populationSize)
+                .build();
+
+        return new DefaultContextGeneralSupport(params);
+    }
 
     @Override
     public Context.GeneralParams params() {
         return params;
     }
 
-    public void save(final SerializableStateGroup state) {
-        state.put("general.params", params);
+    public void save(final SerializableStateGroup stateGroup) {
+        stateGroup.put("general.params", params);
     }
 
-    public void load(final SerializableStateGroup state) {
-        params = state.get("general.params");
+    public void load(final SerializableStateGroup stateGroup) {
+        params = stateGroup.get("general.params");
     }
 }

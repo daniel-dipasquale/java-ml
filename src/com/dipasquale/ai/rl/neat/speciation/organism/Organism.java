@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat.speciation.organism;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
@@ -28,8 +29,12 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return speciationSupport.calculateCompatibility(genome, species.getRepresentative().genome);
     }
 
-    public int getComplexity() {
-        return genome.getComplexity();
+    public int getHiddenNodes() {
+        return genome.getNodes().size(NodeGeneType.HIDDEN);
+    }
+
+    public int getConnections() {
+        return genome.getConnections().getExpressed().size();
     }
 
     public GenomeActivator getGenomeActivator(final Context.ActivationSupport activationSupport) {

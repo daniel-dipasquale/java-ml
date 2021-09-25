@@ -9,7 +9,7 @@ import java.io.ObjectOutputStream;
 public interface OrganismActivator {
     void initialize(Organism organism, Context.ActivationSupport activationSupport);
 
-    int getComplexity();
+    int getConnections();
 
     float getFitness();
 

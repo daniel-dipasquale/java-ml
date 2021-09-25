@@ -1,6 +1,6 @@
 package com.dipasquale.synchronization.dual.mode.data.structure.set;
 
-import com.dipasquale.common.factory.SetFactory;
+import com.dipasquale.common.factory.data.structure.set.SetFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
 import lombok.AccessLevel;
@@ -228,8 +228,8 @@ public final class DualModeSet<T> implements Set<T>, DualModeObject, Serializabl
         @Serial
         private static final long serialVersionUID = 4399666040673908195L;
 
-        private SetFactoryProfile(boolean isOn, final SetFactory concurrentSetFactory, final SetFactory defaultSetFactory) {
-            super(isOn, concurrentSetFactory, defaultSetFactory);
+        private SetFactoryProfile(final boolean concurrent, final SetFactory concurrentSetFactory, final SetFactory defaultSetFactory) {
+            super(concurrent, concurrentSetFactory, defaultSetFactory);
         }
 
         private static SetFactoryProfile create(final boolean concurrent, final int numberOfThreads, final int initialCapacity) {

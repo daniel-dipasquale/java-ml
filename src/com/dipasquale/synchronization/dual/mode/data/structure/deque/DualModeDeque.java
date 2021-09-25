@@ -1,6 +1,6 @@
 package com.dipasquale.synchronization.dual.mode.data.structure.deque;
 
-import com.dipasquale.common.factory.DequeFactory;
+import com.dipasquale.common.factory.data.structure.deque.DequeFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
 import lombok.AccessLevel;
@@ -31,7 +31,7 @@ public final class DualModeDeque<T> implements Deque<T>, DualModeObject, Seriali
     private transient Deque<T> deque;
 
     private DualModeDeque(final DequeFactoryProfile setFactoryProfile) {
-        this(setFactoryProfile, setFactoryProfile.getObject().create(null));
+        this(setFactoryProfile, setFactoryProfile.getObject().create());
     }
 
     public DualModeDeque(final boolean concurrent, final DequeFactory concurrentDequeFactory, final DequeFactory defaultDequeFactory) {
@@ -299,8 +299,8 @@ public final class DualModeDeque<T> implements Deque<T>, DualModeObject, Seriali
         @Serial
         private static final long serialVersionUID = 4399666040673908195L;
 
-        private DequeFactoryProfile(boolean isOn, final DequeFactory concurrentDequeFactory, final DequeFactory defaultDequeFactory) {
-            super(isOn, concurrentDequeFactory, defaultDequeFactory);
+        private DequeFactoryProfile(final boolean concurrent, final DequeFactory concurrentDequeFactory, final DequeFactory defaultDequeFactory) {
+            super(concurrent, concurrentDequeFactory, defaultDequeFactory);
         }
 
         private static DequeFactoryProfile create(final boolean concurrent) {

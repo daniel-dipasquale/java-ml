@@ -21,10 +21,6 @@ public final class Genome implements Serializable {
     private final NodeGeneGroup nodes = new NodeGeneGroup();
     private final ConnectionGeneGroup connections = new ConnectionGeneGroup();
 
-    public int getComplexity() {
-        return connections.getExpressed().size();
-    }
-
     private boolean mutateWeights(final Context context) {
         boolean mutated = false;
 

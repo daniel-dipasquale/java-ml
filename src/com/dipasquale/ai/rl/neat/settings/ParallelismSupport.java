@@ -15,11 +15,11 @@ public final class ParallelismSupport {
     @Builder.Default
     private final IterableEventLoop eventLoop = null;
 
-    boolean isEnabled() {
+    public boolean isEnabled() {
         return eventLoop != null;
     }
 
-    int getNumberOfThreads() {
+    public int getNumberOfThreads() {
         if (eventLoop == null) {
             return 1;
         }

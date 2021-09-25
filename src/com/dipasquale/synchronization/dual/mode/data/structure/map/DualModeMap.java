@@ -1,10 +1,8 @@
 package com.dipasquale.synchronization.dual.mode.data.structure.map;
 
-import com.dipasquale.common.factory.MapFactory;
+import com.dipasquale.common.factory.data.structure.map.MapFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import com.dipasquale.synchronization.dual.profile.factory.data.structure.map.MapFactoryProfile;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -15,7 +13,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -44,7 +41,7 @@ public final class DualModeMap<TKey, TValue> implements Map<TKey, TValue>, DualM
     }
 
     public DualModeMap(final boolean concurrent, final int numberOfThreads, final int initialCapacity, final Map<TKey, TValue> map) {
-        this(MapFactoryProfile.create(concurrent, numberOfThreads, initialCapacity), map);
+        this(MapFactoryProfile.createHash(concurrent, numberOfThreads, initialCapacity), map);
     }
 
     public DualModeMap(final boolean concurrent, final int numberOfThreads, final int initialCapacity) {
@@ -207,53 +204,5 @@ public final class DualModeMap<TKey, TValue> implements Map<TKey, TValue>, DualM
             throws IOException {
         objectOutputStream.defaultWriteObject();
         objectOutputStream.writeObject(new HashMap<>(map));
-    }
-
-    private static <TKey, TValue> Map<TKey, TValue> createDefaultMap(final boolean parallel, final int numberOfThreads, final int initialCapacity, final Map<TKey, TValue> other) {
-        if (parallel) {
-            Map<TKey, TValue> map = new ConcurrentHashMap<>(initialCapacity, 0.75f, numberOfThreads);
-
-            if (other != null) {
-                map.putAll(other);
-            }
-
-            return map;
-        }
-
-        if (other == null) {
-            return new HashMap<>(initialCapacity);
-        }
-
-        return new HashMap<>(other);
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ProxyMapFactory implements MapFactory, Serializable {
-        @Serial
-        private static final long serialVersionUID = -1923514341105634059L;
-        private final boolean concurrent;
-        private final int numberOfThreads;
-        private final int initialCapacity;
-
-        @Override
-        public <TKey, TValue> Map<TKey, TValue> create(final Map<TKey, TValue> other) {
-            return createDefaultMap(concurrent, numberOfThreads, initialCapacity, other);
-        }
-    }
-
-    private static final class MapFactoryProfile extends AbstractObjectProfile<MapFactory> implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 4399666040673908195L;
-
-        private MapFactoryProfile(boolean isOn, final MapFactory concurrentMapFactory, final MapFactory defaultMapFactory) {
-            super(isOn, concurrentMapFactory, defaultMapFactory);
-        }
-
-        private static MapFactoryProfile create(final boolean concurrent, final int numberOfThreads, final int initialCapacity) {
-            ProxyMapFactory concurrentMapFactory = new ProxyMapFactory(true, numberOfThreads, initialCapacity);
-            ProxyMapFactory defaultMapFactory = new ProxyMapFactory(false, numberOfThreads, initialCapacity);
-
-            return new MapFactoryProfile(concurrent, concurrentMapFactory, defaultMapFactory);
-        }
     }
 }

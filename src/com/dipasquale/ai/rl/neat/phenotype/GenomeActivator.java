@@ -5,7 +5,9 @@ public interface GenomeActivator {
 
     int getGeneration();
 
-    int getComplexity();
+    int getHiddenNodes();
+
+    int getConnections();
 
     float[] activate(float[] input);
 }

@@ -11,7 +11,7 @@ public interface NeatTrainer {
 
     int getSpeciesCount();
 
-    int getCurrentComplexity();
+    int getCurrentConnections();
 
     float getMaximumFitness();
 

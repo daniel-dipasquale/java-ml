@@ -1,6 +1,9 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.common.serialization.SerializableStateGroup;
+import com.dipasquale.synchronization.dual.mode.DualModeObject;
+import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
+import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
@@ -18,6 +21,7 @@ public final class DefaultContext implements Context {
     private final DefaultContextMutationSupport mutationSupport;
     private final DefaultContextCrossOverSupport crossOverSupport;
     private final DefaultContextSpeciationSupport speciationSupport;
+    private final DefaultContextMetricSupport metricSupport;
 
     @Override
     public GeneralSupport general() {
@@ -65,6 +69,21 @@ public final class DefaultContext implements Context {
     }
 
     @Override
+    public MetricSupport metrics() {
+        return metricSupport;
+    }
+
+    public static <TKey, TValue> DualModeMap<TKey, TValue> loadMap(final DualModeMap<TKey, TValue> map, final IterableEventLoop eventLoop) {
+        DualModeMap<TKey, TValue> mapFixed = DualModeObject.switchMode(map, eventLoop != null);
+
+        if (eventLoop == null) {
+            return new DualModeMap<>(false, 1, mapFixed);
+        }
+
+        return new DualModeMap<>(true, eventLoop.getConcurrencyLevel(), mapFixed);
+    }
+
+    @Override
     public void save(final ObjectOutputStream outputStream)
             throws IOException {
         SerializableStateGroup state = new SerializableStateGroup();
@@ -77,6 +96,7 @@ public final class DefaultContext implements Context {
         mutationSupport.save(state);
         crossOverSupport.save(state);
         speciationSupport.save(state);
+        metricSupport.save(state);
         state.writeTo(outputStream);
     }
 
@@ -95,5 +115,6 @@ public final class DefaultContext implements Context {
         mutationSupport.load(state, override.eventLoop());
         crossOverSupport.load(state, override.eventLoop());
         speciationSupport.load(state, override.eventLoop());
+        metricSupport.load(state, override.eventLoop());
     }
 }

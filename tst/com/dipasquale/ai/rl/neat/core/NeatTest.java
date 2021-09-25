@@ -103,7 +103,7 @@ public final class NeatTest {
         System.out.printf("=========================================%n");
         System.out.printf("generation: %d%n", trainer.getGeneration());
         System.out.printf("species: %d%n", trainer.getSpeciesCount());
-        System.out.printf("complexity: %d%n", trainer.getCurrentComplexity());
+        System.out.printf("complexity: %d%n", trainer.getCurrentConnections());
         System.out.printf("fitness: %f%n", trainer.getMaximumFitness());
         Assertions.assertTrue(success);
         Assertions.assertEquals(populationSize, GENOME_IDS.size());

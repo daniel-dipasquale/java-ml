@@ -8,6 +8,8 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneIdDependencyTracker;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
 import com.dipasquale.common.factory.ObjectFactory;
+import com.dipasquale.common.serialization.SerializableStateGroup;
+import com.dipasquale.common.serialization.SerializableSupport;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
 import lombok.AccessLevel;
@@ -37,7 +39,7 @@ public final class DualModeHistoricalMarkings implements DualModeObject, Seriali
     }
 
     private DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads, final Map<DirectedEdge, InnovationId> innovationIds, final Map<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackers) {
-        this(new DualModeSequentialIdFactory(concurrent, "innovation-id"), new DualModeMap<>(concurrent, numberOfThreads, innovationIds), new NodeIdDependencyTrackerFactory(concurrent, numberOfThreads), new DualModeMap<>(concurrent, numberOfThreads, nodeIdDependencyTrackers));
+        this(new DualModeSequentialIdFactory(concurrent, "innovation-id"), new DualModeMap<>(concurrent, numberOfThreads, innovationIds), new NodeIdDependencyTrackerFactory(concurrent, numberOfThreads), createNodeIdDependencyTrackers(concurrent, numberOfThreads, nodeIdDependencyTrackers));
     }
 
     public DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads, final DualModeHistoricalMarkings historicalMarkings) {
@@ -46,6 +48,28 @@ public final class DualModeHistoricalMarkings implements DualModeObject, Seriali
 
     public DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads) {
         this(concurrent, numberOfThreads, null, null);
+    }
+
+    private static DualModeMap<SequentialId, DualModeNodeIdDependencyTracker> createNodeIdDependencyTrackers(final boolean concurrent, final int numberOfThreads, final Map<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackers) {
+        if (nodeIdDependencyTrackers == null) {
+            return new DualModeMap<>(concurrent, numberOfThreads, null);
+        }
+
+        SerializableStateGroup stateGroup = new SerializableStateGroup();
+
+        stateGroup.put("nodeIdDependencyTrackers", nodeIdDependencyTrackers);
+
+        try {
+            byte[] stateGroupBytes = SerializableSupport.serializeStateGroup(stateGroup);
+            SerializableStateGroup clonedStateGroup = SerializableSupport.deserializeStateGroup(stateGroupBytes);
+            Map<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackersFixed = clonedStateGroup.get("nodeIdDependencyTrackers");
+
+            nodeIdDependencyTrackersFixed.values().forEach(niddt -> niddt.switchMode(concurrent));
+
+            return new DualModeMap<>(concurrent, numberOfThreads, nodeIdDependencyTrackersFixed);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("unable to clone the nodeIdDependencyTrackers", e);
+        }
     }
 
     private static HistoricalMarkings createHistoricalMarkings(final DualModeSequentialIdFactory innovationIdFactory, final DualModeMap<DirectedEdge, InnovationId> innovationIds, final NodeIdDependencyTrackerFactory nodeIdDependencyTrackerFactory, final DualModeMap<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackers) {
@@ -78,6 +102,7 @@ public final class DualModeHistoricalMarkings implements DualModeObject, Seriali
         innovationIds.switchMode(concurrent);
         nodeIdDependencyTrackerFactory.switchMode(concurrent);
         nodeIdDependencyTrackers.switchMode(concurrent);
+        nodeIdDependencyTrackers.values().forEach(niddt -> niddt.switchMode(concurrent));
         historicalMarkings = createHistoricalMarkings(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, nodeIdDependencyTrackers);
     }
 

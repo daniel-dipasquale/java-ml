@@ -33,9 +33,9 @@ public final class Species implements Serializable {
     private List<Organism> organisms;
     private List<Organism> organismsReadOnly;
     private boolean isOrganismsSorted;
+    @EqualsAndHashCode.Include
     private final PopulationState populationState;
     @Getter
-    @EqualsAndHashCode.Include
     private float sharedFitness;
     private float maximumSharedFitness;
     private final int createdOnGeneration;
@@ -87,7 +87,7 @@ public final class Species implements Serializable {
         if (Float.compare(sharedFitnessFixed, maximumSharedFitness) > 0) {
             maximumSharedFitness = sharedFitnessFixed;
             improvedAtAge = getAge();
-        } // TODO: provide adjustFitness algorithm
+        } // TODO: confirm if this version of the shared fitness matches the description of how the adjusted fitness should be working
 
         return sharedFitness;
     }

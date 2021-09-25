@@ -1,5 +1,6 @@
 package com.dipasquale.common;
 
+import com.dipasquale.common.serialization.SerializableSupport;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 
@@ -99,8 +100,8 @@ public final class CyclicIntegerCounterTestHarness {
             Assertions.assertEquals(2, test1.current(2));
 
             try {
-                byte[] test1Bytes = SerializableSupport.serialize((Serializable) test1);
-                IntegerCounter test2 = SerializableSupport.deserialize(test1Bytes);
+                byte[] test1Bytes = SerializableSupport.serializeObject((Serializable) test1);
+                IntegerCounter test2 = SerializableSupport.deserializeObject(test1Bytes);
 
                 Assertions.assertNotSame(test1, test2);
 

@@ -135,7 +135,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
                 shutdown.set(false);
                 executorService.submit(this::handleNextEvent);
             } else {
-                whileNoEventAvailableCondition.signalAll();
+                whileNoEventAvailableCondition.signal();
             }
 
             untilEmptyWaitHandle.countUp();
@@ -193,7 +193,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
             try {
                 eventRecords.clear();
                 untilEmptyWaitHandle.countDown();
-                whileNoEventAvailableCondition.signalAll();
+                whileNoEventAvailableCondition.signal();
             } finally {
                 singleLock.unlock();
                 allLock.unlock();

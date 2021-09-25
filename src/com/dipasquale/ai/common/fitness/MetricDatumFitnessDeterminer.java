@@ -11,7 +11,7 @@ import java.io.Serializable;
 final class MetricDatumFitnessDeterminer implements FitnessDeterminer, Serializable {
     @Serial
     private static final long serialVersionUID = -5316290173390134390L;
-    private final MetricDatum metricDatum = new LazyMetricDatum(); // TODO: improve this if possible
+    private final MetricDatum metricDatum = new LazyMetricDatum();
     private final MetricDatumSelector metricDatumSelector;
 
     @Override
