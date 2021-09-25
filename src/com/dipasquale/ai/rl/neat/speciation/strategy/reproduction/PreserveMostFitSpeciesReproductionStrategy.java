@@ -19,7 +19,7 @@ public final class PreserveMostFitSpeciesReproductionStrategy implements Species
     public void reproduce(final SpeciesReproductionContext context) {
         Context.SpeciationSupport speciationSupport = context.getParent().speciation();
 
-        for (Species species : context.getRankedSpecies()) {
+        for (Species species : context.getSpeciesState().getAll()) {
             List<Organism> organisms = species.getFittestOrganisms(speciationSupport, INCLUDE_REPRESENTATIVE_ORGANISM);
 
             context.getOrganismsWithoutSpecies().addAll(organisms);

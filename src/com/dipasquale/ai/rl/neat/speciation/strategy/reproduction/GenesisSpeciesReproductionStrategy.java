@@ -23,7 +23,7 @@ public final class GenesisSpeciesReproductionStrategy implements SpeciesReproduc
     public void reproduce(final SpeciesReproductionContext context) {
         Context.RandomSupport randomSupport = context.getParent().random();
 
-        for (Species species : context.getRankedSpecies()) {
+        for (Species species : context.getSpeciesState().getAll()) {
             List<Organism> organismsToKill = species.restart(randomSupport, context.getOrganismsWithoutSpecies());
 
             organismsToKill.forEach(otk -> killOrganism(otk, context.getParent()));

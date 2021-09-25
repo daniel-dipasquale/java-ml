@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 @NoArgsConstructor
-public final class LazyPercentileMetricDatum implements MetricDatum, Serializable {
+public final class LazyMetricDatum implements MetricDatum, Serializable {
     @Serial
     private static final long serialVersionUID = 6618085287572626284L;
     private final List<Float> values = new ArrayList<>();

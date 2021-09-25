@@ -17,7 +17,6 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.PreserveMostFi
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionPromoterSpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSpeciesSelectionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SharedFitnessAccumulatorSpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
@@ -115,7 +114,6 @@ public final class SpeciationSupport {
     private static ObjectProfile<SpeciesSelectionStrategyExecutor> createEvolutionStrategyProfile(final ParallelismSupport parallelismSupport) {
         List<SpeciesSelectionStrategy> strategies = ImmutableList.<SpeciesSelectionStrategy>builder()
                 .add(new LeastFitRemoverSpeciesSelectionStrategy())
-                .add(new SharedFitnessAccumulatorSpeciesSelectionStrategy())
                 .add(new ChampionPromoterSpeciesSelectionStrategy())
                 .build();
 

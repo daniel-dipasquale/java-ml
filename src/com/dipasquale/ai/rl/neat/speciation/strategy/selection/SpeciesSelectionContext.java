@@ -12,11 +12,6 @@ import lombok.Setter;
 public final class SpeciesSelectionContext {
     private final Context parent;
     private final OrganismActivator championOrganismActivator;
-    private float totalSharedFitness = 0f;
     @Setter
     private Organism championOrganism = null;
-
-    public void addTotalSharedFitness(final float delta) {
-        totalSharedFitness += delta;
-    }
 }

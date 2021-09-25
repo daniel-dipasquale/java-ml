@@ -6,6 +6,7 @@ import com.dipasquale.ai.rl.neat.speciation.organism.OrganismActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessContext;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesState;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionOrganismMissingException;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionContext;
 import com.dipasquale.common.serialization.SerializableStateGroup;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -113,13 +115,30 @@ public final class Population {
         context.speciation().getFitnessStrategy().update(new SpeciesFitnessContext(context, speciesNodes));
     }
 
-    private void reproduceThroughAllSpecies(final SpeciesSelectionContext selectionContext) {
-        List<Species> rankedSpecies = speciesNodes.stream()
+    private SpeciesState createSpeciesState(final Context.SpeciationSupport speciationSupport) {
+        float[] totalSharedFitness = new float[]{0f};
+        List<Species> all = new ArrayList<>();
+
+        List<Species> ranked = speciesNodes.stream()
                 .map(speciesNodes::getValue)
+                .peek(all::add)
+                .peek(s -> totalSharedFitness[0] += s.getSharedFitness())
+                .filter(s -> !s.isStagnant(speciationSupport))
                 .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 
-        SpeciesReproductionContext reproductionContext = new SpeciesReproductionContext(selectionContext, rankedSpecies, organismsWithoutSpecies, organismsToBirth);
+        if (!ranked.isEmpty()) {
+            return new SpeciesState(all, ranked, totalSharedFitness[0]);
+        }
+
+        throw new PopulationExtinctionException("not enough organisms are allowed to reproduce the next generation");
+    }
+
+    private void reproduceThroughAllSpecies(final SpeciesSelectionContext selectionContext) {
+        Context context = selectionContext.getParent();
+        Context.SpeciationSupport speciationSupport = context.speciation();
+        SpeciesState speciesState = createSpeciesState(speciationSupport);
+        SpeciesReproductionContext reproductionContext = new SpeciesReproductionContext(context, speciesState, organismsWithoutSpecies, organismsToBirth);
 
         selectionContext.getParent().speciation().getReproductionStrategy().reproduce(reproductionContext);
     }

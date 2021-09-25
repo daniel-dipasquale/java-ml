@@ -18,7 +18,7 @@ public final class SpeciesSelectionStrategyExecutor implements Serializable {
     public void select(final SpeciesSelectionContext context, final NodeDeque<Species, SimpleNode<Species>> speciesNodes) {
         for (SimpleNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
             Species species = speciesNodes.getValue(speciesNode);
-            boolean survives = species.shouldSurvive(context.getParent().speciation());
+            boolean survives = species.shouldSurvive();
 
             for (SpeciesSelectionStrategy strategy : strategies) {
                 if (survives) {

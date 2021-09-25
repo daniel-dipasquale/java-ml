@@ -187,8 +187,12 @@ public final class Species implements Serializable {
         return ensureOrganismsIsSorted().subList(size - select, size);
     }
 
-    public boolean shouldSurvive(final Context.SpeciationSupport speciationSupport) {
-        return organisms.size() > 1 && getAge() - improvedAtAge < speciationSupport.params().stagnationDropOffAge();
+    public boolean isStagnant(final Context.SpeciationSupport speciationSupport) {
+        return getAge() - improvedAtAge >= speciationSupport.params().stagnationDropOffAge();
+    }
+
+    public boolean shouldSurvive() {
+        return organisms.size() > 1;
     }
 
     public List<Organism> restart(final Context.RandomSupport randomSupport, final DequeSet<Organism> organismsTaken) {

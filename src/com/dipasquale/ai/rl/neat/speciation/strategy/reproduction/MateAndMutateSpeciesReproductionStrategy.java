@@ -27,10 +27,10 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
 
     private void reproduceInterSpecies(final SpeciesReproductionContext context) {
         int populationSize = context.getParent().general().params().populationSize();
-        List<Species> rankedSpecies = context.getRankedSpecies();
-        int speciesCount = rankedSpecies.size();
+        List<Species> rankedSpecies = context.getSpeciesState().getRanked();
 
-        if (speciesCount >= 2) {
+        if (rankedSpecies.size() >= 2) {
+            int speciesCount = context.getSpeciesState().getAll().size();
             DequeSet<Organism> organismsWithoutSpecies = context.getOrganismsWithoutSpecies();
             Queue<OrganismFactory> organismsToBirth = context.getOrganismsToBirth();
             float organismsNeeded = (float) (populationSize - speciesCount - organismsWithoutSpecies.size() - organismsToBirth.size());
@@ -53,8 +53,8 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
 
     private void reproduceIntraSpecies(final SpeciesReproductionContext context) {
         int populationSize = context.getParent().general().params().populationSize();
-        List<Species> rankedSpecies = context.getRankedSpecies();
-        int speciesCount = rankedSpecies.size();
+        List<Species> rankedSpecies = context.getSpeciesState().getRanked();
+        int speciesCount = context.getSpeciesState().getAll().size();
         DequeSet<Organism> organismsWithoutSpecies = context.getOrganismsWithoutSpecies();
         Queue<OrganismFactory> organismsToBirth = context.getOrganismsToBirth();
         float organismsNeeded = (float) (populationSize - speciesCount - organismsWithoutSpecies.size() - organismsToBirth.size());
@@ -62,7 +62,7 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
         float organismsReproduced = 0f;
 
         for (Species species : rankedSpecies) {
-            float reproductionFloat = organismsNeeded * species.getSharedFitness() / context.getTotalSharedFitness();
+            float reproductionFloat = organismsNeeded * species.getSharedFitness() / context.getSpeciesState().getTotalSharedFitness();
 
             organismsReproducedPrevious = organismsReproduced;
             organismsReproduced += reproductionFloat;
