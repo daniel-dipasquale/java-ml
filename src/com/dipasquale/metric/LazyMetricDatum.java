@@ -15,8 +15,6 @@ public final class LazyMetricDatum implements MetricDatum, Serializable {
     private final List<Float> values;
     private final List<Float> valuesReadOnly;
     @Getter
-    private float lastValue;
-    @Getter
     private float sum;
     @Getter
     private float minimum;
@@ -29,7 +27,6 @@ public final class LazyMetricDatum implements MetricDatum, Serializable {
         this.valuesSorted = true;
         this.values = values;
         this.valuesReadOnly = Collections.unmodifiableList(values);
-        this.lastValue = 0f;
         this.sum = 0f;
         this.minimum = 0f;
         this.maximum = 0f;
@@ -55,7 +52,6 @@ public final class LazyMetricDatum implements MetricDatum, Serializable {
 
         valuesSorted = false;
         values.add(value);
-        lastValue = value;
         sum += value;
 
         if (size == 0) {
@@ -75,12 +71,6 @@ public final class LazyMetricDatum implements MetricDatum, Serializable {
         merged.values.addAll(values);
         merged.values.addAll(other.getValues());
 
-        if (other.getValues().isEmpty()) {
-            merged.lastValue = lastValue;
-        } else {
-            merged.lastValue = other.getLastValue();
-        }
-
         merged.sum = sum;
         merged.sum += other.getSum();
 
@@ -99,7 +89,6 @@ public final class LazyMetricDatum implements MetricDatum, Serializable {
     public void clear() {
         valuesSorted = true;
         values.clear();
-        lastValue = 0f;
         sum = 0f;
         minimum = 0f;
         maximum = 0f;
