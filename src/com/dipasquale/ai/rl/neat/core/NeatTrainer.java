@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,7 @@ public interface NeatTrainer {
 
     float getMaximumFitness();
 
-    Map<Integer, IterationMetricData> getMetrics();
+    Map<Integer, IterationMetrics> getMetrics();
 
     boolean train(NeatTrainingPolicy trainingPolicy);
 

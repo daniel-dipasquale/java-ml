@@ -65,11 +65,6 @@ public final class Population {
         return organismsWithoutSpecies.size() + organismsToBirth.size() + countOrganismsInAllSpecies();
     }
 
-    public void initialize(final Context context, final OrganismActivator championOrganismActivator) {
-        fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-        championOrganismActivator.initialize(organismsWithoutSpecies.getFirst(), context.activation());
-    }
-
     public int getSpeciesCount() {
         return speciesNodes.size();
     }
@@ -84,6 +79,14 @@ public final class Population {
         speciesNodes.add(speciesNode);
 
         return speciesNode;
+    }
+
+    private void addCompositionMetrics(final Context.MetricSupport metricSupport) {
+        Iterable<Species> allSpecies = speciesNodes.stream()
+                .map(speciesNodes::getValue)
+                ::iterator;
+
+        metricSupport.addCompositions(allSpecies);
     }
 
     private void assignOrganismsToSpecies(final Context context) {
@@ -109,14 +112,18 @@ public final class Population {
 
         organismsWithoutSpecies.clear();
         organismsToBirth.clear();
+        addCompositionMetrics(context.metrics());
+    }
+
+    public void initialize(final Context context, final OrganismActivator championOrganismActivator) {
+        fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
+        championOrganismActivator.initialize(organismsWithoutSpecies.getFirst().createClone(context.connections()), organismsWithoutSpecies.getFirst().getGenomeActivator(context.activation()));
+        assignOrganismsToSpecies(context);
     }
 
     public void updateFitness(final Context context) {
-        if (!organismsWithoutSpecies.isEmpty() || !organismsToBirth.isEmpty()) {
-            assignOrganismsToSpecies(context);
-        }
-
         context.speciation().getFitnessStrategy().update(new SpeciesFitnessContext(context, speciesNodes));
+        context.metrics().prepareNextFitnessCalculation();
     }
 
     private SpeciesState createSpeciesState(final Context.SpeciationSupport speciationSupport) {
@@ -165,9 +172,16 @@ public final class Population {
 
         reproduceThroughAllSpecies(selectionContext);
         populationState.increaseGeneration();
+        context.metrics().prepareNextGeneration();
 
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert context.speciation().getDisposedGenomeIdCount() == organismsToBirth.size();
+
+        assignOrganismsToSpecies(context);
+
+        assert context.general().params().populationSize() == countOrganismsEverywhere();
+        assert organismsWithoutSpecies.isEmpty();
+        assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
     }
 
     public void restart(final Context context, final OrganismActivator championOrganismActivator) {
@@ -179,28 +193,30 @@ public final class Population {
         organismsToBirth.clear();
         context.speciation().clearSpeciesIds();
         speciesNodes.clear();
+        context.metrics().prepareNextIteration();
+        championOrganismActivator.reset();
         initialize(context, championOrganismActivator);
     }
 
     public void save(final ObjectOutputStream outputStream)
             throws IOException {
-        SerializableStateGroup state = new SerializableStateGroup();
+        SerializableStateGroup stateGroup = new SerializableStateGroup();
 
-        state.put("population.populationState", populationState);
-        state.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
-        state.put("population.organismsToBirth", organismsToBirth);
-        state.put("population.speciesNodes", speciesNodes);
-        state.writeTo(outputStream);
+        stateGroup.put("population.populationState", populationState);
+        stateGroup.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
+        stateGroup.put("population.organismsToBirth", organismsToBirth);
+        stateGroup.put("population.speciesNodes", speciesNodes);
+        stateGroup.writeTo(outputStream);
     }
 
     public void load(final ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException {
-        SerializableStateGroup state = new SerializableStateGroup();
+        SerializableStateGroup stateGroup = new SerializableStateGroup();
 
-        state.readFrom(inputStream);
-        populationState = state.get("population.populationState");
-        organismsWithoutSpecies = state.get("population.organismsWithoutSpecies");
-        organismsToBirth = state.get("population.organismsToBirth");
-        speciesNodes = state.get("population.speciesNodes");
+        stateGroup.readFrom(inputStream);
+        populationState = stateGroup.get("population.populationState");
+        organismsWithoutSpecies = stateGroup.get("population.organismsWithoutSpecies");
+        organismsToBirth = stateGroup.get("population.organismsToBirth");
+        speciesNodes = stateGroup.get("population.speciesNodes");
     }
 }

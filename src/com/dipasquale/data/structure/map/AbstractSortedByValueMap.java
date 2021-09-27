@@ -270,8 +270,8 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
         private IteratorFactory<TKey, TValue> underlying = null;
 
         @Override
-        public Iterator<Entry<TKey, TValue>> iterator() {
-            return underlying.iterator();
+        public Iterator<Entry<TKey, TValue>> createIterator() {
+            return underlying.createIterator();
         }
     }
 }

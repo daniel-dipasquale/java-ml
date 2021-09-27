@@ -41,10 +41,14 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return activationSupport.getOrCreateGenomeActivator(genome, populationState);
     }
 
-    public float updateFitness(final Context.ActivationSupport activationSupport) {
+    public float updateFitness(final Species species, final Context context) { // TODO: should I let an exception bubble up from here, if the fitness functions fail
+        Context.ActivationSupport activationSupport = context.activation();
         GenomeActivator genomeActivator = getGenomeActivator(activationSupport);
 
-        return fitness = activationSupport.calculateFitness(genomeActivator);
+        fitness = activationSupport.calculateFitness(genomeActivator);
+        context.metrics().addFitness(species, this);
+
+        return fitness;
     }
 
     @Override
@@ -75,15 +79,18 @@ public final class Organism implements Comparable<Organism>, Serializable {
     }
 
     public Organism createCopy(final Context context) {
-        Genome copiedGenome = genome.createCopy(context);
+        Genome genomeCopied = genome.createCopy(context);
 
-        return new Organism(copiedGenome, populationState);
+        return new Organism(genomeCopied, populationState);
     }
 
     public Organism createClone(final Context.ConnectionGeneSupport connectionGeneSupport) {
-        Genome clonedGenome = genome.createClone(connectionGeneSupport);
+        Genome genomeCloned = genome.createClone(connectionGeneSupport);
+        Organism organismCloned = new Organism(genomeCloned, populationState);
 
-        return new Organism(clonedGenome, populationState);
+        organismCloned.fitness = fitness;
+
+        return organismCloned;
     }
 
     public void kill(final Context.SpeciationSupport speciationSupport) {

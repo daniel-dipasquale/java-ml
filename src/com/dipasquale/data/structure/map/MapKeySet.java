@@ -48,7 +48,7 @@ class MapKeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TK
 
     @Override
     public final Iterator<TKey> iterator() {
-        return IteratorFactory.stream(iteratorFactory)
+        return iteratorFactory.createStream()
                 .map(Map.Entry::getKey)
                 .iterator();
     }

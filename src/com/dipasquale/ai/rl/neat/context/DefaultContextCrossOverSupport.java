@@ -23,7 +23,7 @@ public final class DefaultContextCrossOverSupport implements Context.CrossOverSu
     }
 
     private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<RandomSupport> randomSupportPair, final FloatNumber maximumNumber) {
-        float max = maximumNumber.createFactoryProfile(parallelismSupport).getObject().create();
+        float max = maximumNumber.getSingletonValue(parallelismSupport);
 
         return createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, max);
     }

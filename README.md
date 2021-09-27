@@ -7,27 +7,47 @@ algorithms I'm interested in learning and using:
 
 - [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf) (it has issues still)
     - [x] outstanding issues:
-        - restarting is buggy, the genome ids aren't reused properly
-        - fix adjusted fitness for organisms after evaluation
-        - consider handling a full species extinction by restarting the whole process again with a genesis genome
+        - persistence/restore is buggy
         - among others ...
     - [x] XOR test :+1: (random data sample)
 
          ```
-         generation: 19
-         species: 16
-         complexity: 8
-         fitness: 3.507003
+         iteration: 1
+         generation: 30
+         species: 52
+         hidden nodes: 1
+         connections: 5
+         fitness: 3.642800
          ```
+
+      - [species](https://fv9-3.failiem.lv/thumb_show.php?i=gk9jzfdmm&view)
+      - [species topology hidden nodes](https://fv9-3.failiem.lv/thumb_show.php?i=cucy5us62&view)
+      - [species topology connections](https://fv9-3.failiem.lv/thumb_show.php?i=djqmx9d7d&view)
+      - [species shared fitness](https://fv9-3.failiem.lv/thumb_show.php?i=whebt8w6c&view)
+      - [organisms fitness](https://fv9-3.failiem.lv/thumb_show.php?i=2n7psbczx&view)
+      - [species age](https://fv9-3.failiem.lv/thumb_show.php?i=pbnagwwbq&view)
+      - [species stagnation period](https://fv9-3.failiem.lv/thumb_show.php?i=gzr6ndbac&view)
+      - [species stagnant](https://fv9-3.failiem.lv/thumb_show.php?i=8hnqznqwj&view)
 
     - [x] Single Pole Balancing test: :+1: (random data sample)
 
          ```
-         generation: 77
-         species: 26
-         complexity: 12
+         iteration: 1
+         generation: 64
+         species: 40
+         hidden nodes: 2
+         connections: 8
          fitness: 60.009998
          ```
+
+        - [species](https://fv9-3.failiem.lv/thumb_show.php?i=fqqb9ur73&view)
+        - [species topology hidden nodes](https://fv9-3.failiem.lv/thumb_show.php?i=3wyequ9ma&view)
+        - [species topology connections](https://fv9-3.failiem.lv/thumb_show.php?i=ns2vbc4dg&view)
+        - [species shared fitness](https://fv9-3.failiem.lv/thumb_show.php?i=ghcnmezz4&view)
+        - [organisms fitness](https://fv9-3.failiem.lv/thumb_show.php?i=27dszf8vx&view)
+        - [species age](https://fv9-3.failiem.lv/thumb_show.php?i=zrefv4jhd&view)
+        - [species stagnation period](https://fv9-3.failiem.lv/thumb_show.php?i=4j5sxxxs7&view)
+        - [species stagnant](https://fv9-3.failiem.lv/thumb_show.php?i=fdg5s2dyd&view)
 
       ![Single Pole Balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
 
@@ -70,7 +90,7 @@ algorithms I'm interested in learning and using:
 
                                 return (float) inputs.length - error;
                         })
-                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
+                        .fitnessDeterminerFactory(new LastValueFitnessDeterminerFactory())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -92,6 +112,7 @@ algorithms I'm interested in learning and using:
                         .build())
                 .random(RandomSupport.builder()
                         .type(RandomType.UNIFORM)
+                        .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))
                         .addConnectionRate(FloatNumber.literal(0.06f))
@@ -116,6 +137,9 @@ algorithms I'm interested in learning and using:
                         .interSpeciesMatingRate(FloatNumber.literal(0.001f))
                         .mateOnlyRate(FloatNumber.literal(0.2f))
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
+                        .build())
+                .metrics(MetricSupport.builder()
+                        .type(EnumSet.of(MetricCollectionType.ENABLED))
                         .build())
                 .build());
    ```
@@ -148,7 +172,7 @@ algorithms I'm interested in learning and using:
 
                                 return (float) cartPole.getTimeSpent();
                         })
-                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createMinimum())
+                        .fitnessDeterminerFactory(new MinimumFitnessDeterminerFactory())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -170,6 +194,7 @@ algorithms I'm interested in learning and using:
                         .build())
                 .random(RandomSupport.builder()
                         .type(RandomType.UNIFORM)
+                        .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.06f))
                         .addConnectionRate(FloatNumber.literal(0.12f))
@@ -194,6 +219,9 @@ algorithms I'm interested in learning and using:
                         .interSpeciesMatingRate(FloatNumber.literal(0.001f))
                         .mateOnlyRate(FloatNumber.literal(0.4f))
                         .mutateOnlyRate(FloatNumber.literal(0.5f))
+                        .build())
+                .metrics(MetricSupport.builder()
+                        .type(EnumSet.noneOf(MetricCollectionType.class))
                         .build())
                 .build());
    ```

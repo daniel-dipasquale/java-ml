@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EnumValue<T extends Enum<T>> {
     private final ObjectProfileFactoryCreator<T> factoryCreator;
+    private T singletonValue = null;
 
     public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
         ObjectProfileFactoryCreator<T> factoryCreator = ps -> new DefaultObjectProfile<>(ps.isEnabled(), new LiteralEnumFactory<>(value));
@@ -35,6 +36,16 @@ public final class EnumValue<T extends Enum<T>> {
 
     public ObjectProfile<EnumFactory<T>> createFactoryProfile(final ParallelismSupport parallelismSupport) {
         return factoryCreator.create(parallelismSupport);
+    }
+
+    public T getSingletonValue(final ParallelismSupport parallelismSupport) {
+        if (singletonValue == null) {
+            ObjectProfile<EnumFactory<T>> factoryProfile = factoryCreator.create(parallelismSupport);
+
+            singletonValue = factoryProfile.getObject().create();
+        }
+
+        return singletonValue;
     }
 
     @FunctionalInterface

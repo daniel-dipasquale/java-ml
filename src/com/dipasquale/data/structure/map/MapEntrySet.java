@@ -72,7 +72,7 @@ final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey,
                 .map(e -> (Map.Entry<TKey, TValue>) e)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = IteratorFactory.stream(iteratorFactory)
+        List<Map.Entry<TKey, TValue>> entriesToRemove = iteratorFactory.createStream()
                 .filter(e -> !entriesToRetain.containsKey(e.getKey()) || !Objects.equals(entriesToRetain.get(e.getKey()), e.getValue()))
                 .collect(Collectors.toList());
 
@@ -88,6 +88,6 @@ final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey,
 
     @Override
     public Iterator<Map.Entry<TKey, TValue>> iterator() {
-        return iteratorFactory.iterator();
+        return iteratorFactory.createIterator();
     }
 }

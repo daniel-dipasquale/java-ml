@@ -1,8 +1,10 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -14,15 +16,19 @@ public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnes
     @Serial
     private static final long serialVersionUID = 5632936446515400703L;
 
+    private static void updateFitness(final OrganismClassification organismClassification, final Context context) {
+        organismClassification.organism.updateFitness(organismClassification.species, context);
+    }
+
     @Override
     public void update(final SpeciesFitnessContext context) {
-        Iterator<Organism> organisms = context.getSpeciesNodes().stream()
+        Iterator<OrganismClassification> organisms = context.getSpeciesNodes().stream()
                 .map(context.getSpeciesNodes()::getValue)
-                .flatMap(s -> s.getOrganisms().stream())
+                .flatMap(s -> s.getOrganisms().stream()
+                        .map(o -> new OrganismClassification(o, s)))
                 .iterator();
 
-        Context.ActivationSupport activationSupport = context.getParent().activation();
-        WaitHandle waitHandle = context.getParent().parallelism().forEach(organisms, o -> o.updateFitness(activationSupport));
+        WaitHandle waitHandle = context.getParent().parallelism().forEach(organisms, oc -> updateFitness(oc, context.getParent()));
 
         try {
             waitHandle.await();
@@ -31,5 +37,11 @@ public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnes
 
             throw new RuntimeException("thread was interrupted while updating the organisms fitness", e);
         }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class OrganismClassification {
+        private final Organism organism;
+        private final Species species;
     }
 }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class LazyValuesMetricDatum implements MetricDatum, Serializable {
+final class LazyValuesMetricDatum implements MetricDatum, Serializable {
     @Serial
     private static final long serialVersionUID = 6618085287572626284L;
     private boolean valuesSorted;
@@ -21,7 +21,7 @@ public final class LazyValuesMetricDatum implements MetricDatum, Serializable {
     @Getter
     private float maximum;
 
-    public LazyValuesMetricDatum() {
+    LazyValuesMetricDatum() {
         List<Float> values = new ArrayList<>();
 
         this.valuesSorted = true;
@@ -64,23 +64,28 @@ public final class LazyValuesMetricDatum implements MetricDatum, Serializable {
     }
 
     @Override
-    public MetricDatum merge(final MetricDatum other) {
-        LazyValuesMetricDatum merged = new LazyValuesMetricDatum();
+    public void merge(final MetricDatum other) {
+        valuesSorted = false;
+        values.addAll(other.getValues());
+        sum += other.getSum();
 
-        merged.valuesSorted = false;
-        merged.values.addAll(values);
-        merged.values.addAll(other.getValues());
-        merged.sum = sum + other.getSum();
-
-        if (other.getValues().isEmpty()) {
-            merged.minimum = minimum;
-            merged.maximum = maximum;
-        } else {
-            merged.minimum = Math.min(minimum, other.getMinimum());
-            merged.maximum = Math.max(maximum, other.getMaximum());
+        if (!other.getValues().isEmpty()) {
+            minimum = Math.min(minimum, other.getMinimum());
+            maximum = Math.max(maximum, other.getMaximum());
         }
+    }
 
-        return merged;
+    @Override
+    public MetricDatum createCopy() {
+        LazyValuesMetricDatum copy = new LazyValuesMetricDatum();
+
+        copy.valuesSorted = valuesSorted;
+        copy.values.addAll(values);
+        copy.sum = sum;
+        copy.minimum = minimum;
+        copy.maximum = maximum;
+
+        return copy;
     }
 
     @Override

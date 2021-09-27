@@ -11,23 +11,25 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Getter
-public final class FitnessMetricData implements Serializable {
+public final class FitnessMetrics implements Serializable {
     @Serial
     private static final long serialVersionUID = -1176164112821983540L;
     private final Map<String, MetricDatum> organisms;
-    private final MetricDatum species;
+    private final MetricDatum all;
+    private final MetricDatum shared;
 
-    public FitnessMetricData createCopy() {
+    public FitnessMetrics createCopy() {
         Map<String, MetricDatum> organismsCopied = organisms.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().createCopy()));
 
-        MetricDatum speciesCopied = species.createCopy();
+        MetricDatum allCopied = all.createCopy();
+        MetricDatum sharedCopied = shared.createCopy();
 
-        return new FitnessMetricData(organismsCopied, speciesCopied);
+        return new FitnessMetrics(organismsCopied, allCopied, sharedCopied);
     }
 
     public void clear() {
         organisms.clear();
-        species.clear();
+        all.clear();
     }
 }

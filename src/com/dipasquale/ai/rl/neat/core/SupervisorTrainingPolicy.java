@@ -4,33 +4,32 @@ import lombok.Builder;
 
 public final class SupervisorTrainingPolicy implements NeatTrainingPolicy {
     private final int maximumGeneration;
-    private int restartCount;
+    private int iterationStoppedAt;
     private final int maximumRestartCount;
 
     @Builder
     public SupervisorTrainingPolicy(final int maximumGeneration, final int maximumRestartCount) {
         this.maximumGeneration = maximumGeneration;
-        this.restartCount = 0;
+        this.iterationStoppedAt = 0;
         this.maximumRestartCount = maximumRestartCount;
     }
 
     @Override
     public NeatTrainingResult test(final NeatActivator activator) {
-        if (activator.getGeneration() < maximumGeneration) {
-            return NeatTrainingResult.CONTINUE_TRAINING;
+        if (activator.getIteration() - iterationStoppedAt - 1 > maximumRestartCount) {
+            iterationStoppedAt = activator.getIteration();
+
+            return NeatTrainingResult.STOP_TRAINING;
         }
 
-        if (restartCount < maximumRestartCount) {
-            restartCount++;
-
+        if (activator.getGeneration() >= maximumGeneration) {
             return NeatTrainingResult.RESTART;
         }
 
-        return NeatTrainingResult.STOP_TRAINING;
+        return NeatTrainingResult.CONTINUE_TRAINING;
     }
 
     @Override
     public void reset() {
-        restartCount = 0;
     }
 }

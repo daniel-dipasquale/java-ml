@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
@@ -57,7 +57,7 @@ final class XorTaskSetup implements TaskSetup {
         return (float) INPUTS.length - error;
     }
 
-    private static NeatTrainingResult determineTrainingResult(final NeatActivator activator) {
+    private static boolean determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
 
         for (int i = 0; success && i < INPUTS.length; i++) {
@@ -67,11 +67,7 @@ final class XorTaskSetup implements TaskSetup {
             success = comparison == 0;
         }
 
-        if (success) {
-            return NeatTrainingResult.WORKING_SOLUTION_FOUND;
-        }
-
-        return NeatTrainingResult.CONTINUE_TRAINING;
+        return success;
     }
 
     @Override
@@ -96,7 +92,7 @@ final class XorTaskSetup implements TaskSetup {
 
                             return calculateFitness(g);
                         })
-                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createLastValue())
+                        .fitnessDeterminerFactory(new LastValueFitnessDeterminerFactory())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -154,10 +150,10 @@ final class XorTaskSetup implements TaskSetup {
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
                 .add(SupervisorTrainingPolicy.builder()
-                        .maximumGeneration(250)
-                        .maximumRestartCount(0)
+                        .maximumGeneration(300)
+                        .maximumRestartCount(1)
                         .build())
-                .add(new StateLessTrainingPolicy(XorTaskSetup::determineTrainingResult))
+                .add(new DelegatedTrainingPolicy(XorTaskSetup::determineTrainingResult))
                 .add(new ContinuousTrainingPolicy())
                 .build();
     }

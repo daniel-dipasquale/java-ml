@@ -14,23 +14,28 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-@Getter
-public final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
     @Serial
     private static final long serialVersionUID = 1380744331140358748L;
+    @Getter
     private final List<Float> values = new EmptyList(this);
-    private float sum = 0f;
     private int count = 0;
+    @Getter
+    private float sum = 0f;
+    @Getter
     private float average = 0f;
+    @Getter
     private float minimum = 0f;
+    @Getter
     private float maximum = 0f;
 
     @Override
     public void add(final float value) {
         int size = count;
 
-        sum += value;
         count++;
+        sum += value;
         average = sum / (float) count;
 
         if (size == 0) {
@@ -43,28 +48,34 @@ public final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
     }
 
     @Override
-    public MetricDatum merge(final MetricDatum other) {
-        EmptyValuesMetricDatum merged = new EmptyValuesMetricDatum();
+    public void merge(final MetricDatum other) {
+        count += other.getValues().size();
+        sum += other.getSum();
+        average = sum / (float) count;
 
-        merged.sum = sum + other.getSum();
-        merged.count = count + other.getValues().size();
-        merged.average = merged.sum / merged.count;
-
-        if (other.getValues().isEmpty()) {
-            merged.minimum = minimum;
-            merged.maximum = maximum;
-        } else {
-            merged.minimum = Math.min(minimum, other.getMinimum());
-            merged.maximum = Math.max(maximum, other.getMaximum());
+        if (!other.getValues().isEmpty()) {
+            minimum = Math.min(minimum, other.getMinimum());
+            maximum = Math.max(maximum, other.getMaximum());
         }
+    }
 
-        return merged;
+    @Override
+    public MetricDatum createCopy() {
+        EmptyValuesMetricDatum copy = new EmptyValuesMetricDatum();
+
+        copy.count = count;
+        copy.sum = sum;
+        copy.average = average;
+        copy.minimum = minimum;
+        copy.maximum = maximum;
+
+        return copy;
     }
 
     @Override
     public void clear() {
-        sum = 0f;
         count = 0;
+        sum = 0f;
         average = 0f;
         minimum = 0f;
         maximum = 0f;

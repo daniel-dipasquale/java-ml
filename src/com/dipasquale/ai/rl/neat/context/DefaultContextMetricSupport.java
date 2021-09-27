@@ -5,21 +5,20 @@ import com.dipasquale.ai.rl.neat.settings.MetricSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
-import com.dipasquale.ai.rl.neat.speciation.metric.ConfigurableMetricDataCollector;
-import com.dipasquale.ai.rl.neat.speciation.metric.GenerationMetricData;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
-import com.dipasquale.ai.rl.neat.speciation.metric.MetricDataCollector;
-import com.dipasquale.ai.rl.neat.speciation.metric.MetricDataCollectorFactory;
-import com.dipasquale.ai.rl.neat.speciation.metric.NoopMetricDataCollector;
+import com.dipasquale.ai.rl.neat.speciation.metric.ConfigurableMetricsCollector;
+import com.dipasquale.ai.rl.neat.speciation.metric.GenerationMetrics;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
+import com.dipasquale.ai.rl.neat.speciation.metric.MetricsCollector;
+import com.dipasquale.ai.rl.neat.speciation.metric.MetricsCollectorFactory;
+import com.dipasquale.ai.rl.neat.speciation.metric.NoopMetricsCollector;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.metric.DualModeMetricDataCollector;
-import com.dipasquale.common.factory.ObjectFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.metric.DualModeMetricsCollector;
 import com.dipasquale.common.factory.data.structure.map.MapFactory;
 import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.data.structure.map.TandemMap;
-import com.dipasquale.metric.EmptyValuesMetricDatum;
-import com.dipasquale.metric.LazyValuesMetricDatum;
-import com.dipasquale.metric.MetricDatum;
+import com.dipasquale.metric.EmptyValuesMetricDatumFactory;
+import com.dipasquale.metric.LazyValuesMetricDatumFactory;
+import com.dipasquale.metric.MetricDatumFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeIntegerCounter;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
@@ -36,68 +35,71 @@ import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextMetricSupport implements Context.MetricSupport {
-    private DualModeMetricDataCollector metricsCollector;
+    private DualModeMetricsCollector metricsCollector;
     private int stagnationDropOffAge;
     private DualModeIntegerCounter iteration;
     private DualModeIntegerCounter generation;
-    private DualModeMap<Integer, IterationMetricData> iterationsMetrics;
+    private DualModeMap<Integer, IterationMetrics> iterationsMetrics;
 
-    private static ObjectFactory<MetricDatum> createMetricDatumFactory(final EnumSet<MetricCollectionType> type) {
+    private static MetricDatumFactory createMetricDatumFactory(final EnumSet<MetricCollectionType> type) {
         if (type.contains(MetricCollectionType.SKIP_NORMAL_DISTRIBUTION_METRICS)) {
-            return (ObjectFactory<MetricDatum> & Serializable) EmptyValuesMetricDatum::new;
+            return new EmptyValuesMetricDatumFactory();
         }
 
-        return (ObjectFactory<MetricDatum> & Serializable) LazyValuesMetricDatum::new;
+        return new LazyValuesMetricDatumFactory();
     }
 
-    private static DualModeMetricDataCollector createMetricsCollector(final ParallelismSupport parallelismSupport, final EnumSet<MetricCollectionType> type) {
+    private static DualModeMetricsCollector createMetricsCollector(final ParallelismSupport parallelismSupport, final EnumSet<MetricCollectionType> type) {
         ObjectProfile<MapFactory> mapFactoryProfile = MapFactoryProfile.createHash(parallelismSupport.isEnabled(), parallelismSupport.getNumberOfThreads());
 
         if (!type.contains(MetricCollectionType.ENABLED)) {
-            MetricDataCollector metricsCollector = new NoopMetricDataCollector();
-            MetricDataCollectorFactory metricsCollectorFactory = (MetricDataCollectorFactory & Serializable) (mf, gm, fm, im) -> metricsCollector;
+            MetricsCollector metricsCollector = new NoopMetricsCollector();
+            MetricsCollectorFactory metricsCollectorFactory = (MetricsCollectorFactory & Serializable) (mf, gm, fm, im) -> metricsCollector;
 
-            return new DualModeMetricDataCollector(parallelismSupport.isEnabled(), mapFactoryProfile, metricsCollectorFactory, metricsCollector);
+            return new DualModeMetricsCollector(parallelismSupport.isEnabled(), mapFactoryProfile, metricsCollectorFactory, metricsCollector);
         }
 
-        ObjectFactory<MetricDatum> metricDatumFactory = createMetricDatumFactory(type);
+        MetricDatumFactory metricDatumFactory = createMetricDatumFactory(type);
         boolean clearFitnessOnAdd = type.contains(MetricCollectionType.ONLY_KEEP_LAST_FITNESS_EVALUATION);
         boolean clearGenerationsOnAdd = type.contains(MetricCollectionType.ONLY_KEEP_LAST_GENERATION);
         boolean clearIterationsOnAdd = type.contains(MetricCollectionType.ONLY_KEEP_LAST_ITERATION);
-        MetricDataCollectorFactory metricsCollectorFactory = (MetricDataCollectorFactory & Serializable) (mf, gm, fm, im) -> new ConfigurableMetricDataCollector(mf, metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd, gm, fm, im);
-        MetricDataCollector metricsCollector = new ConfigurableMetricDataCollector(mapFactoryProfile.getObject(), metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd);
+        MetricsCollectorFactory metricsCollectorFactory = (MetricsCollectorFactory & Serializable) (mf, gm, fm, im) -> new ConfigurableMetricsCollector(mf, metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd, gm, fm, im);
+        MetricsCollector metricsCollector = new ConfigurableMetricsCollector(mapFactoryProfile.getObject(), metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd);
 
-        return new DualModeMetricDataCollector(parallelismSupport.isEnabled(), mapFactoryProfile, metricsCollectorFactory, metricsCollector);
+        return new DualModeMetricsCollector(parallelismSupport.isEnabled(), mapFactoryProfile, metricsCollectorFactory, metricsCollector);
     }
 
     public static DefaultContextMetricSupport create(final ParallelismSupport parallelismSupport, final MetricSupport metricSupport, final SpeciationSupport speciationSupport) {
-        DualModeMetricDataCollector metricsCollector = createMetricsCollector(parallelismSupport, metricSupport.getType());
-        int stagnationDropOffAge = speciationSupport.getStagnationDropOffAge().getSingleton(parallelismSupport);
+        DualModeMetricsCollector metricsCollector = createMetricsCollector(parallelismSupport, metricSupport.getType());
+        int stagnationDropOffAge = speciationSupport.getStagnationDropOffAge().getSingletonValue(parallelismSupport);
         DualModeIntegerCounter generation = new DualModeIntegerCounter(parallelismSupport.isEnabled(), 1);
         DualModeIntegerCounter iteration = new DualModeIntegerCounter(parallelismSupport.isEnabled(), 1);
-        DualModeMap<Integer, IterationMetricData> metrics = new DualModeMap<>(parallelismSupport.isEnabled(), parallelismSupport.getNumberOfThreads());
+        DualModeMap<Integer, IterationMetrics> metrics = new DualModeMap<>(parallelismSupport.isEnabled(), parallelismSupport.getNumberOfThreads());
 
         return new DefaultContextMetricSupport(metricsCollector, stagnationDropOffAge, generation, iteration, metrics);
     }
 
     @Override
-    public void addTopology(final Species species, final Organism organism) {
-        metricsCollector.addOrganismTopology(species.getId(), organism.getHiddenNodes(), organism.getConnections());
+    public void addCompositions(final Iterable<Species> allSpecies) {
+        for (Species species : allSpecies) {
+            metricsCollector.collectSpeciesComposition(species.getAge(), species.getStagnationPeriod(), species.isStagnant(stagnationDropOffAge));
+
+            for (Organism organism : species.getOrganisms()) {
+                metricsCollector.collectOrganismTopology(species.getId(), organism.getHiddenNodes(), organism.getConnections());
+            }
+        }
+
+        metricsCollector.flushSpeciesComposition();
     }
 
     @Override
     public void addFitness(final Species species, final Organism organism) {
-        metricsCollector.addOrganismFitness(species.getId(), organism.getFitness());
-    }
-
-    @Override
-    public void addAttributes(final Species species) {
-        metricsCollector.addSpeciesAttributes(species.getAge(), species.getStagnationPeriod(), species.isStagnant(stagnationDropOffAge));
+        metricsCollector.collectOrganismFitness(species.getId(), organism.getFitness());
     }
 
     @Override
     public void addSharedFitness(final Species species) {
-        metricsCollector.addSpeciesFitness(species.getSharedFitness());
+        metricsCollector.collectSpeciesFitness(species.getSharedFitness());
     }
 
     @Override
@@ -125,18 +127,18 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
         return map;
     }
 
-    private IterationMetricData mergeIterationsMetrics() {
-        Map<Integer, GenerationMetricData> currentGenerations = createMap(generation.current(), metricsCollector.getCurrentGeneration());
-        Map<Integer, GenerationMetricData> previousGenerations = metricsCollector.getCurrentIteration().getGenerations();
-        Map<Integer, GenerationMetricData> generations = new TandemMap<>(currentGenerations, previousGenerations);
+    private IterationMetrics mergeIterationsMetrics() {
+        Map<Integer, GenerationMetrics> currentGenerations = createMap(generation.current(), metricsCollector.getGenerationMetrics());
+        Map<Integer, GenerationMetrics> previousGenerations = metricsCollector.getIterationMetrics().getGenerations();
+        Map<Integer, GenerationMetrics> generations = new TandemMap<>(currentGenerations, previousGenerations);
 
-        return new IterationMetricData(generations, metricsCollector.getCurrentIteration().getSpecies());
+        return new IterationMetrics(generations, metricsCollector.getIterationMetrics().getSpeciesCount());
     }
 
     @Override
-    public Map<Integer, IterationMetricData> getMetrics() {
-        Map<Integer, IterationMetricData> currentIterations = createMap(iteration.current(), mergeIterationsMetrics());
-        Map<Integer, IterationMetricData> previousIterations = iterationsMetrics;
+    public Map<Integer, IterationMetrics> getMetrics() {
+        Map<Integer, IterationMetrics> currentIterations = createMap(iteration.current(), mergeIterationsMetrics());
+        Map<Integer, IterationMetrics> previousIterations = iterationsMetrics;
 
         return new TandemMap<>(currentIterations, previousIterations);
     }
@@ -149,15 +151,15 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
         stateGroup.put("metrics.iterationsMetrics", iterationsMetrics);
     }
 
-    private static DualModeMetricDataCollector loadMetricsCollector(final DualModeMetricDataCollector metricsCollector, final IterableEventLoop eventLoop) {
+    private static DualModeMetricsCollector loadMetricsCollector(final DualModeMetricsCollector metricsCollector, final IterableEventLoop eventLoop) {
         if (eventLoop == null) {
-            return new DualModeMetricDataCollector(false, MapFactoryProfile.createHash(false, 1), metricsCollector);
+            return new DualModeMetricsCollector(false, MapFactoryProfile.createHash(false, 1), metricsCollector);
         }
 
-        return new DualModeMetricDataCollector(true, MapFactoryProfile.createHash(true, eventLoop.getConcurrencyLevel()), metricsCollector);
+        return new DualModeMetricsCollector(true, MapFactoryProfile.createHash(true, eventLoop.getConcurrencyLevel()), metricsCollector);
     }
 
-    private static DualModeMap<Integer, IterationMetricData> loadAllMetrics(final DualModeMap<Integer, IterationMetricData> allMetrics, final DualModeMetricDataCollector metricsCollector, final IterableEventLoop eventLoop) {
+    private static DualModeMap<Integer, IterationMetrics> loadAllMetrics(final DualModeMap<Integer, IterationMetrics> allMetrics, final DualModeMetricsCollector metricsCollector, final IterableEventLoop eventLoop) {
         if (eventLoop == null) {
             return metricsCollector.ensureMode(allMetrics, 1);
         }

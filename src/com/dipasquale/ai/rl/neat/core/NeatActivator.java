@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 
 import java.util.Map;
 
@@ -11,11 +11,13 @@ public interface NeatActivator {
 
     int getSpeciesCount();
 
-    int getConnections();
+    int getCurrentHiddenNodes();
 
-    float getFitness();
+    int getCurrentConnections();
 
-    Map<Integer, IterationMetricData> getMetrics();
+    float getMaximumFitness();
+
+    Map<Integer, IterationMetrics> getMetrics();
 
     float[] activate(float[] inputs);
 }

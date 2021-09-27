@@ -2,7 +2,8 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
+import com.dipasquale.ai.rl.neat.speciation.core.PopulationExtinctionException;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +62,7 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
     }
 
     @Override
-    public Map<Integer, IterationMetricData> getMetrics() {
+    public Map<Integer, IterationMetrics> getMetrics() {
         return evaluator.getMetrics();
     }
 
@@ -77,7 +78,11 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
                         break;
 
                     case EVOLVE:
-                        evaluator.evolve();
+                        try {
+                            evaluator.evolve();
+                        } catch (PopulationExtinctionException e) {
+                            evaluator.restart();
+                        }
 
                         break;
 

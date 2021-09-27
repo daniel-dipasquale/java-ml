@@ -17,7 +17,7 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MateAndMutateS
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MultiSpeciesReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.PreserveMostFitSpeciesReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionPromoterSpeciesSelectionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionPromoterSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
@@ -79,8 +79,8 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     }
 
     private static DefaultReproductionTypeFactoryProfile createRandomReproductionTypeGeneratorProfile(final ParallelismSupport parallelismSupport, final FloatNumber mateOnlyRate, final FloatNumber mutateOnlyRate, final Pair<RandomSupport> randomSupportPair) {
-        float _mateOnlyRate = mateOnlyRate.createFactoryProfile(parallelismSupport).getObject().create();
-        float _mutateOnlyRate = mutateOnlyRate.createFactoryProfile(parallelismSupport).getObject().create();
+        float _mateOnlyRate = mateOnlyRate.getSingletonValue(parallelismSupport);
+        float _mutateOnlyRate = mutateOnlyRate.getSingletonValue(parallelismSupport);
         OutputClassifier<ReproductionType> reproductionTypeClassifier = createReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
         OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier = createLessThan2ReproductionTypeClassifier(_mutateOnlyRate);
 
@@ -88,21 +88,21 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     }
 
     private static ObjectProfile<SpeciesFitnessStrategy> createFitnessStrategyProfile(final ParallelismSupport parallelismSupport) {
-        List<SpeciesFitnessStrategy> strategies = ImmutableList.<SpeciesFitnessStrategy>builder()
+        List<SpeciesFitnessStrategy> concurrentStrategies = ImmutableList.<SpeciesFitnessStrategy>builder()
                 .add(new ParallelUpdateSpeciesFitnessStrategy())
                 .add(new UpdateSharedSpeciesFitnessStrategy())
                 .build();
 
-        SpeciesFitnessStrategy onStrategy = new MultiSpeciesFitnessStrategy(strategies);
-        SpeciesFitnessStrategy offStrategy = new UpdateAllFitnessSpeciesFitnessStrategy();
+        SpeciesFitnessStrategy concurrentStrategy = new MultiSpeciesFitnessStrategy(concurrentStrategies);
+        SpeciesFitnessStrategy defaultStrategy = new UpdateAllFitnessSpeciesFitnessStrategy();
 
-        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), onStrategy, offStrategy);
+        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), concurrentStrategy, defaultStrategy);
     }
 
     private static ObjectProfile<SpeciesSelectionStrategyExecutor> createEvolutionStrategyProfile(final ParallelismSupport parallelismSupport) {
         List<SpeciesSelectionStrategy> strategies = ImmutableList.<SpeciesSelectionStrategy>builder()
                 .add(new LeastFitRemoverSpeciesSelectionStrategy())
-                .add(new ChampionPromoterSpeciesSelectionStrategy())
+                .add(new ChampionPromoterSelectionStrategy())
                 .build();
 
         return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), new SpeciesSelectionStrategyExecutor(strategies));
@@ -122,18 +122,18 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
 
     public static DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final ObjectProfile<RandomSupport> randomSupportProfile, final SpeciationSupport speciationSupport) {
         DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
-                .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingleton(parallelismSupport))
-                .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingleton(parallelismSupport))
-                .eugenicsThreshold(speciationSupport.getEugenicsThreshold().getSingleton(parallelismSupport))
-                .elitistThreshold(speciationSupport.getElitistThreshold().getSingleton(parallelismSupport))
-                .elitistThresholdMinimum(speciationSupport.getElitistThresholdMinimum().getSingleton(parallelismSupport))
-                .stagnationDropOffAge(speciationSupport.getStagnationDropOffAge().getSingleton(parallelismSupport))
-                .interSpeciesMatingRate(speciationSupport.getInterSpeciesMatingRate().getSingleton(parallelismSupport))
+                .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingletonValue(parallelismSupport))
+                .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingletonValue(parallelismSupport))
+                .eugenicsThreshold(speciationSupport.getEugenicsThreshold().getSingletonValue(parallelismSupport))
+                .elitistThreshold(speciationSupport.getElitistThreshold().getSingletonValue(parallelismSupport))
+                .elitistThresholdMinimum(speciationSupport.getElitistThresholdMinimum().getSingletonValue(parallelismSupport))
+                .stagnationDropOffAge(speciationSupport.getStagnationDropOffAge().getSingletonValue(parallelismSupport))
+                .interSpeciesMatingRate(speciationSupport.getInterSpeciesMatingRate().getSingletonValue(parallelismSupport))
                 .build();
 
-        float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingleton(parallelismSupport);
-        float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingleton(parallelismSupport);
-        float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingleton(parallelismSupport);
+        float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingletonValue(parallelismSupport);
+        float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingletonValue(parallelismSupport);
+        float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingletonValue(parallelismSupport);
         DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelismSupport.isEnabled(), "species");
         DualModeGenomePool genomePool = new DualModeGenomePool(parallelismSupport.isEnabled());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);

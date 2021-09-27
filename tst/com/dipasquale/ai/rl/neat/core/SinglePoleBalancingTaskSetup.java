@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.MinimumFitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
@@ -16,6 +16,8 @@ import com.dipasquale.ai.rl.neat.settings.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.settings.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.settings.InitialWeightType;
 import com.dipasquale.ai.rl.neat.settings.IntegerNumber;
+import com.dipasquale.ai.rl.neat.settings.MetricCollectionType;
+import com.dipasquale.ai.rl.neat.settings.MetricSupport;
 import com.dipasquale.ai.rl.neat.settings.MutationSupport;
 import com.dipasquale.ai.rl.neat.settings.NeuralNetworkType;
 import com.dipasquale.ai.rl.neat.settings.NodeGeneSupport;
@@ -29,6 +31,7 @@ import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this test might not be working as expected
@@ -63,7 +66,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
         return (float) cartPole.getTimeSpent();
     }
 
-    private static NeatTrainingResult determineTrainingResult(final NeatActivator activator) {
+    private static boolean determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
         CyclicRandomSupport randomSupport = new CyclicRandomSupport(SUCCESSFUL_SCENARIOS * 4);
 
@@ -80,11 +83,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
             success = Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) >= 0;
         }
 
-        if (success) {
-            return NeatTrainingResult.WORKING_SOLUTION_FOUND;
-        }
-
-        return NeatTrainingResult.CONTINUE_TRAINING;
+        return success;
     }
 
     @Override
@@ -109,7 +108,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
                             return calculateFitness(g);
                         })
-                        .fitnessDeterminerFactory(FitnessDeterminerFactory.createMinimum())
+                        .fitnessDeterminerFactory(new MinimumFitnessDeterminerFactory())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -157,6 +156,9 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .mateOnlyRate(FloatNumber.literal(0.4f))
                         .mutateOnlyRate(FloatNumber.literal(0.5f))
                         .build())
+                .metrics(MetricSupport.builder()
+                        .type(EnumSet.of(MetricCollectionType.ENABLED))
+                        .build())
                 .build();
     }
 
@@ -164,10 +166,10 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
                 .add(SupervisorTrainingPolicy.builder()
-                        .maximumGeneration(300)
-                        .maximumRestartCount(0)
+                        .maximumGeneration(350)
+                        .maximumRestartCount(1)
                         .build())
-                .add(new StateLessTrainingPolicy(SinglePoleBalancingTaskSetup::determineTrainingResult))
+                .add(new DelegatedTrainingPolicy(SinglePoleBalancingTaskSetup::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
                         .fitnessTestCount(SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST)
                         .build())

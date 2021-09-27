@@ -33,8 +33,8 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     }
 
     private static DefaultReproductionTypeFactoryProfile createWeightMutationTypeFactoryProfile(final ParallelismSupport parallelismSupport, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate, final Pair<RandomSupport> randomSupportPair) {
-        float perturbRate = perturbWeightRate.getSingleton(parallelismSupport);
-        float replaceRate = replaceWeightRate.getSingleton(parallelismSupport);
+        float perturbRate = perturbWeightRate.getSingletonValue(parallelismSupport);
+        float replaceRate = replaceWeightRate.getSingletonValue(parallelismSupport);
         float totalRate = (float) Math.ceil(perturbRate + replaceRate);
         OutputClassifier<WeightMutationType> weightMutationTypeClassifier = new OutputClassifier<>();
 
@@ -49,7 +49,7 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     }
 
     private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<RandomSupport> randomSupportPair, final FloatNumber maximumNumber) {
-        float max = maximumNumber.getSingleton(parallelismSupport);
+        float max = maximumNumber.getSingletonValue(parallelismSupport);
 
         return createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, max);
     }

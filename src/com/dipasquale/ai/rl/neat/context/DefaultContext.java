@@ -86,35 +86,35 @@ public final class DefaultContext implements Context {
     @Override
     public void save(final ObjectOutputStream outputStream)
             throws IOException {
-        SerializableStateGroup state = new SerializableStateGroup();
+        SerializableStateGroup stateGroup = new SerializableStateGroup();
 
-        generalSupport.save(state);
-        nodeGeneSupport.save(state);
-        connectionGeneSupport.save(state);
-        activationSupport.save(state);
-        randomSupport.save(state);
-        mutationSupport.save(state);
-        crossOverSupport.save(state);
-        speciationSupport.save(state);
-        metricSupport.save(state);
-        state.writeTo(outputStream);
+        generalSupport.save(stateGroup);
+        nodeGeneSupport.save(stateGroup);
+        connectionGeneSupport.save(stateGroup);
+        activationSupport.save(stateGroup);
+        randomSupport.save(stateGroup);
+        mutationSupport.save(stateGroup);
+        crossOverSupport.save(stateGroup);
+        speciationSupport.save(stateGroup);
+        metricSupport.save(stateGroup);
+        stateGroup.writeTo(outputStream);
     }
 
     @Override
     public void load(final ObjectInputStream inputStream, final StateOverrideSupport override)
             throws IOException, ClassNotFoundException {
-        SerializableStateGroup state = new SerializableStateGroup();
+        SerializableStateGroup stateGroup = new SerializableStateGroup();
 
-        state.readFrom(inputStream);
-        generalSupport.load(state);
-        nodeGeneSupport.load(state, override.eventLoop());
-        connectionGeneSupport.load(state, override.eventLoop());
-        activationSupport.load(state, override.eventLoop(), override.fitnessFunction());
+        stateGroup.readFrom(inputStream);
+        generalSupport.load(stateGroup);
+        nodeGeneSupport.load(stateGroup, override.eventLoop());
+        connectionGeneSupport.load(stateGroup, override.eventLoop());
+        activationSupport.load(stateGroup, override.eventLoop(), override.fitnessFunction());
         parallelismSupport.load(override.eventLoop());
-        randomSupport.load(state, override.eventLoop());
-        mutationSupport.load(state, override.eventLoop());
-        crossOverSupport.load(state, override.eventLoop());
-        speciationSupport.load(state, override.eventLoop());
-        metricSupport.load(state, override.eventLoop());
+        randomSupport.load(stateGroup, override.eventLoop());
+        mutationSupport.load(stateGroup, override.eventLoop());
+        crossOverSupport.load(stateGroup, override.eventLoop());
+        speciationSupport.load(stateGroup, override.eventLoop());
+        metricSupport.load(stateGroup, override.eventLoop());
     }
 }

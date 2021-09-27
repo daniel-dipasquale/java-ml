@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IntegerNumber {
     private final ObjectProfileFactoryCreator factoryCreator;
-    private Integer singleton = null;
+    private Integer singletonValue = null;
 
     public static IntegerNumber literal(final int value) {
         ObjectProfileFactoryCreator factoryCreator = ps -> new DefaultObjectProfile<>(ps.isEnabled(), new LiteralIntegerFactory(value));
@@ -30,14 +30,14 @@ public final class IntegerNumber {
         return factoryCreator.create(parallelismSupport);
     }
 
-    public int getSingleton(final ParallelismSupport parallelismSupport) {
-        if (singleton == null) {
+    public int getSingletonValue(final ParallelismSupport parallelismSupport) {
+        if (singletonValue == null) {
             ObjectProfile<IntegerFactory> factoryProfile = factoryCreator.create(parallelismSupport);
 
-            singleton = factoryProfile.getObject().create();
+            singletonValue = factoryProfile.getObject().create();
         }
 
-        return singleton;
+        return singletonValue;
     }
 
     @FunctionalInterface

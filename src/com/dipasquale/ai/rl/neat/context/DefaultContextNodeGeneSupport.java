@@ -104,8 +104,8 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
                 .put(NodeGeneType.HIDDEN, createActivationFunctionFactoryProfile(parallelismSupport, hiddenActivationFunctionTypeFactoryProfile))
                 .build();
 
-        int inputs = genesisGenomeTemplate.getInputs().createFactoryProfile(parallelismSupport).getObject().create();
-        int outputs = genesisGenomeTemplate.getOutputs().createFactoryProfile(parallelismSupport).getObject().create();
+        int inputs = genesisGenomeTemplate.getInputs().getSingletonValue(parallelismSupport);
+        int outputs = genesisGenomeTemplate.getOutputs().getSingletonValue(parallelismSupport);
         int biases = genesisGenomeTemplate.getBiases().size();
 
         return new DefaultContextNodeGeneSupport(nodeIdFactory, biasFactoryProfiles, activationFunctionFactoryProfiles, inputs, outputs, biases);

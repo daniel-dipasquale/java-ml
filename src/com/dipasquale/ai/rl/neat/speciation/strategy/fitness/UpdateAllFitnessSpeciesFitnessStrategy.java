@@ -17,7 +17,7 @@ public final class UpdateAllFitnessSpeciesFitnessStrategy implements SpeciesFitn
         for (SimpleNode<Species> speciesNode : context.getSpeciesNodes()) {
             Species species = context.getSpeciesNodes().getValue(speciesNode);
 
-            species.updateAllFitness(context.getParent().activation());
+            species.updateAllFitness(context.getParent());
         }
     }
 }

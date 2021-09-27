@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FloatNumber {
     private final ObjectProfileFactoryCreator factoryCreator;
-    private Float singleton = null;
+    private Float singletonValue = null;
 
     public static FloatNumber literal(final float value) {
         ObjectProfileFactoryCreator factoryCreator = ps -> new DefaultObjectProfile<>(ps.isEnabled(), new LiteralFloatFactory(value));
@@ -30,14 +30,14 @@ public final class FloatNumber {
         return factoryCreator.create(parallelismSupport);
     }
 
-    public float getSingleton(final ParallelismSupport parallelismSupport) {
-        if (singleton == null) {
+    public float getSingletonValue(final ParallelismSupport parallelismSupport) {
+        if (singletonValue == null) {
             ObjectProfile<FloatFactory> factoryProfile = factoryCreator.create(parallelismSupport);
 
-            singleton = factoryProfile.getObject().create();
+            singletonValue = factoryProfile.getObject().create();
         }
 
-        return singleton;
+        return singletonValue;
     }
 
     @FunctionalInterface

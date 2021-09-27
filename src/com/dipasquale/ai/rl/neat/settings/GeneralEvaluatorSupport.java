@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.common.ArgumentValidatorSupport;
@@ -20,7 +21,7 @@ public final class GeneralEvaluatorSupport {
     @Builder.Default
     private final NeatEnvironment fitnessFunction = null;
     @Builder.Default
-    private final FitnessDeterminerFactory fitnessDeterminerFactory = FitnessDeterminerFactory.createLastValue();
+    private final FitnessDeterminerFactory fitnessDeterminerFactory = new LastValueFitnessDeterminerFactory();
 
     DefaultContextGeneralSupport create() {
         ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");

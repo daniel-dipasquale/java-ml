@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -26,17 +26,22 @@ final class NeatActivatorEvaluator implements NeatActivator {
     }
 
     @Override
-    public int getConnections() {
+    public int getCurrentHiddenNodes() {
+        return evaluator.getCurrentHiddenNodes();
+    }
+
+    @Override
+    public int getCurrentConnections() {
         return evaluator.getCurrentConnections();
     }
 
     @Override
-    public float getFitness() {
+    public float getMaximumFitness() {
         return evaluator.getMaximumFitness();
     }
 
     @Override
-    public Map<Integer, IterationMetricData> getMetrics() {
+    public Map<Integer, IterationMetrics> getMetrics() {
         return evaluator.getMetrics();
     }
 

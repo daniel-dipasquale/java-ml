@@ -30,8 +30,13 @@ final class ZeroMetricDatum implements MetricDatum, Serializable {
     }
 
     @Override
-    public MetricDatum merge(final MetricDatum other) {
+    public void merge(final MetricDatum other) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MetricDatum createCopy() {
+        return INSTANCE;
     }
 
     @Override

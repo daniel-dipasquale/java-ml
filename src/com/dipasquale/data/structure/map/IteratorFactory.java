@@ -10,10 +10,10 @@ import java.util.stream.StreamSupport;
 
 @FunctionalInterface
 interface IteratorFactory<TKey, TValue> extends Serializable {
-    Iterator<Map.Entry<TKey, TValue>> iterator();
+    Iterator<Map.Entry<TKey, TValue>> createIterator();
 
-    static <TKey, TValue> Stream<Map.Entry<TKey, TValue>> stream(final IteratorFactory<TKey, TValue> iteratorFactory) {
-        Spliterator<Map.Entry<TKey, TValue>> entries = Spliterators.spliteratorUnknownSize(iteratorFactory.iterator(), 0);
+    default Stream<Map.Entry<TKey, TValue>> createStream() {
+        Spliterator<Map.Entry<TKey, TValue>> entries = Spliterators.spliteratorUnknownSize(createIterator(), 0);
 
         return StreamSupport.stream(entries, false);
     }

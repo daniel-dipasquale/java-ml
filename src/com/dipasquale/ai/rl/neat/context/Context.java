@@ -11,7 +11,7 @@ import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
@@ -259,11 +259,9 @@ public interface Context {
     }
 
     interface MetricSupport {
-        void addTopology(Species species, Organism organism);
+        void addCompositions(Iterable<Species> allSpecies);
 
         void addFitness(Species species, Organism organism);
-
-        void addAttributes(Species species);
 
         void addSharedFitness(Species species);
 
@@ -273,7 +271,7 @@ public interface Context {
 
         void prepareNextIteration();
 
-        Map<Integer, IterationMetricData> getMetrics();
+        Map<Integer, IterationMetrics> getMetrics();
     }
 
     interface StateOverrideSupport {

@@ -32,7 +32,7 @@ public final class Species implements Serializable {
     @EqualsAndHashCode.Include
     private List<Organism> organisms;
     private List<Organism> organismsReadOnly;
-    private boolean isOrganismsSorted;
+    private boolean organismsSorted;
     @EqualsAndHashCode.Include
     private final PopulationState populationState;
     @Getter
@@ -44,8 +44,8 @@ public final class Species implements Serializable {
     public Species(final String id, final Organism representativeOrganism, final PopulationState populationState) {
         this.id = id;
         this.representativeOrganism = representativeOrganism;
-        setOrganisms(Lists.newArrayList(representativeOrganism));
-        this.isOrganismsSorted = true;
+        this.setOrganisms(Lists.newArrayList(representativeOrganism));
+        this.organismsSorted = true;
         this.populationState = populationState;
         this.sharedFitness = 0f;
         this.maximumSharedFitness = 0f;
@@ -68,7 +68,7 @@ public final class Species implements Serializable {
 
     public void add(final Organism organism) {
         organisms.add(organism);
-        isOrganismsSorted = false;
+        organismsSorted = false;
     }
 
     public int getAge() {
@@ -92,17 +92,23 @@ public final class Species implements Serializable {
         return sharedFitness;
     }
 
-    public float updateSharedFitnessOnly() {
-        return updateAllFitness(Organism::getFitness);
+    public float updateSharedFitnessOnly(final Context.MetricSupport metricSupport) {
+        updateAllFitness(Organism::getFitness);
+        metricSupport.addSharedFitness(this);
+
+        return sharedFitness;
     }
 
-    public float updateAllFitness(final Context.ActivationSupport activationSupport) {
-        return updateAllFitness(o -> o.updateFitness(activationSupport));
+    public float updateAllFitness(final Context context) {
+        updateAllFitness(o -> o.updateFitness(this, context));
+        context.metrics().addSharedFitness(this);
+
+        return sharedFitness;
     }
 
     private List<Organism> ensureOrganismsIsSorted() {
-        if (!isOrganismsSorted) {
-            isOrganismsSorted = true;
+        if (!organismsSorted) {
+            organismsSorted = true;
             Collections.sort(organisms);
         }
 
@@ -213,7 +219,7 @@ public final class Species implements Serializable {
 
         representativeOrganism = representativeOrganismFixed;
         setOrganisms(Lists.newArrayList(representativeOrganismFixed));
-        isOrganismsSorted = true;
+        organismsSorted = true;
         sharedFitness = 0f;
 
         return organismsFixed;

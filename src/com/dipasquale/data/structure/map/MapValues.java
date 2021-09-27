@@ -44,7 +44,7 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
 
     @Override
     public boolean remove(final Object value) {
-        Optional<TKey> keyToRemove = IteratorFactory.stream(iteratorFactory)
+        Optional<TKey> keyToRemove = iteratorFactory.createStream()
                 .filter(e -> Objects.equals(e.getValue(), value))
                 .map(Map.Entry::getKey)
                 .findFirst();
@@ -71,7 +71,7 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     public boolean removeAll(final Collection<?> values) {
         Set<?> valuesToRemove = ensureSet(values);
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = IteratorFactory.stream(iteratorFactory)
+        List<Map.Entry<TKey, TValue>> entriesToRemove = iteratorFactory.createStream()
                 .filter(e -> valuesToRemove.contains(e.getValue()))
                 .collect(Collectors.toList());
 
@@ -84,7 +84,7 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     public boolean retainAll(final Collection<?> values) {
         Set<?> valuesToRetain = ensureSet(values);
 
-        List<Map.Entry<TKey, TValue>> entriesToRemove = IteratorFactory.stream(iteratorFactory)
+        List<Map.Entry<TKey, TValue>> entriesToRemove = iteratorFactory.createStream()
                 .filter(e -> !valuesToRetain.contains(e.getValue()))
                 .collect(Collectors.toList());
 
@@ -100,7 +100,7 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
 
     @Override
     public Iterator<TValue> iterator() {
-        return IteratorFactory.stream(iteratorFactory)
+        return iteratorFactory.createStream()
                 .map(Map.Entry::getValue)
                 .iterator();
     }

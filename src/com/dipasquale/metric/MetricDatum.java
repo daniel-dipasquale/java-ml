@@ -38,11 +38,9 @@ public interface MetricDatum {
 
     void add(float value);
 
-    MetricDatum merge(MetricDatum other);
+    void merge(MetricDatum other);
 
-    default MetricDatum createCopy() {
-        return merge(ZeroMetricDatum.getInstance());
-    }
+    MetricDatum createCopy();
 
     void clear();
 }

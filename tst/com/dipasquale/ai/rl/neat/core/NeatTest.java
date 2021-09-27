@@ -101,9 +101,11 @@ public final class NeatTest {
         System.out.printf("=========================================%n");
         System.out.printf("%s (%s):%n", trainerSetup.name, trainerSetup.shouldTestParallelism ? "parallel" : "single");
         System.out.printf("=========================================%n");
+        System.out.printf("iteration: %d%n", trainer.getIteration());
         System.out.printf("generation: %d%n", trainer.getGeneration());
         System.out.printf("species: %d%n", trainer.getSpeciesCount());
-        System.out.printf("complexity: %d%n", trainer.getCurrentConnections());
+        System.out.printf("hidden nodes: %d%n", trainer.getCurrentHiddenNodes());
+        System.out.printf("connections: %d%n", trainer.getCurrentConnections());
         System.out.printf("fitness: %f%n", trainer.getMaximumFitness());
         Assertions.assertTrue(success);
         Assertions.assertEquals(populationSize, GENOME_IDS.size());
@@ -127,8 +129,11 @@ public final class NeatTest {
 
             NeatTrainer trainerCopy = createTrainer(bytes, overrideSettings);
 
+            Assertions.assertEquals(trainer.getIteration(), trainerCopy.getIteration());
             Assertions.assertEquals(trainer.getGeneration(), trainerCopy.getGeneration());
             Assertions.assertEquals(trainer.getSpeciesCount(), trainerCopy.getSpeciesCount());
+            Assertions.assertEquals(trainer.getCurrentHiddenNodes(), trainerCopy.getCurrentHiddenNodes());
+            Assertions.assertEquals(trainer.getCurrentConnections(), trainerCopy.getCurrentConnections());
             Assertions.assertEquals(trainer.getMaximumFitness(), trainerCopy.getMaximumFitness(), 0f);
             Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, test(trainerSetup.trainingPolicy, trainer));
             Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, test(trainerSetup.trainingPolicy, trainerCopy));

@@ -3,8 +3,7 @@ package com.dipasquale.ai.rl.neat.core;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 import com.dipasquale.ai.rl.neat.speciation.core.Population;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
-import com.dipasquale.ai.rl.neat.speciation.organism.DefaultOrganismActivator;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismActivator;
 
 import java.io.IOException;
@@ -30,11 +29,11 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
     }
 
     ConcurrentNeatEvaluator(final Context context, final ReadWriteLock lock) {
-        this(context, new DefaultOrganismActivator(), lock);
+        this(context, new OrganismActivator(), lock);
     }
 
     ConcurrentNeatEvaluator(final Context context) {
-        this(context, new DefaultOrganismActivator(), new ReentrantReadWriteLock());
+        this(context, new OrganismActivator(), new ReentrantReadWriteLock());
     }
 
     private static Population createPopulation(final Context context, final OrganismActivator championOrganismActivator) {
@@ -112,7 +111,7 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
     }
 
     @Override
-    public Map<Integer, IterationMetricData> getMetrics() {
+    public Map<Integer, IterationMetrics> getMetrics() {
         lock.readLock().lock();
 
         try {
