@@ -37,6 +37,10 @@ public final class Population {
     private Queue<OrganismFactory> organismsToBirth = new LinkedList<>();
     private NodeDeque<Species, SimpleNode<Species>> speciesNodes = new SimpleNodeDeque<>();
 
+    public int getIteration() {
+        return populationState.getIteration();
+    }
+
     public int getGeneration() {
         return populationState.getGeneration();
     }

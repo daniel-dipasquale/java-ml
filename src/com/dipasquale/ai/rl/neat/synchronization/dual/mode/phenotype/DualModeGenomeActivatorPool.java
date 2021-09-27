@@ -21,8 +21,8 @@ public final class DualModeGenomeActivatorPool implements DualModeObject, Serial
     private final NeuralNetworkFactory neuralNetworkFactory;
     private final DualModeMap<String, DefaultGenomeActivator> genomeActivators;
 
-    public DualModeGenomeActivatorPool(final boolean concurrent, final int numberOfThreads, final DualModeGenomeActivatorPool genomeActivatorPool) {
-        this(genomeActivatorPool.neuralNetworkFactory, new DualModeMap<>(concurrent, numberOfThreads, genomeActivatorPool.genomeActivators));
+    public DualModeGenomeActivatorPool(final boolean concurrent, final int numberOfThreads, final DualModeGenomeActivatorPool other) {
+        this(other.neuralNetworkFactory, new DualModeMap<>(concurrent, numberOfThreads, other.genomeActivators));
     }
 
     public DualModeGenomeActivatorPool(final boolean concurrent, final int numberOfThreads, final NeuralNetworkFactory neuralNetworkFactory) {

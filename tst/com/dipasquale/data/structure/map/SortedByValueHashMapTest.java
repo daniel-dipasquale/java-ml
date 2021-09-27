@@ -25,7 +25,7 @@ public final class SortedByValueHashMapTest {
                 .add(new AbstractMap.SimpleImmutableEntry<>("c", 1L))
                 .add(new AbstractMap.SimpleImmutableEntry<>("a", 2L))
                 .add(new AbstractMap.SimpleImmutableEntry<>("b", 4L))
-                .build(), ImmutableList.copyOf(TEST::iterator));
+                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -37,7 +37,7 @@ public final class SortedByValueHashMapTest {
 
         Assertions.assertEquals(ImmutableList.builder()
                 .add(new AbstractMap.SimpleImmutableEntry<>("a", 1L))
-                .build(), ImmutableList.copyOf(TEST::iterator));
+                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
 
         Assertions.assertEquals(1, TEST.size());
     }
@@ -53,7 +53,7 @@ public final class SortedByValueHashMapTest {
                 .add(new AbstractMap.SimpleImmutableEntry<>("a", 2L))
                 .add(new AbstractMap.SimpleImmutableEntry<>("b", 4L))
                 .add(new AbstractMap.SimpleImmutableEntry<>("c", 5L))
-                .build(), ImmutableList.copyOf(TEST::iterator));
+                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -68,7 +68,7 @@ public final class SortedByValueHashMapTest {
         Assertions.assertEquals(ImmutableList.builder()
                 .add(new AbstractMap.SimpleImmutableEntry<>("c", 1L))
                 .add(new AbstractMap.SimpleImmutableEntry<>("b", 4L))
-                .build(), ImmutableList.copyOf(TEST::iterator));
+                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
 
         Assertions.assertEquals(2, TEST.size());
     }
@@ -77,7 +77,7 @@ public final class SortedByValueHashMapTest {
     public void GIVEN_a_set_of_items_with_one_item_in_it_WHEN_removing_it_by_key_THEN_ensure_the_set_becomes_empty() {
         Assertions.assertNull(TEST.put("a", 1L));
         Assertions.assertEquals(Long.valueOf(1L), TEST.remove("a"));
-        Assertions.assertEquals(ImmutableList.of(), ImmutableList.copyOf(TEST::iterator));
+        Assertions.assertEquals(ImmutableList.of(), ImmutableList.copyOf(TEST.entrySet()::iterator));
         Assertions.assertEquals(0, TEST.size());
     }
 
@@ -92,7 +92,7 @@ public final class SortedByValueHashMapTest {
                 .add(new AbstractMap.SimpleImmutableEntry<>("c", 1L))
                 .add(new AbstractMap.SimpleImmutableEntry<>("a", 2L))
                 .add(new AbstractMap.SimpleImmutableEntry<>("b", 4L))
-                .build(), ImmutableList.copyOf(TEST::iterator));
+                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -107,7 +107,7 @@ public final class SortedByValueHashMapTest {
         Assertions.assertEquals(ImmutableList.builder()
                 .add(new AbstractMap.SimpleImmutableEntry<>("b", 1L))
                 .add(new AbstractMap.SimpleImmutableEntry<>("c", 1L))
-                .build(), ImmutableList.copyOf(TEST::iterator));
+                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
 
         Assertions.assertEquals(2, TEST.size());
     }
@@ -129,7 +129,7 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("b", 4L));
         Assertions.assertNull(TEST.put("c", 1L));
         TEST.clear();
-        Assertions.assertEquals(ImmutableList.of(), ImmutableList.copyOf(TEST::iterator));
+        Assertions.assertEquals(ImmutableList.of(), ImmutableList.copyOf(TEST.entrySet()::iterator));
         Assertions.assertEquals(0, TEST.size());
     }
 

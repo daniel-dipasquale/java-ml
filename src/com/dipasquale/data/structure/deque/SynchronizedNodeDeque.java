@@ -316,14 +316,14 @@ final class SynchronizedNodeDeque<TValue, TNode extends Node> implements NodeDeq
     }
 
     @Override
-    public <R> R[] toArray(final R[] array) {
+    public <TArray> TArray[] toArray(final TArray[] array) {
         synchronized (nodeDeque) {
             return nodeDeque.toArray(array);
         }
     }
 
     @Override
-    public <R> R[] toArray(final IntFunction<R[]> generator) {
+    public <TArray> TArray[] toArray(final IntFunction<TArray[]> generator) {
         synchronized (nodeDeque) {
             return nodeDeque.toArray(generator);
         }

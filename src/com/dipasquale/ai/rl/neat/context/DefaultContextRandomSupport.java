@@ -14,38 +14,34 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class DefaultContextRandomSupport implements Context.RandomSupport {
-    private ObjectProfile<RandomSupport> integerRandomSupportProfile;
-    private ObjectProfile<RandomSupport> floatRandomSupportProfile;
+    private ObjectProfile<RandomSupport> randomSupportProfile;
 
     public static DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport, final com.dipasquale.ai.rl.neat.settings.RandomSupport randomSupport) {
-        ObjectProfile<RandomSupport> integerRandomSupportProfile = new RandomSupportFactoryProfile(parallelismSupport.isEnabled(), randomSupport.getIntegerGenerator());
-        ObjectProfile<RandomSupport> floatRandomSupportProfile = new RandomSupportFactoryProfile(parallelismSupport.isEnabled(), randomSupport.getFloatGenerator());
+        ObjectProfile<RandomSupport> randomSupportProfile = new RandomSupportFactoryProfile(parallelismSupport.isEnabled(), randomSupport.getType());
 
-        return new DefaultContextRandomSupport(integerRandomSupportProfile, floatRandomSupportProfile);
+        return new DefaultContextRandomSupport(randomSupportProfile);
     }
 
     @Override
     public int generateIndex(final int offset, final int count) {
-        return integerRandomSupportProfile.getObject().next(offset, count);
+        return randomSupportProfile.getObject().next(offset, count);
     }
 
     @Override
     public boolean isLessThan(final float rate) {
-        return floatRandomSupportProfile.getObject().isLessThan(rate);
+        return randomSupportProfile.getObject().isLessThan(rate);
     }
 
     @Override
     public <T> T generateItem(final OutputClassifier<T> outputClassifier) {
-        return outputClassifier.resolve(floatRandomSupportProfile.getObject().next());
+        return outputClassifier.resolve(randomSupportProfile.getObject().next());
     }
 
     public void save(final SerializableStateGroup stateGroup) {
-        stateGroup.put("random.integerRandomSupportProfile", integerRandomSupportProfile);
-        stateGroup.put("random.floatRandomSupportProfile", floatRandomSupportProfile);
+        stateGroup.put("random.randomSupportProfile", randomSupportProfile);
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        integerRandomSupportProfile = ObjectProfile.switchProfile(stateGroup.get("random.integerRandomSupportProfile"), eventLoop != null);
-        floatRandomSupportProfile = ObjectProfile.switchProfile(stateGroup.get("random.floatRandomSupportProfile"), eventLoop != null);
+        randomSupportProfile = ObjectProfile.switchProfile(stateGroup.get("random.randomSupportProfile"), eventLoop != null);
     }
 }

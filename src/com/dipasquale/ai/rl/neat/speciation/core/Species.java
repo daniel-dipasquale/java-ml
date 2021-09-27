@@ -66,13 +66,13 @@ public final class Species implements Serializable {
         organismsReadOnly = Collections.unmodifiableList(value);
     }
 
-    private int getAge() {
-        return populationState.getGeneration() - createdOnGeneration;
-    }
-
     public void add(final Organism organism) {
         organisms.add(organism);
         isOrganismsSorted = false;
+    }
+
+    public int getAge() {
+        return populationState.getGeneration() - createdOnGeneration;
     }
 
     private float updateAllFitness(final OrganismFitness organismFitness) {
@@ -187,8 +187,16 @@ public final class Species implements Serializable {
         return ensureOrganismsIsSorted().subList(size - select, size);
     }
 
+    public int getStagnationPeriod() {
+        return getAge() - improvedAtAge;
+    }
+
+    public boolean isStagnant(final int stagnationDropOffAge) {
+        return getStagnationPeriod() >= stagnationDropOffAge;
+    }
+
     public boolean isStagnant(final Context.SpeciationSupport speciationSupport) {
-        return getAge() - improvedAtAge >= speciationSupport.params().stagnationDropOffAge();
+        return isStagnant(speciationSupport.params().stagnationDropOffAge());
     }
 
     public boolean shouldSurvive() {

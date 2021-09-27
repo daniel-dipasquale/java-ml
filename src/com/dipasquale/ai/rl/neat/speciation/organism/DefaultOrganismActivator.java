@@ -11,6 +11,8 @@ import java.io.ObjectOutputStream;
 
 public final class DefaultOrganismActivator implements OrganismActivator {
     @Getter
+    private int hiddenNodes = 0;
+    @Getter
     private int connections = 0;
     @Getter
     private float fitness = 0f;
@@ -18,6 +20,7 @@ public final class DefaultOrganismActivator implements OrganismActivator {
 
     @Override
     public void initialize(final Organism organism, final Context.ActivationSupport activationSupport) {
+        hiddenNodes = organism.getHiddenNodes();
         connections = organism.getConnections();
         fitness = organism.getFitness();
         genomeActivator = organism.getGenomeActivator(activationSupport);
@@ -33,6 +36,7 @@ public final class DefaultOrganismActivator implements OrganismActivator {
             throws IOException {
         SerializableStateGroup state = new SerializableStateGroup();
 
+        state.put("organismActivator.hiddenNodes", connections);
         state.put("organismActivator.connections", connections);
         state.put("organismActivator.fitness", fitness);
         state.put("organismActivator.genomeActivator", genomeActivator);
@@ -45,6 +49,7 @@ public final class DefaultOrganismActivator implements OrganismActivator {
         SerializableStateGroup state = new SerializableStateGroup();
 
         state.readFrom(inputStream);
+        hiddenNodes = state.get("organismActivator.hiddenNodes");
         connections = state.get("organismActivator.connections");
         fitness = state.get("organismActivator.fitness");
         genomeActivator = state.get("organismActivator.genomeActivator");

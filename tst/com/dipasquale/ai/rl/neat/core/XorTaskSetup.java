@@ -16,6 +16,8 @@ import com.dipasquale.ai.rl.neat.settings.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.settings.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.settings.InitialWeightType;
 import com.dipasquale.ai.rl.neat.settings.IntegerNumber;
+import com.dipasquale.ai.rl.neat.settings.MetricCollectionType;
+import com.dipasquale.ai.rl.neat.settings.MetricSupport;
 import com.dipasquale.ai.rl.neat.settings.MutationSupport;
 import com.dipasquale.ai.rl.neat.settings.NeuralNetworkType;
 import com.dipasquale.ai.rl.neat.settings.NodeGeneSupport;
@@ -26,6 +28,7 @@ import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 final class XorTaskSetup implements TaskSetup {
@@ -114,8 +117,7 @@ final class XorTaskSetup implements TaskSetup {
                         .eventLoop(eventLoop)
                         .build())
                 .random(RandomSupport.builder()
-                        .integerGenerator(RandomType.UNIFORM)
-                        .floatGenerator(RandomType.UNIFORM)
+                        .type(RandomType.UNIFORM)
                         .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))
@@ -141,6 +143,9 @@ final class XorTaskSetup implements TaskSetup {
                         .interSpeciesMatingRate(FloatNumber.literal(0.001f))
                         .mateOnlyRate(FloatNumber.literal(0.2f))
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
+                        .build())
+                .metrics(MetricSupport.builder()
+                        .type(EnumSet.of(MetricCollectionType.ENABLED))
                         .build())
                 .build();
     }

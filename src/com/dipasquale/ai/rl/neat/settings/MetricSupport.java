@@ -15,7 +15,7 @@ public final class MetricSupport {
     @Builder.Default
     private final EnumSet<MetricCollectionType> type = EnumSet.noneOf(MetricCollectionType.class);
 
-    DefaultContextMetricSupport create(final ParallelismSupport parallelismSupport) {
-        return DefaultContextMetricSupport.create(parallelismSupport, this);
+    DefaultContextMetricSupport create(final ParallelismSupport parallelismSupport, final SpeciationSupport speciationSupport) {
+        return DefaultContextMetricSupport.create(parallelismSupport, this, speciationSupport);
     }
 }

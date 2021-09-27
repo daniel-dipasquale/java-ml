@@ -11,7 +11,7 @@ import java.io.Serializable;
 public final class PopulationState implements Serializable {
     @Serial
     private static final long serialVersionUID = -5060171919286103840L;
-    private int restartCount = 0;
+    private int iteration = 1;
     private int generation = 1;
 
     public void increaseGeneration() {
@@ -19,7 +19,7 @@ public final class PopulationState implements Serializable {
     }
 
     public void restart() {
-        restartCount++;
+        iteration++;
         generation = 1;
     }
 }

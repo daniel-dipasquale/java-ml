@@ -13,9 +13,17 @@ import java.util.function.Function;
 public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Serializable {
     @Serial
     private static final long serialVersionUID = 152413418451406722L;
-    private final Set<TKey> keySet = new MapKeySet<>(this, this::iterator);
-    private final Collection<TValue> values = new MapValues<>(this, this::iterator);
-    private final Set<Entry<TKey, TValue>> entrySet = new MapEntrySet<>(this, this::iterator);
+    private final IteratorFactory<TKey, TValue> iteratorFactory;
+    private final Set<TKey> keySet;
+    private final Collection<TValue> values;
+    private final Set<Entry<TKey, TValue>> entrySet;
+
+    protected AbstractMap(final IteratorFactory<TKey, TValue> iteratorFactory) {
+        this.iteratorFactory = iteratorFactory;
+        this.keySet = new MapKeySet<>(this, iteratorFactory);
+        this.values = new MapValues<>(this, iteratorFactory);
+        this.entrySet = new MapEntrySet<>(this, iteratorFactory);
+    }
 
     @Override
     public final Set<TKey> keySet() {
@@ -42,7 +50,7 @@ public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Se
 
     @Override
     public boolean containsValue(final Object value) {
-        return IteratorFactory.stream(this::iterator).anyMatch(e -> Objects.equals(e.getValue(), value));
+        return IteratorFactory.stream(iteratorFactory).anyMatch(e -> Objects.equals(e.getValue(), value));
     }
 
     @Override
@@ -50,13 +58,7 @@ public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Se
 
     @Override
     public TValue getOrDefault(final Object key, final TValue defaultValue) {
-        TValue value = get(key);
-
-        if (value != null) {
-            return value;
-        }
-
-        return defaultValue;
+        return Map.super.getOrDefault(key, defaultValue);
     }
 
     @Override
@@ -71,24 +73,12 @@ public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Se
 
     @Override
     public boolean replace(final TKey key, final TValue oldValue, final TValue newValue) {
-        Object currentValue = get(key);
-
-        if (currentValue == null || !Objects.equals(currentValue, oldValue)) {
-            return false;
-        }
-
-        put(key, newValue);
-
-        return true;
+        return Map.super.replace(key, oldValue, newValue);
     }
 
     @Override
     public TValue replace(final TKey key, final TValue value) {
-        if (containsKey(key)) {
-            return put(key, value);
-        }
-
-        return null;
+        return Map.super.replace(key, value);
     }
 
     @Override
@@ -96,76 +86,26 @@ public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Se
 
     @Override
     public TValue computeIfAbsent(final TKey key, Function<? super TKey, ? extends TValue> mapper) {
-        TValue oldValue = get(key);
-
-        if (oldValue == null) {
-            TValue newValue = mapper.apply(key);
-
-            if (newValue != null) {
-                put(key, newValue);
-
-                return newValue;
-            }
-        }
-
-        return oldValue;
+        return Map.super.computeIfAbsent(key, mapper);
     }
 
     @Override
     public TValue computeIfPresent(final TKey key, final BiFunction<? super TKey, ? super TValue, ? extends TValue> mapper) {
-        TValue oldValue = get(key);
-
-        if (oldValue != null) {
-            TValue newValue = mapper.apply(key, oldValue);
-
-            if (newValue != null) {
-                put(key, newValue);
-
-                return newValue;
-            }
-
-            remove(key);
-        }
-
-        return null;
+        return Map.super.computeIfPresent(key, mapper);
     }
 
     @Override
     public TValue compute(final TKey key, final BiFunction<? super TKey, ? super TValue, ? extends TValue> mapper) {
-        TValue oldValue = get(key);
-        TValue newValue = mapper.apply(key, oldValue);
-
-        if (newValue == null) {
-            if (oldValue != null) {
-                remove(key);
-            }
-
-            return null;
-        }
-
-        put(key, newValue);
-
-        return newValue;
+        return Map.super.compute(key, mapper);
     }
 
     @Override
     public TValue merge(final TKey key, final TValue value, final BiFunction<? super TValue, ? super TValue, ? extends TValue> mapper) {
-        TValue oldValue = get(key);
-        TValue newValue = oldValue == null ? value : mapper.apply(oldValue, value);
-
-        if (newValue == null) {
-            remove(key);
-        } else {
-            put(key, newValue);
-        }
-
-        return newValue;
+        return Map.super.merge(key, value, mapper);
     }
 
     @Override
     public abstract void clear();
-
-    protected abstract Iterator<Entry<TKey, TValue>> iterator();
 
     private boolean equals(final Map<TKey, TValue> other) {
         if (size() != other.size()) {
@@ -214,7 +154,7 @@ public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Se
 
     @Override
     public String toString() {
-        Iterator<Entry<TKey, TValue>> iterator = iterator();
+        Iterator<Entry<TKey, TValue>> iterator = iteratorFactory.iterator();
 
         if (!iterator.hasNext()) {
             return "{}";

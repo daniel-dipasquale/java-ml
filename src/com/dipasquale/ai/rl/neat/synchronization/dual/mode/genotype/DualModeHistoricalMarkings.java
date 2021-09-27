@@ -42,8 +42,8 @@ public final class DualModeHistoricalMarkings implements DualModeObject, Seriali
         this(new DualModeSequentialIdFactory(concurrent, "innovation-id"), new DualModeMap<>(concurrent, numberOfThreads, innovationIds), new NodeIdDependencyTrackerFactory(concurrent, numberOfThreads), createNodeIdDependencyTrackers(concurrent, numberOfThreads, nodeIdDependencyTrackers));
     }
 
-    public DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads, final DualModeHistoricalMarkings historicalMarkings) {
-        this(concurrent, numberOfThreads, historicalMarkings.innovationIds, historicalMarkings.nodeIdDependencyTrackers);
+    public DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads, final DualModeHistoricalMarkings other) {
+        this(concurrent, numberOfThreads, other.innovationIds, other.nodeIdDependencyTrackers);
     }
 
     public DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads) {

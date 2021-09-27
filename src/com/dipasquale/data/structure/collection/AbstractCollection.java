@@ -39,24 +39,24 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
     }
 
     @Override
-    public <R> R[] toArray(final R[] array) {
+    public <TArray> TArray[] toArray(final TArray[] array) {
         int size = size();
 
-        R[] arrayFixed = array.length < size
-                ? (R[]) Array.newInstance(array.getClass().getComponentType(), size)
-                : array;
+        TArray[] arrayFixed = array.length >= size
+                ? array
+                : (TArray[]) Array.newInstance(array.getClass().getComponentType(), size);
 
         int i = 0;
 
         for (T item : this) {
-            arrayFixed[i++] = (R) item;
+            arrayFixed[i++] = (TArray) item;
         }
 
         return arrayFixed;
     }
 
     @Override
-    public <R> R[] toArray(final IntFunction<R[]> generator) {
+    public <TArray> TArray[] toArray(final IntFunction<TArray[]> generator) {
         return toArray(generator.apply(size()));
     }
 

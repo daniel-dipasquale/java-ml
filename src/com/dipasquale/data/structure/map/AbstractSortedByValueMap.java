@@ -3,6 +3,7 @@ package com.dipasquale.data.structure.map;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.data.structure.set.DequeSet;
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -20,13 +21,54 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap<TKey, TValue> implements SortedByValueMap<TKey, TValue>, Serializable {
     @Serial
     private static final long serialVersionUID = -6446020115083134726L;
+    private final ProxyIteratorFactory<TKey, TValue> iteratorFactory;
     private final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory;
     private final EntryStrategyFactory<TKey, TValue> entryStrategyFactory;
-    private final Set<TKey> descendingKeySet = new MapKeySet<>(this, this::descendingIterator);
+    private final Set<TKey> descendingKeySet;
+
+    private AbstractSortedByValueMap(final ProxyIteratorFactory<TKey, TValue> iteratorFactory, final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory, final EntryStrategyFactory<TKey, TValue> entryStrategyFactory) {
+        super(iteratorFactory);
+        this.iteratorFactory = initializeIteratorFactory(iteratorFactory, this);
+        this.entriesSetFactory = entriesSetFactory;
+        this.entryStrategyFactory = entryStrategyFactory;
+        this.descendingKeySet = new MapKeySet<>(this, initializeDescendingIteratorFactory(new ProxyIteratorFactory<>(), this));
+    }
+
+    protected AbstractSortedByValueMap(final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory, final EntryStrategyFactory<TKey, TValue> entryStrategyFactory) {
+        this(new ProxyIteratorFactory<>(), entriesSetFactory, entryStrategyFactory);
+    }
+
+    private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap, final Function<DequeSet<Entry<TKey, TValue>>, Stream<Entry<TKey, TValue>>> flatMapper) {
+        return navigableMap.values().stream()
+                .flatMap(flatMapper);
+    }
+
+    private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap) {
+        return stream(navigableMap, Collection::stream);
+    }
+
+    private static <TKey, TValue> Stream<Entry<TKey, TValue>> descendingStream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap) {
+        return stream(navigableMap.descendingMap(), ios -> {
+            Spliterator<Entry<TKey, TValue>> spliterator = Spliterators.spliteratorUnknownSize(ios.descendingIterator(), 0);
+
+            return StreamSupport.stream(spliterator, false);
+        });
+    }
+
+    protected static <TKey, TValue> ProxyIteratorFactory<TKey, TValue> initializeIteratorFactory(final ProxyIteratorFactory<TKey, TValue> iteratorFactory, final AbstractSortedByValueMap<TKey, TValue> map) {
+        iteratorFactory.underlying = (IteratorFactory<TKey, TValue> & Serializable) () -> stream(map.getStorage().navigableMap).iterator();
+
+        return iteratorFactory;
+    }
+
+    protected static <TKey, TValue> ProxyIteratorFactory<TKey, TValue> initializeDescendingIteratorFactory(final ProxyIteratorFactory<TKey, TValue> iteratorFactory, final AbstractSortedByValueMap<TKey, TValue> map) {
+        iteratorFactory.underlying = (IteratorFactory<TKey, TValue> & Serializable) () -> descendingStream(map.getStorage().navigableMap).iterator();
+
+        return iteratorFactory;
+    }
 
     protected static <TKey, TValue> Storage<TKey, TValue> createStorage(final MapFactory<TKey, TValue> mapFactory, final NavigableMapFactory<TKey, TValue> navigableMapFactory) {
         return new Storage<>(mapFactory.create(), navigableMapFactory.create());
@@ -190,32 +232,6 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
         return getValue(tailEntry());
     }
 
-    private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap, final Function<DequeSet<Entry<TKey, TValue>>, Stream<Entry<TKey, TValue>>> flatMapper) {
-        return navigableMap.values().stream()
-                .flatMap(flatMapper);
-    }
-
-    private static <TKey, TValue> Stream<Entry<TKey, TValue>> stream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap) {
-        return stream(navigableMap, Collection::stream);
-    }
-
-    private static <TKey, TValue> Stream<Entry<TKey, TValue>> descendingStream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap) {
-        return stream(navigableMap.descendingMap(), ios -> {
-            Spliterator<Entry<TKey, TValue>> spliterator = Spliterators.spliteratorUnknownSize(ios.descendingIterator(), 0);
-
-            return StreamSupport.stream(spliterator, false);
-        });
-    }
-
-    @Override
-    protected Iterator<Entry<TKey, TValue>> iterator() {
-        return stream(getStorage().navigableMap).iterator();
-    }
-
-    protected Iterator<Entry<TKey, TValue>> descendingIterator() {
-        return descendingStream(getStorage().navigableMap).iterator();
-    }
-
     @FunctionalInterface
     protected interface MapFactory<TKey, TValue> extends ObjectFactory<Map<TKey, Entry<TKey, TValue>>>, Serializable {
     }
@@ -245,5 +261,17 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
     @FunctionalInterface
     private interface EntryNavigator<TKey, TValue> {
         Entry<TKey, TValue> navigate(DequeSet<Entry<TKey, TValue>> set);
+    }
+
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class ProxyIteratorFactory<TKey, TValue> implements IteratorFactory<TKey, TValue> {
+        @Serial
+        private static final long serialVersionUID = -3776208100159642493L;
+        private IteratorFactory<TKey, TValue> underlying = null;
+
+        @Override
+        public Iterator<Entry<TKey, TValue>> iterator() {
+            return underlying.iterator();
+        }
     }
 }

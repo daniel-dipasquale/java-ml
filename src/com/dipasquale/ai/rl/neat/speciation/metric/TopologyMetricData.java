@@ -15,6 +15,18 @@ public final class TopologyMetricData implements Serializable {
     private final MetricDatum hiddenNodes;
     private final MetricDatum connections;
 
+    public void merge(final TopologyMetricData topologyMetrics) {
+        hiddenNodes.merge(topologyMetrics.hiddenNodes);
+        connections.merge(topologyMetrics.connections);
+    }
+
+    public TopologyMetricData createCopy() {
+        MetricDatum hiddenNodesCopied = hiddenNodes.createCopy();
+        MetricDatum connectionsCopied = connections.createCopy();
+
+        return new TopologyMetricData(hiddenNodesCopied, connectionsCopied);
+    }
+
     public void clear() {
         hiddenNodes.clear();
         connections.clear();

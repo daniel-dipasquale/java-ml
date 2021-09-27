@@ -40,5 +40,9 @@ public interface MetricDatum {
 
     MetricDatum merge(MetricDatum other);
 
+    default MetricDatum createCopy() {
+        return merge(ZeroMetricDatum.getInstance());
+    }
+
     void clear();
 }

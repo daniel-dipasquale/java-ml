@@ -20,8 +20,8 @@ public final class DualModeNodeIdDependencyTracker implements NodeGeneIdDependen
     private final DualModeIntegerCounter blastRadius;
     private final DualModeSet<DirectedEdge> directedEdges;
 
-    public DualModeNodeIdDependencyTracker(final boolean concurrent, final int numberOfThreads, final DualModeNodeIdDependencyTracker nodeIdDependencyTracker) {
-        this(new DualModeIntegerCounter(concurrent), new DualModeSet<>(concurrent, numberOfThreads, nodeIdDependencyTracker.directedEdges));
+    public DualModeNodeIdDependencyTracker(final boolean concurrent, final int numberOfThreads, final DualModeNodeIdDependencyTracker other) {
+        this(new DualModeIntegerCounter(concurrent), new DualModeSet<>(concurrent, numberOfThreads, other.directedEdges));
     }
 
     public DualModeNodeIdDependencyTracker(final boolean concurrent, final int numberOfThreads) {

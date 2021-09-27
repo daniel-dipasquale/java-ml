@@ -1,11 +1,19 @@
 package com.dipasquale.ai.rl.neat.core;
 
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class NeatActivatorTrainer implements NeatActivator {
     private final NeatTrainer trainer;
+
+    @Override
+    public int getIteration() {
+        return trainer.getIteration();
+    }
 
     @Override
     public int getGeneration() {
@@ -25,6 +33,11 @@ final class NeatActivatorTrainer implements NeatActivator {
     @Override
     public float getFitness() {
         return trainer.getMaximumFitness();
+    }
+
+    @Override
+    public Map<Integer, IterationMetricData> getMetrics() {
+        return trainer.getMetrics();
     }
 
     @Override

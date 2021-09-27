@@ -9,6 +9,8 @@ import java.io.ObjectOutputStream;
 public interface OrganismActivator {
     void initialize(Organism organism, Context.ActivationSupport activationSupport);
 
+    int getHiddenNodes();
+
     int getConnections();
 
     float getFitness();

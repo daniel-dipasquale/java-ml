@@ -122,18 +122,18 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
 
     public static DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final ObjectProfile<RandomSupport> randomSupportProfile, final SpeciationSupport speciationSupport) {
         DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
-                .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().createFactoryProfile(parallelismSupport).getObject().create())
-                .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().createFactoryProfile(parallelismSupport).getObject().create())
-                .eugenicsThreshold(speciationSupport.getEugenicsThreshold().createFactoryProfile(parallelismSupport).getObject().create())
-                .elitistThreshold(speciationSupport.getElitistThreshold().createFactoryProfile(parallelismSupport).getObject().create())
-                .elitistThresholdMinimum(speciationSupport.getElitistThresholdMinimum().createFactoryProfile(parallelismSupport).getObject().create())
-                .stagnationDropOffAge(speciationSupport.getStagnationDropOffAge().createFactoryProfile(parallelismSupport).getObject().create())
-                .interSpeciesMatingRate(speciationSupport.getInterSpeciesMatingRate().createFactoryProfile(parallelismSupport).getObject().create())
+                .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingleton(parallelismSupport))
+                .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingleton(parallelismSupport))
+                .eugenicsThreshold(speciationSupport.getEugenicsThreshold().getSingleton(parallelismSupport))
+                .elitistThreshold(speciationSupport.getElitistThreshold().getSingleton(parallelismSupport))
+                .elitistThresholdMinimum(speciationSupport.getElitistThresholdMinimum().getSingleton(parallelismSupport))
+                .stagnationDropOffAge(speciationSupport.getStagnationDropOffAge().getSingleton(parallelismSupport))
+                .interSpeciesMatingRate(speciationSupport.getInterSpeciesMatingRate().getSingleton(parallelismSupport))
                 .build();
 
-        float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().createFactoryProfile(parallelismSupport).getObject().create();
-        float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().createFactoryProfile(parallelismSupport).getObject().create();
-        float excessCoefficientFixed = speciationSupport.getExcessCoefficient().createFactoryProfile(parallelismSupport).getObject().create();
+        float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingleton(parallelismSupport);
+        float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingleton(parallelismSupport);
+        float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingleton(parallelismSupport);
         DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelismSupport.isEnabled(), "species");
         DualModeGenomePool genomePool = new DualModeGenomePool(parallelismSupport.isEnabled());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);

@@ -66,10 +66,10 @@ public final class EvaluatorSettings {
         DefaultContextActivationSupport activationFixed = activation.create(general, parallelism);
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
         DefaultContextRandomSupport randomFixed = random.create(parallelism);
-        DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, randomFixed.getFloatRandomSupportProfile());
-        DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, randomFixed.getFloatRandomSupportProfile());
-        DefaultContextSpeciationSupport speciationFixed = speciation.create(parallelism, randomFixed.getFloatRandomSupportProfile());
-        DefaultContextMetricSupport metricsFixed = metrics.create(parallelism);
+        DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, randomFixed.getRandomSupportProfile());
+        DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, randomFixed.getRandomSupportProfile());
+        DefaultContextSpeciationSupport speciationFixed = speciation.create(parallelism, randomFixed.getRandomSupportProfile());
+        DefaultContextMetricSupport metricsFixed = metrics.create(parallelism, speciation);
 
         return new DefaultContext(generalFixed, nodesFixed, connectionsFixed, activationFixed, parallelismFixed, randomFixed, mutationFixed, crossOverFixed, speciationFixed, metricsFixed);
     }

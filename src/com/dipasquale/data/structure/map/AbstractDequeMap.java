@@ -6,19 +6,28 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.Map;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends AbstractMap<TKey, TValue> implements DequeMap<TKey, TValue>, Serializable {
     @Serial
     private static final long serialVersionUID = 3833727732372864205L;
     private final Map<TKey, TNode> nodesMap;
     private final NodeDeque<Entry<TKey, TValue>, TNode> nodesDeque;
+
+    protected AbstractDequeMap(final Map<TKey, TNode> nodesMap, final NodeDeque<Entry<TKey, TValue>, TNode> nodesDeque) {
+        super(createIteratorFactory(nodesDeque));
+        this.nodesMap = nodesMap;
+        this.nodesDeque = nodesDeque;
+    }
+
+    protected static <TKey, TValue, TNode extends Node> IteratorFactory<TKey, TValue> createIteratorFactory(final NodeDeque<Entry<TKey, TValue>, TNode> nodesDeque) {
+        return () -> nodesDeque.stream()
+                .map(nodesDeque::getValue)
+                .iterator();
+    }
 
     @Override
     public int size() {
@@ -130,13 +139,6 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
     public void clear() {
         nodesMap.clear();
         nodesDeque.clear();
-    }
-
-    @Override
-    protected Iterator<Entry<TKey, TValue>> iterator() {
-        return nodesDeque.stream()
-                .map(nodesDeque::getValue)
-                .iterator();
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)

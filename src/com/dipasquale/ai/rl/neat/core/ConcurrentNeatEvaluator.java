@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.core;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 import com.dipasquale.ai.rl.neat.speciation.core.Population;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
 import com.dipasquale.ai.rl.neat.speciation.organism.DefaultOrganismActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismActivator;
 
@@ -11,6 +12,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -44,6 +46,17 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
     }
 
     @Override
+    public int getIteration() {
+        lock.readLock().lock();
+
+        try {
+            return population.getIteration();
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
     public int getGeneration() {
         lock.readLock().lock();
 
@@ -66,6 +79,17 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
     }
 
     @Override
+    public int getCurrentHiddenNodes() {
+        lock.readLock().lock();
+
+        try {
+            return championOrganismActivator.getHiddenNodes();
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
     public int getCurrentConnections() {
         lock.readLock().lock();
 
@@ -82,6 +106,17 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
 
         try {
             return championOrganismActivator.getFitness();
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Map<Integer, IterationMetricData> getMetrics() {
+        lock.readLock().lock();
+
+        try {
+            return context.metrics().getMetrics();
         } finally {
             lock.readLock().unlock();
         }

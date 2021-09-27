@@ -10,7 +10,9 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
-import com.dipasquale.ai.rl.neat.speciation.metric.MetricData;
+import com.dipasquale.ai.rl.neat.speciation.core.Species;
+import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetricData;
+import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
@@ -257,17 +259,21 @@ public interface Context {
     }
 
     interface MetricSupport {
-        Map<Integer, MetricData> getMetrics();
+        void addTopology(Species species, Organism organism);
 
-        void addTopology(String speciesId, int hiddenNodes, int connections);
+        void addFitness(Species species, Organism organism);
 
-        void addFitness(String speciesId, float fitness);
+        void addAttributes(Species species);
+
+        void addSharedFitness(Species species);
 
         void prepareNextFitnessCalculation();
 
         void prepareNextGeneration();
 
         void prepareNextIteration();
+
+        Map<Integer, IterationMetricData> getMetrics();
     }
 
     interface StateOverrideSupport {

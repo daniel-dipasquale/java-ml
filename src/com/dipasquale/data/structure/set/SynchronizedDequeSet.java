@@ -163,37 +163,37 @@ final class SynchronizedDequeSet<T> implements DequeSet<T> {
     }
 
     @Override
-    public <R> R[] toArray(final R[] array) {
+    public <TArray> TArray[] toArray(final TArray[] array) {
         synchronized (dequeSet) {
             return dequeSet.toArray(array);
         }
     }
 
     @Override
-    public <R> R[] toArray(final IntFunction<R[]> generator) {
+    public <TArray> TArray[] toArray(final IntFunction<TArray[]> generator) {
         synchronized (dequeSet) {
             return dequeSet.toArray(generator);
         }
     }
 
     @Override
-    public boolean containsAll(final Collection<?> collection) {
+    public boolean containsAll(final Collection<?> values) {
         synchronized (dequeSet) {
-            return dequeSet.containsAll(collection);
+            return dequeSet.containsAll(values);
         }
     }
 
     @Override
-    public boolean addAll(final Collection<? extends T> collection) {
+    public boolean addAll(final Collection<? extends T> values) {
         synchronized (dequeSet) {
-            return dequeSet.addAll(collection);
+            return dequeSet.addAll(values);
         }
     }
 
     @Override
-    public boolean removeAll(final Collection<?> collection) {
+    public boolean removeAll(final Collection<?> values) {
         synchronized (dequeSet) {
-            return dequeSet.removeAll(collection);
+            return dequeSet.removeAll(values);
         }
     }
 
@@ -205,9 +205,9 @@ final class SynchronizedDequeSet<T> implements DequeSet<T> {
     }
 
     @Override
-    public boolean retainAll(final Collection<?> collection) {
+    public boolean retainAll(final Collection<?> values) {
         synchronized (dequeSet) {
-            return dequeSet.retainAll(collection);
+            return dequeSet.retainAll(values);
         }
     }
 }

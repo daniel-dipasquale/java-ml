@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class LazyMetricDatum implements MetricDatum, Serializable {
+public final class LazyValuesMetricDatum implements MetricDatum, Serializable {
     @Serial
     private static final long serialVersionUID = 6618085287572626284L;
     private boolean valuesSorted;
@@ -21,7 +21,7 @@ public final class LazyMetricDatum implements MetricDatum, Serializable {
     @Getter
     private float maximum;
 
-    public LazyMetricDatum() {
+    public LazyValuesMetricDatum() {
         List<Float> values = new ArrayList<>();
 
         this.valuesSorted = true;
@@ -65,14 +65,12 @@ public final class LazyMetricDatum implements MetricDatum, Serializable {
 
     @Override
     public MetricDatum merge(final MetricDatum other) {
-        LazyMetricDatum merged = new LazyMetricDatum();
+        LazyValuesMetricDatum merged = new LazyValuesMetricDatum();
 
         merged.valuesSorted = false;
         merged.values.addAll(values);
         merged.values.addAll(other.getValues());
-
-        merged.sum = sum;
-        merged.sum += other.getSum();
+        merged.sum = sum + other.getSum();
 
         if (other.getValues().isEmpty()) {
             merged.minimum = minimum;

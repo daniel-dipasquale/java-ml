@@ -12,9 +12,7 @@ import lombok.Getter;
 @Getter
 public final class RandomSupport {
     @Builder.Default
-    private final RandomType integerGenerator = RandomType.UNIFORM;
-    @Builder.Default
-    private final RandomType floatGenerator = RandomType.UNIFORM;
+    private final RandomType type = RandomType.UNIFORM;
 
     DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport) {
         return DefaultContextRandomSupport.create(parallelismSupport, this);

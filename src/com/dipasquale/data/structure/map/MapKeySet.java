@@ -16,10 +16,6 @@ class MapKeySet<TKey, TValue> extends AbstractCollection<TKey> implements Set<TK
     private final Map<TKey, TValue> map;
     private final IteratorFactory<TKey, TValue> iteratorFactory;
 
-    MapKeySet(final Map<TKey, TValue> map) {
-        this(map, () -> map.entrySet().iterator());
-    }
-
     @Override
     public final int size() {
         return map.size();
