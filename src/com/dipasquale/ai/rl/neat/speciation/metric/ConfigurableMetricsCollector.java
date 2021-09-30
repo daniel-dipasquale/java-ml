@@ -90,7 +90,6 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
             }
 
             organisms.add(fitness);
-            fitnessMetrics.getAll().merge(organisms);
 
             return organisms;
         });
@@ -107,6 +106,7 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
 
     @Override
     public void prepareNextFitnessCalculation() {
+        fitnessMetrics.getOrganisms().values().forEach(fitnessMetrics.getAll()::merge);
         generationMetrics.getSpeciesAllFitness().merge(fitnessMetrics.getAll());
         generationMetrics.getSpeciesSharedFitness().merge(fitnessMetrics.getShared());
 

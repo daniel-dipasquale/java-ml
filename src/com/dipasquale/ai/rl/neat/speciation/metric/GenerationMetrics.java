@@ -66,6 +66,7 @@ public final class GenerationMetrics implements Serializable {
         organismsTopology.clear();
         speciesTopology.clear();
         organismsFitness.clear();
+        speciesAllFitness.clear();
         speciesSharedFitness.clear();
         speciesAge.clear();
         speciesStagnationPeriod.clear();

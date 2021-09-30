@@ -31,5 +31,6 @@ public final class FitnessMetrics implements Serializable {
     public void clear() {
         organisms.clear();
         all.clear();
+        shared.clear();
     }
 }
