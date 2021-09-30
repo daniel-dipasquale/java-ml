@@ -22,7 +22,7 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
     private final List<Float> values = new EmptyList(this);
     private int count = 0;
     @Getter
-    private float sum = 0f;
+    private Float sum = null;
     @Getter
     private Float average = null;
     @Getter
@@ -43,7 +43,7 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
         int size = count;
 
         count++;
-        sum += value;
+        sum = ensureNotNull(sum) + value;
         average = sum / (float) count;
 
         if (size == 0) {
@@ -57,14 +57,15 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
 
     @Override
     public void merge(final MetricDatum other) {
-        count += other.getValues().size();
-        sum += other.getSum();
-        average = sum / (float) count;
-
-        if (!other.getValues().isEmpty()) {
-            minimum = Math.min(ensureNotNull(minimum), other.getMinimum());
-            maximum = Math.max(ensureNotNull(maximum), other.getMaximum());
+        if (other.getValues().isEmpty()) {
+            return;
         }
+
+        count += other.getValues().size();
+        sum = ensureNotNull(sum) + other.getSum();
+        average = sum / (float) count;
+        minimum = Math.min(ensureNotNull(minimum), other.getMinimum());
+        maximum = Math.max(ensureNotNull(maximum), other.getMaximum());
     }
 
     @Override
@@ -83,7 +84,7 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
     @Override
     public void clear() {
         count = 0;
-        sum = 0f;
+        sum = null;
         average = null;
         minimum = null;
         maximum = null;

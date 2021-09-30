@@ -13,41 +13,27 @@ algorithms I'm interested in learning and using:
 
          ```
          iteration: 1
-         generation: 30
-         species: 52
+         generation: 34
+         species: 39
          hidden nodes: 1
          connections: 5
-         fitness: 3.642800
+         fitness: 3.858177
          ```
 
-        - [species](https://fv9-3.failiem.lv/thumb_show.php?i=gk9jzfdmm&view)
-        - [species topology hidden nodes](https://fv9-3.failiem.lv/thumb_show.php?i=cucy5us62&view)
-        - [species topology connections](https://fv9-3.failiem.lv/thumb_show.php?i=djqmx9d7d&view)
-        - [species shared fitness](https://fv9-3.failiem.lv/thumb_show.php?i=whebt8w6c&view)
-        - [organisms fitness](https://fv9-3.failiem.lv/thumb_show.php?i=2n7psbczx&view)
-        - [species age](https://fv9-3.failiem.lv/thumb_show.php?i=pbnagwwbq&view)
-        - [species stagnation period](https://fv9-3.failiem.lv/thumb_show.php?i=gzr6ndbac&view)
-        - [species stagnant](https://fv9-3.failiem.lv/thumb_show.php?i=8hnqznqwj&view)
+        - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=f/8rv3jcqqh&view)
 
     - [x] Single Pole Balancing test: :+1: (random data sample)
 
          ```
          iteration: 1
-         generation: 64
-         species: 40
+         generation: 125
+         species: 64
          hidden nodes: 2
-         connections: 8
+         connections: 5
          fitness: 60.009998
          ```
 
-        - [species](https://fv9-3.failiem.lv/thumb_show.php?i=fqqb9ur73&view)
-        - [species topology hidden nodes](https://fv9-3.failiem.lv/thumb_show.php?i=3wyequ9ma&view)
-        - [species topology connections](https://fv9-3.failiem.lv/thumb_show.php?i=ns2vbc4dg&view)
-        - [species shared fitness](https://fv9-3.failiem.lv/thumb_show.php?i=ghcnmezz4&view)
-        - [organisms fitness](https://fv9-3.failiem.lv/thumb_show.php?i=27dszf8vx&view)
-        - [species age](https://fv9-3.failiem.lv/thumb_show.php?i=zrefv4jhd&view)
-        - [species stagnation period](https://fv9-3.failiem.lv/thumb_show.php?i=4j5sxxxs7&view)
-        - [species stagnant](https://fv9-3.failiem.lv/thumb_show.php?i=fdg5s2dyd&view)
+        - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=7dbz4jffq&view)
 
       ![Single Pole Balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
 

@@ -79,24 +79,28 @@ public final class NeatMetricsReporter {
 
     private static void displayMetrics_Min_Avg_Max(final IterationMetrics iterationMetrics, final String name) {
         List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "min", "minimum"))
-                .add(new MetricDatumQueryProjection(name, "avg", "average"))
-                .add(new MetricDatumQueryProjection(name, "max", "maximum"))
-                .add(new MetricDatumQueryProjection(name, "p10", "p10"))
-                .add(new MetricDatumQueryProjection(name, "p50", "p50"))
-                .add(new MetricDatumQueryProjection(name, "p90", "p90"))
+                .add(new MetricDatumQueryProjection(name, "min", "1. minimum"))
+                .add(new MetricDatumQueryProjection(name, "avg", "2. average"))
+                .add(new MetricDatumQueryProjection(name, "max", "3. maximum"))
+                .add(new MetricDatumQueryProjection(name, "p10", "4. p10"))
+                .add(new MetricDatumQueryProjection(name, "p50", "5. p50"))
+                .add(new MetricDatumQueryProjection(name, "p90", "6. p90"))
                 .build();
 
         displayMetrics(iterationMetrics, queryProjections);
     }
 
-    private static void displayMetrics_Avg_Sum(final IterationMetrics iterationMetrics, final String name) {
+    private static void displayMetrics_Avg(final IterationMetrics iterationMetrics, final String name) {
         List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "avg", "percentage"))
-                .add(new MetricDatumQueryProjection(name, "sum", "count"))
-                .add(new MetricDatumQueryProjection(name, "p10", "p10"))
-                .add(new MetricDatumQueryProjection(name, "p50", "p50"))
-                .add(new MetricDatumQueryProjection(name, "p90", "p90"))
+                .add(new MetricDatumQueryProjection(name, "avg", "1. percentage"))
+                .build();
+
+        displayMetrics(iterationMetrics, queryProjections);
+    }
+
+    private static void displayMetrics_Sum(final IterationMetrics iterationMetrics, final String name) {
+        List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
+                .add(new MetricDatumQueryProjection(name, "sum", "1. count"))
                 .build();
 
         displayMetrics(iterationMetrics, queryProjections);
@@ -104,7 +108,7 @@ public final class NeatMetricsReporter {
 
     private static void displayMetrics_Count(final IterationMetrics iterationMetrics, final String name, final String countDisplayText) {
         List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "count", countDisplayText))
+                .add(new MetricDatumQueryProjection(name, "count", String.format("1. %s", countDisplayText)))
                 .build();
 
         displayMetrics(iterationMetrics, queryProjections);
@@ -142,9 +146,13 @@ public final class NeatMetricsReporter {
         System.out.println("========================================");
         displayMetrics_Min_Avg_Max(iterationMetrics, "speciesStagnationPeriod");
         System.out.println("========================================");
-        System.out.printf("= species is stagnant (iteration %d)%n", iteration);
+        System.out.printf("= species is stagnant (average) (iteration %d)%n", iteration);
         System.out.println("========================================");
-        displayMetrics_Avg_Sum(iterationMetrics, "speciesStagnant");
+        displayMetrics_Avg(iterationMetrics, "speciesStagnant");
+        System.out.println("========================================");
+        System.out.printf("= species is stagnant (count) (iteration %d)%n", iteration);
+        System.out.println("========================================");
+        displayMetrics_Sum(iterationMetrics, "speciesStagnant");
     }
 
     public static void displayMetrics(final NeatTrainer trainer) {

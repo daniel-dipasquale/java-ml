@@ -5,7 +5,7 @@ import java.util.List;
 public interface MetricDatum {
     List<Float> getValues();
 
-    float getSum();
+    Float getSum();
 
     default Float getAverage() {
         int size = getValues().size();
