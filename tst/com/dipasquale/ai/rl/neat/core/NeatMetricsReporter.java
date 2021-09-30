@@ -26,7 +26,7 @@ public final class NeatMetricsReporter {
     }
 
     private static String format(final float value) {
-        if(Float.compare(value, (float) Math.floor(value)) != 0) {
+        if (Float.compare(value, (float) Math.floor(value)) != 0) {
             return Float.toString(value);
         }
 

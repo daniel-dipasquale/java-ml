@@ -141,7 +141,7 @@ final class XorTaskSetup implements TaskSetup {
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
                 .metrics(MetricSupport.builder()
-                        .type(EnumSet.of(MetricCollectionType.ENABLED))
+                        .type(EnumSet.noneOf(MetricCollectionType.class))
                         .build())
                 .build();
     }
