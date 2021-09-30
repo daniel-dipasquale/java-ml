@@ -20,7 +20,7 @@ algorithms I'm interested in learning and using:
          fitness: 3.858177
          ```
 
-        - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=f/8rv3jcqqh&view)
+        - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=8rv3jcqqh&view)
 
     - [x] Single Pole Balancing test: :+1: (random data sample)
 
