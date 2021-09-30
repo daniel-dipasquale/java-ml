@@ -82,6 +82,9 @@ public final class NeatMetricsReporter {
                 .add(new MetricDatumQueryProjection(name, "min", "minimum"))
                 .add(new MetricDatumQueryProjection(name, "avg", "average"))
                 .add(new MetricDatumQueryProjection(name, "max", "maximum"))
+                .add(new MetricDatumQueryProjection(name, "p10", "p10"))
+                .add(new MetricDatumQueryProjection(name, "p50", "p50"))
+                .add(new MetricDatumQueryProjection(name, "p90", "p90"))
                 .build();
 
         displayMetrics(iterationMetrics, queryProjections);
@@ -91,6 +94,9 @@ public final class NeatMetricsReporter {
         List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
                 .add(new MetricDatumQueryProjection(name, "avg", "percentage"))
                 .add(new MetricDatumQueryProjection(name, "sum", "count"))
+                .add(new MetricDatumQueryProjection(name, "p10", "p10"))
+                .add(new MetricDatumQueryProjection(name, "p50", "p50"))
+                .add(new MetricDatumQueryProjection(name, "p90", "p90"))
                 .build();
 
         displayMetrics(iterationMetrics, queryProjections);
@@ -108,6 +114,10 @@ public final class NeatMetricsReporter {
         IterationMetrics iterationMetrics = trainer.getMetrics().get(iteration);
 
         System.out.println("========================================");
+        System.out.printf("= species count (iteration %d)%n", iteration);
+        System.out.println("========================================");
+        displayMetrics_Count(iterationMetrics, "speciesAge", "species");
+        System.out.println("========================================");
         System.out.printf("= species topology hidden nodes (iteration %d)%n", iteration);
         System.out.println("========================================");
         displayMetrics_Min_Avg_Max(iterationMetrics, "speciesTopology.hiddenNodes");
@@ -123,10 +133,6 @@ public final class NeatMetricsReporter {
         System.out.printf("= organisms fitness (iteration %d)%n", iteration);
         System.out.println("========================================");
         displayMetrics_Min_Avg_Max(iterationMetrics, "organismsFitness");
-        System.out.println("========================================");
-        System.out.printf("= species count (iteration %d)%n", iteration);
-        System.out.println("========================================");
-        displayMetrics_Count(iterationMetrics, "speciesAge", "species");
         System.out.println("========================================");
         System.out.printf("= species age (iteration %d)%n", iteration);
         System.out.println("========================================");

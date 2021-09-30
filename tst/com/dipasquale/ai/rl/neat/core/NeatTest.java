@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public final class NeatTest {
+    static final boolean METRICS_EMISSION_ENABLED = false;
     private static final boolean XOR_TASK_ENABLED = true;
     private static final boolean SINGLE_POLE_BALANCING_TASK_ENABLED = true;
     private static final Set<String> GENOME_IDS = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -152,6 +153,10 @@ public final class NeatTest {
         int populationSize = testSetup.task.getPopulationSize();
 
         assertTrainingResults(trainer, trainerSetup, populationSize);
+
+        if (METRICS_EMISSION_ENABLED) {
+            NeatMetricsReporter.displayMetrics(trainer);
+        }
 
         if (testSetup.shouldTestPersistence) {
             assertPersistence(trainer, trainerSetup, !trainerSetup.shouldTestParallelism);

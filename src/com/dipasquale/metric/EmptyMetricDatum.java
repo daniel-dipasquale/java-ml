@@ -11,16 +11,16 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-final class ZeroMetricDatum implements MetricDatum, Serializable {
+final class EmptyMetricDatum implements MetricDatum, Serializable {
     @Serial
     private static final long serialVersionUID = 1989155526580797128L;
-    private static final ZeroMetricDatum INSTANCE = new ZeroMetricDatum();
+    private static final EmptyMetricDatum INSTANCE = new EmptyMetricDatum();
     private final List<Float> values = ImmutableList.of();
     private final float sum = 0f;
-    private final float minimum = 0f;
-    private final float maximum = 0f;
+    private final Float minimum = null;
+    private final Float maximum = null;
 
-    public static ZeroMetricDatum getInstance() {
+    public static EmptyMetricDatum getInstance() {
         return INSTANCE;
     }
 

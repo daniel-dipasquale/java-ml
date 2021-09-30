@@ -17,9 +17,9 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
     @Getter
     private float sum;
     @Getter
-    private float minimum;
+    private Float minimum;
     @Getter
-    private float maximum;
+    private Float maximum;
 
     LazyValuesMetricDatum() {
         List<Float> values = new ArrayList<>();
@@ -28,8 +28,8 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
         this.values = values;
         this.valuesReadOnly = Collections.unmodifiableList(values);
         this.sum = 0f;
-        this.minimum = 0f;
-        this.maximum = 0f;
+        this.minimum = null;
+        this.maximum = null;
     }
 
     private List<Float> ensureValuesIsSorted() {
@@ -46,6 +46,14 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
         return ensureValuesIsSorted();
     }
 
+    private static float ensureNotNull(final Float value) {
+        if (value == null) {
+            return 0f;
+        }
+
+        return value;
+    }
+
     @Override
     public void add(final float value) {
         int size = values.size();
@@ -58,8 +66,8 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
             minimum = value;
             maximum = value;
         } else {
-            minimum = Math.min(minimum, value);
-            maximum = Math.max(maximum, value);
+            minimum = Math.min(ensureNotNull(minimum), value);
+            maximum = Math.max(ensureNotNull(maximum), value);
         }
     }
 
@@ -70,8 +78,8 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
         sum += other.getSum();
 
         if (!other.getValues().isEmpty()) {
-            minimum = Math.min(minimum, other.getMinimum());
-            maximum = Math.max(maximum, other.getMaximum());
+            minimum = Math.min(ensureNotNull(minimum), other.getMinimum());
+            maximum = Math.max(ensureNotNull(maximum), other.getMaximum());
         }
     }
 
@@ -93,7 +101,7 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
         valuesSorted = true;
         values.clear();
         sum = 0f;
-        minimum = 0f;
-        maximum = 0f;
+        minimum = null;
+        maximum = null;
     }
 }

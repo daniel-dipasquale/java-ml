@@ -24,11 +24,19 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
     @Getter
     private float sum = 0f;
     @Getter
-    private float average = 0f;
+    private Float average = null;
     @Getter
-    private float minimum = 0f;
+    private Float minimum = null;
     @Getter
-    private float maximum = 0f;
+    private Float maximum = null;
+
+    private static float ensureNotNull(final Float value) {
+        if (value == null) {
+            return 0f;
+        }
+
+        return value;
+    }
 
     @Override
     public void add(final float value) {
@@ -42,8 +50,8 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
             minimum = value;
             maximum = value;
         } else {
-            minimum = Math.min(minimum, value);
-            maximum = Math.max(maximum, value);
+            minimum = Math.min(ensureNotNull(minimum), value);
+            maximum = Math.max(ensureNotNull(maximum), value);
         }
     }
 
@@ -54,8 +62,8 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
         average = sum / (float) count;
 
         if (!other.getValues().isEmpty()) {
-            minimum = Math.min(minimum, other.getMinimum());
-            maximum = Math.max(maximum, other.getMaximum());
+            minimum = Math.min(ensureNotNull(minimum), other.getMinimum());
+            maximum = Math.max(ensureNotNull(maximum), other.getMaximum());
         }
     }
 
@@ -76,9 +84,9 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
     public void clear() {
         count = 0;
         sum = 0f;
-        average = 0f;
-        minimum = 0f;
-        maximum = 0f;
+        average = null;
+        minimum = null;
+        maximum = null;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

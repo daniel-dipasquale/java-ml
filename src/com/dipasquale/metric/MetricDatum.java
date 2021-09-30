@@ -7,21 +7,21 @@ public interface MetricDatum {
 
     float getSum();
 
-    default float getAverage() {
+    default Float getAverage() {
         int size = getValues().size();
 
         if (size == 0) {
-            return 0f;
+            return null;
         }
 
         return getSum() / (float) size;
     }
 
-    float getMinimum();
+    Float getMinimum();
 
-    float getMaximum();
+    Float getMaximum();
 
-    default float getPercentile(final float percentage) {
+    default Float getPercentile(final float percentage) {
         if (Float.compare(percentage, 0f) <= 0) {
             return getMinimum();
         }
@@ -31,7 +31,12 @@ public interface MetricDatum {
         }
 
         List<Float> values = getValues();
-        int index = Math.max((int) (percentage * values.size()), values.size() - 1);
+
+        if (values.isEmpty()) {
+            return null;
+        }
+
+        int index = Math.min((int) (percentage * values.size()), values.size() - 1);
 
         return values.get(index);
     }

@@ -13,7 +13,7 @@ public final class MetricDatumValueSelection {
     private static final Pattern STATISTIC_PATTERN = Pattern.compile("^(?<statistic>count|sum|avg|min|max|p)(?<percentage>\\d+(?:\\.\\d)?)?$");
 
     private static final Map<String, MetricDatumValueSelector> STATISTIC_SELECTORS = ImmutableMap.<String, MetricDatumValueSelector>builder()
-            .put("count", md -> md.getValues().size())
+            .put("count", md -> (float) md.getValues().size())
             .put("sum", MetricDatum::getSum)
             .put("avg", MetricDatum::getAverage)
             .put("min", MetricDatum::getMinimum)
@@ -47,12 +47,12 @@ public final class MetricDatumValueSelection {
             return new MetricDatumValueSelection(metricDatum, metricDatumValueSelector);
         }
 
-        float percentageFixed = Float.parseFloat(percentage);
+        float percentageFixed = Float.parseFloat(String.format("0.%s", percentage));
 
         return new MetricDatumValueSelection(metricDatum, md -> md.getPercentile(percentageFixed));
     }
 
-    public float getValue() {
+    public Float getValue() {
         return metricDatumValueSelector.selectValue(metricDatum);
     }
 }
