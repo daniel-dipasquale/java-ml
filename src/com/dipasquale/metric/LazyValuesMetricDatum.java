@@ -46,28 +46,21 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
         return ensureValuesIsSorted();
     }
 
-    private static float ensureNotNull(final Float value) {
-        if (value == null) {
-            return 0f;
-        }
-
-        return value;
-    }
-
     @Override
     public void add(final float value) {
         int size = values.size();
 
-        valuesSorted = false;
+        valuesSorted = size == 0;
         values.add(value);
-        sum = ensureNotNull(sum) + value;
 
         if (size == 0) {
+            sum = value;
             minimum = value;
             maximum = value;
         } else {
-            minimum = Math.min(ensureNotNull(minimum), value);
-            maximum = Math.max(ensureNotNull(maximum), value);
+            sum += value;
+            minimum = Math.min(minimum, value);
+            maximum = Math.max(maximum, value);
         }
     }
 
@@ -77,11 +70,20 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
             return;
         }
 
+        int size = values.size();
+
         valuesSorted = false;
         values.addAll(other.getValues());
-        sum = ensureNotNull(sum) + other.getSum();
-        minimum = Math.min(ensureNotNull(minimum), other.getMinimum());
-        maximum = Math.max(ensureNotNull(maximum), other.getMaximum());
+
+        if (size == 0) {
+            sum = other.getSum();
+            minimum = other.getMinimum();
+            maximum = other.getMaximum();
+        } else {
+            sum += other.getSum();
+            minimum = Math.min(minimum, other.getMinimum());
+            maximum = Math.max(maximum, other.getMaximum());
+        }
     }
 
     @Override

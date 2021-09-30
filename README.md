@@ -13,27 +13,27 @@ algorithms I'm interested in learning and using:
 
          ```
          iteration: 1
-         generation: 34
-         species: 39
+         generation: 27
+         species: 45
          hidden nodes: 1
          connections: 5
-         fitness: 3.858177
+         fitness: 3.547151
          ```
 
-        - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=8rv3jcqqh&view)
+        - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=d68t9m3bw&view)
 
     - [x] Single Pole Balancing test: :+1: (random data sample)
 
          ```
          iteration: 1
-         generation: 125
+         generation: 131
          species: 64
          hidden nodes: 2
-         connections: 5
+         connections: 7
          fitness: 60.009998
          ```
 
-        - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=7dbz4jffq&view)
+        - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=yhnfu632y&view)
 
       ![Single Pole Balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
 
