@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.metric;
 
+import com.dipasquale.common.factory.data.structure.map.MapFactory;
 import com.dipasquale.metric.MetricDatum;
 import com.dipasquale.metric.MetricDatumSelector;
 import com.dipasquale.metric.MetricsQueryProjector;
@@ -43,14 +44,14 @@ public final class GenerationMetrics implements Serializable {
         return QUERY_PROJECTOR;
     }
 
-    public GenerationMetrics createCopy() {
+    public GenerationMetrics createCopy(final MapFactory mapFactory) {
         Map<String, TopologyMetrics> organismsTopologyCopied = organismsTopology.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().createCopy()));
 
         TopologyMetrics speciesTopologyCopied = speciesTopology.createCopy();
 
         List<FitnessMetrics> organismsFitnessCopied = organismsFitness.stream()
-                .map(FitnessMetrics::createCopy)
+                .map(fm -> fm.createCopy(mapFactory))
                 .collect(Collectors.toList());
 
         MetricDatum speciesAllFitnessCopied = speciesAllFitness.createCopy();

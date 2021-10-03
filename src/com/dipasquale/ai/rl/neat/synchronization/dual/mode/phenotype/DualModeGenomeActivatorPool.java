@@ -1,82 +1,56 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import com.dipasquale.ai.rl.neat.phenotype.DefaultGenomeActivatorPool;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
+import com.dipasquale.ai.rl.neat.phenotype.GenomeActivatorPool;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DualModeGenomeActivatorPool implements DualModeObject, Serializable {
+public final class DualModeGenomeActivatorPool implements GenomeActivatorPool, DualModeObject, Serializable {
     @Serial
-    private static final long serialVersionUID = -8461491541333740085L;
+    private static final long serialVersionUID = -3956562667609505308L;
+    private final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators;
     private final NeuralNetworkFactory neuralNetworkFactory;
-    private final DualModeMap<String, DefaultGenomeActivator> genomeActivators;
+    private transient DefaultGenomeActivatorPool genomeActivatorPool;
 
-    public DualModeGenomeActivatorPool(final boolean concurrent, final int numberOfThreads, final DualModeGenomeActivatorPool other) {
-        this(other.neuralNetworkFactory, new DualModeMap<>(concurrent, numberOfThreads, other.genomeActivators));
+    private DualModeGenomeActivatorPool(final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators, final NeuralNetworkFactory neuralNetworkFactory) {
+        this.genomeActivators = genomeActivators;
+        this.neuralNetworkFactory = neuralNetworkFactory;
+        this.genomeActivatorPool = new DefaultGenomeActivatorPool(genomeActivators, neuralNetworkFactory);
     }
 
-    public DualModeGenomeActivatorPool(final boolean concurrent, final int numberOfThreads, final NeuralNetworkFactory neuralNetworkFactory) {
-        this(neuralNetworkFactory, new DualModeMap<>(concurrent, numberOfThreads));
-    }
-
-    private DefaultGenomeActivator getOrCreate(final DefaultGenomeActivator oldGenomeActivator, final Genome genome, final PopulationState populationState) {
-        if (oldGenomeActivator != null && oldGenomeActivator.genome == genome) {
-            return oldGenomeActivator;
-        }
-
-        return new DefaultGenomeActivator(genome, populationState, neuralNetworkFactory.create(genome));
-    }
-
-    public GenomeActivator getOrCreate(final Genome genome, final PopulationState populationState) {
-        return genomeActivators.compute(genome.getId(), (gid, oga) -> getOrCreate(oga, genome, populationState));
+    public DualModeGenomeActivatorPool(final DualModeMapFactory mapFactory, final NeuralNetworkFactory neuralNetworkFactory) {
+        this(new DualModeMap<>(mapFactory), neuralNetworkFactory);
     }
 
     @Override
-    public void switchMode(final boolean concurrent) {
-        genomeActivators.switchMode(concurrent);
+    public GenomeActivator getOrCreate(final Genome genome, final PopulationState populationState) {
+        return genomeActivatorPool.getOrCreate(genome, populationState);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultGenomeActivator implements GenomeActivator, NeuralNetwork, Serializable {
-        @Serial
-        private static final long serialVersionUID = 7394538848509180506L;
-        private final Genome genome;
-        private final PopulationState populationState;
-        private final NeuralNetwork neuralNetwork;
+    @Override
+    public int concurrencyLevel() {
+        return genomeActivators.concurrencyLevel();
+    }
 
-        @Override
-        public String getId() {
-            return genome.getId();
-        }
+    @Override
+    public void activateMode(final int concurrencyLevel) {
+        genomeActivators.activateMode(concurrencyLevel);
+    }
 
-        @Override
-        public int getGeneration() {
-            return populationState.getGeneration();
-        }
-
-        @Override
-        public int getHiddenNodes() {
-            return genome.getNodes().size(NodeGeneType.HIDDEN);
-        }
-
-        @Override
-        public int getConnections() {
-            return genome.getConnections().getExpressed().size();
-        }
-
-        @Override
-        public float[] activate(final float[] input) {
-            return neuralNetwork.activate(input);
-        }
+    @Serial
+    private void readObject(final ObjectInputStream objectInputStream)
+            throws IOException, ClassNotFoundException {
+        objectInputStream.defaultReadObject();
+        genomeActivatorPool = new DefaultGenomeActivatorPool(genomeActivators, neuralNetworkFactory);
     }
 }

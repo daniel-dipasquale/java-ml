@@ -1,27 +1,37 @@
 package com.dipasquale.ai.rl.neat.settings;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.RandomEnumFactoryProfile;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomEnumFactory;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.LiteralEnumFactory;
-import com.dipasquale.synchronization.dual.profile.DefaultObjectProfile;
-import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.mode.DualModeObject;
+import com.dipasquale.synchronization.dual.mode.factory.DualModeEnumFactory;
+import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
+import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Map;
+
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EnumValue<T extends Enum<T>> {
-    private final ObjectProfileFactoryCreator<T> factoryCreator;
+    private final DualModeFactoryCreator<T> factoryCreator;
     private T singletonValue = null;
 
+    public static <TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> DualModeFactory<TEnum> createFactory(final TEnumFactory enumFactory) {
+        return new DefaultDualModeFactory<>(enumFactory);
+    }
+
     public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
-        ObjectProfileFactoryCreator<T> factoryCreator = ps -> new DefaultObjectProfile<>(ps.isEnabled(), new LiteralEnumFactory<>(value));
+        DualModeFactoryCreator<T> factoryCreator = (ps, rs) -> createFactory(new DualModeEnumFactory<>(ps.getConcurrencyLevel(), new LiteralEnumFactory<>(value)));
 
         return new EnumValue<>(factoryCreator);
     }
 
     private static <T extends Enum<T>> EnumValue<T> createRandom(final RandomType type, final T[] values) {
-        ObjectProfileFactoryCreator<T> factoryCreator = ps -> new RandomEnumFactoryProfile<>(ps.isEnabled(), type, values);
+        DualModeFactoryCreator<T> factoryCreator = (ps, rs) -> createFactory(new DualModeRandomEnumFactory<>(rs.get(type), ImmutableList.copyOf(values)));
 
         return new EnumValue<>(factoryCreator);
     }
@@ -34,22 +44,45 @@ public final class EnumValue<T extends Enum<T>> {
         return createRandom(RandomType.UNIFORM, values);
     }
 
-    public ObjectProfile<EnumFactory<T>> createFactoryProfile(final ParallelismSupport parallelismSupport) {
-        return factoryCreator.create(parallelismSupport);
+    public DualModeFactory<T> createFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
+        return factoryCreator.create(parallelismSupport, randomSupports);
     }
 
-    public T getSingletonValue(final ParallelismSupport parallelismSupport) {
+    public T getSingletonValue(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
         if (singletonValue == null) {
-            ObjectProfile<EnumFactory<T>> factoryProfile = factoryCreator.create(parallelismSupport);
-
-            singletonValue = factoryProfile.getObject().create();
+            singletonValue = factoryCreator.create(parallelismSupport, randomSupports).create();
         }
 
         return singletonValue;
     }
 
+    public interface DualModeFactory<T extends Enum<T>> extends EnumFactory<T>, DualModeObject {
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class DefaultDualModeFactory<TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> implements DualModeFactory<TEnum>, Serializable {
+        @Serial
+        private static final long serialVersionUID = 3324024183810540982L;
+        private final TEnumFactory enumFactory;
+
+        @Override
+        public TEnum create() {
+            return enumFactory.create();
+        }
+
+        @Override
+        public int concurrencyLevel() {
+            return enumFactory.concurrencyLevel();
+        }
+
+        @Override
+        public void activateMode(final int concurrencyLevel) {
+            enumFactory.activateMode(concurrencyLevel);
+        }
+    }
+
     @FunctionalInterface
-    private interface ObjectProfileFactoryCreator<T extends Enum<T>> {
-        ObjectProfile<EnumFactory<T>> create(ParallelismSupport parallelismSupport);
+    private interface DualModeFactoryCreator<T extends Enum<T>> {
+        DualModeFactory<T> create(ParallelismSupport parallelismSupport, Map<RandomType, DualModeRandomSupport> randomSupports);
     }
 }

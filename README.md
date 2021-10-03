@@ -158,7 +158,7 @@ algorithms I'm interested in learning and using:
 
                                 return (float) cartPole.getTimeSpent();
                         })
-                        .fitnessDeterminerFactory(new MinimumFitnessDeterminerFactory())
+                        .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -173,7 +173,7 @@ algorithms I'm interested in learning and using:
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .build())
                 .activation(ActivationSupport.builder()
-                        .neuralNetworkType(NeuralNetworkType.RECURRENT)
+                        .neuralNetworkType(NeuralNetworkType.FEED_FORWARD)
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)

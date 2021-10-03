@@ -27,6 +27,79 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
     }
 
     @Override
+    public boolean containsAll(final Collection<?> items) {
+        for (Object item : items) {
+            if (!contains(item)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean addAll(final Collection<? extends T> items) {
+        boolean modified = false;
+
+        for (T item : items) {
+            if (add(item)) {
+                modified = true;
+            }
+        }
+
+        return modified;
+    }
+
+    @Override
+    public boolean removeIf(final Predicate<? super T> filter) {
+        List<T> itemsToRemove = stream()
+                .filter(filter)
+                .collect(Collectors.toList());
+
+        itemsToRemove.forEach(this::remove);
+
+        return !itemsToRemove.isEmpty();
+    }
+
+    @Override
+    public boolean removeAll(final Collection<?> items) {
+        long removed = items.stream()
+                .filter(this::remove)
+                .count();
+
+        return removed > 0L;
+    }
+
+    private static Set<?> ensureSet(final Collection<?> collection) {
+        Set<Object> set = Collections.newSetFromMap(new IdentityHashMap<>());
+
+        set.addAll(collection);
+
+        return set;
+    }
+
+    @Override
+    public boolean retainAll(final Collection<?> items) {
+        Set<?> itemsToRetain = ensureSet(items);
+
+        if (!itemsToRetain.isEmpty()) {
+            List<T> itemsToRemove = stream()
+                    .filter(k -> !itemsToRetain.contains(k))
+                    .collect(Collectors.toList());
+
+            if (itemsToRemove.isEmpty()) {
+                return false;
+            }
+
+            itemsToRemove.forEach(this::remove);
+        } else {
+            clear();
+        }
+
+        return true;
+    }
+
+    @Override
     public Object[] toArray() {
         Object[] array = new Object[size()];
         int i = 0;
@@ -58,79 +131,6 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
     @Override
     public <TArray> TArray[] toArray(final IntFunction<TArray[]> generator) {
         return toArray(generator.apply(size()));
-    }
-
-    @Override
-    public boolean containsAll(final Collection<?> items) {
-        for (Object item : items) {
-            if (!contains(item)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean addAll(final Collection<? extends T> items) {
-        boolean modified = false;
-
-        for (T item : items) {
-            if (add(item)) {
-                modified = true;
-            }
-        }
-
-        return modified;
-    }
-
-    @Override
-    public boolean removeAll(final Collection<?> items) {
-        long removed = items.stream()
-                .filter(this::remove)
-                .count();
-
-        return removed > 0L;
-    }
-
-    @Override
-    public boolean removeIf(final Predicate<? super T> filter) {
-        List<T> itemsToRemove = stream()
-                .filter(filter)
-                .collect(Collectors.toList());
-
-        itemsToRemove.forEach(this::remove);
-
-        return !itemsToRemove.isEmpty();
-    }
-
-    private static Set<?> ensureSet(final Collection<?> collection) {
-        Set<Object> set = Collections.newSetFromMap(new IdentityHashMap<>());
-
-        set.addAll(collection);
-
-        return set;
-    }
-
-    @Override
-    public boolean retainAll(final Collection<?> items) {
-        Set<?> itemsToRetain = ensureSet(items);
-
-        if (!itemsToRetain.isEmpty()) {
-            List<T> itemsToRemove = stream()
-                    .filter(k -> !itemsToRetain.contains(k))
-                    .collect(Collectors.toList());
-
-            if (itemsToRemove.isEmpty()) {
-                return false;
-            }
-
-            itemsToRemove.forEach(this::remove);
-        } else {
-            clear();
-        }
-
-        return true;
     }
 
     private boolean equals(final Collection<T> other) {

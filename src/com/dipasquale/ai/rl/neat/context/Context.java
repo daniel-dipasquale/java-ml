@@ -259,11 +259,11 @@ public interface Context {
     }
 
     interface MetricSupport {
-        void addCompositions(Iterable<Species> allSpecies);
+        void collectCompositions(Iterable<Species> allSpecies);
 
-        void addFitness(Species species, Organism organism);
+        void collectFitness(Species species, Organism organism);
 
-        void addSharedFitness(Species species);
+        void collectFitness(Species species);
 
         void prepareNextFitnessCalculation();
 

@@ -1,11 +1,9 @@
 package com.dipasquale.ai.rl.neat.settings;
 
+import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.genotype.AllToAllOutputsGenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
-import com.dipasquale.common.factory.FloatFactory;
-import com.dipasquale.common.factory.LiteralFloatFactory;
-import com.dipasquale.synchronization.dual.profile.DefaultObjectProfile;
-import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -43,24 +42,23 @@ public final class GenesisGenomeTemplate {
         return createDefault(inputs, outputs, new float[0]);
     }
 
-    private ObjectProfile<FloatFactory> createWeightFactory(final ParallelismSupport parallelismSupport, final ObjectProfile<FloatFactory> weightFactoryProfile) {
+    private FloatNumber.DualModeFactory createWeightFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final FloatNumber.DualModeFactory weightFactory) {
         if (initialWeightType == InitialWeightType.RANDOM) {
-            return weightFactoryProfile;
+            return weightFactory;
         }
 
-        float weight = weightFactoryProfile.getObject().create();
-        LiteralFloatFactory weightFactory = new LiteralFloatFactory(weight);
+        float weight = weightFactory.create();
 
-        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), weightFactory);
+        return FloatNumber.literal(weight).createFactory(parallelismSupport, randomSupports);
     }
 
-    public GenesisGenomeConnector createConnector(final ParallelismSupport parallelismSupport, final ObjectProfile<FloatFactory> weightFactory) {
-        ObjectProfile<FloatFactory> weightFactoryProfile = createWeightFactory(parallelismSupport, weightFactory);
+    public GenesisGenomeConnector createConnector(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final FloatNumber.DualModeFactory weightFactory) {
+        FloatNumber.DualModeFactory weightFactoryFixed = createWeightFactory(parallelismSupport, randomSupports, weightFactory);
 
         return switch (initialConnectionType) {
-            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new AllToAllOutputsGenesisGenomeConnector(weightFactoryProfile, true);
+            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new AllToAllOutputsGenesisGenomeConnector(weightFactoryFixed, true);
 
-            case ALL_INPUTS_TO_ALL_OUTPUTS -> new AllToAllOutputsGenesisGenomeConnector(weightFactoryProfile, false);
+            case ALL_INPUTS_TO_ALL_OUTPUTS -> new AllToAllOutputsGenesisGenomeConnector(weightFactoryFixed, false);
 
             default -> {
                 String message = String.format("%s needs to be implemented", initialConnectionType);

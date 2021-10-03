@@ -3,25 +3,21 @@ package com.dipasquale.ai.rl.neat.speciation.metric;
 import java.util.Map;
 
 public interface MetricsCollector {
-    FitnessMetrics getFitnessMetrics();
+    boolean isEnabled();
 
-    GenerationMetrics getGenerationMetrics();
+    void collectSpeciesComposition(MetricsContainer metricsContainer, int age, int stagnationPeriod, boolean isStagnant);
 
-    IterationMetrics getIterationMetrics();
+    void collectOrganismTopology(MetricsContainer metricsContainer, String speciesId, int hiddenNodes, int connections);
 
-    void collectSpeciesComposition(int age, int stagnationPeriod, boolean isStagnant);
+    void flushSpeciesComposition(MetricsContainer metricsContainer);
 
-    void collectOrganismTopology(String speciesId, int hiddenNodes, int connections);
+    void collectOrganismFitness(MetricsContainer metricsContainer, String speciesId, float fitness);
 
-    void flushSpeciesComposition();
+    void collectSpeciesFitness(MetricsContainer metricsContainer, float fitness);
 
-    void collectOrganismFitness(String speciesId, float fitness);
+    void prepareNextFitnessCalculation(MetricsContainer metricsContainer);
 
-    void collectSpeciesFitness(float fitness);
+    void prepareNextGeneration(MetricsContainer metricsContainer, int currentGeneration);
 
-    void prepareNextFitnessCalculation();
-
-    void prepareNextGeneration(int currentGeneration);
-
-    void prepareNextIteration(Map<Integer, IterationMetrics> iterationsMetrics, int currentIteration);
+    void prepareNextIteration(MetricsContainer metricsContainer, Map<Integer, IterationMetrics> iterationsMetrics, int currentIteration);
 }

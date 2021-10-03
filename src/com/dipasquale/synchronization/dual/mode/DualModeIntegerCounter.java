@@ -3,35 +3,34 @@ package com.dipasquale.synchronization.dual.mode;
 import com.dipasquale.common.DefaultIntegerCounter;
 import com.dipasquale.common.IntegerCounter;
 import com.dipasquale.common.concurrent.AtomicIntegerCounter;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class DualModeIntegerCounter implements IntegerCounter, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -7472742036609010053L;
-    private boolean parallel;
+    private final ConcurrencyLevelState concurrencyLevelState;
     @EqualsAndHashCode.Include
-    private transient IntegerCounter counter;
+    private IntegerCounter counter;
 
-    public DualModeIntegerCounter(final boolean concurrent, final int value) {
-        this(concurrent, create(concurrent, value));
+    private DualModeIntegerCounter(final ConcurrencyLevelState concurrencyLevelState, final int value) {
+        this.concurrencyLevelState = concurrencyLevelState;
+        this.counter = create(concurrencyLevelState, value);
     }
 
-    public DualModeIntegerCounter(final boolean concurrent) {
-        this(concurrent, -1);
+    public DualModeIntegerCounter(final int concurrencyLevel, final int value) {
+        this(new ConcurrencyLevelState(concurrencyLevel), value);
     }
 
-    private static IntegerCounter create(final boolean concurrent, final int value) {
-        if (concurrent) {
+    public DualModeIntegerCounter(final int concurrencyLevel) {
+        this(concurrencyLevel, -1);
+    }
+
+    private static IntegerCounter create(final ConcurrencyLevelState concurrencyLevelState, final int value) {
+        if (concurrencyLevelState.getCurrent() > 0) {
             return new AtomicIntegerCounter(value);
         }
 
@@ -59,22 +58,13 @@ public final class DualModeIntegerCounter implements IntegerCounter, DualModeObj
     }
 
     @Override
-    public void switchMode(final boolean concurrent) {
-        parallel = concurrent;
-        counter = create(concurrent, counter.current());
+    public int concurrencyLevel() {
+        return concurrencyLevelState.getCurrent();
     }
 
-    @Serial
-    private void readObject(final ObjectInputStream objectInputStream)
-            throws IOException, ClassNotFoundException {
-        objectInputStream.defaultReadObject();
-        counter = create(parallel, (int) objectInputStream.readObject());
-    }
-
-    @Serial
-    private void writeObject(final ObjectOutputStream objectOutputStream)
-            throws IOException {
-        objectOutputStream.defaultWriteObject();
-        objectOutputStream.writeObject(counter.current());
+    @Override
+    public void activateMode(final int concurrencyLevel) {
+        concurrencyLevelState.setCurrent(concurrencyLevel);
+        counter = create(concurrencyLevelState, counter.current());
     }
 }

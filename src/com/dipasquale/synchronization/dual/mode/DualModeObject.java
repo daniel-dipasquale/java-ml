@@ -2,26 +2,27 @@ package com.dipasquale.synchronization.dual.mode;
 
 import java.util.Map;
 
-@FunctionalInterface
 public interface DualModeObject {
-    void switchMode(boolean concurrent);
+    int concurrencyLevel();
 
-    static <T extends DualModeObject> T switchMode(final T dualObject, final boolean concurrent) {
-        dualObject.switchMode(concurrent);
+    void activateMode(int concurrencyLevel);
+
+    static <T extends DualModeObject> T activateMode(final T dualObject, final int concurrencyLevel) {
+        dualObject.activateMode(concurrencyLevel);
 
         return dualObject;
     }
 
-    static <T extends Iterable<? extends DualModeObject>> T switchModes(final T dualObjects, final boolean concurrent) {
+    static <T extends Iterable<? extends DualModeObject>> T forEachActivateMode(final T dualObjects, final int concurrencyLevel) {
         for (DualModeObject dualObject : dualObjects) {
-            switchMode(dualObject, concurrent);
+            activateMode(dualObject, concurrencyLevel);
         }
 
         return dualObjects;
     }
 
-    static <T extends Map<?, ? extends DualModeObject>> T switchModeMap(final T dualObjects, final boolean concurrent) {
-        switchModes(dualObjects.values(), concurrent);
+    static <T extends Map<?, ? extends DualModeObject>> T forEachValueActivateMode(final T dualObjects, final int concurrencyLevel) {
+        forEachActivateMode(dualObjects.values(), concurrencyLevel);
 
         return dualObjects;
     }

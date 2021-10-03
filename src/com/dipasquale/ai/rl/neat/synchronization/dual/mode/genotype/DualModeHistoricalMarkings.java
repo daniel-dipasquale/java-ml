@@ -1,133 +1,111 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
 import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.genotype.DefaultHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneIdDependencyTracker;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.common.serialization.SerializableStateGroup;
-import com.dipasquale.common.serialization.SerializableSupport;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
+import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
+import com.dipasquale.synchronization.dual.mode.data.structure.set.DualModeMapToSetFactory;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Map;
 
-public final class DualModeHistoricalMarkings implements DualModeObject, Serializable {
+public final class DualModeHistoricalMarkings implements HistoricalMarkings, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 2505708313091427289L;
     private final DualModeSequentialIdFactory innovationIdFactory;
-    private final DualModeMap<DirectedEdge, InnovationId> innovationIds;
-    private final NodeIdDependencyTrackerFactory nodeIdDependencyTrackerFactory;
-    private final DualModeMap<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackers;
-    private transient HistoricalMarkings historicalMarkings;
+    private final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds;
+    private final NodeGeneIdDependencyTrackerFactory nodeIdDependencyTrackerFactory;
+    private final DualModeMap<SequentialId, DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeIdDependencyTrackers;
+    private transient DefaultHistoricalMarkings<DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>> historicalMarkings;
 
-    private DualModeHistoricalMarkings(final DualModeSequentialIdFactory innovationIdFactory, final DualModeMap<DirectedEdge, InnovationId> innovationIds, final NodeIdDependencyTrackerFactory nodeIdDependencyTrackerFactory, final DualModeMap<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackers) {
-        this.innovationIdFactory = innovationIdFactory;
+    private DualModeHistoricalMarkings(final DualModeMapFactory mapFactory, final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds, final DualModeMap<SequentialId, DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeIdDependencyTrackers) {
+        this.innovationIdFactory = new DualModeSequentialIdFactory(mapFactory.concurrencyLevel(), "innovation-id");
         this.innovationIds = innovationIds;
-        this.nodeIdDependencyTrackerFactory = nodeIdDependencyTrackerFactory;
+        this.nodeIdDependencyTrackerFactory = new NodeGeneIdDependencyTrackerFactory(new DualModeMapToSetFactory(mapFactory));
         this.nodeIdDependencyTrackers = nodeIdDependencyTrackers;
-        this.historicalMarkings = createHistoricalMarkings(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, nodeIdDependencyTrackers);
+        this.historicalMarkings = new DefaultHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, nodeIdDependencyTrackers);
     }
 
-    private DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads, final Map<DirectedEdge, InnovationId> innovationIds, final Map<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackers) {
-        this(new DualModeSequentialIdFactory(concurrent, "innovation-id"), new DualModeMap<>(concurrent, numberOfThreads, innovationIds), new NodeIdDependencyTrackerFactory(concurrent, numberOfThreads), createNodeIdDependencyTrackers(concurrent, numberOfThreads, nodeIdDependencyTrackers));
+    public DualModeHistoricalMarkings(final DualModeMapFactory mapFactory) {
+        this(mapFactory, new DualModeMap<>(mapFactory), new DualModeMap<>(mapFactory));
     }
 
-    public DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads, final DualModeHistoricalMarkings other) {
-        this(concurrent, numberOfThreads, other.innovationIds, other.nodeIdDependencyTrackers);
-    }
-
-    public DualModeHistoricalMarkings(final boolean concurrent, final int numberOfThreads) {
-        this(concurrent, numberOfThreads, null, null);
-    }
-
-    private static DualModeMap<SequentialId, DualModeNodeIdDependencyTracker> createNodeIdDependencyTrackers(final boolean concurrent, final int numberOfThreads, final Map<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackers) {
-        if (nodeIdDependencyTrackers == null) {
-            return new DualModeMap<>(concurrent, numberOfThreads, null);
-        }
-
-        SerializableStateGroup stateGroup = new SerializableStateGroup();
-
-        stateGroup.put("nodeIdDependencyTrackers", nodeIdDependencyTrackers);
-
-        try {
-            byte[] stateGroupBytes = SerializableSupport.serializeStateGroup(stateGroup);
-            SerializableStateGroup clonedStateGroup = SerializableSupport.deserializeStateGroup(stateGroupBytes);
-            Map<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackersFixed = clonedStateGroup.get("nodeIdDependencyTrackers");
-
-            nodeIdDependencyTrackersFixed.values().forEach(niddt -> niddt.switchMode(concurrent));
-
-            return new DualModeMap<>(concurrent, numberOfThreads, nodeIdDependencyTrackersFixed);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("unable to clone the nodeIdDependencyTrackers", e);
-        }
-    }
-
-    private static HistoricalMarkings createHistoricalMarkings(final DualModeSequentialIdFactory innovationIdFactory, final DualModeMap<DirectedEdge, InnovationId> innovationIds, final NodeIdDependencyTrackerFactory nodeIdDependencyTrackerFactory, final DualModeMap<SequentialId, DualModeNodeIdDependencyTracker> nodeIdDependencyTrackers) {
-        return new HistoricalMarkings(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, (Map<SequentialId, NodeGeneIdDependencyTracker>) (Object) nodeIdDependencyTrackers);
-    }
-
+    @Override
     public InnovationId getOrCreateInnovationId(final DirectedEdge directedEdge) {
         return historicalMarkings.getOrCreateInnovationId(directedEdge);
     }
 
+    @Override
     public boolean containsInnovationId(final DirectedEdge directedEdge) {
         return historicalMarkings.containsInnovationId(directedEdge);
     }
 
+    @Override
     public void registerNode(final NodeGene node) {
         historicalMarkings.registerNode(node);
     }
 
+    @Override
     public void deregisterNode(final NodeGene node) {
         historicalMarkings.deregisterNode(node);
     }
 
+    @Override
     public void clear() {
         historicalMarkings.clear();
     }
 
     @Override
-    public void switchMode(final boolean concurrent) {
-        innovationIdFactory.switchMode(concurrent);
-        innovationIds.switchMode(concurrent);
-        nodeIdDependencyTrackerFactory.switchMode(concurrent);
-        nodeIdDependencyTrackers.switchMode(concurrent);
-        nodeIdDependencyTrackers.values().forEach(niddt -> niddt.switchMode(concurrent));
-        historicalMarkings = createHistoricalMarkings(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, nodeIdDependencyTrackers);
+    public int concurrencyLevel() {
+        return innovationIdFactory.concurrencyLevel();
+    }
+
+    @Override
+    public void activateMode(final int concurrencyLevel) {
+        innovationIdFactory.activateMode(concurrencyLevel);
+        innovationIds.activateMode(concurrencyLevel);
+        nodeIdDependencyTrackerFactory.activateMode(concurrencyLevel);
+        DualModeObject.forEachValueActivateMode(nodeIdDependencyTrackers, concurrencyLevel);
+        nodeIdDependencyTrackers.activateMode(concurrencyLevel);
+        historicalMarkings = new DefaultHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, nodeIdDependencyTrackers);
     }
 
     @Serial
     private void readObject(final ObjectInputStream objectInputStream)
             throws IOException, ClassNotFoundException {
         objectInputStream.defaultReadObject();
-        historicalMarkings = createHistoricalMarkings(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, nodeIdDependencyTrackers);
+        historicalMarkings = new DefaultHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, nodeIdDependencyTrackers);
     }
 
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class NodeIdDependencyTrackerFactory implements ObjectFactory<NodeGeneIdDependencyTracker>, DualModeObject, Serializable {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class NodeGeneIdDependencyTrackerFactory implements ObjectFactory<DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>>, DualModeObject, Serializable {
         @Serial
         private static final long serialVersionUID = 107984128175600587L;
-        private boolean parallel;
-        private final int numberOfThreads;
+        private final DualModeMapToSetFactory setFactory;
 
         @Override
-        public NodeGeneIdDependencyTracker create() {
-            return new DualModeNodeIdDependencyTracker(parallel, numberOfThreads);
+        public DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory> create() {
+            return new DualModeNodeGeneIdDependencyTracker<>(setFactory);
         }
 
         @Override
-        public void switchMode(final boolean concurrent) {
-            parallel = concurrent;
+        public int concurrencyLevel() {
+            return setFactory.concurrencyLevel();
+        }
+
+        @Override
+        public void activateMode(final int concurrencyLevel) {
+            setFactory.activateMode(concurrencyLevel);
         }
     }
 }

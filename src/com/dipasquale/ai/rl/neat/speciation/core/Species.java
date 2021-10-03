@@ -94,14 +94,14 @@ public final class Species implements Serializable {
 
     public float updateSharedFitnessOnly(final Context.MetricSupport metricSupport) {
         updateAllFitness(Organism::getFitness);
-        metricSupport.addSharedFitness(this);
+        metricSupport.collectFitness(this);
 
         return sharedFitness;
     }
 
     public float updateAllFitness(final Context context) {
         updateAllFitness(o -> o.updateFitness(this, context));
-        context.metrics().addSharedFitness(this);
+        context.metrics().collectFitness(this);
 
         return sharedFitness;
     }

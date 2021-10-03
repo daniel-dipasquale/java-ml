@@ -46,7 +46,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
         GenomeActivator genomeActivator = getGenomeActivator(activationSupport);
 
         fitness = activationSupport.calculateFitness(genomeActivator);
-        context.metrics().addFitness(species, this);
+        context.metrics().collectFitness(species, this);
 
         return fitness;
     }

@@ -1,40 +1,39 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
+import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.common.WeightMutationType;
 import com.dipasquale.ai.rl.neat.settings.FloatNumber;
 import com.dipasquale.ai.rl.neat.settings.MutationSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
-import com.dipasquale.common.Pair;
-import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.common.provider.GateProvider;
-import com.dipasquale.common.random.float1.RandomSupport;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutputClassifierFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomFloatFactory;
 import com.dipasquale.common.serialization.SerializableStateGroup;
-import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
-import com.dipasquale.synchronization.dual.profile.ObjectProfile;
-import com.dipasquale.synchronization.dual.profile.provider.IsLessThanRandomGateProviderProfile;
+import com.dipasquale.synchronization.dual.mode.DualModeObject;
+import com.dipasquale.synchronization.dual.mode.provider.DualModeIsLessThanRandomGateProvider;
+import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
+import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextMutationSupport implements Context.MutationSupport {
-    private ObjectProfile<GateProvider> shouldAddNodeProfile;
-    private ObjectProfile<GateProvider> shouldAddConnectionProfile;
-    private ObjectProfile<ObjectFactory<WeightMutationType>> weightMutationTypeFactoryProfile;
-    private ObjectProfile<GateProvider> shouldDisableExpressedConnectionProfile;
+    private DualModeIsLessThanRandomGateProvider shouldAddNodeGateProvider;
+    private DualModeIsLessThanRandomGateProvider shouldAddConnectionGateProvider;
+    private DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> weightMutationTypeFactory;
+    private DualModeIsLessThanRandomGateProvider shouldDisableExpressedConnectionGateProvider;
 
-    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<RandomSupport> randomSupportPair, final float max) {
-        return new IsLessThanRandomGateProviderProfile(parallelismSupport.isEnabled(), randomSupportPair, max);
+    private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber maximumNumber) {
+        float max = maximumNumber.getSingletonValue(parallelismSupport, randomSupports);
+
+        return new DualModeIsLessThanRandomGateProvider(randomSupport, max);
     }
 
-    private static DefaultReproductionTypeFactoryProfile createWeightMutationTypeFactoryProfile(final ParallelismSupport parallelismSupport, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate, final Pair<RandomSupport> randomSupportPair) {
-        float perturbRate = perturbWeightRate.getSingletonValue(parallelismSupport);
-        float replaceRate = replaceWeightRate.getSingletonValue(parallelismSupport);
+    private static DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> createWeightMutationTypeFactoryProfile(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate) {
+        float perturbRate = perturbWeightRate.getSingletonValue(parallelismSupport, randomSupports);
+        float replaceRate = replaceWeightRate.getSingletonValue(parallelismSupport, randomSupports);
         float totalRate = (float) Math.ceil(perturbRate + replaceRate);
         OutputClassifier<WeightMutationType> weightMutationTypeClassifier = new OutputClassifier<>();
 
@@ -45,80 +44,49 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
 
         weightMutationTypeClassifier.addRemainingRangeFor(WeightMutationType.NONE);
 
-        return new DefaultReproductionTypeFactoryProfile(parallelismSupport.isEnabled(), randomSupportPair, weightMutationTypeClassifier);
+        return new DualModeOutputClassifierFactory<>(new DualModeRandomFloatFactory(randomSupport), weightMutationTypeClassifier);
     }
 
-    private static ObjectProfile<GateProvider> createIsLessThanProviderProfile(final ParallelismSupport parallelismSupport, final Pair<RandomSupport> randomSupportPair, final FloatNumber maximumNumber) {
-        float max = maximumNumber.getSingletonValue(parallelismSupport);
+    public static DefaultContextMutationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final MutationSupport mutationSupport) {
+        DualModeIsLessThanRandomGateProvider shouldAddNodeGateProvider = createIsLessThanGateProvider(parallelismSupport, randomSupports, randomSupport, mutationSupport.getAddNodeRate());
+        DualModeIsLessThanRandomGateProvider shouldAddConnectionGateProvider = createIsLessThanGateProvider(parallelismSupport, randomSupports, randomSupport, mutationSupport.getAddConnectionRate());
+        DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> weightMutationTypeFactoryProfile = createWeightMutationTypeFactoryProfile(parallelismSupport, randomSupports, randomSupport, mutationSupport.getPerturbWeightRate(), mutationSupport.getReplaceWeightRate());
+        DualModeIsLessThanRandomGateProvider shouldDisableExpressedConnectionGateProvider = createIsLessThanGateProvider(parallelismSupport, randomSupports, randomSupport, mutationSupport.getDisableExpressedConnectionRate());
 
-        return createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, max);
-    }
-
-    public static DefaultContextMutationSupport create(final ParallelismSupport parallelismSupport, final ObjectProfile<RandomSupport> randomSupportProfile, final MutationSupport mutationSupport) {
-        Pair<RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
-        ObjectProfile<GateProvider> shouldAddNodeProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, mutationSupport.getAddNodeRate());
-        ObjectProfile<GateProvider> shouldAddConnectionProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, mutationSupport.getAddConnectionRate());
-        DefaultReproductionTypeFactoryProfile weightMutationTypeFactoryProfile = createWeightMutationTypeFactoryProfile(parallelismSupport, mutationSupport.getPerturbWeightRate(), mutationSupport.getReplaceWeightRate(), randomSupportPair);
-        ObjectProfile<GateProvider> shouldDisableExpressedConnectionProfile = createIsLessThanProviderProfile(parallelismSupport, randomSupportPair, mutationSupport.getDisableExpressedConnectionRate());
-
-        return new DefaultContextMutationSupport(shouldAddNodeProfile, shouldAddConnectionProfile, weightMutationTypeFactoryProfile, shouldDisableExpressedConnectionProfile);
+        return new DefaultContextMutationSupport(shouldAddNodeGateProvider, shouldAddConnectionGateProvider, weightMutationTypeFactoryProfile, shouldDisableExpressedConnectionGateProvider);
     }
 
     @Override
     public boolean shouldAddNode() {
-        return shouldAddNodeProfile.getObject().isOn();
+        return shouldAddNodeGateProvider.isOn();
     }
 
     @Override
     public boolean shouldAddConnection() {
-        return shouldAddConnectionProfile.getObject().isOn();
+        return shouldAddConnectionGateProvider.isOn();
     }
 
     @Override
     public WeightMutationType generateWeightMutationType() {
-        return weightMutationTypeFactoryProfile.getObject().create();
+        return weightMutationTypeFactory.create();
     }
 
     @Override
     public boolean shouldDisableExpressedConnection() {
-        return shouldDisableExpressedConnectionProfile.getObject().isOn();
+        return shouldDisableExpressedConnectionGateProvider.isOn();
     }
 
     public void save(final SerializableStateGroup stateGroup) {
-        stateGroup.put("mutation.shouldAddNodeProfile", shouldAddNodeProfile);
-        stateGroup.put("mutation.shouldAddConnectionProfile", shouldAddConnectionProfile);
-        stateGroup.put("mutation.weightMutationTypeFactoryProfile", weightMutationTypeFactoryProfile);
-        stateGroup.put("mutation.shouldDisableExpressedConnectionProfile", shouldDisableExpressedConnectionProfile);
+        stateGroup.put("mutation.shouldAddNodeGateProvider", shouldAddNodeGateProvider);
+        stateGroup.put("mutation.shouldAddConnectionGateProvider", shouldAddConnectionGateProvider);
+        stateGroup.put("mutation.weightMutationTypeFactory", weightMutationTypeFactory);
+        stateGroup.put("mutation.shouldDisableExpressedConnectionGateProvider", shouldDisableExpressedConnectionGateProvider);
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        shouldAddNodeProfile = ObjectProfile.switchProfile(stateGroup.get("mutation.shouldAddNodeProfile"), eventLoop != null);
-        shouldAddConnectionProfile = ObjectProfile.switchProfile(stateGroup.get("mutation.shouldAddConnectionProfile"), eventLoop != null);
-        weightMutationTypeFactoryProfile = ObjectProfile.switchProfile(stateGroup.get("mutation.weightMutationTypeFactoryProfile"), eventLoop != null);
-        shouldDisableExpressedConnectionProfile = ObjectProfile.switchProfile(stateGroup.get("mutation.shouldDisableExpressedConnectionProfile"), eventLoop != null);
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultWeightMutationTypeFactory implements ObjectFactory<WeightMutationType>, Serializable {
-        @Serial
-        private static final long serialVersionUID = 8271108235303831278L;
-        private final RandomSupport randomSupport;
-        private final OutputClassifier<WeightMutationType> weightMutationTypeClassifier;
-
-        @Override
-        public WeightMutationType create() {
-            float value = randomSupport.next();
-
-            return weightMutationTypeClassifier.resolve(value);
-        }
-    }
-
-    private static final class DefaultReproductionTypeFactoryProfile extends AbstractObjectProfile<ObjectFactory<WeightMutationType>> {
-        @Serial
-        private static final long serialVersionUID = -6073304827549187092L;
-
-        private DefaultReproductionTypeFactoryProfile(final boolean concurrent, final Pair<RandomSupport> randomSupportPair, final OutputClassifier<WeightMutationType> weightMutationTypeClassifier) {
-            super(concurrent, new DefaultWeightMutationTypeFactory(randomSupportPair.getLeft(), weightMutationTypeClassifier), new DefaultWeightMutationTypeFactory(randomSupportPair.getRight(), weightMutationTypeClassifier));
-        }
+        shouldAddNodeGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddNodeGateProvider"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        shouldAddConnectionGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddConnectionGateProvider"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        weightMutationTypeFactory = DualModeObject.activateMode(stateGroup.get("mutation.weightMutationTypeFactory"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        shouldDisableExpressedConnectionGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldDisableExpressedConnectionGateProvider"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
     }
 }

@@ -2,64 +2,27 @@ package com.dipasquale.synchronization.dual.mode.data.structure.set;
 
 import com.dipasquale.common.factory.data.structure.set.SetFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Spliterator;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public final class DualModeSet<T> implements Set<T>, DualModeObject, Serializable {
+public final class DualModeSet<TItem, TSetFactory extends SetFactory & DualModeObject> implements Set<TItem>, DualModeObject, Serializable {
     @Serial
-    private static final long serialVersionUID = -4800035066286223912L;
-    private final SetFactoryProfile setFactoryProfile;
-    private transient Set<T> set;
+    private static final long serialVersionUID = -4728932779387492187L;
+    private final TSetFactory setFactory;
+    private Set<TItem> set;
 
-    private DualModeSet(final SetFactoryProfile setFactoryProfile, final Set<T> set) {
-        this.setFactoryProfile = setFactoryProfile;
-        this.set = setFactoryProfile.getObject().create(set);
-    }
-
-    private DualModeSet(final SetFactoryProfile setFactoryProfile) {
-        this(setFactoryProfile, null);
-    }
-
-    public DualModeSet(final boolean concurrent, final SetFactory concurrentSetFactory, final SetFactory defaultSetFactory, final Set<T> set) {
-        this(new SetFactoryProfile(concurrent, concurrentSetFactory, defaultSetFactory), set);
-    }
-
-    public DualModeSet(final boolean concurrent, final SetFactory concurrentSetFactory, final SetFactory defaultSetFactory) {
-        this(concurrent, concurrentSetFactory, defaultSetFactory, null);
-    }
-
-    public DualModeSet(final boolean concurrent, final int numberOfThreads, final int initialCapacity, final Set<T> set) {
-        this(SetFactoryProfile.create(concurrent, numberOfThreads, initialCapacity), set);
-    }
-
-    public DualModeSet(final boolean concurrent, final int numberOfThreads, final int initialCapacity) {
-        this(concurrent, numberOfThreads, initialCapacity, null);
-    }
-
-    public DualModeSet(final boolean concurrent, final int numberOfThreads, final Set<T> set) {
-        this(concurrent, numberOfThreads, 16, set);
-    }
-
-    public DualModeSet(final boolean concurrent, final int numberOfThreads) {
-        this(concurrent, numberOfThreads, null);
+    public DualModeSet(final TSetFactory setFactory) {
+        this.setFactory = setFactory;
+        this.set = setFactory.create(null);
     }
 
     @Override
@@ -83,12 +46,12 @@ public final class DualModeSet<T> implements Set<T>, DualModeObject, Serializabl
     }
 
     @Override
-    public boolean add(final T value) {
+    public boolean add(final TItem value) {
         return set.add(value);
     }
 
     @Override
-    public boolean addAll(final Collection<? extends T> collection) {
+    public boolean addAll(final Collection<? extends TItem> collection) {
         return set.addAll(collection);
     }
 
@@ -98,7 +61,7 @@ public final class DualModeSet<T> implements Set<T>, DualModeObject, Serializabl
     }
 
     @Override
-    public boolean removeIf(final Predicate<? super T> filter) {
+    public boolean removeIf(final Predicate<? super TItem> filter) {
         return set.removeIf(filter);
     }
 
@@ -133,27 +96,27 @@ public final class DualModeSet<T> implements Set<T>, DualModeObject, Serializabl
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<TItem> iterator() {
         return set.iterator();
     }
 
     @Override
-    public void forEach(final Consumer<? super T> action) {
+    public void forEach(final Consumer<? super TItem> action) {
         set.forEach(action);
     }
 
     @Override
-    public Spliterator<T> spliterator() {
+    public Spliterator<TItem> spliterator() {
         return set.spliterator();
     }
 
     @Override
-    public Stream<T> stream() {
+    public Stream<TItem> stream() {
         return set.stream();
     }
 
     @Override
-    public Stream<T> parallelStream() {
+    public Stream<TItem> parallelStream() {
         return set.parallelStream();
     }
 
@@ -173,70 +136,13 @@ public final class DualModeSet<T> implements Set<T>, DualModeObject, Serializabl
     }
 
     @Override
-    public void switchMode(final boolean concurrent) {
-        setFactoryProfile.switchProfile(concurrent);
-        set = setFactoryProfile.getObject().create(set);
+    public int concurrencyLevel() {
+        return setFactory.concurrencyLevel();
     }
 
-    @Serial
-    private void readObject(final ObjectInputStream objectInputStream)
-            throws IOException, ClassNotFoundException {
-        objectInputStream.defaultReadObject();
-        set = setFactoryProfile.getObject().create((Set<T>) objectInputStream.readObject());
-    }
-
-    @Serial
-    private void writeObject(final ObjectOutputStream objectOutputStream)
-            throws IOException {
-        objectOutputStream.defaultWriteObject();
-        objectOutputStream.writeObject(new HashSet<>(set));
-    }
-
-    private static <T> Set<T> createDefaultSet(final boolean parallel, final int numberOfThreads, final int initialCapacity, final Set<T> other) {
-        if (parallel) {
-            Set<T> set = Collections.newSetFromMap(new ConcurrentHashMap<>(initialCapacity, 0.75f, numberOfThreads));
-
-            if (other != null) {
-                set.addAll(other);
-            }
-
-            return set;
-        }
-
-        if (other == null) {
-            return new HashSet<>(initialCapacity);
-        }
-
-        return new HashSet<>(other);
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ProxySetFactory implements SetFactory, Serializable {
-        @Serial
-        private static final long serialVersionUID = 5483251986252952651L;
-        private final boolean concurrent;
-        private final int numberOfThreads;
-        private final int initialCapacity;
-
-        @Override
-        public <T> Set<T> create(final Set<T> other) {
-            return createDefaultSet(concurrent, numberOfThreads, initialCapacity, other);
-        }
-    }
-
-    private static final class SetFactoryProfile extends AbstractObjectProfile<SetFactory> implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 4399666040673908195L;
-
-        private SetFactoryProfile(final boolean concurrent, final SetFactory concurrentSetFactory, final SetFactory defaultSetFactory) {
-            super(concurrent, concurrentSetFactory, defaultSetFactory);
-        }
-
-        private static SetFactoryProfile create(final boolean concurrent, final int numberOfThreads, final int initialCapacity) {
-            ProxySetFactory concurrentSetFactory = new ProxySetFactory(true, numberOfThreads, initialCapacity);
-            ProxySetFactory defaultSetFactory = new ProxySetFactory(false, numberOfThreads, initialCapacity);
-
-            return new SetFactoryProfile(concurrent, concurrentSetFactory, defaultSetFactory);
-        }
+    @Override
+    public void activateMode(final int concurrencyLevel) {
+        setFactory.activateMode(concurrencyLevel);
+        set = setFactory.create(set);
     }
 }

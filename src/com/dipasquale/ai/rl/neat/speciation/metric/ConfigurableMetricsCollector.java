@@ -1,88 +1,59 @@
 package com.dipasquale.ai.rl.neat.speciation.metric;
 
-import com.dipasquale.common.factory.data.structure.map.MapFactory;
 import com.dipasquale.metric.MetricDatum;
 import com.dipasquale.metric.MetricDatumFactory;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Map;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public final class ConfigurableMetricsCollector implements MetricsCollector, Serializable {
     @Serial
     private static final long serialVersionUID = 4466816617617350646L;
-    private final MapFactory mapFactory;
     private final MetricDatumFactory metricDatumFactory;
     private final boolean clearFitnessOnAdd;
     private final boolean clearGenerationsOnAdd;
     private final boolean clearIterationsOnAdd;
-    @Getter
-    private GenerationMetrics generationMetrics;
-    @Getter
-    private FitnessMetrics fitnessMetrics;
-    @Getter
-    private IterationMetrics iterationMetrics;
 
-    public ConfigurableMetricsCollector(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory, final boolean clearFitnessOnAdd, final boolean clearGenerationsOnAdd, final boolean clearIterationsOnAdd) {
-        this(mapFactory, metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd, createGenerationMetrics(mapFactory, metricDatumFactory), createFitnessMetrics(mapFactory, metricDatumFactory), createIterationMetrics(mapFactory, metricDatumFactory));
-    }
-
-    private static TopologyMetrics createTopologyMetrics(final MetricDatumFactory metricDatumFactory) {
-        return new TopologyMetrics(metricDatumFactory.create(), metricDatumFactory.create());
-    }
-
-    private static GenerationMetrics createGenerationMetrics(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        return new GenerationMetrics(mapFactory.create(), createTopologyMetrics(metricDatumFactory), new ArrayList<>(), metricDatumFactory.create(), metricDatumFactory.create(), metricDatumFactory.create(), metricDatumFactory.create(), metricDatumFactory.create());
-    }
-
-    private static FitnessMetrics createFitnessMetrics(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        return new FitnessMetrics(mapFactory.create(), metricDatumFactory.create(), metricDatumFactory.create());
-    }
-
-    private static IterationMetrics createIterationMetrics(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        return new IterationMetrics(mapFactory.create(), metricDatumFactory.create());
-    }
-
-    private TopologyMetrics createTopologyMetrics() {
-        return createTopologyMetrics(metricDatumFactory);
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     @Override
-    public void collectSpeciesComposition(final int age, final int stagnationPeriod, final boolean isStagnant) {
-        generationMetrics.getSpeciesAge().add((float) age);
-        generationMetrics.getSpeciesStagnationPeriod().add((float) stagnationPeriod);
-        generationMetrics.getSpeciesStagnant().add(isStagnant ? 1f : 0f);
+    public void collectSpeciesComposition(final MetricsContainer metricsContainer, final int age, final int stagnationPeriod, final boolean isStagnant) {
+        metricsContainer.getGenerationMetrics().getSpeciesAge().add((float) age);
+        metricsContainer.getGenerationMetrics().getSpeciesStagnationPeriod().add((float) stagnationPeriod);
+        metricsContainer.getGenerationMetrics().getSpeciesStagnant().add(isStagnant ? 1f : 0f);
     }
 
     @Override
-    public void collectOrganismTopology(final String speciesId, final int hiddenNodes, final int connections) {
-        generationMetrics.getOrganismsTopology().compute(speciesId, (sid, otm) -> {
+    public void collectOrganismTopology(final MetricsContainer metricsContainer, final String speciesId, final int hiddenNodes, final int connections) {
+        metricsContainer.getGenerationMetrics().getOrganismsTopology().compute(speciesId, (sid, otm) -> {
             TopologyMetrics topologyMetrics = otm;
 
             if (topologyMetrics == null) {
-                topologyMetrics = createTopologyMetrics();
+                topologyMetrics = MetricsContainer.createTopologyMetrics(metricDatumFactory);
             }
 
             topologyMetrics.getHiddenNodes().add((float) hiddenNodes);
             topologyMetrics.getConnections().add((float) connections);
-            generationMetrics.getSpeciesTopology().merge(topologyMetrics);
+            metricsContainer.getGenerationMetrics().getSpeciesTopology().merge(topologyMetrics);
 
             return topologyMetrics;
         });
     }
 
     @Override
-    public void flushSpeciesComposition() {
-        iterationMetrics.getSpeciesCount().add((float) generationMetrics.getOrganismsTopology().size());
+    public void flushSpeciesComposition(final MetricsContainer metricsContainer) {
+        metricsContainer.getIterationMetrics().getSpeciesCount().add((float) metricsContainer.getGenerationMetrics().getOrganismsTopology().size());
     }
 
     @Override
-    public void collectOrganismFitness(final String speciesId, final float fitness) {
-        fitnessMetrics.getOrganisms().compute(speciesId, (sid, o) -> {
+    public void collectOrganismFitness(final MetricsContainer metricsContainer, final String speciesId, final float fitness) {
+        metricsContainer.getFitnessMetrics().getOrganisms().compute(speciesId, (sid, o) -> {
             MetricDatum organisms = o;
 
             if (organisms == null) {
@@ -96,53 +67,41 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
     }
 
     @Override
-    public void collectSpeciesFitness(final float fitness) {
-        fitnessMetrics.getShared().add(fitness);
-    }
-
-    private FitnessMetrics createFitnessMetrics() {
-        return createFitnessMetrics(mapFactory, metricDatumFactory);
+    public void collectSpeciesFitness(final MetricsContainer metricsContainer, final float fitness) {
+        metricsContainer.getFitnessMetrics().getShared().add(fitness);
     }
 
     @Override
-    public void prepareNextFitnessCalculation() {
-        fitnessMetrics.getOrganisms().values().forEach(fitnessMetrics.getAll()::merge);
-        generationMetrics.getSpeciesAllFitness().merge(fitnessMetrics.getAll());
-        generationMetrics.getSpeciesSharedFitness().merge(fitnessMetrics.getShared());
+    public void prepareNextFitnessCalculation(final MetricsContainer metricsContainer) {
+        metricsContainer.getFitnessMetrics().getOrganisms().values().forEach(metricsContainer.getFitnessMetrics().getAll()::merge);
+        metricsContainer.getGenerationMetrics().getSpeciesAllFitness().merge(metricsContainer.getFitnessMetrics().getAll());
+        metricsContainer.getGenerationMetrics().getSpeciesSharedFitness().merge(metricsContainer.getFitnessMetrics().getShared());
 
         if (clearFitnessOnAdd) {
-            generationMetrics.getOrganismsFitness().clear();
+            metricsContainer.getGenerationMetrics().getOrganismsFitness().clear();
         }
 
-        generationMetrics.getOrganismsFitness().add(fitnessMetrics);
-        fitnessMetrics = createFitnessMetrics();
-    }
-
-    private GenerationMetrics createGenerationMetrics() {
-        return createGenerationMetrics(mapFactory, metricDatumFactory);
+        metricsContainer.getGenerationMetrics().getOrganismsFitness().add(metricsContainer.getFitnessMetrics());
+        metricsContainer.replaceFitnessMetrics();
     }
 
     @Override
-    public void prepareNextGeneration(final int currentGeneration) {
+    public void prepareNextGeneration(final MetricsContainer metricsContainer, final int currentGeneration) {
         if (clearGenerationsOnAdd) {
-            iterationMetrics.getGenerations().clear();
+            metricsContainer.getIterationMetrics().getGenerations().clear();
         }
 
-        iterationMetrics.getGenerations().put(currentGeneration, generationMetrics);
-        generationMetrics = createGenerationMetrics();
-    }
-
-    private IterationMetrics createIterationMetrics() {
-        return createIterationMetrics(mapFactory, metricDatumFactory);
+        metricsContainer.getIterationMetrics().getGenerations().put(currentGeneration, metricsContainer.getGenerationMetrics());
+        metricsContainer.replaceGenerationMetrics();
     }
 
     @Override
-    public void prepareNextIteration(final Map<Integer, IterationMetrics> iterationsMetrics, final int currentIteration) {
+    public void prepareNextIteration(final MetricsContainer metricsContainer, final Map<Integer, IterationMetrics> iterationsMetrics, final int currentIteration) {
         if (clearIterationsOnAdd) {
             iterationsMetrics.clear();
         }
 
-        iterationsMetrics.put(currentIteration, iterationMetrics);
-        iterationMetrics = createIterationMetrics();
+        iterationsMetrics.put(currentIteration, metricsContainer.getIterationMetrics());
+        metricsContainer.replaceIterationMetrics();
     }
 }

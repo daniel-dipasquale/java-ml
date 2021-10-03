@@ -2,58 +2,40 @@ package com.dipasquale.synchronization.dual.mode.data.structure.map;
 
 import com.dipasquale.common.factory.data.structure.map.MapFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.profile.factory.data.structure.map.MapFactoryProfile;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public final class DualModeMap<TKey, TValue> implements Map<TKey, TValue>, DualModeObject, Serializable {
+public final class DualModeMap<TKey, TValue, TMapFactory extends MapFactory & DualModeObject> implements Map<TKey, TValue>, DualModeObject, Serializable {
     @Serial
-    private static final long serialVersionUID = 6719007368363187752L;
-    private final MapFactoryProfile mapFactoryProfile;
-    private transient Map<TKey, TValue> map;
+    private static final long serialVersionUID = 5822287955029560123L;
+    private final TMapFactory mapFactory;
+    private Map<TKey, TValue> map;
 
-    private DualModeMap(final MapFactoryProfile mapFactoryProfile, final Map<TKey, TValue> map) {
-        this.mapFactoryProfile = mapFactoryProfile;
-        this.map = mapFactoryProfile.getObject().create(map);
+    public DualModeMap(final TMapFactory mapFactory) {
+        this.mapFactory = mapFactory;
+        this.map = mapFactory.create(null);
     }
 
-    private DualModeMap(final MapFactoryProfile mapFactoryProfile) {
-        this(mapFactoryProfile, null);
+    @Override
+    public Set<TKey> keySet() {
+        return map.keySet();
     }
 
-    public DualModeMap(final boolean concurrent, final MapFactory concurrentMapFactory, final MapFactory defaultMapFactory, final Map<TKey, TValue> map) {
-        this(new MapFactoryProfile(concurrent, concurrentMapFactory, defaultMapFactory), map);
+    @Override
+    public Collection<TValue> values() {
+        return map.values();
     }
 
-    public DualModeMap(final boolean concurrent, final MapFactory concurrentMapFactory, final MapFactory defaultMapFactory) {
-        this(concurrent, concurrentMapFactory, defaultMapFactory, null);
-    }
-
-    public DualModeMap(final boolean concurrent, final int numberOfThreads, final int initialCapacity, final Map<TKey, TValue> map) {
-        this(MapFactoryProfile.createHash(concurrent, numberOfThreads, initialCapacity), map);
-    }
-
-    public DualModeMap(final boolean concurrent, final int numberOfThreads, final int initialCapacity) {
-        this(concurrent, numberOfThreads, initialCapacity, null);
-    }
-
-    public DualModeMap(final boolean concurrent, final int numberOfThreads, final Map<TKey, TValue> map) {
-        this(concurrent, numberOfThreads, 16, map);
-    }
-
-    public DualModeMap(final boolean concurrent, final int numberOfThreads) {
-        this(concurrent, numberOfThreads, null);
+    @Override
+    public Set<Entry<TKey, TValue>> entrySet() {
+        return map.entrySet();
     }
 
     @Override
@@ -97,33 +79,8 @@ public final class DualModeMap<TKey, TValue> implements Map<TKey, TValue>, DualM
     }
 
     @Override
-    public TValue compute(final TKey key, final BiFunction<? super TKey, ? super TValue, ? extends TValue> remappingFunction) {
-        return map.compute(key, remappingFunction);
-    }
-
-    @Override
-    public TValue computeIfAbsent(final TKey key, final Function<? super TKey, ? extends TValue> mappingFunction) {
-        return map.computeIfAbsent(key, mappingFunction);
-    }
-
-    @Override
-    public TValue computeIfPresent(final TKey key, BiFunction<? super TKey, ? super TValue, ? extends TValue> remappingFunction) {
-        return map.computeIfPresent(key, remappingFunction);
-    }
-
-    @Override
     public void putAll(final Map<? extends TKey, ? extends TValue> map) {
         this.map.putAll(map);
-    }
-
-    @Override
-    public TValue remove(final Object key) {
-        return map.remove(key);
-    }
-
-    @Override
-    public boolean remove(final Object key, final Object value) {
-        return map.remove(key, value);
     }
 
     @Override
@@ -142,23 +99,33 @@ public final class DualModeMap<TKey, TValue> implements Map<TKey, TValue>, DualM
     }
 
     @Override
+    public TValue remove(final Object key) {
+        return map.remove(key);
+    }
+
+    @Override
+    public boolean remove(final Object key, final Object value) {
+        return map.remove(key, value);
+    }
+
+    @Override
+    public TValue computeIfAbsent(final TKey key, final Function<? super TKey, ? extends TValue> mappingFunction) {
+        return map.computeIfAbsent(key, mappingFunction);
+    }
+
+    @Override
+    public TValue computeIfPresent(final TKey key, BiFunction<? super TKey, ? super TValue, ? extends TValue> remappingFunction) {
+        return map.computeIfPresent(key, remappingFunction);
+    }
+
+    @Override
+    public TValue compute(final TKey key, final BiFunction<? super TKey, ? super TValue, ? extends TValue> remappingFunction) {
+        return map.compute(key, remappingFunction);
+    }
+
+    @Override
     public TValue merge(final TKey key, final TValue value, final BiFunction<? super TValue, ? super TValue, ? extends TValue> remappingFunction) {
         return map.merge(key, value, remappingFunction);
-    }
-
-    @Override
-    public Set<TKey> keySet() {
-        return map.keySet();
-    }
-
-    @Override
-    public Collection<TValue> values() {
-        return map.values();
-    }
-
-    @Override
-    public Set<Entry<TKey, TValue>> entrySet() {
-        return map.entrySet();
     }
 
     @Override
@@ -187,22 +154,13 @@ public final class DualModeMap<TKey, TValue> implements Map<TKey, TValue>, DualM
     }
 
     @Override
-    public void switchMode(final boolean concurrent) {
-        mapFactoryProfile.switchProfile(concurrent);
-        map = mapFactoryProfile.getObject().create(map);
+    public int concurrencyLevel() {
+        return mapFactory.concurrencyLevel();
     }
 
-    @Serial
-    private void readObject(final ObjectInputStream objectInputStream)
-            throws IOException, ClassNotFoundException {
-        objectInputStream.defaultReadObject();
-        map = mapFactoryProfile.getObject().create((Map<TKey, TValue>) objectInputStream.readObject());
-    }
-
-    @Serial
-    private void writeObject(final ObjectOutputStream objectOutputStream)
-            throws IOException {
-        objectOutputStream.defaultWriteObject();
-        objectOutputStream.writeObject(new HashMap<>(map));
+    @Override
+    public void activateMode(final int concurrencyLevel) {
+        mapFactory.activateMode(concurrencyLevel);
+        map = mapFactory.create(map);
     }
 }

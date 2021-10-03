@@ -2,9 +2,9 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.deque.DualModeDeque;
+import com.dipasquale.synchronization.dual.mode.data.structure.deque.DualModeDequeFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -16,10 +16,10 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 6680979157037947466L;
     private final DualModeSequentialIdFactory genomeIdFactory;
-    private final DualModeDeque<String> disposedGenomeIds;
+    private final DualModeDeque<String, DualModeDequeFactory> disposedGenomeIds;
 
-    public DualModeGenomePool(final boolean concurrent) {
-        this(new DualModeSequentialIdFactory(concurrent, "genome"), new DualModeDeque<>(concurrent));
+    public DualModeGenomePool(final DualModeDequeFactory dequeFactory) {
+        this(new DualModeSequentialIdFactory(dequeFactory.concurrencyLevel(), "genome"), new DualModeDeque<>(dequeFactory));
     }
 
     public String createId() {
@@ -33,6 +33,7 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
     }
 
     public void clearIds() {
+        disposedGenomeIds.clear();
         genomeIdFactory.reset();
     }
 
@@ -54,8 +55,13 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
     }
 
     @Override
-    public void switchMode(final boolean concurrent) {
-        genomeIdFactory.switchMode(concurrent);
-        disposedGenomeIds.switchMode(concurrent);
+    public int concurrencyLevel() {
+        return disposedGenomeIds.concurrencyLevel();
+    }
+
+    @Override
+    public void activateMode(final int concurrencyLevel) {
+        genomeIdFactory.activateMode(concurrencyLevel);
+        disposedGenomeIds.activateMode(concurrencyLevel);
     }
 }

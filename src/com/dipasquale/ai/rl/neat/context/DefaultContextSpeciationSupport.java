@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
+import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.settings.FloatNumber;
@@ -21,16 +22,13 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionPromoterS
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.DualModeSequentialIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomePool;
-import com.dipasquale.common.Pair;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeSequentialIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeSpeciesFitnessStrategy;
 import com.dipasquale.common.factory.ObjectIndexer;
-import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.profile.AbstractObjectProfile;
-import com.dipasquale.synchronization.dual.profile.DefaultObjectProfile;
-import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
@@ -40,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextSpeciationSupport implements Context.SpeciationSupport {
@@ -47,12 +46,12 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     private DualModeSequentialIdFactory speciesIdFactory;
     private DualModeGenomePool genomePool;
     private GenomeCompatibilityCalculator genomeCompatibilityCalculator;
-    private ObjectProfile<ObjectIndexer<ReproductionType>> reproductionTypeFactoryProfile;
-    private ObjectProfile<SpeciesFitnessStrategy> fitnessStrategyProfile;
-    private ObjectProfile<SpeciesSelectionStrategyExecutor> selectionStrategyProfile;
-    private ObjectProfile<SpeciesReproductionStrategy> reproductionStrategyProfile;
+    private DualModeReproductionTypeFactory reproductionTypeFactory;
+    private DualModeSpeciesFitnessStrategy fitnessStrategy;
+    private SpeciesSelectionStrategyExecutor selectionStrategy;
+    private SpeciesReproductionStrategy reproductionStrategy;
 
-    private static OutputClassifier<ReproductionType> createReproductionTypeClassifier(final float mateOnlyRate, final float mutateOnlyRate) {
+    private static OutputClassifier<ReproductionType> createGeneralReproductionTypeClassifier(final float mateOnlyRate, final float mutateOnlyRate) {
         float totalRate = mateOnlyRate * 2 + mutateOnlyRate * 2;
         OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
 
@@ -78,16 +77,16 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         return reproductionTypeClassifier;
     }
 
-    private static DefaultReproductionTypeFactoryProfile createRandomReproductionTypeGeneratorProfile(final ParallelismSupport parallelismSupport, final FloatNumber mateOnlyRate, final FloatNumber mutateOnlyRate, final Pair<RandomSupport> randomSupportPair) {
-        float _mateOnlyRate = mateOnlyRate.getSingletonValue(parallelismSupport);
-        float _mutateOnlyRate = mutateOnlyRate.getSingletonValue(parallelismSupport);
-        OutputClassifier<ReproductionType> reproductionTypeClassifier = createReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
+    private static DualModeReproductionTypeFactory createReproductionTypeFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber mateOnlyRate, final FloatNumber mutateOnlyRate) {
+        float _mateOnlyRate = mateOnlyRate.getSingletonValue(parallelismSupport, randomSupports);
+        float _mutateOnlyRate = mutateOnlyRate.getSingletonValue(parallelismSupport, randomSupports);
+        OutputClassifier<ReproductionType> generalReproductionTypeClassifier = createGeneralReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
         OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier = createLessThan2ReproductionTypeClassifier(_mutateOnlyRate);
 
-        return new DefaultReproductionTypeFactoryProfile(parallelismSupport.isEnabled(), randomSupportPair, reproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
+        return new DualModeReproductionTypeFactory(randomSupport, generalReproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
     }
 
-    private static ObjectProfile<SpeciesFitnessStrategy> createFitnessStrategyProfile(final ParallelismSupport parallelismSupport) {
+    private static DualModeSpeciesFitnessStrategy createFitnessStrategy(final ParallelismSupport parallelismSupport) {
         List<SpeciesFitnessStrategy> concurrentStrategies = ImmutableList.<SpeciesFitnessStrategy>builder()
                 .add(new ParallelUpdateSpeciesFitnessStrategy())
                 .add(new UpdateSharedSpeciesFitnessStrategy())
@@ -96,54 +95,51 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         SpeciesFitnessStrategy concurrentStrategy = new MultiSpeciesFitnessStrategy(concurrentStrategies);
         SpeciesFitnessStrategy defaultStrategy = new UpdateAllFitnessSpeciesFitnessStrategy();
 
-        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), concurrentStrategy, defaultStrategy);
+        return new DualModeSpeciesFitnessStrategy(parallelismSupport.getConcurrencyLevel(), concurrentStrategy, defaultStrategy);
     }
 
-    private static ObjectProfile<SpeciesSelectionStrategyExecutor> createEvolutionStrategyProfile(final ParallelismSupport parallelismSupport) {
+    private static SpeciesSelectionStrategyExecutor createSelectionStrategy() {
         List<SpeciesSelectionStrategy> strategies = ImmutableList.<SpeciesSelectionStrategy>builder()
                 .add(new LeastFitRemoverSpeciesSelectionStrategy())
                 .add(new ChampionPromoterSelectionStrategy())
                 .build();
 
-        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), new SpeciesSelectionStrategyExecutor(strategies));
+        return new SpeciesSelectionStrategyExecutor(strategies);
     }
 
-    private static ObjectProfile<SpeciesReproductionStrategy> createReproductionStrategyProfile(final ParallelismSupport parallelismSupport) {
+    private static SpeciesReproductionStrategy createReproductionStrategy() {
         List<SpeciesReproductionStrategy> strategies = ImmutableList.<SpeciesReproductionStrategy>builder()
                 .add(new PreserveMostFitSpeciesReproductionStrategy())
                 .add(new MateAndMutateSpeciesReproductionStrategy())
                 .add(new GenesisSpeciesReproductionStrategy())
                 .build();
 
-        SpeciesReproductionStrategy strategy = new MultiSpeciesReproductionStrategy(strategies);
-
-        return new DefaultObjectProfile<>(parallelismSupport.isEnabled(), strategy);
+        return new MultiSpeciesReproductionStrategy(strategies);
     }
 
-    public static DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final ObjectProfile<RandomSupport> randomSupportProfile, final SpeciationSupport speciationSupport) {
+    public static DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final SpeciationSupport speciationSupport) {
         DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
-                .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingletonValue(parallelismSupport))
-                .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingletonValue(parallelismSupport))
-                .eugenicsThreshold(speciationSupport.getEugenicsThreshold().getSingletonValue(parallelismSupport))
-                .elitistThreshold(speciationSupport.getElitistThreshold().getSingletonValue(parallelismSupport))
-                .elitistThresholdMinimum(speciationSupport.getElitistThresholdMinimum().getSingletonValue(parallelismSupport))
-                .stagnationDropOffAge(speciationSupport.getStagnationDropOffAge().getSingletonValue(parallelismSupport))
-                .interSpeciesMatingRate(speciationSupport.getInterSpeciesMatingRate().getSingletonValue(parallelismSupport))
+                .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingletonValue(parallelismSupport, randomSupports))
+                .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingletonValue(parallelismSupport, randomSupports))
+                .eugenicsThreshold(speciationSupport.getEugenicsThreshold().getSingletonValue(parallelismSupport, randomSupports))
+                .elitistThreshold(speciationSupport.getElitistThreshold().getSingletonValue(parallelismSupport, randomSupports))
+                .elitistThresholdMinimum(speciationSupport.getElitistThresholdMinimum().getSingletonValue(parallelismSupport, randomSupports))
+                .stagnationDropOffAge(speciationSupport.getStagnationDropOffAge().getSingletonValue(parallelismSupport, randomSupports))
+                .interSpeciesMatingRate(speciationSupport.getInterSpeciesMatingRate().getSingletonValue(parallelismSupport, randomSupports))
                 .build();
 
-        float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingletonValue(parallelismSupport);
-        float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingletonValue(parallelismSupport);
-        float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingletonValue(parallelismSupport);
-        DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelismSupport.isEnabled(), "species");
-        DualModeGenomePool genomePool = new DualModeGenomePool(parallelismSupport.isEnabled());
+        float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingletonValue(parallelismSupport, randomSupports);
+        float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingletonValue(parallelismSupport, randomSupports);
+        float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingletonValue(parallelismSupport, randomSupports);
+        DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelismSupport.getConcurrencyLevel(), "species");
+        DualModeGenomePool genomePoolProfile = new DualModeGenomePool(parallelismSupport.getDequeFactory());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
-        Pair<RandomSupport> randomSupportPair = ObjectProfile.deconstruct(randomSupportProfile);
-        DefaultReproductionTypeFactoryProfile randomReproductionTypeGeneratorProfile = createRandomReproductionTypeGeneratorProfile(parallelismSupport, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate(), randomSupportPair);
-        ObjectProfile<SpeciesFitnessStrategy> fitnessStrategyProfile = createFitnessStrategyProfile(parallelismSupport);
-        ObjectProfile<SpeciesSelectionStrategyExecutor> evolutionStrategyProfile = createEvolutionStrategyProfile(parallelismSupport);
-        ObjectProfile<SpeciesReproductionStrategy> reproductionStrategyProfile = createReproductionStrategyProfile(parallelismSupport);
+        DualModeReproductionTypeFactory reproductionTypeFactory = createReproductionTypeFactory(parallelismSupport, randomSupports, randomSupport, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate());
+        DualModeSpeciesFitnessStrategy fitnessStrategy = createFitnessStrategy(parallelismSupport);
+        SpeciesSelectionStrategyExecutor selectionStrategy = createSelectionStrategy();
+        SpeciesReproductionStrategy reproductionStrategy = createReproductionStrategy();
 
-        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePool, genomeCompatibilityCalculator, randomReproductionTypeGeneratorProfile, fitnessStrategyProfile, evolutionStrategyProfile, reproductionStrategyProfile);
+        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePoolProfile, genomeCompatibilityCalculator, reproductionTypeFactory, fitnessStrategy, selectionStrategy, reproductionStrategy);
     }
 
     @Override
@@ -178,37 +174,27 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
 
     @Override
     public double calculateCompatibility(final Genome genome1, final Genome genome2) {
-        double compatibility = genomeCompatibilityCalculator.calculateCompatibility(genome1, genome2);
-
-        if (compatibility == Double.POSITIVE_INFINITY) {
-            return Double.MAX_VALUE;
-        }
-
-        if (compatibility == Double.NEGATIVE_INFINITY) {
-            return -Double.MAX_VALUE;
-        }
-
-        return compatibility;
+        return genomeCompatibilityCalculator.calculateCompatibility(genome1, genome2);
     }
 
     @Override
     public ReproductionType generateReproductionType(final int organisms) {
-        return reproductionTypeFactoryProfile.getObject().get(organisms);
+        return reproductionTypeFactory.get(organisms);
     }
 
     @Override
     public SpeciesFitnessStrategy getFitnessStrategy() {
-        return fitnessStrategyProfile.getObject();
+        return fitnessStrategy;
     }
 
     @Override
     public SpeciesSelectionStrategyExecutor getSelectionStrategy() {
-        return selectionStrategyProfile.getObject();
+        return selectionStrategy;
     }
 
     @Override
     public SpeciesReproductionStrategy getReproductionStrategy() {
-        return reproductionStrategyProfile.getObject();
+        return reproductionStrategy;
     }
 
     @Override
@@ -226,29 +212,29 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         stateGroup.put("speciation.speciesIdFactory", speciesIdFactory);
         stateGroup.put("speciation.genomePool", genomePool);
         stateGroup.put("speciation.genomeCompatibilityCalculator", genomeCompatibilityCalculator);
-        stateGroup.put("speciation.reproductionTypeFactoryProfile", reproductionTypeFactoryProfile);
-        stateGroup.put("speciation.fitnessStrategyProfile", fitnessStrategyProfile);
-        stateGroup.put("speciation.selectionStrategyProfile", selectionStrategyProfile);
-        stateGroup.put("speciation.reproductionStrategyProfile", reproductionStrategyProfile);
+        stateGroup.put("speciation.reproductionTypeFactory", reproductionTypeFactory);
+        stateGroup.put("speciation.fitnessStrategy", fitnessStrategy);
+        stateGroup.put("speciation.selectionStrategy", selectionStrategy);
+        stateGroup.put("speciation.reproductionStrategy", reproductionStrategy);
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
         params = stateGroup.get("speciation.params");
-        speciesIdFactory = DualModeObject.switchMode(stateGroup.get("speciation.speciesIdFactory"), eventLoop != null);
-        genomePool = DualModeObject.switchMode(stateGroup.get("speciation.genomePool"), eventLoop != null);
+        speciesIdFactory = DualModeObject.activateMode(stateGroup.get("speciation.speciesIdFactory"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        genomePool = DualModeObject.activateMode(stateGroup.get("speciation.genomePool"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
         genomeCompatibilityCalculator = stateGroup.get("speciation.genomeCompatibilityCalculator");
-        reproductionTypeFactoryProfile = ObjectProfile.switchProfile(stateGroup.get("speciation.reproductionTypeFactoryProfile"), eventLoop != null);
-        fitnessStrategyProfile = ObjectProfile.switchProfile(stateGroup.get("speciation.fitnessStrategyProfile"), eventLoop != null);
-        selectionStrategyProfile = ObjectProfile.switchProfile(stateGroup.get("speciation.selectionStrategyProfile"), eventLoop != null);
-        reproductionStrategyProfile = ObjectProfile.switchProfile(stateGroup.get("speciation.reproductionStrategyProfile"), eventLoop != null);
+        reproductionTypeFactory = DualModeObject.activateMode(stateGroup.get("speciation.reproductionTypeFactory"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        fitnessStrategy = DualModeObject.activateMode(stateGroup.get("speciation.fitnessStrategy"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        selectionStrategy = stateGroup.get("speciation.selectionStrategy");
+        reproductionStrategy = stateGroup.get("speciation.reproductionStrategy");
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultReproductionTypeFactory implements ObjectIndexer<ReproductionType>, Serializable {
+    private static final class DualModeReproductionTypeFactory implements ObjectIndexer<ReproductionType>, DualModeObject, Serializable {
         @Serial
         private static final long serialVersionUID = 6788712949153539093L;
-        private final RandomSupport randomSupport;
-        private final OutputClassifier<ReproductionType> reproductionTypeClassifier;
+        private final DualModeRandomSupport randomSupport;
+        private final OutputClassifier<ReproductionType> generalReproductionTypeClassifier;
         private final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier;
 
         @Override
@@ -256,19 +242,20 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
             float value = randomSupport.next();
 
             if (organisms >= 2) {
-                return reproductionTypeClassifier.resolve(value);
+                return generalReproductionTypeClassifier.resolve(value);
             }
 
             return lessThan2ReproductionTypeClassifier.resolve(value);
         }
-    }
 
-    private static final class DefaultReproductionTypeFactoryProfile extends AbstractObjectProfile<ObjectIndexer<ReproductionType>> {
-        @Serial
-        private static final long serialVersionUID = -976465186511988776L;
+        @Override
+        public int concurrencyLevel() {
+            return randomSupport.concurrencyLevel();
+        }
 
-        private DefaultReproductionTypeFactoryProfile(final boolean concurrent, final Pair<RandomSupport> randomSupportPair, final OutputClassifier<ReproductionType> reproductionTypeClassifier, final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier) {
-            super(concurrent, new DefaultReproductionTypeFactory(randomSupportPair.getLeft(), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier), new DefaultReproductionTypeFactory(randomSupportPair.getRight(), reproductionTypeClassifier, lessThan2ReproductionTypeClassifier));
+        @Override
+        public void activateMode(final int concurrencyLevel) {
+            randomSupport.activateMode(concurrencyLevel);
         }
     }
 }

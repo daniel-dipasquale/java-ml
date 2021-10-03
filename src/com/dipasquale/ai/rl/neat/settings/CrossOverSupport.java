@@ -1,12 +1,14 @@
 package com.dipasquale.ai.rl.neat.settings;
 
+import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextCrossOverSupport;
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -17,7 +19,7 @@ public final class CrossOverSupport {
     @Builder.Default
     private final FloatNumber useWeightFromRandomParentRate = FloatNumber.literal(0.6f);
 
-    DefaultContextCrossOverSupport create(final ParallelismSupport parallelismSupport, final ObjectProfile<RandomSupport> randomSupportProfile) {
-        return DefaultContextCrossOverSupport.create(parallelismSupport, randomSupportProfile, this);
+    DefaultContextCrossOverSupport create(final ParallelismSupport parallelismSupport, final DualModeRandomSupport randomSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
+        return DefaultContextCrossOverSupport.create(parallelismSupport, randomSupports, randomSupport, this);
     }
 }

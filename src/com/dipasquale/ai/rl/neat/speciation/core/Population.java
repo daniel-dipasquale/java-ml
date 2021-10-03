@@ -86,7 +86,7 @@ public final class Population {
                 .map(speciesNodes::getValue)
                 ::iterator;
 
-        metricSupport.addCompositions(allSpecies);
+        metricSupport.collectCompositions(allSpecies);
     }
 
     private void assignOrganismsToSpecies(final Context context) {

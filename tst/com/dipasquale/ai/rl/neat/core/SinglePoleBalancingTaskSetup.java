@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.common.fitness.MinimumFitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
@@ -39,7 +39,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     private static final double TIME_SPENT_GOAL = 60D;
     private static final com.dipasquale.common.random.float2.RandomSupport RANDOM_SUPPORT = new ThreadLocalRandomSupport();
     private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
-    private static final int SUCCESSFUL_SCENARIOS = 1; // NOTE: the higher this number the more consistent the solution will be
+    private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
     @Getter
     private final int populationSize = 150;
 
@@ -108,7 +108,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
                             return calculateFitness(g);
                         })
-                        .fitnessDeterminerFactory(new MinimumFitnessDeterminerFactory())
+                        .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -123,7 +123,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .build())
                 .activation(ActivationSupport.builder()
-                        .neuralNetworkType(NeuralNetworkType.RECURRENT)
+                        .neuralNetworkType(NeuralNetworkType.FEED_FORWARD)
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -168,8 +168,8 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
                 .add(SupervisorTrainingPolicy.builder()
-                        .maximumGeneration(350)
-                        .maximumRestartCount(1)
+                        .maximumGeneration(450)
+                        .maximumRestartCount(0)
                         .build())
                 .add(new DelegatedTrainingPolicy(SinglePoleBalancingTaskSetup::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()

@@ -1,9 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.common.serialization.SerializableStateGroup;
-import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
-import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
@@ -71,16 +68,6 @@ public final class DefaultContext implements Context {
     @Override
     public MetricSupport metrics() {
         return metricSupport;
-    }
-
-    public static <TKey, TValue> DualModeMap<TKey, TValue> loadMap(final DualModeMap<TKey, TValue> map, final IterableEventLoop eventLoop) {
-        DualModeMap<TKey, TValue> mapFixed = DualModeObject.switchMode(map, eventLoop != null);
-
-        if (eventLoop == null) {
-            return new DualModeMap<>(false, 1, mapFixed);
-        }
-
-        return new DualModeMap<>(true, eventLoop.getConcurrencyLevel(), mapFixed);
     }
 
     @Override

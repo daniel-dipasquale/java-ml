@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.common.factory.WeightPerturber;
+import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
@@ -13,43 +13,42 @@ import com.dipasquale.ai.rl.neat.settings.FloatNumber;
 import com.dipasquale.ai.rl.neat.settings.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.settings.NeuralNetworkType;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeWeightPerturber;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeHistoricalMarkings;
-import com.dipasquale.ai.rl.neat.synchronization.dual.profile.factory.WeightPerturberProfile;
-import com.dipasquale.common.Pair;
-import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.profile.ObjectProfile;
+import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
+import java.util.Map;
+
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextConnectionGeneSupport implements Context.ConnectionGeneSupport {
     private DefaultContextConnectionGeneParameters params;
-    private ObjectProfile<FloatFactory> weightFactoryProfile;
-    private ObjectProfile<WeightPerturber> weightPerturberProfile;
+    private FloatNumber.DualModeFactory weightFactory;
+    private DualModeWeightPerturber<FloatNumber.DualModeFactory> weightPerturber;
     private GenesisGenomeConnector genesisGenomeConnector;
     private DualModeHistoricalMarkings historicalMarkings;
 
-    private static ObjectProfile<WeightPerturber> createWeightPerturberProfile(final ParallelismSupport parallelismSupport, final FloatNumber weightPerturber) {
-        ObjectProfile<FloatFactory> floatFactoryProfile = weightPerturber.createFactoryProfile(parallelismSupport);
-        Pair<FloatFactory> floatFactoryPair = ObjectProfile.deconstruct(floatFactoryProfile);
+    private static DualModeWeightPerturber<FloatNumber.DualModeFactory> createWeightPerturberProfile(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final FloatNumber weightPerturber) {
+        FloatNumber.DualModeFactory floatFactory = weightPerturber.createFactory(parallelismSupport, randomSupports);
 
-        return new WeightPerturberProfile(parallelismSupport.isEnabled(), floatFactoryPair);
+        return new DualModeWeightPerturber<>(floatFactory);
     }
 
-    public static DefaultContextConnectionGeneSupport create(final ParallelismSupport parallelismSupport, final GenesisGenomeTemplate genesisGenomeTemplate, final ActivationSupport activationSupport, final ConnectionGeneSupport connectionGeneSupport) {
+    public static DefaultContextConnectionGeneSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final GenesisGenomeTemplate genesisGenomeTemplate, final ActivationSupport activationSupport, final ConnectionGeneSupport connectionGeneSupport) {
         DefaultContextConnectionGeneParameters params = DefaultContextConnectionGeneParameters.builder()
                 .multipleRecurrentCyclesAllowed(activationSupport.getNeuralNetworkType() == NeuralNetworkType.MULTI_CYCLE_RECURRENT)
                 .build();
 
-        ObjectProfile<FloatFactory> weightFactoryProfile = connectionGeneSupport.getWeightFactory().createFactoryProfile(parallelismSupport);
-        ObjectProfile<WeightPerturber> weightPerturberProfile = createWeightPerturberProfile(parallelismSupport, connectionGeneSupport.getWeightPerturber());
-        GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(parallelismSupport, weightFactoryProfile);
-        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(parallelismSupport.isEnabled(), parallelismSupport.getNumberOfThreads());
+        FloatNumber.DualModeFactory weightFactory = connectionGeneSupport.getWeightFactory().createFactory(parallelismSupport, randomSupports);
+        DualModeWeightPerturber<FloatNumber.DualModeFactory> weightPerturber = createWeightPerturberProfile(parallelismSupport, randomSupports, connectionGeneSupport.getWeightPerturber());
+        GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(parallelismSupport, randomSupports, weightFactory);
+        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(parallelismSupport.getMapFactory());
 
-        return new DefaultContextConnectionGeneSupport(params, weightFactoryProfile, weightPerturberProfile, genesisGenomeConnector, historicalMarkings);
+        return new DefaultContextConnectionGeneSupport(params, weightFactory, weightPerturber, genesisGenomeConnector, historicalMarkings);
     }
 
     @Override
@@ -59,12 +58,12 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
 
     @Override
     public float generateWeight() {
-        return weightFactoryProfile.getObject().create();
+        return weightFactory.create();
     }
 
     @Override
     public float perturbWeight(final float weight) {
-        return weightPerturberProfile.getObject().perturb(weight);
+        return weightPerturber.perturb(weight);
     }
 
     @Override
@@ -131,27 +130,17 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
 
     public void save(final SerializableStateGroup stateGroup) {
         stateGroup.put("connections.params", params);
-        stateGroup.put("connections.weightFactoryProfile", weightFactoryProfile);
-        stateGroup.put("connections.weightPerturberProfile", weightPerturberProfile);
-        stateGroup.put("connections.genomeGenesisConnector", genesisGenomeConnector);
+        stateGroup.put("connections.weightFactory", weightFactory);
+        stateGroup.put("connections.weightPerturber", weightPerturber);
+        stateGroup.put("connections.genesisGenomeConnector", genesisGenomeConnector);
         stateGroup.put("connections.historicalMarkings", historicalMarkings);
-    }
-
-    private static DualModeHistoricalMarkings loadHistoricalMarkings(final DualModeHistoricalMarkings historicalMarkings, final IterableEventLoop eventLoop) {
-        DualModeHistoricalMarkings historicalMarkingsFixed = DualModeObject.switchMode(historicalMarkings, eventLoop != null);
-
-        if (eventLoop == null) {
-            return new DualModeHistoricalMarkings(false, 1, historicalMarkingsFixed);
-        }
-
-        return new DualModeHistoricalMarkings(true, eventLoop.getConcurrencyLevel(), historicalMarkingsFixed);
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
         params = stateGroup.get("connections.params");
-        weightFactoryProfile = ObjectProfile.switchProfile(stateGroup.get("connections.weightFactoryProfile"), eventLoop != null);
-        weightPerturberProfile = ObjectProfile.switchProfile(stateGroup.get("connections.weightPerturberProfile"), eventLoop != null);
-        genesisGenomeConnector = stateGroup.get("connections.genomeGenesisConnector");
-        historicalMarkings = loadHistoricalMarkings(stateGroup.get("connections.historicalMarkings"), eventLoop);
+        weightFactory = DualModeObject.activateMode(stateGroup.get("connections.weightFactory"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        weightPerturber = DualModeObject.activateMode(stateGroup.get("connections.weightPerturber"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        genesisGenomeConnector = stateGroup.get("connections.genesisGenomeConnector");
+        historicalMarkings = DualModeObject.activateMode(stateGroup.get("connections.historicalMarkings"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
     }
 }

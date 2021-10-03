@@ -4,27 +4,48 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.DefaultContextParallelismSupport;
 import com.dipasquale.ai.rl.neat.context.MultiThreadContextParallelismSupport;
 import com.dipasquale.ai.rl.neat.context.SingleThreadContextParallelismSupport;
+import com.dipasquale.synchronization.dual.mode.data.structure.deque.DualModeDequeFactory;
+import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 public final class ParallelismSupport {
-    @Builder.Default
-    private final IterableEventLoop eventLoop = null;
+    private final IterableEventLoop eventLoop;
+    @Getter
+    private final DualModeMapFactory mapFactory;
+    @Getter
+    private final DualModeDequeFactory dequeFactory;
+
+    private ParallelismSupport(final IterableEventLoop eventLoop, final int concurrencyLevel, final int maximumConcurrencyLevel) {
+        this.eventLoop = eventLoop;
+        this.mapFactory = new DualModeMapFactory(concurrencyLevel, maximumConcurrencyLevel);
+        this.dequeFactory = new DualModeDequeFactory(concurrencyLevel, maximumConcurrencyLevel);
+    }
+
+    @Builder
+    private ParallelismSupport(final IterableEventLoop eventLoop) {
+        this(eventLoop, getConcurrencyLevel(eventLoop), getMaximumConcurrencyLevel(eventLoop));
+    }
+
+    private static int getConcurrencyLevel(final IterableEventLoop eventLoop) {
+        if (eventLoop == null) {
+            return 0;
+        }
+
+        return eventLoop.getConcurrencyLevel();
+    }
+
+    private static int getMaximumConcurrencyLevel(final IterableEventLoop eventLoop) {
+        return Math.max(getConcurrencyLevel(eventLoop), Runtime.getRuntime().availableProcessors());
+    }
 
     public boolean isEnabled() {
         return eventLoop != null;
     }
 
-    public int getNumberOfThreads() {
-        if (eventLoop == null) {
-            return 1;
-        }
-
-        return eventLoop.getConcurrencyLevel();
+    public int getConcurrencyLevel() {
+        return getConcurrencyLevel(eventLoop);
     }
 
     DefaultContextParallelismSupport create() {
