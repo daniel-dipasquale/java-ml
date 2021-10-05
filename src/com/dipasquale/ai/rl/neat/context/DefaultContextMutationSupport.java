@@ -25,10 +25,8 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     private DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> weightMutationTypeFactory;
     private DualModeIsLessThanRandomGateProvider shouldDisableExpressedConnectionGateProvider;
 
-    private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber maximumNumber) {
-        float max = maximumNumber.getSingletonValue(parallelismSupport, randomSupports);
-
-        return new DualModeIsLessThanRandomGateProvider(randomSupport, max);
+    private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber max) {
+        return new DualModeIsLessThanRandomGateProvider(randomSupport, max.getSingletonValue(parallelismSupport, randomSupports));
     }
 
     private static DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> createWeightMutationTypeFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate) {

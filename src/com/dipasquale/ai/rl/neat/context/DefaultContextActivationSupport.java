@@ -39,9 +39,9 @@ public final class DefaultContextActivationSupport implements Context.Activation
         this.standardNeatEnvironment = new StandardNeatEnvironment(neatEnvironment, fitnessDeterminerFactory, fitnessBuckets);
     }
 
-    private static NeuralNetworkFactory createNeuralNetworkFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final ConnectionGeneSupport connections) {
-        float recurrentAllowanceRate = connections.getRecurrentAllowanceRate().getSingletonValue(parallelismSupport, randomSupports);
-        float multiCycleAllowanceRate = connections.getMultiCycleAllowanceRate().getSingletonValue(parallelismSupport, randomSupports);
+    private static NeuralNetworkFactory createNeuralNetworkFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final ConnectionGeneSupport connectionGeneSupport) {
+        float recurrentAllowanceRate = connectionGeneSupport.getRecurrentAllowanceRate().getSingletonValue(parallelismSupport, randomSupports);
+        float multiCycleAllowanceRate = connectionGeneSupport.getMultiCycleAllowanceRate().getSingletonValue(parallelismSupport, randomSupports);
 
         if (Float.compare(recurrentAllowanceRate, 0f) <= 0 && Float.compare(multiCycleAllowanceRate, 0f) <= 0) {
             return new FeedForwardNeuralNetworkFactory();
@@ -50,9 +50,9 @@ public final class DefaultContextActivationSupport implements Context.Activation
         return new RecurrentNeuralNetworkFactory();
     }
 
-    public static DefaultContextActivationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final GeneralEvaluatorSupport generalEvaluatorSupport, final ConnectionGeneSupport connections) {
+    public static DefaultContextActivationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final GeneralEvaluatorSupport generalEvaluatorSupport, final ConnectionGeneSupport connectionGeneSupport) {
         DualModeMapFactory mapFactory = parallelismSupport.getMapFactory();
-        NeuralNetworkFactory neuralNetworkFactory = createNeuralNetworkFactory(parallelismSupport, randomSupports, connections);
+        NeuralNetworkFactory neuralNetworkFactory = createNeuralNetworkFactory(parallelismSupport, randomSupports, connectionGeneSupport);
         DualModeGenomeActivatorPool genomeActivatorPool = new DualModeGenomeActivatorPool(mapFactory, neuralNetworkFactory);
         NeatEnvironment neatEnvironment = generalEvaluatorSupport.getFitnessFunction();
         FitnessDeterminerFactory fitnessDeterminerFactory = generalEvaluatorSupport.getFitnessDeterminerFactory();

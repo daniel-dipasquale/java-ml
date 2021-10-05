@@ -19,10 +19,8 @@ public final class DefaultContextCrossOverSupport implements Context.CrossOverSu
     private DualModeIsLessThanRandomGateProvider shouldOverrideExpressedConnectionGateProvider;
     private DualModeIsLessThanRandomGateProvider shouldUseWeightFromRandomParentGateProvider;
 
-    private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber maximumNumber) {
-        float max = maximumNumber.getSingletonValue(parallelismSupport, randomSupports);
-
-        return new DualModeIsLessThanRandomGateProvider(randomSupport, max);
+    private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber max) {
+        return new DualModeIsLessThanRandomGateProvider(randomSupport, max.getSingletonValue(parallelismSupport, randomSupports));
     }
 
     public static DefaultContextCrossOverSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final CrossOverSupport crossOverSupport) {
