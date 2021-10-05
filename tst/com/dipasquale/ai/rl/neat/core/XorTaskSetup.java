@@ -5,7 +5,6 @@ import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.settings.ActivationSupport;
 import com.dipasquale.ai.rl.neat.settings.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.CrossOverSupport;
 import com.dipasquale.ai.rl.neat.settings.EnumValue;
@@ -19,7 +18,6 @@ import com.dipasquale.ai.rl.neat.settings.IntegerNumber;
 import com.dipasquale.ai.rl.neat.settings.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.settings.MetricSupport;
 import com.dipasquale.ai.rl.neat.settings.MutationSupport;
-import com.dipasquale.ai.rl.neat.settings.NeuralNetworkType;
 import com.dipasquale.ai.rl.neat.settings.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.settings.RandomSupport;
@@ -105,9 +103,8 @@ final class XorTaskSetup implements TaskSetup {
                 .connections(ConnectionGeneSupport.builder()
                         .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
                         .weightPerturber(FloatNumber.literal(2.5f))
-                        .build())
-                .activation(ActivationSupport.builder()
-                        .neuralNetworkType(NeuralNetworkType.FEED_FORWARD)
+                        .recurrentAllowanceRate(FloatNumber.literal(0f))
+                        .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)

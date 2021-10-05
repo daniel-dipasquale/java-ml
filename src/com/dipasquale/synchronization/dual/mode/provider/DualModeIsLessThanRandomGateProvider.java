@@ -16,8 +16,8 @@ public final class DualModeIsLessThanRandomGateProvider implements GateProvider,
     private final float max;
 
     @Override
-    public boolean isOn() {
-        return randomSupport.isLessThan(max);
+    public boolean isOn() { // NOTE: benchmarking when most cases max are 0, since it should always be false
+        return Float.compare(max, 0f) > 0 && randomSupport.isLessThan(max);
     }
 
     @Override

@@ -1,19 +1,20 @@
 package com.dipasquale.ai.rl.neat.settings;
 
+import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextActivationSupport;
+import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Map;
+
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 public final class ActivationSupport {
-    @Builder.Default
-    private final NeuralNetworkType neuralNetworkType = NeuralNetworkType.MULTI_CYCLE_RECURRENT;
-
-    DefaultContextActivationSupport create(final GeneralEvaluatorSupport generalEvaluatorSupport, final ParallelismSupport parallelismSupport) {
-        return DefaultContextActivationSupport.create(parallelismSupport, generalEvaluatorSupport, this);
+    DefaultContextActivationSupport create(final GeneralEvaluatorSupport generalEvaluatorSupport, final ConnectionGeneSupport connections, final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
+        return DefaultContextActivationSupport.create(parallelismSupport, randomSupports, generalEvaluatorSupport, connections);
     }
 }

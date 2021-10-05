@@ -71,17 +71,14 @@ public interface Context {
         void reset();
     }
 
-    @FunctionalInterface
-    interface ConnectionGeneParameters {
-        boolean multipleRecurrentCyclesAllowed();
-    }
-
     interface ConnectionGeneSupport {
-        ConnectionGeneParameters params();
-
         float generateWeight();
 
         float perturbWeight(float weight);
+
+        boolean shouldAllowRecurrent();
+
+        boolean shouldAllowMultiCycle();
 
         void setupInitialConnections(Genome genome);
 

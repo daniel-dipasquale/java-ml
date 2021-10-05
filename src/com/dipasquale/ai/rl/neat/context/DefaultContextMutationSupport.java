@@ -31,7 +31,7 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
         return new DualModeIsLessThanRandomGateProvider(randomSupport, max);
     }
 
-    private static DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> createWeightMutationTypeFactoryProfile(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate) {
+    private static DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> createWeightMutationTypeFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate) {
         float perturbRate = perturbWeightRate.getSingletonValue(parallelismSupport, randomSupports);
         float replaceRate = replaceWeightRate.getSingletonValue(parallelismSupport, randomSupports);
         float totalRate = (float) Math.ceil(perturbRate + replaceRate);
@@ -50,10 +50,10 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     public static DefaultContextMutationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final MutationSupport mutationSupport) {
         DualModeIsLessThanRandomGateProvider shouldAddNodeGateProvider = createIsLessThanGateProvider(parallelismSupport, randomSupports, randomSupport, mutationSupport.getAddNodeRate());
         DualModeIsLessThanRandomGateProvider shouldAddConnectionGateProvider = createIsLessThanGateProvider(parallelismSupport, randomSupports, randomSupport, mutationSupport.getAddConnectionRate());
-        DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> weightMutationTypeFactoryProfile = createWeightMutationTypeFactoryProfile(parallelismSupport, randomSupports, randomSupport, mutationSupport.getPerturbWeightRate(), mutationSupport.getReplaceWeightRate());
+        DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> weightMutationTypeFactory = createWeightMutationTypeFactory(parallelismSupport, randomSupports, randomSupport, mutationSupport.getPerturbWeightRate(), mutationSupport.getReplaceWeightRate());
         DualModeIsLessThanRandomGateProvider shouldDisableExpressedConnectionGateProvider = createIsLessThanGateProvider(parallelismSupport, randomSupports, randomSupport, mutationSupport.getDisableExpressedConnectionRate());
 
-        return new DefaultContextMutationSupport(shouldAddNodeGateProvider, shouldAddConnectionGateProvider, weightMutationTypeFactoryProfile, shouldDisableExpressedConnectionGateProvider);
+        return new DefaultContextMutationSupport(shouldAddNodeGateProvider, shouldAddConnectionGateProvider, weightMutationTypeFactory, shouldDisableExpressedConnectionGateProvider);
     }
 
     @Override
@@ -84,9 +84,9 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        shouldAddNodeGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddNodeGateProvider"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        shouldAddConnectionGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddConnectionGateProvider"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        weightMutationTypeFactory = DualModeObject.activateMode(stateGroup.get("mutation.weightMutationTypeFactory"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        shouldDisableExpressedConnectionGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldDisableExpressedConnectionGateProvider"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        shouldAddNodeGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddNodeGateProvider"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        shouldAddConnectionGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddConnectionGateProvider"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        weightMutationTypeFactory = DualModeObject.activateMode(stateGroup.get("mutation.weightMutationTypeFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        shouldDisableExpressedConnectionGateProvider = DualModeObject.activateMode(stateGroup.get("mutation.shouldDisableExpressedConnectionGateProvider"), ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

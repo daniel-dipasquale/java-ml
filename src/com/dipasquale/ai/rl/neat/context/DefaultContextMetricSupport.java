@@ -148,11 +148,11 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        metricsContainer = DualModeObject.activateMode(stateGroup.get("metrics.metricsContainer"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        metricsContainer = DualModeObject.activateMode(stateGroup.get("metrics.metricsContainer"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         metricsCollector = stateGroup.get("metrics.metricsCollector");
         stagnationDropOffAge = stateGroup.get("metrics.stagnationDropOffAge");
-        iteration = DualModeObject.activateMode(stateGroup.get("metrics.iteration"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        generation = DualModeObject.activateMode(stateGroup.get("metrics.generation"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        metrics = DualModeObject.activateMode(stateGroup.get("metrics.metrics"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        iteration = DualModeObject.activateMode(stateGroup.get("metrics.iteration"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        generation = DualModeObject.activateMode(stateGroup.get("metrics.generation"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        metrics = DualModeObject.activateMode(stateGroup.get("metrics.metrics"), ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

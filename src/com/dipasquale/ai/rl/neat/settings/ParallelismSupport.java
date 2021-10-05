@@ -28,7 +28,7 @@ public final class ParallelismSupport {
         this(eventLoop, getConcurrencyLevel(eventLoop), getMaximumConcurrencyLevel(eventLoop));
     }
 
-    private static int getConcurrencyLevel(final IterableEventLoop eventLoop) {
+    public static int getConcurrencyLevel(final IterableEventLoop eventLoop) {
         if (eventLoop == null) {
             return 0;
         }

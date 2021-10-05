@@ -63,13 +63,13 @@ public final class EvaluatorSettings {
         DefaultContextGeneralSupport generalFixed = general.create();
         DefaultContextRandomSupport randomFixed = random.create(parallelism);
         DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeTemplate(), parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
-        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeTemplate(), activation, parallelism, randomFixed.getRandomSupports());
-        DefaultContextActivationSupport activationFixed = activation.create(general, parallelism);
+        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeTemplate(), parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
+        DefaultContextActivationSupport activationFixed = activation.create(general, connections, parallelism, randomFixed.getRandomSupports());
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
         DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
         DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
         DefaultContextSpeciationSupport speciationFixed = speciation.create(parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
-        DefaultContextMetricSupport metricsFixed = metrics.create(parallelism, speciation, randomFixed.getRandomSupports());
+        DefaultContextMetricSupport metricsFixed = metrics.create(speciation, parallelism, randomFixed.getRandomSupports());
 
         return new DefaultContext(generalFixed, nodesFixed, connectionsFixed, activationFixed, parallelismFixed, randomFixed, mutationFixed, crossOverFixed, speciationFixed, metricsFixed);
     }

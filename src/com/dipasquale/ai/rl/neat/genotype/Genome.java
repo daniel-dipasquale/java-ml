@@ -103,6 +103,16 @@ public final class Genome implements Serializable {
         };
     }
 
+    private InnovationId createInnovationIdIfAllowed(final Context context, final NodeGene node1, final NodeGene node2) {
+        int comparison = node1.getId().compareTo(node2.getId());
+
+        if (comparison >= 0 && !context.connections().shouldAllowRecurrent()) {
+            return null;
+        }
+
+        return context.connections().getOrCreateInnovationId(node1, node2);
+    }
+
     private InnovationId createRandomInnovationId(final Context context) {
         if (nodes.size() <= 1) {
             return null;
@@ -117,9 +127,9 @@ public final class Genome implements Serializable {
             case OUTPUT -> context.connections().getOrCreateInnovationId(node2, node1);
 
             case HIDDEN -> switch (node2.getType()) {
-                case INPUT, BIAS -> context.connections().getOrCreateInnovationId(node2, node1);
+                case INPUT, BIAS -> createInnovationIdIfAllowed(context, node2, node1);
 
-                case OUTPUT, HIDDEN -> context.connections().getOrCreateInnovationId(node1, node2);
+                case OUTPUT, HIDDEN -> createInnovationIdIfAllowed(context, node1, node2);
             };
         };
     }
@@ -142,7 +152,7 @@ public final class Genome implements Serializable {
                 return true;
             }
 
-            if (context.connections().params().multipleRecurrentCyclesAllowed()) {
+            if (context.connections().shouldAllowMultiCycle()) {
                 connection.increaseCyclesAllowed();
 
                 return true;

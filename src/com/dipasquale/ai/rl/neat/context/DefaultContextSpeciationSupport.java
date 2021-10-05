@@ -132,14 +132,14 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingletonValue(parallelismSupport, randomSupports);
         float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingletonValue(parallelismSupport, randomSupports);
         DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(parallelismSupport.getConcurrencyLevel(), "species");
-        DualModeGenomePool genomePoolProfile = new DualModeGenomePool(parallelismSupport.getDequeFactory());
+        DualModeGenomePool genomePool = new DualModeGenomePool(parallelismSupport.getDequeFactory());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         DualModeReproductionTypeFactory reproductionTypeFactory = createReproductionTypeFactory(parallelismSupport, randomSupports, randomSupport, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate());
         DualModeSpeciesFitnessStrategy fitnessStrategy = createFitnessStrategy(parallelismSupport);
         SpeciesSelectionStrategyExecutor selectionStrategy = createSelectionStrategy();
         SpeciesReproductionStrategy reproductionStrategy = createReproductionStrategy();
 
-        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePoolProfile, genomeCompatibilityCalculator, reproductionTypeFactory, fitnessStrategy, selectionStrategy, reproductionStrategy);
+        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePool, genomeCompatibilityCalculator, reproductionTypeFactory, fitnessStrategy, selectionStrategy, reproductionStrategy);
     }
 
     @Override
@@ -220,11 +220,11 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
         params = stateGroup.get("speciation.params");
-        speciesIdFactory = DualModeObject.activateMode(stateGroup.get("speciation.speciesIdFactory"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        genomePool = DualModeObject.activateMode(stateGroup.get("speciation.genomePool"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        speciesIdFactory = DualModeObject.activateMode(stateGroup.get("speciation.speciesIdFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        genomePool = DualModeObject.activateMode(stateGroup.get("speciation.genomePool"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         genomeCompatibilityCalculator = stateGroup.get("speciation.genomeCompatibilityCalculator");
-        reproductionTypeFactory = DualModeObject.activateMode(stateGroup.get("speciation.reproductionTypeFactory"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        fitnessStrategy = DualModeObject.activateMode(stateGroup.get("speciation.fitnessStrategy"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        reproductionTypeFactory = DualModeObject.activateMode(stateGroup.get("speciation.reproductionTypeFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        fitnessStrategy = DualModeObject.activateMode(stateGroup.get("speciation.fitnessStrategy"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         selectionStrategy = stateGroup.get("speciation.selectionStrategy");
         reproductionStrategy = stateGroup.get("speciation.reproductionStrategy");
     }

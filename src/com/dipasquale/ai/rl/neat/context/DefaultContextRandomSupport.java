@@ -61,6 +61,6 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        randomSupport = DualModeObject.activateMode(stateGroup.get("random.randomSupport"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        randomSupport = DualModeObject.activateMode(stateGroup.get("random.randomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

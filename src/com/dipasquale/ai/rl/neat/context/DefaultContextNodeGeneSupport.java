@@ -54,7 +54,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         this.biasNodeIds = createNodeIds(nodeIdFactory, NodeGeneType.BIAS, biases);
     }
 
-    private static FloatNumber.DualModeFactory createBiasFactoryProfile(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final List<FloatNumber> biases) {
+    private static FloatNumber.DualModeFactory createBiasFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final List<FloatNumber> biases) {
         if (biases.isEmpty()) {
             IllegalStateFloatFactory floatFactory = new IllegalStateFloatFactory("there are no biases allowed in this genome");
 
@@ -93,7 +93,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories = ImmutableMap.<NodeGeneType, FloatNumber.DualModeFactory>builder()
                 .put(NodeGeneType.INPUT, nodeGeneSupport.getInputBias().createFactory(parallelismSupport, randomSupports))
                 .put(NodeGeneType.OUTPUT, nodeGeneSupport.getOutputBias().createFactory(parallelismSupport, randomSupports))
-                .put(NodeGeneType.BIAS, createBiasFactoryProfile(parallelismSupport, randomSupports, genesisGenomeTemplate.getBiases()))
+                .put(NodeGeneType.BIAS, createBiasFactory(parallelismSupport, randomSupports, genesisGenomeTemplate.getBiases()))
                 .put(NodeGeneType.HIDDEN, nodeGeneSupport.getHiddenBias().createFactory(parallelismSupport, randomSupports))
                 .build();
 
@@ -101,7 +101,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         EnumValue.DualModeFactory<OutputActivationFunctionType> outputActivationFunctionTypeFactory = nodeGeneSupport.getOutputActivationFunction().createFactory(parallelismSupport, randomSupports);
         EnumValue.DualModeFactory<ActivationFunctionType> hiddenActivationFunctionTypeFactory = nodeGeneSupport.getHiddenActivationFunction().createFactory(parallelismSupport, randomSupports);
 
-        Map<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>> activationFunctionFactoryProfiles = ImmutableMap.<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>>builder()
+        Map<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>> activationFunctionFactories = ImmutableMap.<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>>builder()
                 .put(NodeGeneType.INPUT, createActivationFunctionFactory(randomSupport, inputActivationFunctionTypeFactory))
                 .put(NodeGeneType.OUTPUT, createActivationFunctionFactory(randomSupport, outputActivationFunctionTypeFactory, hiddenActivationFunctionTypeFactory))
                 .put(NodeGeneType.BIAS, createActivationFunctionFactory(parallelismSupport, randomSupports, randomSupport, ActivationFunctionType.IDENTITY))
@@ -112,7 +112,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         int outputs = genesisGenomeTemplate.getOutputs().getSingletonValue(parallelismSupport, randomSupports);
         int biases = genesisGenomeTemplate.getBiases().size();
 
-        return new DefaultContextNodeGeneSupport(nodeIdFactory, biasFactories, activationFunctionFactoryProfiles, inputs, outputs, biases);
+        return new DefaultContextNodeGeneSupport(nodeIdFactory, biasFactories, activationFunctionFactories, inputs, outputs, biases);
     }
 
     private static List<SequentialId> createNodeIds(final DualModeNodeGeneIdFactory nodeIdFactory, final NodeGeneType type, final int count) {
@@ -171,9 +171,9 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        nodeIdFactory = DualModeObject.activateMode(stateGroup.get("nodes.nodeIdFactory"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        biasFactories = DualModeObject.forEachValueActivateMode(stateGroup.get("nodes.biasFactories"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
-        activationFunctionFactories = DualModeObject.forEachValueActivateMode(stateGroup.get("nodes.activationFunctionFactories"), eventLoop == null ? 0 : eventLoop.getConcurrencyLevel());
+        nodeIdFactory = DualModeObject.activateMode(stateGroup.get("nodes.nodeIdFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        biasFactories = DualModeObject.forEachValueActivateMode(stateGroup.get("nodes.biasFactories"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        activationFunctionFactories = DualModeObject.forEachValueActivateMode(stateGroup.get("nodes.activationFunctionFactories"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         inputs = stateGroup.get("nodes.inputs");
         outputs = stateGroup.get("nodes.outputs");
         biases = stateGroup.get("nodes.biases");
