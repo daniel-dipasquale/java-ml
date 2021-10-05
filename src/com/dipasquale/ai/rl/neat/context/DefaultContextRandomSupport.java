@@ -21,8 +21,7 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
     private DualModeRandomSupport randomSupport;
     private Map<RandomType, DualModeRandomSupport> randomSupports;
 
-    private static Map<RandomType, DualModeRandomSupport> createRandomSupports(final ParallelismSupport parallelismSupport) {
-        DualModeRandomSupportFactory randomSupportFactory = DualModeRandomSupportFactory.getInstance();
+    private static Map<RandomType, DualModeRandomSupport> createRandomSupports(final ParallelismSupport parallelismSupport, final DualModeRandomSupportFactory randomSupportFactory) {
         int concurrencyLevel = parallelismSupport.getConcurrencyLevel();
 
         ImmutableMap.Builder<RandomType, DualModeRandomSupport> randomSupportsBuilder = ImmutableMap.builder();
@@ -35,8 +34,9 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
     }
 
     public static DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport, final com.dipasquale.ai.rl.neat.settings.RandomSupport randomSupport) {
-        DualModeRandomSupport randomSupportFixed = DualModeRandomSupportFactory.getInstance().create(parallelismSupport.getConcurrencyLevel(), randomSupport.getType());
-        Map<RandomType, DualModeRandomSupport> randomSupports = createRandomSupports(parallelismSupport);
+        DualModeRandomSupportFactory randomSupportFactory = DualModeRandomSupportFactory.getInstance();
+        DualModeRandomSupport randomSupportFixed = randomSupportFactory.create(parallelismSupport.getConcurrencyLevel(), randomSupport.getType());
+        Map<RandomType, DualModeRandomSupport> randomSupports = createRandomSupports(parallelismSupport, randomSupportFactory);
 
         return new DefaultContextRandomSupport(randomSupportFixed, randomSupports);
     }
