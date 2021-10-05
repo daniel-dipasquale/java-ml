@@ -4,10 +4,13 @@ import com.google.common.hash.HashFunction;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class GuavaHashingFunction implements HashingFunction, Serializable {
+    @Serial
+    private static final long serialVersionUID = 8381418950104918085L;
     private final HashFunction hashFunction;
     private final long offset;
     private final byte[] salt;

@@ -10,11 +10,11 @@ import java.io.ObjectOutputStream;
 @RequiredArgsConstructor
 public final class DefaultContext implements Context {
     private final DefaultContextGeneralSupport generalSupport;
+    private final DefaultContextParallelismSupport parallelismSupport;
+    private final DefaultContextRandomSupport randomSupport;
     private final DefaultContextNodeGeneSupport nodeGeneSupport;
     private final DefaultContextConnectionGeneSupport connectionGeneSupport;
     private final DefaultContextActivationSupport activationSupport;
-    private final DefaultContextParallelismSupport parallelismSupport;
-    private final DefaultContextRandomSupport randomSupport;
     private final DefaultContextMutationSupport mutationSupport;
     private final DefaultContextCrossOverSupport crossOverSupport;
     private final DefaultContextSpeciationSupport speciationSupport;
@@ -23,6 +23,16 @@ public final class DefaultContext implements Context {
     @Override
     public GeneralSupport general() {
         return generalSupport;
+    }
+
+    @Override
+    public ParallelismSupport parallelism() {
+        return parallelismSupport;
+    }
+
+    @Override
+    public RandomSupport random() {
+        return randomSupport;
     }
 
     @Override
@@ -38,16 +48,6 @@ public final class DefaultContext implements Context {
     @Override
     public ActivationSupport activation() {
         return activationSupport;
-    }
-
-    @Override
-    public ParallelismSupport parallelism() {
-        return parallelismSupport;
-    }
-
-    @Override
-    public RandomSupport random() {
-        return randomSupport;
     }
 
     @Override
@@ -76,10 +76,10 @@ public final class DefaultContext implements Context {
         SerializableStateGroup stateGroup = new SerializableStateGroup();
 
         generalSupport.save(stateGroup);
+        randomSupport.save(stateGroup);
         nodeGeneSupport.save(stateGroup);
         connectionGeneSupport.save(stateGroup);
         activationSupport.save(stateGroup);
-        randomSupport.save(stateGroup);
         mutationSupport.save(stateGroup);
         crossOverSupport.save(stateGroup);
         speciationSupport.save(stateGroup);
@@ -94,11 +94,11 @@ public final class DefaultContext implements Context {
 
         stateGroup.readFrom(inputStream);
         generalSupport.load(stateGroup);
+        parallelismSupport.load(override.eventLoop());
+        randomSupport.load(stateGroup, override.eventLoop());
         nodeGeneSupport.load(stateGroup, override.eventLoop());
         connectionGeneSupport.load(stateGroup, override.eventLoop());
         activationSupport.load(stateGroup, override.eventLoop(), override.fitnessFunction());
-        parallelismSupport.load(override.eventLoop());
-        randomSupport.load(stateGroup, override.eventLoop());
         mutationSupport.load(stateGroup, override.eventLoop());
         crossOverSupport.load(stateGroup, override.eventLoop());
         speciationSupport.load(stateGroup, override.eventLoop());

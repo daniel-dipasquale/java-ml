@@ -1,39 +1,39 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-@RequiredArgsConstructor
-public final class GenomeActivator implements Serializable {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+public final class GenomeActivator implements NeuralNetwork, Serializable {
     @Serial
     private static final long serialVersionUID = 4096041177887342363L;
+    @Getter
     private final Genome genome;
     private final PopulationState populationState;
     private final NeuralNetwork neuralNetwork;
 
-    public String getId() {
-        return genome.getId();
+    public int getIteration() {
+        return populationState.getIteration();
     }
 
     public int getGeneration() {
         return populationState.getGeneration();
     }
 
-    public int getHiddenNodes() {
-        return genome.getNodes().size(NodeGeneType.HIDDEN);
+    @Override
+    public NeuronMemory createMemory() {
+        return neuralNetwork.createMemory();
     }
 
-    public int getConnections() {
-        return genome.getConnections().getExpressed().size();
-    }
-
-    public float[] activate(final float[] input) {
-        return neuralNetwork.activate(input);
+    @Override
+    public float[] activate(final float[] input, final NeuronMemory neuronMemory) {
+        return neuralNetwork.activate(input, neuronMemory);
     }
 
     boolean isOwnedBy(final Genome candidate) {

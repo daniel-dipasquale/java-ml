@@ -5,6 +5,7 @@ import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.settings.FloatNumber;
+import com.dipasquale.ai.rl.neat.settings.GeneralEvaluatorSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
@@ -117,8 +118,9 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         return new MultiSpeciesReproductionStrategy(strategies);
     }
 
-    public static DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final SpeciationSupport speciationSupport) {
+    public static DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final SpeciationSupport speciationSupport, final GeneralEvaluatorSupport generalEvaluatorSupport) {
         DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
+                .maximumSpecies(Math.min(speciationSupport.getMaximumSpecies().getSingletonValue(parallelismSupport, randomSupports), generalEvaluatorSupport.getPopulationSize().getSingletonValue(parallelismSupport, randomSupports)))
                 .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingletonValue(parallelismSupport, randomSupports))
                 .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingletonValue(parallelismSupport, randomSupports))
                 .eugenicsThreshold(speciationSupport.getEugenicsThreshold().getSingletonValue(parallelismSupport, randomSupports))

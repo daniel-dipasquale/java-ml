@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
+import com.dipasquale.ai.rl.neat.common.WeightMutationType;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.common.Pair;
 import lombok.EqualsAndHashCode;
@@ -25,14 +26,20 @@ public final class Genome implements Serializable {
         boolean mutated = false;
 
         for (ConnectionGene connection : connections.getAll()) {
-            switch (context.mutation().generateWeightMutationType()) {
+            WeightMutationType weightMutationType = context.mutation().generateWeightMutationType();
+
+            switch (weightMutationType) {
                 case PERTURB -> {
-                    connection.setWeight(context.connections().perturbWeight(connection.getWeight()));
+                    float weight = context.connections().perturbWeight(connection.getWeight());
+
+                    connection.setWeight(weight);
                     mutated = true;
                 }
 
                 case REPLACE -> {
-                    connection.setWeight(context.connections().generateWeight());
+                    float weight = context.connections().generateWeight();
+
+                    connection.setWeight(weight);
                     mutated = true;
                 }
             }
@@ -48,9 +55,9 @@ public final class Genome implements Serializable {
             return false;
         }
 
-        ConnectionGene connection = connections.getExpressed().getByIndex(randomSupport.generateIndex(size));
+        int index = randomSupport.generateIndex(size);
 
-        connections.getExpressed().addCyclesAllowed(connection, -1);
+        connections.getExpressed().addCyclesAllowed(index, -1);
 
         return true;
     }
@@ -105,52 +112,50 @@ public final class Genome implements Serializable {
         };
     }
 
-    private InnovationId createFeedForwardInnovationId(final Context.ConnectionGeneSupport connectionGeneSupport, final NodeGene node1, final NodeGene node2) {
-        int comparison = node1.getId().compareTo(node2.getId());
-
-        if (comparison >= 0) {
+    private static InnovationId createFeedForwardInnovationIdIfPossible(final Context.ConnectionGeneSupport connectionGeneSupport, final NodeGene node1, final NodeGene node2) {
+        if (ConnectionGene.isRecurrent(node1.getId(), node2.getId())) {
             return null;
         }
 
         return connectionGeneSupport.getOrCreateInnovationId(node1, node2);
     }
 
-    private InnovationId createRandomInnovationId(final Context context) {
+    private InnovationId createRandomInnovationId(final Context context, final boolean shouldAllowRecurrent) {
         if (nodes.size() <= 1) {
             return null;
         }
 
-        boolean shouldAllowRecurrent = context.connections().shouldAllowRecurrent();
         NodeGene node1 = nodes.getByIndex(context.random().generateIndex(nodes.size()));
         NodeGene node2 = getRandomNodeToMatch(context.random(), node1.getType());
 
-        if (!shouldAllowRecurrent) {
+        if (shouldAllowRecurrent) {
             return switch (node1.getType()) {
-                case INPUT, BIAS -> context.connections().getOrCreateInnovationId(node1, node2);
+                case BIAS -> context.connections().getOrCreateInnovationId(node1, node2);
 
-                case OUTPUT -> context.connections().getOrCreateInnovationId(node2, node1);
+                default -> switch (node2.getType()) {
+                    case BIAS -> context.connections().getOrCreateInnovationId(node2, node1);
 
-                case HIDDEN -> switch (node2.getType()) {
-                    case INPUT, BIAS -> createFeedForwardInnovationId(context.connections(), node2, node1);
-
-                    case OUTPUT, HIDDEN -> createFeedForwardInnovationId(context.connections(), node1, node2);
+                    default -> context.connections().getOrCreateInnovationId(node1, node2);
                 };
             };
         }
 
         return switch (node1.getType()) {
-            case BIAS -> context.connections().getOrCreateInnovationId(node1, node2);
+            case INPUT, BIAS -> context.connections().getOrCreateInnovationId(node1, node2);
 
-            default -> switch (node2.getType()) {
-                case BIAS -> context.connections().getOrCreateInnovationId(node2, node1);
+            case OUTPUT -> context.connections().getOrCreateInnovationId(node2, node1);
 
-                default -> context.connections().getOrCreateInnovationId(node1, node2);
+            case HIDDEN -> switch (node2.getType()) {
+                case INPUT, BIAS -> createFeedForwardInnovationIdIfPossible(context.connections(), node2, node1);
+
+                case OUTPUT, HIDDEN -> createFeedForwardInnovationIdIfPossible(context.connections(), node1, node2);
             };
         };
     }
 
     private boolean addRandomConnection(final Context context) {
-        InnovationId innovationId = createRandomInnovationId(context);
+        boolean shouldAllowRecurrent = context.connections().shouldAllowRecurrent();
+        InnovationId innovationId = createRandomInnovationId(context, shouldAllowRecurrent);
 
         if (innovationId != null) {
             ConnectionGene connection = connections.getAll().getById(innovationId);
@@ -161,7 +166,7 @@ public final class Genome implements Serializable {
                 return true;
             }
 
-            if (!connection.isExpressed() || context.connections().shouldAllowMultiCycle()) {
+            if (!connection.isExpressed() || shouldAllowRecurrent && context.connections().shouldAllowMultiCycle()) {
                 connections.getExpressed().addCyclesAllowed(connection, 1);
 
                 return true;
@@ -193,10 +198,18 @@ public final class Genome implements Serializable {
         return randomSupport.isLessThan(0.5f) ? item1 : item2;
     }
 
+    private static int determineCyclesAllowed(final ConnectionGene connection, final boolean expressed) {
+        if (!expressed) {
+            return 0;
+        }
+
+        return Math.max(connection.getCyclesAllowed(), 1);
+    }
+
     private static ConnectionGene createChildConnection(final Context context, final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
         ConnectionGene randomParentConnection = getRandom(context.random(), parent1Connection, parent2Connection);
         boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
-        int cyclesAllowed = !expressed ? 0 : Math.max(randomParentConnection.getCyclesAllowed(), 1);
+        int cyclesAllowed = determineCyclesAllowed(randomParentConnection, expressed);
 
         if (context.crossOver().shouldUseWeightFromRandomParent()) {
             return randomParentConnection.createCopy(cyclesAllowed);
@@ -242,7 +255,7 @@ public final class Genome implements Serializable {
 
                 if (unfitConnection == null) {
                     boolean expressed = fitConnection.isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
-                    int cyclesAllowed = !expressed ? 0 : Math.max(fitConnection.getCyclesAllowed(), 1);
+                    int cyclesAllowed = determineCyclesAllowed(fitConnection, expressed);
 
                     childConnection = fitConnection.createCopy(cyclesAllowed);
                 } else {
@@ -281,13 +294,13 @@ public final class Genome implements Serializable {
                     child.connections.put(childConnection);
                 } else if (connectionPair.getLeft() != null) {
                     boolean expressed = connectionPair.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
-                    int cyclesAllowed = !expressed ? 0 : Math.max(connectionPair.getLeft().getCyclesAllowed(), 1);
+                    int cyclesAllowed = determineCyclesAllowed(connectionPair.getLeft(), expressed);
                     ConnectionGene childConnection = connectionPair.getLeft().createCopy(cyclesAllowed);
 
                     child.connections.put(childConnection);
                 } else {
                     boolean expressed = connectionPair.getRight().isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
-                    int cyclesAllowed = !expressed ? 0 : Math.max(connectionPair.getRight().getCyclesAllowed(), 1);
+                    int cyclesAllowed = determineCyclesAllowed(connectionPair.getRight(), expressed);
                     ConnectionGene childConnection = connectionPair.getRight().createCopy(cyclesAllowed);
 
                     child.connections.put(childConnection);
@@ -298,8 +311,8 @@ public final class Genome implements Serializable {
         return child;
     }
 
-    private static void addIfValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connection, final Genome genome) {
-        if (isInnovationIdValid(connectionGeneSupport, connection)) {
+    private static void addConnectionIfValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connection, final Genome genome) {
+        if (connectionGeneSupport == null || isInnovationIdValid(connectionGeneSupport, connection)) {
             genome.connections.put(connection.createClone());
         }
     }
@@ -308,7 +321,7 @@ public final class Genome implements Serializable {
         Genome genome = new Genome(id);
 
         nodes.forEach(genome.nodes::put);
-        connections.getAll().forEach(c -> addIfValid(connectionGeneSupport, c, genome));
+        connections.getAll().forEach(c -> addConnectionIfValid(connectionGeneSupport, c, genome));
 
         return genome;
     }

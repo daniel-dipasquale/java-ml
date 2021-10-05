@@ -15,6 +15,8 @@ import java.util.Map;
 @Getter
 public final class SpeciationSupport {
     @Builder.Default
+    private final IntegerNumber maximumSpecies = IntegerNumber.literal(150);
+    @Builder.Default
     private final FloatNumber weightDifferenceCoefficient = FloatNumber.literal(0.4f);
     @Builder.Default
     private final FloatNumber disjointCoefficient = FloatNumber.literal(1f);
@@ -39,7 +41,7 @@ public final class SpeciationSupport {
     @Builder.Default
     private final FloatNumber mutateOnlyRate = FloatNumber.literal(0.25f);
 
-    DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
-        return DefaultContextSpeciationSupport.create(parallelismSupport, randomSupports, randomSupport, this);
+    DefaultContextSpeciationSupport create(final GeneralEvaluatorSupport generalEvaluatorSupport, final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
+        return DefaultContextSpeciationSupport.create(parallelismSupport, randomSupports, randomSupport, this, generalEvaluatorSupport);
     }
 }

@@ -11,12 +11,12 @@ public final class DelegatedTrainingPolicy implements NeatTrainingPolicy {
 
     @Override
     public NeatTrainingResult test(final NeatActivator activator) {
-        if (iterationTested >= activator.getIteration() && generationTested >= activator.getGeneration()) {
+        if (iterationTested >= activator.getState().getIteration() && generationTested >= activator.getState().getGeneration()) {
             return previousTestResult;
         }
 
-        iterationTested = activator.getIteration();
-        generationTested = activator.getGeneration();
+        iterationTested = activator.getState().getIteration();
+        generationTested = activator.getState().getGeneration();
 
         if (handler.test(activator)) {
             return previousTestResult = NeatTrainingResult.WORKING_SOLUTION_FOUND;

@@ -16,13 +16,13 @@ public final class SupervisorTrainingPolicy implements NeatTrainingPolicy {
 
     @Override
     public NeatTrainingResult test(final NeatActivator activator) {
-        if (activator.getIteration() - iterationStoppedAt - 1 > maximumRestartCount) {
-            iterationStoppedAt = activator.getIteration();
+        if (activator.getState().getIteration() - iterationStoppedAt - 1 > maximumRestartCount) {
+            iterationStoppedAt = activator.getState().getIteration();
 
             return NeatTrainingResult.STOP_TRAINING;
         }
 
-        if (activator.getGeneration() >= maximumGeneration) {
+        if (activator.getState().getGeneration() >= maximumGeneration) {
             return NeatTrainingResult.RESTART;
         }
 

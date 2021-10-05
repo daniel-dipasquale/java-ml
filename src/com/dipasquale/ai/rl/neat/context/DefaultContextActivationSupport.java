@@ -14,40 +14,53 @@ import com.dipasquale.ai.rl.neat.settings.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.GeneralEvaluatorSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeSequentialIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype.DualModeGenomeActivatorPool;
 import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public final class DefaultContextActivationSupport implements Context.ActivationSupport {
     private DualModeGenomeActivatorPool genomeActivatorPool;
     private NeatEnvironment neatEnvironment;
-    private FitnessDeterminerFactory fitnessDeterminerFactory;
-    private DualModeMap<String, FitnessBucket, DualModeMapFactory> fitnessBuckets;
+    private Map<String, FitnessBucket> fitnessBuckets;
     private StandardNeatEnvironment standardNeatEnvironment;
 
-    private DefaultContextActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final NeatEnvironment neatEnvironment, final FitnessDeterminerFactory fitnessDeterminerFactory, final DualModeMap<String, FitnessBucket, DualModeMapFactory> fitnessBuckets) {
+    private DefaultContextActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final NeatEnvironment neatEnvironment, final Map<String, FitnessBucket> fitnessBuckets) {
         this.genomeActivatorPool = genomeActivatorPool;
         this.neatEnvironment = neatEnvironment;
-        this.fitnessDeterminerFactory = fitnessDeterminerFactory;
         this.fitnessBuckets = fitnessBuckets;
-        this.standardNeatEnvironment = new StandardNeatEnvironment(neatEnvironment, fitnessDeterminerFactory, fitnessBuckets);
+        this.standardNeatEnvironment = new StandardNeatEnvironment(neatEnvironment, fitnessBuckets);
     }
 
     private static NeuralNetworkFactory createNeuralNetworkFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final ConnectionGeneSupport connectionGeneSupport) {
         float recurrentAllowanceRate = connectionGeneSupport.getRecurrentAllowanceRate().getSingletonValue(parallelismSupport, randomSupports);
-        float multiCycleAllowanceRate = connectionGeneSupport.getMultiCycleAllowanceRate().getSingletonValue(parallelismSupport, randomSupports);
 
-        if (Float.compare(recurrentAllowanceRate, 0f) <= 0 && Float.compare(multiCycleAllowanceRate, 0f) <= 0) {
+        if (Float.compare(recurrentAllowanceRate, 0f) <= 0) {
             return new FeedForwardNeuralNetworkFactory();
         }
 
         return new RecurrentNeuralNetworkFactory();
+    }
+
+    private static Map<String, FitnessBucket> createFitnessBuckets(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final GeneralEvaluatorSupport generalEvaluatorSupport) {
+        int populationSize = generalEvaluatorSupport.getPopulationSize().getSingletonValue(parallelismSupport, randomSupports);
+        DualModeSequentialIdFactory genomeIdFactory = new DualModeSequentialIdFactory(parallelismSupport.getConcurrencyLevel(), "genome");
+        FitnessDeterminerFactory fitnessDeterminerFactory = generalEvaluatorSupport.getFitnessDeterminerFactory();
+        Map<String, FitnessBucket> fitnessBuckets = new HashMap<>();
+
+        for (int i = 0; i < populationSize; i++) {
+            String genomeId = genomeIdFactory.create().toString();
+
+            fitnessBuckets.put(genomeId, new FitnessBucket(fitnessDeterminerFactory.create()));
+        }
+
+        return fitnessBuckets;
     }
 
     public static DefaultContextActivationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final GeneralEvaluatorSupport generalEvaluatorSupport, final ConnectionGeneSupport connectionGeneSupport) {
@@ -55,15 +68,19 @@ public final class DefaultContextActivationSupport implements Context.Activation
         NeuralNetworkFactory neuralNetworkFactory = createNeuralNetworkFactory(parallelismSupport, randomSupports, connectionGeneSupport);
         DualModeGenomeActivatorPool genomeActivatorPool = new DualModeGenomeActivatorPool(mapFactory, neuralNetworkFactory);
         NeatEnvironment neatEnvironment = generalEvaluatorSupport.getFitnessFunction();
-        FitnessDeterminerFactory fitnessDeterminerFactory = generalEvaluatorSupport.getFitnessDeterminerFactory();
-        DualModeMap<String, FitnessBucket, DualModeMapFactory> fitnessBuckets = new DualModeMap<>(mapFactory);
+        Map<String, FitnessBucket> fitnessBuckets = createFitnessBuckets(parallelismSupport, randomSupports, generalEvaluatorSupport);
 
-        return new DefaultContextActivationSupport(genomeActivatorPool, neatEnvironment, fitnessDeterminerFactory, fitnessBuckets);
+        return new DefaultContextActivationSupport(genomeActivatorPool, neatEnvironment, fitnessBuckets);
     }
 
     @Override
-    public GenomeActivator getOrCreateGenomeActivator(final Genome genome, final PopulationState populationState) {
+    public GenomeActivator getOrCreateActivator(final Genome genome, final PopulationState populationState) {
         return genomeActivatorPool.getOrCreate(genome, populationState);
+    }
+
+    @Override
+    public GenomeActivator createTransientActivator(final Genome genome, final PopulationState populationState) {
+        return genomeActivatorPool.createTransient(genome, populationState);
     }
 
     @Override
@@ -74,7 +91,6 @@ public final class DefaultContextActivationSupport implements Context.Activation
     public void save(final SerializableStateGroup stateGroup) {
         stateGroup.put("activation.genomeActivatorPool", genomeActivatorPool);
         stateGroup.put("activation.neatEnvironment", neatEnvironment);
-        stateGroup.put("activation.fitnessDeterminerFactory", fitnessDeterminerFactory);
         stateGroup.put("activation.fitnessBuckets", fitnessBuckets);
     }
 
@@ -97,8 +113,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop, final NeatEnvironment neatEnvironmentOverride) {
         genomeActivatorPool = DualModeObject.activateMode(stateGroup.get("activation.genomeActivatorPool"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         neatEnvironment = loadNeatEnvironment(stateGroup.get("activation.neatEnvironment"), neatEnvironmentOverride);
-        fitnessDeterminerFactory = stateGroup.get("activation.fitnessDeterminerFactory");
-        fitnessBuckets = DualModeObject.activateMode(stateGroup.get("activation.fitnessBuckets"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        standardNeatEnvironment = new StandardNeatEnvironment(neatEnvironment, fitnessDeterminerFactory, fitnessBuckets);
+        fitnessBuckets = stateGroup.get("activation.fitnessBuckets");
+        standardNeatEnvironment = new StandardNeatEnvironment(neatEnvironment, fitnessBuckets);
     }
 }

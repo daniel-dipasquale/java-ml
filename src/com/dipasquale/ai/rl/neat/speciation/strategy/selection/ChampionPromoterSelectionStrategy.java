@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
-import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import lombok.RequiredArgsConstructor;
@@ -28,15 +27,6 @@ public final class ChampionPromoterSelectionStrategy implements SpeciesSelection
 
     @Override
     public void finalizeSelection(final SpeciesSelectionContext context) {
-        Organism championOrganism = context.getChampionOrganism();
-
-        if (championOrganism == null) {
-            throw new ChampionOrganismMissingException("the champion organism is missing");
-        }
-
-        Organism organism = championOrganism.createClone(context.getParent().connections());
-        GenomeActivator genomeActivator = championOrganism.getGenomeActivator(context.getParent().activation());
-
-        context.getChampionOrganismActivator().initialize(organism, genomeActivator);
+        context.setChampionOrganism();
     }
 }

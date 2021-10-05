@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class AtomicLazyReference<T> implements Serializable {
     @Serial
     private static final long serialVersionUID = -6226524128351563527L;
-    private final ObjectFactory<T> referenceFactory;
     private final AtomicBoolean initialized = new AtomicBoolean();
+    private final ObjectFactory<T> referenceFactory;
     private volatile ReferenceEnvelope<T> referenceEnvelope = null;
 
     public T reference() {
@@ -35,7 +35,9 @@ public final class AtomicLazyReference<T> implements Serializable {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ReferenceEnvelope<T> {
+    private static final class ReferenceEnvelope<T> implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 4228056105516874549L;
         private final T reference;
     }
 }

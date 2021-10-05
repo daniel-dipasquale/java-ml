@@ -41,7 +41,7 @@ public final class Species implements Serializable {
     private final int createdOnGeneration;
     private int improvedAtAge;
 
-    public Species(final String id, final Organism representativeOrganism, final PopulationState populationState) {
+    Species(final String id, final Organism representativeOrganism, final PopulationState populationState) {
         this.id = id;
         this.representativeOrganism = representativeOrganism;
         this.setOrganisms(Lists.newArrayList(representativeOrganism));

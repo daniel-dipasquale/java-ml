@@ -38,6 +38,11 @@ public final class DualModeGenomeActivatorPool implements GenomeActivatorPool, D
     }
 
     @Override
+    public GenomeActivator createTransient(final Genome genome, final PopulationState populationState) {
+        return genomeActivatorPool.createTransient(genome, populationState);
+    }
+
+    @Override
     public int concurrencyLevel() {
         return genomeActivators.concurrencyLevel();
     }

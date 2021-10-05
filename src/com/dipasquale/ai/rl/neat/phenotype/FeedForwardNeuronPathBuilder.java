@@ -15,8 +15,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-@RequiredArgsConstructor
-public final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Serializable {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Serializable {
     @Serial
     private static final long serialVersionUID = -9211062291079454674L;
     private final Map<SequentialId, Neuron> neurons = new HashMap<>();
@@ -34,10 +34,8 @@ public final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Se
     }
 
     @Override
-    public Neuron add(final Neuron neuron) {
+    public void add(final Neuron neuron) {
         neurons.put(neuron.getId(), neuron);
-
-        return neuron;
     }
 
     private OrderableNeuron getOrderableOrCreateUnordered(final OrderableNeuron orderableNeuron, final SequentialId neuronId) {
@@ -52,25 +50,25 @@ public final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Se
 
     @Override
     public void addPathLeadingTo(final Neuron neuron) { // inspired from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
-        HashDequeMap<SequentialId, OrderableNeuron> deque = new HashDequeMap<>();
+        HashDequeMap<SequentialId, OrderableNeuron> orderingNeurons = new HashDequeMap<>();
 
-        deque.putLast(neuron.getId(), new OrderableNeuron(neuron, false));
+        orderingNeurons.putLast(neuron.getId(), new OrderableNeuron(neuron, false));
 
-        while (!deque.isEmpty()) {
-            OrderableNeuron orderableNeuron = deque.removeLast();
+        while (!orderingNeurons.isEmpty()) {
+            OrderableNeuron orderableNeuron = orderingNeurons.removeLast();
 
             if (!orderableNeuron.ordered) {
-                deque.putLast(orderableNeuron.neuron.getId(), orderableNeuron.createOrdered());
+                orderingNeurons.putLast(orderableNeuron.neuron.getId(), orderableNeuron.createOrdered());
 
-                for (InputNeuron inputNeuron : orderableNeuron.neuron.getInputs()) {
-                    SequentialId inputNeuronId = inputNeuron.getNeuronId();
-                    OrderableNeuron orderableInputNeuron = deque.get(inputNeuronId);
+                for (InputConnection input : orderableNeuron.neuron.getInputs()) {
+                    SequentialId sourceNeuronId = input.getSourceNeuronId();
+                    OrderableNeuron orderableSourceNeuron = orderingNeurons.get(sourceNeuronId);
 
-                    if ((orderableInputNeuron == null || !orderableInputNeuron.ordered) && !orderedNeuronIds.contains(inputNeuronId)) {
-                        deque.putLast(inputNeuronId, getOrderableOrCreateUnordered(orderableInputNeuron, inputNeuronId));
+                    if ((orderableSourceNeuron == null || !orderableSourceNeuron.ordered) && !orderedNeuronIds.contains(sourceNeuronId)) {
+                        orderingNeurons.putLast(sourceNeuronId, getOrderableOrCreateUnordered(orderableSourceNeuron, sourceNeuronId));
                     }
                 }
-            } else if (orderedNeuronIds.add(orderableNeuron.neuron.getId())) {
+            } else if (orderedNeuronIds.add(orderableNeuron.neuron.getId()) && !orderingNeurons.isEmpty()) {
                 orderedNeurons.add(orderableNeuron.neuron);
             }
         }

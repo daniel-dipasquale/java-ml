@@ -7,7 +7,7 @@ algorithms I'm interested in learning and using:
 
 - [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf) (it has issues still)
     - [x] outstanding issues:
-        - persistence/restore is buggy
+        - persistence/restore/restart is unstable
         - among others ...
     - [x] XOR test :+1: (random data sample)
 
@@ -57,19 +57,22 @@ algorithms I'm interested in learning and using:
    
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupportSettings.builder()
-                        .populationSize(150)
+                        .populationSize(IntegerNumber.literal(150))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(2))
                                 .outputs(IntegerNumber.literal(1))
-                                .biases(ImmutableList.of())
+                                .biases(ImmutableList.<FloatNumber>builder()
+                                        .add(FloatNumber.literal(1f))
+                                        .build())
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
                         .fitnessFunction(genomeActivator -> {
                                 float error = 0f;
+                                NeuronMemory neuronMemory = genomeActivator.createMemory();
 
                                 for (int i = 0; i < inputs.length; i++) {
-                                        float[] output = genomeActivator.activate(inputs[i]);
+                                        float[] output = genomeActivator.activate(inputs[i], neuronMemory);
 
                                         error += (float) Math.pow(expectedOutputs[i] - output[0], 2D);
                                 }
@@ -78,25 +81,25 @@ algorithms I'm interested in learning and using:
                         })
                         .fitnessDeterminerFactory(new LastValueFitnessDeterminerFactory())
                         .build())
-                .nodes(NodeGeneSupport.builder()
-                        .inputBias(FloatNumber.literal(0f))
-                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
-                        .outputBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
-                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
-                        .build())
-                .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                        .weightPerturber(FloatNumber.literal(2.5f))
-                        .recurrentAllowanceRate(FloatNumber.literal(0f))
-                        .multiCycleAllowanceRate(FloatNumber.literal(0f))
-                        .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
                         .build())
                 .random(RandomSupport.builder()
                         .type(RandomType.UNIFORM)
+                        .build())
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, -0.75f, 0.75f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1.25f, 1.25f))
+                        .weightPerturber(FloatNumber.literal(2.5f))
+                        .recurrentAllowanceRate(FloatNumber.literal(0.2f))
+                        .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))
@@ -110,6 +113,7 @@ algorithms I'm interested in learning and using:
                         .useWeightFromRandomParentRate(FloatNumber.literal(0.6f))
                         .build())
                 .speciation(SpeciationSupport.builder()
+                        .maximumSpecies(IntegerNumber.literal(150))
                         .weightDifferenceCoefficient(FloatNumber.literal(0.4f))
                         .disjointCoefficient(FloatNumber.literal(1f))
                         .excessCoefficient(FloatNumber.literal(1f))
@@ -137,7 +141,7 @@ algorithms I'm interested in learning and using:
 
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupportSettings.builder()
-                        .populationSize(150)
+                        .populationSize(IntegerNumber.literal(150))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(4))
                                 .outputs(IntegerNumber.literal(1))
@@ -147,10 +151,11 @@ algorithms I'm interested in learning and using:
                                 .build())
                         .fitnessFunction(genomeActivator -> {
                                 CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
+                                NeuronMemory neuronMemory = genomeActivator.createMemory();
 
                                 while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
                                     float[] input = convertToFloat(cartPole.getState());
-                                    float[] output = genomeActivator.activate(input);
+                                    float[] output = genomeActivator.activate(input, neuronMemory);
 
                                     cartPole.stepInDiscrete(output[0]);
                                 }
@@ -158,6 +163,12 @@ algorithms I'm interested in learning and using:
                                 return (float) cartPole.getTimeSpent();
                         })
                         .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
+                        .build())
+                .parallelism(ParallelismSupport.builder()
+                        .eventLoop(eventLoop)
+                        .build())
+                .random(RandomSupport.builder()
+                        .type(RandomType.UNIFORM)
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -168,16 +179,10 @@ algorithms I'm interested in learning and using:
                         .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.SIGMOID))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -0.5f, 0.5f))
                         .weightPerturber(FloatNumber.literal(2.5f))
-                        .recurrentAllowanceRate(FloatNumber.literal(0f))
+                        .recurrentAllowanceRate(FloatNumber.literal(0.2f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
-                        .build())
-                .parallelism(ParallelismSupport.builder()
-                        .eventLoop(eventLoop)
-                        .build())
-                .random(RandomSupport.builder()
-                        .type(RandomType.UNIFORM)
                         .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))
@@ -191,6 +196,7 @@ algorithms I'm interested in learning and using:
                         .useWeightFromRandomParentRate(FloatNumber.literal(0.6f))
                         .build())
                 .speciation(SpeciationSupport.builder()
+                        .maximumSpecies(IntegerNumber.literal(150))
                         .weightDifferenceCoefficient(FloatNumber.literal(0.4f))
                         .disjointCoefficient(FloatNumber.literal(1f))
                         .excessCoefficient(FloatNumber.literal(1f))

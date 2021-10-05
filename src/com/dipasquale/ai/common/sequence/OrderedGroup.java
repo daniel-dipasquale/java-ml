@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -89,5 +90,14 @@ public final class OrderedGroup<TId extends Comparable<TId>, TItem> implements I
         private static final long serialVersionUID = -274541428462625603L;
         private final TId id;
         private final TItem item;
+
+        @Override
+        public String toString() {
+            if (item == null) {
+                return StringUtils.EMPTY;
+            }
+
+            return item.toString();
+        }
     }
 }

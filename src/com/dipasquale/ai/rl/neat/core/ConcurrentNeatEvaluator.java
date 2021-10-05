@@ -1,10 +1,13 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 import com.dipasquale.ai.rl.neat.speciation.core.Population;
 import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
-import com.dipasquale.ai.rl.neat.speciation.organism.OrganismActivator;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,108 +20,32 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 final class ConcurrentNeatEvaluator implements NeatEvaluator {
     private final Context context;
-    private final OrganismActivator championOrganismActivator;
     private final Population population;
     private final ReadWriteLock lock;
-
-    ConcurrentNeatEvaluator(final Context context, final OrganismActivator championOrganismActivator, final ReadWriteLock lock) {
-        this.context = context;
-        this.championOrganismActivator = championOrganismActivator;
-        this.population = createPopulation(context, championOrganismActivator);
-        this.lock = lock;
-    }
+    private final ConcurrentNeatState state;
 
     ConcurrentNeatEvaluator(final Context context, final ReadWriteLock lock) {
-        this(context, new OrganismActivator(), lock);
+        this.context = context;
+        this.population = createPopulation(context);
+        this.lock = lock;
+        this.state = new ConcurrentNeatState();
     }
 
     ConcurrentNeatEvaluator(final Context context) {
-        this(context, new OrganismActivator(), new ReentrantReadWriteLock());
+        this(context, new ReentrantReadWriteLock());
     }
 
-    private static Population createPopulation(final Context context, final OrganismActivator championOrganismActivator) {
+    private static Population createPopulation(final Context context) {
         Population population = new Population();
 
-        population.initialize(context, championOrganismActivator);
+        population.initialize(context);
 
         return population;
     }
 
     @Override
-    public int getIteration() {
-        lock.readLock().lock();
-
-        try {
-            return population.getIteration();
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public int getGeneration() {
-        lock.readLock().lock();
-
-        try {
-            return population.getGeneration();
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public int getSpeciesCount() {
-        lock.readLock().lock();
-
-        try {
-            return population.getSpeciesCount();
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public int getCurrentHiddenNodes() {
-        lock.readLock().lock();
-
-        try {
-            return championOrganismActivator.getHiddenNodes();
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public int getCurrentConnections() {
-        lock.readLock().lock();
-
-        try {
-            return championOrganismActivator.getConnections();
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public float getMaximumFitness() {
-        lock.readLock().lock();
-
-        try {
-            return championOrganismActivator.getFitness();
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public Map<Integer, IterationMetrics> getMetrics() {
-        lock.readLock().lock();
-
-        try {
-            return context.metrics().getMetrics();
-        } finally {
-            lock.readLock().unlock();
-        }
+    public NeatState getState() {
+        return state;
     }
 
     @Override
@@ -137,7 +64,7 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.writeLock().lock();
 
         try {
-            population.evolve(context, championOrganismActivator);
+            population.evolve(context);
         } finally {
             lock.writeLock().unlock();
         }
@@ -148,18 +75,29 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         lock.writeLock().lock();
 
         try {
-            population.restart(context, championOrganismActivator);
+            population.restart(context);
         } finally {
             lock.writeLock().unlock();
         }
     }
 
     @Override
-    public float[] activate(final float[] input) {
+    public NeuronMemory createMemory() {
         lock.readLock().lock();
 
         try {
-            return championOrganismActivator.activate(input);
+            return population.getChampionOrganismActivator().createMemory();
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public float[] activate(final float[] input, final NeuronMemory neuronMemory) {
+        lock.readLock().lock();
+
+        try {
+            return population.getChampionOrganismActivator().activate(input, neuronMemory);
         } finally {
             lock.readLock().unlock();
         }
@@ -172,7 +110,6 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
 
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
             context.save(objectOutputStream);
-            championOrganismActivator.save(objectOutputStream);
             population.save(objectOutputStream);
         } finally {
             lock.writeLock().unlock();
@@ -192,13 +129,81 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
             }
 
             try {
-                championOrganismActivator.load(objectInputStream);
                 population.load(objectInputStream);
             } catch (ClassNotFoundException e) {
                 throw new IOException("unable to load the topology", e);
             }
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private final class ConcurrentNeatState implements NeatState {
+        @Override
+        public int getIteration() {
+            lock.readLock().lock();
+
+            try {
+                return population.getIteration();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        @Override
+        public int getGeneration() {
+            lock.readLock().lock();
+
+            try {
+                return population.getGeneration();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        @Override
+        public int getSpeciesCount() {
+            lock.readLock().lock();
+
+            try {
+                return population.getSpeciesCount();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        @Override
+        public Genome getChampionGenome() {
+            lock.readLock().lock();
+
+            try {
+                return population.getChampionOrganismActivator().getGenome();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        @Override
+        public float getMaximumFitness() {
+            lock.readLock().lock();
+
+            try {
+                return population.getChampionOrganismActivator().getFitness();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        @Override
+        public Map<Integer, IterationMetrics> getMetrics() {
+            lock.readLock().lock();
+
+            try {
+                return context.metrics().getMetrics();
+            } finally {
+                lock.readLock().unlock();
+            }
         }
     }
 }

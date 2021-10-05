@@ -26,7 +26,7 @@ public final class ConnectionGeneGroup implements Serializable {
     private final All all = new All();
     private final Expressed expressed = new Expressed();
 
-    public boolean put(final ConnectionGene connection) {
+    boolean put(final ConnectionGene connection) {
         all.connections.put(connection.getInnovationId(), connection);
 
         if (connection.isExpressed()) {
@@ -36,14 +36,6 @@ public final class ConnectionGeneGroup implements Serializable {
         }
 
         return false;
-    }
-
-    private static <TKey, TValue> Map<TKey, TValue> ensureNotNull(final Map<TKey, TValue> map) {
-        if (map != null) {
-            return map;
-        }
-
-        return ImmutableMap.of();
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -91,6 +83,14 @@ public final class ConnectionGeneGroup implements Serializable {
             return connections.getByIndex(index);
         }
 
+        private static <TKey, TValue> Map<TKey, TValue> ensureNotNull(final Map<TKey, TValue> map) {
+            if (map != null) {
+                return map;
+            }
+
+            return ImmutableMap.of();
+        }
+
         public Map<DirectedEdge, ConnectionGene> getIncomingToNodeId(final SequentialId nodeId) {
             return ensureNotNull(incomingToNodeId.get(nodeId));
         }
@@ -107,16 +107,6 @@ public final class ConnectionGeneGroup implements Serializable {
             return getOutgoingFromNodeId(node.getId());
         }
 
-        private void add(final ConnectionGene connection) {
-            SequentialId targetNodeId = connection.getInnovationId().getTargetNodeId();
-            SequentialId sourceNodeId = connection.getInnovationId().getSourceNodeId();
-            DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
-
-            connections.put(connection.getInnovationId(), connection);
-            incomingToNodeId.computeIfAbsent(targetNodeId, ni -> new LinkedHashMap<>()).put(directedEdge, connection);
-            outgoingFromNodeId.computeIfAbsent(sourceNodeId, ni -> new LinkedHashMap<>()).put(directedEdge, connection);
-        }
-
         private static Map<DirectedEdge, ConnectionGene> removeIfEmpty(final Map<DirectedEdge, ConnectionGene> connections, final DirectedEdge directedEdge) {
             connections.remove(directedEdge);
 
@@ -127,16 +117,27 @@ public final class ConnectionGeneGroup implements Serializable {
             return connections;
         }
 
+        private void add(final ConnectionGene connection) {
+            SequentialId targetNodeId = connection.getInnovationId().getTargetNodeId();
+            SequentialId sourceNodeId = connection.getInnovationId().getSourceNodeId();
+            DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
+
+            connections.put(connection.getInnovationId(), connection);
+            incomingToNodeId.computeIfAbsent(targetNodeId, ni -> new LinkedHashMap<>()).put(directedEdge, connection);
+            outgoingFromNodeId.computeIfAbsent(sourceNodeId, ni -> new LinkedHashMap<>()).put(directedEdge, connection);
+        }
+
         private void remove(final ConnectionGene connection) {
             SequentialId targetNodeId = connection.getInnovationId().getTargetNodeId();
             SequentialId sourceNodeId = connection.getInnovationId().getSourceNodeId();
             DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
 
+            connections.removeById(connection.getInnovationId());
             incomingToNodeId.computeIfPresent(targetNodeId, (k, oic) -> removeIfEmpty(oic, directedEdge));
             outgoingFromNodeId.computeIfPresent(sourceNodeId, (k, oic) -> removeIfEmpty(oic, directedEdge));
         }
 
-        public boolean addCyclesAllowed(final ConnectionGene connection, final int delta) {
+        boolean addCyclesAllowed(final ConnectionGene connection, final int delta) {
             boolean previouslyExpressed = connection.isExpressed();
 
             connection.addCyclesAllowed(delta);
@@ -150,7 +151,15 @@ public final class ConnectionGeneGroup implements Serializable {
             return connection.isExpressed();
         }
 
-        public ConnectionGene disableByIndex(final int index) {
+        ConnectionGene addCyclesAllowed(final int index, final int delta) {
+            ConnectionGene connection = getByIndex(index);
+
+            addCyclesAllowed(connection, delta);
+
+            return connection;
+        }
+
+        ConnectionGene disableByIndex(final int index) {
             ConnectionGene connection = getByIndex(index);
 
             addCyclesAllowed(connection, -connection.getCyclesAllowed());

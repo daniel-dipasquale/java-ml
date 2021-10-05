@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,15 +14,16 @@ import java.io.Serializable;
 @RequiredArgsConstructor
 @Getter
 @EqualsAndHashCode
-@ToString(onlyExplicitlyIncluded = true)
 public final class NodeGene implements Serializable {
     @Serial
     private static final long serialVersionUID = -4174686982693760386L;
-    @ToString.Include
     private final SequentialId id;
-    @ToString.Include
     private final NodeGeneType type;
-    @ToString.Include
     private final float bias;
     private final ActivationFunction activationFunction;
+
+    @Override
+    public String toString() {
+        return String.format("id: %s, type: %s, bias: %f, activationFunction: %s", id, type, bias, activationFunction);
+    }
 }

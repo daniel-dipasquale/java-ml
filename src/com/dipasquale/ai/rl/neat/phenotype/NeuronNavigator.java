@@ -28,10 +28,10 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
     }
 
     public void add(final Neuron neuron) {
-        Neuron neuronFixed = neuronPathBuilder.add(neuron);
+        neuronPathBuilder.add(neuron);
 
-        if (neuronFixed.getType() == NodeGeneType.OUTPUT) {
-            outputNeurons.add(neuronFixed);
+        if (neuron.getType() == NodeGeneType.OUTPUT) {
+            outputNeurons.add(neuron);
         }
 
         orderedNeurons = null;

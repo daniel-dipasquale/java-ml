@@ -11,12 +11,13 @@ import java.io.Serializable;
 public final class RecurrentNeuralNetworkFactory implements NeuralNetworkFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -7222558913199103708L;
+    private static final NeuronValueGroupFactory NEURON_VALUES_FACTORY = (NeuronValueGroupFactory & Serializable) RecurrentNeuronValueGroup::new;
 
     @Override
     public NeuralNetwork create(final Genome genome) {
         NeuronPathBuilder neuronPathBuilder = new RecurrentNeuronPathBuilder();
-        ObjectFactory<NeuronValueGroup> neuronValuesFactory = (ObjectFactory<NeuronValueGroup> & Serializable) RecurrentNeuronValueGroup::new;
+        ObjectFactory<NeuronMemory> neuronMemoryFactory = (ObjectFactory<NeuronMemory> & Serializable) () -> new NeuronMemory(genome);
 
-        return new DefaultNeuralNetwork(genome, neuronPathBuilder, neuronValuesFactory);
+        return new DefaultNeuralNetwork(genome, neuronPathBuilder, neuronMemoryFactory, NEURON_VALUES_FACTORY);
     }
 }

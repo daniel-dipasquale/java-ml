@@ -37,13 +37,17 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return genome.getConnections().getExpressed().size();
     }
 
-    public GenomeActivator getGenomeActivator(final Context.ActivationSupport activationSupport) {
-        return activationSupport.getOrCreateGenomeActivator(genome, populationState);
+    public GenomeActivator getActivator(final Context.ActivationSupport activationSupport) {
+        return activationSupport.getOrCreateActivator(genome, populationState);
+    }
+
+    public GenomeActivator createTransientActivator(final Context.ActivationSupport activationSupport) {
+        return activationSupport.createTransientActivator(genome, populationState);
     }
 
     public float updateFitness(final Species species, final Context context) { // TODO: should I let an exception bubble up from here, if the fitness functions fail
         Context.ActivationSupport activationSupport = context.activation();
-        GenomeActivator genomeActivator = getGenomeActivator(activationSupport);
+        GenomeActivator genomeActivator = getActivator(activationSupport);
 
         fitness = activationSupport.calculateFitness(genomeActivator);
         context.metrics().collectFitness(species, this);

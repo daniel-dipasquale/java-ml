@@ -20,7 +20,7 @@ public final class ConcurrentBoundedHeap<TKey, TValue extends Comparable<TValue>
     private static final long serialVersionUID = 611601432829176622L;
     private final Factory<TKey, TValue> sortedByValueMapFactory;
     private final Comparator<TValue> comparator;
-    private ConcurrentSortedByValueMap<TKey, TValue> sortedByValueMap;
+    private ConcurrentSortedByValueHashMap<TKey, TValue> sortedByValueMap;
     @Getter
     private Set<TKey> keys;
     private final TValue initialFirstValue;
@@ -31,7 +31,7 @@ public final class ConcurrentBoundedHeap<TKey, TValue extends Comparable<TValue>
     private final ReadWriteLock lock;
 
     private ConcurrentBoundedHeap(final Factory<TKey, TValue> sortedByValueMapFactory, final Comparator<TValue> comparator, final TValue initialFirstValue, final int limit) {
-        ConcurrentSortedByValueMap<TKey, TValue> sortedByValueMap = sortedByValueMapFactory.create(comparator);
+        ConcurrentSortedByValueHashMap<TKey, TValue> sortedByValueMap = sortedByValueMapFactory.create(comparator);
 
         this.sortedByValueMapFactory = sortedByValueMapFactory;
         this.comparator = comparator;
@@ -45,7 +45,7 @@ public final class ConcurrentBoundedHeap<TKey, TValue extends Comparable<TValue>
     }
 
     public static <T> ConcurrentBoundedHeap<T, Long> createDescendingOrder(final long initialFirstValue, final int limit) {
-        Factory<T, Long> mapFactory = ConcurrentSortedByValueMap::new;
+        Factory<T, Long> mapFactory = ConcurrentSortedByValueHashMap::new;
         Comparator<Long> comparator = Long::compare;
 
         return new ConcurrentBoundedHeap<>(mapFactory, comparator, initialFirstValue, limit);
@@ -89,14 +89,14 @@ public final class ConcurrentBoundedHeap<TKey, TValue extends Comparable<TValue>
 
     @FunctionalInterface
     private interface Factory<TKey, TValue> extends Serializable {
-        ConcurrentSortedByValueMap<TKey, TValue> create(Comparator<TValue> comparator);
+        ConcurrentSortedByValueHashMap<TKey, TValue> create(Comparator<TValue> comparator);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class ClearResult<TKey, TValue> implements Serializable {
         @Serial
         private static final long serialVersionUID = 2527785575818134933L;
-        private final ConcurrentSortedByValueMap<TKey, TValue> sortedByValueMap;
+        private final ConcurrentSortedByValueHashMap<TKey, TValue> sortedByValueMap;
 
         public List<TKey> getKeys() {
             return new ArrayList<>(sortedByValueMap.descendingKeySet());

@@ -6,9 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class RandomSupportTest {
@@ -174,98 +172,4 @@ public final class RandomSupportTest {
 
         Assertions.assertTrue(isNextDoubleBounded(test));
     }
-
-    private static boolean isNextLongMeanDistributed(final RandomSupport randomSupport, final List<Double> marginOfErrors) {
-        long max = 10L;
-        Map<Long, AtomicInteger> distribution = new HashMap<>();
-
-        for (int i = 0; i < RANDOM_TEST_COUNT; i++) {
-            long result = randomSupport.next(0L, max);
-
-            distribution.computeIfAbsent(result, k -> new AtomicInteger()).incrementAndGet();
-        }
-
-        if (distribution.size() > max) {
-            return false;
-        }
-
-        for (long i = 0L, c = max / 2L; i < c; i++) { // TODO: not checking if the ratios are increase towards the mean
-            double number1 = (double) Optional.ofNullable(distribution.get(i))
-                    .map(AtomicInteger::get)
-                    .orElse(1);
-
-            double number2 = (double) Optional.ofNullable(distribution.get(max - 1L - i))
-                    .map(AtomicInteger::get)
-                    .orElse(1);
-
-            double ratio = number1 / number2;
-            int index = (int) i;
-
-            double marginOfError = index < marginOfErrors.size()
-                    ? marginOfErrors.get(index)
-                    : marginOfErrors.get(marginOfErrors.size() - 1);
-
-            if (Double.compare(ratio, 1D - marginOfError) < 0 || Double.compare(ratio, 1D + marginOfError) > 0) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-//    @Test
-//    public void GIVEN_a_random_number_generator_that_is_mean_distributed_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
-//        RandomSupport test = RandomSupport.createMeanDistribution(false);
-//
-//        Assertions.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(0.3D, 0.1D)));
-//    }
-//
-//    @Test
-//    public void GIVEN_a_random_number_generator_that_is_mean_distributed_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-//        RandomSupport test = RandomSupport.createMeanDistribution(false);
-//
-//        Assertions.assertTrue(isNextDoubleBounded(test));
-//    }
-//
-//    @Test
-//    public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
-//        RandomSupport test = RandomSupport.createMeanDistribution(false, 12);
-//
-//        Assertions.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(1D, 0.65D, 0.3D, 0.1D)));
-//    }
-//
-//    @Test
-//    public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-//        RandomSupport test = RandomSupport.createMeanDistribution(false, 12);
-//
-//        Assertions.assertTrue(isNextDoubleBounded(test));
-//    }
-//
-//    @Test
-//    public void GIVEN_a_random_number_generator_that_is_mean_distributed_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_gaussian_distributed_through_out() {
-//        RandomSupport test = RandomSupport.createMeanDistribution(true);
-//
-//        Assertions.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(0.3D, 0.1D)));
-//    }
-//
-//    @Test
-//    public void GIVEN_a_random_number_generator_that_is_mean_distributed_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-//        RandomSupport test = RandomSupport.createMeanDistribution(true);
-//
-//        Assertions.assertTrue(isNextDoubleBounded(test));
-//    }
-//
-//    @Test
-//    public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_gaussian_distributed_through_out() {
-//        RandomSupport test = RandomSupport.createMeanDistribution(true, 12);
-//
-//        Assertions.assertTrue(isNextLongMeanDistributed(test, ImmutableList.of(1D, 0.65D, 0.3D, 0.1D)));
-//    }
-//
-//    @Test
-//    public void GIVEN_a_random_number_generator_that_is_mean_distributed_heavily_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-//        RandomSupport test = RandomSupport.createMeanDistribution(true, 12);
-//
-//        Assertions.assertTrue(isNextDoubleBounded(test));
-//    }
 }

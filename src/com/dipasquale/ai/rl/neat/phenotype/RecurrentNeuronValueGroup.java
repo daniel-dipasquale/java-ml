@@ -1,40 +1,71 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.genotype.ConnectionGene;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class RecurrentNeuronValueGroup implements NeuronValueGroup {
-    private final Map<SequentialId, EnvelopeGroup> neuronValues = new HashMap<>();
+    private final Map<SequentialId, ValueGroup> neuronValues = new HashMap<>();
+    private final NeuronMemory neuronMemory;
 
-    @Override
-    public float getValue(final SequentialId id) {
-        EnvelopeGroup envelopeGroup = neuronValues.get(id);
+    private float getValueFromNeurons(final SequentialId id) {
+        ValueGroup values = neuronValues.get(id);
 
-        if (envelopeGroup == null) {
+        if (values == null) {
             return 0f;
         }
 
-        return envelopeGroup.totalValue;
+        return values.total;
+    }
+
+    private float getValueFromMemory(final SequentialId id) {
+        if (neuronMemory != null) {
+            Float value = neuronMemory.getValue(id);
+
+            if (value != null) {
+                return value;
+            }
+        }
+
+        return 0f;
+    }
+
+    @Override
+    public float getValue(final SequentialId id) {
+        return getValueFromNeurons(id);
+    }
+
+    @Override
+    public float getValue(final SequentialId id, final SequentialId sourceId) {
+        if (!ConnectionGene.isRecurrent(sourceId, id)) {
+            return getValue(id);
+        }
+
+        return getValue(id) + getValueFromMemory(id);
     }
 
     @Override
     public void setValue(final SequentialId id, final float value) {
-        EnvelopeGroup envelopeGroup = neuronValues.computeIfAbsent(id, k -> new EnvelopeGroup());
+        ValueGroup valueGroup = neuronValues.computeIfAbsent(id, k -> new ValueGroup());
 
-        envelopeGroup.clear();
-        envelopeGroup.replace(id, value);
+        valueGroup.clear();
+        valueGroup.replace(id, value);
     }
 
     @Override
-    public void addToValue(final SequentialId id, final float delta, final SequentialId sourceId) {
-        EnvelopeGroup envelopeGroup = neuronValues.computeIfAbsent(id, k -> new EnvelopeGroup());
+    public void addToValue(final SequentialId id, final float value, final SequentialId sourceId) {
+        ValueGroup values = neuronValues.computeIfAbsent(id, k -> new ValueGroup());
 
-        envelopeGroup.replace(sourceId, delta);
+        values.replace(sourceId, value);
+
+        if (neuronMemory != null) {
+            neuronMemory.setValue(id, value, sourceId);
+        }
     }
 
     @Override
@@ -42,29 +73,24 @@ final class RecurrentNeuronValueGroup implements NeuronValueGroup {
         neuronValues.clear();
     }
 
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class Envelope {
-        private float value;
-    }
-
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class EnvelopeGroup {
-        private final Map<SequentialId, Envelope> values = new HashMap<>();
-        private float totalValue = 0f;
+    private static final class ValueGroup {
+        private final Map<SequentialId, Float> values = new HashMap<>();
+        private float total = 0f;
 
-        private void replace(final SequentialId id, final float delta) {
-            Envelope oldEnvelope = values.replace(id, new Envelope(delta));
+        private void replace(final SequentialId id, final float value) {
+            Float oldValue = values.replace(id, value);
 
-            totalValue += delta;
+            total += value;
 
-            if (oldEnvelope != null) {
-                totalValue -= oldEnvelope.value;
+            if (oldValue != null) {
+                total -= oldValue;
             }
         }
 
         private void clear() {
             values.clear();
-            totalValue = 0f;
+            total = 0f;
         }
     }
 }

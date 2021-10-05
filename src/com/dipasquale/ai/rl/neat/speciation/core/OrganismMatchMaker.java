@@ -6,37 +6,37 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ClosestSpeciesCollector {
+final class OrganismMatchMaker {
     private static final double MINIMUM_COMPATIBILITY = Double.POSITIVE_INFINITY;
     private final Context.SpeciationSupport speciationSupport;
-    private double minimumCompatibility = MINIMUM_COMPATIBILITY;
-    private Species closestSpecies = null;
+    private double bestMatchCompatibility = MINIMUM_COMPATIBILITY;
+    private Species bestMatchSpecies = null;
 
-    public boolean collectIfCloser(final Organism organism, final Species species) {
+    public boolean collectIfBetterMatch(final Organism organism, final Species species) {
         double compatibility = organism.calculateCompatibility(speciationSupport, species);
 
-        if (Double.compare(minimumCompatibility, compatibility) <= 0) {
+        if (Double.compare(bestMatchCompatibility, compatibility) <= 0) {
             return false;
         }
 
-        minimumCompatibility = compatibility;
-        closestSpecies = species;
+        bestMatchCompatibility = compatibility;
+        bestMatchSpecies = species;
 
         return true;
     }
 
-    public boolean isClosestCompatible(final int generation) {
+    public boolean isBestMatchCompatible(final int generation) {
         double compatibilityThreshold = speciationSupport.params().compatibilityThreshold(generation);
 
-        return Double.compare(minimumCompatibility, compatibilityThreshold) < 0;
+        return Double.compare(bestMatchCompatibility, compatibilityThreshold) < 0;
     }
 
-    public Species get() {
-        return closestSpecies;
+    public Species getBestMatch() {
+        return bestMatchSpecies;
     }
 
     public void clear() {
-        minimumCompatibility = MINIMUM_COMPATIBILITY;
-        closestSpecies = null;
+        bestMatchCompatibility = MINIMUM_COMPATIBILITY;
+        bestMatchSpecies = null;
     }
 }

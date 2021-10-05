@@ -2,9 +2,12 @@ package com.dipasquale.data.structure.map;
 
 import com.google.common.collect.Iterables;
 
+import java.io.Serial;
 import java.util.Map;
 
 public final class TandemMap<TKey, TValue> extends AbstractMap<TKey, TValue> {
+    @Serial
+    private static final long serialVersionUID = 6242382897407829313L;
     private final Map<TKey, TValue> first;
     private final Map<TKey, TValue> second;
 

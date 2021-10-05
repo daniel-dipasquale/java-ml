@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorOverrideSettings;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorSettings;
 import com.dipasquale.common.JvmWarmup;
@@ -102,18 +103,18 @@ public final class NeatTest {
         System.out.printf("=========================================%n");
         System.out.printf("%s (%s):%n", trainerSetup.name, trainerSetup.shouldTestParallelism ? "parallel" : "single");
         System.out.printf("=========================================%n");
-        System.out.printf("iteration: %d%n", trainer.getIteration());
-        System.out.printf("generation: %d%n", trainer.getGeneration());
-        System.out.printf("species: %d%n", trainer.getSpeciesCount());
-        System.out.printf("hidden nodes: %d%n", trainer.getCurrentHiddenNodes());
-        System.out.printf("connections: %d%n", trainer.getCurrentConnections());
-        System.out.printf("fitness: %f%n", trainer.getMaximumFitness());
+        System.out.printf("iteration: %d%n", trainer.getState().getIteration());
+        System.out.printf("generation: %d%n", trainer.getState().getGeneration());
+        System.out.printf("species: %d%n", trainer.getState().getSpeciesCount());
+        System.out.printf("hidden nodes: %d%n", trainer.getState().getChampionGenome().getNodes().size(NodeGeneType.HIDDEN));
+        System.out.printf("connections: %d%n", trainer.getState().getChampionGenome().getConnections().getExpressed().size());
+        System.out.printf("fitness: %f%n", trainer.getState().getMaximumFitness());
         Assertions.assertTrue(success);
         Assertions.assertEquals(populationSize, GENOME_IDS.size());
     }
 
     private static NeatTrainingResult test(final NeatTrainingPolicy trainingPolicy, final NeatTrainer trainer) {
-        return trainingPolicy.testOnce(new NeatActivatorTrainer(trainer));
+        return trainingPolicy.testOnce(trainer);
     }
 
     private static void assertPersistence(final NeatTrainer trainer, final NeatTrainerSetup trainerSetup, final boolean shouldTestParallelism) {
@@ -130,12 +131,11 @@ public final class NeatTest {
 
             NeatTrainer trainerCopy = createTrainer(bytes, overrideSettings);
 
-            Assertions.assertEquals(trainer.getIteration(), trainerCopy.getIteration());
-            Assertions.assertEquals(trainer.getGeneration(), trainerCopy.getGeneration());
-            Assertions.assertEquals(trainer.getSpeciesCount(), trainerCopy.getSpeciesCount());
-            Assertions.assertEquals(trainer.getCurrentHiddenNodes(), trainerCopy.getCurrentHiddenNodes());
-            Assertions.assertEquals(trainer.getCurrentConnections(), trainerCopy.getCurrentConnections());
-            Assertions.assertEquals(trainer.getMaximumFitness(), trainerCopy.getMaximumFitness(), 0f);
+            Assertions.assertEquals(trainer.getState().getIteration(), trainerCopy.getState().getIteration());
+            Assertions.assertEquals(trainer.getState().getGeneration(), trainerCopy.getState().getGeneration());
+            Assertions.assertEquals(trainer.getState().getSpeciesCount(), trainerCopy.getState().getSpeciesCount());
+            Assertions.assertEquals(trainer.getState().getChampionGenome(), trainerCopy.getState().getChampionGenome());
+            Assertions.assertEquals(trainer.getState().getMaximumFitness(), trainerCopy.getState().getMaximumFitness(), 0f);
             Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, test(trainerSetup.trainingPolicy, trainer));
             Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, test(trainerSetup.trainingPolicy, trainerCopy));
         } catch (IOException e) {

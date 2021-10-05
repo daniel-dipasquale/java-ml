@@ -12,16 +12,16 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Builder(access = AccessLevel.PACKAGE)
-public final class Neuron implements Serializable {
+final class Neuron implements Serializable {
     @Serial
     private static final long serialVersionUID = -7305330143842774982L;
     private final NodeGene node;
     @Getter
-    private final Collection<InputNeuron> inputs;
+    private final Collection<InputConnection> inputs;
     @Getter
-    private final Collection<OutputNeuron> outputs;
+    private final Collection<OutputConnection> outputs;
 
     public SequentialId getId() {
         return node.getId();
@@ -31,14 +31,20 @@ public final class Neuron implements Serializable {
         return node.getType();
     }
 
-    public float getValue(final float value) {
-        return node.getActivationFunction().forward(value + node.getBias());
+    public float getValue(final float value, final float weight) {
+        return node.getActivationFunction().forward(value * weight + node.getBias());
     }
 
     public float getValue(final NeuronValueGroup neuronValues) {
         float value = neuronValues.getValue(getId());
 
-        return getValue(value);
+        return getValue(value, 1f);
+    }
+
+    public float getValue(final NeuronValueGroup neuronValues, final OutputConnection output) {
+        float value = neuronValues.getValue(getId(), output.getTargetNeuronId());
+
+        return getValue(value, output.getConnectionWeight());
     }
 
     @Override

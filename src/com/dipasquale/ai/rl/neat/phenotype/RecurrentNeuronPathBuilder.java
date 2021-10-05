@@ -16,8 +16,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-@RequiredArgsConstructor
-public final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Serializable {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Serializable {
     @Serial
     private static final long serialVersionUID = 1299761107234360133L;
     private final Map<SequentialId, Neuron> neurons = new HashMap<>();
@@ -35,10 +35,8 @@ public final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Seri
     }
 
     @Override
-    public Neuron add(final Neuron neuron) {
+    public void add(final Neuron neuron) {
         neurons.put(neuron.getId(), neuron);
-
-        return neuron;
     }
 
     private OrderableNeuron getOrderableOrCreateUnordered(final OrderableNeuron orderableNeuron, final NeuronOrderId neuronOrderId) {
@@ -69,33 +67,34 @@ public final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Seri
 
     @Override
     public void addPathLeadingTo(final Neuron neuron) {
-        HashDequeMap<NeuronOrderId, OrderableNeuron> deque = new HashDequeMap<>();
+        HashDequeMap<NeuronOrderId, OrderableNeuron> orderingNeurons = new HashDequeMap<>();
 
-        addRootTo(deque, neuron);
+        addRootTo(orderingNeurons, neuron);
 
-        while (!deque.isEmpty()) {
-            OrderableNeuron orderableNeuron = deque.removeLast();
+        while (!orderingNeurons.isEmpty()) {
+            OrderableNeuron orderableNeuron = orderingNeurons.removeLast();
 
             if (!orderableNeuron.ordered) {
-                deque.putLast(orderableNeuron.neuronOrderId, orderableNeuron.createOrdered());
+                orderingNeurons.putLast(orderableNeuron.neuronOrderId, orderableNeuron.createOrdered());
 
-                for (InputNeuron inputNeuron : orderableNeuron.neuron.getInputs()) {
-                    NeuronOrderId inputNeuronOrderId = new NeuronOrderId(inputNeuron.getNeuronId(), orderableNeuron.neuronOrderId.cycle);
-                    OrderableNeuron orderableInputNeuron = deque.get(inputNeuronOrderId);
+                for (InputConnection input : orderableNeuron.neuron.getInputs()) {
+                    NeuronOrderId sourceNeuronId = new NeuronOrderId(input.getSourceNeuronId(), orderableNeuron.neuronOrderId.cycle);
 
-                    if ((orderableInputNeuron == null || !orderableInputNeuron.ordered) && !orderedNeuronIds.contains(inputNeuronOrderId)) {
-                        OrderableNeuron orderableInputNeuronFixed = getOrderableOrCreateUnordered(orderableInputNeuron, inputNeuronOrderId);
+                    if (sourceNeuronId.cycle < input.getCyclesAllowed()) {
+                        OrderableNeuron orderableSourceNeuron = orderingNeurons.get(sourceNeuronId);
 
-                        deque.putLast(inputNeuronOrderId, orderableInputNeuronFixed);
-                    } else if (orderableInputNeuron != null && orderableInputNeuron.ordered || orderedNeuronIds.contains(inputNeuronOrderId)) {
-                        if (inputNeuronOrderId.cycle <= inputNeuron.getRecurrentCyclesAllowed()) {
-                            OrderableNeuron orderableInputNeuronFixed = createNextUnordered(inputNeuronOrderId);
+                        if ((orderableSourceNeuron == null || !orderableSourceNeuron.ordered) && !orderedNeuronIds.contains(sourceNeuronId)) {
+                            OrderableNeuron orderableSourceNeuronFixed = getOrderableOrCreateUnordered(orderableSourceNeuron, sourceNeuronId);
 
-                            deque.putLast(orderableInputNeuronFixed.neuronOrderId, orderableInputNeuronFixed);
+                            orderingNeurons.putLast(sourceNeuronId, orderableSourceNeuronFixed);
+                        } else if (orderableSourceNeuron != null && orderableSourceNeuron.ordered || orderedNeuronIds.contains(sourceNeuronId)) {
+                            OrderableNeuron orderableSourceNeuronFixed = createNextUnordered(sourceNeuronId);
+
+                            orderingNeurons.putLast(orderableSourceNeuronFixed.neuronOrderId, orderableSourceNeuronFixed);
                         }
                     }
                 }
-            } else if (orderedNeuronIds.add(orderableNeuron.neuronOrderId)) {
+            } else if (orderedNeuronIds.add(orderableNeuron.neuronOrderId) && !orderingNeurons.isEmpty()) {
                 orderedNeurons.add(orderableNeuron.neuron);
             }
         }
@@ -144,7 +143,7 @@ public final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Seri
 
         @Override
         public String toString() {
-            return String.format("%s:%b", neuron.getId(), ordered);
+            return String.format("%s:%b", neuronOrderId, ordered);
         }
     }
 }

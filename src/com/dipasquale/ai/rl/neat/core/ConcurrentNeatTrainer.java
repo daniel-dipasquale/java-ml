@@ -1,25 +1,22 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationExtinctionException;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 final class ConcurrentNeatTrainer implements NeatTrainer {
     private final ConcurrentNeatEvaluator evaluator;
-    private final NeatActivatorEvaluator activator;
     private final ReadWriteLock lock;
 
     private ConcurrentNeatTrainer(final ConcurrentNeatEvaluator evaluator, final ReadWriteLock lock) {
         this.evaluator = evaluator;
-        this.activator = new NeatActivatorEvaluator(evaluator);
         this.lock = lock;
     }
 
@@ -31,45 +28,10 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
         this(context, new ReentrantReadWriteLock());
     }
 
-    @Override
-    public int getIteration() {
-        return evaluator.getIteration();
-    }
-
-    @Override
-    public int getGeneration() {
-        return evaluator.getGeneration();
-    }
-
-    @Override
-    public int getSpeciesCount() {
-        return evaluator.getSpeciesCount();
-    }
-
-    @Override
-    public int getCurrentHiddenNodes() {
-        return evaluator.getCurrentHiddenNodes();
-    }
-
-    @Override
-    public int getCurrentConnections() {
-        return evaluator.getCurrentConnections();
-    }
-
-    @Override
-    public float getMaximumFitness() {
-        return evaluator.getMaximumFitness();
-    }
-
-    @Override
-    public Map<Integer, IterationMetrics> getMetrics() {
-        return evaluator.getMetrics();
-    }
-
     private boolean executeTrainingPolicy(final NeatTrainingPolicy trainingPolicy) {
         try {
             while (true) {
-                NeatTrainingResult result = trainingPolicy.test(activator);
+                NeatTrainingResult result = trainingPolicy.test(evaluator);
 
                 switch (result) {
                     case EVALUATE_FITNESS:
@@ -104,6 +66,11 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
     }
 
     @Override
+    public NeatState getState() {
+        return evaluator.getState();
+    }
+
+    @Override
     public boolean train(final NeatTrainingPolicy trainingPolicy) {
         lock.writeLock().lock();
 
@@ -115,8 +82,13 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
     }
 
     @Override
-    public float[] activate(final float[] input) {
-        return evaluator.activate(input);
+    public NeuronMemory createMemory() {
+        return evaluator.createMemory();
+    }
+
+    @Override
+    public float[] activate(final float[] input, final NeuronMemory neuronMemory) {
+        return evaluator.activate(input, neuronMemory);
     }
 
     @Override

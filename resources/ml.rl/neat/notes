@@ -45,9 +45,9 @@ pitStop:
 https://ai.stackexchange.com/questions/6231/how-to-evaluate-a-neat-neural-network
 
 neat (other resources):
-https://github.com/Luecx/NEAT/blob/master/vid%203/src/data_structures/RandomHashSet.java
-https://github.com/colgreen/sharpneat-refactor/blob/master/src/SharpNeat/NeuralNets/Double/NeuralNetAcyclic.cs
-https://github.com/hydrozoa-yt/hydroneat/blob/master/src/com/hydrozoa/hydroneat/Genome.java
+https://github.com/Luecx/NEAT
+https://github.com/colgreen/sharpneat-refactor
+https://github.com/hydrozoa-yt/hydroneat
 https://github.com/jeffheaton/encog-java-examples/blob/master/src/main/java/org/encog/examples/neural/neat/XORNEAT.java (very good)
 https://github.com/wagenaartje/neataptic/blob/master/src/architecture/architect.js
 https://neat-python.readthedocs.io/en/latest/neat_overview.html

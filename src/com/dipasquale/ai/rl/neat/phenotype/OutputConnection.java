@@ -10,14 +10,14 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-public final class InputNeuron implements Serializable {
+final class OutputConnection implements Serializable {
     @Serial
-    private static final long serialVersionUID = 2600008683072648717L;
-    private final SequentialId neuronId;
-    private final int recurrentCyclesAllowed;
+    private static final long serialVersionUID = -449674642630253269L;
+    private final SequentialId targetNeuronId;
+    private final float connectionWeight;
 
     @Override
     public String toString() {
-        return String.format("%s (%d)", neuronId, recurrentCyclesAllowed);
+        return String.format("%f => %s", connectionWeight, targetNeuronId);
     }
 }

@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
+import com.dipasquale.ai.common.sequence.SequentialId;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,7 +17,7 @@ public final class ConnectionGene implements Serializable {
     @Serial
     private static final long serialVersionUID = -72756908718555853L;
     private final InnovationId innovationId;
-    @Setter
+    @Setter(AccessLevel.PACKAGE)
     private float weight;
     private int cyclesAllowed;
 
@@ -25,19 +27,28 @@ public final class ConnectionGene implements Serializable {
         this.cyclesAllowed = 1;
     }
 
-    public void addCyclesAllowed(final int delta) {
+    void addCyclesAllowed(final int delta) {
         cyclesAllowed = Math.min(cyclesAllowed + delta, 0);
     }
 
-    public boolean isExpressed() {
+    boolean isExpressed() {
         return cyclesAllowed > 0;
     }
 
-    public ConnectionGene createCopy(final int cyclesAllowed) {
+    ConnectionGene createCopy(final int cyclesAllowed) {
         return new ConnectionGene(innovationId, weight, cyclesAllowed);
     }
 
-    public ConnectionGene createClone() {
+    ConnectionGene createClone() {
         return createCopy(cyclesAllowed);
+    }
+
+    public static boolean isRecurrent(final SequentialId sourceNodeId, final SequentialId targetNodeId) {
+        return sourceNodeId.compareTo(targetNodeId) >= 0;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("innovationId: %s, weight: %f, cyclesAllowed: %d", innovationId, weight, cyclesAllowed);
     }
 }

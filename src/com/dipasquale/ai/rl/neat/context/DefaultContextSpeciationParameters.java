@@ -12,6 +12,7 @@ import java.io.Serializable;
 public final class DefaultContextSpeciationParameters implements Context.SpeciationParameters, Serializable {
     @Serial
     private static final long serialVersionUID = -7007214942183273340L;
+    private final int maximumSpecies;
     private final float compatibilityThreshold;
     private final float compatibilityThresholdModifier;
     private final float eugenicsThreshold;
@@ -19,6 +20,11 @@ public final class DefaultContextSpeciationParameters implements Context.Speciat
     private final int elitistThresholdMinimum;
     private final int stagnationDropOffAge;
     private final float interSpeciesMatingRate;
+
+    @Override
+    public int maximumSpecies() {
+        return maximumSpecies;
+    }
 
     @Override
     public double compatibilityThreshold(final int generation) {

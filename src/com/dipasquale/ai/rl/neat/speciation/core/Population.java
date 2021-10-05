@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.speciation.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.ai.rl.neat.speciation.organism.OrganismActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessContext;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionContext;
@@ -16,6 +16,7 @@ import com.dipasquale.data.structure.deque.SimpleNodeDeque;
 import com.dipasquale.data.structure.set.DequeIdentitySet;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.google.common.collect.Iterables;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
@@ -36,6 +37,8 @@ public final class Population {
     private DequeSet<Organism> organismsWithoutSpecies = new DequeIdentitySet<>();
     private Queue<OrganismFactory> organismsToBirth = new LinkedList<>();
     private NodeDeque<Species, SimpleNode<Species>> speciesNodes = new SimpleNodeDeque<>();
+    @Getter
+    private OrganismActivator championOrganismActivator = new OrganismActivator();
 
     public int getIteration() {
         return populationState.getIteration();
@@ -90,7 +93,8 @@ public final class Population {
     }
 
     private void assignOrganismsToSpecies(final Context context) {
-        ClosestSpeciesCollector closestSpeciesCollector = new ClosestSpeciesCollector(context.speciation());
+        OrganismMatchMaker matchMaker = new OrganismMatchMaker(context.speciation());
+        int maximumSpecies = context.speciation().params().maximumSpecies();
 
         Iterable<Organism> organismsBirthed = organismsToBirth.stream()
                 .map(of -> of.create(context))
@@ -98,16 +102,16 @@ public final class Population {
 
         for (Organism organism : Iterables.concat(organismsWithoutSpecies, organismsBirthed)) {
             for (SimpleNode<Species> speciesNode : speciesNodes) {
-                closestSpeciesCollector.collectIfCloser(organism, speciesNodes.getValue(speciesNode));
+                matchMaker.collectIfBetterMatch(organism, speciesNodes.getValue(speciesNode));
             }
 
-            if (!closestSpeciesCollector.isClosestCompatible(populationState.getGeneration())) {
+            if (speciesNodes.size() < maximumSpecies && !matchMaker.isBestMatchCompatible(populationState.getGeneration())) {
                 addSpecies(createSpecies(context.speciation(), organism));
             } else {
-                closestSpeciesCollector.get().add(organism);
+                matchMaker.getBestMatch().add(organism);
             }
 
-            closestSpeciesCollector.clear();
+            matchMaker.clear();
         }
 
         organismsWithoutSpecies.clear();
@@ -115,9 +119,13 @@ public final class Population {
         addCompositionMetrics(context.metrics());
     }
 
-    public void initialize(final Context context, final OrganismActivator championOrganismActivator) {
+    public void initializeChampionOrganism(final Organism organism, final GenomeActivator genomeActivator) {
+        championOrganismActivator.initialize(organism, genomeActivator);
+    }
+
+    public void initialize(final Context context) {
         fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-        championOrganismActivator.initialize(organismsWithoutSpecies.getFirst().createClone(context.connections()), organismsWithoutSpecies.getFirst().getGenomeActivator(context.activation()));
+        initializeChampionOrganism(organismsWithoutSpecies.getFirst().createClone(context.connections()), organismsWithoutSpecies.getFirst().getActivator(context.activation()));
         assignOrganismsToSpecies(context);
     }
 
@@ -154,12 +162,12 @@ public final class Population {
         selectionContext.getParent().speciation().getReproductionStrategy().reproduce(reproductionContext);
     }
 
-    public void evolve(final Context context, final OrganismActivator championOrganismActivator) {
+    public void evolve(final Context context) {
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
 
-        SpeciesSelectionContext selectionContext = new SpeciesSelectionContext(context, championOrganismActivator);
+        SpeciesSelectionContext selectionContext = new SpeciesSelectionContext(context, this);
 
         try {
             context.speciation().getSelectionStrategy().select(selectionContext, speciesNodes);
@@ -184,7 +192,7 @@ public final class Population {
         assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
     }
 
-    public void restart(final Context context, final OrganismActivator championOrganismActivator) {
+    public void restart(final Context context) {
         populationState.restart();
         context.connections().reset();
         context.nodes().reset();
@@ -195,7 +203,7 @@ public final class Population {
         speciesNodes.clear();
         context.metrics().prepareNextIteration();
         championOrganismActivator.reset();
-        initialize(context, championOrganismActivator);
+        initialize(context);
     }
 
     public void save(final ObjectOutputStream outputStream)
@@ -206,6 +214,7 @@ public final class Population {
         stateGroup.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
         stateGroup.put("population.organismsToBirth", organismsToBirth);
         stateGroup.put("population.speciesNodes", speciesNodes);
+        stateGroup.put("population.championOrganismActivator", championOrganismActivator);
         stateGroup.writeTo(outputStream);
     }
 
@@ -218,5 +227,6 @@ public final class Population {
         organismsWithoutSpecies = stateGroup.get("population.organismsWithoutSpecies");
         organismsToBirth = stateGroup.get("population.organismsToBirth");
         speciesNodes = stateGroup.get("population.speciesNodes");
+        championOrganismActivator = stateGroup.get("population.championOrganismActivator");
     }
 }

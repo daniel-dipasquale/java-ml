@@ -1,31 +1,13 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 
-public interface NeatTrainer {
-    int getIteration();
-
-    int getGeneration();
-
-    int getSpeciesCount();
-
-    int getCurrentHiddenNodes();
-
-    int getCurrentConnections();
-
-    float getMaximumFitness();
-
-    Map<Integer, IterationMetrics> getMetrics();
-
+public interface NeatTrainer extends NeatActivator {
     boolean train(NeatTrainingPolicy trainingPolicy);
-
-    float[] activate(float[] input);
 
     void save(OutputStream outputStream) throws IOException;
 

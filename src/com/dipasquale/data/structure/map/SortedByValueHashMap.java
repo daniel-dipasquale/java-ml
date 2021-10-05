@@ -21,8 +21,8 @@ public final class SortedByValueHashMap<TKey, TValue> extends AbstractSortedByVa
     private final Storage<TKey, TValue> storage;
 
     private SortedByValueHashMap(final MapFactory<TKey, TValue> mapFactory, final Comparator<TValue> comparator) {
-        super((ObjectFactory<DequeSet<Entry<TKey, TValue>>> & Serializable) DequeHashSet::new, EntryInternal::new);
-        this.storage = createStorage(mapFactory, () -> new TreeMap<>(comparator));
+        super(createEntriesSetFactory(), createEntryStrategyFactory());
+        this.storage = new Storage<>(mapFactory.create(), new TreeMap<>(comparator));
     }
 
     public SortedByValueHashMap(final Comparator<TValue> comparator) {
@@ -31,6 +31,20 @@ public final class SortedByValueHashMap<TKey, TValue> extends AbstractSortedByVa
 
     public SortedByValueHashMap(final Comparator<TValue> comparator, final int initialCapacity) {
         this(() -> new HashMap<>(initialCapacity), comparator);
+    }
+
+    @Override
+    public void clear() {
+        storage.map.clear();
+        storage.navigableMap.clear();
+    }
+
+    private static <TKey, TValue> ObjectFactory<DequeSet<Entry<TKey, TValue>>> createEntriesSetFactory() {
+        return (ObjectFactory<DequeSet<Entry<TKey, TValue>>> & Serializable) DequeHashSet::new;
+    }
+
+    private static <TKey, TValue> EntryStrategyFactory<TKey, TValue> createEntryStrategyFactory() {
+        return (EntryStrategyFactory<TKey, TValue> & Serializable) EntryInternal::new;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

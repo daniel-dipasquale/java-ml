@@ -12,30 +12,32 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
+final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
     @Serial
     private static final long serialVersionUID = 2271165226501445902L;
     private final Genome genome;
     private final NeuronNavigator neuronNavigator;
     private final AtomicBoolean neuronNavigatorInitialized;
     private volatile boolean neuronNavigatorFinalized;
-    private final ObjectFactory<NeuronValueGroup> neuronValuesFactory;
+    private final ObjectFactory<NeuronMemory> neuronMemoryFactory;
+    private final NeuronValueGroupFactory neuronValuesFactory;
 
-    public DefaultNeuralNetwork(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronValueGroup> neuronValuesFactory) {
+    DefaultNeuralNetwork(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronMemory> neuronMemoryFactory, final NeuronValueGroupFactory neuronValuesFactory) {
         this.genome = genome;
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
         this.neuronNavigatorInitialized = new AtomicBoolean(false);
         this.neuronNavigatorFinalized = false;
+        this.neuronMemoryFactory = neuronMemoryFactory;
         this.neuronValuesFactory = neuronValuesFactory;
     }
 
     private Neuron createNeuron(final NodeGene node) {
-        List<InputNeuron> inputs = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
-                .map(c -> new InputNeuron(c.getInnovationId().getSourceNodeId(), c.getCyclesAllowed()))
+        List<InputConnection> inputs = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
+                .map(c -> new InputConnection(c.getInnovationId().getSourceNodeId(), c.getCyclesAllowed()))
                 .collect(Collectors.toList());
 
-        List<OutputNeuron> outputs = genome.getConnections().getExpressed().getOutgoingFromNode(node).values().stream()
-                .map(c -> new OutputNeuron(c.getInnovationId().getTargetNodeId(), c.getWeight()))
+        List<OutputConnection> outputs = genome.getConnections().getExpressed().getOutgoingFromNode(node).values().stream()
+                .map(c -> new OutputConnection(c.getInnovationId().getTargetNodeId(), c.getWeight()))
                 .collect(Collectors.toList());
 
         switch (node.getType()) {
@@ -98,16 +100,16 @@ public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
         }
     }
 
-    private static void addToValueTo(final NeuronValueGroup neuronValues, final OutputNeuron targetNeuron, final Neuron sourceNeuron) {
-        float value = sourceNeuron.getValue(neuronValues) * targetNeuron.getConnectionWeight();
+    private static void addToValueTo(final NeuronValueGroup neuronValues, final OutputConnection output, final Neuron sourceNeuron) {
+        float value = sourceNeuron.getValue(neuronValues, output);
 
-        neuronValues.addToValue(targetNeuron.getNeuronId(), value, sourceNeuron.getId());
+        neuronValues.addToValue(output.getTargetNeuronId(), value, sourceNeuron.getId());
     }
 
     private void processNeurons(final NeuronValueGroup neuronValues) {
-        for (Neuron nextNeuron : neuronNavigator) {
-            for (OutputNeuron outputNeuron : nextNeuron.getOutputs()) {
-                addToValueTo(neuronValues, outputNeuron, nextNeuron);
+        for (Neuron neuron : neuronNavigator) {
+            for (OutputConnection output : neuron.getOutputs()) {
+                addToValueTo(neuronValues, output, neuron);
             }
         }
     }
@@ -120,10 +122,16 @@ public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
     }
 
     @Override
-    public float[] activate(final float[] input) {
-        ArgumentValidatorSupport.ensureEqual(input.length, genome.getNodes().size(NodeGeneType.INPUT), "input.length");
+    public NeuronMemory createMemory() {
+        return neuronMemoryFactory.create();
+    }
 
-        return activate(neuronValuesFactory.create(), input);
+    @Override
+    public float[] activate(final float[] input, final NeuronMemory neuronMemory) {
+        ArgumentValidatorSupport.ensureEqual(input.length, genome.getNodes().size(NodeGeneType.INPUT), "input.length");
+        ArgumentValidatorSupport.ensureTrue(neuronMemory == null || neuronMemory.isOwnedBy(genome), "neuronMemory", "does not belong to the genome");
+
+        return activate(neuronValuesFactory.create(neuronMemory), input);
     }
 
     public void reset() {

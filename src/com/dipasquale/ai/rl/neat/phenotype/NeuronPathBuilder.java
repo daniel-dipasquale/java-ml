@@ -7,7 +7,7 @@ public interface NeuronPathBuilder extends Iterable<Neuron> {
 
     Neuron get(SequentialId neuronId);
 
-    Neuron add(Neuron neuron);
+    void add(Neuron neuron);
 
     void addPathLeadingTo(Neuron neuron);
 

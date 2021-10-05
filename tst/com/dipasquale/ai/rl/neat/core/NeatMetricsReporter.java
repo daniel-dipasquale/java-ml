@@ -115,7 +115,7 @@ public final class NeatMetricsReporter {
     }
 
     public static void displayMetrics(final NeatTrainer trainer, final int iteration) {
-        IterationMetrics iterationMetrics = trainer.getMetrics().get(iteration);
+        IterationMetrics iterationMetrics = trainer.getState().getMetrics().get(iteration);
 
         System.out.println("========================================");
         System.out.printf("= species count (iteration %d)%n", iteration);
@@ -156,7 +156,7 @@ public final class NeatMetricsReporter {
     }
 
     public static void displayMetrics(final NeatTrainer trainer) {
-        for (Integer iteration : trainer.getMetrics().keySet()) {
+        for (Integer iteration : trainer.getState().getMetrics().keySet()) {
             displayMetrics(trainer, iteration);
         }
     }

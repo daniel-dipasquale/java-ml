@@ -5,6 +5,7 @@ import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.settings.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.CrossOverSupport;
 import com.dipasquale.ai.rl.neat.settings.EnumValue;
@@ -53,10 +54,11 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
     private static float calculateFitness(final GenomeActivator genomeActivator) {
         CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(RANDOM_SUPPORT);
+        NeuronMemory neuronMemory = genomeActivator.createMemory();
 
         while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) < 0) {
             float[] input = convertToFloat(cartPole.getState());
-            float[] output = genomeActivator.activate(input);
+            float[] output = genomeActivator.activate(input, neuronMemory);
 
             cartPole.stepInDiscrete(output[0]);
         }
@@ -70,10 +72,11 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
 
         for (int i = 0; success && i < SUCCESSFUL_SCENARIOS; i++) {
             CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
+            NeuronMemory neuronMemory = activator.createMemory();
 
             while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) < 0) {
                 float[] input = convertToFloat(cartPole.getState());
-                float[] output = activator.activate(input);
+                float[] output = activator.activate(input, neuronMemory);
 
                 cartPole.stepInDiscrete(output[0]);
             }
@@ -93,7 +96,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     public EvaluatorSettings createSettings(final Set<String> genomeIds, final IterableEventLoop eventLoop) {
         return EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupport.builder()
-                        .populationSize(populationSize)
+                        .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(4))
                                 .outputs(IntegerNumber.literal(1))
@@ -102,11 +105,17 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
                         .fitnessFunction(g -> {
-                            genomeIds.add(g.getId());
+                            genomeIds.add(g.getGenome().getId());
 
                             return calculateFitness(g);
                         })
                         .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
+                        .build())
+                .parallelism(ParallelismSupport.builder()
+                        .eventLoop(eventLoop)
+                        .build())
+                .random(RandomSupport.builder()
+                        .type(RandomType.UNIFORM)
                         .build())
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
@@ -117,16 +126,10 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.SIGMOID))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -0.5f, 0.5f))
                         .weightPerturber(FloatNumber.literal(2.5f))
-                        .recurrentAllowanceRate(FloatNumber.literal(0f))
+                        .recurrentAllowanceRate(FloatNumber.literal(0.2f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
-                        .build())
-                .parallelism(ParallelismSupport.builder()
-                        .eventLoop(eventLoop)
-                        .build())
-                .random(RandomSupport.builder()
-                        .type(RandomType.UNIFORM)
                         .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))
@@ -140,6 +143,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .useWeightFromRandomParentRate(FloatNumber.literal(0.6f))
                         .build())
                 .speciation(SpeciationSupport.builder()
+                        .maximumSpecies(IntegerNumber.literal(populationSize))
                         .weightDifferenceCoefficient(FloatNumber.literal(0.4f))
                         .disjointCoefficient(FloatNumber.literal(1f))
                         .excessCoefficient(FloatNumber.literal(1f))
@@ -165,7 +169,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
                 .add(SupervisorTrainingPolicy.builder()
-                        .maximumGeneration(450)
+                        .maximumGeneration(150)
                         .maximumRestartCount(0)
                         .build())
                 .add(new DelegatedTrainingPolicy(SinglePoleBalancingTaskSetup::determineTrainingResult))

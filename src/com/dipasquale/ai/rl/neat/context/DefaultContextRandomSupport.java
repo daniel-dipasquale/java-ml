@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.settings.RandomSupport;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomSupportFactory;
 import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
@@ -24,7 +25,6 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
     private static Map<RandomType, DualModeRandomSupport> createRandomSupports(final ParallelismSupport parallelismSupport) {
         DualModeRandomSupportFactory randomSupportFactory = DualModeRandomSupportFactory.getInstance();
         int concurrencyLevel = parallelismSupport.getConcurrencyLevel();
-
         ImmutableMap.Builder<RandomType, DualModeRandomSupport> randomSupportsBuilder = ImmutableMap.builder();
 
         for (RandomType type : RandomType.values()) {
@@ -34,7 +34,7 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
         return randomSupportsBuilder.build();
     }
 
-    public static DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport, final com.dipasquale.ai.rl.neat.settings.RandomSupport randomSupport) {
+    public static DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport, final RandomSupport randomSupport) {
         Map<RandomType, DualModeRandomSupport> randomSupports = createRandomSupports(parallelismSupport);
 
         return new DefaultContextRandomSupport(randomSupports, randomSupports.get(randomSupport.getType()));

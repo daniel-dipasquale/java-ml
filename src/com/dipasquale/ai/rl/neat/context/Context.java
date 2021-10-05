@@ -31,15 +31,15 @@ import java.util.function.Consumer;
 public interface Context {
     GeneralSupport general();
 
+    ParallelismSupport parallelism();
+
+    RandomSupport random();
+
     NodeGeneSupport nodes();
 
     ConnectionGeneSupport connections();
 
     ActivationSupport activation();
-
-    ParallelismSupport parallelism();
-
-    RandomSupport random();
 
     MutationSupport mutation();
 
@@ -61,42 +61,6 @@ public interface Context {
     @FunctionalInterface
     interface GeneralSupport {
         GeneralParams params();
-    }
-
-    interface NodeGeneSupport {
-        NodeGene createHidden();
-
-        void setupInitialNodes(Genome genome);
-
-        void reset();
-    }
-
-    interface ConnectionGeneSupport {
-        float generateWeight();
-
-        float perturbWeight(float weight);
-
-        boolean shouldAllowRecurrent();
-
-        boolean shouldAllowMultiCycle();
-
-        void setupInitialConnections(Genome genome);
-
-        InnovationId getOrCreateInnovationId(NodeGene inputNode, NodeGene outputNode);
-
-        boolean containsInnovationId(InnovationId innovationId);
-
-        void registerNodes(Genome genome);
-
-        void deregisterNodes(Genome genome);
-
-        void reset();
-    }
-
-    interface ActivationSupport {
-        GenomeActivator getOrCreateGenomeActivator(Genome genome, PopulationState populationState);
-
-        float calculateFitness(GenomeActivator genomeActivator);
     }
 
     interface ParallelismParameters {
@@ -171,6 +135,44 @@ public interface Context {
         <T> T generateItem(OutputClassifier<T> outputClassifier);
     }
 
+    interface NodeGeneSupport {
+        NodeGene createHidden();
+
+        void setupInitialNodes(Genome genome);
+
+        void reset();
+    }
+
+    interface ConnectionGeneSupport {
+        float generateWeight();
+
+        float perturbWeight(float weight);
+
+        boolean shouldAllowRecurrent();
+
+        boolean shouldAllowMultiCycle();
+
+        void setupInitialConnections(Genome genome);
+
+        InnovationId getOrCreateInnovationId(NodeGene inputNode, NodeGene outputNode);
+
+        boolean containsInnovationId(InnovationId innovationId);
+
+        void registerNodes(Genome genome);
+
+        void deregisterNodes(Genome genome);
+
+        void reset();
+    }
+
+    interface ActivationSupport {
+        GenomeActivator getOrCreateActivator(Genome genome, PopulationState populationState);
+
+        GenomeActivator createTransientActivator(Genome genome, PopulationState populationState);
+
+        float calculateFitness(GenomeActivator genomeActivator);
+    }
+
     interface MutationSupport {
         boolean shouldAddNode();
 
@@ -196,6 +198,8 @@ public interface Context {
     }
 
     interface SpeciationParameters {
+        int maximumSpecies();
+
         double compatibilityThreshold(int generation);
 
         float eugenicsThreshold();
