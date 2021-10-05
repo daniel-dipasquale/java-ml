@@ -23,7 +23,7 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber multiCycleAllowanceRate = FloatNumber.literal(0.0f);
 
-    DefaultContextConnectionGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelismSupport, final DualModeRandomSupport randomSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
+    DefaultContextConnectionGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
         return DefaultContextConnectionGeneSupport.create(parallelismSupport, randomSupports, randomSupport, genesisGenomeTemplate, this);
     }
 }

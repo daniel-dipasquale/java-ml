@@ -19,7 +19,7 @@ public final class CrossOverSupport {
     @Builder.Default
     private final FloatNumber useWeightFromRandomParentRate = FloatNumber.literal(0.6f);
 
-    DefaultContextCrossOverSupport create(final ParallelismSupport parallelismSupport, final DualModeRandomSupport randomSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
+    DefaultContextCrossOverSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
         return DefaultContextCrossOverSupport.create(parallelismSupport, randomSupports, randomSupport, this);
     }
 }

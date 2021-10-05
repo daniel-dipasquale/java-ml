@@ -46,16 +46,6 @@ public final class ConnectionGeneGroup implements Serializable {
         return ImmutableMap.of();
     }
 
-    private static Map<DirectedEdge, ConnectionGene> removeIfEmpty(final Map<DirectedEdge, ConnectionGene> connections, final DirectedEdge directedEdge) {
-        connections.remove(directedEdge);
-
-        if (connections.isEmpty()) {
-            return null;
-        }
-
-        return connections;
-    }
-
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
     public static final class All implements Iterable<ConnectionGene>, Serializable {
@@ -97,6 +87,10 @@ public final class ConnectionGeneGroup implements Serializable {
             return connections.isEmpty();
         }
 
+        public ConnectionGene getByIndex(final int index) {
+            return connections.getByIndex(index);
+        }
+
         public Map<DirectedEdge, ConnectionGene> getIncomingToNodeId(final SequentialId nodeId) {
             return ensureNotNull(incomingToNodeId.get(nodeId));
         }
@@ -123,15 +117,43 @@ public final class ConnectionGeneGroup implements Serializable {
             outgoingFromNodeId.computeIfAbsent(sourceNodeId, ni -> new LinkedHashMap<>()).put(directedEdge, connection);
         }
 
-        public ConnectionGene disableByIndex(final int index) {
-            ConnectionGene connection = connections.removeByIndex(index);
+        private static Map<DirectedEdge, ConnectionGene> removeIfEmpty(final Map<DirectedEdge, ConnectionGene> connections, final DirectedEdge directedEdge) {
+            connections.remove(directedEdge);
+
+            if (connections.isEmpty()) {
+                return null;
+            }
+
+            return connections;
+        }
+
+        private void remove(final ConnectionGene connection) {
             SequentialId targetNodeId = connection.getInnovationId().getTargetNodeId();
             SequentialId sourceNodeId = connection.getInnovationId().getSourceNodeId();
             DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
 
             incomingToNodeId.computeIfPresent(targetNodeId, (k, oic) -> removeIfEmpty(oic, directedEdge));
             outgoingFromNodeId.computeIfPresent(sourceNodeId, (k, oic) -> removeIfEmpty(oic, directedEdge));
-            connection.disable();
+        }
+
+        public boolean addCyclesAllowed(final ConnectionGene connection, final int delta) {
+            boolean previouslyExpressed = connection.isExpressed();
+
+            connection.addCyclesAllowed(delta);
+
+            if (previouslyExpressed && !connection.isExpressed()) {
+                remove(connection);
+            } else if (!previouslyExpressed && connection.isExpressed()) {
+                add(connection);
+            }
+
+            return connection.isExpressed();
+        }
+
+        public ConnectionGene disableByIndex(final int index) {
+            ConnectionGene connection = getByIndex(index);
+
+            addCyclesAllowed(connection, -connection.getCyclesAllowed());
 
             return connection;
         }

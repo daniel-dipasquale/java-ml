@@ -29,7 +29,7 @@ public final class NodeGeneSupport {
     @Builder.Default
     private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.TAN_H);
 
-    DefaultContextNodeGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelismSupport, final DualModeRandomSupport randomSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
+    DefaultContextNodeGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
         return DefaultContextNodeGeneSupport.create(parallelismSupport, randomSupports, randomSupport, genesisGenomeTemplate, this);
     }
 }

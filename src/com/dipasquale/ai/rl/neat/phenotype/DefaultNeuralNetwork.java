@@ -31,7 +31,7 @@ public final class DefaultNeuralNetwork implements NeuralNetwork, Serializable {
 
     private Neuron createNeuron(final NodeGene node) {
         List<InputNeuron> inputs = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
-                .map(c -> new InputNeuron(c.getInnovationId().getSourceNodeId(), c.getRecurrentCyclesAllowed()))
+                .map(c -> new InputNeuron(c.getInnovationId().getSourceNodeId(), c.getCyclesAllowed()))
                 .collect(Collectors.toList());
 
         List<OutputNeuron> outputs = genome.getConnections().getExpressed().getOutgoingFromNode(node).values().stream()

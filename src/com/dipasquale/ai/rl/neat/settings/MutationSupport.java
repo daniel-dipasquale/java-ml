@@ -25,7 +25,7 @@ public final class MutationSupport {
     @Builder.Default
     private final FloatNumber disableExpressedConnectionRate = FloatNumber.literal(0.015f);
 
-    DefaultContextMutationSupport create(final ParallelismSupport parallelismSupport, final DualModeRandomSupport randomSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
+    DefaultContextMutationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
         return DefaultContextMutationSupport.create(parallelismSupport, randomSupports, randomSupport, this);
     }
 }

@@ -39,7 +39,7 @@ public final class SpeciationSupport {
     @Builder.Default
     private final FloatNumber mutateOnlyRate = FloatNumber.literal(0.25f);
 
-    DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final DualModeRandomSupport randomSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
+    DefaultContextSpeciationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
         return DefaultContextSpeciationSupport.create(parallelismSupport, randomSupports, randomSupport, this);
     }
 }

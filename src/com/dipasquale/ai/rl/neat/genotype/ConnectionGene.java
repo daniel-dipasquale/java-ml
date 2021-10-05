@@ -17,33 +17,27 @@ public final class ConnectionGene implements Serializable {
     private final InnovationId innovationId;
     @Setter
     private float weight;
-    private int recurrentCyclesAllowed;
-    private boolean expressed;
+    private int cyclesAllowed;
 
     public ConnectionGene(final InnovationId innovationId, final float weight) {
         this.innovationId = innovationId;
         this.weight = weight;
-        this.recurrentCyclesAllowed = 0;
-        this.expressed = true;
+        this.cyclesAllowed = 1;
     }
 
-    public void increaseCyclesAllowed() {
-        recurrentCyclesAllowed++;
+    public void addCyclesAllowed(final int delta) {
+        cyclesAllowed = Math.min(cyclesAllowed + delta, 0);
     }
 
-    public void disable() {
-        expressed = false;
+    public boolean isExpressed() {
+        return cyclesAllowed > 0;
     }
 
-    public boolean toggleExpressed() {
-        return expressed = !expressed;
-    }
-
-    public ConnectionGene createCopy(final boolean expressed) {
-        return new ConnectionGene(innovationId, weight, recurrentCyclesAllowed, expressed);
+    public ConnectionGene createCopy(final int cyclesAllowed) {
+        return new ConnectionGene(innovationId, weight, cyclesAllowed);
     }
 
     public ConnectionGene createClone() {
-        return createCopy(expressed);
+        return createCopy(cyclesAllowed);
     }
 }

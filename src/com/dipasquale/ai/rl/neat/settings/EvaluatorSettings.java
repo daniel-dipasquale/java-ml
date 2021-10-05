@@ -62,13 +62,13 @@ public final class EvaluatorSettings {
     public Context createContext() { // TODO: think of a better fix for this (as a reminder, the fact this is public, is not ideal)
         DefaultContextGeneralSupport generalFixed = general.create();
         DefaultContextRandomSupport randomFixed = random.create(parallelism);
-        DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeTemplate(), parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
-        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeTemplate(), parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
+        DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeTemplate(), parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
+        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeTemplate(), parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
         DefaultContextActivationSupport activationFixed = activation.create(general, connections, parallelism, randomFixed.getRandomSupports());
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
-        DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
-        DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
-        DefaultContextSpeciationSupport speciationFixed = speciation.create(parallelism, randomFixed.getRandomSupport(), randomFixed.getRandomSupports());
+        DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
+        DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
+        DefaultContextSpeciationSupport speciationFixed = speciation.create(parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
         DefaultContextMetricSupport metricsFixed = metrics.create(speciation, parallelism, randomFixed.getRandomSupports());
 
         return new DefaultContext(generalFixed, nodesFixed, connectionsFixed, activationFixed, parallelismFixed, randomFixed, mutationFixed, crossOverFixed, speciationFixed, metricsFixed);
