@@ -57,8 +57,7 @@ public final class Population {
     }
 
     private int countOrganismsInAllSpecies() {
-        return speciesNodes.stream()
-                .map(speciesNodes::getValue)
+        return speciesNodes.flattenedStream()
                 .map(Species::getOrganisms)
                 .map(List::size)
                 .reduce(0, Integer::sum);
@@ -82,14 +81,6 @@ public final class Population {
         speciesNodes.add(speciesNode);
 
         return speciesNode;
-    }
-
-    private void addCompositionMetrics(final Context.MetricSupport metricSupport) {
-        Iterable<Species> allSpecies = speciesNodes.stream()
-                .map(speciesNodes::getValue)
-                ::iterator;
-
-        metricSupport.collectCompositions(allSpecies);
     }
 
     private void assignOrganismsToSpecies(final Context context) {
@@ -116,16 +107,20 @@ public final class Population {
 
         organismsWithoutSpecies.clear();
         organismsToBirth.clear();
-        addCompositionMetrics(context.metrics());
+        context.metrics().collectInitialCompositions(speciesNodes::flattenedIterator);
     }
 
     public void initializeChampionOrganism(final Organism organism, final GenomeActivator genomeActivator) {
         championOrganismActivator.initialize(organism, genomeActivator);
     }
 
+    private void initializeChampionOrganism(final Organism organism, final Context context) {
+        initializeChampionOrganism(organism.createClone(context.connections()), organism.getActivator(context.activation()));
+    }
+
     public void initialize(final Context context) {
         fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-        initializeChampionOrganism(organismsWithoutSpecies.getFirst().createClone(context.connections()), organismsWithoutSpecies.getFirst().getActivator(context.activation()));
+        initializeChampionOrganism(organismsWithoutSpecies.getFirst(), context);
         assignOrganismsToSpecies(context);
     }
 
@@ -138,8 +133,7 @@ public final class Population {
         List<Species> all = new ArrayList<>();
         float[] totalSharedFitness = new float[]{0f};
 
-        List<Species> ranked = speciesNodes.stream()
-                .map(speciesNodes::getValue)
+        List<Species> ranked = speciesNodes.flattenedStream()
                 .peek(all::add)
                 .peek(s -> totalSharedFitness[0] += s.getSharedFitness())
                 .filter(s -> !s.isStagnant(speciationSupport))

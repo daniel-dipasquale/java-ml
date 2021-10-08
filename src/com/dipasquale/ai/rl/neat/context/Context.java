@@ -11,7 +11,7 @@ import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
+import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
@@ -25,7 +25,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public interface Context {
@@ -260,11 +259,15 @@ public interface Context {
     }
 
     interface MetricSupport {
-        void collectCompositions(Iterable<Species> allSpecies);
+        void collectInitialCompositions(Iterable<Species> allSpecies);
 
         void collectFitness(Species species, Organism organism);
 
         void collectFitness(Species species);
+
+        void collectKilled(Species species, List<Organism> organismsKilled);
+
+        void collectExtinction(Species species, boolean extinct);
 
         void prepareNextFitnessCalculation();
 
@@ -272,7 +275,7 @@ public interface Context {
 
         void prepareNextIteration();
 
-        Map<Integer, IterationMetrics> getMetrics();
+        MetricsViewer createMetricsViewer();
     }
 
     interface StateOverrideSupport {

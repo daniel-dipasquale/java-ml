@@ -169,8 +169,8 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
                 .add(SupervisorTrainingPolicy.builder()
-                        .maximumGeneration(150)
-                        .maximumRestartCount(0)
+                        .maximumGeneration(100)
+                        .maximumRestartCount(4)
                         .build())
                 .add(new DelegatedTrainingPolicy(SinglePoleBalancingTaskSetup::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()

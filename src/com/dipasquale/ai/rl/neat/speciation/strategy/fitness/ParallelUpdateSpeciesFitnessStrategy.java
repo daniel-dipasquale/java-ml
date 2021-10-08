@@ -22,8 +22,7 @@ public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnes
 
     @Override
     public void update(final SpeciesFitnessContext context) {
-        Iterator<OrganismClassification> organisms = context.getSpeciesNodes().stream()
-                .map(context.getSpeciesNodes()::getValue)
+        Iterator<OrganismClassification> organisms = context.getSpeciesNodes().flattenedStream()
                 .flatMap(s -> s.getOrganisms().stream()
                         .map(o -> new OrganismClassification(o, s)))
                 .iterator();

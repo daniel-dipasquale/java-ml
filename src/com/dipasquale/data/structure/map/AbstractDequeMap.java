@@ -18,15 +18,9 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
     private final NodeDeque<Entry<TKey, TValue>, TNode> nodesDeque;
 
     protected AbstractDequeMap(final Map<TKey, TNode> nodesMap, final NodeDeque<Entry<TKey, TValue>, TNode> nodesDeque) {
-        super(createIteratorFactory(nodesDeque));
+        super(nodesDeque::flattenedIterator);
         this.nodesMap = nodesMap;
         this.nodesDeque = nodesDeque;
-    }
-
-    protected static <TKey, TValue, TNode extends Node> IteratorFactory<TKey, TValue> createIteratorFactory(final NodeDeque<Entry<TKey, TValue>, TNode> nodesDeque) {
-        return () -> nodesDeque.stream()
-                .map(nodesDeque::getValue)
-                .iterator();
     }
 
     @Override

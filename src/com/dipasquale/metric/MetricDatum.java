@@ -47,5 +47,7 @@ public interface MetricDatum {
 
     MetricDatum createCopy();
 
+    MetricDatum createReduced();
+
     void clear();
 }

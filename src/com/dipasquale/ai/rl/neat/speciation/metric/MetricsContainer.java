@@ -23,14 +23,14 @@ public interface MetricsContainer {
     }
 
     static FitnessMetrics createFitnessMetrics(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        return new FitnessMetrics(mapFactory.create(), metricDatumFactory.create(), metricDatumFactory.create());
+        return new FitnessMetrics(mapFactory.create(), metricDatumFactory.create());
     }
 
     static GenerationMetrics createGenerationMetrics(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        return new GenerationMetrics(mapFactory.create(), createTopologyMetrics(metricDatumFactory), new ArrayList<>(), metricDatumFactory.create(), metricDatumFactory.create(), metricDatumFactory.create(), metricDatumFactory.create(), metricDatumFactory.create());
+        return new GenerationMetrics(mapFactory.create(), new ArrayList<>(), metricDatumFactory.create(), metricDatumFactory.create(), metricDatumFactory.create(), mapFactory.create(), metricDatumFactory.create());
     }
 
-    static IterationMetrics createIterationMetrics(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        return new IterationMetrics(mapFactory.create(), metricDatumFactory.create());
+    static IterationMetrics createIterationMetrics(final MapFactory mapFactory) {
+        return new IterationMetrics(mapFactory.create());
     }
 }

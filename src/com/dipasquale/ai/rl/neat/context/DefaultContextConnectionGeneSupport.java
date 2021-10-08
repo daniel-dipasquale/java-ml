@@ -94,18 +94,6 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
 
     @Override
     public void registerNodes(final Genome genome) {
-        for (NodeGene node : getNodes(genome, NodeGeneType.INPUT)) {
-            historicalMarkings.registerNode(node);
-        }
-
-        for (NodeGene node : getNodes(genome, NodeGeneType.OUTPUT)) {
-            historicalMarkings.registerNode(node);
-        }
-
-        for (NodeGene node : getNodes(genome, NodeGeneType.BIAS)) {
-            historicalMarkings.registerNode(node);
-        }
-
         for (NodeGene node : getNodes(genome, NodeGeneType.HIDDEN)) {
             historicalMarkings.registerNode(node);
         }
@@ -113,18 +101,6 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
 
     @Override
     public void deregisterNodes(final Genome genome) {
-        for (NodeGene node : getNodes(genome, NodeGeneType.INPUT)) {
-            historicalMarkings.deregisterNode(node);
-        }
-
-        for (NodeGene node : getNodes(genome, NodeGeneType.OUTPUT)) {
-            historicalMarkings.deregisterNode(node);
-        }
-
-        for (NodeGene node : getNodes(genome, NodeGeneType.BIAS)) {
-            historicalMarkings.deregisterNode(node);
-        }
-
         for (NodeGene node : getNodes(genome, NodeGeneType.HIDDEN)) {
             historicalMarkings.deregisterNode(node);
         }

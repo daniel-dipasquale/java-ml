@@ -1,17 +1,14 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.speciation.metric.GenerationMetrics;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsRecord;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsResult;
-import com.dipasquale.common.Record;
+import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.metric.MetricDatumQueryProjection;
 import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -56,28 +53,28 @@ public final class NeatMetricsReporter {
         return recordValues.toString();
     }
 
-    private static Iterable<Record<Float, GenerationMetrics>> createGenerationRecords(final Map<Integer, GenerationMetrics> generations) {
-        return generations.keySet().stream()
-                .sorted(Integer::compare)
-                .map(gid -> new Record<>((float) gid, generations.get(gid)))
-                ::iterator;
-    }
-
-    private static void displayMetrics(final IterationMetrics iterationMetrics, final List<MetricDatumQueryProjection> queryProjections) {
-        MetricsResult result = GenerationMetrics.getQueryProjector().query(createGenerationRecords(iterationMetrics.getGenerations()), queryProjections);
+    private static void displayMetrics(final MetricsResult result) {
         StringJoiner headerNamesJoiner = new StringJoiner(",");
 
         headerNamesJoiner.add(result.getDefaultKey());
-        queryProjections.forEach(qp -> headerNamesJoiner.add(qp.getId()));
+        result.getProjections().forEach(qp -> headerNamesJoiner.add(qp.getId()));
 
-        System.out.println(getCsvHeader(queryProjections, result));
+        System.out.println(getCsvHeader(result.getProjections(), result));
 
         for (MetricsRecord record : result.getRecords()) {
-            System.out.println(getCsvRecord(queryProjections, result, record));
+            System.out.println(getCsvRecord(result.getProjections(), result, record));
         }
     }
 
-    private static void displayMetrics_Min_Avg_Max(final IterationMetrics iterationMetrics, final String name) {
+    private static void displayMetrics_Count(final MetricsViewer metricsViewer, final String name, final String countDisplayText) {
+        List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
+                .add(new MetricDatumQueryProjection(name, "count", String.format("1. %s", countDisplayText)))
+                .build();
+
+        displayMetrics(metricsViewer.queryLast(queryProjections));
+    }
+
+    private static void displayMetrics_Min_Avg_Max(final MetricsViewer metricsViewer, final String name) {
         List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
                 .add(new MetricDatumQueryProjection(name, "min", "1. minimum"))
                 .add(new MetricDatumQueryProjection(name, "avg", "2. average"))
@@ -87,77 +84,85 @@ public final class NeatMetricsReporter {
                 .add(new MetricDatumQueryProjection(name, "p90", "6. p90"))
                 .build();
 
-        displayMetrics(iterationMetrics, queryProjections);
+        displayMetrics(metricsViewer.queryLast(queryProjections));
     }
 
-    private static void displayMetrics_Avg(final IterationMetrics iterationMetrics, final String name) {
+    private static void displayMetrics_Avg(final MetricsViewer metricsViewer, final String name, final String averageDisplayText) {
         List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "avg", "1. percentage"))
+                .add(new MetricDatumQueryProjection(name, "avg", String.format("1. %s", averageDisplayText)))
                 .build();
 
-        displayMetrics(iterationMetrics, queryProjections);
+        displayMetrics(metricsViewer.queryLast(queryProjections));
     }
 
-    private static void displayMetrics_Sum(final IterationMetrics iterationMetrics, final String name) {
+    private static void displayMetrics_Sum(final MetricsViewer metricsViewer, final String name) {
         List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
                 .add(new MetricDatumQueryProjection(name, "sum", "1. count"))
                 .build();
 
-        displayMetrics(iterationMetrics, queryProjections);
+        displayMetrics(metricsViewer.queryLast(queryProjections));
     }
 
-    private static void displayMetrics_Count(final IterationMetrics iterationMetrics, final String name, final String countDisplayText) {
-        List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "count", String.format("1. %s", countDisplayText)))
-                .build();
-
-        displayMetrics(iterationMetrics, queryProjections);
-    }
-
-    public static void displayMetrics(final NeatTrainer trainer, final int iteration) {
-        IterationMetrics iterationMetrics = trainer.getState().getMetrics().get(iteration);
-
+    public static void displayMetrics(final MetricsViewer metricsViewer) {
         System.out.println("========================================");
-        System.out.printf("= species count (iteration %d)%n", iteration);
+        System.out.println("= species count");
         System.out.println("========================================");
-        displayMetrics_Count(iterationMetrics, "speciesAge", "species");
+        displayMetrics_Count(metricsViewer, "speciesAge", "species");
         System.out.println("========================================");
-        System.out.printf("= species topology hidden nodes (iteration %d)%n", iteration);
+        System.out.println("= organisms per species");
         System.out.println("========================================");
-        displayMetrics_Min_Avg_Max(iterationMetrics, "speciesTopology.hiddenNodes");
+        displayMetrics_Min_Avg_Max(metricsViewer, "organismsInSpecies");
         System.out.println("========================================");
-        System.out.printf("= species topology connections (iteration %d)%n", iteration);
+        System.out.println("= species topology hidden nodes");
         System.out.println("========================================");
-        displayMetrics_Min_Avg_Max(iterationMetrics, "speciesTopology.connections");
+        displayMetrics_Min_Avg_Max(metricsViewer, "speciesTopology.hiddenNodes");
         System.out.println("========================================");
-        System.out.printf("= species shared fitness (iteration %d)%n", iteration);
+        System.out.println("= species topology connections");
         System.out.println("========================================");
-        displayMetrics_Min_Avg_Max(iterationMetrics, "speciesSharedFitness");
+        displayMetrics_Min_Avg_Max(metricsViewer, "speciesTopology.connections");
         System.out.println("========================================");
-        System.out.printf("= organisms fitness (iteration %d)%n", iteration);
+        System.out.println("= species shared fitness");
         System.out.println("========================================");
-        displayMetrics_Min_Avg_Max(iterationMetrics, "organismsFitness");
+        displayMetrics_Min_Avg_Max(metricsViewer, "speciesSharedFitness");
         System.out.println("========================================");
-        System.out.printf("= species age (iteration %d)%n", iteration);
+        System.out.println("= organisms fitness");
         System.out.println("========================================");
-        displayMetrics_Min_Avg_Max(iterationMetrics, "speciesAge");
+        displayMetrics_Min_Avg_Max(metricsViewer, "organismsFitness");
         System.out.println("========================================");
-        System.out.printf("= species stagnation period (iteration %d)%n", iteration);
+        System.out.println("= species age");
         System.out.println("========================================");
-        displayMetrics_Min_Avg_Max(iterationMetrics, "speciesStagnationPeriod");
+        displayMetrics_Min_Avg_Max(metricsViewer, "speciesAge");
         System.out.println("========================================");
-        System.out.printf("= species is stagnant (average) (iteration %d)%n", iteration);
+        System.out.println("= species stagnation period");
         System.out.println("========================================");
-        displayMetrics_Avg(iterationMetrics, "speciesStagnant");
+        displayMetrics_Min_Avg_Max(metricsViewer, "speciesStagnationPeriod");
         System.out.println("========================================");
-        System.out.printf("= species is stagnant (count) (iteration %d)%n", iteration);
+        System.out.println("= species is stagnant (count)");
         System.out.println("========================================");
-        displayMetrics_Sum(iterationMetrics, "speciesStagnant");
+        displayMetrics_Sum(metricsViewer, "speciesStagnant");
+        System.out.println("========================================");
+        System.out.println("= species is stagnant (average)");
+        System.out.println("========================================");
+        displayMetrics_Avg(metricsViewer, "speciesStagnant", "percentage");
+        System.out.println("========================================");
+        System.out.println("= organisms killed (total)");
+        System.out.println("========================================");
+        displayMetrics_Sum(metricsViewer, "organismsKilled");
+        System.out.println("========================================");
+        System.out.println("= organisms killed per species");
+        System.out.println("========================================");
+        displayMetrics_Min_Avg_Max(metricsViewer, "organismsKilled");
+        System.out.println("========================================");
+        System.out.println("= species extinct (count)");
+        System.out.println("========================================");
+        displayMetrics_Sum(metricsViewer, "speciesExtinct");
+        System.out.println("========================================");
+        System.out.println("= species extinct (average)");
+        System.out.println("========================================");
+        displayMetrics_Avg(metricsViewer, "speciesExtinct", "percentage");
     }
 
     public static void displayMetrics(final NeatTrainer trainer) {
-        for (Integer iteration : trainer.getState().getMetrics().keySet()) {
-            displayMetrics(trainer, iteration);
-        }
+        displayMetrics(trainer.getState().createMetricsViewer());
     }
 }

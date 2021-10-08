@@ -27,15 +27,19 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
     }
 
     @Override
-    public void flushSpeciesComposition(final MetricsContainer metricsContainer) {
-    }
-
-    @Override
     public void collectOrganismFitness(final MetricsContainer metricsContainer, final String speciesId, final float fitness) {
     }
 
     @Override
     public void collectSpeciesFitness(final MetricsContainer metricsContainer, final float fitness) {
+    }
+
+    @Override
+    public void collectOrganismsKilled(final MetricsContainer metricsContainer, final String speciesId, final int count) {
+    }
+
+    @Override
+    public void collectSpeciesExtinction(final MetricsContainer metricsContainer, final boolean extinct) {
     }
 
     @Override
@@ -47,6 +51,6 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
     }
 
     @Override
-    public void prepareNextIteration(final MetricsContainer metricsContainer, final Map<Integer, IterationMetrics> iterationsMetrics, final int currentIteration) {
+    public void prepareNextIteration(final MetricsContainer metricsContainer, final int currentGeneration, final Map<Integer, IterationMetrics> iterationsMetrics, final int currentIteration) {
     }
 }

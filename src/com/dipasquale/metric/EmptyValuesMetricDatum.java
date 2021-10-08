@@ -74,15 +74,30 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
 
     @Override
     public MetricDatum createCopy() {
-        EmptyValuesMetricDatum copy = new EmptyValuesMetricDatum();
+        EmptyValuesMetricDatum metricDatum = new EmptyValuesMetricDatum();
 
-        copy.count = count;
-        copy.sum = sum;
-        copy.average = average;
-        copy.minimum = minimum;
-        copy.maximum = maximum;
+        metricDatum.count = count;
+        metricDatum.sum = sum;
+        metricDatum.average = average;
+        metricDatum.minimum = minimum;
+        metricDatum.maximum = maximum;
 
-        return copy;
+        return metricDatum;
+    }
+
+    @Override
+    public MetricDatum createReduced() {
+        EmptyValuesMetricDatum metricDatum = new EmptyValuesMetricDatum();
+
+        if (count > 0) {
+            metricDatum.count = 1;
+            metricDatum.sum = sum;
+            metricDatum.average = sum;
+            metricDatum.minimum = sum;
+            metricDatum.maximum = sum;
+        }
+
+        return metricDatum;
     }
 
     @Override

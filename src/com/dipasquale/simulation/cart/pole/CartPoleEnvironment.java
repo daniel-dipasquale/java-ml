@@ -58,12 +58,12 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
     }
 
     public double[] getState() {
-        double x_state = 0.5D * (x + positionLimit) / positionLimit;
-        double dx_state = (dx + 0.75D) / 1.5D;
-        double theta_state = 0.5D * (theta + ANGLE_RADIANS_LIMIT) / ANGLE_RADIANS_LIMIT;
-        double dtheta_state = (dtheta + 1D) / 2D;
+        double cartPosition = 0.5D * (x + positionLimit) / positionLimit;
+        double cartVelocity = (dx + 0.75D) / 1.5D;
+        double poleAngle = 0.5D * (theta + ANGLE_RADIANS_LIMIT) / ANGLE_RADIANS_LIMIT;
+        double poleVelocity = (dtheta + 1D) / 2D;
 
-        return new double[]{x_state, dx_state, theta_state, dtheta_state};
+        return new double[]{cartPosition, cartVelocity, poleAngle, poleVelocity};
     }
 
     public boolean isLimitHit() {

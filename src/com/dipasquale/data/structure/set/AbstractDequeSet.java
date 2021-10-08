@@ -187,9 +187,7 @@ public abstract class AbstractDequeSet<TValue, TNode extends Node> extends Abstr
 
     @Override
     public Iterator<TValue> iterator() {
-        return nodesDeque.stream()
-                .map(nodesDeque::getValue)
-                .iterator();
+        return nodesDeque.flattenedIterator();
     }
 
     @Override

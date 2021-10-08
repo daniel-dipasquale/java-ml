@@ -25,6 +25,7 @@ public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSel
         List<Organism> organisms = species.removeUnfitToReproduce(speciationSupport);
 
         organisms.forEach(o -> killOrganism(o, context.getParent()));
+        context.getParent().metrics().collectKilled(species, organisms);
     }
 
     @Override
@@ -32,6 +33,7 @@ public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSel
         List<Organism> organisms = species.getOrganisms();
 
         organisms.forEach(o -> killOrganism(o, context.getParent()));
+        context.getParent().metrics().collectKilled(species, organisms);
     }
 
     @Override

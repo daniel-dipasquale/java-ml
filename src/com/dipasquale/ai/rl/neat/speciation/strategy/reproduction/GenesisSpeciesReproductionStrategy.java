@@ -22,11 +22,13 @@ public final class GenesisSpeciesReproductionStrategy implements SpeciesReproduc
     @Override
     public void reproduce(final SpeciesReproductionContext context) {
         Context.RandomSupport randomSupport = context.getParent().random();
+        Context.MetricSupport metricSupport = context.getParent().metrics();
 
         for (Species species : context.getSpeciesState().getAll()) {
             List<Organism> organismsToKill = species.restart(randomSupport, context.getOrganismsWithoutSpecies());
 
             organismsToKill.forEach(otk -> killOrganism(otk, context.getParent()));
+            metricSupport.collectKilled(species, organismsToKill);
         }
     }
 }

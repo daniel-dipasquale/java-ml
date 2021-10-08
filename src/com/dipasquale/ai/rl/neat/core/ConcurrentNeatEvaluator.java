@@ -5,7 +5,7 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 import com.dipasquale.ai.rl.neat.speciation.core.Population;
-import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
+import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -196,11 +195,11 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
         }
 
         @Override
-        public Map<Integer, IterationMetrics> getMetrics() {
+        public MetricsViewer createMetricsViewer() {
             lock.readLock().lock();
 
             try {
-                return context.metrics().getMetrics();
+                return context.metrics().createMetricsViewer();
             } finally {
                 lock.readLock().unlock();
             }

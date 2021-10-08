@@ -22,7 +22,7 @@ public final class DefaultMetricsContainer implements MetricsContainer, Serializ
     private IterationMetrics iterationMetrics;
 
     public DefaultMetricsContainer(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        this(mapFactory, metricDatumFactory, MetricsContainer.createFitnessMetrics(mapFactory, metricDatumFactory), MetricsContainer.createGenerationMetrics(mapFactory, metricDatumFactory), MetricsContainer.createIterationMetrics(mapFactory, metricDatumFactory));
+        this(mapFactory, metricDatumFactory, MetricsContainer.createFitnessMetrics(mapFactory, metricDatumFactory), MetricsContainer.createGenerationMetrics(mapFactory, metricDatumFactory), MetricsContainer.createIterationMetrics(mapFactory));
     }
 
     private FitnessMetrics createFitnessMetrics() {
@@ -34,7 +34,7 @@ public final class DefaultMetricsContainer implements MetricsContainer, Serializ
     }
 
     private IterationMetrics createIterationMetrics() {
-        return MetricsContainer.createIterationMetrics(mapFactory, metricDatumFactory);
+        return MetricsContainer.createIterationMetrics(mapFactory);
     }
 
     public FitnessMetrics replaceFitnessMetrics() {

@@ -88,15 +88,29 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
 
     @Override
     public MetricDatum createCopy() {
-        LazyValuesMetricDatum copy = new LazyValuesMetricDatum();
+        LazyValuesMetricDatum metricDatum = new LazyValuesMetricDatum();
 
-        copy.valuesSorted = valuesSorted;
-        copy.values.addAll(values);
-        copy.sum = sum;
-        copy.minimum = minimum;
-        copy.maximum = maximum;
+        metricDatum.valuesSorted = valuesSorted;
+        metricDatum.values.addAll(values);
+        metricDatum.sum = sum;
+        metricDatum.minimum = minimum;
+        metricDatum.maximum = maximum;
 
-        return copy;
+        return metricDatum;
+    }
+
+    @Override
+    public MetricDatum createReduced() {
+        LazyValuesMetricDatum metricDatum = new LazyValuesMetricDatum();
+
+        if (!values.isEmpty()) {
+            metricDatum.values.add(sum);
+            metricDatum.sum = sum;
+            metricDatum.minimum = sum;
+            metricDatum.maximum = sum;
+        }
+
+        return metricDatum;
     }
 
     @Override

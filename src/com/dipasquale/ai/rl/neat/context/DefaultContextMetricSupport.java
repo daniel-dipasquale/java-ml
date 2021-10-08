@@ -10,6 +10,7 @@ import com.dipasquale.ai.rl.neat.speciation.metric.ConfigurableMetricsCollector;
 import com.dipasquale.ai.rl.neat.speciation.metric.GenerationMetrics;
 import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsCollector;
+import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.ai.rl.neat.speciation.metric.NoopMetricsCollector;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.metric.DualModeMetricsContainer;
@@ -29,10 +30,12 @@ import lombok.AllArgsConstructor;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextMetricSupport implements Context.MetricSupport {
+    private MetricDatumFactory metricDatumFactory;
     private DualModeMetricsContainer metricsContainer;
     private MetricsCollector metricsCollector;
     private int stagnationDropOffAge;
@@ -69,11 +72,11 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
         DualModeIntegerCounter generation = new DualModeIntegerCounter(parallelismSupport.getConcurrencyLevel(), 1);
         DualModeMap<Integer, IterationMetrics, DualModeMapFactory> metrics = new DualModeMap<>(parallelismSupport.getMapFactory());
 
-        return new DefaultContextMetricSupport(metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, metrics);
+        return new DefaultContextMetricSupport(metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, metrics);
     }
 
     @Override
-    public void collectCompositions(final Iterable<Species> allSpecies) {
+    public void collectInitialCompositions(final Iterable<Species> allSpecies) {
         if (!metricsCollector.isEnabled()) {
             return;
         }
@@ -85,8 +88,6 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
                 metricsCollector.collectOrganismTopology(metricsContainer, species.getId(), organism.getHiddenNodes(), organism.getConnections());
             }
         }
-
-        metricsCollector.flushSpeciesComposition(metricsContainer);
     }
 
     @Override
@@ -100,20 +101,29 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
     }
 
     @Override
+    public void collectKilled(final Species species, final List<Organism> organismsKilled) {
+        metricsCollector.collectOrganismsKilled(metricsContainer, species.getId(), organismsKilled.size());
+    }
+
+    @Override
+    public void collectExtinction(final Species species, final boolean extinct) {
+        metricsCollector.collectSpeciesExtinction(metricsContainer, extinct);
+    }
+
+    @Override
     public void prepareNextFitnessCalculation() {
         metricsCollector.prepareNextFitnessCalculation(metricsContainer);
     }
 
     @Override
     public void prepareNextGeneration() {
-        metricsCollector.prepareNextGeneration(metricsContainer, generation.current());
-        generation.increment();
+        metricsCollector.prepareNextGeneration(metricsContainer, generation.increment() - 1);
     }
 
     @Override
     public void prepareNextIteration() {
+        metricsCollector.prepareNextIteration(metricsContainer, generation.current(), metrics, iteration.increment() - 1);
         generation.current(1);
-        metricsCollector.prepareNextIteration(metricsContainer, metrics, iteration.increment() - 1);
     }
 
     private static <TKey, TValue> Map<TKey, TValue> createMap(final TKey key, final TValue value) {
@@ -129,16 +139,19 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
         Map<Integer, GenerationMetrics> previousGenerations = metricsContainer.getIterationMetrics().getGenerations();
         Map<Integer, GenerationMetrics> generations = new TandemMap<>(currentGenerations, previousGenerations);
 
-        return new IterationMetrics(generations, metricsContainer.getIterationMetrics().getSpeciesCount());
+        return new IterationMetrics(generations);
     }
 
-    public Map<Integer, IterationMetrics> getMetrics() {
+    @Override
+    public MetricsViewer createMetricsViewer() {
         Map<Integer, IterationMetrics> currentIterations = createMap(iteration.current(), mergeIterationsMetrics());
+        Map<Integer, IterationMetrics> metricsFixed = new TandemMap<>(currentIterations, metrics);
 
-        return new TandemMap<>(currentIterations, metrics);
+        return new MetricsViewer(metricsFixed, metricDatumFactory);
     }
 
     public void save(final SerializableStateGroup stateGroup) {
+        stateGroup.put("metrics.metricDatumFactory", metricDatumFactory);
         stateGroup.put("metrics.metricsContainer", metricsContainer);
         stateGroup.put("metrics.metricsCollector", metricsCollector);
         stateGroup.put("metrics.stagnationDropOffAge", stagnationDropOffAge);
@@ -148,6 +161,7 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
+        metricDatumFactory = stateGroup.get("metrics.metricDatumFactory");
         metricsContainer = DualModeObject.activateMode(stateGroup.get("metrics.metricsContainer"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         metricsCollector = stateGroup.get("metrics.metricsCollector");
         stagnationDropOffAge = stateGroup.get("metrics.stagnationDropOffAge");

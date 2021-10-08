@@ -14,7 +14,9 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
     private static final long serialVersionUID = 4466816617617350646L;
     private final MetricDatumFactory metricDatumFactory;
     private final boolean clearFitnessOnAdd;
+    private boolean fitnessMetricsOutstanding = false;
     private final boolean clearGenerationsOnAdd;
+    private boolean generationMetricsOutstanding = false;
     private final boolean clearIterationsOnAdd;
 
     @Override
@@ -27,6 +29,7 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
         metricsContainer.getGenerationMetrics().getSpeciesAge().add((float) age);
         metricsContainer.getGenerationMetrics().getSpeciesStagnationPeriod().add((float) stagnationPeriod);
         metricsContainer.getGenerationMetrics().getSpeciesStagnant().add(isStagnant ? 1f : 0f);
+        generationMetricsOutstanding = true;
     }
 
     @Override
@@ -40,15 +43,11 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
 
             topologyMetrics.getHiddenNodes().add((float) hiddenNodes);
             topologyMetrics.getConnections().add((float) connections);
-            metricsContainer.getGenerationMetrics().getSpeciesTopology().merge(topologyMetrics);
 
             return topologyMetrics;
         });
-    }
 
-    @Override
-    public void flushSpeciesComposition(final MetricsContainer metricsContainer) {
-        metricsContainer.getIterationMetrics().getSpeciesCount().add((float) metricsContainer.getGenerationMetrics().getOrganismsTopology().size());
+        generationMetricsOutstanding = true;
     }
 
     @Override
@@ -64,29 +63,66 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
 
             return organisms;
         });
+
+        fitnessMetricsOutstanding = true;
     }
 
     @Override
     public void collectSpeciesFitness(final MetricsContainer metricsContainer, final float fitness) {
         metricsContainer.getFitnessMetrics().getShared().add(fitness);
+        fitnessMetricsOutstanding = true;
+    }
+
+    @Override
+    public void collectOrganismsKilled(final MetricsContainer metricsContainer, final String speciesId, final int count) {
+        metricsContainer.getGenerationMetrics().getOrganismsKilled().compute(speciesId, (sid, ok) -> {
+            MetricDatum organismsKilled = ok;
+
+            if (organismsKilled == null) {
+                organismsKilled = metricDatumFactory.create();
+            }
+
+            organismsKilled.add((float) count);
+
+            return organismsKilled;
+        });
+
+        generationMetricsOutstanding = true;
+    }
+
+    @Override
+    public void collectSpeciesExtinction(final MetricsContainer metricsContainer, final boolean extinct) {
+        metricsContainer.getGenerationMetrics().getSpeciesExtinct().add(extinct ? 1f : 0f);
+        generationMetricsOutstanding = true;
     }
 
     @Override
     public void prepareNextFitnessCalculation(final MetricsContainer metricsContainer) {
-        metricsContainer.getFitnessMetrics().getOrganisms().values().forEach(metricsContainer.getFitnessMetrics().getAll()::merge);
-        metricsContainer.getGenerationMetrics().getSpeciesAllFitness().merge(metricsContainer.getFitnessMetrics().getAll());
-        metricsContainer.getGenerationMetrics().getSpeciesSharedFitness().merge(metricsContainer.getFitnessMetrics().getShared());
-
-        if (clearFitnessOnAdd) {
-            metricsContainer.getGenerationMetrics().getOrganismsFitness().clear();
+        if (!fitnessMetricsOutstanding) {
+            return;
         }
 
-        metricsContainer.getGenerationMetrics().getOrganismsFitness().add(metricsContainer.getFitnessMetrics());
+        fitnessMetricsOutstanding = false;
+
+        if (clearFitnessOnAdd) {
+            metricsContainer.getGenerationMetrics().getFitnessCalculations().clear();
+        }
+
+        metricsContainer.getGenerationMetrics().getFitnessCalculations().add(metricsContainer.getFitnessMetrics());
         metricsContainer.replaceFitnessMetrics();
+        generationMetricsOutstanding = true;
     }
 
     @Override
     public void prepareNextGeneration(final MetricsContainer metricsContainer, final int currentGeneration) {
+        prepareNextFitnessCalculation(metricsContainer);
+
+        if (!generationMetricsOutstanding) {
+            return;
+        }
+
+        generationMetricsOutstanding = false;
+
         if (clearGenerationsOnAdd) {
             metricsContainer.getIterationMetrics().getGenerations().clear();
         }
@@ -96,7 +132,9 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
     }
 
     @Override
-    public void prepareNextIteration(final MetricsContainer metricsContainer, final Map<Integer, IterationMetrics> iterationsMetrics, final int currentIteration) {
+    public void prepareNextIteration(final MetricsContainer metricsContainer, final int currentGeneration, final Map<Integer, IterationMetrics> iterationsMetrics, final int currentIteration) {
+        prepareNextGeneration(metricsContainer, currentGeneration);
+
         if (clearIterationsOnAdd) {
             iterationsMetrics.clear();
         }

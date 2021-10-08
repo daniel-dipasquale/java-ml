@@ -2,5 +2,5 @@ package com.dipasquale.metric;
 
 @FunctionalInterface
 public interface MetricDatumSelector<T> {
-    MetricDatum selectMetricDatum(T metricData);
+    MetricDatum selectMetricDatum(T metrics);
 }

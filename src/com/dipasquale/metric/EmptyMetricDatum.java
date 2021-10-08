@@ -40,6 +40,11 @@ final class EmptyMetricDatum implements MetricDatum, Serializable {
     }
 
     @Override
+    public MetricDatum createReduced() {
+        return INSTANCE;
+    }
+
+    @Override
     public void clear() {
         throw new UnsupportedOperationException();
     }

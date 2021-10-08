@@ -38,6 +38,6 @@ public final class MetricsQueryProjector<TMetricGroup> {
             results.add(metricRecord);
         }
 
-        return new MetricsResult(defaultKey, results);
+        return new MetricsResult(defaultKey, projections, results);
     }
 }
