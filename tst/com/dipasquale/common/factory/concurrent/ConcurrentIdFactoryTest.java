@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.unit.SI;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class ConcurrentIdFactoryTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, TimeUnit.MILLISECONDS);
     private static final ExpirationFactory EXPIRY_SUPPORT = DATE_TIME_SUPPORT.createBucketExpirationFactory(1L);
     private static final AtomicLong CURRENT_MINOR_ID = new AtomicLong();
 

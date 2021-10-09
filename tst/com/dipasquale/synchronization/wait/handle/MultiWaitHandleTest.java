@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.unit.SI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class MultiWaitHandleTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::incrementAndGet, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::incrementAndGet, TimeUnit.MILLISECONDS);
 
     @BeforeEach
     public void beforeEach() {

@@ -8,19 +8,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.quantity.Duration;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class ProxyDateTimeSupportTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final LongFactoryMock NOW_FACTORY = new LongFactoryMock(CURRENT_DATE_TIME);
-    private static final Unit<Duration> UNIT = SI.SECOND;
-    private static final ProxyDateTimeSupport TEST = new ProxyDateTimeSupport(NOW_FACTORY, UNIT);
+    private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
+    private static final ProxyDateTimeSupport TEST = new ProxyDateTimeSupport(NOW_FACTORY, TIME_UNIT);
 
     @BeforeEach
     public void beforeEach() {
@@ -34,7 +32,7 @@ public final class ProxyDateTimeSupportTest {
 
     @Test
     public void GIVEN_a_proxy_date_time_support_WHEN_getting_the_unit_measuring_the_current_date_time_THEN_provide_it() {
-        Assertions.assertEquals(SI.SECOND, TEST.unit());
+        Assertions.assertEquals(TimeUnit.SECONDS, TEST.timeUnit());
     }
 
     @Test
@@ -42,10 +40,10 @@ public final class ProxyDateTimeSupportTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
         DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM");
 
-        Assertions.assertEquals(new ProxyDateTimeSupport(NOW_FACTORY, UNIT), TEST);
-        Assertions.assertNotEquals(new ProxyDateTimeSupport(NOW_FACTORY, UNIT, formatter, parser), TEST);
-        Assertions.assertEquals(new ProxyDateTimeSupport(NOW_FACTORY, UNIT, Constants.DATE_TIME_FORMATTER, Constants.DATE_TIME_PARSER), TEST);
-        Assertions.assertNotEquals(new ProxyDateTimeSupport(() -> 0L, UNIT), TEST);
+        Assertions.assertEquals(new ProxyDateTimeSupport(NOW_FACTORY, TIME_UNIT), TEST);
+        Assertions.assertNotEquals(new ProxyDateTimeSupport(NOW_FACTORY, TIME_UNIT, formatter, parser), TEST);
+        Assertions.assertEquals(new ProxyDateTimeSupport(NOW_FACTORY, TIME_UNIT, Constants.DATE_TIME_FORMATTER, Constants.DATE_TIME_PARSER), TEST);
+        Assertions.assertNotEquals(new ProxyDateTimeSupport(() -> 0L, TIME_UNIT), TEST);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

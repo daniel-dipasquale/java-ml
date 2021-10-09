@@ -1,66 +1,20 @@
 package com.dipasquale.synchronization.wait.handle;
 
 import com.dipasquale.common.time.DateTimeSupport;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-import javax.measure.converter.UnitConverter;
-import javax.measure.quantity.Duration;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public final class MultiWaitHandle implements WaitHandle {
-    private static final Map<TimeUnitConversionKey, UnitConverter> TIME_UNIT_CONVERTERS = createTimeUnitConverters();
     private final List<? extends WaitHandle> waitHandles;
     private final DateTimeSupport dateTimeSupport;
     private final WaitHandleStrategy waitHandleStrategy;
 
     public MultiWaitHandle(final List<? extends WaitHandle> waitHandles, final DateTimeSupport dateTimeSupport) {
         this(waitHandles, dateTimeSupport, a -> a == 1);
-    }
-
-    private static Map<TimeUnitConversionKey, UnitConverter> createTimeUnitConverters() {
-        List<TimeUnit> timeUnits = List.of(
-                TimeUnit.NANOSECONDS,
-                TimeUnit.MICROSECONDS,
-                TimeUnit.MILLISECONDS,
-                TimeUnit.SECONDS,
-                TimeUnit.MINUTES,
-                TimeUnit.HOURS,
-                TimeUnit.DAYS
-        );
-
-        List<Unit<Duration>> units = List.of(
-                SI.NANO(SI.SECOND),
-                SI.MICRO(SI.SECOND),
-                SI.MILLI(SI.SECOND),
-                SI.SECOND,
-                NonSI.MINUTE,
-                NonSI.HOUR,
-                NonSI.DAY
-        );
-
-        Map<TimeUnitConversionKey, UnitConverter> timeUnitConverters = new HashMap<>(timeUnits.size() * units.size());
-
-        for (TimeUnit timeUnit : timeUnits) {
-            Unit<Duration> unitFromTimeUnit = DateTimeSupport.getUnit(timeUnit);
-
-            for (Unit<Duration> unit : units) {
-                TimeUnitConversionKey conversionKey = new TimeUnitConversionKey(timeUnit, unit);
-
-                timeUnitConverters.put(conversionKey, unitFromTimeUnit.getConverterTo(unit));
-            }
-        }
-
-        return timeUnitConverters;
     }
 
     private static <TWaitHandle extends WaitHandle, TItem> List<TWaitHandle> adapt(final List<TItem> items, final WaitHandleFactory<TItem, TWaitHandle> waitHandlerFactory) {
@@ -92,17 +46,15 @@ public final class MultiWaitHandle implements WaitHandle {
     }
 
     @Override
-    public boolean await(final long timeout, final TimeUnit unit)
+    public boolean await(final long timeout, final TimeUnit timeUnit)
             throws InterruptedException {
         boolean acquired = true;
         long offsetDateTime = dateTimeSupport.now();
-        TimeUnitConversionKey conversionKey = new TimeUnitConversionKey(unit, dateTimeSupport.unit());
-        long timeoutRemaining = (long) TIME_UNIT_CONVERTERS.get(conversionKey).convert((double) timeout);
-        TimeUnit timeUnit = dateTimeSupport.timeUnit();
+        long timeoutRemaining = dateTimeSupport.timeUnit().convert(timeout, timeUnit);
 
         for (int attempt = 0; acquired && timeoutRemaining > 0L && waitHandleStrategy.shouldAwait(++attempt); ) {
             for (int i = 0, c = waitHandles.size(); i < c && acquired && timeoutRemaining > 0L; i++) {
-                acquired = waitHandles.get(i).await(timeoutRemaining, timeUnit);
+                acquired = waitHandles.get(i).await(timeoutRemaining, dateTimeSupport.timeUnit());
 
                 if (acquired) {
                     long currentDateTime = dateTimeSupport.now();
@@ -114,12 +66,5 @@ public final class MultiWaitHandle implements WaitHandle {
         }
 
         return acquired;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @EqualsAndHashCode
-    private static final class TimeUnitConversionKey {
-        private final TimeUnit timeUnit;
-        private final Unit<Duration> unit;
     }
 }

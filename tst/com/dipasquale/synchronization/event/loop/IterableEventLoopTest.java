@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.unit.SI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -26,7 +26,7 @@ public final class IterableEventLoopTest {
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
     private static final ErrorHandler EXCEPTION_LOGGER = EXCEPTIONS::add;
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, TimeUnit.MILLISECONDS);
 
     private static final IterableEventLoopSettings SETTINGS = IterableEventLoopSettings.builder()
             .executorService(EXECUTOR_SERVICE)

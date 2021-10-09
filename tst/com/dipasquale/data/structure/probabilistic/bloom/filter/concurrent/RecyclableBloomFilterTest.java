@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.unit.SI;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class RecyclableBloomFilterTest {
@@ -21,7 +21,7 @@ public final class RecyclableBloomFilterTest {
     private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.MD5, RecyclableBloomFilterTest.class.getSimpleName());
     private static final DefaultBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, TimeUnit.MILLISECONDS);
     private static final ExpirationFactory EXPIRY_SUPPORT = DATE_TIME_SUPPORT.createBucketExpirationFactory(1L);
     private static final BloomFilterFactory BLOOM_FILTER_FACTORY = new BloomFilterFactory(BLOOM_FILTER_DEFAULT_FACTORY, EXPIRY_SUPPORT);
 

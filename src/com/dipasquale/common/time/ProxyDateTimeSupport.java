@@ -3,10 +3,9 @@ package com.dipasquale.common.time;
 import com.dipasquale.common.factory.LongFactory;
 import lombok.EqualsAndHashCode;
 
-import javax.measure.quantity.Duration;
-import javax.measure.unit.Unit;
 import java.io.Serial;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 @EqualsAndHashCode(callSuper = true)
 public final class ProxyDateTimeSupport extends AbstractDateTimeSupport {
@@ -14,13 +13,13 @@ public final class ProxyDateTimeSupport extends AbstractDateTimeSupport {
     private static final long serialVersionUID = 6619135767018277767L;
     private final LongFactory nowFactory;
 
-    public ProxyDateTimeSupport(final LongFactory nowFactory, final Unit<Duration> unit) {
-        super(unit);
+    public ProxyDateTimeSupport(final LongFactory nowFactory, final TimeUnit timeUnit) {
+        super(timeUnit);
         this.nowFactory = nowFactory;
     }
 
-    public ProxyDateTimeSupport(final LongFactory nowFactory, final Unit<Duration> unit, final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
-        super(unit, dateTimeFormatter, dateTimeParser);
+    public ProxyDateTimeSupport(final LongFactory nowFactory, final TimeUnit timeUnit, final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
+        super(timeUnit, dateTimeFormatter, dateTimeParser);
         this.nowFactory = nowFactory;
     }
 

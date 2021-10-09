@@ -4,17 +4,14 @@ import com.dipasquale.common.error.ErrorComparator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.quantity.Duration;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import java.io.Serial;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.concurrent.TimeUnit;
 
 public final class AbstractDateTimeSupportTest {
     private static final long NOW = 0L;
-    private static final Unit<Duration> UNIT = SI.MILLI(SI.SECOND);
-    private static final AbstractDateTimeSupport TEST = new AbstractDateTimeSupportMock(NOW, UNIT);
+    private static final AbstractDateTimeSupport TEST = new AbstractDateTimeSupportMock(NOW, TimeUnit.MILLISECONDS);
 
     @Test
     public void GIVEN_a_date_time_support_mock_WHEN_getting_the_current_date_time_THEN_provide_it_in_epoch_format() {
@@ -23,7 +20,7 @@ public final class AbstractDateTimeSupportTest {
 
     @Test
     public void GIVEN_a_date_time_support_mock_WHEN_getting_the_unit_THEN_provide_the_millisecond_unit() {
-        Assertions.assertEquals(SI.MILLI(SI.SECOND), TEST.unit());
+        Assertions.assertEquals(TimeUnit.MILLISECONDS, TEST.timeUnit());
     }
 
     @Test
@@ -59,13 +56,13 @@ public final class AbstractDateTimeSupportTest {
         private static final long serialVersionUID = -5476714192142099507L;
         private final long now;
 
-        private AbstractDateTimeSupportMock(final long now, final Unit<Duration> unit) {
-            super(unit);
+        private AbstractDateTimeSupportMock(final long now, final TimeUnit timeUnit) {
+            super(timeUnit);
             this.now = now;
         }
 
-        private AbstractDateTimeSupportMock(final long now, final Unit<Duration> unit, final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
-            super(unit, dateTimeFormatter, dateTimeParser);
+        private AbstractDateTimeSupportMock(final long now, final TimeUnit timeUnit, final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
+            super(timeUnit, dateTimeFormatter, dateTimeParser);
             this.now = now;
         }
 

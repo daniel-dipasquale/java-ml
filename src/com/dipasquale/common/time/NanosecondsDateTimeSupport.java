@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 @EqualsAndHashCode(callSuper = true)
 public final class NanosecondsDateTimeSupport extends AbstractDateTimeSupport {
@@ -11,11 +12,11 @@ public final class NanosecondsDateTimeSupport extends AbstractDateTimeSupport {
     private static final long serialVersionUID = -6749148050121918495L;
 
     public NanosecondsDateTimeSupport() {
-        super(Constants.NANOSECONDS_UNIT);
+        super(TimeUnit.NANOSECONDS);
     }
 
     public NanosecondsDateTimeSupport(final DateTimeFormatter dateTimeFormatter, final DateTimeFormatter dateTimeParser) {
-        super(Constants.NANOSECONDS_UNIT, dateTimeFormatter, dateTimeParser);
+        super(TimeUnit.NANOSECONDS, dateTimeFormatter, dateTimeParser);
     }
 
     @Override

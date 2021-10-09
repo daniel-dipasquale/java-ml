@@ -2,9 +2,6 @@ package com.dipasquale.common.time;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
 
-import javax.measure.converter.UnitConverter;
-import javax.measure.quantity.Duration;
-import javax.measure.unit.Unit;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,23 +27,10 @@ public interface DateTimeSupport {
         return getTimeBucket(now(), bucketSize);
     }
 
-    Unit<Duration> unit();
+    TimeUnit timeUnit();
 
-    static Unit<Duration> getUnit(final TimeUnit unit) {
-        return Constants.TIME_UNITS.get(unit);
-    }
-
-    static TimeUnit getTimeUnit(final Unit<Duration> unit) {
-        return Constants.UNITS.get(unit);
-    }
-
-    default TimeUnit timeUnit() {
-        return getTimeUnit(unit());
-    }
-
-    static String format(final DateTimeFormatter dateTimeFormatter, final long dateTime, final Unit<Duration> unit) {
-        UnitConverter unitConverter = unit.getConverterTo(Constants.MILLISECONDS_UNIT);
-        long dateTimeFixed = (long) unitConverter.convert((double) dateTime);
+    static String format(final DateTimeFormatter dateTimeFormatter, final long dateTime, final TimeUnit timeUnit) {
+        long dateTimeFixed = TimeUnit.MILLISECONDS.convert(dateTime, timeUnit);
         Instant dateTimeInstant = new Date(dateTimeFixed).toInstant();
 
         return dateTimeFormatter.format(dateTimeInstant);
@@ -58,12 +42,11 @@ public interface DateTimeSupport {
         return format(now());
     }
 
-    static long parse(final DateTimeFormatter dateTimeParser, final String dateTime, final Unit<Duration> unit) {
-        UnitConverter unitConverter = Constants.MILLISECONDS_UNIT.getConverterTo(unit);
+    static long parse(final DateTimeFormatter dateTimeParser, final String dateTime, final TimeUnit timeUnit) {
         TemporalAccessor dateTimeParsed = dateTimeParser.parse(dateTime);
         long dateTimeFixed = ZonedDateTime.from(dateTimeParsed).toInstant().toEpochMilli();
 
-        return (long) unitConverter.convert((double) dateTimeFixed);
+        return timeUnit.convert(dateTimeFixed, TimeUnit.MILLISECONDS);
     }
 
     long parse(String dateTime);

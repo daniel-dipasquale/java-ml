@@ -91,7 +91,7 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
     }
 
     public double stepInDiscrete(final double action) {
-        if (Double.compare(action, 0.5D) > 0) {
+        if (Double.compare(action, 0.5D) >= 0) {
             return step(10D);
         }
 
@@ -99,18 +99,12 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
     }
 
     public double stepInNoisyDiscrete(final double action, final RandomSupport randomSupport) {
-        double temporary = action + randomSupport.next(0D, 0.2D);
+        double actionFixed = action + randomSupport.next(-0.2D, 0.2D);
 
-        if (Double.compare(temporary, 0.5D) > 0) {
+        if (Double.compare(actionFixed, 0.5D) >= 0) {
             return step(10D);
         }
 
         return step(-10D);
-    }
-
-    public double stepInContinuous(final double action) {
-        double force = 2D * action - 10D;
-
-        return step(force);
     }
 }

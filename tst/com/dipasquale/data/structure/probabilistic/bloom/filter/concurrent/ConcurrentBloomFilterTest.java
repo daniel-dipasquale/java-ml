@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.unit.SI;
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.Set;
@@ -40,7 +39,7 @@ public final class ConcurrentBloomFilterTest {
     private static final long TIMEOUT = 45_000L;
     private static final TimeUnit TIMEOUT_UNIT = TimeUnit.MILLISECONDS;
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, TimeUnit.MILLISECONDS);
     private static final long EXPIRY_TIME = 1L;
     private static final ExpirationFactory EXPIRY_SUPPORT = DATE_TIME_SUPPORT.createBucketExpirationFactory(EXPIRY_TIME);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(CPU_CORES);

@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.unit.SI;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class AtomicRecyclableReferenceTest {
     private static final AtomicInteger REFERENCE_SEED = new AtomicInteger();
     private static final AtomicLong EXPIRY_SEED = new AtomicLong();
-    private static final ExpirationFactory EXPIRY_SUPPORT = () -> new ExpirationRecord(EXPIRY_SEED.get(), EXPIRY_SEED.get() + 1L, SI.MILLI(SI.SECOND));
+    private static final ExpirationFactory EXPIRY_SUPPORT = () -> new ExpirationRecord(EXPIRY_SEED.get(), EXPIRY_SEED.get() + 1L, TimeUnit.MILLISECONDS);
 
     private static AtomicRecyclableReference<String> createAtomicRecyclableReference(final RecyclableReference.Factory<String> objectFactory, final boolean collectRecycledReferences) {
         return new AtomicRecyclableReference<>(objectFactory, EXPIRY_SUPPORT, collectRecycledReferences);

@@ -30,6 +30,6 @@ final class BucketExpirationFactory implements ExpirationFactory, Serializable {
         long bucketSizeProgressRate = (currentDateTime + bucketSize - bucketOffset) % bucketSize;
         long expirationDateTime = expirationDateTimePrevious + bucketSize * Math.round((bucketSizeDouble * roundingRate + (double) bucketSizeProgressRate) / bucketSizeDouble);
 
-        return new ExpirationRecord(currentDateTime, expirationDateTime, dateTimeSupport.unit());
+        return new ExpirationRecord(currentDateTime, expirationDateTime, dateTimeSupport.timeUnit());
     }
 }

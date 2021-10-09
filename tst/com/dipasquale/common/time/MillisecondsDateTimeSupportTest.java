@@ -3,8 +3,8 @@ package com.dipasquale.common.time;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.unit.SI;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 public final class MillisecondsDateTimeSupportTest {
     private static final MillisecondsDateTimeSupport TEST = new MillisecondsDateTimeSupport();
@@ -26,7 +26,7 @@ public final class MillisecondsDateTimeSupportTest {
 
     @Test
     public void GIVEN_a_milliseconds_date_time_support_WHEN_getting_the_unit_measuring_the_current_date_time_THEN_provide_it() {
-        Assertions.assertEquals(SI.MILLI(SI.SECOND), TEST.unit());
+        Assertions.assertEquals(TimeUnit.MILLISECONDS, TEST.timeUnit());
     }
 
     @Test

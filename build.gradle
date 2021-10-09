@@ -26,7 +26,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
     compileOnly 'org.projectlombok:lombok:1.18.20'
     implementation 'com.aparapi:aparapi:3.0.0'
-    implementation 'javax.measure:jsr-275:0.9.1'
     implementation 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
     testCompileOnly 'org.projectlombok:lombok:1.18.20'

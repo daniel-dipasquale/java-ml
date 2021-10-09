@@ -3,14 +3,12 @@ package com.dipasquale.common.time;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.quantity.Duration;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 public final class ZeroDateTimeSupportTest {
-    private static final Unit<Duration> UNIT = SI.SECOND;
-    private static final ZeroDateTimeSupport TEST = new ZeroDateTimeSupport(UNIT);
+    private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
+    private static final ZeroDateTimeSupport TEST = new ZeroDateTimeSupport(TIME_UNIT);
 
     @Test
     public void GIVEN_a_zero_date_time_support_WHEN_doing_minimal_testing_THEN_check_if_it_extends_abstract_date_time_support() {
@@ -24,7 +22,7 @@ public final class ZeroDateTimeSupportTest {
 
     @Test
     public void GIVEN_a_zero_date_time_support_WHEN_getting_the_unit_measuring_the_current_date_time_THEN_provide_it() {
-        Assertions.assertEquals(SI.SECOND, TEST.unit());
+        Assertions.assertEquals(TimeUnit.SECONDS, TEST.timeUnit());
     }
 
     @Test
@@ -32,8 +30,8 @@ public final class ZeroDateTimeSupportTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
         DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM");
 
-        Assertions.assertEquals(new ZeroDateTimeSupport(UNIT), TEST);
-        Assertions.assertNotEquals(new ZeroDateTimeSupport(UNIT, formatter, parser), TEST);
-        Assertions.assertEquals(new ZeroDateTimeSupport(UNIT, Constants.DATE_TIME_FORMATTER, Constants.DATE_TIME_PARSER), TEST);
+        Assertions.assertEquals(new ZeroDateTimeSupport(TIME_UNIT), TEST);
+        Assertions.assertNotEquals(new ZeroDateTimeSupport(TIME_UNIT, formatter, parser), TEST);
+        Assertions.assertEquals(new ZeroDateTimeSupport(TIME_UNIT, Constants.DATE_TIME_FORMATTER, Constants.DATE_TIME_PARSER), TEST);
     }
 }

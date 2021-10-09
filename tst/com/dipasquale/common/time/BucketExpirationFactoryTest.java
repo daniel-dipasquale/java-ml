@@ -4,12 +4,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.unit.SI;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class BucketExpirationFactoryTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, TimeUnit.MILLISECONDS);
 
     private static ExpirationFactory createExpirationRoundedBucketFactory(final long bucketSize, final long bucketOffset) {
         return DATE_TIME_SUPPORT.createRoundedBucketExpirationFactory(bucketSize, bucketOffset);
@@ -40,35 +40,35 @@ public final class BucketExpirationFactoryTest {
         ExpirationFactory test4 = createExpirationBucketFactory(100L, 50L);
 
         CURRENT_DATE_TIME.set(1_049L);
-        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_100L, SI.MILLI(SI.SECOND)), test2.create());
-        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_150L, SI.MILLI(SI.SECOND)), test3.create());
-        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test4.create());
+        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_100L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_100L, TimeUnit.MILLISECONDS), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_150L, TimeUnit.MILLISECONDS), test3.create());
+        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_050L, TimeUnit.MILLISECONDS), test4.create());
         CURRENT_DATE_TIME.set(1_050L);
-        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_200L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_100L, SI.MILLI(SI.SECOND)), test2.create());
-        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_150L, SI.MILLI(SI.SECOND)), test3.create());
-        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_150L, SI.MILLI(SI.SECOND)), test4.create());
+        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_200L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_100L, TimeUnit.MILLISECONDS), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_150L, TimeUnit.MILLISECONDS), test3.create());
+        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_150L, TimeUnit.MILLISECONDS), test4.create());
         CURRENT_DATE_TIME.set(1_051L);
-        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_200L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_100L, SI.MILLI(SI.SECOND)), test2.create());
-        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_150L, SI.MILLI(SI.SECOND)), test3.create());
-        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_150L, SI.MILLI(SI.SECOND)), test4.create());
+        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_200L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_100L, TimeUnit.MILLISECONDS), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_150L, TimeUnit.MILLISECONDS), test3.create());
+        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_150L, TimeUnit.MILLISECONDS), test4.create());
         CURRENT_DATE_TIME.set(1_099L);
-        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_200L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test2.create());
-        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_150L, SI.MILLI(SI.SECOND)), test3.create());
-        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_150L, SI.MILLI(SI.SECOND)), test4.create());
+        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_200L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_100L, TimeUnit.MILLISECONDS), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_150L, TimeUnit.MILLISECONDS), test3.create());
+        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_150L, TimeUnit.MILLISECONDS), test4.create());
         CURRENT_DATE_TIME.set(1_100L);
-        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_200L, SI.MILLI(SI.SECOND)), test2.create());
-        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_250L, SI.MILLI(SI.SECOND)), test3.create());
-        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_150L, SI.MILLI(SI.SECOND)), test4.create());
+        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_200L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_200L, TimeUnit.MILLISECONDS), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_250L, TimeUnit.MILLISECONDS), test3.create());
+        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_150L, TimeUnit.MILLISECONDS), test4.create());
         CURRENT_DATE_TIME.set(1_101L);
-        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_200L, SI.MILLI(SI.SECOND)), test2.create());
-        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_250L, SI.MILLI(SI.SECOND)), test3.create());
-        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_150L, SI.MILLI(SI.SECOND)), test4.create());
+        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_200L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_200L, TimeUnit.MILLISECONDS), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_250L, TimeUnit.MILLISECONDS), test3.create());
+        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_150L, TimeUnit.MILLISECONDS), test4.create());
     }
 
     @Test
@@ -77,22 +77,22 @@ public final class BucketExpirationFactoryTest {
         ExpirationFactory test2 = createExpirationBucketFactory(1L);
 
         CURRENT_DATE_TIME.set(1_049L);
-        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_050L, SI.MILLI(SI.SECOND)), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_050L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_049L, 1_050L, TimeUnit.MILLISECONDS), test2.create());
         CURRENT_DATE_TIME.set(1_050L);
-        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_051L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_051L, SI.MILLI(SI.SECOND)), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_051L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_050L, 1_051L, TimeUnit.MILLISECONDS), test2.create());
         CURRENT_DATE_TIME.set(1_051L);
-        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_052L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_052L, SI.MILLI(SI.SECOND)), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_052L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_051L, 1_052L, TimeUnit.MILLISECONDS), test2.create());
         CURRENT_DATE_TIME.set(1_099L);
-        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_100L, SI.MILLI(SI.SECOND)), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_100L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_099L, 1_100L, TimeUnit.MILLISECONDS), test2.create());
         CURRENT_DATE_TIME.set(1_100L);
-        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_101L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_101L, SI.MILLI(SI.SECOND)), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_101L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_100L, 1_101L, TimeUnit.MILLISECONDS), test2.create());
         CURRENT_DATE_TIME.set(1_101L);
-        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_102L, SI.MILLI(SI.SECOND)), test1.create());
-        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_102L, SI.MILLI(SI.SECOND)), test2.create());
+        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_102L, TimeUnit.MILLISECONDS), test1.create());
+        Assertions.assertEquals(new ExpirationRecord(1_101L, 1_102L, TimeUnit.MILLISECONDS), test2.create());
     }
 }

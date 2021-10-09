@@ -1,6 +1,5 @@
 package com.dipasquale.synchronization.event.loop;
 
-import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.error.IterableErrorHandler;
 import com.dipasquale.synchronization.wait.handle.CountDownWaitHandle;
@@ -17,14 +16,14 @@ public final class IterableEventLoop {
     private final MultiWaitHandle eventLoopsWaitHandleUntilDone;
     private final IterableErrorHandler<EventLoop> eventLoopsShutdownHandler;
 
-    public IterableEventLoop(final IterableEventLoopSettings settings) {
-        ArgumentValidatorSupport.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.numberOfThreads");
-
-        List<EventLoop> eventLoops = createEventLoops(settings);
-
+    private IterableEventLoop(final IterableEventLoopSettings settings, final List<EventLoop> eventLoops) {
         this.eventLoops = eventLoops;
         this.eventLoopsWaitHandleUntilDone = MultiWaitHandle.create(eventLoops, EventLoopWaitHandle::new, settings.getDateTimeSupport(), a -> !isEmpty(eventLoops));
         this.eventLoopsShutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
+    }
+
+    public IterableEventLoop(final IterableEventLoopSettings settings) {
+        this(settings, createEventLoops(settings));
     }
 
     private static List<EventLoop> createEventLoops(final IterableEventLoopSettings settings) {

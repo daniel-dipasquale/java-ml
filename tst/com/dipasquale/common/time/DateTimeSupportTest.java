@@ -8,10 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.measure.quantity.Duration;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.format.DateTimeParseException;
@@ -20,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class DateTimeSupportTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
-    private static final DateTimeSupportMock TEST = new DateTimeSupportMock(CURRENT_DATE_TIME::incrementAndGet, SI.MILLI(SI.SECOND));
+    private static final DateTimeSupportMock TEST = new DateTimeSupportMock(CURRENT_DATE_TIME::incrementAndGet, TimeUnit.MILLISECONDS);
 
     @BeforeEach
     public void beforeEach() {
@@ -49,32 +45,10 @@ public final class DateTimeSupportTest {
     }
 
     @Test
-    public void GIVEN_a_time_unit_WHEN_converting_to_the_unit_type_THEN_convert_it() {
-        Assertions.assertEquals(SI.NANO(SI.SECOND), DateTimeSupport.getUnit(TimeUnit.NANOSECONDS));
-        Assertions.assertEquals(SI.MICRO(SI.SECOND), DateTimeSupport.getUnit(TimeUnit.MICROSECONDS));
-        Assertions.assertEquals(SI.MILLI(SI.SECOND), DateTimeSupport.getUnit(TimeUnit.MILLISECONDS));
-        Assertions.assertEquals(SI.SECOND, DateTimeSupport.getUnit(TimeUnit.SECONDS));
-        Assertions.assertEquals(NonSI.MINUTE, DateTimeSupport.getUnit(TimeUnit.MINUTES));
-        Assertions.assertEquals(NonSI.HOUR, DateTimeSupport.getUnit(TimeUnit.HOURS));
-        Assertions.assertEquals(NonSI.DAY, DateTimeSupport.getUnit(TimeUnit.DAYS));
-    }
-
-    @Test
-    public void GIVEN_a_unit_WHEN_converting_to_the_time_unit_type_THEN_convert_it() {
-        Assertions.assertEquals(TimeUnit.NANOSECONDS, DateTimeSupport.getTimeUnit(SI.NANO(SI.SECOND)));
-        Assertions.assertEquals(TimeUnit.MICROSECONDS, DateTimeSupport.getTimeUnit(SI.MICRO(SI.SECOND)));
-        Assertions.assertEquals(TimeUnit.MILLISECONDS, DateTimeSupport.getTimeUnit(SI.MILLI(SI.SECOND)));
-        Assertions.assertEquals(TimeUnit.SECONDS, DateTimeSupport.getTimeUnit(SI.SECOND));
-        Assertions.assertEquals(TimeUnit.MINUTES, DateTimeSupport.getTimeUnit(NonSI.MINUTE));
-        Assertions.assertEquals(TimeUnit.HOURS, DateTimeSupport.getTimeUnit(NonSI.HOUR));
-        Assertions.assertEquals(TimeUnit.DAYS, DateTimeSupport.getTimeUnit(NonSI.DAY));
-    }
-
-    @Test
     public void GIVEN_a_date_time_in_epoch_format_WHEN_formatting_it_THEN_get_the_date_time_it_represents_in_text_format() {
         Assertions.assertEquals("Value(YearOfEra,4,19,EXCEEDS_PAD)'-'Value(MonthOfYear,2)'-'Value(DayOfMonth,2)'T'Value(HourOfDay,2)':'Value(MinuteOfHour,2)':'Value(SecondOfMinute,2)'.'Fraction(NanoOfSecond,3,3)", Constants.DATE_TIME_FORMATTER.toString());
-        Assertions.assertEquals("1970-01-01T00:00:00.001", DateTimeSupport.format(Constants.DATE_TIME_FORMATTER, 1L, SI.MILLI(SI.SECOND)));
-        Assertions.assertEquals("1970-01-01T00:00:01.000", DateTimeSupport.format(Constants.DATE_TIME_FORMATTER, 1_000L, SI.MILLI(SI.SECOND)));
+        Assertions.assertEquals("1970-01-01T00:00:00.001", DateTimeSupport.format(Constants.DATE_TIME_FORMATTER, 1L, TimeUnit.MILLISECONDS));
+        Assertions.assertEquals("1970-01-01T00:00:01.000", DateTimeSupport.format(Constants.DATE_TIME_FORMATTER, 1_000L, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -91,17 +65,17 @@ public final class DateTimeSupportTest {
     @Test
     public void GIVEN_a_text_WHEN_parsing_it_using_the_date_time_iso_format_8601_THEN_either_parse_it_into_epoch_format_if_valid_otherwise_fail_by_throwing_a_date_time_parse_exception() {
         Assertions.assertEquals("Value(YearOfEra,4,19,EXCEEDS_PAD)'-'Value(MonthOfYear,2)'-'Value(DayOfMonth,2)[[' ']['T']Value(HourOfDay,2)':'Value(MinuteOfHour,2)[':'Value(SecondOfMinute,2)['.'Fraction(NanoOfSecond,3,3)][ZoneText(SHORT)][Offset(+HHMM,'+0000')]]]", Constants.DATE_TIME_PARSER.toString());
-        Assertions.assertEquals(123L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01T00:00:00.123", Constants.MILLISECONDS_UNIT));
-        Assertions.assertEquals(123L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01T00:00:00.123Z", Constants.MILLISECONDS_UNIT));
-        Assertions.assertEquals(1_000L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01T00:00:01", Constants.MILLISECONDS_UNIT));
-        Assertions.assertEquals(1_000L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01T00:00:01Z", Constants.MILLISECONDS_UNIT));
-        Assertions.assertEquals(321L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01 00:00:00.321", Constants.MILLISECONDS_UNIT));
-        Assertions.assertEquals(321L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01 00:00:00.321Z", Constants.MILLISECONDS_UNIT));
-        Assertions.assertEquals(30_000L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01 00:00:30", Constants.MILLISECONDS_UNIT));
-        Assertions.assertEquals(30_000L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01 00:00:30Z", Constants.MILLISECONDS_UNIT));
+        Assertions.assertEquals(123L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01T00:00:00.123", TimeUnit.MILLISECONDS));
+        Assertions.assertEquals(123L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01T00:00:00.123Z", TimeUnit.MILLISECONDS));
+        Assertions.assertEquals(1_000L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01T00:00:01", TimeUnit.MILLISECONDS));
+        Assertions.assertEquals(1_000L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01T00:00:01Z", TimeUnit.MILLISECONDS));
+        Assertions.assertEquals(321L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01 00:00:00.321", TimeUnit.MILLISECONDS));
+        Assertions.assertEquals(321L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01 00:00:00.321Z", TimeUnit.MILLISECONDS));
+        Assertions.assertEquals(30_000L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01 00:00:30", TimeUnit.MILLISECONDS));
+        Assertions.assertEquals(30_000L, DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "1970-01-01 00:00:30Z", TimeUnit.MILLISECONDS));
 
         try {
-            DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "invalid format", Constants.MILLISECONDS_UNIT);
+            DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "invalid format", TimeUnit.MILLISECONDS);
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ErrorComparator.builder()
@@ -210,7 +184,7 @@ public final class DateTimeSupportTest {
         @Serial
         private static final long serialVersionUID = 5818961090041503787L;
         private final LongFactory nowFactory;
-        private final Unit<Duration> unit;
+        private final TimeUnit timeUnit;
 
         @Override
         public long now() {
@@ -218,18 +192,18 @@ public final class DateTimeSupportTest {
         }
 
         @Override
-        public Unit<Duration> unit() {
-            return unit;
+        public TimeUnit timeUnit() {
+            return timeUnit;
         }
 
         @Override
         public String format(final long dateTime) {
-            return DateTimeSupport.format(Constants.DATE_TIME_FORMATTER, dateTime, unit);
+            return DateTimeSupport.format(Constants.DATE_TIME_FORMATTER, dateTime, timeUnit);
         }
 
         @Override
         public long parse(final String dateTime) {
-            return DateTimeSupport.parse(Constants.DATE_TIME_PARSER, dateTime, unit);
+            return DateTimeSupport.parse(Constants.DATE_TIME_PARSER, dateTime, timeUnit);
         }
     }
 }
