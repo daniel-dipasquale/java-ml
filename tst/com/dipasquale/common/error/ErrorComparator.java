@@ -1,6 +1,5 @@
 package com.dipasquale.common.error;
 
-import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -52,7 +51,7 @@ public final class ErrorComparator {
                 .orElseGet(() -> createMessageLiteral(message).orElse(null));
 
         List<ErrorComparator> suppressedFixed = Optional.ofNullable(suppressed)
-                .orElseGet(ImmutableList::of);
+                .orElseGet(List::of);
 
         FieldComparatorGroup<T> fieldsFixed = Optional.ofNullable(fields)
                 .map(f -> new FieldComparatorGroup<>(null, f))

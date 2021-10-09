@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -43,7 +42,7 @@ public final class NeatTrainingPolicies implements NeatTrainingPolicy {
         }
 
         public NeatTrainingPolicies build() {
-            return new NeatTrainingPolicies(ImmutableList.copyOf(trainingPolicies));
+            return new NeatTrainingPolicies(List.copyOf(trainingPolicies));
         }
     }
 }

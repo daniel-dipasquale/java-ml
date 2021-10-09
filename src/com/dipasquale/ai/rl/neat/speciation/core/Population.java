@@ -13,9 +13,9 @@ import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
+import com.dipasquale.data.structure.iterable.Iterables;
 import com.dipasquale.data.structure.set.DequeIdentitySet;
 import com.dipasquale.data.structure.set.DequeSet;
-import com.google.common.collect.Iterables;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -91,7 +91,7 @@ public final class Population {
                 .map(of -> of.create(context))
                 ::iterator;
 
-        for (Organism organism : Iterables.concat(organismsWithoutSpecies, organismsBirthed)) {
+        for (Organism organism : Iterables.concatenate(organismsWithoutSpecies, organismsBirthed)) {
             for (SimpleNode<Species> speciesNode : speciesNodes) {
                 matchMaker.collectIfBetterMatch(organism, speciesNodes.getValue(speciesNode));
             }

@@ -3,7 +3,6 @@ package com.dipasquale.synchronization.event.loop;
 import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.ZeroDateTimeSupport;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
-import com.google.common.collect.ImmutableMap;
 
 import javax.measure.quantity.Duration;
 import javax.measure.unit.NonSI;
@@ -14,15 +13,15 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 final class NoDelayEventLoop implements EventLoop {
-    private static final Map<Unit<Duration>, ZeroDateTimeSupport> ZERO_DATE_TIME_SUPPORTS = ImmutableMap.<Unit<Duration>, ZeroDateTimeSupport>builder()
-            .put(SI.NANO(SI.SECOND), new ZeroDateTimeSupport(SI.NANO(SI.SECOND)))
-            .put(SI.MICRO(SI.SECOND), new ZeroDateTimeSupport(SI.MICRO(SI.SECOND)))
-            .put(SI.MILLI(SI.SECOND), new ZeroDateTimeSupport(SI.MILLI(SI.SECOND)))
-            .put(SI.SECOND, new ZeroDateTimeSupport(SI.SECOND))
-            .put(NonSI.MINUTE, new ZeroDateTimeSupport(NonSI.MINUTE))
-            .put(NonSI.HOUR, new ZeroDateTimeSupport(NonSI.HOUR))
-            .put(NonSI.DAY, new ZeroDateTimeSupport(NonSI.DAY))
-            .build();
+    private static final Map<Unit<Duration>, ZeroDateTimeSupport> ZERO_DATE_TIME_SUPPORTS = Map.ofEntries(
+            Map.entry(SI.NANO(SI.SECOND), new ZeroDateTimeSupport(SI.NANO(SI.SECOND))),
+            Map.entry(SI.MICRO(SI.SECOND), new ZeroDateTimeSupport(SI.MICRO(SI.SECOND))),
+            Map.entry(SI.MILLI(SI.SECOND), new ZeroDateTimeSupport(SI.MILLI(SI.SECOND))),
+            Map.entry(SI.SECOND, new ZeroDateTimeSupport(SI.SECOND)),
+            Map.entry(NonSI.MINUTE, new ZeroDateTimeSupport(NonSI.MINUTE)),
+            Map.entry(NonSI.HOUR, new ZeroDateTimeSupport(NonSI.HOUR)),
+            Map.entry(NonSI.DAY, new ZeroDateTimeSupport(NonSI.DAY))
+    );
 
     private final ExplicitDelayEventLoop eventLoop;
 

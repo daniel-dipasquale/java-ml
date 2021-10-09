@@ -27,10 +27,10 @@ import com.dipasquale.common.random.float2.CyclicRandomSupport;
 import com.dipasquale.common.random.float2.ThreadLocalRandomSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
-import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this test might not be working as expected
@@ -100,7 +100,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(4))
                                 .outputs(IntegerNumber.literal(1))
-                                .biases(ImmutableList.of())
+                                .biases(List.of())
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())

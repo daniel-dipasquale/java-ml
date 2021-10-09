@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.iterator;
 
-import com.google.common.collect.ImmutableList;
+import com.dipasquale.data.structure.collection.Lists;
 
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +18,7 @@ public final class ZipIterator<T> implements Iterator<List<T>> {
             return (List<Iterator<T>>) iterators;
         }
 
-        return ImmutableList.copyOf(iterators);
+        return Lists.copyOf(iterators);
     }
 
     @Override

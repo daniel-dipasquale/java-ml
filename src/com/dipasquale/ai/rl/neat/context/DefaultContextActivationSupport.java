@@ -22,6 +22,7 @@ import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFa
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +61,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
             fitnessBuckets.put(genomeId, new FitnessBucket(fitnessDeterminerFactory.create()));
         }
 
-        return fitnessBuckets;
+        return Collections.unmodifiableMap(fitnessBuckets);
     }
 
     public static DefaultContextActivationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final GeneralEvaluatorSupport generalEvaluatorSupport, final ConnectionGeneSupport connectionGeneSupport) {

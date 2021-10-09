@@ -4,10 +4,10 @@ import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomEnumFactory;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.LiteralEnumFactory;
+import com.dipasquale.data.structure.collection.Lists;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeEnumFactory;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
-import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -31,15 +31,16 @@ public final class EnumValue<T extends Enum<T>> {
     }
 
     private static <T extends Enum<T>> EnumValue<T> createRandom(final RandomType type, final T[] values) {
-        DualModeFactoryCreator<T> factoryCreator = (ps, rs) -> createFactory(new DualModeRandomEnumFactory<>(rs.get(type), ImmutableList.copyOf(values)));
+        DualModeFactoryCreator<T> factoryCreator = (ps, rs) -> createFactory(new DualModeRandomEnumFactory<>(rs.get(type), Lists.create(values)));
 
         return new EnumValue<>(factoryCreator);
     }
 
-    public static <T extends Enum<T>> EnumValue<T> random(final Class<T> type) {
+    public static <T extends Enum<T>> EnumValue<T> randomAll(final Class<T> type) {
         return createRandom(RandomType.UNIFORM, type.getEnumConstants());
     }
 
+    @SafeVarargs
     public static <T extends Enum<T>> EnumValue<T> random(final T... values) {
         return createRandom(RandomType.UNIFORM, values);
     }

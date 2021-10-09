@@ -1,6 +1,5 @@
 package com.dipasquale.data.structure.collection;
 
-import com.google.common.collect.ImmutableList;
 import lombok.Generated;
 
 import java.util.Collection;
@@ -21,19 +20,19 @@ final class AddAllAsserter<T> extends AsserterBase<T> {
     private void assertEmptyItems(final List<T> items) {
         items.clear();
         equalsAsserter.assertEquals(false, collection.addAll(items));
-        equalsAsserter.assertEquals(items, ImmutableList.copyOf(collection));
+        equalsAsserter.assertEquals(items, List.copyOf(collection));
     }
 
     private void assertAllItems(final List<T> items) {
         equalsAsserter.assertEquals(true, collection.addAll(items));
-        equalsAsserter.assertEquals(items, ImmutableList.copyOf(collection));
+        equalsAsserter.assertEquals(items, List.copyOf(collection));
     }
 
     @Override
     protected List<TestCaseCollection<T>> createTestCases() {
-        return ImmutableList.<TestCaseCollection<T>>builder()
-                .add(TestCaseCollection.create(this::assertEmptyItems, false))
-                .add(TestCaseCollection.create(this::assertAllItems, false))
-                .build();
+        return List.of(
+                TestCaseCollection.create(this::assertEmptyItems, false),
+                TestCaseCollection.create(this::assertAllItems, false)
+        );
     }
 }

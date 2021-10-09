@@ -4,7 +4,6 @@ import com.dipasquale.ai.rl.neat.speciation.metric.MetricsRecord;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsResult;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.metric.MetricDatumQueryProjection;
-import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -67,38 +66,32 @@ public final class NeatMetricsReporter {
     }
 
     private static void displayMetrics_Count(final MetricsViewer metricsViewer, final String name, final String countDisplayText) {
-        List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "count", String.format("1. %s", countDisplayText)))
-                .build();
+        List<MetricDatumQueryProjection> queryProjections = List.of(new MetricDatumQueryProjection(name, "count", String.format("1. %s", countDisplayText)));
 
         displayMetrics(metricsViewer.queryLast(queryProjections));
     }
 
     private static void displayMetrics_Min_Avg_Max(final MetricsViewer metricsViewer, final String name) {
-        List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "min", "1. minimum"))
-                .add(new MetricDatumQueryProjection(name, "avg", "2. average"))
-                .add(new MetricDatumQueryProjection(name, "max", "3. maximum"))
-                .add(new MetricDatumQueryProjection(name, "p10", "4. p10"))
-                .add(new MetricDatumQueryProjection(name, "p50", "5. p50"))
-                .add(new MetricDatumQueryProjection(name, "p90", "6. p90"))
-                .build();
+        List<MetricDatumQueryProjection> queryProjections = List.of(
+                new MetricDatumQueryProjection(name, "min", "1. minimum"),
+                new MetricDatumQueryProjection(name, "avg", "2. average"),
+                new MetricDatumQueryProjection(name, "max", "3. maximum"),
+                new MetricDatumQueryProjection(name, "p10", "4. p10"),
+                new MetricDatumQueryProjection(name, "p50", "5. p50"),
+                new MetricDatumQueryProjection(name, "p90", "6. p90")
+        );
 
         displayMetrics(metricsViewer.queryLast(queryProjections));
     }
 
     private static void displayMetrics_Avg(final MetricsViewer metricsViewer, final String name, final String averageDisplayText) {
-        List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "avg", String.format("1. %s", averageDisplayText)))
-                .build();
+        List<MetricDatumQueryProjection> queryProjections = List.of(new MetricDatumQueryProjection(name, "avg", String.format("1. %s", averageDisplayText)));
 
         displayMetrics(metricsViewer.queryLast(queryProjections));
     }
 
     private static void displayMetrics_Sum(final MetricsViewer metricsViewer, final String name) {
-        List<MetricDatumQueryProjection> queryProjections = ImmutableList.<MetricDatumQueryProjection>builder()
-                .add(new MetricDatumQueryProjection(name, "sum", "1. count"))
-                .build();
+        List<MetricDatumQueryProjection> queryProjections = List.of(new MetricDatumQueryProjection(name, "sum", "1. count"));
 
         displayMetrics(metricsViewer.queryLast(queryProjections));
     }

@@ -1,6 +1,5 @@
 package com.dipasquale.common.error;
 
-import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,11 +12,11 @@ public class IterableErrorHandlerTest {
     public void TEST_1() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<HandlerMock> items = ImmutableList.<HandlerMock>builder()
-                .add(new HandlerMock(data, 0, 3))
-                .add(new HandlerMock(data, 1, 2))
-                .add(new HandlerMock(data, 2, 1))
-                .build();
+        List<HandlerMock> items = List.of(
+                new HandlerMock(data, 0, 3),
+                new HandlerMock(data, 1, 2),
+                new HandlerMock(data, 2, 1)
+        );
 
         IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
 
@@ -31,11 +30,11 @@ public class IterableErrorHandlerTest {
     public void TEST_2() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<HandlerMock> items = ImmutableList.<HandlerMock>builder()
-                .add(new HandlerMock(data, 0, 3))
-                .add(new HandlerMock(data, -1, 2))
-                .add(new HandlerMock(data, 2, 1))
-                .build();
+        List<HandlerMock> items = List.of(
+                new HandlerMock(data, 0, 3),
+                new HandlerMock(data, -1, 2),
+                new HandlerMock(data, 2, 1)
+        );
 
         IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
 
@@ -45,12 +44,12 @@ public class IterableErrorHandlerTest {
             Assertions.assertEquals(ErrorComparator.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
-                    .suppressed(ImmutableList.<ErrorComparator>builder()
-                            .add(ErrorComparator.builder()
+                    .suppressed(List.of(
+                            ErrorComparator.builder()
                                     .type(ArrayIndexOutOfBoundsException.class)
                                     .message("Index -1 out of bounds for length 3")
-                                    .build())
-                            .build())
+                                    .build()
+                    ))
                     .build(), ErrorComparator.create(e));
         }
 
@@ -63,11 +62,11 @@ public class IterableErrorHandlerTest {
     public void TEST_3() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<HandlerMock> items = ImmutableList.<HandlerMock>builder()
-                .add(new HandlerMock(data, 0, 3))
-                .add(new HandlerMock(data, 1, 2))
-                .add(new HandlerMock(data, 2, 1))
-                .build();
+        List<HandlerMock> items = List.of(
+                new HandlerMock(data, 0, 3),
+                new HandlerMock(data, 1, 2),
+                new HandlerMock(data, 2, 1)
+        );
 
         IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
 
@@ -81,11 +80,11 @@ public class IterableErrorHandlerTest {
     public void TEST_4() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<HandlerMock> items = ImmutableList.<HandlerMock>builder()
-                .add(new HandlerMock(data, 0, 3))
-                .add(new HandlerMock(data, -1, 2))
-                .add(new HandlerMock(data, 2, 1))
-                .build();
+        List<HandlerMock> items = List.of(
+                new HandlerMock(data, 0, 3),
+                new HandlerMock(data, -1, 2),
+                new HandlerMock(data, 2, 1)
+        );
 
         IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
 
@@ -95,12 +94,12 @@ public class IterableErrorHandlerTest {
             Assertions.assertEquals(ErrorComparator.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
-                    .suppressed(ImmutableList.<ErrorComparator>builder()
-                            .add(ErrorComparator.builder()
+                    .suppressed(List.of(
+                            ErrorComparator.builder()
                                     .type(ArrayIndexOutOfBoundsException.class)
                                     .message("Index -1 out of bounds for length 3")
-                                    .build())
-                            .build())
+                                    .build()
+                    ))
                     .build(), ErrorComparator.create(e));
         }
 

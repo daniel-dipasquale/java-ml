@@ -2,11 +2,12 @@ package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.error.ErrorComparator;
 import com.dipasquale.data.structure.collection.CollectionAsserter;
-import com.google.common.collect.ImmutableList;
+import com.dipasquale.data.structure.collection.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public final class SimpleNodeDequeTest { // TODO: redo these test cases
@@ -279,12 +280,7 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
         Assertions.assertTrue(TEST.add(node3));
-
-        Assertions.assertEquals(ImmutableList.builder()
-                .add(node1)
-                .add(node2)
-                .add(node3)
-                .build(), ImmutableList.copyOf(TEST));
+        Assertions.assertEquals(List.of(node1, node2, node3), List.copyOf(TEST));
     }
 
     @Test
@@ -296,12 +292,7 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
         Assertions.assertTrue(TEST.add(node3));
-
-        Assertions.assertEquals(ImmutableList.builder()
-                .add(node3)
-                .add(node2)
-                .add(node1)
-                .build(), ImmutableList.copyOf(TEST::descendingIterator));
+        Assertions.assertEquals(List.of(node3, node2, node1), Lists.copyOf(TEST.descendingIterator()));
     }
 
     @Test

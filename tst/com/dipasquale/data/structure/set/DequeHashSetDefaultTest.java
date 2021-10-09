@@ -1,10 +1,12 @@
 package com.dipasquale.data.structure.set;
 
 import com.dipasquale.data.structure.collection.CollectionAsserter;
-import com.google.common.collect.ImmutableList;
+import com.dipasquale.data.structure.collection.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 public final class DequeHashSetDefaultTest { // TODO: redo these test cases
     private static final DequeHashSet<String> TEST = new DequeHashSet<>();
@@ -86,12 +88,7 @@ public final class DequeHashSetDefaultTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add("item-1"));
         Assertions.assertTrue(TEST.add("item-2"));
         Assertions.assertTrue(TEST.add("item-3"));
-
-        Assertions.assertEquals(ImmutableList.builder()
-                .add("item-1")
-                .add("item-2")
-                .add("item-3")
-                .build(), ImmutableList.copyOf(TEST));
+        Assertions.assertEquals(List.of("item-1", "item-2", "item-3"), List.copyOf(TEST));
     }
 
     @Test
@@ -101,12 +98,7 @@ public final class DequeHashSetDefaultTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add("item-3"));
         Assertions.assertTrue(TEST.remove("item-2"));
         Assertions.assertTrue(TEST.add("item-2"));
-
-        Assertions.assertEquals(ImmutableList.builder()
-                .add("item-1")
-                .add("item-3")
-                .add("item-2")
-                .build(), ImmutableList.copyOf(TEST));
+        Assertions.assertEquals(List.of("item-1", "item-3", "item-2"), List.copyOf(TEST));
     }
 
     @Test
@@ -114,12 +106,7 @@ public final class DequeHashSetDefaultTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add("item-1"));
         Assertions.assertTrue(TEST.add("item-2"));
         Assertions.assertTrue(TEST.add("item-3"));
-
-        Assertions.assertEquals(ImmutableList.builder()
-                .add("item-3")
-                .add("item-2")
-                .add("item-1")
-                .build(), ImmutableList.copyOf(TEST::descendingIterator));
+        Assertions.assertEquals(List.of("item-3", "item-2", "item-1"), Lists.copyOf(TEST.descendingIterator()));
     }
 
     @Test
@@ -129,12 +116,7 @@ public final class DequeHashSetDefaultTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add("item-3"));
         Assertions.assertTrue(TEST.remove("item-2"));
         Assertions.assertTrue(TEST.add("item-2"));
-
-        Assertions.assertEquals(ImmutableList.builder()
-                .add("item-2")
-                .add("item-3")
-                .add("item-1")
-                .build(), ImmutableList.copyOf(TEST::descendingIterator));
+        Assertions.assertEquals(List.of("item-2", "item-3", "item-1"), Lists.copyOf(TEST.descendingIterator()));
     }
 
     @Test

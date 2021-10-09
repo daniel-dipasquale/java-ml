@@ -1,7 +1,6 @@
 package com.dipasquale.synchronization.wait.handle;
 
 import com.dipasquale.common.time.DateTimeSupport;
-import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -29,25 +28,25 @@ public final class MultiWaitHandle implements WaitHandle {
     }
 
     private static Map<TimeUnitConversionKey, UnitConverter> createTimeUnitConverters() {
-        List<TimeUnit> timeUnits = ImmutableList.<TimeUnit>builder()
-                .add(TimeUnit.NANOSECONDS)
-                .add(TimeUnit.MICROSECONDS)
-                .add(TimeUnit.MILLISECONDS)
-                .add(TimeUnit.SECONDS)
-                .add(TimeUnit.MINUTES)
-                .add(TimeUnit.HOURS)
-                .add(TimeUnit.DAYS)
-                .build();
+        List<TimeUnit> timeUnits = List.of(
+                TimeUnit.NANOSECONDS,
+                TimeUnit.MICROSECONDS,
+                TimeUnit.MILLISECONDS,
+                TimeUnit.SECONDS,
+                TimeUnit.MINUTES,
+                TimeUnit.HOURS,
+                TimeUnit.DAYS
+        );
 
-        List<Unit<Duration>> units = ImmutableList.<Unit<Duration>>builder()
-                .add(SI.NANO(SI.SECOND))
-                .add(SI.MICRO(SI.SECOND))
-                .add(SI.MILLI(SI.SECOND))
-                .add(SI.SECOND)
-                .add(NonSI.MINUTE)
-                .add(NonSI.HOUR)
-                .add(NonSI.DAY)
-                .build();
+        List<Unit<Duration>> units = List.of(
+                SI.NANO(SI.SECOND),
+                SI.MICRO(SI.SECOND),
+                SI.MILLI(SI.SECOND),
+                SI.SECOND,
+                NonSI.MINUTE,
+                NonSI.HOUR,
+                NonSI.DAY
+        );
 
         Map<TimeUnitConversionKey, UnitConverter> timeUnitConverters = new HashMap<>(timeUnits.size() * units.size());
 

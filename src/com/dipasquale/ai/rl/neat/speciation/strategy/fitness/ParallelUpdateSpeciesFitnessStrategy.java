@@ -9,7 +9,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnessStrategy, Serializable {
@@ -22,10 +23,10 @@ public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnes
 
     @Override
     public void update(final SpeciesFitnessContext context) {
-        Iterator<OrganismClassification> organisms = context.getSpeciesNodes().flattenedStream()
+        List<OrganismClassification> organisms = context.getSpeciesNodes().flattenedStream()
                 .flatMap(s -> s.getOrganisms().stream()
                         .map(o -> new OrganismClassification(o, s)))
-                .iterator();
+                .collect(Collectors.toList());
 
         WaitHandle waitHandle = context.getParent().parallelism().forEach(organisms, oc -> updateFitness(oc, context.getParent()));
 

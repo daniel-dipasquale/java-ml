@@ -6,7 +6,6 @@ import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.DefaultLongCounter;
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -56,51 +55,45 @@ public final class NeuronNavigatorTest {
     [ 4 ] => []
      */
     private static List<Neuron> createFeedForwardNetwork() {
-        List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
+        List<NodeGene> nodes = createNodes(List.of(0f, 1f, 2f), List.of(3f), List.of(), List.of(4f));
 
-        return ImmutableList.<Neuron>builder()
-                .add(Neuron.builder()
+        return List.of(
+                Neuron.builder()
                         .node(nodes.get(0))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(
+                                new OutputConnection(nodes.get(3).getId(), 1f),
+                                new OutputConnection(nodes.get(4).getId(), 1f)
+                        ))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(1))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(new OutputConnection(nodes.get(4).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(2))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(new OutputConnection(nodes.get(3).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(3))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(0).getId(), 1))
-                                .add(new InputConnection(nodes.get(2).getId(), 1))
-                                .add(new InputConnection(nodes.get(4).getId(), 1))
-                                .build())
-                        .outputs(ImmutableList.of())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of(
+                                new InputConnection(nodes.get(0).getId(), 1),
+                                new InputConnection(nodes.get(2).getId(), 1),
+                                new InputConnection(nodes.get(4).getId(), 1)
+                        ))
+                        .outputs(List.of())
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(4))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(0).getId(), 1))
-                                .add(new InputConnection(nodes.get(1).getId(), 1))
-                                .build())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .build())
-                        .build())
-                .build();
+                        .inputs(List.of(
+                                new InputConnection(nodes.get(0).getId(), 1),
+                                new InputConnection(nodes.get(1).getId(), 1)
+                        ))
+                        .outputs(List.of(new OutputConnection(nodes.get(3).getId(), 1f)))
+                        .build()
+        );
     }
 
     /*
@@ -111,53 +104,49 @@ public final class NeuronNavigatorTest {
     [ 4 ] => []
      */
     private static List<Neuron> createRecurrentReflexiveNetwork() {
-        List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
+        List<NodeGene> nodes = createNodes(List.of(0f, 1f, 2f), List.of(3f), List.of(), List.of(4f));
 
-        return ImmutableList.<Neuron>builder()
-                .add(Neuron.builder()
+        return List.of(
+                Neuron.builder()
                         .node(nodes.get(0))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(
+                                new OutputConnection(nodes.get(3).getId(), 1f),
+                                new OutputConnection(nodes.get(4).getId(), 1f)
+                        ))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(1))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(new OutputConnection(nodes.get(4).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(2))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(new OutputConnection(nodes.get(3).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(3))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(0).getId(), 1))
-                                .add(new InputConnection(nodes.get(2).getId(), 1))
-                                .add(new InputConnection(nodes.get(4).getId(), 1))
-                                .build())
-                        .outputs(ImmutableList.of())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of(
+                                new InputConnection(nodes.get(0).getId(), 1),
+                                new InputConnection(nodes.get(2).getId(), 1),
+                                new InputConnection(nodes.get(4).getId(), 1)
+                        ))
+                        .outputs(List.of())
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(4))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(0).getId(), 1))
-                                .add(new InputConnection(nodes.get(1).getId(), 1))
-                                .add(new InputConnection(nodes.get(4).getId(), 1)) // recurrent
-                                .build())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .build();
+                        .inputs(List.of(
+                                new InputConnection(nodes.get(0).getId(), 1),
+                                new InputConnection(nodes.get(1).getId(), 1),
+                                new InputConnection(nodes.get(4).getId(), 1) // recurrent
+                        ))
+                        .outputs(List.of(
+                                new OutputConnection(nodes.get(3).getId(), 1f),
+                                new OutputConnection(nodes.get(4).getId(), 1f)
+                        ))
+                        .build()
+        );
     }
 
     /*
@@ -168,54 +157,46 @@ public final class NeuronNavigatorTest {
     [ 4 ] => [ 5 ]
      */
     private static List<Neuron> createRecurrentSymmetricNetwork() {
-        List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f, 2f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f));
+        List<NodeGene> nodes = createNodes(List.of(0f, 1f, 2f), List.of(3f), List.of(), List.of(4f));
 
-        return ImmutableList.<Neuron>builder()
-                .add(Neuron.builder()
+        return List.of(
+                Neuron.builder()
                         .node(nodes.get(0))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(
+                                new OutputConnection(nodes.get(3).getId(), 1f),
+                                new OutputConnection(nodes.get(4).getId(), 1f)
+                        ))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(1))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(new OutputConnection(nodes.get(4).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(2))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(new OutputConnection(nodes.get(3).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(3))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(0).getId(), 1))
-                                .add(new InputConnection(nodes.get(2).getId(), 1))
-                                .add(new InputConnection(nodes.get(4).getId(), 1))
-                                .build())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of(
+                                new InputConnection(nodes.get(0).getId(), 1),
+                                new InputConnection(nodes.get(2).getId(), 1),
+                                new InputConnection(nodes.get(4).getId(), 1)
+                        ))
+                        .outputs(List.of(new OutputConnection(nodes.get(4).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(4))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(0).getId(), 1))
-                                .add(new InputConnection(nodes.get(1).getId(), 1))
-                                .add(new InputConnection(nodes.get(3).getId(), 1)) // recurrent
-                                .build())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .build())
-                        .build())
-                .build();
+                        .inputs(List.of(
+                                new InputConnection(nodes.get(0).getId(), 1),
+                                new InputConnection(nodes.get(1).getId(), 1),
+                                new InputConnection(nodes.get(3).getId(), 1) // recurrent
+                        ))
+                        .outputs(List.of(new OutputConnection(nodes.get(3).getId(), 1f)))
+                        .build()
+        );
     }
 
     /*
@@ -226,53 +207,41 @@ public final class NeuronNavigatorTest {
     [ 3 ] => [ 5 ]
      */
     private static List<Neuron> createRecurrentTransitiveNetwork() {
-        List<NodeGene> nodes = createNodes(ImmutableList.of(0f, 1f), ImmutableList.of(3f), ImmutableList.of(), ImmutableList.of(4f, 5f));
+        List<NodeGene> nodes = createNodes(List.of(0f, 1f), List.of(3f), List.of(), List.of(4f, 5f));
 
-        return ImmutableList.<Neuron>builder()
-                .add(Neuron.builder()
+        return List.of(
+                Neuron.builder()
                         .node(nodes.get(0))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(new OutputConnection(nodes.get(3).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(1))
-                        .inputs(ImmutableList.of())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of())
+                        .outputs(List.of(new OutputConnection(nodes.get(4).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(2))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(3).getId(), 1))
-                                .build())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(4).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of(new InputConnection(nodes.get(3).getId(), 1)))
+                        .outputs(List.of(new OutputConnection(nodes.get(4).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(3))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(0).getId(), 1))
-                                .add(new InputConnection(nodes.get(4).getId(), 1))
-                                .build())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(2).getId(), 1f))
-                                .build())
-                        .build())
-                .add(Neuron.builder()
+                        .inputs(List.of(
+                                new InputConnection(nodes.get(0).getId(), 1),
+                                new InputConnection(nodes.get(4).getId(), 1)
+                        ))
+                        .outputs(List.of(new OutputConnection(nodes.get(2).getId(), 1f)))
+                        .build(),
+                Neuron.builder()
                         .node(nodes.get(4))
-                        .inputs(ImmutableList.<InputConnection>builder()
-                                .add(new InputConnection(nodes.get(1).getId(), 1))
-                                .add(new InputConnection(nodes.get(2).getId(), 1)) // recursive
-                                .build())
-                        .outputs(ImmutableList.<OutputConnection>builder()
-                                .add(new OutputConnection(nodes.get(3).getId(), 1f))
-                                .build())
-                        .build())
-                .build();
+                        .inputs(List.of(
+                                new InputConnection(nodes.get(1).getId(), 1),
+                                new InputConnection(nodes.get(2).getId(), 1) // recursive
+                        ))
+                        .outputs(List.of(new OutputConnection(nodes.get(3).getId(), 1f)))
+                        .build()
+        );
     }
 
     @Test
@@ -286,12 +255,12 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
-                .add(neurons.get(1).getId())
-                .add(neurons.get(0).getId())
-                .add(neurons.get(4).getId())
-                .add(neurons.get(2).getId())
-                .build(), result);
+        Assertions.assertEquals(List.of(
+                neurons.get(1).getId(),
+                neurons.get(0).getId(),
+                neurons.get(4).getId(),
+                neurons.get(2).getId()
+        ), result);
     }
 
     @Test
@@ -305,12 +274,12 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
-                .add(neurons.get(1).getId())
-                .add(neurons.get(0).getId())
-                .add(neurons.get(4).getId())
-                .add(neurons.get(2).getId())
-                .build(), result);
+        Assertions.assertEquals(List.of(
+                neurons.get(1).getId(),
+                neurons.get(0).getId(),
+                neurons.get(4).getId(),
+                neurons.get(2).getId()
+        ), result);
     }
 
     @Test
@@ -324,12 +293,12 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
-                .add(neurons.get(1).getId())
-                .add(neurons.get(0).getId())
-                .add(neurons.get(4).getId())
-                .add(neurons.get(2).getId())
-                .build(), result);
+        Assertions.assertEquals(List.of(
+                neurons.get(1).getId(),
+                neurons.get(0).getId(),
+                neurons.get(4).getId(),
+                neurons.get(2).getId()
+        ), result);
     }
 
     @Test
@@ -343,12 +312,12 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
-                .add(neurons.get(1).getId())
-                .add(neurons.get(4).getId())
-                .add(neurons.get(0).getId())
-                .add(neurons.get(3).getId())
-                .build(), result);
+        Assertions.assertEquals(List.of(
+                neurons.get(1).getId(),
+                neurons.get(4).getId(),
+                neurons.get(0).getId(),
+                neurons.get(3).getId()
+        ), result);
     }
 
     @Test
@@ -362,12 +331,12 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
-                .add(neurons.get(1).getId())
-                .add(neurons.get(0).getId())
-                .add(neurons.get(4).getId())
-                .add(neurons.get(2).getId())
-                .build(), result);
+        Assertions.assertEquals(List.of(
+                neurons.get(1).getId(),
+                neurons.get(0).getId(),
+                neurons.get(4).getId(),
+                neurons.get(2).getId()
+        ), result);
     }
 
     @Test
@@ -381,13 +350,13 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
-                .add(neurons.get(4).getId())
-                .add(neurons.get(1).getId())
-                .add(neurons.get(0).getId())
-                .add(neurons.get(4).getId())
-                .add(neurons.get(2).getId())
-                .build(), result);
+        Assertions.assertEquals(List.of(
+                neurons.get(4).getId(),
+                neurons.get(1).getId(),
+                neurons.get(0).getId(),
+                neurons.get(4).getId(),
+                neurons.get(2).getId()
+        ), result);
     }
 
     @Test
@@ -401,13 +370,13 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
-                .add(neurons.get(3).getId())
-                .add(neurons.get(1).getId())
-                .add(neurons.get(0).getId())
-                .add(neurons.get(4).getId())
-                .add(neurons.get(2).getId())
-                .build(), result);
+        Assertions.assertEquals(List.of(
+                neurons.get(3).getId(),
+                neurons.get(1).getId(),
+                neurons.get(0).getId(),
+                neurons.get(4).getId(),
+                neurons.get(2).getId()
+        ), result);
     }
 
     @Test
@@ -421,12 +390,12 @@ public final class NeuronNavigatorTest {
                 .map(Neuron::getId)
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(ImmutableList.<SequentialId>builder()
-                .add(neurons.get(2).getId())
-                .add(neurons.get(1).getId())
-                .add(neurons.get(4).getId())
-                .add(neurons.get(0).getId())
-                .add(neurons.get(3).getId())
-                .build(), result);
+        Assertions.assertEquals(List.of(
+                neurons.get(2).getId(),
+                neurons.get(1).getId(),
+                neurons.get(4).getId(),
+                neurons.get(0).getId(),
+                neurons.get(3).getId()
+        ), result);
     }
 }

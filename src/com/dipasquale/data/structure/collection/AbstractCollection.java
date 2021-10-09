@@ -1,7 +1,6 @@
 package com.dipasquale.data.structure.collection;
 
 import com.dipasquale.data.structure.iterator.ZipIterator;
-import com.google.common.collect.ImmutableList;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -138,11 +137,7 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
             return false;
         }
 
-        List<Iterator<T>> iterators = ImmutableList.<Iterator<T>>builder()
-                .add(iterator())
-                .add(other.iterator())
-                .build();
-
+        List<Iterator<T>> iterators = List.of(iterator(), other.iterator());
         ZipIterator<T> iterator = new ZipIterator<>(iterators);
 
         while (iterator.hasNext()) {

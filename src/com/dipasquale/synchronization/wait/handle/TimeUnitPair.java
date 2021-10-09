@@ -1,6 +1,5 @@
 package com.dipasquale.synchronization.wait.handle;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -16,16 +15,16 @@ import java.util.concurrent.TimeUnit;
 @Getter
 @EqualsAndHashCode
 @ToString
-final class TimeUnitPair implements Comparable<TimeUnitPair> { // TODO: remove this class when the multi wait handle test case is reworked
-    private static final Map<TimeUnit, Integer> WEIGHTS = ImmutableMap.<TimeUnit, Integer>builder()
-            .put(TimeUnit.NANOSECONDS, 0)
-            .put(TimeUnit.MICROSECONDS, 1)
-            .put(TimeUnit.MILLISECONDS, 2)
-            .put(TimeUnit.SECONDS, 3)
-            .put(TimeUnit.MINUTES, 4)
-            .put(TimeUnit.HOURS, 5)
-            .put(TimeUnit.DAYS, 6)
-            .build();
+final class TimeUnitPair implements Comparable<TimeUnitPair> {
+    private static final Map<TimeUnit, Integer> WEIGHTS = Map.ofEntries(
+            Map.entry(TimeUnit.NANOSECONDS, 0),
+            Map.entry(TimeUnit.MICROSECONDS, 1),
+            Map.entry(TimeUnit.MILLISECONDS, 2),
+            Map.entry(TimeUnit.SECONDS, 3),
+            Map.entry(TimeUnit.MINUTES, 4),
+            Map.entry(TimeUnit.HOURS, 5),
+            Map.entry(TimeUnit.DAYS, 6)
+    );
 
     private final long time;
     private final TimeUnit unit;

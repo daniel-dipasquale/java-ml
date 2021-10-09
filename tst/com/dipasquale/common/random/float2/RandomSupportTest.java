@@ -1,6 +1,6 @@
 package com.dipasquale.common.random.float2;
 
-import com.google.common.util.concurrent.AtomicDouble;
+import com.dipasquale.common.concurrent.AtomicDouble;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class RandomSupportTest {
     private static final double MAXIMUM_VALUE = Double.longBitsToDouble(Double.doubleToRawLongBits(1D) - 1L);
-    private static final AtomicDouble RANDOM_SEED = new AtomicDouble();
+    private static final AtomicDouble RANDOM_SEED = new AtomicDouble(0D);
     private static final RandomSupport TEST = RANDOM_SEED::get;
     private static final int RANDOM_TEST_COUNT = 1_000_000;
 

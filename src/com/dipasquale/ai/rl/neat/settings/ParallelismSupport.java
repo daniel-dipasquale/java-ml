@@ -37,7 +37,7 @@ public final class ParallelismSupport {
     }
 
     private static int getMaximumConcurrencyLevel(final IterableEventLoop eventLoop) {
-        return Math.max(getConcurrencyLevel(eventLoop), Runtime.getRuntime().availableProcessors());
+        return Math.max(getConcurrencyLevel(eventLoop), Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
     }
 
     public boolean isEnabled() {

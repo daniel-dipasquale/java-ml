@@ -9,11 +9,12 @@ import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
-import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,13 +26,13 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
     private static Map<RandomType, DualModeRandomSupport> createRandomSupports(final ParallelismSupport parallelismSupport) {
         DualModeRandomSupportFactory randomSupportFactory = DualModeRandomSupportFactory.getInstance();
         int concurrencyLevel = parallelismSupport.getConcurrencyLevel();
-        ImmutableMap.Builder<RandomType, DualModeRandomSupport> randomSupportsBuilder = ImmutableMap.builder();
+        Map<RandomType, DualModeRandomSupport> randomSupports = new EnumMap<>(RandomType.class);
 
         for (RandomType type : RandomType.values()) {
-            randomSupportsBuilder.put(type, randomSupportFactory.create(concurrencyLevel, type));
+            randomSupports.put(type, randomSupportFactory.create(concurrencyLevel, type));
         }
 
-        return randomSupportsBuilder.build();
+        return Collections.unmodifiableMap(randomSupports);
     }
 
     public static DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport, final RandomSupport randomSupport) {

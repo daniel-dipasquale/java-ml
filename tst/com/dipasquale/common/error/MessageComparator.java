@@ -3,8 +3,8 @@ package com.dipasquale.common.error;
 import lombok.AccessLevel;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -46,10 +46,10 @@ final class MessageComparator {
                     .map(Pattern::pattern)
                     .orElse(null);
 
-            return StringUtils.equals(pattern1, pattern2);
+            return Objects.equals(pattern1, pattern2);
         }
 
-        return StringUtils.equals(value, other.value);
+        return Objects.equals(value, other.value);
     }
 
     @Override

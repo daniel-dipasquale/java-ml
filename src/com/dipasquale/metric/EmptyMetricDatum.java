@@ -1,6 +1,5 @@
 package com.dipasquale.metric;
 
-import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ final class EmptyMetricDatum implements MetricDatum, Serializable {
     @Serial
     private static final long serialVersionUID = 1989155526580797128L;
     private static final EmptyMetricDatum INSTANCE = new EmptyMetricDatum();
-    private final List<Float> values = ImmutableList.of();
+    private final List<Float> values = List.of();
     private final Float sum = null;
     private final Float minimum = null;
     private final Float maximum = null;

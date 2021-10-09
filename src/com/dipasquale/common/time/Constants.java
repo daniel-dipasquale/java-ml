@@ -1,6 +1,5 @@
 package com.dipasquale.common.time;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.Generated;
 
 import javax.measure.quantity.Duration;
@@ -41,14 +40,14 @@ final class Constants {
     }
 
     private static Map<Unit<Duration>, TimeUnit> createUnits() {
-        return ImmutableMap.<Unit<Duration>, TimeUnit>builder()
-                .put(SI.NANO(SI.SECOND), TimeUnit.NANOSECONDS)
-                .put(SI.MICRO(SI.SECOND), TimeUnit.MICROSECONDS)
-                .put(SI.MILLI(SI.SECOND), TimeUnit.MILLISECONDS)
-                .put(SI.SECOND, TimeUnit.SECONDS)
-                .put(NonSI.MINUTE, TimeUnit.MINUTES)
-                .put(NonSI.HOUR, TimeUnit.HOURS)
-                .put(NonSI.DAY, TimeUnit.DAYS)
-                .build();
+        return Map.ofEntries(
+                Map.entry(SI.NANO(SI.SECOND), TimeUnit.NANOSECONDS),
+                Map.entry(SI.MICRO(SI.SECOND), TimeUnit.MICROSECONDS),
+                Map.entry(SI.MILLI(SI.SECOND), TimeUnit.MILLISECONDS),
+                Map.entry(SI.SECOND, TimeUnit.SECONDS),
+                Map.entry(NonSI.MINUTE, TimeUnit.MINUTES),
+                Map.entry(NonSI.HOUR, TimeUnit.HOURS),
+                Map.entry(NonSI.DAY, TimeUnit.DAYS)
+        );
     }
 }

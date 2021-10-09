@@ -15,7 +15,7 @@ import com.dipasquale.ai.rl.neat.speciation.metric.NoopMetricsCollector;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.metric.DualModeMetricsContainer;
 import com.dipasquale.common.serialization.SerializableStateGroup;
-import com.dipasquale.data.structure.map.TandemMap;
+import com.dipasquale.data.structure.map.UnionMap;
 import com.dipasquale.metric.EmptyValuesMetricDatumFactory;
 import com.dipasquale.metric.LazyValuesMetricDatumFactory;
 import com.dipasquale.metric.MetricDatumFactory;
@@ -137,7 +137,7 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
     private IterationMetrics mergeIterationsMetrics() {
         Map<Integer, GenerationMetrics> currentGenerations = createMap(generation.current(), metricsContainer.getGenerationMetrics());
         Map<Integer, GenerationMetrics> previousGenerations = metricsContainer.getIterationMetrics().getGenerations();
-        Map<Integer, GenerationMetrics> generations = new TandemMap<>(currentGenerations, previousGenerations);
+        Map<Integer, GenerationMetrics> generations = new UnionMap<>(currentGenerations, previousGenerations);
 
         return new IterationMetrics(generations);
     }
@@ -145,7 +145,7 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
     @Override
     public MetricsViewer createMetricsViewer() {
         Map<Integer, IterationMetrics> currentIterations = createMap(iteration.current(), mergeIterationsMetrics());
-        Map<Integer, IterationMetrics> metricsFixed = new TandemMap<>(currentIterations, metrics);
+        Map<Integer, IterationMetrics> metricsFixed = new UnionMap<>(currentIterations, metrics);
 
         return new MetricsViewer(metricsFixed, metricDatumFactory);
     }

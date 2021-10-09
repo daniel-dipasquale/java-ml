@@ -1,6 +1,5 @@
 package com.dipasquale.data.structure.collection;
 
-import com.google.common.collect.ImmutableList;
 import lombok.Generated;
 
 import java.util.Collection;
@@ -22,47 +21,38 @@ final class ContainsAllAsserter<T> extends AsserterBase<T> {
     }
 
     private void assertNoneExist(final List<T> items) {
-        List<T> itemsToCompare = ImmutableList.<T>builder()
-                .add(itemFactory.apply(5))
-                .add(itemFactory.apply(6))
-                .build();
+        List<T> itemsToCompare = List.of(itemFactory.apply(5), itemFactory.apply(6));
 
         equalsAsserter.assertEquals(false, collection.containsAll(itemsToCompare));
-        equalsAsserter.assertEquals(items, ImmutableList.copyOf(collection));
+        equalsAsserter.assertEquals(items, List.copyOf(collection));
     }
 
     private void assertSomeExist(final List<T> items) {
-        List<T> itemsToCompare = ImmutableList.<T>builder()
-                .add(items.get(0))
-                .add(itemFactory.apply(5))
-                .build();
+        List<T> itemsToCompare = List.of(items.get(0), itemFactory.apply(5));
 
         equalsAsserter.assertEquals(false, collection.containsAll(itemsToCompare));
-        equalsAsserter.assertEquals(items, ImmutableList.copyOf(collection));
+        equalsAsserter.assertEquals(items, List.copyOf(collection));
     }
 
     private void assertSubsetExist(final List<T> items) {
-        List<T> itemsToCompare = ImmutableList.<T>builder()
-                .add(items.get(1))
-                .add(items.get(2))
-                .build();
+        List<T> itemsToCompare = List.of(items.get(1), items.get(2));
 
         equalsAsserter.assertEquals(true, collection.containsAll(itemsToCompare));
-        equalsAsserter.assertEquals(items, ImmutableList.copyOf(collection));
+        equalsAsserter.assertEquals(items, List.copyOf(collection));
     }
 
     private void assertAllExist(final List<T> items) {
         equalsAsserter.assertEquals(true, collection.containsAll(items));
-        equalsAsserter.assertEquals(items, ImmutableList.copyOf(collection));
+        equalsAsserter.assertEquals(items, List.copyOf(collection));
     }
 
     @Override
     protected List<TestCaseCollection<T>> createTestCases() {
-        return ImmutableList.<TestCaseCollection<T>>builder()
-                .add(TestCaseCollection.create(this::assertNoneExist, true))
-                .add(TestCaseCollection.create(this::assertSomeExist, true))
-                .add(TestCaseCollection.create(this::assertSubsetExist, true))
-                .add(TestCaseCollection.create(this::assertAllExist, true))
-                .build();
+        return List.of(
+                TestCaseCollection.create(this::assertNoneExist, true),
+                TestCaseCollection.create(this::assertSomeExist, true),
+                TestCaseCollection.create(this::assertSubsetExist, true),
+                TestCaseCollection.create(this::assertAllExist, true)
+        );
     }
 }

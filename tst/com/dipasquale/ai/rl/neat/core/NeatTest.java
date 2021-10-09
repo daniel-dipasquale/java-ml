@@ -164,7 +164,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
     @Order(1)
     public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
@@ -175,7 +175,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
     @Order(2)
     public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
@@ -186,7 +186,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
     @Order(3)
     public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
@@ -197,7 +197,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
     @Order(4)
     public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
@@ -208,7 +208,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
     @Order(6)
     public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
@@ -219,7 +219,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 2, unit = TimeUnit.MINUTES)
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
     @Order(8)
     public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()

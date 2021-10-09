@@ -4,7 +4,6 @@ import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.genotype.AllToAllOutputsGenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
-import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +21,7 @@ public final class GenesisGenomeTemplate {
     private final IntegerNumber inputs;
     private final IntegerNumber outputs;
     @Builder.Default
-    private final List<FloatNumber> biases = ImmutableList.of();
+    private final List<FloatNumber> biases = List.of();
     @Builder.Default
     private final InitialConnectionType initialConnectionType = InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS;
     @Builder.Default

@@ -7,9 +7,8 @@ import com.dipasquale.ai.rl.neat.speciation.organism.MutateSingleOrganismFactory
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
 import com.dipasquale.common.Pair;
+import com.dipasquale.data.structure.collection.Lists;
 import com.dipasquale.data.structure.set.DequeSet;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -43,9 +42,7 @@ public final class Species implements Serializable {
 
     Species(final String id, final Organism representativeOrganism, final PopulationState populationState) {
         this.id = id;
-        this.representativeOrganism = representativeOrganism;
-        this.setOrganisms(Lists.newArrayList(representativeOrganism));
-        this.organismsSorted = true;
+        this.initializeOrganisms(representativeOrganism);
         this.populationState = populationState;
         this.sharedFitness = 0f;
         this.maximumSharedFitness = 0f;
@@ -64,6 +61,12 @@ public final class Species implements Serializable {
     private void setOrganisms(final List<Organism> value) {
         organisms = value;
         organismsReadOnly = Collections.unmodifiableList(value);
+    }
+
+    private void initializeOrganisms(final Organism organism) {
+        representativeOrganism = organism;
+        setOrganisms(Lists.create(organism));
+        organismsSorted = true;
     }
 
     public void add(final Organism organism) {
@@ -131,7 +134,7 @@ public final class Species implements Serializable {
             }
         }
 
-        return ImmutableList.of();
+        return List.of();
     }
 
     public List<OrganismFactory> reproduce(final Context context, final int count) {
@@ -187,7 +190,7 @@ public final class Species implements Serializable {
         int select = speciationSupport.params().elitesToPreserve(size, includeRepresentative);
 
         if (select == 0) {
-            return ImmutableList.of();
+            return List.of();
         }
 
         return ensureOrganismsIsSorted().subList(size - select, size);
@@ -217,9 +220,7 @@ public final class Species implements Serializable {
         int index = randomSupport.generateIndex(organismsFixed.size());
         Organism representativeOrganismFixed = organismsFixed.remove(index);
 
-        representativeOrganism = representativeOrganismFixed;
-        setOrganisms(Lists.newArrayList(representativeOrganismFixed));
-        organismsSorted = true;
+        initializeOrganisms(representativeOrganismFixed);
         sharedFitness = 0f;
 
         return organismsFixed;

@@ -3,7 +3,6 @@ package com.dipasquale.ai.rl.neat.speciation.metric;
 import com.dipasquale.common.Record;
 import com.dipasquale.metric.MetricDatumFactory;
 import com.dipasquale.metric.MetricDatumQueryProjection;
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
@@ -26,13 +25,13 @@ public final class MetricsViewer {
 
     private Iterable<Record<Float, GenerationMetrics>> createGenerationRecords(final Integer iteration) {
         if (iteration == null) {
-            return ImmutableList.of();
+            return List.of();
         }
 
         IterationMetrics iterationMetrics = all.get(iteration);
 
         if (iterationMetrics == null) {
-            return ImmutableList.of();
+            return List.of();
         }
 
         return createGenerationRecords(iterationMetrics.getGenerations());

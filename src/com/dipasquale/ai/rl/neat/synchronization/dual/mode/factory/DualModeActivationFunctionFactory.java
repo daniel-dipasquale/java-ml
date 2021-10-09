@@ -12,8 +12,6 @@ import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -24,15 +22,15 @@ public final class DualModeActivationFunctionFactory<T extends EnumFactory<Activ
     @Serial
     private static final long serialVersionUID = -6589751898445384359L;
 
-    private static final Map<ActivationFunctionType, ActivationFunction> ACTIVATION_FUNCTIONS_MAP = ImmutableMap.<ActivationFunctionType, ActivationFunction>builder()
-            .put(ActivationFunctionType.IDENTITY, IdentityActivationFunction.getInstance())
-            .put(ActivationFunctionType.RE_LU, ReLUActivationFunction.getInstance())
-            .put(ActivationFunctionType.SIGMOID, SigmoidActivationFunction.getInstance())
-            .put(ActivationFunctionType.TAN_H, TanHActivationFunction.getInstance())
-            .put(ActivationFunctionType.STEP, StepActivationFunction.getInstance())
-            .build();
+    private static final Map<ActivationFunctionType, ActivationFunction> ACTIVATION_FUNCTIONS_MAP = Map.ofEntries(
+            Map.entry(ActivationFunctionType.IDENTITY, IdentityActivationFunction.getInstance()),
+            Map.entry(ActivationFunctionType.RE_LU, ReLUActivationFunction.getInstance()),
+            Map.entry(ActivationFunctionType.SIGMOID, SigmoidActivationFunction.getInstance()),
+            Map.entry(ActivationFunctionType.TAN_H, TanHActivationFunction.getInstance()),
+            Map.entry(ActivationFunctionType.STEP, StepActivationFunction.getInstance())
+    );
 
-    private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = ImmutableList.copyOf(ACTIVATION_FUNCTIONS_MAP.values());
+    private static final List<ActivationFunction> ACTIVATION_FUNCTIONS = List.copyOf(ACTIVATION_FUNCTIONS_MAP.values());
     private final T activationFunctionTypeFactory;
     private final DualModeRandomSupport randomSupport;
 

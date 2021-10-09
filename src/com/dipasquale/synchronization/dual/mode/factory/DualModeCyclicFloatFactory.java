@@ -3,7 +3,6 @@ package com.dipasquale.synchronization.dual.mode.factory;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeCyclicIntegerCounter;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.google.common.collect.ImmutableList;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,7 +15,7 @@ public final class DualModeCyclicFloatFactory<T extends FloatFactory & DualModeO
     private final DualModeCyclicIntegerCounter index;
 
     public DualModeCyclicFloatFactory(final int concurrencyLevel, final List<T> floatFactories, final int index) {
-        this.floatFactories = ImmutableList.copyOf(floatFactories);
+        this.floatFactories = List.copyOf(floatFactories);
         this.index = new DualModeCyclicIntegerCounter(concurrencyLevel, floatFactories.size(), -1, index);
     }
 

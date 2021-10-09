@@ -6,7 +6,6 @@ import com.dipasquale.metric.MetricDatumFactory;
 import com.dipasquale.metric.MetricDatumQueryProjection;
 import com.dipasquale.metric.MetricDatumSelector;
 import com.dipasquale.metric.MetricsQueryProjector;
-import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -23,18 +22,18 @@ public final class GenerationMetricsQueryProjector {
     private static Map<String, MetricDatumSelector<GenerationMetrics>> createSelectors(final MetricDatumFactory metricDatumFactory) {
         SpeciesTopologyMetricsAggregator speciesTopologyMetricsAggregator = new SpeciesTopologyMetricsAggregator(metricDatumFactory);
 
-        return ImmutableMap.<String, MetricDatumSelector<GenerationMetrics>>builder()
-                .put("organismsInSpecies", new CachedMetricsAggregator<>(new OrganismsInSpeciesMetricsAggregator(metricDatumFactory)))
-                .put("speciesTopology.hiddenNodes", speciesTopologyMetricsAggregator.getHiddenNodes())
-                .put("speciesTopology.connections", speciesTopologyMetricsAggregator.getConnections())
-                .put("organismsFitness", new CachedMetricsAggregator<>(new OrganismsFitnessMetricsAggregator(metricDatumFactory)))
-                .put("speciesSharedFitness", new CachedMetricsAggregator<>(new SharedFitnessMetricsAggregator(metricDatumFactory)))
-                .put("speciesAge", GenerationMetrics::getSpeciesAge)
-                .put("speciesStagnationPeriod", GenerationMetrics::getSpeciesStagnationPeriod)
-                .put("speciesStagnant", GenerationMetrics::getSpeciesStagnant)
-                .put("organismsKilled", new CachedMetricsAggregator<>(new OrganismsKilledMetricsAggregator(metricDatumFactory)))
-                .put("speciesExtinct", GenerationMetrics::getSpeciesExtinct)
-                .build();
+        return Map.ofEntries(
+                Map.entry("organismsInSpecies", new CachedMetricsAggregator<>(new OrganismsInSpeciesMetricsAggregator(metricDatumFactory))),
+                Map.entry("speciesTopology.hiddenNodes", speciesTopologyMetricsAggregator.getHiddenNodes()),
+                Map.entry("speciesTopology.connections", speciesTopologyMetricsAggregator.getConnections()),
+                Map.entry("organismsFitness", new CachedMetricsAggregator<>(new OrganismsFitnessMetricsAggregator(metricDatumFactory))),
+                Map.entry("speciesSharedFitness", new CachedMetricsAggregator<>(new SharedFitnessMetricsAggregator(metricDatumFactory))),
+                Map.entry("speciesAge", GenerationMetrics::getSpeciesAge),
+                Map.entry("speciesStagnationPeriod", GenerationMetrics::getSpeciesStagnationPeriod),
+                Map.entry("speciesStagnant", GenerationMetrics::getSpeciesStagnant),
+                Map.entry("organismsKilled", new CachedMetricsAggregator<>(new OrganismsKilledMetricsAggregator(metricDatumFactory))),
+                Map.entry("speciesExtinct", GenerationMetrics::getSpeciesExtinct)
+        );
     }
 
     public MetricsResult query(final Iterable<Record<Float, GenerationMetrics>> records, final List<MetricDatumQueryProjection> projections) {

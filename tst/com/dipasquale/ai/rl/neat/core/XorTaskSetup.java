@@ -24,10 +24,10 @@ import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.settings.RandomSupport;
 import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
-import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 final class XorTaskSetup implements TaskSetup {
@@ -84,9 +84,7 @@ final class XorTaskSetup implements TaskSetup {
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(2))
                                 .outputs(IntegerNumber.literal(1))
-                                .biases(ImmutableList.<FloatNumber>builder()
-                                        .add(FloatNumber.literal(1f))
-                                        .build())
+                                .biases(List.of(FloatNumber.literal(1f)))
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
@@ -106,13 +104,13 @@ final class XorTaskSetup implements TaskSetup {
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
                         .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
-                        .outputBias(FloatNumber.random(RandomType.UNIFORM, -0.75f, 0.75f))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
                         .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
                         .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
                         .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -1.25f, 1.25f))
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -0.5f, 0.5f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))

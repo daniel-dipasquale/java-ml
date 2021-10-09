@@ -3,7 +3,6 @@ package com.dipasquale.ai.rl.neat.genotype;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.common.sequence.SequentialId;
 import com.dipasquale.common.Pair;
-import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -88,7 +87,7 @@ public final class ConnectionGeneGroup implements Serializable {
                 return map;
             }
 
-            return ImmutableMap.of();
+            return Map.of();
         }
 
         public Map<DirectedEdge, ConnectionGene> getIncomingToNodeId(final SequentialId nodeId) {

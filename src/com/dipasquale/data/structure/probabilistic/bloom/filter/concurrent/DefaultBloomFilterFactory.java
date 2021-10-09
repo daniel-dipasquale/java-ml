@@ -14,16 +14,8 @@ public final class DefaultBloomFilterFactory implements BloomFilterFactory, Seri
     private static final long serialVersionUID = -5366286836961796106L;
     private final HashingFunction hashingFunction;
 
-    public DefaultBloomFilterFactory() {
-        this(null);
-    }
-
     @Override
     public <T> BloomFilter<T> create(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size) {
-        if (hashingFunction == null) {
-            return new SynchronizedGuavaBloomFilter<>(estimatedSize, falsePositiveRatio);
-        }
-
         return new AtomicLongArrayBloomFilter<>(hashingFunction, (int) size, hashingFunctions);
     }
 }

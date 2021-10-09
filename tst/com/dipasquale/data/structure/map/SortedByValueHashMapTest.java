@@ -1,11 +1,12 @@
 package com.dipasquale.data.structure.map;
 
-import com.google.common.collect.ImmutableList;
+import com.dipasquale.data.structure.collection.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.AbstractMap;
+import java.util.List;
+import java.util.Map;
 
 public final class SortedByValueHashMapTest {
     private static final SortedByValueHashMap<String, Long> TEST = new SortedByValueHashMap<>(Long::compareTo); // TODO: make test cases for interfaces and reusable
@@ -21,11 +22,11 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("b", 4L));
         Assertions.assertNull(TEST.put("c", 1L));
 
-        Assertions.assertEquals(ImmutableList.builder()
-                .add(new AbstractMap.SimpleImmutableEntry<>("c", 1L))
-                .add(new AbstractMap.SimpleImmutableEntry<>("a", 2L))
-                .add(new AbstractMap.SimpleImmutableEntry<>("b", 4L))
-                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
+        Assertions.assertEquals(List.of(
+                Map.entry("c", 1L),
+                Map.entry("a", 2L),
+                Map.entry("b", 4L)
+        ), Lists.copyOf(TEST.entrySet()));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -34,11 +35,7 @@ public final class SortedByValueHashMapTest {
     public void GIVEN_a_set_of_items_WHEN_inserting_an_item_whose_key_and_value_are_already_in_the_set_THEN_do_nothing() {
         Assertions.assertNull(TEST.put("a", 1L));
         Assertions.assertEquals(Long.valueOf(1L), TEST.put("a", 1L));
-
-        Assertions.assertEquals(ImmutableList.builder()
-                .add(new AbstractMap.SimpleImmutableEntry<>("a", 1L))
-                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
-
+        Assertions.assertEquals(List.of(Map.entry("a", 1L)), Lists.copyOf(TEST.entrySet()));
         Assertions.assertEquals(1, TEST.size());
     }
 
@@ -49,11 +46,11 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("c", 1L));
         Assertions.assertEquals(Long.valueOf(1L), TEST.put("c", 5L));
 
-        Assertions.assertEquals(ImmutableList.builder()
-                .add(new AbstractMap.SimpleImmutableEntry<>("a", 2L))
-                .add(new AbstractMap.SimpleImmutableEntry<>("b", 4L))
-                .add(new AbstractMap.SimpleImmutableEntry<>("c", 5L))
-                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
+        Assertions.assertEquals(List.of(
+                Map.entry("a", 2L),
+                Map.entry("b", 4L),
+                Map.entry("c", 5L)
+        ), Lists.copyOf(TEST.entrySet()));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -65,10 +62,10 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("c", 1L));
         Assertions.assertEquals(Long.valueOf(2L), TEST.remove("a"));
 
-        Assertions.assertEquals(ImmutableList.builder()
-                .add(new AbstractMap.SimpleImmutableEntry<>("c", 1L))
-                .add(new AbstractMap.SimpleImmutableEntry<>("b", 4L))
-                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
+        Assertions.assertEquals(List.of(
+                Map.entry("c", 1L),
+                Map.entry("b", 4L)
+        ), Lists.copyOf(TEST.entrySet()));
 
         Assertions.assertEquals(2, TEST.size());
     }
@@ -77,7 +74,7 @@ public final class SortedByValueHashMapTest {
     public void GIVEN_a_set_of_items_with_one_item_in_it_WHEN_removing_it_by_key_THEN_ensure_the_set_becomes_empty() {
         Assertions.assertNull(TEST.put("a", 1L));
         Assertions.assertEquals(Long.valueOf(1L), TEST.remove("a"));
-        Assertions.assertEquals(ImmutableList.of(), ImmutableList.copyOf(TEST.entrySet()::iterator));
+        Assertions.assertEquals(List.of(), Lists.copyOf(TEST.entrySet()));
         Assertions.assertEquals(0, TEST.size());
     }
 
@@ -88,11 +85,11 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("c", 1L));
         Assertions.assertNull(TEST.remove("d"));
 
-        Assertions.assertEquals(ImmutableList.builder()
-                .add(new AbstractMap.SimpleImmutableEntry<>("c", 1L))
-                .add(new AbstractMap.SimpleImmutableEntry<>("a", 2L))
-                .add(new AbstractMap.SimpleImmutableEntry<>("b", 4L))
-                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
+        Assertions.assertEquals(List.of(
+                Map.entry("c", 1L),
+                Map.entry("a", 2L),
+                Map.entry("b", 4L)
+        ), Lists.copyOf(TEST.entrySet()));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -104,10 +101,10 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("c", 1L));
         Assertions.assertEquals(Long.valueOf(1L), TEST.remove("a"));
 
-        Assertions.assertEquals(ImmutableList.builder()
-                .add(new AbstractMap.SimpleImmutableEntry<>("b", 1L))
-                .add(new AbstractMap.SimpleImmutableEntry<>("c", 1L))
-                .build(), ImmutableList.copyOf(TEST.entrySet()::iterator));
+        Assertions.assertEquals(List.of(
+                Map.entry("b", 1L),
+                Map.entry("c", 1L)
+        ), Lists.copyOf(TEST.entrySet()));
 
         Assertions.assertEquals(2, TEST.size());
     }
@@ -117,7 +114,7 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("a", 2L));
         Assertions.assertNull(TEST.put("b", 4L));
         Assertions.assertNull(TEST.put("c", 1L));
-        Assertions.assertEquals(new AbstractMap.SimpleImmutableEntry<>("c", 1L), TEST.headEntry());
+        Assertions.assertEquals(Map.entry("c", 1L), TEST.headEntry());
         Assertions.assertEquals("c", TEST.headKey());
         Assertions.assertEquals(Long.valueOf(1L), TEST.headValue());
         Assertions.assertEquals(3, TEST.size());
@@ -129,7 +126,7 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("b", 4L));
         Assertions.assertNull(TEST.put("c", 1L));
         TEST.clear();
-        Assertions.assertEquals(ImmutableList.of(), ImmutableList.copyOf(TEST.entrySet()::iterator));
+        Assertions.assertEquals(List.of(), Lists.copyOf(TEST.entrySet()));
         Assertions.assertEquals(0, TEST.size());
     }
 

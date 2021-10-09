@@ -1,18 +1,18 @@
 package com.dipasquale.data.structure.map;
 
-import com.google.common.collect.Iterables;
+import com.dipasquale.data.structure.iterable.Iterables;
 
 import java.io.Serial;
 import java.util.Map;
 
-public final class TandemMap<TKey, TValue> extends AbstractMap<TKey, TValue> {
+public final class UnionMap<TKey, TValue> extends AbstractMap<TKey, TValue> {
     @Serial
     private static final long serialVersionUID = 6242382897407829313L;
     private final Map<TKey, TValue> first;
     private final Map<TKey, TValue> second;
 
-    public TandemMap(final Map<TKey, TValue> first, final Map<TKey, TValue> second) {
-        super(Iterables.concat(first.entrySet(), second.entrySet())::iterator);
+    public UnionMap(final Map<TKey, TValue> first, final Map<TKey, TValue> second) {
+        super(Iterables.concatenate(first.entrySet(), second.entrySet())::iterator);
         this.first = first;
         this.second = second;
     }

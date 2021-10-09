@@ -31,7 +31,6 @@ import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
-import com.google.common.collect.ImmutableList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -88,10 +87,10 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     }
 
     private static DualModeSpeciesFitnessStrategy createFitnessStrategy(final ParallelismSupport parallelismSupport) {
-        List<SpeciesFitnessStrategy> concurrentStrategies = ImmutableList.<SpeciesFitnessStrategy>builder()
-                .add(new ParallelUpdateSpeciesFitnessStrategy())
-                .add(new UpdateSharedSpeciesFitnessStrategy())
-                .build();
+        List<SpeciesFitnessStrategy> concurrentStrategies = List.of(
+                new ParallelUpdateSpeciesFitnessStrategy(),
+                new UpdateSharedSpeciesFitnessStrategy()
+        );
 
         SpeciesFitnessStrategy concurrentStrategy = new MultiSpeciesFitnessStrategy(concurrentStrategies);
         SpeciesFitnessStrategy defaultStrategy = new UpdateAllFitnessSpeciesFitnessStrategy();
@@ -100,20 +99,20 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     }
 
     private static SpeciesSelectionStrategyExecutor createSelectionStrategy() {
-        List<SpeciesSelectionStrategy> strategies = ImmutableList.<SpeciesSelectionStrategy>builder()
-                .add(new LeastFitRemoverSpeciesSelectionStrategy())
-                .add(new ChampionPromoterSelectionStrategy())
-                .build();
+        List<SpeciesSelectionStrategy> strategies = List.of(
+                new LeastFitRemoverSpeciesSelectionStrategy(),
+                new ChampionPromoterSelectionStrategy()
+        );
 
         return new SpeciesSelectionStrategyExecutor(strategies);
     }
 
     private static SpeciesReproductionStrategy createReproductionStrategy() {
-        List<SpeciesReproductionStrategy> strategies = ImmutableList.<SpeciesReproductionStrategy>builder()
-                .add(new PreserveMostFitSpeciesReproductionStrategy())
-                .add(new MateAndMutateSpeciesReproductionStrategy())
-                .add(new GenesisSpeciesReproductionStrategy())
-                .build();
+        List<SpeciesReproductionStrategy> strategies = List.of(
+                new PreserveMostFitSpeciesReproductionStrategy(),
+                new MateAndMutateSpeciesReproductionStrategy(),
+                new GenesisSpeciesReproductionStrategy()
+        );
 
         return new MultiSpeciesReproductionStrategy(strategies);
     }

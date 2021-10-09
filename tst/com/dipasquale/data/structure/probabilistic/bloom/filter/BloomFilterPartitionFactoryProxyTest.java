@@ -1,6 +1,5 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
@@ -36,13 +35,13 @@ public final class BloomFilterPartitionFactoryProxyTest {
     public void TEST_2() {
         BLOOM_FILTER_PARTITION_FACTORY.create(5, 2_000_000, 21, 0.5D, 1_000_000);
 
-        Assertions.assertEquals(ImmutableMap.<String, String>builder()
-                .put("index", "5")
-                .put("estimatedSize", "2000000")
-                .put("hashingFunctions", "21")
-                .put("falsePositiveRatio", "0.5")
-                .put("size", "1000000")
-                .build(), ITEMS);
+        Assertions.assertEquals(Map.ofEntries(
+                Map.entry("index", "5"),
+                Map.entry("estimatedSize", "2000000"),
+                Map.entry("hashingFunctions", "21"),
+                Map.entry("falsePositiveRatio", "0.5"),
+                Map.entry("size", "1000000")
+        ), ITEMS);
     }
 
     private static <T> T ensureType(final Object object) {

@@ -3,7 +3,6 @@ package com.dipasquale.synchronization.wait.handle;
 import com.dipasquale.common.error.ErrorComparator;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ProxyDateTimeSupport;
-import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -29,23 +28,23 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_1()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build();
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, a -> false);
 
         test.await();
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build(), waitHandles);
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
@@ -53,25 +52,25 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_2()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build();
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
 
         test.await();
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
                         .indefinite(1)
-                        .build())
-                .add(WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
                         .indefinite(1)
-                        .build())
-                .build(), waitHandles);
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
@@ -79,13 +78,13 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_3()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
                         .interruptedExceptionMessage("throw interrupted exception 1")
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build();
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
 
@@ -99,14 +98,14 @@ public final class MultiWaitHandleTest {
                     .build(), ErrorComparator.create(e));
         }
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
                         .indefinite(0)
-                        .build())
-                .add(WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
                         .indefinite(0)
-                        .build())
-                .build(), waitHandles);
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
@@ -114,13 +113,13 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_4()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
                         .interruptedExceptionMessage("throw interrupted exception 2")
-                        .build())
-                .build();
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
 
@@ -134,14 +133,14 @@ public final class MultiWaitHandleTest {
                     .build(), ErrorComparator.create(e));
         }
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
                         .indefinite(1)
-                        .build())
-                .add(WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
                         .indefinite(0)
-                        .build())
-                .build(), waitHandles);
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(0L, CURRENT_DATE_TIME.get());
     }
@@ -149,23 +148,23 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_5()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build();
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, a -> false);
 
         Assertions.assertTrue(test.await(10L, TimeUnit.MILLISECONDS));
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build(), waitHandles);
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(1L, CURRENT_DATE_TIME.get());
     }
@@ -173,29 +172,25 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_6()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build();
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
 
         Assertions.assertTrue(test.await(4L, TimeUnit.MILLISECONDS));
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .timed(ImmutableList.<TimeUnitPair>builder()
-                                .add(new TimeUnitPair(4L, TimeUnit.MILLISECONDS))
-                                .build())
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .timed(ImmutableList.<TimeUnitPair>builder()
-                                .add(new TimeUnitPair(3L, TimeUnit.MILLISECONDS))
-                                .build())
-                        .build())
-                .build(), waitHandles);
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
+                        .timed(List.of(new TimeUnitPair(4L, TimeUnit.MILLISECONDS)))
+                        .build(),
+                WaitHandleMock.builder()
+                        .timed(List.of(new TimeUnitPair(3L, TimeUnit.MILLISECONDS)))
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(3L, CURRENT_DATE_TIME.get());
     }
@@ -203,44 +198,44 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_7()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build();
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, a -> true);
 
         Assertions.assertTrue(test.await(4L, TimeUnit.MILLISECONDS));
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .timed(ImmutableList.<TimeUnitPair>builder()
-                                .add(new TimeUnitPair(4L, TimeUnit.MILLISECONDS))
-                                .add(new TimeUnitPair(2L, TimeUnit.MILLISECONDS))
-                                .build())
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .timed(ImmutableList.<TimeUnitPair>builder()
-                                .add(new TimeUnitPair(3L, TimeUnit.MILLISECONDS))
-                                .add(new TimeUnitPair(1L, TimeUnit.MILLISECONDS))
-                                .build())
-                        .build())
-                .build(), waitHandles);
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
+                        .timed(List.of(
+                                new TimeUnitPair(4L, TimeUnit.MILLISECONDS),
+                                new TimeUnitPair(2L, TimeUnit.MILLISECONDS)
+                        ))
+                        .build(),
+                WaitHandleMock.builder()
+                        .timed(List.of(
+                                new TimeUnitPair(3L, TimeUnit.MILLISECONDS),
+                                new TimeUnitPair(1L, TimeUnit.MILLISECONDS)
+                        ))
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(5L, CURRENT_DATE_TIME.get());
     }
 
     @Test
     public void TEST_8() {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
                         .interruptedExceptionMessage("throw interrupted exception 1")
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build();
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
 
@@ -254,25 +249,25 @@ public final class MultiWaitHandleTest {
                     .build(), ErrorComparator.create(e));
         }
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build(), waitHandles);
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(1L, CURRENT_DATE_TIME.get());
     }
 
     @Test
     public void TEST_9() {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
                         .interruptedExceptionMessage("throw interrupted exception 2")
-                        .build())
-                .build();
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
 
@@ -286,15 +281,13 @@ public final class MultiWaitHandleTest {
                     .build(), ErrorComparator.create(e));
         }
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .timed(ImmutableList.<TimeUnitPair>builder()
-                                .add(new TimeUnitPair(4L, TimeUnit.MILLISECONDS))
-                                .build())
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build(), waitHandles);
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
+                        .timed(List.of(new TimeUnitPair(4L, TimeUnit.MILLISECONDS)))
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(2L, CURRENT_DATE_TIME.get());
     }
@@ -302,27 +295,25 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_10()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
                         .acquired(false)
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build();
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
 
         Assertions.assertFalse(test.await(4L, TimeUnit.MILLISECONDS));
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .timed(ImmutableList.<TimeUnitPair>builder()
-                                .add(new TimeUnitPair(4L, TimeUnit.MILLISECONDS))
-                                .build())
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .build())
-                .build(), waitHandles);
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
+                        .timed(List.of(new TimeUnitPair(4L, TimeUnit.MILLISECONDS)))
+                        .build(),
+                WaitHandleMock.builder()
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(1L, CURRENT_DATE_TIME.get());
     }
@@ -330,30 +321,26 @@ public final class MultiWaitHandleTest {
     @Test
     public void TEST_11()
             throws InterruptedException {
-        ImmutableList<WaitHandleMock> waitHandles = ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .build())
-                .add(WaitHandleMock.builder()
+        List<WaitHandleMock> waitHandles = List.of(
+                WaitHandleMock.builder()
+                        .build(),
+                WaitHandleMock.builder()
                         .acquired(false)
-                        .build())
-                .build();
+                        .build()
+        );
 
         MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
 
         Assertions.assertFalse(test.await(4L, TimeUnit.MILLISECONDS));
 
-        Assertions.assertEquals(ImmutableList.<WaitHandleMock>builder()
-                .add(WaitHandleMock.builder()
-                        .timed(ImmutableList.<TimeUnitPair>builder()
-                                .add(new TimeUnitPair(4L, TimeUnit.MILLISECONDS))
-                                .build())
-                        .build())
-                .add(WaitHandleMock.builder()
-                        .timed(ImmutableList.<TimeUnitPair>builder()
-                                .add(new TimeUnitPair(3L, TimeUnit.MILLISECONDS))
-                                .build())
-                        .build())
-                .build(), waitHandles);
+        Assertions.assertEquals(List.of(
+                WaitHandleMock.builder()
+                        .timed(List.of(new TimeUnitPair(4L, TimeUnit.MILLISECONDS)))
+                        .build(),
+                WaitHandleMock.builder()
+                        .timed(List.of(new TimeUnitPair(3L, TimeUnit.MILLISECONDS)))
+                        .build()
+        ), waitHandles);
 
         Assertions.assertEquals(2L, CURRENT_DATE_TIME.get());
     }

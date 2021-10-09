@@ -5,8 +5,9 @@ import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ProxyDateTimeSupport;
+import com.dipasquale.data.structure.probabilistic.DefaultHashingFunctionFactory;
+import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,8 +16,10 @@ import org.junit.jupiter.api.Test;
 
 import javax.measure.unit.SI;
 import java.lang.management.ManagementFactory;
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +31,7 @@ public final class ConcurrentBloomFilterTest {
     private static final boolean DEBUG_MODE = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     private static final boolean TEST_AGAINST_BLOOM_FILTER = true; // 8,000,000 items and 3 test cases (and default p) = 613,112,000 bytes without sets
     private static final boolean TEST_AGAINST_SET = true; // 8,000,000 items and 3 test cases = 3,534,360,000 bytes without bloom filters
-    private static final int CPU_CORES = DEBUG_MODE ? 1 : Runtime.getRuntime().availableProcessors();
+    private static final int CPU_CORES = DEBUG_MODE ? 1 : Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final int SIZE = 500_000;
     private static final int ESTIMATED_SIZE = SIZE;
     private static final int HASH_FUNCTIONS = 8;
@@ -86,7 +89,7 @@ public final class ConcurrentBloomFilterTest {
 
     private static void performTest(final ObjectFactory<BloomFilter<String>> bloomFilterFactory) {
         BloomFilter<String> bloomFilter = !TEST_AGAINST_BLOOM_FILTER ? null : bloomFilterFactory.create();
-        Set<String> set = !TEST_AGAINST_SET ? null : Sets.newConcurrentHashSet();
+        Set<String> set = !TEST_AGAINST_SET ? null : Collections.newSetFromMap(new ConcurrentHashMap<>());
 
         queueItemAdditionsConcurrently(bloomFilter, set);
 
@@ -138,6 +141,6 @@ public final class ConcurrentBloomFilterTest {
 
     @Test
     public void TEST_4() {
-        performTest(() -> new DefaultBloomFilterFactory().createEstimated(ESTIMATED_SIZE, FALSE_POSITIVE_RATIO));
+        performTest(() -> new DefaultBloomFilterFactory(new DefaultHashingFunctionFactory().create(HashingFunctionAlgorithm.SHA_1, ConcurrentBloomFilterTest.class.getSimpleName())).createEstimated(ESTIMATED_SIZE, FALSE_POSITIVE_RATIO));
     }
 }

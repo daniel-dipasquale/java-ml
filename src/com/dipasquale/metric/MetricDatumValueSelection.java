@@ -1,6 +1,5 @@
 package com.dipasquale.metric;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -12,13 +11,13 @@ import java.util.regex.Pattern;
 public final class MetricDatumValueSelection {
     private static final Pattern STATISTIC_PATTERN = Pattern.compile("^(?<statistic>count|sum|avg|min|max|p)(?<percentage>\\d+(?:\\.\\d)?)?$");
 
-    private static final Map<String, MetricDatumValueSelector> STATISTIC_SELECTORS = ImmutableMap.<String, MetricDatumValueSelector>builder()
-            .put("count", md -> (float) md.getValues().size())
-            .put("sum", MetricDatum::getSum)
-            .put("avg", MetricDatum::getAverage)
-            .put("min", MetricDatum::getMinimum)
-            .put("max", MetricDatum::getMaximum)
-            .build();
+    private static final Map<String, MetricDatumValueSelector> STATISTIC_SELECTORS = Map.ofEntries(
+            Map.entry("count", md -> (float) md.getValues().size()),
+            Map.entry("sum", MetricDatum::getSum),
+            Map.entry("avg", MetricDatum::getAverage),
+            Map.entry("min", MetricDatum::getMinimum),
+            Map.entry("max", MetricDatum::getMaximum)
+    );
 
     private final MetricDatum metricDatum;
     private final MetricDatumValueSelector metricDatumValueSelector;

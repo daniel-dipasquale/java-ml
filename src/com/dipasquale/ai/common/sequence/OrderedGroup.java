@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,6 +20,7 @@ import java.util.TreeMap;
 public final class OrderedGroup<TId extends Comparable<TId>, TItem> implements Iterable<TItem>, Serializable {
     @Serial
     private static final long serialVersionUID = 2209041596810668817L;
+    private static final String EMPTY = "";
     @EqualsAndHashCode.Include
     private final List<ItemIdEntry<TId, TItem>> list = new ArrayList<>();
     private final NavigableMap<TId, TItem> navigableMap = new TreeMap<>(Comparator.naturalOrder());
@@ -94,7 +94,7 @@ public final class OrderedGroup<TId extends Comparable<TId>, TItem> implements I
         @Override
         public String toString() {
             if (item == null) {
-                return StringUtils.EMPTY;
+                return EMPTY;
             }
 
             return item.toString();

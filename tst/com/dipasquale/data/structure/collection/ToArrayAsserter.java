@@ -1,7 +1,5 @@
 package com.dipasquale.data.structure.collection;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import lombok.Generated;
 
 import java.lang.reflect.Array;
@@ -24,11 +22,11 @@ final class ToArrayAsserter<T> extends AsserterBase<T> {
 
     private void assertEmptyItems(final List<T> items) {
         items.clear();
-        equalsAsserter.assertEquals(Lists.newArrayList(items.toArray()), Lists.newArrayList(collection.toArray()));
+        equalsAsserter.assertEquals(Lists.create(items.toArray()), Lists.create(collection.toArray()));
     }
 
     private void assertAllItems(final List<T> items) {
-        equalsAsserter.assertEquals(Lists.newArrayList(items.toArray()), Lists.newArrayList(collection.toArray()));
+        equalsAsserter.assertEquals(Lists.create(items.toArray()), Lists.create(collection.toArray()));
     }
 
     private T[] createArray(final int count) {
@@ -37,42 +35,42 @@ final class ToArrayAsserter<T> extends AsserterBase<T> {
 
     private void assertEmptyItemsUsingArrayFactory(final List<T> items) {
         items.clear();
-        equalsAsserter.assertEquals(Lists.newArrayList(items.toArray(this::createArray)), Lists.newArrayList(collection.toArray(this::createArray)));
+        equalsAsserter.assertEquals(Lists.create(items.toArray(this::createArray)), Lists.create(collection.toArray(this::createArray)));
     }
 
     private void assertAllItemsUsingArrayFactory(final List<T> items) {
-        equalsAsserter.assertEquals(Lists.newArrayList(items.toArray(this::createArray)), Lists.newArrayList(collection.toArray(this::createArray)));
+        equalsAsserter.assertEquals(Lists.create(items.toArray(this::createArray)), Lists.create(collection.toArray(this::createArray)));
     }
 
     private void assertEmptyItemsUsingEmptyArray(final List<T> items) {
         items.clear();
-        equalsAsserter.assertEquals(Lists.newArrayList(items.toArray(createArray(0))), Lists.newArrayList(collection.toArray(createArray(0))));
+        equalsAsserter.assertEquals(Lists.create(items.toArray(createArray(0))), Lists.create(collection.toArray(createArray(0))));
     }
 
     private void assertAllItemsUsingEmptyArray(final List<T> items) {
-        equalsAsserter.assertEquals(Lists.newArrayList(items.toArray(createArray(0))), Lists.newArrayList(collection.toArray(createArray(0))));
+        equalsAsserter.assertEquals(Lists.create(items.toArray(createArray(0))), Lists.create(collection.toArray(createArray(0))));
     }
 
     private void assertEmptyItemsUsingArray(final List<T> items) {
         items.clear();
-        equalsAsserter.assertEquals(Lists.newArrayList(items.toArray(createArray(ITEM_COUNT))), Lists.newArrayList(collection.toArray(createArray(ITEM_COUNT))));
+        equalsAsserter.assertEquals(Lists.create(items.toArray(createArray(ITEM_COUNT))), Lists.create(collection.toArray(createArray(ITEM_COUNT))));
     }
 
     private void assertAllItemsUsingArray(final List<T> items) {
-        equalsAsserter.assertEquals(Lists.newArrayList(items.toArray(createArray(ITEM_COUNT))), Lists.newArrayList(collection.toArray(createArray(ITEM_COUNT))));
+        equalsAsserter.assertEquals(Lists.create(items.toArray(createArray(ITEM_COUNT))), Lists.create(collection.toArray(createArray(ITEM_COUNT))));
     }
 
     @Override
     protected List<TestCaseCollection<T>> createTestCases() {
-        return ImmutableList.<TestCaseCollection<T>>builder()
-                .add(TestCaseCollection.create(this::assertEmptyItems, false))
-                .add(TestCaseCollection.create(this::assertAllItems, true))
-                .add(TestCaseCollection.create(this::assertEmptyItemsUsingArrayFactory, false))
-                .add(TestCaseCollection.create(this::assertAllItemsUsingArrayFactory, true))
-                .add(TestCaseCollection.create(this::assertEmptyItemsUsingEmptyArray, false))
-                .add(TestCaseCollection.create(this::assertAllItemsUsingEmptyArray, true))
-                .add(TestCaseCollection.create(this::assertEmptyItemsUsingArray, false))
-                .add(TestCaseCollection.create(this::assertAllItemsUsingArray, true))
-                .build();
+        return List.of(
+                TestCaseCollection.create(this::assertEmptyItems, false),
+                TestCaseCollection.create(this::assertAllItems, true),
+                TestCaseCollection.create(this::assertEmptyItemsUsingArrayFactory, false),
+                TestCaseCollection.create(this::assertAllItemsUsingArrayFactory, true),
+                TestCaseCollection.create(this::assertEmptyItemsUsingEmptyArray, false),
+                TestCaseCollection.create(this::assertAllItemsUsingEmptyArray, true),
+                TestCaseCollection.create(this::assertEmptyItemsUsingArray, false),
+                TestCaseCollection.create(this::assertAllItemsUsingArray, true)
+        );
     }
 }
