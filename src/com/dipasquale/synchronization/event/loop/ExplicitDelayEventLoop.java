@@ -166,12 +166,16 @@ final class ExplicitDelayEventLoop implements EventLoop {
     @Override
     public boolean isEmpty() {
         allLock.lock();
-        singleLock.lock();
 
         try {
-            return eventRecords.isEmpty();
+            singleLock.lock();
+
+            try {
+                return eventRecords.isEmpty();
+            } finally {
+                singleLock.unlock();
+            }
         } finally {
-            singleLock.unlock();
             allLock.unlock();
         }
     }
@@ -192,14 +196,18 @@ final class ExplicitDelayEventLoop implements EventLoop {
     public void shutdown() {
         if (!shutdown.getAndSet(true)) {
             allLock.lock();
-            singleLock.lock();
 
             try {
-                eventRecords.clear();
-                untilEmptyWaitHandle.countDown();
-                whileNoEventAvailableCondition.signal();
+                singleLock.lock();
+
+                try {
+                    eventRecords.clear();
+                    untilEmptyWaitHandle.countDown();
+                    whileNoEventAvailableCondition.signal();
+                } finally {
+                    singleLock.unlock();
+                }
             } finally {
-                singleLock.unlock();
                 allLock.unlock();
             }
         }

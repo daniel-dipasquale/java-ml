@@ -122,7 +122,6 @@ public final class NeatTest {
             byte[] bytes = getBytes(trainer);
 
             Assertions.assertTrue(bytes.length > 30_000);
-            Assertions.assertTrue(bytes.length < 1_000_000);
 
             EvaluatorOverrideSettings overrideSettings = EvaluatorOverrideSettings.builder()
                     .fitnessFunction(null)
