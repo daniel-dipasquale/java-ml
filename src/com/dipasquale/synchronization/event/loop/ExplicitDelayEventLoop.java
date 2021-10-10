@@ -125,22 +125,26 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
     private void queue(final EventRecord eventRecord) {
         allLock.lock();
-        singleLock.lock();
 
         try {
-            eventRecords.add(eventRecord);
+            singleLock.lock();
 
-            if (!started) {
-                started = true;
-                shutdown.set(false);
-                executorService.submit(this::handleNextEvent);
-            } else {
-                whileNoEventAvailableCondition.signal();
+            try {
+                eventRecords.add(eventRecord);
+
+                if (!started) {
+                    started = true;
+                    shutdown.set(false);
+                    executorService.submit(this::handleNextEvent);
+                } else {
+                    whileNoEventAvailableCondition.signal();
+                }
+
+                untilEmptyWaitHandle.countUp();
+            } finally {
+                singleLock.unlock();
             }
-
-            untilEmptyWaitHandle.countUp();
         } finally {
-            singleLock.unlock();
             allLock.unlock();
         }
     }
