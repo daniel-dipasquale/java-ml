@@ -20,11 +20,6 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
     private final boolean clearIterationsOnAdd;
 
     @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    @Override
     public void collectSpeciesComposition(final MetricsContainer metricsContainer, final int age, final int stagnationPeriod, final boolean isStagnant) {
         metricsContainer.getGenerationMetrics().getSpeciesAge().add((float) age);
         metricsContainer.getGenerationMetrics().getSpeciesStagnationPeriod().add((float) stagnationPeriod);

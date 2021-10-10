@@ -10,8 +10,8 @@ public final class DefaultContextParallelismParameters implements Context.Parall
     private final Context.ParallelismParameters parameters;
 
     @Override
-    public boolean isEnabled() {
-        return parameters.isEnabled();
+    public boolean enabled() {
+        return parameters.enabled();
     }
 
     @Override

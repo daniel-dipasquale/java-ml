@@ -3,8 +3,6 @@ package com.dipasquale.ai.rl.neat.speciation.metric;
 import java.util.Map;
 
 public interface MetricsCollector {
-    boolean isEnabled();
-
     void collectSpeciesComposition(MetricsContainer metricsContainer, int age, int stagnationPeriod, boolean isStagnant);
 
     void collectOrganismTopology(MetricsContainer metricsContainer, String speciesId, int hiddenNodes, int connections);

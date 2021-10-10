@@ -35,6 +35,7 @@ import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextMetricSupport implements Context.MetricSupport {
+    private DefaultContextMetricParameters params;
     private MetricDatumFactory metricDatumFactory;
     private DualModeMetricsContainer metricsContainer;
     private MetricsCollector metricsCollector;
@@ -64,6 +65,10 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
     }
 
     public static DefaultContextMetricSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final MetricSupport metricSupport, final SpeciationSupport speciationSupport) {
+        DefaultContextMetricParameters params = DefaultContextMetricParameters.builder()
+                .enabled(metricSupport.getType().contains(MetricCollectionType.ENABLED))
+                .build();
+
         MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricSupport.getType());
         DualModeMetricsContainer metricsContainer = new DualModeMetricsContainer(parallelismSupport.getMapFactory(), metricDatumFactory);
         MetricsCollector metricsCollector = createMetricsCollector(metricDatumFactory, metricSupport.getType());
@@ -72,12 +77,17 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
         DualModeIntegerCounter generation = new DualModeIntegerCounter(parallelismSupport.getConcurrencyLevel(), 1);
         DualModeMap<Integer, IterationMetrics, DualModeMapFactory> metrics = new DualModeMap<>(parallelismSupport.getMapFactory());
 
-        return new DefaultContextMetricSupport(metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, metrics);
+        return new DefaultContextMetricSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, metrics);
+    }
+
+    @Override
+    public Context.MetricParameters params() {
+        return params;
     }
 
     @Override
     public void collectInitialCompositions(final Iterable<Species> allSpecies) {
-        if (!metricsCollector.isEnabled()) {
+        if (!params.enabled()) {
             return;
         }
 
@@ -151,6 +161,7 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
     }
 
     public void save(final SerializableStateGroup stateGroup) {
+        stateGroup.put("metrics.params", params);
         stateGroup.put("metrics.metricDatumFactory", metricDatumFactory);
         stateGroup.put("metrics.metricsContainer", metricsContainer);
         stateGroup.put("metrics.metricsCollector", metricsCollector);
@@ -161,6 +172,7 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
+        params = stateGroup.get("metrics.params");
         metricDatumFactory = stateGroup.get("metrics.metricDatumFactory");
         metricsContainer = DualModeObject.activateMode(stateGroup.get("metrics.metricsContainer"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         metricsCollector = stateGroup.get("metrics.metricsCollector");

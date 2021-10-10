@@ -14,11 +14,6 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
     private static final long serialVersionUID = -3442321706503755754L;
 
     @Override
-    public boolean isEnabled() {
-        return false;
-    }
-
-    @Override
     public void collectSpeciesComposition(final MetricsContainer metricsContainer, final int age, final int stagnationPeriod, final boolean isStagnant) {
     }
 

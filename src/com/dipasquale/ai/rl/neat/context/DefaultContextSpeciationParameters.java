@@ -8,7 +8,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@Builder(access = AccessLevel.PACKAGE)
 public final class DefaultContextSpeciationParameters implements Context.SpeciationParameters, Serializable {
     @Serial
     private static final long serialVersionUID = -7007214942183273340L;

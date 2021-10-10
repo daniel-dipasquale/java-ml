@@ -63,7 +63,7 @@ public interface Context {
     }
 
     interface ParallelismParameters {
-        boolean isEnabled();
+        boolean enabled();
 
         int numberOfThreads();
     }
@@ -258,7 +258,14 @@ public interface Context {
         int getDisposedGenomeIdCount();
     }
 
+    @FunctionalInterface
+    interface MetricParameters {
+        boolean enabled();
+    }
+
     interface MetricSupport {
+        MetricParameters params();
+
         void collectInitialCompositions(Iterable<Species> allSpecies);
 
         void collectFitness(Species species, Organism organism);

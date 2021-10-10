@@ -43,7 +43,7 @@ public final class SingleThreadContextParallelismSupport implements Context.Para
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class DefaultParameters implements Context.ParallelismParameters {
         @Override
-        public boolean isEnabled() {
+        public boolean enabled() {
             return false;
         }
 

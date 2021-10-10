@@ -9,13 +9,13 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PACKAGE)
-public final class DefaultContextGeneralParameters implements Context.GeneralParams, Serializable {
+public final class DefaultContextMetricParameters implements Context.MetricParameters, Serializable {
     @Serial
-    private static final long serialVersionUID = 7845128541290517542L;
-    private final int populationSize;
+    private static final long serialVersionUID = 3933676175004672652L;
+    private final boolean enabled;
 
     @Override
-    public int populationSize() {
-        return populationSize;
+    public boolean enabled() {
+        return enabled;
     }
 }

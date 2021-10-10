@@ -46,7 +46,7 @@ public final class MultiThreadContextParallelismSupport implements Context.Paral
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private final class DefaultParameters implements Context.ParallelismParameters {
         @Override
-        public boolean isEnabled() {
+        public boolean enabled() {
             return true;
         }
 
