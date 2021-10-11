@@ -1,16 +1,9 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
-import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
-import com.dipasquale.ai.rl.neat.settings.ConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.settings.CrossOverSupport;
-import com.dipasquale.ai.rl.neat.settings.EnumValue;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorSettings;
-import com.dipasquale.ai.rl.neat.settings.FloatNumber;
 import com.dipasquale.ai.rl.neat.settings.GeneralEvaluatorSupport;
 import com.dipasquale.ai.rl.neat.settings.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.settings.InitialConnectionType;
@@ -18,11 +11,7 @@ import com.dipasquale.ai.rl.neat.settings.InitialWeightType;
 import com.dipasquale.ai.rl.neat.settings.IntegerNumber;
 import com.dipasquale.ai.rl.neat.settings.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.settings.MetricSupport;
-import com.dipasquale.ai.rl.neat.settings.MutationSupport;
-import com.dipasquale.ai.rl.neat.settings.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
-import com.dipasquale.ai.rl.neat.settings.RandomSupport;
-import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
 import com.dipasquale.common.random.float2.CyclicRandomSupport;
 import com.dipasquale.common.random.float2.ThreadLocalRandomSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
@@ -113,49 +102,6 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
-                        .build())
-                .random(RandomSupport.builder()
-                        .type(RandomType.UNIFORM)
-                        .build())
-                .nodes(NodeGeneSupport.builder()
-                        .inputBias(FloatNumber.literal(0f))
-                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
-                        .outputBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
-                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
-                        .build())
-                .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -0.5f, 0.5f))
-                        .weightPerturber(FloatNumber.literal(2.5f))
-                        .recurrentAllowanceRate(FloatNumber.literal(0.2f))
-                        .multiCycleAllowanceRate(FloatNumber.literal(0f))
-                        .build())
-                .mutation(MutationSupport.builder()
-                        .addNodeRate(FloatNumber.literal(0.03f))
-                        .addConnectionRate(FloatNumber.literal(0.06f))
-                        .perturbWeightRate(FloatNumber.literal(0.75f))
-                        .replaceWeightRate(FloatNumber.literal(0.5f))
-                        .disableExpressedConnectionRate(FloatNumber.literal(0.015f))
-                        .build())
-                .crossOver(CrossOverSupport.builder()
-                        .overrideExpressedConnectionRate(FloatNumber.literal(0.5f))
-                        .useWeightFromRandomParentRate(FloatNumber.literal(0.6f))
-                        .build())
-                .speciation(SpeciationSupport.builder()
-                        .maximumSpecies(IntegerNumber.literal(populationSize))
-                        .weightDifferenceCoefficient(FloatNumber.literal(0.4f))
-                        .disjointCoefficient(FloatNumber.literal(1f))
-                        .excessCoefficient(FloatNumber.literal(1f))
-                        .compatibilityThreshold(FloatNumber.literal(3f))
-                        .compatibilityThresholdModifier(FloatNumber.literal(1f))
-                        .eugenicsThreshold(FloatNumber.literal(0.2f))
-                        .elitistThreshold(FloatNumber.literal(0.01f))
-                        .elitistThresholdMinimum(IntegerNumber.literal(2))
-                        .stagnationDropOffAge(IntegerNumber.literal(15))
-                        .interSpeciesMatingRate(FloatNumber.literal(0.001f))
-                        .mateOnlyRate(FloatNumber.literal(0.2f))
-                        .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
                 .metrics(MetricSupport.builder()
                         .type(NeatTest.METRICS_EMISSION_ENABLED

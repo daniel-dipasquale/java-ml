@@ -25,9 +25,10 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
         organismsToBirth.add(organismToBirth);
     }
 
-    private void reproduceInterSpecies(final SpeciesReproductionContext context) {
+    private int reproduceInterSpecies(final SpeciesReproductionContext context) {
         int populationSize = context.getParent().general().params().populationSize();
         List<Species> rankedSpecies = context.getSpeciesState().getRanked();
+        int reproduced = 0;
 
         if (rankedSpecies.size() >= 2) {
             int speciesCount = context.getSpeciesState().getAll().size();
@@ -36,15 +37,21 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
             float organismsNeeded = (float) (populationSize - speciesCount - organismsWithoutSpecies.size() - organismsToBirth.size());
             float organismsToReproduce = organismsNeeded * context.getParent().speciation().params().interSpeciesMatingRate();
             float organismsToReproduceFloored = (float) Math.floor(organismsToReproduce);
+            int organismsToReproduceFlooredFixed = (int) organismsToReproduceFloored;
 
-            for (int i = 0, c = (int) organismsToReproduceFloored; i < c; i++) {
+            for (int i = 0; i < organismsToReproduceFlooredFixed; i++) {
                 reproduceInterSpecies(context.getParent().random(), rankedSpecies, organismsToBirth);
             }
+
+            reproduced = organismsToReproduceFlooredFixed;
 
             if (context.getParent().random().isLessThan(organismsToReproduce - organismsToReproduceFloored)) {
                 reproduceInterSpecies(context.getParent().random(), rankedSpecies, organismsToBirth);
+                reproduced++;
             }
         }
+
+        return reproduced;
     }
 
     private void reproduceIntraSpecies(final Context context, final Queue<OrganismFactory> organismsToBirth, final Species species, final int reproductionCount) {

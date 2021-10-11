@@ -32,9 +32,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
     private boolean started;
     private final AtomicBoolean shutdown;
 
-    ExplicitDelayEventLoop(final String name, final ExplicitDelayEventLoopParams params, final EventLoop nextEntryPoint) {
-        Lock singleLock = new ReentrantLock();
-
+    private ExplicitDelayEventLoop(final String name, final ExplicitDelayEventLoopParams params, final Lock singleLock, final EventLoop nextEntryPoint) {
         this.name = name;
         this.eventRecords = params.getEventRecords();
         this.executorService = params.getExecutorService();
@@ -47,6 +45,10 @@ final class ExplicitDelayEventLoop implements EventLoop {
         this.nextEntryPoint = ensureNotNull(nextEntryPoint, this);
         this.started = false;
         this.shutdown = new AtomicBoolean(true);
+    }
+
+    ExplicitDelayEventLoop(final String name, final ExplicitDelayEventLoopParams params, final EventLoop nextEntryPoint) {
+        this(name, params, new ReentrantLock(), nextEntryPoint);
     }
 
     private static <T> T ensureNotNull(final T first, final T second) {
@@ -195,20 +197,14 @@ final class ExplicitDelayEventLoop implements EventLoop {
     @Override
     public void shutdown() {
         if (!shutdown.getAndSet(true)) {
-            allLock.lock();
+            singleLock.lock();
 
             try {
-                singleLock.lock();
-
-                try {
-                    eventRecords.clear();
-                    untilEmptyWaitHandle.countDown();
-                    whileNoEventAvailableCondition.signal();
-                } finally {
-                    singleLock.unlock();
-                }
+                eventRecords.clear();
+                untilEmptyWaitHandle.countDown();
+                whileNoEventAvailableCondition.signal();
             } finally {
-                allLock.unlock();
+                singleLock.unlock();
             }
         }
     }

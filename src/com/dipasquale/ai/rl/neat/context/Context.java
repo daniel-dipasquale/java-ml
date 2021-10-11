@@ -203,27 +203,9 @@ public interface Context {
 
         float eugenicsThreshold();
 
-        default int fitToReproduce(final int size) {
-            int count1 = (int) Math.floor((double) eugenicsThreshold() * (double) size);
-            int countFixed = Math.max(count1, 1);
-
-            return Math.min(countFixed, size);
-        }
-
         float elitistThreshold();
 
         int elitistThresholdMinimum();
-
-        default int elitesToPreserve(final int size, final boolean includeRepresentative) {
-            int count1 = (int) Math.floor((double) elitistThreshold() * (double) size);
-            int countFixed = Math.max(count1, elitistThresholdMinimum());
-
-            if (includeRepresentative) {
-                return Math.min(countFixed, size);
-            }
-
-            return Math.min(countFixed, size - 1);
-        }
 
         int stagnationDropOffAge();
 
@@ -244,6 +226,24 @@ public interface Context {
         Genome createGenesisGenome(Context context);
 
         double calculateCompatibility(Genome genome1, Genome genome2);
+
+        default int calculateFitToReproduce(final int size) {
+            int count1 = (int) Math.floor((double) params().eugenicsThreshold() * (double) size);
+            int count = Math.max(count1, 1);
+
+            return Math.min(count, size);
+        }
+
+        default int determineElitesToPreserve(final int size, final boolean includeRepresentative) {
+            int count1 = (int) Math.floor((double) params().elitistThreshold() * (double) size);
+            int count = Math.max(count1, params().elitistThresholdMinimum());
+
+            if (includeRepresentative) {
+                return Math.min(count, size);
+            }
+
+            return Math.min(count, size - 1);
+        }
 
         ReproductionType generateReproductionType(int organisms);
 

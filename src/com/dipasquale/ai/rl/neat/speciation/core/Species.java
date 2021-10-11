@@ -122,7 +122,7 @@ public final class Species implements Serializable {
         int size = organisms.size();
 
         if (size > 1) {
-            int keep = speciationSupport.params().fitToReproduce(size);
+            int keep = speciationSupport.calculateFitToReproduce(size);
             int remove = size - keep;
 
             if (remove > 0) {
@@ -187,7 +187,7 @@ public final class Species implements Serializable {
 
     public List<Organism> getFittestOrganisms(final Context.SpeciationSupport speciationSupport, final boolean includeRepresentative) {
         int size = organisms.size();
-        int select = speciationSupport.params().elitesToPreserve(size, includeRepresentative);
+        int select = speciationSupport.determineElitesToPreserve(size, includeRepresentative);
 
         if (select == 0) {
             return List.of();

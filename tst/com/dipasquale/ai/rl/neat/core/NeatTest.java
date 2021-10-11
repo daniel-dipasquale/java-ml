@@ -207,7 +207,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 105_500, unit = TimeUnit.MILLISECONDS)
     @Order(6)
     public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
