@@ -12,6 +12,16 @@ import lombok.ToString;
 public final class BitArrayCalculator {
     private static final long MAXIMUM_VALUE = Integer.MAX_VALUE;
 
+    private static int calculateEstimatedSize(final long estimatedSize, final long count) {
+        long estimatedSizeFixed = (estimatedSize + count - 1L) / count;
+
+        return (int) estimatedSizeFixed;
+    }
+
+    private static long calculateSize(final long size, final long count) {
+        return (size + count - 1L) / count;
+    }
+
     public static Result readjust(final int count, final int estimatedSize, final long size) {
         boolean inBounds = size <= MAXIMUM_VALUE;
 
@@ -20,18 +30,18 @@ public final class BitArrayCalculator {
         }
 
         if (inBounds) {
-            int estimatedSizeFixed = (int) (((long) estimatedSize + count - 1L) / count);
-            long sizeFixed = (size + count - 1L) / count;
+            int estimatedSizeFixed = calculateEstimatedSize(estimatedSize, count);
+            long sizeFixed = calculateSize(size, count);
 
             return new Result(count, estimatedSizeFixed, sizeFixed);
         }
 
         long partitions = (size + MAXIMUM_VALUE - 1L) / MAXIMUM_VALUE;
-        int countFixed = count * (int) partitions;
-        int estimatedSizeFixed = (int) (((long) estimatedSize + partitions - 1L) / partitions);
-        long sizeFixed = (size + partitions - 1L) / partitions;
+        long countFixed = (long) count * partitions;
+        int estimatedSizeFixed = calculateEstimatedSize(estimatedSize, countFixed);
+        long sizeFixed = calculateSize(size, countFixed);
 
-        return new Result(countFixed, estimatedSizeFixed, sizeFixed);
+        return new Result((int) countFixed, estimatedSizeFixed, sizeFixed);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

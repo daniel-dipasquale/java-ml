@@ -28,12 +28,12 @@ public final class BitArrayCalculatorTest {
 
     @Test
     public void TEST_3() {
-        BitArrayCalculator.Result result = BitArrayCalculator.readjust(3, Integer.MAX_VALUE, Integer.MAX_VALUE * 2L);
+        BitArrayCalculator.Result result = BitArrayCalculator.readjust(3, Integer.MAX_VALUE, (long) Integer.MAX_VALUE * 2L);
 
         Assertions.assertEquals(BitArrayCalculator.Result.builder()
                 .count(6)
-                .estimatedSize((int) Math.ceil((double) Integer.MAX_VALUE / 2D))
-                .size(Integer.MAX_VALUE)
+                .estimatedSize(Integer.MAX_VALUE / 6 + 1)
+                .size(Integer.MAX_VALUE / 3 + 1)
                 .build(), result);
     }
 }

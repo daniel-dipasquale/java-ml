@@ -1,6 +1,7 @@
-package com.dipasquale.data.structure.deque;
+package com.dipasquale.data.structure.deque.concurrent;
 
-import lombok.AccessLevel;
+import com.dipasquale.data.structure.deque.Node;
+import com.dipasquale.data.structure.deque.NodeDeque;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -10,25 +11,11 @@ import java.util.Iterator;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class SynchronizedNodeDeque<TValue, TNode extends Node> implements NodeDeque<TValue, TNode>, Serializable {
+@RequiredArgsConstructor
+public final class SynchronizedNodeDeque<TValue, TNode extends Node> implements NodeDeque<TValue, TNode>, Serializable {
     @Serial
     private static final long serialVersionUID = -4409715583250590379L;
     private final NodeDeque<TValue, TNode> nodeDeque;
-
-    @Override
-    public TNode createUnbound(final TValue value) {
-        synchronized (nodeDeque) {
-            return nodeDeque.createUnbound(value);
-        }
-    }
-
-    @Override
-    public TValue getValue(final TNode node) {
-        synchronized (nodeDeque) {
-            return nodeDeque.getValue(node);
-        }
-    }
 
     @Override
     public int size() {
@@ -45,9 +32,23 @@ final class SynchronizedNodeDeque<TValue, TNode extends Node> implements NodeDeq
     }
 
     @Override
+    public TNode createUnbound(final TValue value) {
+        synchronized (nodeDeque) {
+            return nodeDeque.createUnbound(value);
+        }
+    }
+
+    @Override
     public boolean contains(final Object node) {
         synchronized (nodeDeque) {
             return nodeDeque.contains(node);
+        }
+    }
+
+    @Override
+    public TValue getValue(final TNode node) {
+        synchronized (nodeDeque) {
+            return nodeDeque.getValue(node);
         }
     }
 

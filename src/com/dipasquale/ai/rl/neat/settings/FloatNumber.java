@@ -20,7 +20,7 @@ public final class FloatNumber {
     private Float singletonValue = null;
 
     public static <T extends FloatFactory & DualModeObject> DualModeFactory createFactory(final T floatFactory) {
-        return new DefaultDualModeFactory<>(floatFactory);
+        return new InternalDualModeFactory<>(floatFactory);
     }
 
     public static FloatNumber literal(final float value) {
@@ -51,7 +51,7 @@ public final class FloatNumber {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultDualModeFactory<T extends FloatFactory & DualModeObject> implements DualModeFactory, Serializable {
+    private static final class InternalDualModeFactory<T extends FloatFactory & DualModeObject> implements DualModeFactory, Serializable {
         @Serial
         private static final long serialVersionUID = 3324024183810540982L;
         private final T floatFactory;

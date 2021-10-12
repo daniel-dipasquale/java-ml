@@ -44,13 +44,13 @@ public final class SortedByValueHashMap<TKey, TValue> extends AbstractSortedByVa
     }
 
     private static <TKey, TValue> EntryStrategyFactory<TKey, TValue> createEntryStrategyFactory() {
-        return (EntryStrategyFactory<TKey, TValue> & Serializable) EntryInternal::new;
+        return (EntryStrategyFactory<TKey, TValue> & Serializable) InternalEntry::new;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Getter
     @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-    private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue>, Serializable {
+    private static final class InternalEntry<TKey, TValue> implements Entry<TKey, TValue>, Serializable {
         @Serial
         private static final long serialVersionUID = 8675743617156953996L;
         @EqualsAndHashCode.Include

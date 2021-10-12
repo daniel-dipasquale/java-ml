@@ -81,8 +81,8 @@ public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializa
     }
 
     private static BloomFilterFactory createMultiPartStaggeringRecyclableFactory(final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
-        DefaultExpirationFactoryCreator defaultExpirationFactoryCreator = new DefaultExpirationFactoryCreator(dateTimeSupport);
-        ExpirationFactoryProvider expirationFactoryProvider = new StaggeringExpirationFactoryProvider(defaultExpirationFactoryCreator, expirationTime, partitions);
+        InternalExpirationFactoryCreator internalExpirationFactoryCreator = new InternalExpirationFactoryCreator(dateTimeSupport);
+        ExpirationFactoryProvider expirationFactoryProvider = new StaggeringExpirationFactoryProvider(internalExpirationFactoryCreator, expirationTime, partitions);
 
         return new MultiPartRecyclableBloomFilterFactory(DEFAULT_BLOOM_FILTER_FACTORY, expirationFactoryProvider);
     }
@@ -98,7 +98,7 @@ public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializa
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultExpirationFactoryCreator implements ExpirationFactory.Creator, Serializable {
+    private static final class InternalExpirationFactoryCreator implements ExpirationFactory.Creator, Serializable {
         @Serial
         private static final long serialVersionUID = 6504012671008909093L;
         private final DateTimeSupport dateTimeSupport;

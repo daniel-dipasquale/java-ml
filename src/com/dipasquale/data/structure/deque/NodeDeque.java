@@ -30,8 +30,4 @@ public interface NodeDeque<TValue, TNode extends Node> extends Deque<TNode> {
         return flattenedStream()
                 .iterator();
     }
-
-    static <TValue, TNode extends Node> NodeDeque<TValue, TNode> createSynchronized(final NodeDeque<TValue, TNode> nodeDeque) {
-        return new SynchronizedNodeDeque<>(nodeDeque);
-    }
 }

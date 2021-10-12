@@ -52,13 +52,13 @@ public final class ConcurrentSortedByValueHashMap<TKey, TValue> extends Abstract
     }
 
     private static <TKey, TValue> EntryStrategyFactory<TKey, TValue> createEntryStrategyFactory() {
-        return (EntryStrategyFactory<TKey, TValue> & Serializable) EntryInternal::new;
+        return (EntryStrategyFactory<TKey, TValue> & Serializable) InternalEntry::new;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Getter
     @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-    private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue>, Serializable {
+    private static final class InternalEntry<TKey, TValue> implements Entry<TKey, TValue>, Serializable {
         @Serial
         private static final long serialVersionUID = 3861874265900483685L;
         @EqualsAndHashCode.Include

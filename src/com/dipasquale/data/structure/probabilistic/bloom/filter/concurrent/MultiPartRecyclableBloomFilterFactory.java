@@ -20,14 +20,14 @@ public final class MultiPartRecyclableBloomFilterFactory implements com.dipasqua
 
     @Override
     public <T> BloomFilter<T> create(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size) {
-        BloomFilterPartitionFactory bloomFilterPartitionFactory = new DefaultBloomFilterPartitionFactory(defaultBloomFilterFactory, expirationFactoryProvider);
+        BloomFilterPartitionFactory bloomFilterPartitionFactory = new InternalBloomFilterPartitionFactory(defaultBloomFilterFactory, expirationFactoryProvider);
         MultiPartBloomFilterFactory multiPartBloomFilterFactory = new MultiPartBloomFilterFactory(bloomFilterPartitionFactory, expirationFactoryProvider.size());
 
         return multiPartBloomFilterFactory.create(estimatedSize, hashingFunctions, falsePositiveRatio, size);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultBloomFilterPartitionFactory implements BloomFilterPartitionFactory, Serializable {
+    private static final class InternalBloomFilterPartitionFactory implements BloomFilterPartitionFactory, Serializable {
         @Serial
         private static final long serialVersionUID = 8335206399723473140L;
         private final DefaultBloomFilterFactory defaultBloomFilterFactory;

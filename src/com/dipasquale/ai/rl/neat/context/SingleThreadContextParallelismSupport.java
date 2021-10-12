@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public final class SingleThreadContextParallelismSupport implements Context.ParallelismSupport {
-    private final DefaultParameters params = new DefaultParameters();
+    private final InternalParameters params = new InternalParameters();
     private final Collection<Throwable> unhandledExceptions = Collections.newSetFromMap(new IdentityHashMap<>());
 
     @Override
@@ -41,7 +41,7 @@ public final class SingleThreadContextParallelismSupport implements Context.Para
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultParameters implements Context.ParallelismParameters {
+    private static final class InternalParameters implements Context.ParallelismParameters {
         @Override
         public boolean enabled() {
             return false;

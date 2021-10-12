@@ -19,14 +19,18 @@ final class HeavyHittersCountMinSketch<T> implements CountMinSketch<T>, Serializ
     private final ConcurrentBoundedHeap<T, Long> heavyHittersHeap;
     private final ReadWriteLock lock;
 
-    HeavyHittersCountMinSketch(final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirationFactory expirationFactory, final HeavyHittersCountMinSketchCollector<T> heavyHittersCollector, final int topLimit) {
-        ConcurrentBoundedHeap<T, Long> heavyHittersHeap = ConcurrentBoundedHeap.createDescendingOrder(0L, topLimit);
-        ReadWriteLock lock = new ReentrantReadWriteLock();
-        DefaultRecycledCountMinSketchCollector<T> recycledCollector = new DefaultRecycledCountMinSketchCollector<>(heavyHittersCollector, heavyHittersHeap, lock);
-
+    private HeavyHittersCountMinSketch(final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirationFactory expirationFactory, final InternalRecycledCountMinSketchCollector<T> recycledCollector, final ConcurrentBoundedHeap<T, Long> heavyHittersHeap, final ReadWriteLock lock) {
         this.countMinSketch = new RecyclableCountMinSketch<>(countMinSketchFactory, expirationFactory, recycledCollector);
         this.heavyHittersHeap = heavyHittersHeap;
         this.lock = lock;
+    }
+
+    private HeavyHittersCountMinSketch(final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirationFactory expirationFactory, final HeavyHittersCountMinSketchCollector<T> heavyHittersCollector, final ConcurrentBoundedHeap<T, Long> heavyHittersHeap, final ReadWriteLock lock) {
+        this(countMinSketchFactory, expirationFactory, new InternalRecycledCountMinSketchCollector<>(heavyHittersCollector, heavyHittersHeap, lock), heavyHittersHeap, lock);
+    }
+
+    HeavyHittersCountMinSketch(final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirationFactory expirationFactory, final HeavyHittersCountMinSketchCollector<T> heavyHittersCollector, final int topLimit) {
+        this(countMinSketchFactory, expirationFactory, heavyHittersCollector, ConcurrentBoundedHeap.createDescendingOrder(0L, topLimit), new ReentrantReadWriteLock());
     }
 
     @Override
@@ -50,7 +54,7 @@ final class HeavyHittersCountMinSketch<T> implements CountMinSketch<T>, Serializ
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultRecycledCountMinSketchCollector<T> implements RecycledCountMinSketchCollector<T>, Serializable {
+    private static final class InternalRecycledCountMinSketchCollector<T> implements RecycledCountMinSketchCollector<T>, Serializable {
         @Serial
         private static final long serialVersionUID = 637258958115809843L;
         private final HeavyHittersCountMinSketchCollector<T> heavyHittersCollector;

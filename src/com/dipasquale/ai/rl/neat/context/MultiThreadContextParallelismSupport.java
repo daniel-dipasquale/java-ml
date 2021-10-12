@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public final class MultiThreadContextParallelismSupport implements Context.ParallelismSupport {
-    private final DefaultParameters params = new DefaultParameters();
+    private final InternalParameters params = new InternalParameters();
     private final IterableEventLoop eventLoop;
 
     @Override
@@ -44,7 +44,7 @@ public final class MultiThreadContextParallelismSupport implements Context.Paral
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private final class DefaultParameters implements Context.ParallelismParameters {
+    private final class InternalParameters implements Context.ParallelismParameters {
         @Override
         public boolean enabled() {
             return true;

@@ -48,7 +48,7 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
         TNode nodeOld = nodesMap.get(key);
 
         if (nodeOld == null) {
-            TNode nodeNew = nodesDeque.createUnbound(new EntryInternal<>(key, value));
+            TNode nodeNew = nodesDeque.createUnbound(new InternalEntry<>(key, value));
 
             nodesDeque.add(nodeNew);
             nodesMap.put(key, nodeNew);
@@ -138,7 +138,7 @@ public abstract class AbstractDequeMap<TKey, TValue, TNode extends Node> extends
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Getter
     @EqualsAndHashCode
-    private static final class EntryInternal<TKey, TValue> implements Entry<TKey, TValue>, Serializable {
+    private static final class InternalEntry<TKey, TValue> implements Entry<TKey, TValue>, Serializable {
         @Serial
         private static final long serialVersionUID = 4663468376592098127L;
         private final TKey key;

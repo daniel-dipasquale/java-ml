@@ -21,7 +21,7 @@ public final class EnumValue<T extends Enum<T>> {
     private T singletonValue = null;
 
     public static <TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> DualModeFactory<TEnum> createFactory(final TEnumFactory enumFactory) {
-        return new DefaultDualModeFactory<>(enumFactory);
+        return new InternalDualModeFactory<>(enumFactory);
     }
 
     public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
@@ -61,7 +61,7 @@ public final class EnumValue<T extends Enum<T>> {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultDualModeFactory<TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> implements DualModeFactory<TEnum>, Serializable {
+    private static final class InternalDualModeFactory<TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> implements DualModeFactory<TEnum>, Serializable {
         @Serial
         private static final long serialVersionUID = 3324024183810540982L;
         private final TEnumFactory enumFactory;

@@ -7,13 +7,13 @@ public class SimpleNodeTest {
     @Test
     public void TEST_0() {
         Object membership = new Object();
-        SimpleNode<String> test = new SimpleNode<>("value-1", membership);
+        SimpleNode<String> test = new SimpleNode<>(membership, "value-1");
 
         Assertions.assertEquals(membership, test.membership);
-        Assertions.assertEquals(new SimpleNode<>("value-1", membership), test);
-        Assertions.assertEquals(new SimpleNode<>("value-1", new Object()), test);
-        Assertions.assertEquals(new SimpleNode<>("value-1", null), test);
-        Assertions.assertNotEquals(new SimpleNode<>("value-2", null), test);
+        Assertions.assertEquals(new SimpleNode<>(membership, "value-1"), test);
+        Assertions.assertEquals(new SimpleNode<>(new Object(), "value-1"), test);
+        Assertions.assertEquals(new SimpleNode<>(null, "value-1"), test);
+        Assertions.assertNotEquals(new SimpleNode<>(null, "value-2"), test);
         Assertions.assertEquals("SimpleNode(value=value-1)", test.toString());
     }
 }

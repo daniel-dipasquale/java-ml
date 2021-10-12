@@ -23,7 +23,7 @@ public final class IntegerNumber {
         DualModeFactoryCreator factoryCreator = (ps, rs) -> {
             DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(ps.getConcurrencyLevel(), new LiteralIntegerFactory(value));
 
-            return new DefaultDualModeFactory<>(integerFactory);
+            return new InternalDualModeFactory<>(integerFactory);
         };
 
         return new IntegerNumber(factoryCreator);
@@ -33,7 +33,7 @@ public final class IntegerNumber {
         DualModeFactoryCreator factoryCreator = (ps, rs) -> {
             DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(rs.get(type), min, max);
 
-            return new DefaultDualModeFactory<>(integerFactory);
+            return new InternalDualModeFactory<>(integerFactory);
         };
 
         return new IntegerNumber(factoryCreator);
@@ -55,7 +55,7 @@ public final class IntegerNumber {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultDualModeFactory<T extends IntegerFactory & DualModeObject> implements DualModeFactory, Serializable {
+    private static final class InternalDualModeFactory<T extends IntegerFactory & DualModeObject> implements DualModeFactory, Serializable {
         @Serial
         private static final long serialVersionUID = 3324024183810540982L;
         private final T integerFactory;

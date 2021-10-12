@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 import java.io.Serializable;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MultiPartHeavyHittersCountMinSketchFactory implements CountMinSketchFactory, Serializable {
     @Serial
     private static final long serialVersionUID = 6074021532417328154L;
@@ -24,7 +24,7 @@ public final class MultiPartHeavyHittersCountMinSketchFactory implements CountMi
 
     @Override
     public <T> CountMinSketch<T> create(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size, final int bitsForCounter) {
-        CountMinSketchPartitionFactory countMinSketchPartitionFactory = new DefaultCountMinSketchPartitionFactory(defaultCountMinSketchFactory, expirationFactoryProvider, heavyHittersCollector, topLimit);
+        CountMinSketchPartitionFactory countMinSketchPartitionFactory = new InternalCountMinSketchPartitionFactory(defaultCountMinSketchFactory, expirationFactoryProvider, heavyHittersCollector, topLimit);
         MultiPartCountMinSketchFactory multiPartCountMinSketchFactory = new MultiPartCountMinSketchFactory(countMinSketchPartitionFactory, expirationFactoryProvider.size());
 
         return multiPartCountMinSketchFactory.create(estimatedSize, hashingFunctions, falsePositiveRatio, size, bitsForCounter);
@@ -35,7 +35,7 @@ public final class MultiPartHeavyHittersCountMinSketchFactory implements CountMi
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DefaultCountMinSketchPartitionFactory implements CountMinSketchPartitionFactory, Serializable {
+    private static final class InternalCountMinSketchPartitionFactory implements CountMinSketchPartitionFactory, Serializable {
         @Serial
         private static final long serialVersionUID = -6755576789843076419L;
         private final DefaultCountMinSketchFactory defaultCountMinSketchFactory;

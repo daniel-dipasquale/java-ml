@@ -14,10 +14,10 @@ import java.io.Serializable;
 public final class SimpleNode<T> implements Node, Serializable {
     @Serial
     private static final long serialVersionUID = -5328023116496736922L;
+    final Object membership;
     @EqualsAndHashCode.Include
     @ToString.Include
     final T value;
-    final Object membership;
     SimpleNode<T> previous = null;
     SimpleNode<T> next = null;
 }

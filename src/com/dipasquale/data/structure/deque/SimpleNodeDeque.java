@@ -18,13 +18,13 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
     private int size;
 
     public SimpleNodeDeque() {
-        initialize();
+        this.initialize();
     }
 
     private void initialize() {
         Object membership = new Membership();
-        SimpleNode<T> start = new SimpleNode<>(null, membership);
-        SimpleNode<T> end = new SimpleNode<>(null, membership);
+        SimpleNode<T> start = new SimpleNode<>(membership, null);
+        SimpleNode<T> end = new SimpleNode<>(membership, null);
 
         start.next = end;
         end.previous = start;
@@ -35,38 +35,20 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
     }
 
     @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
     public SimpleNode<T> createUnbound(final T value) {
-        return new SimpleNode<>(value, membership);
+        return new SimpleNode<>(membership, value);
     }
 
     private boolean hasMembership(final SimpleNode<T> node) {
         return node != null && node.membership == membership;
     }
 
-    private T getValueInternal(final SimpleNode<T> node) {
-        return node.value;
-    }
-
-    @Override
-    public T getValue(final SimpleNode<T> node) {
-        if (!hasMembership(node)) {
-            return null;
-        }
-
-        return getValueInternal(node);
-    }
-
-    @Override
-    public int size() {
-        return size;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    private boolean canBeAdded(final SimpleNode<T> node) {
+    private static <T> boolean canBeAdded(final SimpleNode<T> node) {
         return node.previous == null;
     }
 
@@ -79,6 +61,15 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
         }
 
         return false;
+    }
+
+    @Override
+    public T getValue(final SimpleNode<T> node) {
+        if (!hasMembership(node)) {
+            return null;
+        }
+
+        return node.value;
     }
 
     private SimpleNode<T> peekPreviousInternal(final SimpleNode<T> node) {
@@ -125,8 +116,8 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
         return peekPreviousInternal(end);
     }
 
-    private boolean canBeRemoved(final SimpleNode<T> node) {
-        return node.previous != null;
+    private static <T> boolean canBeRemoved(final SimpleNode<T> node) {
+        return !canBeAdded(node);
     }
 
     private SimpleNode<T> removeInternal(final SimpleNode<T> node) {
