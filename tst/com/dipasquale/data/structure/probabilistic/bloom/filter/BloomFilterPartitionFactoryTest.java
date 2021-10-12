@@ -11,7 +11,7 @@ import java.util.Map;
 public final class BloomFilterPartitionFactoryTest {
     private static final Map<String, String> ITEMS = new HashMap<>();
     private static final BloomFilterFactory BLOOM_FILTER_FACTORY = new BloomFilterFactoryMock(ITEMS);
-    private static final BloomFilterPartitionFactory TEST = new LiteralBloomFilterPartitionFactory(BLOOM_FILTER_FACTORY);
+    private static final BloomFilterPartitionFactory TEST = new StrategyBloomFilterPartitionFactory(BLOOM_FILTER_FACTORY);
 
     @BeforeEach
     public void beforeEach() {

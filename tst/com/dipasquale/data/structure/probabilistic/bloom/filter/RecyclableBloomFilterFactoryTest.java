@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class BloomFilterFactoryTest {
+public final class RecyclableBloomFilterFactoryTest {
     private static final Map<String, String> ITEMS = new HashMap<>();
     private static final BloomFilterFactory TEST = new BloomFilterFactoryMock(ITEMS);
 

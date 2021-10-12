@@ -5,8 +5,6 @@ import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ProxyDateTimeSupport;
-import com.dipasquale.data.structure.probabilistic.DefaultHashingFunctionFactory;
-import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -31,7 +29,7 @@ public final class ConcurrentBloomFilterTest {
     private static final boolean TEST_AGAINST_BLOOM_FILTER = true; // 8,000,000 items and 3 test cases (and default p) = 613,112,000 bytes without sets
     private static final boolean TEST_AGAINST_SET = true; // 8,000,000 items and 3 test cases = 3,534,360,000 bytes without bloom filters
     private static final int CPU_CORES = DEBUG_MODE ? 1 : Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-    private static final int SIZE = 500_000;
+    private static final int SIZE = 1_000_000;
     private static final int ESTIMATED_SIZE = SIZE;
     private static final int HASH_FUNCTIONS = 8;
     private static final double FALSE_POSITIVE_RATIO = 0.003D;
@@ -136,10 +134,5 @@ public final class ConcurrentBloomFilterTest {
     @Test
     public void TEST_3() {
         performTest(() -> new ConcurrentBloomFilter<>(ESTIMATED_SIZE, HASH_FUNCTIONS, DATE_TIME_SUPPORT, EXPIRY_TIME, BLOOM_FILTER_PARTITIONS));
-    }
-
-    @Test
-    public void TEST_4() {
-        performTest(() -> new DefaultBloomFilterFactory(new DefaultHashingFunctionFactory().create(HashingFunctionAlgorithm.SHA_1, ConcurrentBloomFilterTest.class.getSimpleName())).createEstimated(ESTIMATED_SIZE, FALSE_POSITIVE_RATIO));
     }
 }

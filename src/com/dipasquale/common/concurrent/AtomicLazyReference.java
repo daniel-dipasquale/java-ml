@@ -16,6 +16,10 @@ public final class AtomicLazyReference<T> implements Serializable {
     private final ObjectFactory<T> referenceFactory;
     private volatile ReferenceEnvelope<T> referenceEnvelope = null;
 
+    public boolean initialized() {
+        return initialized.get();
+    }
+
     public T reference() {
         ReferenceEnvelope<T> referenceEnvelopeFixed;
 

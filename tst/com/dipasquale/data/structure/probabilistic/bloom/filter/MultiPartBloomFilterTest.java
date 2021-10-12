@@ -13,7 +13,7 @@ public final class MultiPartBloomFilterTest {
     private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new DefaultHashingFunctionFactory();
     private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.MD5, MultiPartBloomFilterTest.class.getSimpleName());
     private static final DefaultBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
-    private static final MultiPartBloomFilterFactory BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new LiteralBloomFilterPartitionFactory(BLOOM_FILTER_DEFAULT_FACTORY), 3);
+    private static final MultiPartBloomFilterFactory BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new StrategyBloomFilterPartitionFactory(BLOOM_FILTER_DEFAULT_FACTORY), 3);
 
     @Test
     public void TEST_1() {

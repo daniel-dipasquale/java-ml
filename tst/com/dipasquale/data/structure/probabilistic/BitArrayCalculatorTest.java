@@ -21,8 +21,8 @@ public final class BitArrayCalculatorTest {
 
         Assertions.assertEquals(BitArrayCalculator.Result.builder()
                 .count(2)
-                .estimatedSize(Integer.MAX_VALUE)
-                .size(Integer.MAX_VALUE)
+                .estimatedSize(Integer.MAX_VALUE / 2 + 1)
+                .size(Integer.MAX_VALUE / 2 + 1)
                 .build(), result);
     }
 

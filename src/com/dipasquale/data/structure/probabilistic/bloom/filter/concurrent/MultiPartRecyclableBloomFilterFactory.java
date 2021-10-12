@@ -36,9 +36,9 @@ public final class MultiPartRecyclableBloomFilterFactory implements com.dipasqua
         @Override
         public <T> BloomFilter<T> create(final int index, final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size) {
             ExpirationFactory expirationFactory = expirationFactoryProvider.get(index);
-            BloomFilterFactory bloomFilterFactory = new BloomFilterFactory(defaultBloomFilterFactory, expirationFactory);
+            RecyclableBloomFilterFactory recyclableBloomFilterFactory = new RecyclableBloomFilterFactory(defaultBloomFilterFactory, expirationFactory);
 
-            return bloomFilterFactory.create(estimatedSize, hashingFunctions, falsePositiveRatio, size);
+            return recyclableBloomFilterFactory.create(estimatedSize, hashingFunctions, falsePositiveRatio, size);
         }
     }
 }

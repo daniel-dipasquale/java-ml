@@ -18,12 +18,22 @@ final class AtomicLongArrayBloomFilter<T> implements BloomFilter<T>, Serializabl
     private final BitManipulator dataBitManipulator;
     private final int hashingFunctions;
 
-    AtomicLongArrayBloomFilter(final HashingFunction hashingFunction, final int size, final int hashingFunctions) {
-        AtomicLongArray array = new AtomicLongArray(size);
-
+    private AtomicLongArrayBloomFilter(final HashingFunction hashingFunction, final AtomicLongArray array, final int hashingFunctions) {
         this.hashingFunction = hashingFunction;
         this.dataBitManipulator = new SingleBitAtomicLongArrayBitManipulator(array);
         this.hashingFunctions = hashingFunctions;
+    }
+
+    AtomicLongArrayBloomFilter(final HashingFunction hashingFunction, final int size, final int hashingFunctions) {
+        this(hashingFunction, new AtomicLongArray(size), hashingFunctions);
+    }
+
+    private static long getNextHashCode(final long hashCode) {
+        if (hashCode >= 0L) {
+            return hashCode;
+        }
+
+        return hashCode >>> (1 + (int) (~hashCode % MAXIMUM_SHIFTS));
     }
 
     private BitSet selectOrUpdateData(final T item, final BitRetriever bitRetriever) {
@@ -33,10 +43,7 @@ final class AtomicLongArrayBloomFilter<T> implements BloomFilter<T>, Serializabl
         long hashCodeMerged = hashingFunction.hashCode(hashCode, hashFunctionIndex);
 
         for (int i = 0; i < hashingFunctions; i++) {
-            long hashCodeFixed = hashCodeMerged >= 0L
-                    ? hashCodeMerged
-                    : hashCodeMerged >>> (1 + (int) (~hashCodeMerged % MAXIMUM_SHIFTS));
-
+            long hashCodeFixed = getNextHashCode(hashCodeMerged);
             long index = hashCodeFixed % dataBitManipulator.size();
             int shifts = 8 + (i + hashFunctionIndex) % MAXIMUM_SHIFTS;
 

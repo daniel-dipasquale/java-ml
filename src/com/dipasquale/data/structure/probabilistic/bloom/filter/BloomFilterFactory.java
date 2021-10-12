@@ -37,8 +37,7 @@ public interface BloomFilterFactory {
         ArgumentValidatorSupport.ensureLessThanOrEqualTo(falsePositiveRatio, 1D, "falsePositiveRatio");
         ArgumentValidatorSupport.ensureGreaterThanZero(size, "size", String.format("estimatedSize '%d', hashingFunctions '%d' and falsePositiveRatio '%f' yields a size lesser than 0", estimatedSize, hashingFunctions, falsePositiveRatio));
 
-        double size1 = (double) size / (double) getSizePerRecord();
-        long sizeFixed = (long) Math.ceil(size1);
+        long sizeFixed = (size + getSizePerRecord() - 1) / getSizePerRecord();
 
         return create(estimatedSize, hashingFunctions, falsePositiveRatio, sizeFixed);
     }

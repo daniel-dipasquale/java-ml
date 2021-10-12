@@ -237,7 +237,7 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ProxyIteratorFactory<TKey, TValue> implements IteratorFactory<TKey, TValue> {
+    private static final class ProxyIteratorFactory<TKey, TValue> implements IteratorFactory<TKey, TValue>, Serializable {
         @Serial
         private static final long serialVersionUID = -3776208100159642493L;
         private final boolean ascending;

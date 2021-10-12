@@ -11,8 +11,8 @@ import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterFactory;
-import com.dipasquale.data.structure.probabilistic.bloom.filter.LiteralBloomFilterPartitionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.MultiPartBloomFilterFactory;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.StrategyBloomFilterPartitionFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +25,7 @@ public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializa
     private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new DefaultHashingFunctionFactory();
     private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.SHA_1, ConcurrentBloomFilter.class.getSimpleName());
     private static final DefaultBloomFilterFactory DEFAULT_BLOOM_FILTER_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
-    private static final MultiPartBloomFilterFactory MULTI_PART_BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new LiteralBloomFilterPartitionFactory(DEFAULT_BLOOM_FILTER_FACTORY), 1);
+    private static final MultiPartBloomFilterFactory MULTI_PART_BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new StrategyBloomFilterPartitionFactory(DEFAULT_BLOOM_FILTER_FACTORY), 1);
     private final BloomFilter<T> bloomFilter;
 
     public ConcurrentBloomFilter(final int estimatedSize) {

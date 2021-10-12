@@ -23,7 +23,7 @@ public final class RecyclableBloomFilterTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, TimeUnit.MILLISECONDS);
     private static final ExpirationFactory EXPIRY_SUPPORT = DATE_TIME_SUPPORT.createBucketExpirationFactory(1L);
-    private static final BloomFilterFactory BLOOM_FILTER_FACTORY = new BloomFilterFactory(BLOOM_FILTER_DEFAULT_FACTORY, EXPIRY_SUPPORT);
+    private static final RecyclableBloomFilterFactory BLOOM_FILTER_FACTORY = new RecyclableBloomFilterFactory(BLOOM_FILTER_DEFAULT_FACTORY, EXPIRY_SUPPORT);
 
     @BeforeEach
     public void beforeEach() {
