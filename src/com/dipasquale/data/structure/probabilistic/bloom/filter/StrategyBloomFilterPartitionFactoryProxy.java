@@ -6,7 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class DefaultBloomFilterPartitionFactoryProxy implements BloomFilterPartitionFactory.Proxy, Serializable {
+public final class StrategyBloomFilterPartitionFactoryProxy implements BloomFilterPartitionFactory.Proxy, Serializable {
     @Serial
     private static final long serialVersionUID = -7193742902379231860L;
     private final BloomFilterPartitionFactory bloomFilterPartitionFactory;

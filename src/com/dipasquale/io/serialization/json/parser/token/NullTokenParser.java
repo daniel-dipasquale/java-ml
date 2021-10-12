@@ -1,6 +1,6 @@
 package com.dipasquale.io.serialization.json.parser.token;
 
-import com.dipasquale.io.CharacterBuffer;
+import com.dipasquale.io.CharacterBufferedReader;
 import com.dipasquale.io.serialization.json.JsonObjectBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,14 +10,14 @@ import java.io.IOException;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class NullTokenParser implements TokenParser {
     @Override
-    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBuffer characterBuffer)
+    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader)
             throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(characterBuffer.getCurrent());
+        stringBuilder.append(characterBufferedReader.getCurrent());
 
         for (int i = 0, c = 3; i < c; i++) {
-            stringBuilder.append(characterBuffer.readNext());
+            stringBuilder.append(characterBufferedReader.readNext());
         }
 
         String value = stringBuilder.toString();
@@ -30,8 +30,8 @@ public final class NullTokenParser implements TokenParser {
 
         jsonObjectBuilder.addNull();
 
-        if (!characterBuffer.isDone()) {
-            characterBuffer.readNext();
+        if (!characterBufferedReader.isDone()) {
+            characterBufferedReader.readNext();
         }
 
         return null;

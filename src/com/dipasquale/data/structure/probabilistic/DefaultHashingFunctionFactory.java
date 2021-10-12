@@ -24,10 +24,10 @@ public final class DefaultHashingFunctionFactory implements HashingFunctionFacto
     private static Map<HashingFunctionAlgorithm, HashingFunctionFactoryProxy> createHashingFunctionFactories() {
         Map<HashingFunctionAlgorithm, HashingFunctionFactoryProxy> hashingFunctionFactories = new EnumMap<>(HashingFunctionAlgorithm.class);
 
-        hashingFunctionFactories.put(HashingFunctionAlgorithm.MD5, (seed, offset, salt) -> new DefaultHashingFunction(HashingFunctionAlgorithm.MD5, offset, salt));
-        hashingFunctionFactories.put(HashingFunctionAlgorithm.SHA_1, (seed, offset, salt) -> new DefaultHashingFunction(HashingFunctionAlgorithm.SHA_1, offset, salt));
-        hashingFunctionFactories.put(HashingFunctionAlgorithm.SHA_256, (seed, offset, salt) -> new DefaultHashingFunction(HashingFunctionAlgorithm.SHA_256, offset, salt));
-        hashingFunctionFactories.put(HashingFunctionAlgorithm.SHA_512, (seed, offset, salt) -> new DefaultHashingFunction(HashingFunctionAlgorithm.SHA_512, offset, salt));
+        hashingFunctionFactories.put(HashingFunctionAlgorithm.MD5, (seed, offset, salt) -> new ThreadLocalHashingFunction(HashingFunctionAlgorithm.MD5, offset, salt));
+        hashingFunctionFactories.put(HashingFunctionAlgorithm.SHA_1, (seed, offset, salt) -> new ThreadLocalHashingFunction(HashingFunctionAlgorithm.SHA_1, offset, salt));
+        hashingFunctionFactories.put(HashingFunctionAlgorithm.SHA_256, (seed, offset, salt) -> new ThreadLocalHashingFunction(HashingFunctionAlgorithm.SHA_256, offset, salt));
+        hashingFunctionFactories.put(HashingFunctionAlgorithm.SHA_512, (seed, offset, salt) -> new ThreadLocalHashingFunction(HashingFunctionAlgorithm.SHA_512, offset, salt));
 
         return hashingFunctionFactories;
     }

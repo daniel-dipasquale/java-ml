@@ -2,9 +2,6 @@ package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.bit.BitManipulatorSupport;
-import com.dipasquale.common.factory.ObjectFactory;
-
-import java.io.Serializable;
 
 public interface BloomFilterFactory {
     default int getSizePerRecord() {
@@ -12,10 +9,6 @@ public interface BloomFilterFactory {
     }
 
     <T> BloomFilter<T> create(int estimatedSize, int hashingFunctions, double falsePositiveRatio, long size);
-
-    default <T> ObjectFactory<BloomFilter<T>> createProxy(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size) {
-        return (ObjectFactory<BloomFilter<T>> & Serializable) () -> create(estimatedSize, hashingFunctions, falsePositiveRatio, size);
-    }
 
     private static long calculateSize(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio) {
         double size1 = (double) -hashingFunctions / Math.log(1D - Math.exp(Math.log(falsePositiveRatio) / (double) hashingFunctions));

@@ -1,6 +1,6 @@
 package com.dipasquale.io.serialization.json.parser;
 
-import com.dipasquale.io.CharacterBuffer;
+import com.dipasquale.io.CharacterBufferedReader;
 import com.dipasquale.io.serialization.json.JsonObject;
 import com.dipasquale.io.serialization.json.JsonObjectBuilder;
 import com.dipasquale.io.serialization.json.parser.token.StackOnceTokenParserChoice;
@@ -36,42 +36,38 @@ public final class JsonParser {
         return tokenParserChoices;
     }
 
-    private JsonObject parse(final JsonObjectBuilder jsonObjectBuilder, CharacterBuffer characterBuffer)
-            throws IOException {
-        TokenParser tokenParser = TOKEN_PARSER_CHOICE_DIRECTORY.getFileStart().get(characterBuffer.readNext());
-        TokenParserChoice tokenParserChoice = tokenParser.parse(jsonObjectBuilder, characterBuffer);
+    private static UnableToParseJsonException createUnableToParseException(final CharacterBufferedReader characterBufferedReader) {
+        String message = String.format("unable to parse character '%c' at location: %d", characterBufferedReader.getCurrent(), characterBufferedReader.getIndex());
 
-        while (!characterBuffer.isDone() && tokenParserChoice != null && tokenParserChoice.repeatable() > 0) {
-            tokenParser = tokenParserChoice.get(characterBuffer.getCurrent());
+        return new UnableToParseJsonException(message);
+    }
+
+    private JsonObject parse(final JsonObjectBuilder jsonObjectBuilder, CharacterBufferedReader characterBufferedReader)
+            throws IOException {
+        TokenParser tokenParser = TOKEN_PARSER_CHOICE_DIRECTORY.getFileStart().get(characterBufferedReader.readNext());
+        TokenParserChoice tokenParserChoice = tokenParser.parse(jsonObjectBuilder, characterBufferedReader);
+
+        while (!characterBufferedReader.isDone() && tokenParserChoice != null && tokenParserChoice.repeatable() > 0) {
+            tokenParser = tokenParserChoice.get(characterBufferedReader.getCurrent());
 
             if (tokenParser != null) {
-                tokenParserChoice = merge(tokenParserChoice, tokenParser.parse(jsonObjectBuilder, characterBuffer));
+                tokenParserChoice = merge(tokenParserChoice, tokenParser.parse(jsonObjectBuilder, characterBufferedReader));
             }
         }
 
-        if (characterBuffer.isDone()) {
+        if (characterBufferedReader.isDone()) {
             return jsonObjectBuilder.build();
         }
 
-        throw new IllegalStateException("unable to parse the entire json");
-    }
-
-    private static IOException createUnableToParseException(final CharacterBuffer characterBuffer, final Throwable exception) {
-        String message = String.format("unable to parse character '%c' at location: %d", characterBuffer.getCurrent(), characterBuffer.getIndex());
-
-        return new IOException(message, exception);
+        throw createUnableToParseException(characterBufferedReader);
     }
 
     public JsonObject parse(final Reader reader)
             throws IOException {
         JsonObjectBuilder jsonObjectBuilder = new JsonObjectBuilder();
-        CharacterBuffer characterBuffer = new CharacterBuffer(reader, bufferSize);
+        CharacterBufferedReader characterBufferedReader = new CharacterBufferedReader(reader, bufferSize);
 
-        try {
-            return parse(jsonObjectBuilder, characterBuffer);
-        } catch (Exception e) {
-            throw createUnableToParseException(characterBuffer, e);
-        }
+        return parse(jsonObjectBuilder, characterBufferedReader);
     }
 
     public JsonObject parse(final String json)

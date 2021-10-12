@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public final class AtomicLongArrayBloomFilterTest {
     private static final int CONSISTENCY_CHECK = 15;
     private static final HashingFunction HASHING_FUNCTION = new DefaultHashingFunctionFactory().create(HashingFunctionAlgorithm.MD5, AtomicLongArrayBloomFilterTest.class.getSimpleName());
-    private static final DefaultBloomFilterFactory BLOOM_FILTER_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
+    private static final AtomicLongArrayBloomFilterFactory BLOOM_FILTER_FACTORY = new AtomicLongArrayBloomFilterFactory(HASHING_FUNCTION);
 
     @Test
     public void TEST_1() {

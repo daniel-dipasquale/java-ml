@@ -62,7 +62,7 @@ public final class GenesisGenomeTemplate {
             default -> {
                 String message = String.format("%s needs to be implemented", initialConnectionType);
 
-                throw new IllegalStateException(message);
+                throw new UnsupportedOperationException(message);
             }
         };
     }

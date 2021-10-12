@@ -6,7 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class DefaultCountMinSketchPartitionFactoryProxy implements CountMinSketchPartitionFactory.Proxy, Serializable {
+public final class StrategyCountMinSketchPartitionFactoryProxy implements CountMinSketchPartitionFactory.Proxy, Serializable {
     @Serial
     private static final long serialVersionUID = 8181382817016169961L;
     private final CountMinSketchPartitionFactory countMinSketchPartitionFactory;

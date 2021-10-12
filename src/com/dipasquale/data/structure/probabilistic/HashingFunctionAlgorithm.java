@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum HashingFunctionAlgorithm {
-    MD5("MD5"), // message digest
-    SHA_1("SHA-1"), // message digest
-    SHA_256("SHA-256"), // message digest
-    SHA_512("SHA-512"); // message digest
+    MD5("MD5"),
+    SHA_1("SHA-1"),
+    SHA_256("SHA-256"),
+    SHA_512("SHA-512");
 
     private final String name;
 }

@@ -61,9 +61,9 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
         double cartPosition = 0.5D * (x + positionLimit) / positionLimit;
         double cartVelocity = (dx + 0.75D) / 1.5D;
         double poleAngle = 0.5D * (theta + ANGLE_RADIANS_LIMIT) / ANGLE_RADIANS_LIMIT;
-        double poleVelocity = (dtheta + 1D) / 2D;
+        double poleVelocityAtTip = (dtheta + 1D) / 2D;
 
-        return new double[]{cartPosition, cartVelocity, poleAngle, poleVelocity};
+        return new double[]{cartPosition, cartVelocity, poleAngle, poleVelocityAtTip};
     }
 
     public boolean isLimitHit() {

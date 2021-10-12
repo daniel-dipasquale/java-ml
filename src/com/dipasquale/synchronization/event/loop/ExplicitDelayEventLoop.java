@@ -2,6 +2,7 @@ package com.dipasquale.synchronization.event.loop;
 
 import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
+import com.dipasquale.synchronization.InterruptedRuntimeException;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.synchronization.wait.handle.TogglingWaitHandle;
 import lombok.AccessLevel;
@@ -106,7 +107,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
 
-                        throw new RuntimeException("thread was interrupted while waiting for the next event in the loop", e);
+                        throw new InterruptedRuntimeException("thread was interrupted while waiting for the next event in the loop", e);
                     }
                 } else {
                     try {

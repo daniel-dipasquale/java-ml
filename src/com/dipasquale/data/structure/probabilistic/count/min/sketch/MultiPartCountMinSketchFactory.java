@@ -19,7 +19,7 @@ public final class MultiPartCountMinSketchFactory implements CountMinSketchFacto
     }
 
     private CountMinSketchPartitionFactory.Proxy createPartitionFactoryProxy(final BitArrayCalculator.Result readjusted, final int hashingFunctions, final double falsePositiveRatio, final int bits) {
-        return new DefaultCountMinSketchPartitionFactoryProxy(countMinSketchPartitionFactory, readjusted.getEstimatedSize(), hashingFunctions, falsePositiveRatio, readjusted.getSize(), bits);
+        return new StrategyCountMinSketchPartitionFactoryProxy(countMinSketchPartitionFactory, readjusted.getEstimatedSize(), hashingFunctions, falsePositiveRatio, readjusted.getSize(), bits);
     }
 
     @Override

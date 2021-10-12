@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.io.IOException;
 import java.io.Reader;
 
-public final class CharacterBuffer {
+public final class CharacterBufferedReader {
     private final Reader reader;
     private final char[] buffer;
     private int index;
@@ -14,7 +14,7 @@ public final class CharacterBuffer {
     @Getter
     private char current;
 
-    public CharacterBuffer(final Reader reader, final int size) {
+    public CharacterBufferedReader(final Reader reader, final int size) {
         this.reader = reader;
         this.buffer = new char[size];
         this.read = 0;
@@ -38,7 +38,7 @@ public final class CharacterBuffer {
     private void replace()
             throws IOException {
         if (isDone()) {
-            throw new IOException("reached end of the string reader");
+            throw new ReachedEndOfReaderException();
         }
 
         index = 0;

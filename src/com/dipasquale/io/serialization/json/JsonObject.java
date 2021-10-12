@@ -191,7 +191,7 @@ public final class JsonObject implements Iterable<Object>, Serializable {
 
             return SerializableSupport.deserializeObject(bytes);
         } catch (IOException | ClassNotFoundException e) {
-            throw new IllegalStateException("unable to clone the JsonObject", e);
+            throw new UnableToCloneJsonObjectException(e);
         }
     }
 

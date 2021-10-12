@@ -1,6 +1,6 @@
 package com.dipasquale.io.serialization.json.parser.token;
 
-import com.dipasquale.io.CharacterBuffer;
+import com.dipasquale.io.CharacterBufferedReader;
 import com.dipasquale.io.serialization.json.JsonObjectBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +27,16 @@ public final class StringTokenParser implements TokenParser {
         return escapedCharacters;
     }
 
-    private static void addEscaped(final StringBuilder stringBuilder, final CharacterBuffer characterBuffer)
+    private static void addEscaped(final StringBuilder stringBuilder, final CharacterBufferedReader characterBufferedReader)
             throws IOException {
-        char escapedCharacter = characterBuffer.readNext();
+        char escapedCharacter = characterBufferedReader.readNext();
 
         switch (escapedCharacter) {
             case 'u' -> {
                 StringBuilder hexBuilder = new StringBuilder();
 
                 for (int i = 0, c = 4; i < c; i++) {
-                    hexBuilder.append(characterBuffer.readNext());
+                    hexBuilder.append(characterBufferedReader.readNext());
                 }
 
                 String message = String.format("unable to parse the hex code (yet): '%s'", hexBuilder);
@@ -59,15 +59,15 @@ public final class StringTokenParser implements TokenParser {
     }
 
     @Override
-    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBuffer characterBuffer)
+    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader)
             throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
 
         for (boolean readNext = true; readNext; ) {
-            char character = characterBuffer.readNext();
+            char character = characterBufferedReader.readNext();
 
             switch (character) {
-                case '\\' -> addEscaped(stringBuilder, characterBuffer);
+                case '\\' -> addEscaped(stringBuilder, characterBufferedReader);
 
                 case '"' -> readNext = false;
 
@@ -77,8 +77,8 @@ public final class StringTokenParser implements TokenParser {
 
         jsonObjectBuilder.addString(stringBuilder.toString());
 
-        if (!characterBuffer.isDone()) {
-            characterBuffer.readNext();
+        if (!characterBufferedReader.isDone()) {
+            characterBufferedReader.readNext();
         }
 
         return null;

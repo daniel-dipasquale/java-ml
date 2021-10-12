@@ -14,12 +14,12 @@ import java.io.Serializable;
 public final class RecyclableCountMinSketchFactory implements CountMinSketchFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -2266138661340338391L;
-    private final DefaultCountMinSketchFactory defaultCountMinSketchFactory;
+    private final AtomicLongArrayCountMinSketchFactory atomicLongArrayCountMinSketchFactory;
     private final ExpirationFactory expirationFactory;
     private final RecycledCountMinSketchCollector<?> recycledCollector;
 
     public RecyclableCountMinSketchFactory(final HashingFunction hashingFunction, final ExpirationFactory expirationFactory, final RecycledCountMinSketchCollector<?> recycledCollector) {
-        this(new DefaultCountMinSketchFactory(hashingFunction), expirationFactory, recycledCollector);
+        this(new AtomicLongArrayCountMinSketchFactory(hashingFunction), expirationFactory, recycledCollector);
     }
 
     private static <T> T ensureType(final Object object) {
@@ -28,7 +28,7 @@ public final class RecyclableCountMinSketchFactory implements CountMinSketchFact
 
     @Override
     public <T> CountMinSketch<T> create(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size, final int bitsForCounter) {
-        ObjectFactory<CountMinSketch<T>> countMinSketchFactory = defaultCountMinSketchFactory.createProxy(estimatedSize, hashingFunctions, falsePositiveRatio, size, bitsForCounter);
+        ObjectFactory<CountMinSketch<T>> countMinSketchFactory = atomicLongArrayCountMinSketchFactory.createProxy(estimatedSize, hashingFunctions, falsePositiveRatio, size, bitsForCounter);
 
         return new RecyclableCountMinSketch<>(countMinSketchFactory, expirationFactory, ensureType(recycledCollector));
     }

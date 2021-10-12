@@ -1,6 +1,6 @@
 package com.dipasquale.io.serialization.json.parser.token;
 
-import com.dipasquale.io.CharacterBuffer;
+import com.dipasquale.io.CharacterBufferedReader;
 import com.dipasquale.io.serialization.json.JsonObjectBuilder;
 import com.dipasquale.io.serialization.json.JsonObjectType;
 import lombok.AccessLevel;
@@ -14,12 +14,12 @@ public final class ObjectStartOrNextEntryTokenParser implements TokenParser {
     private final boolean createNew;
 
     @Override
-    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBuffer characterBuffer)
+    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader)
             throws IOException {
         StackOnceTokenParserChoice tokenParserChoices = new StackOnceTokenParserChoice();
 
         tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getObjectEnd());
+        tokenParserChoices.push(tokenParserChoiceDirectory.getObjectEndOrNextEntry());
         tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
         tokenParserChoices.push(tokenParserChoiceDirectory.getValueStart());
         tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());

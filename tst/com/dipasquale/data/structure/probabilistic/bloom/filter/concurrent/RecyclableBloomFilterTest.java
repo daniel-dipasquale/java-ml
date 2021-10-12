@@ -19,7 +19,7 @@ public final class RecyclableBloomFilterTest {
     private static final int CONSISTENCY_CHECK_COUNT = 15;
     private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new DefaultHashingFunctionFactory();
     private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.MD5, RecyclableBloomFilterTest.class.getSimpleName());
-    private static final DefaultBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
+    private static final AtomicLongArrayBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new AtomicLongArrayBloomFilterFactory(HASHING_FUNCTION);
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, TimeUnit.MILLISECONDS);
     private static final ExpirationFactory EXPIRY_SUPPORT = DATE_TIME_SUPPORT.createBucketExpirationFactory(1L);

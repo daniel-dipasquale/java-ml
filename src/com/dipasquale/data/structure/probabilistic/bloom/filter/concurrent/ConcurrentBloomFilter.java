@@ -24,7 +24,7 @@ public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializa
     private static final long serialVersionUID = -3477491277835878755L;
     private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new DefaultHashingFunctionFactory();
     private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.SHA_1, ConcurrentBloomFilter.class.getSimpleName());
-    private static final DefaultBloomFilterFactory DEFAULT_BLOOM_FILTER_FACTORY = new DefaultBloomFilterFactory(HASHING_FUNCTION);
+    private static final AtomicLongArrayBloomFilterFactory DEFAULT_BLOOM_FILTER_FACTORY = new AtomicLongArrayBloomFilterFactory(HASHING_FUNCTION);
     private static final MultiPartBloomFilterFactory MULTI_PART_BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new StrategyBloomFilterPartitionFactory(DEFAULT_BLOOM_FILTER_FACTORY), 1);
     private final BloomFilter<T> bloomFilter;
 

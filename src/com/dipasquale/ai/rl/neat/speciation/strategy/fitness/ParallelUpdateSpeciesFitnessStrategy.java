@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
+import com.dipasquale.synchronization.InterruptedRuntimeException;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnes
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 
-            throw new RuntimeException("thread was interrupted while updating the organisms fitness", e);
+            throw new InterruptedRuntimeException("thread was interrupted while updating the organisms fitness", e);
         }
     }
 

@@ -17,14 +17,14 @@ import java.io.Serializable;
 public final class MultiPartHeavyHittersCountMinSketchFactory implements CountMinSketchFactory, Serializable {
     @Serial
     private static final long serialVersionUID = 6074021532417328154L;
-    private final DefaultCountMinSketchFactory defaultCountMinSketchFactory;
+    private final AtomicLongArrayCountMinSketchFactory atomicLongArrayCountMinSketchFactory;
     private final ExpirationFactoryProvider expirationFactoryProvider;
     private final HeavyHittersCountMinSketchCollector<?> heavyHittersCollector;
     private final int topLimit;
 
     @Override
     public <T> CountMinSketch<T> create(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size, final int bitsForCounter) {
-        CountMinSketchPartitionFactory countMinSketchPartitionFactory = new InternalCountMinSketchPartitionFactory(defaultCountMinSketchFactory, expirationFactoryProvider, heavyHittersCollector, topLimit);
+        CountMinSketchPartitionFactory countMinSketchPartitionFactory = new InternalCountMinSketchPartitionFactory(atomicLongArrayCountMinSketchFactory, expirationFactoryProvider, heavyHittersCollector, topLimit);
         MultiPartCountMinSketchFactory multiPartCountMinSketchFactory = new MultiPartCountMinSketchFactory(countMinSketchPartitionFactory, expirationFactoryProvider.size());
 
         return multiPartCountMinSketchFactory.create(estimatedSize, hashingFunctions, falsePositiveRatio, size, bitsForCounter);
@@ -38,14 +38,14 @@ public final class MultiPartHeavyHittersCountMinSketchFactory implements CountMi
     private static final class InternalCountMinSketchPartitionFactory implements CountMinSketchPartitionFactory, Serializable {
         @Serial
         private static final long serialVersionUID = -6755576789843076419L;
-        private final DefaultCountMinSketchFactory defaultCountMinSketchFactory;
+        private final AtomicLongArrayCountMinSketchFactory atomicLongArrayCountMinSketchFactory;
         private final ExpirationFactoryProvider expirationFactoryProvider;
         private final HeavyHittersCountMinSketchCollector<?> heavyHittersCollector;
         private final int topLimit;
 
         @Override
         public <T> CountMinSketch<T> create(final int index, final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final long size, final int bitsForCounter) {
-            ObjectFactory<CountMinSketch<T>> countMinSketchFactory = defaultCountMinSketchFactory.createProxy(estimatedSize, hashingFunctions, falsePositiveRatio, size, bitsForCounter);
+            ObjectFactory<CountMinSketch<T>> countMinSketchFactory = atomicLongArrayCountMinSketchFactory.createProxy(estimatedSize, hashingFunctions, falsePositiveRatio, size, bitsForCounter);
             ExpirationFactory expirationFactory = expirationFactoryProvider.get(index);
 
             return new HeavyHittersCountMinSketch<>(countMinSketchFactory, expirationFactory, ensureType(heavyHittersCollector), topLimit);

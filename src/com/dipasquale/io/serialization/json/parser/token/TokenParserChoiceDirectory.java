@@ -12,9 +12,9 @@ public final class TokenParserChoiceDirectory {
     private final TokenParserChoice colon;
     private final TokenParserChoice comma;
     private final TokenParserChoice objectStart;
-    private final TokenParserChoice objectEnd;
+    private final TokenParserChoice objectEndOrNextEntry;
     private final TokenParserChoice arrayStart;
-    private final TokenParserChoice arrayEnd;
+    private final TokenParserChoice arrayEndOrNextEntry;
     private final TokenParserChoice string;
     private final TokenParserChoice valueStart;
 
@@ -29,9 +29,9 @@ public final class TokenParserChoiceDirectory {
         this.colon = new OneTokenParserChoice(Set.of(':')::contains, new OneCharacterTokenParser(), false);
         this.comma = new OneTokenParserChoice(Set.of(',')::contains, new OneCharacterTokenParser(), false);
         this.objectStart = new OneTokenParserChoice(Set.of('{')::contains, new OneCharacterTokenParser(), false);
-        this.objectEnd = createObjectEndChoice(new ObjectStartOrNextEntryTokenParser(this, false), new FinalizeCurrentTokenParser());
+        this.objectEndOrNextEntry = createObjectEndOrNextEntryChoice(new ObjectStartOrNextEntryTokenParser(this, false), new FinalizeObjectTokenParser());
         this.arrayStart = new OneTokenParserChoice(Set.of('[')::contains, new OneCharacterTokenParser(), false);
-        this.arrayEnd = createArrayEndChoice(new ArrayStartOrNextElementTokenParser(this, false), new FinalizeCurrentTokenParser());
+        this.arrayEndOrNextEntry = createArrayEndOrNextEntryChoice(new ArrayStartOrNextElementTokenParser(this, false), new FinalizeObjectTokenParser());
         this.string = new OneTokenParserChoice(Set.of('"')::contains, stringParser, false);
         this.valueStart = createValueStartChoice(objectStartParser, arrayStartParser, stringParser, new NumberTokenParser(), new BooleanTokenParser(), new NullTokenParser());
     }
@@ -40,7 +40,7 @@ public final class TokenParserChoiceDirectory {
         return INSTANCE;
     }
 
-    private static TokenParserChoice createObjectEndChoice(final TokenParser nextEntryTokenParser, final TokenParser objectEndParser) {
+    private static TokenParserChoice createObjectEndOrNextEntryChoice(final TokenParser nextEntryTokenParser, final TokenParser objectEndParser) {
         ConfigurableTokenParserChoice tokenParserChoices = new ConfigurableTokenParserChoice();
 
         tokenParserChoices.register(',', nextEntryTokenParser);
@@ -49,7 +49,7 @@ public final class TokenParserChoiceDirectory {
         return tokenParserChoices;
     }
 
-    private static TokenParserChoice createArrayEndChoice(final TokenParser nextElementTokenParser, final TokenParser arrayEndParser) {
+    private static TokenParserChoice createArrayEndOrNextEntryChoice(final TokenParser nextElementTokenParser, final TokenParser arrayEndParser) {
         ConfigurableTokenParserChoice tokenParserChoices = new ConfigurableTokenParserChoice();
 
         tokenParserChoices.register(',', nextElementTokenParser);

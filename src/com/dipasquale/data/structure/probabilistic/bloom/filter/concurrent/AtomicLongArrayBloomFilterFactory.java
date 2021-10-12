@@ -9,7 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class DefaultBloomFilterFactory implements BloomFilterFactory, Serializable {
+public final class AtomicLongArrayBloomFilterFactory implements BloomFilterFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -5366286836961796106L;
     private final HashingFunction hashingFunction;

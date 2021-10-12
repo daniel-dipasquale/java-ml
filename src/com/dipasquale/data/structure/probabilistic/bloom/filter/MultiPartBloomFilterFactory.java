@@ -14,7 +14,7 @@ public final class MultiPartBloomFilterFactory implements BloomFilterFactory, Se
     private final int count;
 
     private BloomFilterPartitionFactory.Proxy createPartitionFactoryProxy(final BitArrayCalculator.Result readjusted, final int hashingFunctions, final double falsePositiveRatio) {
-        return new DefaultBloomFilterPartitionFactoryProxy(bloomFilterPartitionFactory, readjusted.getEstimatedSize(), hashingFunctions, falsePositiveRatio, readjusted.getSize());
+        return new StrategyBloomFilterPartitionFactoryProxy(bloomFilterPartitionFactory, readjusted.getEstimatedSize(), hashingFunctions, falsePositiveRatio, readjusted.getSize());
     }
 
     @Override

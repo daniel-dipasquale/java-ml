@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-final class DefaultHashingFunction implements HashingFunction, Serializable {
+final class ThreadLocalHashingFunction implements HashingFunction, Serializable {
     @Serial
     private static final long serialVersionUID = -2119483978497376865L;
     private final HashingFunctionAlgorithm algorithm;
@@ -16,7 +16,7 @@ final class DefaultHashingFunction implements HashingFunction, Serializable {
     private final byte[] salt;
     private transient ThreadLocal<MessageDigest> messageDigestThreadLocal;
 
-    DefaultHashingFunction(final HashingFunctionAlgorithm algorithm, final long offset, final byte[] salt) {
+    ThreadLocalHashingFunction(final HashingFunctionAlgorithm algorithm, final long offset, final byte[] salt) {
         this.algorithm = algorithm;
         this.offset = offset;
         this.salt = salt;
@@ -27,7 +27,7 @@ final class DefaultHashingFunction implements HashingFunction, Serializable {
         try {
             return MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new NoSuchAlgorithmRuntimeException(e);
         }
     }
 
@@ -49,10 +49,10 @@ final class DefaultHashingFunction implements HashingFunction, Serializable {
     }
 
     @Override
-    public long hashCode(final int itemHashCode, final int entropyId) {
+    public long hashCode(final int hashCode, final int entropy) {
         byte[] input = ByteBuffer.allocate(12 + salt.length)
-                .putInt(itemHashCode)
-                .putLong(offset - (long) entropyId * 1_024L)
+                .putInt(hashCode)
+                .putLong(offset - (long) entropy * 1_024L)
                 .put(salt)
                 .array();
 

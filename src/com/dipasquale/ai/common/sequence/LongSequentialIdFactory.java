@@ -21,7 +21,7 @@ public final class LongSequentialIdFactory implements SequentialIdFactory, Seria
         long value = counter.increment();
 
         if (value == Long.MIN_VALUE) {
-            throw new IllegalStateException("SequentialId reach its end");
+            throw new SequenceEndedException();
         }
 
         return new LongSequentialId(value);

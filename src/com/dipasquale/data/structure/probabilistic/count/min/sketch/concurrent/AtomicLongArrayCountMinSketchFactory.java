@@ -9,7 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class DefaultCountMinSketchFactory implements CountMinSketchFactory, Serializable {
+public final class AtomicLongArrayCountMinSketchFactory implements CountMinSketchFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -3669793887819190074L;
     private final HashingFunction hashingFunction;

@@ -5,6 +5,7 @@ import com.dipasquale.ai.rl.neat.common.FitnessBucket;
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.common.StandardNeatEnvironment;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
+import com.dipasquale.ai.rl.neat.core.NeatEnvironmentNotLoadedException;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.FeedForwardNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
@@ -105,10 +106,10 @@ public final class DefaultContextActivationSupport implements Context.Activation
         }
 
         if (neatEnvironment instanceof Throwable) {
-            throw new RuntimeException("unable to load the neat environment (aka: fitness function)", (Throwable) neatEnvironment);
+            throw new NeatEnvironmentNotLoadedException((Throwable) neatEnvironment);
         }
 
-        throw new RuntimeException("unable to load the neat environment (aka: fitness function)");
+        throw new NeatEnvironmentNotLoadedException();
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop, final NeatEnvironment neatEnvironmentOverride) {

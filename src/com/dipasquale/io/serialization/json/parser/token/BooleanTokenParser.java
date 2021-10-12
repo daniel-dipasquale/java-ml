@@ -1,6 +1,6 @@
 package com.dipasquale.io.serialization.json.parser.token;
 
-import com.dipasquale.io.CharacterBuffer;
+import com.dipasquale.io.CharacterBufferedReader;
 import com.dipasquale.io.serialization.json.JsonObjectBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -9,14 +9,14 @@ import java.io.IOException;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class BooleanTokenParser implements TokenParser {
-    private static void parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBuffer characterBuffer, final String expected)
+    private static void parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader, final String expected)
             throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(characterBuffer.getCurrent());
+        stringBuilder.append(characterBufferedReader.getCurrent());
 
         for (int i = 0, c = expected.length() - 1; i < c; i++) {
-            stringBuilder.append(characterBuffer.readNext());
+            stringBuilder.append(characterBufferedReader.readNext());
         }
 
         String value = stringBuilder.toString();
@@ -31,16 +31,16 @@ public final class BooleanTokenParser implements TokenParser {
     }
 
     @Override
-    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBuffer characterBuffer)
+    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader)
             throws IOException {
-        switch (characterBuffer.getCurrent()) {
-            case 'f' -> parse(jsonObjectBuilder, characterBuffer, "false");
+        switch (characterBufferedReader.getCurrent()) {
+            case 'f' -> parse(jsonObjectBuilder, characterBufferedReader, "false");
 
-            default -> parse(jsonObjectBuilder, characterBuffer, "true");
+            default -> parse(jsonObjectBuilder, characterBufferedReader, "true");
         }
 
-        if (!characterBuffer.isDone()) {
-            characterBuffer.readNext();
+        if (!characterBufferedReader.isDone()) {
+            characterBufferedReader.readNext();
         }
 
         return null;
