@@ -1,4 +1,4 @@
-package com.dipasquale.common.serialization;
+package com.dipasquale.io.serialization;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

@@ -1,6 +1,6 @@
 package com.dipasquale.common;
 
-import com.dipasquale.common.serialization.SerializableSupport;
+import com.dipasquale.io.serialization.SerializableSupport;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 

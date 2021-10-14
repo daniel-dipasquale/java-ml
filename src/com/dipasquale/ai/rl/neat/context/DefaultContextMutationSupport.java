@@ -8,7 +8,7 @@ import com.dipasquale.ai.rl.neat.settings.MutationSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutputClassifierFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomFloatFactory;
-import com.dipasquale.common.serialization.SerializableStateGroup;
+import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.provider.DualModeIsLessThanRandomGateProvider;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;

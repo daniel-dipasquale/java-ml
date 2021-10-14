@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.settings.CrossOverSupport;
 import com.dipasquale.ai.rl.neat.settings.FloatNumber;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
-import com.dipasquale.common.serialization.SerializableStateGroup;
+import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.provider.DualModeIsLessThanRandomGateProvider;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;

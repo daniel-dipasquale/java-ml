@@ -1,7 +1,7 @@
 package com.dipasquale.ai.common.function.activation.function;
 
 import com.dipasquale.ai.common.function.activation.ReLUActivationFunction;
-import com.dipasquale.common.serialization.SerializableSupport;
+import com.dipasquale.io.serialization.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

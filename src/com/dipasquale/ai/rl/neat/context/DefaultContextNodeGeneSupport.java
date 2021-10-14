@@ -18,7 +18,7 @@ import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutpu
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeStrategyActivationFunctionFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeNodeGeneIdFactory;
 import com.dipasquale.common.factory.IllegalStateFloatFactory;
-import com.dipasquale.common.serialization.SerializableStateGroup;
+import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeCyclicFloatFactory;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeFloatFactory;

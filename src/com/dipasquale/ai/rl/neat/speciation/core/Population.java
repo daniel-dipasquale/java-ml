@@ -9,13 +9,13 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReprodu
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesState;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionOrganismMissingException;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionContext;
-import com.dipasquale.common.serialization.SerializableStateGroup;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
 import com.dipasquale.data.structure.iterable.Iterables;
 import com.dipasquale.data.structure.set.DequeIdentitySet;
 import com.dipasquale.data.structure.set.DequeSet;
+import com.dipasquale.io.serialization.SerializableStateGroup;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

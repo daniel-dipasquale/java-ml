@@ -27,7 +27,7 @@ import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGeno
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeSequentialIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeSpeciesFitnessStrategy;
 import com.dipasquale.common.factory.ObjectIndexer;
-import com.dipasquale.common.serialization.SerializableStateGroup;
+import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;

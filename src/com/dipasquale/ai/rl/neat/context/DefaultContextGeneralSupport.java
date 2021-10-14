@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.common.serialization.SerializableStateGroup;
+import com.dipasquale.io.serialization.SerializableStateGroup;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 

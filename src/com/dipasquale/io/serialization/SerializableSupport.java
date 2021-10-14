@@ -1,7 +1,6 @@
-package com.dipasquale.common.serialization;
+package com.dipasquale.io.serialization;
 
 import lombok.AccessLevel;
-import lombok.Generated;
 import lombok.NoArgsConstructor;
 
 import java.io.ByteArrayInputStream;
@@ -11,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-@Generated
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SerializableSupport {
     public static byte[] serializeObject(final Serializable object)
