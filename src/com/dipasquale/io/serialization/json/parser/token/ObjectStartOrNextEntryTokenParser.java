@@ -19,13 +19,7 @@ public final class ObjectStartOrNextEntryTokenParser implements TokenParser {
         StackOnceTokenParserChoice tokenParserChoices = new StackOnceTokenParserChoice();
 
         tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getObjectEndOrNextEntry());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getValueStart());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getColon());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getString());
+        tokenParserChoices.push(tokenParserChoiceDirectory.getObjectEndOrAllEntries());
         tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
 
         if (createNew) {

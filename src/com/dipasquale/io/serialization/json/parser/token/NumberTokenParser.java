@@ -13,23 +13,29 @@ public final class NumberTokenParser implements TokenParser {
     public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader)
             throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
-        boolean isDouble = false;
+        int dataTypeStage = 0;
+        char previousCharacter = characterBufferedReader.getCurrent();
 
-        stringBuilder.append(characterBufferedReader.getCurrent());
+        stringBuilder.append(previousCharacter);
 
         for (boolean readNext = true; readNext; ) {
             char character = characterBufferedReader.readNext();
 
             switch (character) {
-                case '.' -> {
-                    if (isDouble) {
-                        String message = String.format("invalid number '%s.'", stringBuilder);
+                case '.', 'e', 'E', '+', '-' -> {
+                    if (character == '.' && dataTypeStage > 0 || (character == '+' || character == '-') && (dataTypeStage < 2 || previousCharacter != 'e' && previousCharacter != 'E')) {
+                        String message = String.format("invalid number '%s%c'", stringBuilder, character);
 
                         throw new NumberFormatException(message);
                     }
 
-                    stringBuilder.append('.');
-                    isDouble = true;
+                    stringBuilder.append(character);
+
+                    if (character == '.') {
+                        dataTypeStage = 1;
+                    } else {
+                        dataTypeStage = 2;
+                    }
                 }
 
                 default -> {
@@ -41,12 +47,13 @@ public final class NumberTokenParser implements TokenParser {
                 }
             }
 
+            previousCharacter = character;
             readNext &= !characterBufferedReader.isDone();
         }
 
         String value = stringBuilder.toString();
 
-        if (isDouble) {
+        if (dataTypeStage > 0) {
             jsonObjectBuilder.addNumber(Double.parseDouble(value));
         } else {
             jsonObjectBuilder.addNumber(Long.parseLong(value));

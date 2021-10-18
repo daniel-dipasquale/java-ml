@@ -24,15 +24,17 @@ import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.settings.RandomSupport;
 import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@Getter
 final class XorTaskSetup implements TaskSetup {
-    private static final String NAME = "XOR";
-
     private static final float[][] INPUTS = new float[][]{
             new float[]{1f, 1f}, // 0f
             new float[]{1f, 0f}, // 1f
@@ -41,7 +43,8 @@ final class XorTaskSetup implements TaskSetup {
     };
 
     private static final float[] EXPECTED_OUTPUTS = new float[]{0f, 1f, 1f, 0f};
-    @Getter
+    private final String name = "XOR";
+    private final boolean metricsEmissionEnabled;
     private final int populationSize = 150;
 
     private static float calculateFitness(final GenomeActivator genomeActivator) {
@@ -69,11 +72,6 @@ final class XorTaskSetup implements TaskSetup {
         }
 
         return success;
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 
     @Override
@@ -142,7 +140,7 @@ final class XorTaskSetup implements TaskSetup {
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
                 .metrics(MetricSupport.builder()
-                        .type(NeatTest.METRICS_EMISSION_ENABLED
+                        .type(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))
                         .build())

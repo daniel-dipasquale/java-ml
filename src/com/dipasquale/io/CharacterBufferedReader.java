@@ -4,10 +4,13 @@ import lombok.Getter;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Deque;
+import java.util.LinkedList;
 
 public final class CharacterBufferedReader {
     private final Reader reader;
     private final char[] buffer;
+    private final Deque<Character> bufferRead;
     private int index;
     private int length;
     private int read;
@@ -17,6 +20,7 @@ public final class CharacterBufferedReader {
     public CharacterBufferedReader(final Reader reader, final int size) {
         this.reader = reader;
         this.buffer = new char[size];
+        this.bufferRead = new LinkedList<>();
         this.read = 0;
         this.index = size;
         this.length = size;
@@ -25,6 +29,16 @@ public final class CharacterBufferedReader {
 
     public int getIndex() {
         return read;
+    }
+
+    public String extractText() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (Character character : bufferRead) {
+            stringBuilder.append((char) character);
+        }
+
+        return stringBuilder.toString();
     }
 
     private boolean isEmpty() {
@@ -52,7 +66,13 @@ public final class CharacterBufferedReader {
         }
 
         read++;
+        current = buffer[index++];
+        bufferRead.addLast(current);
 
-        return current = buffer[index++];
+        if (bufferRead.size() > buffer.length) {
+            bufferRead.removeFirst();
+        }
+
+        return current;
     }
 }

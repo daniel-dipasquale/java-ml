@@ -8,6 +8,8 @@ import java.util.Set;
 interface TaskSetup {
     String getName();
 
+    boolean isMetricsEmissionEnabled();
+
     int getPopulationSize();
 
     EvaluatorSettings createSettings(Set<String> genomeIds, IterableEventLoop eventLoop);

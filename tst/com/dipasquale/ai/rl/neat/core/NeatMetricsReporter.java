@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class NeatMetricsReporter {
+final class NeatMetricsReporter {
     private static String getCsvHeader(final List<MetricDatumQueryProjection> queryProjections, final MetricsResult result) {
         StringJoiner headerNamesJoiner = new StringJoiner(",");
 

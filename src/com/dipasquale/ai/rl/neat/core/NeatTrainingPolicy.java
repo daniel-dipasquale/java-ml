@@ -5,11 +5,9 @@ public interface NeatTrainingPolicy {
 
     void reset();
 
-    default NeatTrainingResult testOnce(final NeatActivator activator) {
-        try {
-            return test(activator);
-        } finally {
-            reset();
-        }
+    default NeatTrainingResult retest(final NeatActivator activator) {
+        reset();
+
+        return test(activator);
     }
 }

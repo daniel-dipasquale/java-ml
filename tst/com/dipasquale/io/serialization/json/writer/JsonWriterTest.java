@@ -18,16 +18,27 @@ public final class JsonWriterTest {
         JsonObject jsonObject = JsonObject.builder()
                 .type(JsonObjectType.OBJECT)
                 .entries(Map.ofEntries(
-                        Map.entry("string-name", "string-value"),
-                        Map.entry("number-name", 123.23D),
-                        Map.entry("boolean-name", false),
-                        Map.entry("object-name", JsonObject.builder()
+                        Map.entry("string_not_empty", "value"),
+                        Map.entry("string_empty", ""),
+                        Map.entry("number_positive_double", 123.23D),
+                        Map.entry("number_zero_double", 0L),
+                        Map.entry("number_negative_double", -123.23D),
+                        Map.entry("number_positive_long", 123L),
+                        Map.entry("number_zero_long", 0L),
+                        Map.entry("number_negative_long", -123L),
+                        Map.entry("boolean_false", false),
+                        Map.entry("boolean_true", true),
+                        Map.entry("object_not_empty", JsonObject.builder()
                                 .type(JsonObjectType.OBJECT)
                                 .entries(Map.ofEntries(
-                                        Map.entry("object-name-1", "object-value-1")
+                                        Map.entry("string_not_empty", "value")
                                 ))
                                 .build()),
-                        Map.entry("array-name", JsonObject.builder()
+                        Map.entry("object_empty", JsonObject.builder()
+                                .type(JsonObjectType.OBJECT)
+                                .entries(Map.ofEntries())
+                                .build()),
+                        Map.entry("array_not_empty", JsonObject.builder()
                                 .type(JsonObjectType.ARRAY)
                                 .entries(Map.ofEntries(
                                         Map.entry(0, "1"),
@@ -35,6 +46,10 @@ public final class JsonWriterTest {
                                         Map.entry(2, false),
                                         Map.entry("length", 3)
                                 ))
+                                .build()),
+                        Map.entry("array_empty", JsonObject.builder()
+                                .type(JsonObjectType.ARRAY)
+                                .entries(Map.ofEntries())
                                 .build())
                 ))
                 .build();

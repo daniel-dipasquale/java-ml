@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class OneTokenParserChoice implements TokenParserChoice {
+public final class SingleTokenParserChoice implements TokenParserChoice {
     private final TokenParserClassifier tokenParserClassifier;
     private final TokenParser tokenParser;
     private final boolean optional;

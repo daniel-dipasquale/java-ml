@@ -36,10 +36,10 @@ public final class JsonParser {
         return tokenParserChoices;
     }
 
-    private static UnableToParseJsonException createUnableToParseException(final CharacterBufferedReader characterBufferedReader) {
-        String message = String.format("unable to parse character '%c' at location: %d", characterBufferedReader.getCurrent(), characterBufferedReader.getIndex());
+    private static UnableToParseJsonException createUnableToParseException(final CharacterBufferedReader characterBufferedReader, final Throwable cause) {
+        String message = String.format("unable to parse character '%c' at location: %d. [BUFFER] -> %s", characterBufferedReader.getCurrent(), characterBufferedReader.getIndex(), characterBufferedReader.extractText());
 
-        return new UnableToParseJsonException(message);
+        return new UnableToParseJsonException(message, cause);
     }
 
     private JsonObject parse(final JsonObjectBuilder jsonObjectBuilder, CharacterBufferedReader characterBufferedReader)
@@ -59,7 +59,7 @@ public final class JsonParser {
             return jsonObjectBuilder.build();
         }
 
-        throw createUnableToParseException(characterBufferedReader);
+        throw createUnableToParseException(characterBufferedReader, null);
     }
 
     public JsonObject parse(final Reader reader)
@@ -67,7 +67,13 @@ public final class JsonParser {
         JsonObjectBuilder jsonObjectBuilder = new JsonObjectBuilder();
         CharacterBufferedReader characterBufferedReader = new CharacterBufferedReader(reader, bufferSize);
 
-        return parse(jsonObjectBuilder, characterBufferedReader);
+        try {
+            return parse(jsonObjectBuilder, characterBufferedReader);
+        } catch (IOException | UnableToParseJsonException e) {
+            throw e;
+        } catch (Exception e) {
+            throw createUnableToParseException(characterBufferedReader, e);
+        }
     }
 
     public JsonObject parse(final String json)

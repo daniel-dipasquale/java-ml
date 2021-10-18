@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class FinalizeObjectTokenParser implements TokenParser {
+public final class FinalizeObjectOrArrayTokenParser implements TokenParser {
     @Override
     public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader)
             throws IOException {

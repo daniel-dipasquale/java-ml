@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.settings.EvaluatorSettings;
 import com.dipasquale.ai.rl.neat.settings.GeneralEvaluatorSupport;
@@ -12,22 +13,27 @@ import com.dipasquale.ai.rl.neat.settings.IntegerNumber;
 import com.dipasquale.ai.rl.neat.settings.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.settings.MetricSupport;
 import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
-import com.dipasquale.common.random.float2.CyclicRandomSupport;
-import com.dipasquale.common.random.float2.ThreadLocalRandomSupport;
-import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
+import com.dipasquale.simulation.openai.gym.client.GymClient;
+import com.dipasquale.simulation.openai.gym.client.StepResult;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this test might not be working as expected
-    private static final String NAME = "Single Pole Balancing";
-    private static final double TIME_SPENT_GOAL = 60D;
-    private static final com.dipasquale.common.random.float2.RandomSupport RANDOM_SUPPORT = new ThreadLocalRandomSupport();
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
+    private static final double REWARD_GOAL = 100D;
+    private final GymClient gymClient;
+    @Getter
+    private final String name = "CartPole-v0";
+    @Getter
+    private final boolean metricsEmissionEnabled;
     @Getter
     private final int populationSize = 150;
 
@@ -41,44 +47,39 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
         return output;
     }
 
-    private static float calculateFitness(final GenomeActivator genomeActivator) {
-        CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(RANDOM_SUPPORT);
-        NeuronMemory neuronMemory = genomeActivator.createMemory();
+    private float calculateFitness(final NeuralNetwork neuralNetwork, final boolean render) {
+        String instanceId = gymClient.createEnvironment(name);
+        float[] input = convertToFloat(gymClient.reset(instanceId));
+        double reward = 0D;
+        NeuronMemory neuronMemory = neuralNetwork.createMemory();
 
-        while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) < 0) {
-            float[] input = convertToFloat(cartPole.getState());
-            float[] output = genomeActivator.activate(input, neuronMemory);
+        for (boolean done = false; !done; ) {
+            float[] output = neuralNetwork.activate(input, neuronMemory);
+            double action = Math.round(output[0]);
+            StepResult stepResult = gymClient.step(instanceId, action, render);
 
-            cartPole.stepInDiscrete(output[0]);
+            done = stepResult.isDone();
+            input = convertToFloat(stepResult.getObservation());
+            reward += stepResult.getReward();
         }
 
-        return (float) cartPole.getTimeSpent();
+        return (float) reward;
     }
 
-    private static boolean determineTrainingResult(final NeatActivator activator) {
+    private float calculateFitness(final GenomeActivator genomeActivator) {
+        return calculateFitness(genomeActivator, false);
+    }
+
+    private boolean determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
-        CyclicRandomSupport randomSupport = new CyclicRandomSupport(SUCCESSFUL_SCENARIOS * 4);
 
         for (int i = 0; success && i < SUCCESSFUL_SCENARIOS; i++) {
-            CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
-            NeuronMemory neuronMemory = activator.createMemory();
+            float fitness = calculateFitness(activator, false);
 
-            while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) < 0) {
-                float[] input = convertToFloat(cartPole.getState());
-                float[] output = activator.activate(input, neuronMemory);
-
-                cartPole.stepInDiscrete(output[0]);
-            }
-
-            success = Double.compare(cartPole.getTimeSpent(), TIME_SPENT_GOAL) >= 0;
+            success = Double.compare(fitness, REWARD_GOAL) >= 0;
         }
 
         return success;
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 
     @Override
@@ -104,7 +105,7 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
                         .eventLoop(eventLoop)
                         .build())
                 .metrics(MetricSupport.builder()
-                        .type(NeatTest.METRICS_EMISSION_ENABLED
+                        .type(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))
                         .build())
@@ -115,13 +116,18 @@ final class SinglePoleBalancingTaskSetup implements TaskSetup { // TODO: this te
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
                 .add(SupervisorTrainingPolicy.builder()
-                        .maximumGeneration(100)
+                        .maximumGeneration(500)
                         .maximumRestartCount(4)
                         .build())
-                .add(new DelegatedTrainingPolicy(SinglePoleBalancingTaskSetup::determineTrainingResult))
+                .add(new DelegatedTrainingPolicy(this::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
                         .fitnessTestCount(SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST)
                         .build())
                 .build();
+    }
+
+    @Override
+    public void visualize(final NeatActivator activator) {
+        calculateFitness(activator, true);
     }
 }

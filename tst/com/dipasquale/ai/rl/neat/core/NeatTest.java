@@ -1,40 +1,33 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.settings.EvaluatorOverrideSettings;
-import com.dipasquale.ai.rl.neat.settings.EvaluatorSettings;
 import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
+import com.dipasquale.simulation.openai.gym.client.GymClient;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.dipasquale.synchronization.event.loop.IterableEventLoopSettings;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public final class NeatTest {
-    static final boolean METRICS_EMISSION_ENABLED = false;
+    private static final boolean METRICS_EMISSION_ENABLED = false;
     private static final boolean XOR_TASK_ENABLED = true;
-    private static final boolean SINGLE_POLE_BALANCING_TASK_ENABLED = true;
-    private static final Set<String> GENOME_IDS = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private static final boolean SINGLE_POLE_CART_BALANCE_TASK_ENABLED = true;
+    private static boolean OPEN_AI_TASKS_ENABLED = false;
+    private static final boolean OPEN_AI_CART_POLE_TASK_ENABLED = true;
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
@@ -47,119 +40,59 @@ public final class NeatTest {
             .build();
 
     private static final IterableEventLoop EVENT_LOOP = new IterableEventLoop(EVENT_LOOP_SETTINGS);
+    private static final GymClient GYM_CLIENT = new GymClient();
+
+    private static void startOpenAIGymServer()
+            throws IOException {
+        ProcessBuilder processBuilder = new ProcessBuilder("python", "gym_http_server.py");
+        String currentDirectory = System.getProperty("user.dir");
+        String gymHttpApiDirectory = Path.of(new File(currentDirectory).getParent(), "gym-http-api").toString();
+
+        processBuilder.directory(new File(gymHttpApiDirectory));
+        processBuilder.start();
+    }
 
     @BeforeAll
     public static void beforeAll() {
+        if (OPEN_AI_TASKS_ENABLED) {
+            try {
+                startOpenAIGymServer();
+            } catch (IOException e) {
+                OPEN_AI_TASKS_ENABLED = false;
+                System.err.println(e.getMessage());
+            }
+        }
+
         JvmWarmup.start(100_000);
     }
 
     @AfterAll
     public static void afterAll() {
+        if (OPEN_AI_TASKS_ENABLED) {
+            GYM_CLIENT.shutdown();
+        }
+
         EVENT_LOOP.shutdown();
         EXECUTOR_SERVICE.shutdown();
     }
 
     @BeforeEach
     public void beforeEach() {
-        GENOME_IDS.clear();
         UNHANDLED_EXCEPTIONS.clear();
     }
 
     private static boolean isTaskEnabled(final TaskSetup taskSetup) {
         return XOR_TASK_ENABLED && taskSetup instanceof XorTaskSetup
-                || SINGLE_POLE_BALANCING_TASK_ENABLED && taskSetup instanceof SinglePoleBalancingTaskSetup;
-    }
-
-    private static byte[] getBytes(final NeatTrainer trainer)
-            throws IOException {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            trainer.save(outputStream);
-
-            return outputStream.toByteArray();
-        }
-    }
-
-    private static NeatTrainer createTrainer(final byte[] bytes, final EvaluatorOverrideSettings overrideSettings)
-            throws IOException {
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
-            return Neat.createTrainer(inputStream, overrideSettings);
-        }
-    }
-
-    private static NeatTrainerSetup createTrainerSetup(final NeatTestSetup testSetup) {
-        IterableEventLoop eventLoop = testSetup.shouldTestParallelism ? EVENT_LOOP : null;
-
-        return NeatTrainerSetup.builder()
-                .name(testSetup.task.getName())
-                .shouldTestParallelism(testSetup.shouldTestParallelism)
-                .settings(testSetup.task.createSettings(GENOME_IDS, eventLoop))
-                .trainingPolicy(testSetup.task.createTrainingPolicy())
-                .build();
-    }
-
-    private static void assertTrainingResults(final NeatTrainer trainer, final NeatTrainerSetup trainerSetup, final int populationSize) {
-        boolean success = trainer.train(trainerSetup.trainingPolicy);
-
-        System.out.printf("=========================================%n");
-        System.out.printf("%s (%s):%n", trainerSetup.name, trainerSetup.shouldTestParallelism ? "parallel" : "single");
-        System.out.printf("=========================================%n");
-        System.out.printf("iteration: %d%n", trainer.getState().getIteration());
-        System.out.printf("generation: %d%n", trainer.getState().getGeneration());
-        System.out.printf("species: %d%n", trainer.getState().getSpeciesCount());
-        System.out.printf("hidden nodes: %d%n", trainer.getState().getChampionGenome().getNodes().size(NodeGeneType.HIDDEN));
-        System.out.printf("connections: %d%n", trainer.getState().getChampionGenome().getConnections().getExpressed().size());
-        System.out.printf("fitness: %f%n", trainer.getState().getMaximumFitness());
-        Assertions.assertTrue(success);
-        Assertions.assertEquals(populationSize, GENOME_IDS.size());
-    }
-
-    private static NeatTrainingResult test(final NeatTrainingPolicy trainingPolicy, final NeatTrainer trainer) {
-        return trainingPolicy.testOnce(trainer);
-    }
-
-    private static void assertPersistence(final NeatTrainer trainer, final NeatTrainerSetup trainerSetup, final boolean shouldTestParallelism) {
-        try {
-            byte[] bytes = getBytes(trainer);
-
-            Assertions.assertTrue(bytes.length > 30_000);
-
-            EvaluatorOverrideSettings overrideSettings = EvaluatorOverrideSettings.builder()
-                    .fitnessFunction(null)
-                    .eventLoop(shouldTestParallelism ? EVENT_LOOP : null)
-                    .build();
-
-            NeatTrainer trainerCopy = createTrainer(bytes, overrideSettings);
-
-            Assertions.assertEquals(trainer.getState().getIteration(), trainerCopy.getState().getIteration());
-            Assertions.assertEquals(trainer.getState().getGeneration(), trainerCopy.getState().getGeneration());
-            Assertions.assertEquals(trainer.getState().getSpeciesCount(), trainerCopy.getState().getSpeciesCount());
-            Assertions.assertEquals(trainer.getState().getChampionGenome(), trainerCopy.getState().getChampionGenome());
-            Assertions.assertEquals(trainer.getState().getMaximumFitness(), trainerCopy.getState().getMaximumFitness(), 0f);
-            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, test(trainerSetup.trainingPolicy, trainer));
-            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, test(trainerSetup.trainingPolicy, trainerCopy));
-        } catch (IOException e) {
-            Assertions.fail(e.getMessage());
-        }
+                || SINGLE_POLE_CART_BALANCE_TASK_ENABLED && taskSetup instanceof SinglePoleCartBalanceTaskSetup
+                || OPEN_AI_TASKS_ENABLED && OPEN_AI_CART_POLE_TASK_ENABLED && taskSetup instanceof OpenAIGymCartPoleTaskSetup;
     }
 
     private static void assertTaskSolution(final NeatTestSetup testSetup) {
-        if (!isTaskEnabled(testSetup.task)) {
+        if (!isTaskEnabled(testSetup.getTask())) {
             return;
         }
 
-        NeatTrainerSetup trainerSetup = createTrainerSetup(testSetup);
-        NeatTrainer trainer = Neat.createTrainer(trainerSetup.settings);
-        int populationSize = testSetup.task.getPopulationSize();
-
-        assertTrainingResults(trainer, trainerSetup, populationSize);
-
-        if (METRICS_EMISSION_ENABLED) {
-            NeatMetricsReporter.displayMetrics(trainer);
-        }
-
-        if (testSetup.shouldTestPersistence) {
-            assertPersistence(trainer, trainerSetup, !trainerSetup.shouldTestParallelism);
-        }
+        testSetup.assertTaskSolution();
     }
 
     @Test
@@ -167,8 +100,8 @@ public final class NeatTest {
     @Order(1)
     public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup())
-                .shouldTestParallelism(false)
+                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .eventLoop(null)
                 .shouldTestPersistence(false)
                 .build());
     }
@@ -178,8 +111,8 @@ public final class NeatTest {
     @Order(2)
     public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup())
-                .shouldTestParallelism(true)
+                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .eventLoop(EVENT_LOOP)
                 .shouldTestPersistence(false)
                 .build());
     }
@@ -189,8 +122,8 @@ public final class NeatTest {
     @Order(3)
     public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup())
-                .shouldTestParallelism(false)
+                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .eventLoop(null)
                 .shouldTestPersistence(true)
                 .build());
     }
@@ -200,8 +133,8 @@ public final class NeatTest {
     @Order(4)
     public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup())
-                .shouldTestParallelism(true)
+                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .eventLoop(EVENT_LOOP)
                 .shouldTestPersistence(true)
                 .build());
     }
@@ -209,10 +142,10 @@ public final class NeatTest {
     @Test
     @Timeout(value = 105_500, unit = TimeUnit.MILLISECONDS)
     @Order(6)
-    public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_cart_balance_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new SinglePoleBalancingTaskSetup())
-                .shouldTestParallelism(true)
+                .task(new SinglePoleCartBalanceTaskSetup(METRICS_EMISSION_ENABLED))
+                .eventLoop(EVENT_LOOP)
                 .shouldTestPersistence(false)
                 .build());
     }
@@ -220,28 +153,23 @@ public final class NeatTest {
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
     @Order(8)
-    public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_balancing_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
+    public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_cart_balance_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new SinglePoleBalancingTaskSetup())
-                .shouldTestParallelism(true)
+                .task(new SinglePoleCartBalanceTaskSetup(METRICS_EMISSION_ENABLED))
+                .eventLoop(EVENT_LOOP)
                 .shouldTestPersistence(true)
                 .build());
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @Builder(access = AccessLevel.PRIVATE)
-    private static final class NeatTrainerSetup {
-        private final String name;
-        private final boolean shouldTestParallelism;
-        private final EvaluatorSettings settings;
-        private final NeatTrainingPolicy trainingPolicy;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @Builder(access = AccessLevel.PRIVATE)
-    private static final class NeatTestSetup {
-        private final TaskSetup task;
-        private final boolean shouldTestParallelism;
-        private final boolean shouldTestPersistence;
+    @Test
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
+    @Order(9)
+    public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_open_ai_gym_cart_pole_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+        assertTaskSolution(NeatTestSetupOpenAIGym.openAIGymBuilder()
+                .task(new OpenAIGymCartPoleTaskSetup(GYM_CLIENT, METRICS_EMISSION_ENABLED))
+                .eventLoop(null)
+                .shouldTestPersistence(false)
+                .shouldVisualizeSolution(false)
+                .build());
     }
 }

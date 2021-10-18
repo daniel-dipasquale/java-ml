@@ -2,16 +2,14 @@ package com.dipasquale.io.serialization.json.parser.token;
 
 import com.dipasquale.io.CharacterBufferedReader;
 import com.dipasquale.io.serialization.json.JsonObjectBuilder;
-import com.dipasquale.io.serialization.json.JsonObjectType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ArrayStartOrNextElementTokenParser implements TokenParser {
+public final class ObjectAllEntriesTokenParser implements TokenParser {
     private final TokenParserChoiceDirectory tokenParserChoiceDirectory;
-    private final boolean createNew;
 
     @Override
     public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader)
@@ -19,15 +17,13 @@ public final class ArrayStartOrNextElementTokenParser implements TokenParser {
         StackOnceTokenParserChoice tokenParserChoices = new StackOnceTokenParserChoice();
 
         tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
-        tokenParserChoices.push(tokenParserChoiceDirectory.getArrayEndOrAllElements());
+        tokenParserChoices.push(tokenParserChoiceDirectory.getObjectEndOrNextEntry());
         tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
-
-        if (createNew) {
-            tokenParserChoices.push(tokenParserChoiceDirectory.getArrayStart());
-            jsonObjectBuilder.addObject(JsonObjectType.ARRAY);
-        } else {
-            tokenParserChoices.push(tokenParserChoiceDirectory.getComma());
-        }
+        tokenParserChoices.push(tokenParserChoiceDirectory.getAnyValue());
+        tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
+        tokenParserChoices.push(tokenParserChoiceDirectory.getColon());
+        tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());
+        tokenParserChoices.push(tokenParserChoiceDirectory.getString());
 
         return tokenParserChoices;
     }
