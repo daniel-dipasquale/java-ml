@@ -5,10 +5,8 @@
 I'm learning how some machine learning algorithms work by implementing them using java. Below is the ordered list of the
 algorithms I'm interested in learning and using:
 
-- [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf) (it has issues still)
-    - [x] outstanding issues:
-        - persistence/restore/restart is unstable
-        - among others ...
+- [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf)
+
     - [x] XOR test :+1: (random data sample)
 
          ```
@@ -22,7 +20,7 @@ algorithms I'm interested in learning and using:
 
         - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=2d5ht3rcy&view)
 
-    - [x] Single Pole Balancing test: :+1: (random data sample)
+    - [x] Single Pole Cart Balance test: :+1: (random data sample)
 
          ```
          iteration: 1
@@ -37,7 +35,7 @@ algorithms I'm interested in learning and using:
 
       ![Single Pole Balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
 
-- [ ] Feedforward Neural Networks
+- [ ] Gradient Descent Neural Network
 - [ ] Soft Actor Critic
 
 ## Configuration Examples
@@ -131,11 +129,10 @@ algorithms I'm interested in learning and using:
                 .build());
    ```
 
-    1. Cart-pole balancing test:
+    1. Single Pole Cart Balance test:
 
    ```java
-        RandomSupport randomSupport = new ThreadLocalRandomSupport();
-        double timeSpentGoal = 60D;
+        GymClient gymClient = new GymClient();
 
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupportSettings.builder()
@@ -148,24 +145,22 @@ algorithms I'm interested in learning and using:
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
                         .fitnessFunction(genomeActivator -> {
-                                CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
-                                NeuronMemory neuronMemory = genomeActivator.createMemory();
+                                double fitness = 0D;
+                                float[] input = convertToFloat(gymClient.start("CartPole-v0", genomeActivator.getGenome().getId()));
+                                NeuronMemory neuronMemory = neuralNetwork.createMemory();
 
-                                while (!cartPole.isLimitHit() && Double.compare(cartPole.getTimeSpent(), timeSpentGoal) < 0) {
-                                    float[] input = convertToFloat(cartPole.getState());
-                                    float[] output = genomeActivator.activate(input, neuronMemory);
+                                for (boolean done = false; !done; ) {
+                                    float[] output = neuralNetwork.activate(input, neuronMemory);
+                                    double action = Math.round(output[0]);
+                                    StepResult stepResult = gymClient.step(instanceId, action);
 
-                                    cartPole.stepInDiscrete(output[0]);
+                                    done = stepResult.isDone();
+                                    input = convertToFloat(stepResult.getObservation());
+                                    fitness += stepResult.getReward();
                                 }
 
-                                return (float) cartPole.getTimeSpent();
+                                return (float) fitness;
                         })
                         .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
-                        .build())
-                .parallelism(ParallelismSupport.builder()
-                        .eventLoop(eventLoop)
-                        .build())
-                .metrics(MetricSupport.builder()
-                        .type(EnumSet.noneOf(MetricCollectionType.class))
                         .build());
    ```

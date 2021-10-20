@@ -26,7 +26,7 @@ public final class NeatTest {
     private static final boolean METRICS_EMISSION_ENABLED = false;
     private static final boolean XOR_TASK_ENABLED = true;
     private static final boolean SINGLE_POLE_CART_BALANCE_TASK_ENABLED = true;
-    private static boolean OPEN_AI_TASKS_ENABLED = false;
+    private static final boolean OPEN_AI_TASKS_ENABLED = false;
     private static final boolean OPEN_AI_CART_POLE_TASK_ENABLED = true;
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
@@ -40,7 +40,7 @@ public final class NeatTest {
             .build();
 
     private static final IterableEventLoop EVENT_LOOP = new IterableEventLoop(EVENT_LOOP_SETTINGS);
-    private static final GymClient GYM_CLIENT = new GymClient();
+    private static GymClient GYM_CLIENT = null;
 
     private static void startOpenAIGymServer()
             throws IOException {
@@ -56,9 +56,11 @@ public final class NeatTest {
     public static void beforeAll() {
         if (OPEN_AI_TASKS_ENABLED) {
             try {
+                System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+                System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
                 startOpenAIGymServer();
+                GYM_CLIENT = new GymClient();
             } catch (IOException e) {
-                OPEN_AI_TASKS_ENABLED = false;
                 System.err.println(e.getMessage());
             }
         }
@@ -68,7 +70,7 @@ public final class NeatTest {
 
     @AfterAll
     public static void afterAll() {
-        if (OPEN_AI_TASKS_ENABLED) {
+        if (GYM_CLIENT != null) {
             GYM_CLIENT.shutdown();
         }
 
@@ -162,7 +164,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 300_500, unit = TimeUnit.MILLISECONDS)
     @Order(9)
     public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_open_ai_gym_cart_pole_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetupOpenAIGym.openAIGymBuilder()

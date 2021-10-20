@@ -1,295 +1,137 @@
 package com.dipasquale.simulation.openai.gym.client;
 
-import com.dipasquale.io.IORuntimeException;
-import com.dipasquale.io.serialization.json.JsonObject;
-import com.dipasquale.io.serialization.json.JsonObjectType;
-import com.dipasquale.io.serialization.json.parser.JsonParser;
-import com.dipasquale.io.serialization.json.writer.JsonWriter;
-import com.dipasquale.synchronization.InterruptedRuntimeException;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.io.Closeable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-@RequiredArgsConstructor
-public final class GymClient {
-    private static final int BUFFER_SIZE = 1_024;
-    private static final String JSON_CONTENT_TYPE = "application/json";
-    private static final ResponseHandler<Void> VOID_RESPONSE_HANDLER = new ResponseHandler<>(null, GymClient::drainBody);
-    private static final JsonWriter JSON_WRITER = JsonWriter.getInstance();
-    private static final String URL = "http://localhost:5000";
-    private static final String ENVIRONMENTS_API = "/v1/envs/";
-    private static final String ENVIRONMENTS_RESET_API = "/v1/envs/%s/reset/";
-    private static final String ENVIRONMENTS_ACTION_SPACE_API = "/v1/envs/%s/action_space/";
-    private static final String ENVIRONMENTS_STEP_API = "/v1/envs/%s/step/";
-    private static final String ENVIRONMENTS_MONITOR_START_API = "/v1/envs/%s/monitor/start/";
-    private static final String ENVIRONMENTS_MONITOR_CLOSE_API = "/v1/envs/%s/monitor/close/";
-    private static final String UPLOAD_API = "/v1/upload/";
-    private static final String SHUTDOWN_API = "/v1/shutdown/";
-    private static final JsonObject EMPTY_BODY = new JsonObject(JsonObjectType.OBJECT);
-    private final String baseUri;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final JsonParser jsonParser = new JsonParser(BUFFER_SIZE);
-    private final ResponseHandler<JsonObject> jsonResponseHandler = new ResponseHandler<>(JSON_CONTENT_TYPE, this::parseBody);
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class GymClient implements Closeable {
+    private static final String DEFAULT_BASE_URL = "http://localhost:5000";
+    private static final String DEFAULT_INSTANCE_ID = "__general";
+    private Map<String, Map<String, String>> environments;
+    private final InternalGymClient client;
+
+    private GymClient(final String baseUrl) {
+        this.environments = new HashMap<>();
+        this.client = new InternalGymClient(baseUrl);
+    }
 
     public GymClient() {
-        this(URL);
+        this(DEFAULT_BASE_URL);
     }
 
-    private static String extractHeader(final Map<String, List<String>> headers, final String name) {
-        List<String> values = headers.get(name);
+    public GymClient(final String protocol, final String domain, final int port) {
+        this(getBaseUrl(protocol, domain, port));
+    }
 
-        if (values == null) {
-            return null;
+    public GymClient(final String domain, final int port) {
+        this("http", domain, port);
+    }
+
+    private static String getBaseUrl(final String protocol, final String domain, final int port) {
+        return String.format("%s://%s:%d", protocol, domain, port);
+    }
+
+    private Map<String, String> getOrCreateInternalInstances(final String environmentId) {
+        return environments.computeIfAbsent(environmentId, eid -> new HashMap<>());
+    }
+
+    private static String getValidInstanceId(final String id) {
+        if (id != null) {
+            return id;
         }
 
-        StringJoiner stringJoiner = new StringJoiner(",");
-
-        values.forEach(stringJoiner::add);
-
-        return stringJoiner.toString();
+        return DEFAULT_INSTANCE_ID;
     }
 
-    private static Map<String, String> flattenHeaders(final Map<String, List<String>> headers) {
-        Map<String, String> headersFixed = new HashMap<>();
+    private String getOrCreateInternalInstanceId(final String environmentId, final String instanceId) {
+        Map<String, String> internalInstances = getOrCreateInternalInstances(environmentId);
+        String instanceIdFixed = getValidInstanceId(instanceId);
+        String internalInstanceId = internalInstances.get(instanceIdFixed);
 
-        for (String key : headers.keySet()) {
-            String value = extractHeader(headers, key);
-
-            headersFixed.put(key, value);
+        if (internalInstanceId == null) {
+            internalInstanceId = client.createEnvironment(environmentId);
+            internalInstances.put(instanceIdFixed, internalInstanceId);
         }
 
-        return headersFixed;
+        return internalInstanceId;
     }
 
-    private JsonObject parseBody(final HttpResponse<InputStream> response)
-            throws IOException {
-        try (InputStream inputStream = response.body();
-             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            return jsonParser.parse(inputStreamReader);
-        }
+    public double[] restart(final String environmentId, final String instanceId) {
+        String internalInstanceId = getOrCreateInternalInstanceId(environmentId, instanceId);
+
+        return client.reset(internalInstanceId);
     }
 
-    private static String readBody(final HttpResponse<InputStream> response)
-            throws IOException {
-        try (InputStream inputStream = response.body();
-             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[BUFFER_SIZE];
-
-            for (int length = inputStream.read(buffer); length != -1; length = inputStream.read(buffer)) {
-                outputStream.write(buffer, 0, length);
-            }
-
-            return outputStream.toString(StandardCharsets.UTF_8);
-        }
+    public double[] restart(final String environmentId) {
+        return restart(environmentId, null);
     }
 
-    private static Void drainBody(final HttpResponse<InputStream> response)
-            throws IOException {
-        readBody(response);
+    public Map<String, Object> getActionSpace(final String environmentId, final String instanceId) {
+        String internalInstanceId = getOrCreateInternalInstanceId(environmentId, instanceId);
 
-        return null;
+        return client.getActionSpace(internalInstanceId);
     }
 
-    private <T> T invoke(final HttpRequest request, final ResponseHandler<T> responseHandler) {
-        try {
-            HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            int statusCode = response.statusCode();
-            Map<String, List<String>> headers = response.headers().map();
-            String contentType = extractHeader(headers, "content-type");
-            boolean success = statusCode >= 200 && statusCode < 300;
-            boolean compliant = responseHandler.ableToHandle(contentType);
-
-            if (success && compliant) {
-                return responseHandler.handle(response);
-            }
-
-            Map<String, String> headersFixed = Collections.unmodifiableMap(flattenHeaders(headers));
-
-            if (success) {
-                throw new GymRequestException("the request succeeded but the body for the response was not in JSON format", statusCode, headersFixed, readBody(response));
-            }
-
-            if (compliant) {
-                throw new GymRequestException("the request failed", statusCode, headersFixed, readBody(response));
-            }
-
-            throw new GymRequestException("the request failed and the body for the response was not in JSON format", statusCode, headersFixed, readBody(response));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-
-            throw new InterruptedRuntimeException("the request was interrupted", e);
-        } catch (IOException e) {
-            throw new IORuntimeException("unknown exception occurred while making the request", e);
-        }
+    public Map<String, Object> getActionSpace(final String environmentId) {
+        return getActionSpace(environmentId, null);
     }
 
-    private static <T> Map<String, T> translateToMap(final JsonObject jsonObject) {
-        return StreamSupport.stream(jsonObject.spliterator(), false)
-                .map(Object::toString)
-                .collect(Collectors.toMap(k -> k, k -> (T) jsonObject.get(k)));
+    public StepResult step(final String environmentId, final String instanceId, final double action, final boolean render) {
+        String internalInstanceId = getOrCreateInternalInstanceId(environmentId, instanceId);
+
+        return client.step(internalInstanceId, action, render);
     }
 
-    private static HttpRequest createGetRequest(final String uri) {
-        try {
-            return HttpRequest.newBuilder()
-                    .version(HttpClient.Version.HTTP_1_1)
-                    .uri(new URI(uri))
-                    .header("content-type", JSON_CONTENT_TYPE)
-                    .GET()
-                    .build();
-        } catch (URISyntaxException e) {
-            throw new InvalidUriException(uri, e);
-        }
+    public StepResult step(final String environmentId, final String instanceId, final double action) {
+        return step(environmentId, instanceId, action, false);
     }
 
-    public Map<String, String> getEnvironments() {
-        String uri = String.format("%s%s", baseUri, ENVIRONMENTS_API);
-        HttpRequest request = createGetRequest(uri);
-        JsonObject response = invoke(request, jsonResponseHandler);
-
-        return translateToMap((JsonObject) response.get("all_envs"));
+    public StepResult step(final String environmentId, final double action) {
+        return step(environmentId, null, action);
     }
 
-    private static HttpRequest.BodyPublisher createBodyPublisher(final JsonObject body) {
-        try {
-            String json = JSON_WRITER.toString(body);
-
-            return HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new UnableToCreatePostBodyException(body, e);
-        }
+    public StepResult step(final String environmentId, final double action, final boolean render) {
+        return step(environmentId, null, action, render);
     }
 
-    private static HttpRequest createPostRequest(final String uri, final JsonObject body) {
-        try {
-            return HttpRequest.newBuilder()
-                    .version(HttpClient.Version.HTTP_1_1)
-                    .uri(new URI(uri))
-                    .header("content-type", JSON_CONTENT_TYPE)
-                    .POST(createBodyPublisher(body))
-                    .build();
-        } catch (URISyntaxException e) {
-            throw new InvalidUriException(uri, e);
-        }
+    public void startMonitor(final String environmentId, final String instanceId, final boolean force, final boolean resume) {
+        String internalInstanceId = getOrCreateInternalInstanceId(environmentId, instanceId);
+
+        client.startMonitor(internalInstanceId, force, resume);
     }
 
-    public String createEnvironment(final String environmentId) {
-        String uri = String.format("%s%s", baseUri, ENVIRONMENTS_API);
-        JsonObject body = new JsonObject(JsonObjectType.OBJECT);
-
-        body.put("env_id", environmentId);
-
-        HttpRequest request = createPostRequest(uri, body);
-        JsonObject response = invoke(request, jsonResponseHandler);
-
-        return (String) response.get("instance_id");
+    public void startMonitor(final String environmentId, final String instanceId) {
+        startMonitor(environmentId, instanceId, false, false);
     }
 
-    private static double[] translateToDoubleArray(final JsonObject jsonObject) {
-        return StreamSupport.stream(jsonObject.spliterator(), false)
-                .map(k -> (Integer) k)
-                .mapToDouble(i -> (double) jsonObject.get(i))
-                .toArray();
+    public void startMonitor(final String environmentId) {
+        startMonitor(environmentId, null);
     }
 
-    public double[] reset(final String instanceId) {
-        String uri = String.format("%s%s", baseUri, String.format(ENVIRONMENTS_RESET_API, instanceId));
-        HttpRequest request = createPostRequest(uri, EMPTY_BODY);
-        JsonObject response = invoke(request, jsonResponseHandler);
+    public void closeMonitor(final String environmentId, final String instanceId) {
+        String internalInstanceId = getOrCreateInternalInstanceId(environmentId, instanceId);
 
-        return translateToDoubleArray((JsonObject) response.get("observation"));
+        client.closeMonitor(internalInstanceId);
     }
 
-    public Map<String, Object> getActionSpace(final String instanceId) {
-        String uri = String.format("%s%s", baseUri, String.format(ENVIRONMENTS_ACTION_SPACE_API, instanceId));
-        HttpRequest request = createGetRequest(uri);
-        JsonObject response = invoke(request, jsonResponseHandler);
-
-        return translateToMap((JsonObject) response.get("info"));
-    }
-
-    public StepResult step(final String instanceId, final double action, final boolean render) {
-        String uri = String.format("%s%s", baseUri, String.format(ENVIRONMENTS_STEP_API, instanceId));
-        JsonObject body = new JsonObject(JsonObjectType.OBJECT);
-
-        body.put("action", action);
-        body.put("render", render);
-
-        HttpRequest request = createPostRequest(uri, body);
-        JsonObject response = invoke(request, jsonResponseHandler);
-
-        return StepResult.builder()
-                .done((boolean) response.get("done"))
-                .observation(translateToDoubleArray((JsonObject) response.get("observation")))
-                .reward(Double.parseDouble(response.get("reward").toString()))
-                .build();
-    }
-
-    public StepResult step(final String instanceId, final double action) {
-        return step(instanceId, action, false);
-    }
-
-    public void startMonitor(final String instanceId, final boolean force, final boolean resume) {
-        String uri = String.format("%s%s", baseUri, String.format(ENVIRONMENTS_MONITOR_START_API, instanceId));
-        JsonObject body = new JsonObject(JsonObjectType.OBJECT);
-
-        body.put("force", force);
-        body.put("resume", resume);
-
-        HttpRequest request = createPostRequest(uri, body);
-
-        invoke(request, VOID_RESPONSE_HANDLER);
-    }
-
-    public void startMonitor(final String instanceId) {
-        startMonitor(instanceId, false, false);
-    }
-
-    public void closeMonitor(final String instanceId) {
-        String uri = String.format("%s%s", baseUri, String.format(ENVIRONMENTS_MONITOR_CLOSE_API, instanceId));
-        HttpRequest request = createPostRequest(uri, EMPTY_BODY);
-
-        invoke(request, VOID_RESPONSE_HANDLER);
+    public void closeMonitor(final String environmentId) {
+        closeMonitor(environmentId, null);
     }
 
     public void upload(final String trainingDirectory, final String apiKey, final String algorithmId) {
-        String uri = String.format("%s%s", baseUri, UPLOAD_API);
-        JsonObject body = new JsonObject(JsonObjectType.OBJECT);
-
-        body.put("training_dir", trainingDirectory);
-        body.put("api_key", apiKey);
-
-        if (algorithmId != null && !algorithmId.isEmpty()) {
-            body.put("algorithm_id", algorithmId);
-        } else {
-            body.put("algorithm_id", "None");
-        }
-
-        HttpRequest request = createPostRequest(uri, body);
-
-        invoke(request, VOID_RESPONSE_HANDLER);
+        client.upload(trainingDirectory, apiKey, algorithmId);
     }
 
     public void shutdown() {
-        String uri = String.format("%s%s", baseUri, SHUTDOWN_API);
-        HttpRequest request = createPostRequest(uri, EMPTY_BODY);
+        client.shutdown();
+    }
 
-        invoke(request, VOID_RESPONSE_HANDLER);
+    @Override
+    public void close() {
+        client.close();
     }
 }

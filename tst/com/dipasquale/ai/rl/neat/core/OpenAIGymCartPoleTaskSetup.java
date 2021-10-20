@@ -28,7 +28,7 @@ import java.util.Set;
 public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
-    private static final double REWARD_GOAL = 100D;
+    private static final double REWARD_GOAL = 195D;
     private final GymClient gymClient;
     @Getter
     private final String name = "CartPole-v0";
@@ -48,22 +48,21 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     }
 
     private float calculateFitness(final NeuralNetwork neuralNetwork, final boolean render) {
-        String instanceId = gymClient.createEnvironment(name);
-        float[] input = convertToFloat(gymClient.reset(instanceId));
-        double reward = 0D;
+        double fitness = 0D;
+        float[] input = convertToFloat(gymClient.restart(name));
         NeuronMemory neuronMemory = neuralNetwork.createMemory();
 
         for (boolean done = false; !done; ) {
             float[] output = neuralNetwork.activate(input, neuronMemory);
             double action = Math.round(output[0]);
-            StepResult stepResult = gymClient.step(instanceId, action, render);
+            StepResult stepResult = gymClient.step(name, action, render);
 
             done = stepResult.isDone();
             input = convertToFloat(stepResult.getObservation());
-            reward += stepResult.getReward();
+            fitness += stepResult.getReward();
         }
 
-        return (float) reward;
+        return (float) fitness;
     }
 
     private float calculateFitness(final GenomeActivator genomeActivator) {
@@ -94,10 +93,10 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
-                        .fitnessFunction(g -> {
-                            genomeIds.add(g.getGenome().getId());
+                        .fitnessFunction(ga -> {
+                            genomeIds.add(ga.getGenome().getId());
 
-                            return calculateFitness(g);
+                            return calculateFitness(ga);
                         })
                         .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
                         .build())

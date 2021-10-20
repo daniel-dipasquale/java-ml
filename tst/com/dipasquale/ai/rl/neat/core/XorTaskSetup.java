@@ -86,10 +86,10 @@ final class XorTaskSetup implements TaskSetup {
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.RANDOM)
                                 .build())
-                        .fitnessFunction(g -> {
-                            genomeIds.add(g.getGenome().getId());
+                        .fitnessFunction(ga -> {
+                            genomeIds.add(ga.getGenome().getId());
 
-                            return calculateFitness(g);
+                            return calculateFitness(ga);
                         })
                         .fitnessDeterminerFactory(new LastValueFitnessDeterminerFactory())
                         .build())

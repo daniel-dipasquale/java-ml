@@ -22,6 +22,7 @@ public final class StringTokenParser implements TokenParser {
         escapedCharacters.put('r', '\r');
         escapedCharacters.put('t', '\t');
         escapedCharacters.put('"', '"');
+        escapedCharacters.put('/', '/');
         escapedCharacters.put('\\', '\\');
 
         return escapedCharacters;
