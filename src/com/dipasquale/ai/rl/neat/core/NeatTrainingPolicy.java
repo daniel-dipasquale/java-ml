@@ -5,9 +5,5 @@ public interface NeatTrainingPolicy {
 
     void reset();
 
-    default NeatTrainingResult retest(final NeatActivator activator) {
-        reset();
-
-        return test(activator);
-    }
+    NeatTrainingPolicy createClone();
 }

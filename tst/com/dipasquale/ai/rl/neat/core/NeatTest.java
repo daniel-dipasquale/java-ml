@@ -8,7 +8,6 @@ import com.dipasquale.synchronization.event.loop.IterableEventLoopSettings;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -99,8 +98,7 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    @Order(1)
-    public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
                 .eventLoop(null)
@@ -110,8 +108,7 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    @Order(2)
-    public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
                 .eventLoop(EVENT_LOOP)
@@ -121,8 +118,7 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    @Order(3)
-    public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
+    public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
                 .eventLoop(null)
@@ -132,8 +128,7 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    @Order(4)
-    public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
                 .eventLoop(EVENT_LOOP)
@@ -143,8 +138,7 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 105_500, unit = TimeUnit.MILLISECONDS)
-    @Order(6)
-    public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_cart_balance_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_cart_balance_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(new SinglePoleCartBalanceTaskSetup(METRICS_EMISSION_ENABLED))
                 .eventLoop(EVENT_LOOP)
@@ -154,8 +148,18 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    @Order(8)
-    public void GIVEN_a_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_cart_balance_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
+    public void GIVEN_a_multi_instance_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+        assertTaskSolution(NeatTestSetup.builder()
+                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .eventLoop(EVENT_LOOP)
+                .neatTrainerFactory(Neat::createMultiTrainer)
+                .shouldTestPersistence(false)
+                .build());
+    }
+
+    @Test
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_cart_balance_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(new SinglePoleCartBalanceTaskSetup(METRICS_EMISSION_ENABLED))
                 .eventLoop(EVENT_LOOP)
@@ -165,8 +169,7 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 300_500, unit = TimeUnit.MILLISECONDS)
-    @Order(9)
-    public void GIVEN_a_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_open_ai_gym_cart_pole_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_open_ai_gym_cart_pole_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetupOpenAIGym.openAIGymBuilder()
                 .task(new OpenAIGymCartPoleTaskSetup(GYM_CLIENT, METRICS_EMISSION_ENABLED))
                 .eventLoop(null)

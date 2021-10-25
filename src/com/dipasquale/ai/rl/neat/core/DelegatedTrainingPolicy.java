@@ -2,12 +2,17 @@ package com.dipasquale.ai.rl.neat.core;
 
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @RequiredArgsConstructor
-public final class DelegatedTrainingPolicy implements NeatTrainingPolicy {
+public final class DelegatedTrainingPolicy implements NeatTrainingPolicy, Serializable {
+    @Serial
+    private static final long serialVersionUID = -8584467764466409799L;
     private int iterationTested = 0;
     private int generationTested = 0;
     private NeatTrainingResult previousTestResult = null;
-    private final Handler handler;
+    private final NeatTrainingHandler handler;
 
     @Override
     public NeatTrainingResult test(final NeatActivator activator) {
@@ -32,8 +37,8 @@ public final class DelegatedTrainingPolicy implements NeatTrainingPolicy {
         previousTestResult = null;
     }
 
-    @FunctionalInterface
-    public interface Handler {
-        boolean test(NeatActivator activator);
+    @Override
+    public NeatTrainingPolicy createClone() {
+        return new DelegatedTrainingPolicy(handler);
     }
 }

@@ -13,19 +13,23 @@ final class NeatTestSetupOpenAIGym extends NeatTestSetup {
     private final OpenAIGymTaskSetup task;
     private final boolean shouldVisualizeSolution;
 
-    private NeatTestSetupOpenAIGym(final OpenAIGymTaskSetup task, final Set<String> genomeIds, final IterableEventLoop eventLoop, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
-        super(task, genomeIds, eventLoop, shouldTestPersistence);
+    private NeatTestSetupOpenAIGym(final OpenAIGymTaskSetup task, final Set<String> genomeIds, final IterableEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
+        super(task, genomeIds, eventLoop, neatTrainerFactory, shouldTestPersistence);
         this.task = task;
         this.shouldVisualizeSolution = shouldVisualizeSolution;
     }
 
     @Builder(access = AccessLevel.PACKAGE, builderMethodName = "openAIGymBuilder")
-    private static NeatTestSetupOpenAIGym create(final OpenAIGymTaskSetup task, final IterableEventLoop eventLoop, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
+    private static NeatTestSetupOpenAIGym create(final OpenAIGymTaskSetup task, final IterableEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
         Set<String> genomeIds = eventLoop == null
                 ? new HashSet<>()
                 : Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-        return new NeatTestSetupOpenAIGym(task, genomeIds, eventLoop, shouldTestPersistence, shouldVisualizeSolution);
+        NeatTrainerFactory neatTrainerFactoryFixed = neatTrainerFactory == null
+                ? Neat::createTrainer
+                : neatTrainerFactory;
+
+        return new NeatTestSetupOpenAIGym(task, genomeIds, eventLoop, neatTrainerFactoryFixed, shouldTestPersistence, shouldVisualizeSolution);
     }
 
     @Override

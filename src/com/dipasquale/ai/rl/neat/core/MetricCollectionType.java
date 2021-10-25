@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 public enum MetricCollectionType {
     ENABLED,

@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.DefaultContextParallelismSupport;

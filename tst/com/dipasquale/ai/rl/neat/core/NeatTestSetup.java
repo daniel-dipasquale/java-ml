@@ -1,8 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.settings.EvaluatorOverrideSettings;
-import com.dipasquale.ai.rl.neat.settings.EvaluatorSettings;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,18 +22,23 @@ class NeatTestSetup {
     private final TaskSetup task;
     private final Set<String> genomeIds;
     private final IterableEventLoop eventLoop;
+    private final NeatTrainerFactory neatTrainerFactory;
     private final boolean shouldTestPersistence;
 
     @Builder(access = AccessLevel.PACKAGE)
-    private static NeatTestSetup create(final TaskSetup task, final IterableEventLoop eventLoop, final boolean shouldTestPersistence) {
+    private static NeatTestSetup create(final TaskSetup task, final IterableEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence) {
         Set<String> genomeIds = eventLoop == null
                 ? new HashSet<>()
                 : Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-        return new NeatTestSetup(task, genomeIds, eventLoop, shouldTestPersistence);
+        NeatTrainerFactory neatTrainerFactoryFixed = neatTrainerFactory == null
+                ? Neat::createTrainer
+                : neatTrainerFactory;
+
+        return new NeatTestSetup(task, genomeIds, eventLoop, neatTrainerFactoryFixed, shouldTestPersistence);
     }
 
-    private static byte[] getBytes(final NeatTrainer trainer)
+    private static byte[] getBytes(final com.dipasquale.ai.rl.neat.core.NeatTrainer trainer)
             throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             trainer.save(outputStream);
@@ -55,6 +58,7 @@ class NeatTestSetup {
         return NeatTrainerSetup.builder()
                 .name(task.getName())
                 .genomeIds(genomeIds)
+                .neatTrainerFactory(neatTrainerFactory)
                 .eventLoop(eventLoop)
                 .settings(task.createSettings(genomeIds, eventLoop))
                 .trainingPolicy(task.createTrainingPolicy())
@@ -62,10 +66,10 @@ class NeatTestSetup {
     }
 
     private static void assertTrainingResults(final NeatTrainer trainer, final NeatTrainerSetup trainerSetup, final int populationSize) {
-        boolean success = trainer.train(trainerSetup.trainingPolicy);
+        boolean success = trainer.train();
 
         System.out.printf("=========================================%n");
-        System.out.printf("%s (%s):%n", trainerSetup.name, trainerSetup.eventLoop == null ? "single" : "parallel");
+        System.out.printf("%s (%s):%n", trainerSetup.name, trainerSetup.neatTrainerFactory == null ? (trainerSetup.eventLoop == null ? "single instance & single threaded" : "single instance & multi threaded") : "multi instance");
         System.out.printf("=========================================%n");
         System.out.printf("iteration: %d%n", trainer.getState().getIteration());
         System.out.printf("generation: %d%n", trainer.getState().getGeneration());
@@ -77,7 +81,7 @@ class NeatTestSetup {
         Assertions.assertEquals(populationSize, trainerSetup.genomeIds.size());
     }
 
-    private static void assertPersistence(final NeatTrainer trainer, final NeatTrainerSetup trainerSetup) {
+    private static void assertPersistence(final com.dipasquale.ai.rl.neat.core.NeatTrainer trainer, final NeatTrainerSetup trainerSetup) {
         try {
             byte[] bytes = getBytes(trainer);
 
@@ -88,15 +92,15 @@ class NeatTestSetup {
                     .eventLoop(null)
                     .build();
 
-            NeatTrainer trainerCopy = createTrainer(bytes, overrideSettings);
+            com.dipasquale.ai.rl.neat.core.NeatTrainer trainerCopy = createTrainer(bytes, overrideSettings);
 
             Assertions.assertEquals(trainer.getState().getIteration(), trainerCopy.getState().getIteration());
             Assertions.assertEquals(trainer.getState().getGeneration(), trainerCopy.getState().getGeneration());
             Assertions.assertEquals(trainer.getState().getSpeciesCount(), trainerCopy.getState().getSpeciesCount());
             Assertions.assertEquals(trainer.getState().getChampionGenome(), trainerCopy.getState().getChampionGenome());
             Assertions.assertEquals(trainer.getState().getMaximumFitness(), trainerCopy.getState().getMaximumFitness(), 0f);
-            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, trainerSetup.trainingPolicy.retest(trainer));
-            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, trainerSetup.trainingPolicy.retest(trainerCopy));
+            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, trainerCopy.retest());
+            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, trainerCopy.retest());
         } catch (IOException e) {
             Assertions.fail(e.getMessage());
         }
@@ -107,7 +111,7 @@ class NeatTestSetup {
 
     public final void assertTaskSolution() {
         NeatTrainerSetup trainerSetup = createTrainerSetup();
-        NeatTrainer trainer = Neat.createTrainer(trainerSetup.settings);
+        NeatTrainer trainer = neatTrainerFactory.create(trainerSetup.settings, trainerSetup.trainingPolicy);
         int populationSize = task.getPopulationSize();
 
         assertTrainingResults(trainer, trainerSetup, populationSize);
@@ -128,8 +132,14 @@ class NeatTestSetup {
     private static final class NeatTrainerSetup {
         private final String name;
         private final Set<String> genomeIds;
+        private final NeatTrainerFactory neatTrainerFactory;
         private final IterableEventLoop eventLoop;
         private final EvaluatorSettings settings;
         private final NeatTrainingPolicy trainingPolicy;
+    }
+
+    @FunctionalInterface
+    interface NeatTrainerFactory {
+        NeatTrainer create(EvaluatorSettings settings, NeatTrainingPolicy trainingPolicy);
     }
 }

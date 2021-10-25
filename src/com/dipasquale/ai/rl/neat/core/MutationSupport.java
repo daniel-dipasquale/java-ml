@@ -1,14 +1,10 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -25,7 +21,7 @@ public final class MutationSupport {
     @Builder.Default
     private final FloatNumber disableExpressedConnectionRate = FloatNumber.literal(0.015f);
 
-    DefaultContextMutationSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
-        return DefaultContextMutationSupport.create(parallelismSupport, randomSupports, randomSupport, this);
+    DefaultContextMutationSupport create(final InitializationContext initializationContext) {
+        return DefaultContextMutationSupport.create(initializationContext, this);
     }
 }

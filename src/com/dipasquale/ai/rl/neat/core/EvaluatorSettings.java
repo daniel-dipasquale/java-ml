@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.DefaultContext;
@@ -15,9 +15,11 @@ import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@Getter(AccessLevel.PACKAGE)
 public final class EvaluatorSettings {
     @Builder.Default
     private final GeneralEvaluatorSupport general = GeneralEvaluatorSupport.builder()
@@ -59,17 +61,18 @@ public final class EvaluatorSettings {
     private final MetricSupport metrics = MetricSupport.builder()
             .build();
 
-    public Context createContext() { // TODO: think of a better fix for this (as a reminder, the fact this is public, is not ideal)
+    Context createContext() {
         DefaultContextRandomSupport randomFixed = random.create(parallelism);
-        DefaultContextGeneralSupport generalFixed = general.create(parallelism, randomFixed.getRandomSupports());
+        InitializationContext initializationContext = new InitializationContext(parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
+        DefaultContextGeneralSupport generalFixed = general.create(initializationContext);
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
-        DefaultContextNodeGeneSupport nodesFixed = nodes.create(general.getGenesisGenomeTemplate(), parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
-        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(general.getGenesisGenomeTemplate(), parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
-        DefaultContextActivationSupport activationFixed = activation.create(general, connections, parallelism, randomFixed.getRandomSupports());
-        DefaultContextMutationSupport mutationFixed = mutation.create(parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
-        DefaultContextCrossOverSupport crossOverFixed = crossOver.create(parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
-        DefaultContextSpeciationSupport speciationFixed = speciation.create(general, parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
-        DefaultContextMetricSupport metricsFixed = metrics.create(speciation, parallelism, randomFixed.getRandomSupports());
+        DefaultContextNodeGeneSupport nodesFixed = nodes.create(initializationContext, general.getGenesisGenomeTemplate());
+        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(initializationContext, general.getGenesisGenomeTemplate());
+        DefaultContextActivationSupport activationFixed = activation.create(initializationContext, general, connections);
+        DefaultContextMutationSupport mutationFixed = mutation.create(initializationContext);
+        DefaultContextCrossOverSupport crossOverFixed = crossOver.create(initializationContext);
+        DefaultContextSpeciationSupport speciationFixed = speciation.create(initializationContext, general);
+        DefaultContextMetricSupport metricsFixed = metrics.create(initializationContext, speciation);
 
         return new DefaultContext(generalFixed, parallelismFixed, randomFixed, nodesFixed, connectionsFixed, activationFixed, mutationFixed, crossOverFixed, speciationFixed, metricsFixed);
     }

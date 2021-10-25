@@ -1,6 +1,5 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -15,19 +15,18 @@ public final class FitnessBucket implements Serializable {
     private int generation = 0;
     private final FitnessDeterminer fitnessDeterminer;
 
-    public boolean ensurePrepared(final GenomeActivator genomeActivator) {
+    private void ensurePrepared(final GenomeActivator genomeActivator) {
         if (iteration == genomeActivator.getIteration() && generation == genomeActivator.getGeneration()) {
-            return true;
+            return;
         }
 
         iteration = genomeActivator.getIteration();
         generation = genomeActivator.getGeneration();
         fitnessDeterminer.clear();
-
-        return true;
     }
 
-    public float addFitness(final float fitness) {
+    public float addFitness(final GenomeActivator genomeActivator, final float fitness) {
+        ensurePrepared(genomeActivator);
         fitnessDeterminer.add(fitness);
 
         return fitnessDeterminer.get();

@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeBoundedRandomFloatFactory;
@@ -6,45 +6,43 @@ import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.factory.LiteralFloatFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeFloatFactory;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FloatNumber {
     private final DualModeFactoryCreator factoryCreator;
-    private Float singletonValue = null;
+    private final Object singletonKey = new Object();
 
     public static <T extends FloatFactory & DualModeObject> DualModeFactory createFactory(final T floatFactory) {
         return new InternalDualModeFactory<>(floatFactory);
     }
 
     public static FloatNumber literal(final float value) {
-        DualModeFactoryCreator factoryCreator = (ps, rs) -> createFactory(new DualModeFloatFactory(ps.getConcurrencyLevel(), new LiteralFloatFactory(value)));
+        DualModeFactoryCreator factoryCreator = ic -> createFactory(new DualModeFloatFactory(ic.getParallelism().getConcurrencyLevel(), new LiteralFloatFactory(value)));
 
         return new FloatNumber(factoryCreator);
     }
 
     public static FloatNumber random(final RandomType type, final float min, final float max) {
-        DualModeFactoryCreator factoryCreator = (ps, rs) -> createFactory(new DualModeBoundedRandomFloatFactory(rs.get(type), min, max));
+        DualModeFactoryCreator factoryCreator = ic -> createFactory(new DualModeBoundedRandomFloatFactory(ic.getRandomSupports().get(type), min, max));
 
         return new FloatNumber(factoryCreator);
     }
 
-    public DualModeFactory createFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
-        return factoryCreator.create(parallelismSupport, randomSupports);
+    public DualModeFactory createFactory(final InitializationContext initializationContext) {
+        return factoryCreator.create(initializationContext);
     }
 
-    public float getSingletonValue(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
-        if (singletonValue == null) {
-            singletonValue = factoryCreator.create(parallelismSupport, randomSupports).create();
+    public float getSingletonValue(final InitializationContext initializationContext) {
+        if (!initializationContext.getContainer().containsKey(singletonKey)) {
+            initializationContext.getContainer().setValue(singletonKey, factoryCreator.create(initializationContext).create());
         }
 
-        return singletonValue;
+        return (float) initializationContext.getContainer().getValue(singletonKey);
     }
 
     public interface DualModeFactory extends FloatFactory, DualModeObject {
@@ -74,6 +72,6 @@ public final class FloatNumber {
 
     @FunctionalInterface
     private interface DualModeFactoryCreator {
-        DualModeFactory create(ParallelismSupport parallelismSupport, Map<RandomType, DualModeRandomSupport> randomSupports);
+        DualModeFactory create(InitializationContext initializationContext);
     }
 }

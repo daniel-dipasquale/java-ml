@@ -2,8 +2,8 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
-import com.dipasquale.ai.rl.neat.settings.RandomSupport;
+import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.core.RandomSupport;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomSupportFactory;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;

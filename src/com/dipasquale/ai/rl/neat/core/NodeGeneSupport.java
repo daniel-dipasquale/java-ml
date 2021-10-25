@@ -1,16 +1,13 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextNodeGeneSupport;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -29,7 +26,7 @@ public final class NodeGeneSupport {
     @Builder.Default
     private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.TAN_H);
 
-    DefaultContextNodeGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
-        return DefaultContextNodeGeneSupport.create(parallelismSupport, randomSupports, randomSupport, genesisGenomeTemplate, this);
+    DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate) {
+        return DefaultContextNodeGeneSupport.create(initializationContext, genesisGenomeTemplate, this);
     }
 }

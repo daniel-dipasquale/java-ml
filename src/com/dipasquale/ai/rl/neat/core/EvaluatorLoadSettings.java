@@ -1,20 +1,21 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.context.DefaultContextStateOverrideSupport;
-import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@Builder(access = AccessLevel.PACKAGE)
+@Getter(AccessLevel.PACKAGE)
 public final class EvaluatorLoadSettings {
     private final NeatEnvironment fitnessFunction;
     private final IterableEventLoop eventLoop;
 
-    public Context.StateOverrideSupport createContext() { // TODO: think of a better fix for this (as a reminder, the fact this is public, is not ideal)
+    Context.StateOverrideSupport createContext() {
         return new DefaultContextStateOverrideSupport(fitnessFunction, eventLoop);
     }
 }

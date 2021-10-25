@@ -1,18 +1,13 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
-import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -27,8 +22,8 @@ public final class GeneralEvaluatorSupport {
     @Builder.Default
     private final FitnessDeterminerFactory fitnessDeterminerFactory = new LastValueFitnessDeterminerFactory();
 
-    DefaultContextGeneralSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
-        int populationSizeFixed = populationSize.getSingletonValue(parallelismSupport, randomSupports);
+    DefaultContextGeneralSupport create(final InitializationContext initializationContext) {
+        int populationSizeFixed = populationSize.getSingletonValue(initializationContext);
 
         ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSizeFixed, 20, "populationSize");
         ArgumentValidatorSupport.ensureNotNull(genesisGenomeTemplate, "genesisGenomeTemplate");

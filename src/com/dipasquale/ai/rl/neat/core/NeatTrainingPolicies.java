@@ -3,11 +3,16 @@ package com.dipasquale.ai.rl.neat.core;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class NeatTrainingPolicies implements NeatTrainingPolicy {
+public final class NeatTrainingPolicies implements NeatTrainingPolicy, Serializable {
+    @Serial
+    private static final long serialVersionUID = 2375384538230484687L;
     private final List<NeatTrainingPolicy> trainingPolicies;
 
     @Override
@@ -26,6 +31,15 @@ public final class NeatTrainingPolicies implements NeatTrainingPolicy {
     @Override
     public void reset() {
         trainingPolicies.forEach(NeatTrainingPolicy::reset);
+    }
+
+    @Override
+    public NeatTrainingPolicy createClone() {
+        List<NeatTrainingPolicy> trainingPoliciesFixed = trainingPolicies.stream()
+                .map(NeatTrainingPolicy::createClone)
+                .collect(Collectors.toList());
+
+        return new NeatTrainingPolicies(trainingPoliciesFixed);
     }
 
     public static NeatTrainingPolicies.Builder builder() {

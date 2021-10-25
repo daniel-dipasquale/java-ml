@@ -29,8 +29,6 @@ public final class StandardNeatEnvironment implements FitnessFunction<GenomeActi
         float fitness = normalize(neatEnvironment.test(genomeActivator));
         FitnessBucket fitnessBucket = fitnessBuckets.get(genomeActivator.getGenome().getId());
 
-        fitnessBucket.ensurePrepared(genomeActivator);
-
-        return fitnessBucket.addFitness(fitness);
+        return fitnessBucket.addFitness(genomeActivator, fitness);
     }
 }

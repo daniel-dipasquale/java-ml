@@ -1,14 +1,10 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -41,7 +37,7 @@ public final class SpeciationSupport {
     @Builder.Default
     private final FloatNumber mutateOnlyRate = FloatNumber.literal(0.25f);
 
-    DefaultContextSpeciationSupport create(final GeneralEvaluatorSupport generalEvaluatorSupport, final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
-        return DefaultContextSpeciationSupport.create(parallelismSupport, randomSupports, randomSupport, this, generalEvaluatorSupport);
+    DefaultContextSpeciationSupport create(final InitializationContext initializationContext, final GeneralEvaluatorSupport generalEvaluatorSupport) {
+        return DefaultContextSpeciationSupport.create(initializationContext, this, generalEvaluatorSupport);
     }
 }

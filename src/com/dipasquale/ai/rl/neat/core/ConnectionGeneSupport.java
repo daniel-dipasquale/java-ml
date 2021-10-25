@@ -1,14 +1,11 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneSupport;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -23,7 +20,7 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber multiCycleAllowanceRate = FloatNumber.literal(0.0f);
 
-    DefaultContextConnectionGeneSupport create(final GenesisGenomeTemplate genesisGenomeTemplate, final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport) {
-        return DefaultContextConnectionGeneSupport.create(parallelismSupport, randomSupports, randomSupport, genesisGenomeTemplate, this);
+    DefaultContextConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate) {
+        return DefaultContextConnectionGeneSupport.create(initializationContext, genesisGenomeTemplate, this);
     }
 }

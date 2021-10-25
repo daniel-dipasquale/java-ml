@@ -1,16 +1,13 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.genotype.AllToAllOutputsGenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,18 +38,18 @@ public final class GenesisGenomeTemplate {
         return createDefault(inputs, outputs, new float[0]);
     }
 
-    private FloatNumber.DualModeFactory createWeightFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final FloatNumber.DualModeFactory weightFactory) {
+    private FloatNumber.DualModeFactory createWeightFactory(final InitializationContext initializationContext, final FloatNumber.DualModeFactory weightFactory) {
         if (initialWeightType == InitialWeightType.RANDOM) {
             return weightFactory;
         }
 
         float weight = weightFactory.create();
 
-        return FloatNumber.literal(weight).createFactory(parallelismSupport, randomSupports);
+        return FloatNumber.literal(weight).createFactory(initializationContext);
     }
 
-    public GenesisGenomeConnector createConnector(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final FloatNumber.DualModeFactory weightFactory) {
-        FloatNumber.DualModeFactory weightFactoryFixed = createWeightFactory(parallelismSupport, randomSupports, weightFactory);
+    public GenesisGenomeConnector createConnector(final InitializationContext initializationContext, final FloatNumber.DualModeFactory weightFactory) {
+        FloatNumber.DualModeFactory weightFactoryFixed = createWeightFactory(initializationContext, weightFactory);
 
         return switch (initialConnectionType) {
             case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new AllToAllOutputsGenesisGenomeConnector(weightFactoryFixed, true);

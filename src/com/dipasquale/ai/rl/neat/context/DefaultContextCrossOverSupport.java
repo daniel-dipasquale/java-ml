@@ -1,31 +1,28 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.settings.CrossOverSupport;
-import com.dipasquale.ai.rl.neat.settings.FloatNumber;
-import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.core.CrossOverSupport;
+import com.dipasquale.ai.rl.neat.core.FloatNumber;
+import com.dipasquale.ai.rl.neat.core.InitializationContext;
+import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.provider.DualModeIsLessThanRandomGateProvider;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-
-import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextCrossOverSupport implements Context.CrossOverSupport {
     private DualModeIsLessThanRandomGateProvider shouldOverrideExpressedConnectionGateProvider;
     private DualModeIsLessThanRandomGateProvider shouldUseWeightFromRandomParentGateProvider;
 
-    private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber max) {
-        return new DualModeIsLessThanRandomGateProvider(randomSupport, max.getSingletonValue(parallelismSupport, randomSupports));
+    private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final InitializationContext initializationContext, final FloatNumber max) {
+        return new DualModeIsLessThanRandomGateProvider(initializationContext.getRandomSupport(), max.getSingletonValue(initializationContext));
     }
 
-    public static DefaultContextCrossOverSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final CrossOverSupport crossOverSupport) {
-        DualModeIsLessThanRandomGateProvider shouldOverrideExpressedConnectionGateProvider = createIsLessThanGateProvider(parallelismSupport, randomSupports, randomSupport, crossOverSupport.getOverrideExpressedConnectionRate());
-        DualModeIsLessThanRandomGateProvider shouldUseWeightFromRandomParentGateProvider = createIsLessThanGateProvider(parallelismSupport, randomSupports, randomSupport, crossOverSupport.getUseWeightFromRandomParentRate());
+    public static DefaultContextCrossOverSupport create(final InitializationContext initializationContext, final CrossOverSupport crossOverSupport) {
+        DualModeIsLessThanRandomGateProvider shouldOverrideExpressedConnectionGateProvider = createIsLessThanGateProvider(initializationContext, crossOverSupport.getOverrideExpressedConnectionRate());
+        DualModeIsLessThanRandomGateProvider shouldUseWeightFromRandomParentGateProvider = createIsLessThanGateProvider(initializationContext, crossOverSupport.getUseWeightFromRandomParentRate());
 
         return new DefaultContextCrossOverSupport(shouldOverrideExpressedConnectionGateProvider, shouldUseWeightFromRandomParentGateProvider);
     }

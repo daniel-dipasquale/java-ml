@@ -5,7 +5,10 @@
 I'm learning how some machine learning algorithms work by implementing them using java. Below is the ordered list of the
 algorithms I'm interested in learning and using:
 
-- [x] [NEAT Algorithm](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf)
+- [x] **NEAT Algorithm**
+
+    - [Evolving Neural Networks through Augmenting Topologies](http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf)
+    - [Efficient Evolution of Neural Networks through Complexification](http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf)
 
     - [x] XOR test :+1: (random data sample)
 

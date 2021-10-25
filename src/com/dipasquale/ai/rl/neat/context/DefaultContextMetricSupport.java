@@ -1,10 +1,10 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
-import com.dipasquale.ai.rl.neat.settings.MetricCollectionType;
-import com.dipasquale.ai.rl.neat.settings.MetricSupport;
-import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
-import com.dipasquale.ai.rl.neat.settings.SpeciationSupport;
+import com.dipasquale.ai.rl.neat.core.InitializationContext;
+import com.dipasquale.ai.rl.neat.core.MetricCollectionType;
+import com.dipasquale.ai.rl.neat.core.MetricSupport;
+import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.core.SpeciationSupport;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.metric.ConfigurableMetricsCollector;
 import com.dipasquale.ai.rl.neat.speciation.metric.GenerationMetrics;
@@ -23,7 +23,6 @@ import com.dipasquale.synchronization.dual.mode.DualModeIntegerCounter;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -64,18 +63,18 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
         return new ConfigurableMetricsCollector(metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd);
     }
 
-    public static DefaultContextMetricSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final MetricSupport metricSupport, final SpeciationSupport speciationSupport) {
+    public static DefaultContextMetricSupport create(final InitializationContext initializationContext, final MetricSupport metricSupport, final SpeciationSupport speciationSupport) {
         DefaultContextMetricParameters params = DefaultContextMetricParameters.builder()
                 .enabled(metricSupport.getType().contains(MetricCollectionType.ENABLED))
                 .build();
 
         MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricSupport.getType());
-        DualModeMetricsContainer metricsContainer = new DualModeMetricsContainer(parallelismSupport.getMapFactory(), metricDatumFactory);
+        DualModeMetricsContainer metricsContainer = new DualModeMetricsContainer(initializationContext.getParallelism().getMapFactory(), metricDatumFactory);
         MetricsCollector metricsCollector = createMetricsCollector(metricDatumFactory, metricSupport.getType());
-        int stagnationDropOffAge = speciationSupport.getStagnationDropOffAge().getSingletonValue(parallelismSupport, randomSupports);
-        DualModeIntegerCounter iteration = new DualModeIntegerCounter(parallelismSupport.getConcurrencyLevel(), 1);
-        DualModeIntegerCounter generation = new DualModeIntegerCounter(parallelismSupport.getConcurrencyLevel(), 1);
-        DualModeMap<Integer, IterationMetrics, DualModeMapFactory> metrics = new DualModeMap<>(parallelismSupport.getMapFactory());
+        int stagnationDropOffAge = speciationSupport.getStagnationDropOffAge().getSingletonValue(initializationContext);
+        DualModeIntegerCounter iteration = new DualModeIntegerCounter(initializationContext.getParallelism().getConcurrencyLevel(), 1);
+        DualModeIntegerCounter generation = new DualModeIntegerCounter(initializationContext.getParallelism().getConcurrencyLevel(), 1);
+        DualModeMap<Integer, IterationMetrics, DualModeMapFactory> metrics = new DualModeMap<>(initializationContext.getParallelism().getMapFactory());
 
         return new DefaultContextMetricSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, metrics);
     }

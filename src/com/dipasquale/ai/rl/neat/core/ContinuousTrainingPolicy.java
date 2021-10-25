@@ -2,7 +2,12 @@ package com.dipasquale.ai.rl.neat.core;
 
 import lombok.Builder;
 
-public final class ContinuousTrainingPolicy implements NeatTrainingPolicy {
+import java.io.Serial;
+import java.io.Serializable;
+
+public final class ContinuousTrainingPolicy implements NeatTrainingPolicy, Serializable {
+    @Serial
+    private static final long serialVersionUID = -5091173028334364296L;
     private int cycle;
     private final int fitnessEvaluationCycle;
 
@@ -32,5 +37,10 @@ public final class ContinuousTrainingPolicy implements NeatTrainingPolicy {
     @Override
     public void reset() {
         cycle = 1;
+    }
+
+    @Override
+    public NeatTrainingPolicy createClone() {
+        return new ContinuousTrainingPolicy(fitnessEvaluationCycle - 1);
     }
 }

@@ -1,27 +1,24 @@
 package com.dipasquale.ai.rl.neat.context;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
+import com.dipasquale.ai.rl.neat.core.ConnectionGeneSupport;
+import com.dipasquale.ai.rl.neat.core.FloatNumber;
+import com.dipasquale.ai.rl.neat.core.GenesisGenomeTemplate;
+import com.dipasquale.ai.rl.neat.core.InitializationContext;
+import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.settings.ConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.settings.FloatNumber;
-import com.dipasquale.ai.rl.neat.settings.GenesisGenomeTemplate;
-import com.dipasquale.ai.rl.neat.settings.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeWeightPerturber;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeHistoricalMarkings;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.provider.DualModeIsLessThanRandomGateProvider;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-
-import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextConnectionGeneSupport implements Context.ConnectionGeneSupport {
@@ -32,23 +29,23 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     private GenesisGenomeConnector genesisGenomeConnector;
     private DualModeHistoricalMarkings historicalMarkings;
 
-    private static DualModeWeightPerturber<FloatNumber.DualModeFactory> createWeightPerturber(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final FloatNumber weightPerturber) {
-        FloatNumber.DualModeFactory floatFactory = weightPerturber.createFactory(parallelismSupport, randomSupports);
+    private static DualModeWeightPerturber<FloatNumber.DualModeFactory> createWeightPerturber(final InitializationContext initializationContext, final FloatNumber weightPerturber) {
+        FloatNumber.DualModeFactory floatFactory = weightPerturber.createFactory(initializationContext);
 
         return new DualModeWeightPerturber<>(floatFactory);
     }
 
-    private static DualModeIsLessThanRandomGateProvider createIsLessThanRandomGateProvider(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final FloatNumber max) {
-        return new DualModeIsLessThanRandomGateProvider(randomSupport, max.getSingletonValue(parallelismSupport, randomSupports));
+    private static DualModeIsLessThanRandomGateProvider createIsLessThanRandomGateProvider(final InitializationContext initializationContext, final FloatNumber max) {
+        return new DualModeIsLessThanRandomGateProvider(initializationContext.getRandomSupport(), max.getSingletonValue(initializationContext));
     }
 
-    public static DefaultContextConnectionGeneSupport create(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports, final DualModeRandomSupport randomSupport, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
-        FloatNumber.DualModeFactory weightFactory = connectionGeneSupport.getWeightFactory().createFactory(parallelismSupport, randomSupports);
-        DualModeWeightPerturber<FloatNumber.DualModeFactory> weightPerturber = createWeightPerturber(parallelismSupport, randomSupports, connectionGeneSupport.getWeightPerturber());
-        DualModeIsLessThanRandomGateProvider shouldAllowRecurrentGateProvider = createIsLessThanRandomGateProvider(parallelismSupport, randomSupports, randomSupport, connectionGeneSupport.getRecurrentAllowanceRate());
-        DualModeIsLessThanRandomGateProvider shouldAllowMultiCycleGateProvider = createIsLessThanRandomGateProvider(parallelismSupport, randomSupports, randomSupport, connectionGeneSupport.getMultiCycleAllowanceRate());
-        GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(parallelismSupport, randomSupports, weightFactory);
-        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(parallelismSupport.getMapFactory());
+    public static DefaultContextConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
+        FloatNumber.DualModeFactory weightFactory = connectionGeneSupport.getWeightFactory().createFactory(initializationContext);
+        DualModeWeightPerturber<FloatNumber.DualModeFactory> weightPerturber = createWeightPerturber(initializationContext, connectionGeneSupport.getWeightPerturber());
+        DualModeIsLessThanRandomGateProvider shouldAllowRecurrentGateProvider = createIsLessThanRandomGateProvider(initializationContext, connectionGeneSupport.getRecurrentAllowanceRate());
+        DualModeIsLessThanRandomGateProvider shouldAllowMultiCycleGateProvider = createIsLessThanRandomGateProvider(initializationContext, connectionGeneSupport.getMultiCycleAllowanceRate());
+        GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(initializationContext, weightFactory);
+        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(initializationContext.getParallelism().getMapFactory());
 
         return new DefaultContextConnectionGeneSupport(weightFactory, weightPerturber, shouldAllowRecurrentGateProvider, shouldAllowMultiCycleGateProvider, genesisGenomeConnector, historicalMarkings);
     }

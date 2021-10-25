@@ -90,7 +90,7 @@ public final class Species implements Serializable {
         if (Float.compare(sharedFitnessFixed, maximumSharedFitness) > 0) {
             maximumSharedFitness = sharedFitnessFixed;
             improvedAtAge = getAge();
-        } // TODO: confirm if this version of the shared fitness matches the description of how the adjusted fitness should be working
+        }
 
         return sharedFitness;
     }

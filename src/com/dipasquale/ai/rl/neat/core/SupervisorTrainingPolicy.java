@@ -2,7 +2,12 @@ package com.dipasquale.ai.rl.neat.core;
 
 import lombok.Builder;
 
-public final class SupervisorTrainingPolicy implements NeatTrainingPolicy {
+import java.io.Serial;
+import java.io.Serializable;
+
+public final class SupervisorTrainingPolicy implements NeatTrainingPolicy, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1646221920253201871L;
     private final int maximumGeneration;
     private int iterationStoppedAt;
     private final int maximumRestartCount;
@@ -31,5 +36,10 @@ public final class SupervisorTrainingPolicy implements NeatTrainingPolicy {
 
     @Override
     public void reset() {
+    }
+
+    @Override
+    public NeatTrainingPolicy createClone() {
+        return new SupervisorTrainingPolicy(maximumGeneration, maximumRestartCount);
     }
 }

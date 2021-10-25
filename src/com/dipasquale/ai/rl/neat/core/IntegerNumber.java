@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.settings;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeBoundedRandomIntegerFactory;
@@ -6,22 +6,20 @@ import com.dipasquale.common.factory.IntegerFactory;
 import com.dipasquale.common.factory.LiteralIntegerFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeIntegerFactory;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IntegerNumber {
     private final DualModeFactoryCreator factoryCreator;
-    private Integer singletonValue = null;
+    private final Object singletonKey = new Object();
 
     public static IntegerNumber literal(final int value) {
-        DualModeFactoryCreator factoryCreator = (ps, rs) -> {
-            DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(ps.getConcurrencyLevel(), new LiteralIntegerFactory(value));
+        DualModeFactoryCreator factoryCreator = ic -> {
+            DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(ic.getParallelism().getConcurrencyLevel(), new LiteralIntegerFactory(value));
 
             return new InternalDualModeFactory<>(integerFactory);
         };
@@ -30,8 +28,8 @@ public final class IntegerNumber {
     }
 
     public static IntegerNumber random(final RandomType type, final int min, final int max) {
-        DualModeFactoryCreator factoryCreator = (ps, rs) -> {
-            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(rs.get(type), min, max);
+        DualModeFactoryCreator factoryCreator = ic -> {
+            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(ic.getRandomSupports().get(type), min, max);
 
             return new InternalDualModeFactory<>(integerFactory);
         };
@@ -39,16 +37,16 @@ public final class IntegerNumber {
         return new IntegerNumber(factoryCreator);
     }
 
-    public DualModeFactory createFactory(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
-        return factoryCreator.create(parallelismSupport, randomSupports);
+    public DualModeFactory createFactory(final InitializationContext initializationContext) {
+        return factoryCreator.create(initializationContext);
     }
 
-    public int getSingletonValue(final ParallelismSupport parallelismSupport, final Map<RandomType, DualModeRandomSupport> randomSupports) {
-        if (singletonValue == null) {
-            singletonValue = factoryCreator.create(parallelismSupport, randomSupports).create();
+    public int getSingletonValue(final InitializationContext initializationContext) {
+        if (!initializationContext.getContainer().containsKey(singletonKey)) {
+            initializationContext.getContainer().setValue(singletonKey, factoryCreator.create(initializationContext).create());
         }
 
-        return singletonValue;
+        return (int) initializationContext.getContainer().getValue(singletonKey);
     }
 
     public interface DualModeFactory extends IntegerFactory, DualModeObject {
@@ -78,6 +76,6 @@ public final class IntegerNumber {
 
     @FunctionalInterface
     private interface DualModeFactoryCreator {
-        DualModeFactory create(ParallelismSupport parallelismSupport, Map<RandomType, DualModeRandomSupport> randomSupports);
+        DualModeFactory create(InitializationContext initializationContext);
     }
 }

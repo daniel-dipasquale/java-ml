@@ -3,7 +3,6 @@ package com.dipasquale.ai.rl.neat.core;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
-import com.dipasquale.ai.rl.neat.settings.EvaluatorLoadSettings;
 import com.dipasquale.ai.rl.neat.speciation.core.Population;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import lombok.AccessLevel;
@@ -18,15 +17,15 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 final class ConcurrentNeatEvaluator implements NeatEvaluator {
+    private final ReadWriteLock lock;
     private final Context context;
     private final Population population;
-    private final ReadWriteLock lock;
     private final ConcurrentNeatState state;
 
     ConcurrentNeatEvaluator(final Context context, final ReadWriteLock lock) {
+        this.lock = lock;
         this.context = context;
         this.population = createPopulation(context);
-        this.lock = lock;
         this.state = new ConcurrentNeatState();
     }
 
@@ -124,13 +123,13 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
             try {
                 context.load(objectInputStream, settings.createContext());
             } catch (ClassNotFoundException e) {
-                throw new IOException("unable to load the settings", e);
+                throw new IOException("unable to load the context", e);
             }
 
             try {
                 population.load(objectInputStream);
             } catch (ClassNotFoundException e) {
-                throw new IOException("unable to load the topology", e);
+                throw new IOException("unable to load the population", e);
             }
         } finally {
             lock.writeLock().unlock();
