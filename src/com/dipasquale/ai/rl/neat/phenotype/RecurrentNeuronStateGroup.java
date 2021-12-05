@@ -38,7 +38,7 @@ abstract class RecurrentNeuronStateGroup implements NeuronStateGroup {
         return value;
     }
 
-    protected abstract float getRecurrentValue(Id id, Id inputId);
+    protected abstract float getRecurrentValue(Id id);
 
     @Override
     public final float getValue(final Id id, final Id inputId) {
@@ -46,7 +46,7 @@ abstract class RecurrentNeuronStateGroup implements NeuronStateGroup {
             return getValue(id);
         }
 
-        return getRecurrentValue(id, inputId);
+        return getRecurrentValue(id);
     }
 
     @Override
@@ -65,6 +65,10 @@ abstract class RecurrentNeuronStateGroup implements NeuronStateGroup {
 
         state.replace(inputId, value);
         setMemoryValue(id, value, inputId);
+    }
+
+    @Override
+    public void endCycle(final Id id) {
     }
 
     @Override

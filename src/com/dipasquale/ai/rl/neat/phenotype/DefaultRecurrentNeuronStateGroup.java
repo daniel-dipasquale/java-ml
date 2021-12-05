@@ -10,7 +10,7 @@ final class DefaultRecurrentNeuronStateGroup extends RecurrentNeuronStateGroup {
     private final NeuronMemory memory;
 
     @Override
-    protected float getRecurrentValue(final Id id, final Id inputId) {
+    protected float getRecurrentValue(final Id id) {
         return getValue(id) + getValue(memory, HIDDEN_DIMENSION, id);
     }
 

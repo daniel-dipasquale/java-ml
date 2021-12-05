@@ -39,6 +39,10 @@ final class NoMemoryNeuronStateGroup implements NeuronStateGroup {
     }
 
     @Override
+    public void endCycle(final Id id) {
+    }
+
+    @Override
     public void clear() {
         states.clear();
     }

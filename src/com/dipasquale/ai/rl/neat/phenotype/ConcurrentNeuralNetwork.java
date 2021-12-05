@@ -99,6 +99,8 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
 
                 neuronState.addValue(outputConnection.getOutputNeuronId(), value, inputNeuron.getId());
             }
+
+            neuronState.endCycle(inputNeuron.getId());
         }
     }
 

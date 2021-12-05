@@ -14,13 +14,14 @@ final class GruNeuronStateGroup extends RecurrentNeuronStateGroup {
     private final NeuronMemory memory;
 
     @Override
-    protected float getRecurrentValue(final Id id, final Id inputId) {
+    protected float getRecurrentValue(final Id id) {
         float inputValue = getValue(id);
         float oldHiddenValue = getValue(memory, HIDDEN_DIMENSION, id);
-        float resetOrUpdateGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue);
-        float candidateHiddenValue = TAN_H_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue * resetOrUpdateGate);
+        float resetGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue);
+        float updateGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue + 1f);
+        float candidateHiddenValue = TAN_H_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue * resetGate);
 
-        return oldHiddenValue * resetOrUpdateGate + (1f - resetOrUpdateGate) * candidateHiddenValue;
+        return oldHiddenValue * updateGate + (1f - updateGate) * candidateHiddenValue;
     }
 
     @Override

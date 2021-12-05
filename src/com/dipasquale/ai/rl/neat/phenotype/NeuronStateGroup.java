@@ -11,5 +11,7 @@ interface NeuronStateGroup {
 
     void addValue(Id id, float value, Id inputId);
 
+    void endCycle(Id id);
+
     void clear();
 }

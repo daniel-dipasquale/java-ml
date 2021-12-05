@@ -6,6 +6,10 @@ import com.dipasquale.ai.rl.neat.common.Id;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class LstmNeuronStateGroup extends RecurrentNeuronStateGroup {
     private static final String HIDDEN_DIMENSION = "LSTM_H";
@@ -13,25 +17,33 @@ final class LstmNeuronStateGroup extends RecurrentNeuronStateGroup {
     private static final SigmoidActivationFunction SIGMOID_ACTIVATION_FUNCTION = SigmoidActivationFunction.getInstance();
     private static final TanHActivationFunction TAN_H_ACTIVATION_FUNCTION = TanHActivationFunction.getInstance();
     private final NeuronMemory memory;
+    private final Map<Id, Float> cycleStates = new HashMap<>();
 
     @Override
-    protected float getRecurrentValue(final Id id, final Id inputId) {
+    protected float getRecurrentValue(final Id id) {
         float inputValue = getValue(id);
         float oldHiddenValue = getValue(memory, HIDDEN_DIMENSION, id);
         float oldCellValue = getValue(memory, CELL_DIMENSION, id);
-        float forgetOrInputGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue);
-        float candidateCellValue = TAN_H_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue) * forgetOrInputGate;
-        float newCellValue = oldCellValue * forgetOrInputGate + candidateCellValue;
+        float forgetGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue + oldCellValue);
+        float inputGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue + oldCellValue + 1f);
+        float candidateCellValue = TAN_H_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue + 2f);
+        float newCellValue = oldCellValue * forgetGate + candidateCellValue * inputGate;
 
-        try {
-            return TAN_H_ACTIVATION_FUNCTION.forward(newCellValue) * forgetOrInputGate;
-        } finally {
-            memory.setValue(CELL_DIMENSION, id, newCellValue, inputId);
-        }
+        cycleStates.put(id, newCellValue);
+
+        return SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue + newCellValue + 3f) * TAN_H_ACTIVATION_FUNCTION.forward(newCellValue);
     }
 
     @Override
     protected void setMemoryValue(final Id id, final float value, final Id inputId) {
         memory.setValue(HIDDEN_DIMENSION, id, value, inputId);
+    }
+
+    @Override
+    public void endCycle(final Id id) {
+        Float value = cycleStates.remove(id);
+        float valueFixed = Objects.requireNonNullElse(value, 0f);
+
+        memory.setValue(CELL_DIMENSION, id, valueFixed, id);
     }
 }
