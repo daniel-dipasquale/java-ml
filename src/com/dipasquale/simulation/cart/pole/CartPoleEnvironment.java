@@ -30,11 +30,11 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
     @Builder.Default
     private double dx = 0D;
     @Builder.Default
-    private double dtheta = 0D;
+    private double dTheta = 0D;
     @Builder.Default
-    private double accx = 0D;
+    private double accelerationX = 0D;
     @Builder.Default
-    private double acctheta = 0D;
+    private double accelerationTheta = 0D;
     @Builder.Default
     @Getter
     private double timeSpent = 0D;
@@ -43,13 +43,13 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
         double x = randomSupport.next(-0.5D * positionLimit, 0.5D * positionLimit);
         double theta = randomSupport.next(-0.5D * angleRadiansLimit, 0.5D * angleRadiansLimit);
         double dx = randomSupport.next(-1D, 1D);
-        double dtheta = randomSupport.next(-1D, 1D);
+        double dTheta = randomSupport.next(-1D, 1D);
 
         return CartPoleEnvironment.builder()
                 .x(x)
                 .theta(theta)
                 .dx(dx)
-                .dtheta(dtheta)
+                .dTheta(dTheta)
                 .build();
     }
 
@@ -61,7 +61,7 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
         double cartPosition = 0.5D * (x + positionLimit) / positionLimit;
         double cartVelocity = (dx + 0.75D) / 1.5D;
         double poleAngle = 0.5D * (theta + ANGLE_RADIANS_LIMIT) / ANGLE_RADIANS_LIMIT;
-        double poleVelocityAtTip = (dtheta + 1D) / 2D;
+        double poleVelocityAtTip = (dTheta + 1D) / 2D;
 
         return new double[]{cartPosition, cartVelocity, poleAngle, poleVelocityAtTip};
     }
@@ -71,20 +71,20 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
     }
 
     public double step(final double force) {
-        x += stepTime * dx + 0.5D * accx * Math.pow(stepTime, 2D);
-        theta += stepTime * dtheta + 0.5D * acctheta * Math.pow(stepTime, 2D);
+        x += stepTime * dx + 0.5D * accelerationX * Math.pow(stepTime, 2D);
+        theta += stepTime * dTheta + 0.5D * accelerationTheta * Math.pow(stepTime, 2D);
 
         double sinTheta = Math.sin(theta);
         double cosTheta = Math.cos(theta);
         double poleHalfLength = pole.getLength() / 2D;
         double totalMass = cart.getMass() + pole.getMass();
-        double accthetaNext = (gravity * sinTheta + cosTheta * (-force - pole.getMass() * poleHalfLength * Math.pow(dtheta, 2) * sinTheta) / totalMass) / (poleHalfLength * (4D / 3D - pole.getMass() * Math.pow(cosTheta, 2D) / totalMass));
-        double accxNext = (force + pole.getMass() * poleHalfLength * (Math.pow(dtheta, 2D) * sinTheta - accthetaNext * cosTheta)) / totalMass;
+        double accelerationThetaNext = (gravity * sinTheta + cosTheta * (-force - pole.getMass() * poleHalfLength * Math.pow(dTheta, 2) * sinTheta) / totalMass) / (poleHalfLength * (4D / 3D - pole.getMass() * Math.pow(cosTheta, 2D) / totalMass));
+        double accelerationXNext = (force + pole.getMass() * poleHalfLength * (Math.pow(dTheta, 2D) * sinTheta - accelerationThetaNext * cosTheta)) / totalMass;
 
-        dx += 0.5D * (accx + accxNext) * stepTime;
-        dtheta += 0.5D * (acctheta + accthetaNext) * stepTime;
-        accx = accxNext;
-        acctheta = accthetaNext;
+        dx += 0.5D * (accelerationX + accelerationXNext) * stepTime;
+        dTheta += 0.5D * (accelerationTheta + accelerationThetaNext) * stepTime;
+        accelerationX = accelerationXNext;
+        accelerationTheta = accelerationThetaNext;
         timeSpent += stepTime;
 
         return timeSpent;

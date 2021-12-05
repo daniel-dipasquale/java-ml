@@ -18,6 +18,8 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber recurrentAllowanceRate = FloatNumber.literal(0.2f);
     @Builder.Default
+    private final RecurrentStateType recurrentStateType = RecurrentStateType.SHORT_TERM;
+    @Builder.Default
     private final FloatNumber multiCycleAllowanceRate = FloatNumber.literal(0.0f);
 
     DefaultContextConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate) {

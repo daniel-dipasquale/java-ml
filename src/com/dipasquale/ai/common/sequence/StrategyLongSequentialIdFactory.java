@@ -6,17 +6,17 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class StrategySequentialIdFactory implements SequentialIdFactory, Serializable {
+public final class StrategyLongSequentialIdFactory implements SequentialIdFactory<StrategyLongSequentialId>, Serializable {
     @Serial
     private static final long serialVersionUID = -922865675747841717L;
     private final String name;
-    private final SequentialIdFactory sequentialIdFactory;
+    private final LongSequentialIdFactory sequentialIdFactory;
 
     @Override
-    public SequentialId create() {
-        SequentialId sequentialId = sequentialIdFactory.create();
+    public StrategyLongSequentialId create() {
+        LongSequentialId sequentialId = sequentialIdFactory.create();
 
-        return new StrategySequentialId(name, sequentialId);
+        return new StrategyLongSequentialId(name, sequentialId);
     }
 
     @Override

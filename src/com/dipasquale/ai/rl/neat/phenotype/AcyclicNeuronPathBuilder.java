@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.data.structure.map.HashDequeMap;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +16,11 @@ import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Serializable {
+final class AcyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
     @Serial
     private static final long serialVersionUID = -9211062291079454674L;
-    private final Map<SequentialId, Neuron> neurons = new HashMap<>();
-    private final Set<SequentialId> orderedNeuronIds = new HashSet<>();
+    private final Map<Id, Neuron> neurons = new HashMap<>();
+    private final Set<Id> orderedNeuronIds = new HashSet<>();
     private final Collection<Neuron> orderedNeurons = new LinkedList<>();
 
     @Override
@@ -29,7 +29,7 @@ final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Serializa
     }
 
     @Override
-    public Neuron get(final SequentialId neuronId) {
+    public Neuron get(final Id neuronId) {
         return neurons.get(neuronId);
     }
 
@@ -38,7 +38,7 @@ final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Serializa
         neurons.put(neuron.getId(), neuron);
     }
 
-    private OrderableNeuron getOrderableOrCreateUnordered(final OrderableNeuron orderableNeuron, final SequentialId neuronId) {
+    private OrderableNeuron getOrderableOrCreateUnordered(final OrderableNeuron orderableNeuron, final Id neuronId) {
         if (orderableNeuron != null) {
             return orderableNeuron;
         }
@@ -50,7 +50,7 @@ final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Serializa
 
     @Override
     public void addPathLeadingTo(final Neuron neuron) { // inspired from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
-        HashDequeMap<SequentialId, OrderableNeuron> orderingNeurons = new HashDequeMap<>();
+        HashDequeMap<Id, OrderableNeuron> orderingNeurons = new HashDequeMap<>();
 
         orderingNeurons.putLast(neuron.getId(), new OrderableNeuron(neuron, false));
 
@@ -60,12 +60,12 @@ final class FeedForwardNeuronPathBuilder implements NeuronPathBuilder, Serializa
             if (!orderableNeuron.ordered) {
                 orderingNeurons.putLast(orderableNeuron.neuron.getId(), orderableNeuron.createOrdered());
 
-                for (InputConnection input : orderableNeuron.neuron.getInputs()) {
-                    SequentialId sourceNeuronId = input.getSourceNeuronId();
-                    OrderableNeuron orderableSourceNeuron = orderingNeurons.get(sourceNeuronId);
+                for (NeuronInputConnection inputConnection : orderableNeuron.neuron.getInputConnections()) {
+                    Id inputNeuronId = inputConnection.getInputNeuronId();
+                    OrderableNeuron orderableInputNeuron = orderingNeurons.get(inputNeuronId);
 
-                    if ((orderableSourceNeuron == null || !orderableSourceNeuron.ordered) && !orderedNeuronIds.contains(sourceNeuronId)) {
-                        orderingNeurons.putLast(sourceNeuronId, getOrderableOrCreateUnordered(orderableSourceNeuron, sourceNeuronId));
+                    if ((orderableInputNeuron == null || !orderableInputNeuron.ordered) && !orderedNeuronIds.contains(inputNeuronId)) {
+                        orderingNeurons.putLast(inputNeuronId, getOrderableOrCreateUnordered(orderableInputNeuron, inputNeuronId));
                     }
                 }
             } else if (orderedNeuronIds.add(orderableNeuron.neuron.getId()) && !orderingNeurons.isEmpty()) {

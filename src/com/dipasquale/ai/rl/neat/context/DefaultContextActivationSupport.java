@@ -12,10 +12,12 @@ import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.FeedForwardNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.GruNeuralNetworkFactory;
+import com.dipasquale.ai.rl.neat.phenotype.LstmNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
-import com.dipasquale.ai.rl.neat.phenotype.RecurrentNeuralNetworkFactory;
+import com.dipasquale.ai.rl.neat.phenotype.ShortTermMemoryNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeSequentialIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype.DualModeGenomeActivatorPool;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
@@ -46,12 +48,18 @@ public final class DefaultContextActivationSupport implements Context.Activation
             return new FeedForwardNeuralNetworkFactory();
         }
 
-        return new RecurrentNeuralNetworkFactory();
+        return switch (connectionGeneSupport.getRecurrentStateType()) {
+            case SHORT_TERM -> new ShortTermMemoryNeuralNetworkFactory();
+
+            case LSTM -> new LstmNeuralNetworkFactory();
+
+            case GRU -> new GruNeuralNetworkFactory();
+        };
     }
 
     private static Map<String, FitnessBucket> createFitnessBuckets(final InitializationContext initializationContext, final GeneralEvaluatorSupport generalEvaluatorSupport) {
         int populationSize = generalEvaluatorSupport.getPopulationSize().getSingletonValue(initializationContext);
-        DualModeSequentialIdFactory genomeIdFactory = new DualModeSequentialIdFactory(initializationContext.getParallelism().getConcurrencyLevel(), "genome");
+        DualModeIdFactory genomeIdFactory = new DualModeIdFactory(initializationContext.getParallelism().getConcurrencyLevel(), "genome");
         FitnessDeterminerFactory fitnessDeterminerFactory = generalEvaluatorSupport.getFitnessDeterminerFactory();
         Map<String, FitnessBucket> fitnessBuckets = new HashMap<>();
 

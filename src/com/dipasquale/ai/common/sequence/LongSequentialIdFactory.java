@@ -5,7 +5,7 @@ import com.dipasquale.common.LongCounter;
 import java.io.Serial;
 import java.io.Serializable;
 
-public final class LongSequentialIdFactory implements SequentialIdFactory, Serializable {
+public final class LongSequentialIdFactory implements SequentialIdFactory<LongSequentialId>, Serializable {
     @Serial
     private static final long serialVersionUID = -2914528594779687249L;
     private final LongCounter counter;
@@ -17,7 +17,7 @@ public final class LongSequentialIdFactory implements SequentialIdFactory, Seria
     }
 
     @Override
-    public SequentialId create() {
+    public LongSequentialId create() {
         long value = counter.increment();
 
         if (value == Long.MIN_VALUE) {

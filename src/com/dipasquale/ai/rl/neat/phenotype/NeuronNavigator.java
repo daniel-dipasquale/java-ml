@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
         return !neuronPathBuilder.hasNeurons();
     }
 
-    public Neuron get(final SequentialId id) {
+    public Neuron get(final Id id) {
         return neuronPathBuilder.get(id);
     }
 
@@ -47,12 +47,12 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
         }
     }
 
-    public float[] getOutputValues(final NeuronValueGroup neuronValues) {
+    public float[] getOutputValues(final NeuronStateGroup neuronState) {
         float[] outputValues = new float[outputNeurons.size()];
         int index = 0;
 
         for (Neuron neuron : outputNeurons) {
-            outputValues[index++] = neuron.getValue(neuronValues);
+            outputValues[index++] = neuron.getValue(neuronState);
         }
 
         return outputValues;

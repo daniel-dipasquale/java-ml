@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +14,8 @@ import java.io.Serializable;
 public final class DirectedEdge implements Serializable {
     @Serial
     private static final long serialVersionUID = 5476428602513687108L;
-    private final SequentialId sourceNodeId;
-    private final SequentialId targetNodeId;
+    private final Id sourceNodeId;
+    private final Id targetNodeId;
 
     public DirectedEdge(final NodeGene sourceNode, final NodeGene targetNode) {
         this.sourceNodeId = sourceNode.getId();

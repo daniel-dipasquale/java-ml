@@ -1,19 +1,16 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.synchronization.wait.handle;
 
-import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
-import com.dipasquale.synchronization.wait.handle.WaitHandle;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ParallelismWaitHandle implements WaitHandle {
-    private final InteractiveWaitHandle invokedWaitHandle;
+@RequiredArgsConstructor
+public final class StrategyWaitHandle implements WaitHandle {
+    private final WaitHandle waitHandle;
     private final Collection<Throwable> unhandledExceptions;
 
-    ParallelismWaitHandle(final Collection<Throwable> unhandledExceptions) {
+    public StrategyWaitHandle(final Collection<Throwable> unhandledExceptions) {
         this(null, unhandledExceptions);
     }
 
@@ -38,8 +35,8 @@ final class ParallelismWaitHandle implements WaitHandle {
     public void await()
             throws InterruptedException {
         try {
-            if (invokedWaitHandle != null) {
-                invokedWaitHandle.await();
+            if (waitHandle != null) {
+                waitHandle.await();
             }
         } catch (InterruptedException e) {
             fillUnhandledAsSuppressed(e);
@@ -54,7 +51,7 @@ final class ParallelismWaitHandle implements WaitHandle {
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
         try {
-            boolean acquired = invokedWaitHandle == null || invokedWaitHandle.await(timeout, unit);
+            boolean acquired = waitHandle == null || waitHandle.await(timeout, unit);
 
             failIfAnyUnhandled();
 

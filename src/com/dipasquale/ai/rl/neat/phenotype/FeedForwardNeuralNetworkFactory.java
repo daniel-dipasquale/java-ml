@@ -12,12 +12,12 @@ public final class FeedForwardNeuralNetworkFactory implements NeuralNetworkFacto
     @Serial
     private static final long serialVersionUID = -35249703641428233L;
     private static final ObjectFactory<NeuronMemory> NEURON_MEMORY_FACTORY = (ObjectFactory<NeuronMemory> & Serializable) () -> null;
-    private static final NeuronValueGroupFactory NEURON_VALUES_FACTORY = (NeuronValueGroupFactory & Serializable) nm -> new FeedForwardNeuronValueGroup();
+    private static final NeuronStateGroupFactory NEURON_STATE_FACTORY = (NeuronStateGroupFactory & Serializable) nm -> new NoMemoryNeuronStateGroup();
 
     @Override
     public NeuralNetwork create(final Genome genome) {
-        NeuronPathBuilder neuronPathBuilder = new FeedForwardNeuronPathBuilder();
+        NeuronPathBuilder neuronPathBuilder = new AcyclicNeuronPathBuilder();
 
-        return new DefaultNeuralNetwork(genome, neuronPathBuilder, NEURON_MEMORY_FACTORY, NEURON_VALUES_FACTORY);
+        return new ConcurrentNeuralNetwork(genome, neuronPathBuilder, NEURON_MEMORY_FACTORY, NEURON_STATE_FACTORY);
     }
 }

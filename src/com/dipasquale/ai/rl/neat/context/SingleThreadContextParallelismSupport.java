@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
+import com.dipasquale.synchronization.wait.handle.StrategyWaitHandle;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public final class SingleThreadContextParallelismSupport implements Context.Para
             }
         }
 
-        return new ParallelismWaitHandle(unhandledExceptions);
+        return new StrategyWaitHandle(unhandledExceptions);
     }
 
     @Override

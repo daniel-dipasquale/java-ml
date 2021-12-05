@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.genotype.DefaultHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.HistoricalMarkings;
@@ -22,22 +22,22 @@ import java.io.Serializable;
 public final class DualModeHistoricalMarkings implements HistoricalMarkings, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 2505708313091427289L;
-    private final DualModeSequentialIdFactory innovationIdFactory;
+    private final DualModeIdFactory innovationIdFactory;
     private final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds;
     private final NodeGeneIdDependencyTrackerFactory nodeIdDependencyTrackerFactory;
-    private final DualModeMap<SequentialId, DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeIdDependencyTrackers;
+    private final DualModeMap<Id, DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeIdDependencyTrackers;
     private transient DefaultHistoricalMarkings<DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>> historicalMarkings;
 
-    private DualModeHistoricalMarkings(final DualModeMapFactory mapFactory, final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds, final DualModeMap<SequentialId, DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeIdDependencyTrackers) {
-        this.innovationIdFactory = new DualModeSequentialIdFactory(mapFactory.concurrencyLevel(), "innovation-id");
+    private DualModeHistoricalMarkings(final DualModeMapFactory mapFactory, final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds, final NodeGeneIdDependencyTrackerFactory nodeIdDependencyTrackerFactory, final DualModeMap<Id, DualModeNodeGeneIdDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeIdDependencyTrackers) {
+        this.innovationIdFactory = new DualModeIdFactory(mapFactory.concurrencyLevel(), "innovation-id");
         this.innovationIds = innovationIds;
-        this.nodeIdDependencyTrackerFactory = new NodeGeneIdDependencyTrackerFactory(new DualModeMapToSetFactory(mapFactory));
+        this.nodeIdDependencyTrackerFactory = nodeIdDependencyTrackerFactory;
         this.nodeIdDependencyTrackers = nodeIdDependencyTrackers;
         this.historicalMarkings = new DefaultHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeIdDependencyTrackerFactory, nodeIdDependencyTrackers);
     }
 
     public DualModeHistoricalMarkings(final DualModeMapFactory mapFactory) {
-        this(mapFactory, new DualModeMap<>(mapFactory), new DualModeMap<>(mapFactory));
+        this(mapFactory, new DualModeMap<>(mapFactory), new NodeGeneIdDependencyTrackerFactory(new DualModeMapToSetFactory(mapFactory)), new DualModeMap<>(mapFactory));
     }
 
     @Override

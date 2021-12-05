@@ -15,11 +15,11 @@ import java.io.Serializable;
 public final class DualModeGenomePool implements DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 6680979157037947466L;
-    private final DualModeSequentialIdFactory genomeIdFactory;
+    private final DualModeIdFactory genomeIdFactory;
     private final DualModeDeque<String, DualModeDequeFactory> disposedGenomeIds;
 
     public DualModeGenomePool(final DualModeDequeFactory dequeFactory) {
-        this(new DualModeSequentialIdFactory(dequeFactory.concurrencyLevel(), "genome"), new DualModeDeque<>(dequeFactory));
+        this(new DualModeIdFactory(dequeFactory.concurrencyLevel(), "genome"), new DualModeDeque<>(dequeFactory));
     }
 
     public String createId() {

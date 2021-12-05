@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +16,13 @@ public final class InnovationId implements Comparable<InnovationId>, Serializabl
     @Getter
     @EqualsAndHashCode.Include
     private final DirectedEdge directedEdge;
-    private final SequentialId sequentialId;
+    private final Id sequentialId;
 
-    public SequentialId getSourceNodeId() {
+    public Id getSourceNodeId() {
         return directedEdge.getSourceNodeId();
     }
 
-    public SequentialId getTargetNodeId() {
+    public Id getTargetNodeId() {
         return directedEdge.getTargetNodeId();
     }
 

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
-import com.dipasquale.ai.common.sequence.SequentialIdFactory;
+import com.dipasquale.ai.rl.neat.common.Id;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeIdFactory;
 import com.dipasquale.common.factory.ObjectFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -9,12 +9,12 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 public final class DefaultHistoricalMarkings<T extends NodeGeneIdDependencyTracker> implements HistoricalMarkings {
-    private final SequentialIdFactory innovationIdFactory;
+    private final DualModeIdFactory innovationIdFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
     private final ObjectFactory<T> nodeIdDependencyTrackerFactory;
-    private final Map<SequentialId, T> nodeIdDependencyTrackers;
+    private final Map<Id, T> nodeIdDependencyTrackers;
 
-    private void addDependency(final SequentialId nodeId, final DirectedEdge directedEdge) {
+    private void addDependency(final Id nodeId, final DirectedEdge directedEdge) {
         NodeGeneIdDependencyTracker nodeIdDependencyTracker = nodeIdDependencyTrackers.computeIfAbsent(nodeId, nid -> nodeIdDependencyTrackerFactory.create());
 
         nodeIdDependencyTracker.add(directedEdge);

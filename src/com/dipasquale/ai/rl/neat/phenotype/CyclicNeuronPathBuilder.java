@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.data.structure.map.HashDequeMap;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -17,10 +17,10 @@ import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Serializable {
+final class CyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
     @Serial
     private static final long serialVersionUID = 1299761107234360133L;
-    private final Map<SequentialId, Neuron> neurons = new HashMap<>();
+    private final Map<Id, Neuron> neurons = new HashMap<>();
     private final Set<NeuronOrderId> orderedNeuronIds = new HashSet<>();
     private final Collection<Neuron> orderedNeurons = new LinkedList<>();
 
@@ -30,7 +30,7 @@ final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Serializabl
     }
 
     @Override
-    public Neuron get(final SequentialId neuronId) {
+    public Neuron get(final Id neuronId) {
         return neurons.get(neuronId);
     }
 
@@ -77,20 +77,20 @@ final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Serializabl
             if (!orderableNeuron.ordered) {
                 orderingNeurons.putLast(orderableNeuron.neuronOrderId, orderableNeuron.createOrdered());
 
-                for (InputConnection input : orderableNeuron.neuron.getInputs()) {
-                    NeuronOrderId sourceNeuronId = new NeuronOrderId(input.getSourceNeuronId(), orderableNeuron.neuronOrderId.cycle);
+                for (NeuronInputConnection inputConnection : orderableNeuron.neuron.getInputConnections()) {
+                    NeuronOrderId inputNeuronId = new NeuronOrderId(inputConnection.getInputNeuronId(), orderableNeuron.neuronOrderId.cycle);
 
-                    if (sourceNeuronId.cycle < input.getCyclesAllowed()) {
-                        OrderableNeuron orderableSourceNeuron = orderingNeurons.get(sourceNeuronId);
+                    if (inputNeuronId.cycle < inputConnection.getCyclesAllowed()) {
+                        OrderableNeuron orderableInputNeuron = orderingNeurons.get(inputNeuronId);
 
-                        if ((orderableSourceNeuron == null || !orderableSourceNeuron.ordered) && !orderedNeuronIds.contains(sourceNeuronId)) {
-                            OrderableNeuron orderableSourceNeuronFixed = getOrderableOrCreateUnordered(orderableSourceNeuron, sourceNeuronId);
+                        if ((orderableInputNeuron == null || !orderableInputNeuron.ordered) && !orderedNeuronIds.contains(inputNeuronId)) {
+                            OrderableNeuron orderableInputNeuronFixed = getOrderableOrCreateUnordered(orderableInputNeuron, inputNeuronId);
 
-                            orderingNeurons.putLast(sourceNeuronId, orderableSourceNeuronFixed);
-                        } else if (orderableSourceNeuron != null && orderableSourceNeuron.ordered || orderedNeuronIds.contains(sourceNeuronId)) {
-                            OrderableNeuron orderableSourceNeuronFixed = createNextUnordered(sourceNeuronId);
+                            orderingNeurons.putLast(inputNeuronId, orderableInputNeuronFixed);
+                        } else if (orderableInputNeuron != null && orderableInputNeuron.ordered || orderedNeuronIds.contains(inputNeuronId)) {
+                            OrderableNeuron orderableInputNeuronFixed = createNextUnordered(inputNeuronId);
 
-                            orderingNeurons.putLast(orderableSourceNeuronFixed.neuronOrderId, orderableSourceNeuronFixed);
+                            orderingNeurons.putLast(orderableInputNeuronFixed.neuronOrderId, orderableInputNeuronFixed);
                         }
                     }
                 }
@@ -116,7 +116,7 @@ final class RecurrentNeuronPathBuilder implements NeuronPathBuilder, Serializabl
     private static final class NeuronOrderId implements Serializable {
         @Serial
         private static final long serialVersionUID = -445055006068211779L;
-        private final SequentialId neuronId;
+        private final Id neuronId;
         private final int cycle;
 
         private NeuronOrderId createNext() {

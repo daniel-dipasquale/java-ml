@@ -1,51 +1,44 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class NeuronMemory {
+public final class NeuronMemory implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 9141691343444193499L;
     private final Genome genome;
-    private final Map<SequentialId, ValueGroup> neuronValues = new HashMap<>();
+    private final Map<String, NeuronState> states = new HashMap<>();
 
     boolean isOwnedBy(final Genome candidate) {
         return genome == candidate;
     }
 
-    Float getValue(final SequentialId id) {
-        ValueGroup values = neuronValues.get(id);
+    private static String getId(final String dimension, final Id nodeId) {
+        return String.format("%s:%s", dimension, nodeId);
+    }
 
-        if (values == null) {
+    Float getValue(final String dimension, final Id nodeId) {
+        NeuronState state = states.get(getId(dimension, nodeId));
+
+        if (state == null) {
             return null;
         }
 
-        return values.total;
+        return state.getValue();
     }
 
-    void setValue(final SequentialId id, final float value, final SequentialId sourceId) {
-        ValueGroup values = neuronValues.computeIfAbsent(id, k -> new ValueGroup());
+    void setValue(final String dimension, final Id nodeId, final float value, final Id inputNodeId) {
+        String id = getId(dimension, nodeId);
+        NeuronState state = states.computeIfAbsent(id, k -> new NeuronState());
 
-        values.replace(sourceId, value);
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ValueGroup {
-        private final Map<SequentialId, Float> values = new HashMap<>();
-        private float total = 0f;
-
-        private void replace(final SequentialId id, final float value) {
-            Float oldValue = values.replace(id, value);
-
-            total += value; // TODO: add an assert to ensure the SUM(values) == total
-
-            if (oldValue != null) {
-                total -= oldValue;
-            }
-        }
+        state.replace(inputNodeId, value);
     }
 }

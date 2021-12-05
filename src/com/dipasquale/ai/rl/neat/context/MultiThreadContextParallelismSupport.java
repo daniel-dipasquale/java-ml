@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
+import com.dipasquale.synchronization.wait.handle.StrategyWaitHandle;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public final class MultiThreadContextParallelismSupport implements Context.Paral
         Collection<Throwable> unhandledExceptions = createUnhandledExceptionsContainer();
         InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(iterator, itemHandler, unhandledExceptions::add);
 
-        return new ParallelismWaitHandle(invokedWaitHandle, unhandledExceptions);
+        return new StrategyWaitHandle(invokedWaitHandle, unhandledExceptions);
     }
 
     @Override
@@ -40,7 +41,7 @@ public final class MultiThreadContextParallelismSupport implements Context.Paral
         Collection<Throwable> unhandledExceptions = createUnhandledExceptionsContainer();
         InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(list, itemHandler, unhandledExceptions::add);
 
-        return new ParallelismWaitHandle(invokedWaitHandle, unhandledExceptions);
+        return new StrategyWaitHandle(invokedWaitHandle, unhandledExceptions);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

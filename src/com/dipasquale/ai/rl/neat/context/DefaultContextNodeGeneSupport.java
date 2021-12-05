@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.function.activation.ActivationFunction;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.core.EnumValue;
 import com.dipasquale.ai.rl.neat.core.FloatNumber;
 import com.dipasquale.ai.rl.neat.core.GenesisGenomeTemplate;
@@ -38,9 +38,9 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
     private int inputs;
     private int outputs;
     private int biases;
-    private List<SequentialId> inputNodeIds;
-    private List<SequentialId> outputNodeIds;
-    private List<SequentialId> biasNodeIds;
+    private List<Id> inputNodeIds;
+    private List<Id> outputNodeIds;
+    private List<Id> biasNodeIds;
 
     private DefaultContextNodeGeneSupport(final DualModeNodeGeneIdFactory nodeIdFactory, final Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories, final Map<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>> activationFunctionFactories, final int inputs, final int outputs, final int biases) {
         this.nodeIdFactory = nodeIdFactory;
@@ -123,13 +123,13 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         return new DefaultContextNodeGeneSupport(nodeIdFactory, biasFactories, activationFunctionFactories, inputs, outputs, biases);
     }
 
-    private static List<SequentialId> createNodeIds(final DualModeNodeGeneIdFactory nodeIdFactory, final NodeGeneType type, final int count) {
+    private static List<Id> createNodeIds(final DualModeNodeGeneIdFactory nodeIdFactory, final NodeGeneType type, final int count) {
         return IntStream.range(0, count)
                 .mapToObj(i -> nodeIdFactory.createNodeId(type))
                 .collect(Collectors.toList());
     }
 
-    private NodeGene create(final SequentialId id, final NodeGeneType type) {
+    private NodeGene create(final Id id, final NodeGeneType type) {
         float bias = biasFactories.get(type).create();
         ActivationFunction activationFunction = activationFunctionFactories.get(type).create();
 
@@ -138,22 +138,22 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
 
     @Override
     public NodeGene createHidden() {
-        SequentialId id = nodeIdFactory.createNodeId(NodeGeneType.HIDDEN);
+        Id id = nodeIdFactory.createNodeId(NodeGeneType.HIDDEN);
 
         return create(id, NodeGeneType.HIDDEN);
     }
 
     @Override
     public void setupInitialNodes(final Genome genome) {
-        for (SequentialId nodeId : inputNodeIds) {
+        for (Id nodeId : inputNodeIds) {
             genome.getNodes().put(create(nodeId, NodeGeneType.INPUT));
         }
 
-        for (SequentialId nodeId : outputNodeIds) {
+        for (Id nodeId : outputNodeIds) {
             genome.getNodes().put(create(nodeId, NodeGeneType.OUTPUT));
         }
 
-        for (SequentialId nodeId : biasNodeIds) {
+        for (Id nodeId : biasNodeIds) {
             genome.getNodes().put(create(nodeId, NodeGeneType.BIAS));
         }
     }

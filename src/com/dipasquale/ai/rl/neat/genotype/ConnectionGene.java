@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -43,8 +43,18 @@ public final class ConnectionGene implements Serializable {
         return createCopy(cyclesAllowed);
     }
 
-    public static boolean isRecurrent(final SequentialId sourceNodeId, final SequentialId targetNodeId) {
-        return sourceNodeId.compareTo(targetNodeId) >= 0;
+    public static ConnectionType getType(final Id inputNodeId, final Id outputNodeId) {
+        int comparison = inputNodeId.compareTo(outputNodeId);
+
+        if (comparison == 0) {
+            return ConnectionType.REFLEXIVE;
+        }
+
+        if (comparison > 0) {
+            return ConnectionType.BACKWARD;
+        }
+
+        return ConnectionType.FORWARD;
     }
 
     @Override

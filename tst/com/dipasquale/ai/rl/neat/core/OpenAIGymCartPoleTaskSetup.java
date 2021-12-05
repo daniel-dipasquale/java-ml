@@ -82,7 +82,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                                 .outputs(IntegerNumber.literal(1))
                                 .biases(List.of())
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
-                                .initialWeightType(InitialWeightType.RANDOM)
+                                .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
                         .fitnessFunction(ga -> {
                             genomeIds.add(ga.getGenome().getId());

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common.sequence;
 
-public interface SequentialId extends Comparable<SequentialId> {
+public interface SequentialId<T extends SequentialId<T>> extends Comparable<T> {
     int hashCode();
 
     boolean equals(Object other);

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.sequence.OrderedGroup;
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -67,8 +67,8 @@ public final class ConnectionGeneGroup implements Serializable {
         @Serial
         private static final long serialVersionUID = -9128761857546984189L;
         private final OrderedGroup<InnovationId, ConnectionGene> connections = new OrderedGroup<>();
-        private final Map<SequentialId, Map<DirectedEdge, ConnectionGene>> incomingToNodeId = new HashMap<>();
-        private final Map<SequentialId, Map<DirectedEdge, ConnectionGene>> outgoingFromNodeId = new HashMap<>();
+        private final Map<Id, Map<DirectedEdge, ConnectionGene>> incomingToNodeId = new HashMap<>();
+        private final Map<Id, Map<DirectedEdge, ConnectionGene>> outgoingFromNodeId = new HashMap<>();
 
         public int size() {
             return connections.size();
@@ -90,7 +90,7 @@ public final class ConnectionGeneGroup implements Serializable {
             return Map.of();
         }
 
-        public Map<DirectedEdge, ConnectionGene> getIncomingToNodeId(final SequentialId nodeId) {
+        public Map<DirectedEdge, ConnectionGene> getIncomingToNodeId(final Id nodeId) {
             return ensureNotNull(incomingToNodeId.get(nodeId));
         }
 
@@ -98,7 +98,7 @@ public final class ConnectionGeneGroup implements Serializable {
             return getIncomingToNodeId(node.getId());
         }
 
-        public Map<DirectedEdge, ConnectionGene> getOutgoingFromNodeId(final SequentialId nodeId) {
+        public Map<DirectedEdge, ConnectionGene> getOutgoingFromNodeId(final Id nodeId) {
             return ensureNotNull(outgoingFromNodeId.get(nodeId));
         }
 
@@ -117,8 +117,8 @@ public final class ConnectionGeneGroup implements Serializable {
         }
 
         private void add(final ConnectionGene connection) {
-            SequentialId targetNodeId = connection.getInnovationId().getTargetNodeId();
-            SequentialId sourceNodeId = connection.getInnovationId().getSourceNodeId();
+            Id targetNodeId = connection.getInnovationId().getTargetNodeId();
+            Id sourceNodeId = connection.getInnovationId().getSourceNodeId();
             DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
 
             connections.put(connection.getInnovationId(), connection);
@@ -127,8 +127,8 @@ public final class ConnectionGeneGroup implements Serializable {
         }
 
         private void remove(final ConnectionGene connection) {
-            SequentialId targetNodeId = connection.getInnovationId().getTargetNodeId();
-            SequentialId sourceNodeId = connection.getInnovationId().getSourceNodeId();
+            Id targetNodeId = connection.getInnovationId().getTargetNodeId();
+            Id sourceNodeId = connection.getInnovationId().getSourceNodeId();
             DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
 
             connections.removeById(connection.getInnovationId());

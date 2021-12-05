@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import lombok.AccessLevel;
@@ -19,11 +19,11 @@ final class Neuron implements Serializable {
     private static final long serialVersionUID = -7305330143842774982L;
     private final NodeGene node;
     @Getter
-    private final Collection<InputConnection> inputs;
+    private final Collection<NeuronInputConnection> inputConnections;
     @Getter
-    private final Collection<OutputConnection> outputs;
+    private final Collection<NeuronOutputConnection> outputConnections;
 
-    public SequentialId getId() {
+    public Id getId() {
         return node.getId();
     }
 
@@ -35,16 +35,16 @@ final class Neuron implements Serializable {
         return node.getActivationFunction().forward(value * weight + node.getBias());
     }
 
-    public float getValue(final NeuronValueGroup neuronValues) {
-        float value = neuronValues.getValue(getId());
+    public float getValue(final NeuronStateGroup neuronState) {
+        float value = neuronState.getValue(getId());
 
         return getValue(value, 1f);
     }
 
-    public float getValue(final NeuronValueGroup neuronValues, final OutputConnection output) {
-        float value = neuronValues.getValue(getId(), output.getTargetNeuronId());
+    public float getValue(final NeuronStateGroup neuronState, final NeuronOutputConnection outputConnection) {
+        float value = neuronState.getValue(getId(), outputConnection.getOutputNeuronId());
 
-        return getValue(value, output.getConnectionWeight());
+        return getValue(value, outputConnection.getConnectionWeight());
     }
 
     @Override

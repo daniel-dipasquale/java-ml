@@ -113,11 +113,13 @@ public final class Genome implements Serializable {
     }
 
     private static InnovationId createFeedForwardInnovationIdIfPossible(final Context.ConnectionGeneSupport connectionGeneSupport, final NodeGene node1, final NodeGene node2) {
-        if (ConnectionGene.isRecurrent(node1.getId(), node2.getId())) {
-            return null;
-        }
+        return switch (ConnectionGene.getType(node1.getId(), node2.getId())) {
+            case REFLEXIVE -> null;
 
-        return connectionGeneSupport.getOrCreateInnovationId(node1, node2);
+            case BACKWARD -> connectionGeneSupport.getOrCreateInnovationId(node2, node1);
+
+            case FORWARD -> connectionGeneSupport.getOrCreateInnovationId(node1, node2);
+        };
     }
 
     private InnovationId createRandomInnovationId(final Context context, final boolean shouldAllowRecurrent) {
@@ -167,7 +169,7 @@ public final class Genome implements Serializable {
             }
 
             if (!connection.isExpressed() || shouldAllowRecurrent && context.connections().shouldAllowMultiCycle()) {
-                connections.getExpressed().addCyclesAllowed(connection, 1);
+                connections.getExpressed().addCyclesAllowed(connection, 1); // TODO: consider balancing out the cycles (meaning if a cycle between two nodes is larger than the reverse cycle, then reverse it
 
                 return true;
             }

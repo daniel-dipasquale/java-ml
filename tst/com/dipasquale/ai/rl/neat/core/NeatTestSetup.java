@@ -69,7 +69,7 @@ class NeatTestSetup {
         boolean success = trainer.train();
 
         System.out.printf("=========================================%n");
-        System.out.printf("%s (%s):%n", trainerSetup.name, trainerSetup.neatTrainerFactory == null ? (trainerSetup.eventLoop == null ? "single instance & single threaded" : "single instance & multi threaded") : "multi instance");
+        System.out.printf("%s:%n", trainerSetup.name);
         System.out.printf("=========================================%n");
         System.out.printf("iteration: %d%n", trainer.getState().getIteration());
         System.out.printf("generation: %d%n", trainer.getState().getGeneration());

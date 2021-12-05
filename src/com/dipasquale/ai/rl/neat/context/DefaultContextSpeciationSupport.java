@@ -24,7 +24,7 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSp
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomePool;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeSequentialIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeSpeciesFitnessStrategy;
 import com.dipasquale.common.factory.ObjectIndexer;
 import com.dipasquale.io.serialization.SerializableStateGroup;
@@ -42,7 +42,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextSpeciationSupport implements Context.SpeciationSupport {
     private DefaultContextSpeciationParameters params;
-    private DualModeSequentialIdFactory speciesIdFactory;
+    private DualModeIdFactory speciesIdFactory;
     private DualModeGenomePool genomePool;
     private GenomeCompatibilityCalculator genomeCompatibilityCalculator;
     private DualModeReproductionTypeFactory reproductionTypeFactory;
@@ -131,7 +131,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingletonValue(initializationContext);
         float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingletonValue(initializationContext);
         float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingletonValue(initializationContext);
-        DualModeSequentialIdFactory speciesIdFactory = new DualModeSequentialIdFactory(initializationContext.getParallelism().getConcurrencyLevel(), "species");
+        DualModeIdFactory speciesIdFactory = new DualModeIdFactory(initializationContext.getParallelism().getConcurrencyLevel(), "species");
         DualModeGenomePool genomePool = new DualModeGenomePool(initializationContext.getParallelism().getDequeFactory());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         DualModeReproductionTypeFactory reproductionTypeFactory = createReproductionTypeFactory(initializationContext, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate());

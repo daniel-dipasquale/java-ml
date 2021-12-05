@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.function.activation.ActivationFunction;
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.io.Serializable;
 public final class NodeGene implements Serializable {
     @Serial
     private static final long serialVersionUID = -4174686982693760386L;
-    private final SequentialId id;
+    private final Id id;
     private final NodeGeneType type;
     private final float bias;
     private final ActivationFunction activationFunction;

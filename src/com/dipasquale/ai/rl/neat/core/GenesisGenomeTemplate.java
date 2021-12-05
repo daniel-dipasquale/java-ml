@@ -22,7 +22,7 @@ public final class GenesisGenomeTemplate {
     @Builder.Default
     private final InitialConnectionType initialConnectionType = InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS;
     @Builder.Default
-    private final InitialWeightType initialWeightType = InitialWeightType.RANDOM;
+    private final InitialWeightType initialWeightType = InitialWeightType.ALL_RANDOM;
 
     public static GenesisGenomeTemplate createDefault(final int inputs, final int outputs, final float[] bias) {
         return GenesisGenomeTemplate.builder()
@@ -39,7 +39,7 @@ public final class GenesisGenomeTemplate {
     }
 
     private FloatNumber.DualModeFactory createWeightFactory(final InitializationContext initializationContext, final FloatNumber.DualModeFactory weightFactory) {
-        if (initialWeightType == InitialWeightType.RANDOM) {
+        if (initialWeightType == InitialWeightType.ALL_RANDOM) {
             return weightFactory;
         }
 

@@ -67,13 +67,9 @@ public final class Organism implements Comparable<Organism>, Serializable {
     public Organism mate(final Context context, final Organism other) {
         int comparison = compareTo(other);
 
-        Genome crossedOverGenome = switch (comparison) {
-            case 1 -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, genome, other.genome);
-
-            case 0 -> context.crossOver().crossOverByEqualTreatment(context, genome, other.genome);
-
-            default -> context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, other.genome, genome);
-        };
+        Genome crossedOverGenome = comparison == 0 ? context.crossOver().crossOverByEqualTreatment(context, genome, other.genome)
+                : comparison > 0 ? context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, genome, other.genome)
+                : context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, other.genome, genome);
 
         return new Organism(crossedOverGenome, populationState);
     }

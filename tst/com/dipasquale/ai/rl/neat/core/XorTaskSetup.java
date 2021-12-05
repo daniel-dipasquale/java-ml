@@ -67,7 +67,7 @@ final class XorTaskSetup implements TaskSetup {
                                 .outputs(IntegerNumber.literal(1))
                                 .biases(List.of(FloatNumber.literal(1f)))
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
-                                .initialWeightType(InitialWeightType.RANDOM)
+                                .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
                         .fitnessFunction(ga -> {
                             genomeIds.add(ga.getGenome().getId());
@@ -94,6 +94,7 @@ final class XorTaskSetup implements TaskSetup {
                         .weightFactory(FloatNumber.random(RandomType.UNIFORM, -0.5f, 0.5f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
+                        .recurrentStateType(RecurrentStateType.SHORT_TERM)
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .mutation(MutationSupport.builder()

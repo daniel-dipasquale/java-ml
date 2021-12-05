@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.sequence.OrderedGroup;
-import com.dipasquale.ai.common.sequence.SequentialId;
+import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
@@ -20,11 +20,11 @@ public final class NodeGeneGroup implements Iterable<NodeGene>, Serializable {
     @Serial
     private static final long serialVersionUID = -414060625780283286L;
     @EqualsAndHashCode.Include
-    private final OrderedGroup<SequentialId, NodeGene> nodes = new OrderedGroup<>();
-    private final Map<NodeGeneType, OrderedGroup<SequentialId, NodeGene>> nodesByType = createNodesByType();
+    private final OrderedGroup<Id, NodeGene> nodes = new OrderedGroup<>();
+    private final Map<NodeGeneType, OrderedGroup<Id, NodeGene>> nodesByType = createNodesByType();
 
-    private static Map<NodeGeneType, OrderedGroup<SequentialId, NodeGene>> createNodesByType() {
-        EnumMap<NodeGeneType, OrderedGroup<SequentialId, NodeGene>> nodesByType = new EnumMap<>(NodeGeneType.class);
+    private static Map<NodeGeneType, OrderedGroup<Id, NodeGene>> createNodesByType() {
+        EnumMap<NodeGeneType, OrderedGroup<Id, NodeGene>> nodesByType = new EnumMap<>(NodeGeneType.class);
 
         nodesByType.put(NodeGeneType.INPUT, new OrderedGroup<>());
         nodesByType.put(NodeGeneType.OUTPUT, new OrderedGroup<>());
@@ -46,7 +46,7 @@ public final class NodeGeneGroup implements Iterable<NodeGene>, Serializable {
         return nodes.getByIndex(index);
     }
 
-    public NodeGene getById(final SequentialId id) {
+    public NodeGene getById(final Id id) {
         return nodes.getById(id);
     }
 
