@@ -98,7 +98,7 @@ algorithms I'm interested in learning and using:
                         .weightFactory(FloatNumber.random(RandomType.UNIFORM, -0.5f, 0.5f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
-                        .recurrentStateType(RecurrentStateType.SHORT_TERM)
+                        .recurrentStateType(RecurrentStateType.DEFAULT)
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .mutation(MutationSupport.builder()

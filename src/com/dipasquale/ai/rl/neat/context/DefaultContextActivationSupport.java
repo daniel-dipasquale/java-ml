@@ -10,12 +10,12 @@ import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.ai.rl.neat.core.NeatEnvironmentNotLoadedException;
 import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.phenotype.DefaultRecurrentNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.FeedForwardNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.GruNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.LstmNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
-import com.dipasquale.ai.rl.neat.phenotype.ShortTermMemoryNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype.DualModeGenomeActivatorPool;
@@ -49,7 +49,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
         }
 
         return switch (connectionGeneSupport.getRecurrentStateType()) {
-            case SHORT_TERM -> new ShortTermMemoryNeuralNetworkFactory();
+            case DEFAULT -> new DefaultRecurrentNeuralNetworkFactory();
 
             case LSTM -> new LstmNeuralNetworkFactory();
 

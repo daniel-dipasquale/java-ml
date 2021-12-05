@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class GruNeuronStateGroup extends RecurrentNeuronStateGroup {
-    private static final String SHORT_TERM_DIMENSION = "HS";
+    private static final String HIDDEN_DIMENSION = "GRU_H";
     private static final SigmoidActivationFunction SIGMOID_ACTIVATION_FUNCTION = SigmoidActivationFunction.getInstance();
     private static final TanHActivationFunction TAN_H_ACTIVATION_FUNCTION = TanHActivationFunction.getInstance();
     private final NeuronMemory memory;
@@ -16,15 +16,15 @@ final class GruNeuronStateGroup extends RecurrentNeuronStateGroup {
     @Override
     protected float getRecurrentValue(final Id id, final Id inputId) {
         float inputValue = getValue(id);
-        float oldShortTermValue = getValue(memory, SHORT_TERM_DIMENSION, id);
-        float resetOrUpdateGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldShortTermValue);
-        float candidateShortTermValue = TAN_H_ACTIVATION_FUNCTION.forward(inputValue + oldShortTermValue * resetOrUpdateGate);
+        float oldHiddenValue = getValue(memory, HIDDEN_DIMENSION, id);
+        float resetOrUpdateGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue);
+        float candidateHiddenValue = TAN_H_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue * resetOrUpdateGate);
 
-        return oldShortTermValue * resetOrUpdateGate + (1f - resetOrUpdateGate) * candidateShortTermValue;
+        return oldHiddenValue * resetOrUpdateGate + (1f - resetOrUpdateGate) * candidateHiddenValue;
     }
 
     @Override
     protected void setMemoryValue(final Id id, final float value, final Id inputId) {
-        memory.setValue(SHORT_TERM_DIMENSION, id, value, inputId);
+        memory.setValue(HIDDEN_DIMENSION, id, value, inputId);
     }
 }
