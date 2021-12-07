@@ -12,11 +12,8 @@ public interface RandomSupport {
 
     default long next(final long min, final long max) {
         double value = next();
-        double minFixed = (float) min;
-        double maxFixed = (float) (max - 1L);
-        double result = value * maxFixed - value * minFixed + value + minFixed;
 
-        return (long) Math.min(result, maxFixed);
+        return (long) Math.floor(value * (double) (max - min)) + min;
     }
 
     default RandomSupport bounded(final double min, final double max) {

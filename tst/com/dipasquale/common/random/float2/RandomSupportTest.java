@@ -73,7 +73,7 @@ public final class RandomSupportTest {
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_getting_a_random_whole_number_bounded_by_the_same_minimum_and_maximum_THEN_get_the_minimum_number() {
-        Assertions.assertEquals(0L, TEST.next(1L, 1L));
+        Assertions.assertEquals(1L, TEST.next(1L, 1L));
     }
 
     @Test

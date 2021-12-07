@@ -158,16 +158,6 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_cart_balance_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
-        assertTaskSolution(NeatTestSetup.builder()
-                .task(new SinglePoleCartBalanceTaskSetup(METRICS_EMISSION_ENABLED))
-                .eventLoop(EVENT_LOOP)
-                .shouldTestPersistence(true)
-                .build());
-    }
-
-    @Test
     @Timeout(value = 300_500, unit = TimeUnit.MILLISECONDS)
     public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_open_ai_gym_cart_pole_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetupOpenAIGym.openAIGymBuilder()

@@ -12,11 +12,8 @@ public interface RandomSupport {
 
     default int next(final int min, final int max) {
         float value = next();
-        float minFixed = (float) min;
-        float maxFixed = (float) (max - 1);
-        float result = value * maxFixed - value * minFixed + value + minFixed;
 
-        return (int) Math.min(result, maxFixed);
+        return (int) Math.floor(value * (float) (max - min)) + min;
     }
 
     default RandomSupport bounded(final float min, final float max) {
