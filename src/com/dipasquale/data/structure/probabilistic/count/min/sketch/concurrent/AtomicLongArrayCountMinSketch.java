@@ -1,8 +1,8 @@
 package com.dipasquale.data.structure.probabilistic.count.min.sketch.concurrent;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.bit.BitManipulator;
 import com.dipasquale.common.bit.concurrent.AtomicLongArrayBitManipulator;
+import com.dipasquale.common.bit.int2.BitManipulator;
 import com.dipasquale.data.structure.probabilistic.HashingFunction;
 import com.dipasquale.data.structure.probabilistic.count.min.sketch.CountMinSketch;
 

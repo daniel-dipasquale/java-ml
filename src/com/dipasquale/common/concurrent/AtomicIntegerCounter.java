@@ -56,8 +56,8 @@ public final class AtomicIntegerCounter implements IntegerCounter, Serializable 
             return true;
         }
 
-        if (other instanceof AtomicIntegerCounter) {
-            return equals((AtomicIntegerCounter) other);
+        if (other instanceof AtomicIntegerCounter otherFixed) {
+            return equals(otherFixed);
         }
 
         return false;

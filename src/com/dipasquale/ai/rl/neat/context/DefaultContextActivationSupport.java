@@ -108,12 +108,12 @@ public final class DefaultContextActivationSupport implements Context.Activation
             return neatEnvironmentOverride;
         }
 
-        if (neatEnvironment instanceof NeatEnvironment) {
-            return (NeatEnvironment) neatEnvironment;
+        if (neatEnvironment instanceof NeatEnvironment neatEnvironmentFixed) {
+            return neatEnvironmentFixed;
         }
 
-        if (neatEnvironment instanceof Throwable) {
-            throw new NeatEnvironmentNotLoadedException((Throwable) neatEnvironment);
+        if (neatEnvironment instanceof Throwable exception) {
+            throw new NeatEnvironmentNotLoadedException(exception);
         }
 
         throw new NeatEnvironmentNotLoadedException();

@@ -56,8 +56,8 @@ public final class AtomicLongCounter implements LongCounter, Serializable {
             return true;
         }
 
-        if (other instanceof AtomicLongCounter) {
-            return equals((AtomicLongCounter) other);
+        if (other instanceof AtomicLongCounter otherFixed) {
+            return equals(otherFixed);
         }
 
         return false;

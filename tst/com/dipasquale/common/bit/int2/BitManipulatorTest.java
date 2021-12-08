@@ -1,4 +1,4 @@
-package com.dipasquale.common.bit;
+package com.dipasquale.common.bit.int2;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

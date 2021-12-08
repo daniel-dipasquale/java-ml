@@ -1,4 +1,4 @@
-package com.dipasquale.common.bit;
+package com.dipasquale.common.bit.int2;
 
 final class Only64BitManipulatorSupport implements BitManipulatorSupport {
     private static final long SIZE = 1L;

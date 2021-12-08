@@ -1,4 +1,4 @@
-package com.dipasquale.common.bit;
+package com.dipasquale.common.bit.int2;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
 
@@ -20,18 +20,18 @@ public interface BitManipulatorSupport {
     }
 
     default long getAndSet(final long raw, final long offset, final long value) {
-        long valueOld = extract(raw, offset);
+        long oldValue = extract(raw, offset);
 
         merge(raw, offset, value);
 
-        return valueOld;
+        return oldValue;
     }
 
     default long accumulateAndGet(final long raw, final long offset, final long value, final Accumulator accumulator) {
-        long valueOld = extract(raw, offset);
-        long valueNew = accumulator.accumulate(valueOld, value);
+        long oldValue = extract(raw, offset);
+        long newValue = accumulator.accumulate(oldValue, value);
 
-        return setAndGet(raw, offset, valueNew);
+        return setAndGet(raw, offset, newValue);
     }
 
     default long getAndAccumulate(final long raw, final long offset, final long value, final Accumulator accumulator) {

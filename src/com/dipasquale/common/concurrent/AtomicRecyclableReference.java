@@ -142,13 +142,13 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object object) {
-        if (this == object) {
+    public boolean equals(final Object other) {
+        if (this == other) {
             return true;
         }
 
-        if (object instanceof AtomicRecyclableReference<?>) {
-            return equals((AtomicRecyclableReference<T>) object);
+        if (other instanceof AtomicRecyclableReference<?>) {
+            return equals((AtomicRecyclableReference<T>) other);
         }
 
         return false;

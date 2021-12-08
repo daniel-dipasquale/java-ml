@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.bit.BitManipulatorSupport;
+import com.dipasquale.common.bit.int2.BitManipulatorSupport;
 
 public interface BloomFilterFactory {
     default int getSizePerRecord() {

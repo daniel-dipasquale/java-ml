@@ -81,8 +81,8 @@ public final class AtomicCyclicIntegerCounter implements IntegerCounter, Seriali
             return true;
         }
 
-        if (other instanceof AtomicCyclicIntegerCounter) {
-            return equals((AtomicCyclicIntegerCounter) other);
+        if (other instanceof AtomicCyclicIntegerCounter otherFixed) {
+            return equals(otherFixed);
         }
 
         return false;

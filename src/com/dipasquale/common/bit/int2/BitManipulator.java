@@ -1,4 +1,4 @@
-package com.dipasquale.common.bit;
+package com.dipasquale.common.bit.int2;
 
 public interface BitManipulator {
     long size();
@@ -16,18 +16,18 @@ public interface BitManipulator {
     }
 
     default long getAndSet(final long offset, final long value) {
-        long valueOld = extract(offset);
+        long oldValue = extract(offset);
 
         merge(offset, value);
 
-        return valueOld;
+        return oldValue;
     }
 
     default long accumulateAndGet(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {
-        long valueOld = extract(offset);
-        long valueNew = accumulator.accumulate(valueOld, value);
+        long oldValue = extract(offset);
+        long newValue = accumulator.accumulate(oldValue, value);
 
-        return setAndGet(offset, valueNew);
+        return setAndGet(offset, newValue);
     }
 
     default long getAndAccumulate(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {

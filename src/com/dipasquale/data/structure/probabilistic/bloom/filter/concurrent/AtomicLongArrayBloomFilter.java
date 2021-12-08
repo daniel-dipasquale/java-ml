@@ -1,7 +1,7 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
-import com.dipasquale.common.bit.BitManipulator;
 import com.dipasquale.common.bit.concurrent.SingleBitAtomicLongArrayBitManipulator;
+import com.dipasquale.common.bit.int2.BitManipulator;
 import com.dipasquale.data.structure.probabilistic.HashingFunction;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 

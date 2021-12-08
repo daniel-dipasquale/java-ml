@@ -1,9 +1,9 @@
-package com.dipasquale.common.bit;
+package com.dipasquale.common.bit.int2;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public final class Only64BitManipulatorSupportTest {
+public final class Only32BitManipulatorSupportTest {
     private static final Only64BitManipulatorSupport TEST = new Only64BitManipulatorSupport();
 
     @Test

@@ -1,4 +1,4 @@
-package com.dipasquale.common.bit;
+package com.dipasquale.common.bit.int2;
 
 final class DefaultBitManipulatorSupport implements BitManipulatorSupport {
     private final int bits;

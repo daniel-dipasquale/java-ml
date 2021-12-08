@@ -1,7 +1,7 @@
 package com.dipasquale.common.bit.concurrent;
 
-import com.dipasquale.common.bit.BitManipulator;
-import com.dipasquale.common.bit.BitManipulatorSupport;
+import com.dipasquale.common.bit.int2.BitManipulator;
+import com.dipasquale.common.bit.int2.BitManipulatorSupport;
 import lombok.Generated;
 import lombok.ToString;
 

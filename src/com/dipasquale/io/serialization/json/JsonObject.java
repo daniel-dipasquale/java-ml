@@ -70,11 +70,11 @@ public final class JsonObject implements Iterable<Object>, Serializable {
     private static long getLength(final Map<Object, Object> entries) {
         Object length = entries.get("length");
 
-        if (length instanceof Long) {
-            return (long) length;
+        if (!(length instanceof Long)) {
+            return 0L;
         }
 
-        return 0L;
+        return (long) length;
     }
 
     private static Object put(final JsonObjectType type, final Map<Object, Object> entries, final Object key, final Object value) {
@@ -218,18 +218,18 @@ public final class JsonObject implements Iterable<Object>, Serializable {
 
         @Override
         public int compare(final Object key1, final Object key2) {
-            boolean key1String = key1 instanceof String;
-            boolean key2String = key2 instanceof String;
+            boolean key1IsString = key1 instanceof String;
+            boolean key2IsString = key2 instanceof String;
 
-            if (key1String && key2String) {
+            if (key1IsString && key2IsString) {
                 return ((String) key1).compareTo((String) key2);
             }
 
-            if (key1String) {
+            if (key1IsString) {
                 return 1;
             }
 
-            if (key2String) {
+            if (key2IsString) {
                 return -1;
             }
 
