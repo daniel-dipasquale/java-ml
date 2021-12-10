@@ -24,8 +24,8 @@ final class ExplicitDelayEventLoop implements EventLoop {
     private final Queue<EventRecord> eventRecords;
     private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
-    private final Lock allLock;
-    private final Lock singleLock;
+    private final Lock lowerPriorityLock;
+    private final Lock higherPriorityLock;
     private final Condition whileNoEventAvailableCondition;
     private final TogglingWaitHandle untilEmptyWaitHandle;
     private final ErrorHandler errorHandler;
@@ -33,14 +33,14 @@ final class ExplicitDelayEventLoop implements EventLoop {
     private boolean started;
     private final AtomicBoolean shutdown;
 
-    private ExplicitDelayEventLoop(final String name, final ExplicitDelayEventLoopParams params, final Lock singleLock, final EventLoop nextEntryPoint) {
+    private ExplicitDelayEventLoop(final String name, final ExplicitDelayEventLoopParams params, final Lock lock, final EventLoop nextEntryPoint) {
         this.name = name;
         this.eventRecords = params.getEventRecords();
         this.executorService = params.getExecutorService();
         this.dateTimeSupport = params.getDateTimeSupport();
-        this.allLock = new ReentrantLock();
-        this.singleLock = singleLock;
-        this.whileNoEventAvailableCondition = singleLock.newCondition();
+        this.lowerPriorityLock = new ReentrantLock();
+        this.higherPriorityLock = lock;
+        this.whileNoEventAvailableCondition = lock.newCondition();
         this.untilEmptyWaitHandle = new TogglingWaitHandle();
         this.errorHandler = params.getErrorHandler();
         this.nextEntryPoint = ensureNotNull(nextEntryPoint, this);
@@ -86,7 +86,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
     }
 
     private void handleNextEvent() {
-        singleLock.lock();
+        higherPriorityLock.lock();
 
         try {
             while (!shutdown.get()) {
@@ -122,15 +122,15 @@ final class ExplicitDelayEventLoop implements EventLoop {
                 }
             }
         } finally {
-            singleLock.unlock();
+            higherPriorityLock.unlock();
         }
     }
 
     private void queue(final EventRecord eventRecord) {
-        allLock.lock();
+        lowerPriorityLock.lock();
 
         try {
-            singleLock.lock();
+            higherPriorityLock.lock();
 
             try {
                 eventRecords.add(eventRecord);
@@ -145,10 +145,10 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
                 untilEmptyWaitHandle.countUp();
             } finally {
-                singleLock.unlock();
+                higherPriorityLock.unlock();
             }
         } finally {
-            allLock.unlock();
+            lowerPriorityLock.unlock();
         }
     }
 
@@ -168,18 +168,18 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
     @Override
     public boolean isEmpty() {
-        allLock.lock();
+        lowerPriorityLock.lock();
 
         try {
-            singleLock.lock();
+            higherPriorityLock.lock();
 
             try {
                 return eventRecords.isEmpty();
             } finally {
-                singleLock.unlock();
+                higherPriorityLock.unlock();
             }
         } finally {
-            allLock.unlock();
+            lowerPriorityLock.unlock();
         }
     }
 
@@ -196,16 +196,34 @@ final class ExplicitDelayEventLoop implements EventLoop {
     }
 
     @Override
+    public void clear() {
+        lowerPriorityLock.lock();
+
+        try {
+            higherPriorityLock.lock();
+
+            try {
+                eventRecords.clear();
+                untilEmptyWaitHandle.countDown();
+            } finally {
+                higherPriorityLock.unlock();
+            }
+        } finally {
+            lowerPriorityLock.unlock();
+        }
+    }
+
+    @Override
     public void shutdown() {
         if (!shutdown.getAndSet(true)) {
-            singleLock.lock();
+            higherPriorityLock.lock();
 
             try {
                 eventRecords.clear();
                 untilEmptyWaitHandle.countDown();
                 whileNoEventAvailableCondition.signal();
             } finally {
-                singleLock.unlock();
+                higherPriorityLock.unlock();
             }
         }
     }

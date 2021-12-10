@@ -136,7 +136,7 @@ final class XorTaskSetup implements TaskSetup {
         return NeatTrainingPolicies.builder()
                 .add(SupervisorTrainingPolicy.builder()
                         .maximumGeneration(100)
-                        .maximumRestartCount(4)
+                        .maximumRestartCount(9)
                         .build())
                 .add(new DelegatedTrainingPolicy(XorTaskSetup::determineTrainingResult))
                 .add(new ContinuousTrainingPolicy())

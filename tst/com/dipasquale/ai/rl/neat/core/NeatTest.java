@@ -80,6 +80,7 @@ public final class NeatTest {
     @BeforeEach
     public void beforeEach() {
         UNHANDLED_EXCEPTIONS.clear();
+        EVENT_LOOP.clear();
     }
 
     private static boolean isTaskEnabled(final TaskSetup taskSetup) {

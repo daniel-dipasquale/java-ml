@@ -43,7 +43,7 @@ public final class Neat {
         return trainer;
     }
 
-    public static NeatTrainer createMultiTrainer(final EvaluatorSettings settings, final NeatTrainingPolicy trainingPolicy) {
+    public static MultiNeatTrainer createMultiTrainer(final EvaluatorSettings settings, final NeatTrainingPolicy trainingPolicy) {
         Context.ParallelismSupport parallelismSupport = settings.getParallelism().create();
 
         EvaluatorSettings settingsFixed = EvaluatorSettings.builder()

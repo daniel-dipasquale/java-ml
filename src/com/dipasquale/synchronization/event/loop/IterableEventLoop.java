@@ -93,6 +93,10 @@ public final class IterableEventLoop {
         eventLoopsWaitHandleUntilDone.await();
     }
 
+    public void clear() {
+        eventLoops.forEach(EventLoop::clear);
+    }
+
     public void shutdown() {
         eventLoopsShutdownHandler.handleAll("unable to shutdown the event loops");
     }

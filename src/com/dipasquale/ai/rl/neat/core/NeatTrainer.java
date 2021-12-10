@@ -7,7 +7,7 @@ import java.io.OutputStream;
 public interface NeatTrainer extends NeatActivator {
     boolean train();
 
-    NeatTrainingResult retest();
+    NeatTrainingResult test();
 
     void save(OutputStream outputStream) throws IOException;
 

@@ -79,6 +79,11 @@ final class RouterEventLoop implements EventLoop {
     }
 
     @Override
+    public void clear() {
+        eventLoops.forEach(EventLoop::clear);
+    }
+
+    @Override
     public void shutdown() {
         shutdownEventLoopsHandler.handleAll("unable to shutdown the event loops");
     }

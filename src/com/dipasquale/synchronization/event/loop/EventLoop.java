@@ -38,6 +38,8 @@ public interface EventLoop {
 
     boolean awaitUntilEmpty(long timeout, TimeUnit unit) throws InterruptedException;
 
+    void clear();
+
     void shutdown();
 
     static EventLoop create(final EventLoopSettings settings) {

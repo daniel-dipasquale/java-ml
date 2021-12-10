@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class InvalidTrainingPolicy implements NeatTrainingPolicy {
-    private static InvalidTrainingPolicy INSTANCE = new InvalidTrainingPolicy();
+    private static final InvalidTrainingPolicy INSTANCE = new InvalidTrainingPolicy();
 
     public static InvalidTrainingPolicy getInstance() {
         return INSTANCE;

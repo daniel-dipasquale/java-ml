@@ -88,7 +88,7 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
     }
 
     @Override
-    public NeatTrainingResult retest() {
+    public NeatTrainingResult test() {
         lock.readLock().lock();
 
         try {

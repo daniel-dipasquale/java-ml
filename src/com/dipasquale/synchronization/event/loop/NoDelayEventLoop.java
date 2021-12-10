@@ -76,6 +76,11 @@ final class NoDelayEventLoop implements EventLoop {
     }
 
     @Override
+    public void clear() {
+        eventLoop.clear();
+    }
+
+    @Override
     public void shutdown() {
         eventLoop.shutdown();
     }

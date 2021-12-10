@@ -4,6 +4,7 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
+import com.dipasquale.io.IORuntimeException;
 import com.dipasquale.synchronization.InterruptedRuntimeException;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.dipasquale.synchronization.lock.NoopReadWriteLock;
@@ -11,6 +12,8 @@ import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -27,7 +30,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-final class ConcurrentNeatMultiTrainer implements NeatTrainer {
+final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
     private static final Comparator<IndexedNeatTrainer> MAXIMUM_FITNESS_COMPARATOR = Comparator.comparing(it -> it.trainer.getState().getMaximumFitness());
     private final ReadWriteLock lock;
     private volatile Context.ParallelismSupport parallelismSupport;
@@ -77,12 +80,16 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
         return state;
     }
 
+    private NeatTrainer getChampionTrainer() {
+        return indexedTrainers.get(championTrainerIndex).trainer;
+    }
+
     @Override
     public NeuronMemory createMemory() {
         lock.readLock().lock();
 
         try {
-            return indexedTrainers.get(championTrainerIndex).trainer.createMemory();
+            return getChampionTrainer().createMemory();
         } finally {
             lock.readLock().unlock();
         }
@@ -93,7 +100,7 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
         lock.readLock().lock();
 
         try {
-            return indexedTrainers.get(championTrainerIndex).trainer.activate(input, neuronMemory);
+            return getChampionTrainer().activate(input, neuronMemory);
         } finally {
             lock.readLock().unlock();
         }
@@ -129,11 +136,11 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
     }
 
     @Override
-    public NeatTrainingResult retest() {
+    public NeatTrainingResult test() {
         lock.readLock().lock();
 
         try {
-            return indexedTrainers.get(championTrainerIndex).trainer.retest();
+            return getChampionTrainer().test();
         } finally {
             lock.readLock().unlock();
         }
@@ -197,6 +204,21 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
         }
     }
 
+    @Override
+    public NeatTrainer extractSingle(final EvaluatorOverrideSettings settings) {
+        NeatTrainer trainer = getChampionTrainer();
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            trainer.save(outputStream);
+
+            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+                return Neat.createTrainer(inputStream, settings);
+            }
+        } catch (IOException e) {
+            throw new IORuntimeException("unable to extract a single neat trainer", e);
+        }
+    }
+
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class SynchronizingTrainingHandler implements Consumer<IndexedNeatTrainer> {
         private final AtomicBoolean solutionFound;
@@ -226,7 +248,7 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
             lock.readLock().lock();
 
             try {
-                return indexedTrainers.get(championTrainerIndex).trainer.getState().getIteration();
+                return getChampionTrainer().getState().getIteration();
             } finally {
                 lock.readLock().unlock();
             }
@@ -237,7 +259,7 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
             lock.readLock().lock();
 
             try {
-                return indexedTrainers.get(championTrainerIndex).trainer.getState().getGeneration();
+                return getChampionTrainer().getState().getGeneration();
             } finally {
                 lock.readLock().unlock();
             }
@@ -248,7 +270,7 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
             lock.readLock().lock();
 
             try {
-                return indexedTrainers.get(championTrainerIndex).trainer.getState().getSpeciesCount();
+                return getChampionTrainer().getState().getSpeciesCount();
             } finally {
                 lock.readLock().unlock();
             }
@@ -259,7 +281,7 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
             lock.readLock().lock();
 
             try {
-                return indexedTrainers.get(championTrainerIndex).trainer.getState().getChampionGenome();
+                return getChampionTrainer().getState().getChampionGenome();
             } finally {
                 lock.readLock().unlock();
             }
@@ -270,7 +292,7 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
             lock.readLock().lock();
 
             try {
-                return indexedTrainers.get(championTrainerIndex).trainer.getState().getMaximumFitness();
+                return getChampionTrainer().getState().getMaximumFitness();
             } finally {
                 lock.readLock().unlock();
             }
@@ -281,7 +303,7 @@ final class ConcurrentNeatMultiTrainer implements NeatTrainer {
             lock.readLock().lock();
 
             try {
-                return indexedTrainers.get(championTrainerIndex).trainer.getState().createMetricsViewer();
+                return getChampionTrainer().getState().createMetricsViewer();
             } finally {
                 lock.readLock().unlock();
             }

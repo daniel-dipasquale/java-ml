@@ -38,7 +38,7 @@ class NeatTestSetup {
         return new NeatTestSetup(task, genomeIds, eventLoop, neatTrainerFactoryFixed, shouldTestPersistence);
     }
 
-    private static byte[] getBytes(final com.dipasquale.ai.rl.neat.core.NeatTrainer trainer)
+    private static byte[] getBytes(final NeatTrainer trainer)
             throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             trainer.save(outputStream);
@@ -81,7 +81,7 @@ class NeatTestSetup {
         Assertions.assertEquals(populationSize, trainerSetup.genomeIds.size());
     }
 
-    private static void assertPersistence(final com.dipasquale.ai.rl.neat.core.NeatTrainer trainer, final NeatTrainerSetup trainerSetup) {
+    private static void assertPersistence(final NeatTrainer trainer, final NeatTrainerSetup trainerSetup) {
         try {
             byte[] bytes = getBytes(trainer);
 
@@ -92,15 +92,15 @@ class NeatTestSetup {
                     .eventLoop(null)
                     .build();
 
-            com.dipasquale.ai.rl.neat.core.NeatTrainer trainerCopy = createTrainer(bytes, overrideSettings);
+            NeatTrainer trainerCopy = createTrainer(bytes, overrideSettings);
 
             Assertions.assertEquals(trainer.getState().getIteration(), trainerCopy.getState().getIteration());
             Assertions.assertEquals(trainer.getState().getGeneration(), trainerCopy.getState().getGeneration());
             Assertions.assertEquals(trainer.getState().getSpeciesCount(), trainerCopy.getState().getSpeciesCount());
             Assertions.assertEquals(trainer.getState().getChampionGenome(), trainerCopy.getState().getChampionGenome());
             Assertions.assertEquals(trainer.getState().getMaximumFitness(), trainerCopy.getState().getMaximumFitness(), 0f);
-            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, trainerCopy.retest());
-            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, trainerCopy.retest());
+            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, trainerCopy.test());
+            Assertions.assertEquals(NeatTrainingResult.WORKING_SOLUTION_FOUND, trainerCopy.test());
         } catch (IOException e) {
             Assertions.fail(e.getMessage());
         }
