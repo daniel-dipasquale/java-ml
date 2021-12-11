@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSelectionStrategy, Serializable {
+public final class LeastFitRemoverSelectionStrategy implements SelectionStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = -8972350994440640462L;
 
@@ -20,7 +20,7 @@ public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSel
     }
 
     @Override
-    public void prepareSurvival(final SpeciesSelectionContext context, final Species species) {
+    public void prepareSurvival(final SelectionContext context, final Species species) {
         Context.SpeciationSupport speciationSupport = context.getParent().speciation();
         List<Organism> organisms = species.removeUnfitToReproduce(speciationSupport);
 
@@ -29,7 +29,7 @@ public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSel
     }
 
     @Override
-    public void prepareExtinction(final SpeciesSelectionContext context, final Species species) {
+    public void prepareExtinction(final SelectionContext context, final Species species) {
         List<Organism> organisms = species.getOrganisms();
 
         organisms.forEach(o -> killOrganism(o, context.getParent()));
@@ -37,6 +37,6 @@ public final class LeastFitRemoverSpeciesSelectionStrategy implements SpeciesSel
     }
 
     @Override
-    public void finalizeSelection(final SpeciesSelectionContext context) {
+    public void finalizeSelection(final SelectionContext context) {
     }
 }

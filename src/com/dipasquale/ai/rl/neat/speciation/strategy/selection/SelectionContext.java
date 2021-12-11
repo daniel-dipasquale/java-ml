@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @RequiredArgsConstructor
 @Getter
-public final class SpeciesSelectionContext {
+public final class SelectionContext {
     private final Context parent;
     private final Population population;
     @Setter

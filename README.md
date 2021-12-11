@@ -66,7 +66,7 @@ algorithms I'm interested in learning and using:
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction(genomeActivator -> {
+                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
                                 float error = 0f;
                                 NeuronMemory neuronMemory = genomeActivator.createMemory();
 
@@ -148,7 +148,7 @@ algorithms I'm interested in learning and using:
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction(genomeActivator -> {
+                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
                                 double fitness = 0D;
                                 float[] input = convertToFloat(gymClient.start("CartPole-v0", genomeActivator.getGenome().getId()));
                                 NeuronMemory neuronMemory = neuralNetwork.createMemory();

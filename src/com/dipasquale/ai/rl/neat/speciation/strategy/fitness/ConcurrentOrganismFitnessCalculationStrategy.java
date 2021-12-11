@@ -14,34 +14,34 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public final class ParallelUpdateSpeciesFitnessStrategy implements SpeciesFitnessStrategy, Serializable {
+public final class ConcurrentOrganismFitnessCalculationStrategy implements FitnessCalculationStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = 5632936446515400703L;
 
-    private static void updateFitness(final OrganismClassification organismClassification, final Context context) {
-        organismClassification.organism.updateFitness(organismClassification.species, context);
+    private static void updateFitness(final OrganismHierarchy organismHierarchy, final Context context) {
+        organismHierarchy.organism.updateFitness(organismHierarchy.species, context);
     }
 
     @Override
-    public void update(final SpeciesFitnessContext context) {
-        List<OrganismClassification> organisms = context.getSpeciesNodes().flattenedStream()
+    public void calculate(final FitnessCalculationContext context) {
+        List<OrganismHierarchy> organismHierarchies = context.getSpeciesNodes().flattenedStream()
                 .flatMap(s -> s.getOrganisms().stream()
-                        .map(o -> new OrganismClassification(o, s)))
+                        .map(o -> new OrganismHierarchy(o, s)))
                 .collect(Collectors.toList());
 
-        WaitHandle waitHandle = context.getParent().parallelism().forEach(organisms, oc -> updateFitness(oc, context.getParent()));
+        WaitHandle waitHandle = context.getParent().parallelism().forEach(organismHierarchies, oh -> updateFitness(oh, context.getParent()));
 
         try {
             waitHandle.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 
-            throw new InterruptedRuntimeException("thread was interrupted while updating the organisms fitness", e);
+            throw new InterruptedRuntimeException("thread was interrupted while updating all organisms fitness", e);
         }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class OrganismClassification {
+    private static final class OrganismHierarchy {
         private final Organism organism;
         private final Species species;
     }

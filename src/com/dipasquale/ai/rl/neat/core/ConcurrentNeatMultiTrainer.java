@@ -80,7 +80,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
         return state;
     }
 
-    private NeatTrainer getChampionTrainer() {
+    private NeatTrainer getMostEfficientTrainer() {
         return indexedTrainers.get(championTrainerIndex).trainer;
     }
 
@@ -89,7 +89,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
         lock.readLock().lock();
 
         try {
-            return getChampionTrainer().createMemory();
+            return getMostEfficientTrainer().createMemory();
         } finally {
             lock.readLock().unlock();
         }
@@ -100,7 +100,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
         lock.readLock().lock();
 
         try {
-            return getChampionTrainer().activate(input, neuronMemory);
+            return getMostEfficientTrainer().activate(input, neuronMemory);
         } finally {
             lock.readLock().unlock();
         }
@@ -140,7 +140,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
         lock.readLock().lock();
 
         try {
-            return getChampionTrainer().test();
+            return getMostEfficientTrainer().test();
         } finally {
             lock.readLock().unlock();
         }
@@ -205,8 +205,8 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
     }
 
     @Override
-    public NeatTrainer extractSingle(final EvaluatorOverrideSettings settings) {
-        NeatTrainer trainer = getChampionTrainer();
+    public NeatTrainer cloneMostEfficientTrainer(final EvaluatorOverrideSettings settings) {
+        NeatTrainer trainer = getMostEfficientTrainer();
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             trainer.save(outputStream);
@@ -215,7 +215,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
                 return Neat.createTrainer(inputStream, settings);
             }
         } catch (IOException e) {
-            throw new IORuntimeException("unable to extract a single neat trainer", e);
+            throw new IORuntimeException("unable to clone the most efficient neat trainer", e);
         }
     }
 
@@ -248,7 +248,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
             lock.readLock().lock();
 
             try {
-                return getChampionTrainer().getState().getIteration();
+                return getMostEfficientTrainer().getState().getIteration();
             } finally {
                 lock.readLock().unlock();
             }
@@ -259,7 +259,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
             lock.readLock().lock();
 
             try {
-                return getChampionTrainer().getState().getGeneration();
+                return getMostEfficientTrainer().getState().getGeneration();
             } finally {
                 lock.readLock().unlock();
             }
@@ -270,7 +270,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
             lock.readLock().lock();
 
             try {
-                return getChampionTrainer().getState().getSpeciesCount();
+                return getMostEfficientTrainer().getState().getSpeciesCount();
             } finally {
                 lock.readLock().unlock();
             }
@@ -281,7 +281,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
             lock.readLock().lock();
 
             try {
-                return getChampionTrainer().getState().getChampionGenome();
+                return getMostEfficientTrainer().getState().getChampionGenome();
             } finally {
                 lock.readLock().unlock();
             }
@@ -292,7 +292,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
             lock.readLock().lock();
 
             try {
-                return getChampionTrainer().getState().getMaximumFitness();
+                return getMostEfficientTrainer().getState().getMaximumFitness();
             } finally {
                 lock.readLock().unlock();
             }
@@ -303,7 +303,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
             lock.readLock().lock();
 
             try {
-                return getChampionTrainer().getState().createMetricsViewer();
+                return getMostEfficientTrainer().getState().createMetricsViewer();
             } finally {
                 lock.readLock().unlock();
             }

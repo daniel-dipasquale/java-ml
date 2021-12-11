@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Queue;
 
 @Getter
-public final class SpeciesReproductionContext implements Serializable {
+public final class ReproductionContext implements Serializable {
     @Serial
     private static final long serialVersionUID = -368081389919247260L;
     private final Context parent;
@@ -19,7 +19,7 @@ public final class SpeciesReproductionContext implements Serializable {
     private final DequeSet<Organism> organismsWithoutSpecies;
     private final Queue<OrganismFactory> organismsToBirth;
 
-    public SpeciesReproductionContext(final Context context, final SpeciesState speciesState, final DequeSet<Organism> organismsWithoutSpecies, final Queue<OrganismFactory> organismsToBirth) {
+    public ReproductionContext(final Context context, final SpeciesState speciesState, final DequeSet<Organism> organismsWithoutSpecies, final Queue<OrganismFactory> organismsToBirth) {
         this.parent = context;
         this.speciesState = speciesState;
         this.organismsWithoutSpecies = organismsWithoutSpecies;

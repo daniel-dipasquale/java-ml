@@ -37,7 +37,7 @@ public final class SpeciationSupport {
     @Builder.Default
     private final FloatNumber mutateOnlyRate = FloatNumber.literal(0.25f);
 
-    DefaultContextSpeciationSupport create(final InitializationContext initializationContext, final GeneralEvaluatorSupport generalEvaluatorSupport) {
-        return DefaultContextSpeciationSupport.create(initializationContext, this, generalEvaluatorSupport);
+    DefaultContextSpeciationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport) {
+        return DefaultContextSpeciationSupport.create(initializationContext, this, generalSupport);
     }
 }

@@ -76,7 +76,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     @Override
-    public InnovationId getOrCreateInnovationId(final NodeGene inputNode, final NodeGene outputNode) {
+    public InnovationId provideInnovationId(final NodeGene inputNode, final NodeGene outputNode) {
         return historicalMarkings.getOrCreateInnovationId(new DirectedEdge(inputNode, outputNode));
     }
 

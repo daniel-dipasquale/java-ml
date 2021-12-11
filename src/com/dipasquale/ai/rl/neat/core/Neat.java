@@ -14,9 +14,9 @@ import java.util.stream.IntStream;
 public final class Neat {
     static EvaluatorSettings createOverridableSettings() {
         return EvaluatorSettings.builder()
-                .general(GeneralEvaluatorSupport.builder()
+                .general(GeneralSupport.builder()
                         .genesisGenomeTemplate(GenesisGenomeTemplate.createDefault(1, 1)) // NOTE: shamelessly avoiding a null pointer exception instead of coming up with a better design
-                        .fitnessFunction(g -> 0f)
+                        .fitnessFunction((IsolatedNeatEnvironment) ga -> 0f)
                         .build())
                 .build();
     }

@@ -22,7 +22,7 @@ import lombok.Getter;
 @Getter(AccessLevel.PACKAGE)
 public final class EvaluatorSettings {
     @Builder.Default
-    private final GeneralEvaluatorSupport general = GeneralEvaluatorSupport.builder()
+    private final GeneralSupport general = GeneralSupport.builder()
             .build();
 
     @Builder.Default
@@ -63,7 +63,7 @@ public final class EvaluatorSettings {
 
     Context createContext() {
         DefaultContextRandomSupport randomFixed = random.create(parallelism);
-        InitializationContext initializationContext = new InitializationContext(parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
+        InitializationContext initializationContext = new InitializationContext(NeatEnvironmentType.from(general.getFitnessFunction()), parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
         DefaultContextGeneralSupport generalFixed = general.create(initializationContext);
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
         DefaultContextNodeGeneSupport nodesFixed = nodes.create(initializationContext, general.getGenesisGenomeTemplate());

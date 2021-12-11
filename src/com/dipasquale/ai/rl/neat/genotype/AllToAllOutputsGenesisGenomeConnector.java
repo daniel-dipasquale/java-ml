@@ -22,7 +22,7 @@ public final class AllToAllOutputsGenesisGenomeConnector implements GenesisGenom
     public void setupConnections(final Genome genome, final Context.ConnectionGeneSupport connectionGeneSupport) {
         for (NodeGene inputNode : getNodes(genome, NodeGeneType.INPUT)) {
             for (NodeGene outputNode : getNodes(genome, NodeGeneType.OUTPUT)) {
-                InnovationId innovationId = connectionGeneSupport.getOrCreateInnovationId(inputNode, outputNode);
+                InnovationId innovationId = connectionGeneSupport.provideInnovationId(inputNode, outputNode);
                 ConnectionGene connection = new ConnectionGene(innovationId, weightFactory.create());
 
                 genome.getConnections().put(connection);
@@ -32,7 +32,7 @@ public final class AllToAllOutputsGenesisGenomeConnector implements GenesisGenom
         if (shouldConnectBiasNodes) {
             for (NodeGene biasNode : getNodes(genome, NodeGeneType.BIAS)) {
                 for (NodeGene outputNode : getNodes(genome, NodeGeneType.OUTPUT)) {
-                    InnovationId innovationId = connectionGeneSupport.getOrCreateInnovationId(biasNode, outputNode);
+                    InnovationId innovationId = connectionGeneSupport.provideInnovationId(biasNode, outputNode);
                     ConnectionGene connection = new ConnectionGene(innovationId, 1f); // TODO: double check if this is correct
 
                     genome.getConnections().put(connection);

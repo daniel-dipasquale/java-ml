@@ -11,19 +11,19 @@ import java.io.Serializable;
 import java.util.Collection;
 
 @RequiredArgsConstructor
-public final class SpeciesSelectionStrategyExecutor implements Serializable {
+public final class SelectionStrategyExecutor implements Serializable {
     @Serial
     private static final long serialVersionUID = -683595110196707789L;
-    private final Collection<SpeciesSelectionStrategy> strategies;
+    private final Collection<SelectionStrategy> strategies;
 
-    public void select(final SpeciesSelectionContext context, final NodeDeque<Species, SimpleNode<Species>> speciesNodes) {
+    public void select(final SelectionContext context, final NodeDeque<Species, SimpleNode<Species>> speciesNodes) {
         Context.MetricSupport metricSupport = context.getParent().metrics();
 
         for (SimpleNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
             Species species = speciesNodes.getValue(speciesNode);
             boolean survives = species.shouldSurvive();
 
-            for (SpeciesSelectionStrategy strategy : strategies) {
+            for (SelectionStrategy strategy : strategies) {
                 if (survives) {
                     strategy.prepareSurvival(context, species);
                 } else {
@@ -43,7 +43,7 @@ public final class SpeciesSelectionStrategyExecutor implements Serializable {
             }
         }
 
-        for (SpeciesSelectionStrategy strategy : strategies) {
+        for (SelectionStrategy strategy : strategies) {
             strategy.finalizeSelection(context);
         }
     }

@@ -33,13 +33,13 @@ public final class DualModeGenomeActivatorPool implements GenomeActivatorPool, D
     }
 
     @Override
-    public GenomeActivator getOrCreate(final Genome genome, final PopulationState populationState) {
-        return genomeActivatorPool.getOrCreate(genome, populationState);
+    public GenomeActivator provide(final Genome genome, final PopulationState populationState) {
+        return genomeActivatorPool.provide(genome, populationState);
     }
 
     @Override
-    public GenomeActivator createTransient(final Genome genome, final PopulationState populationState) {
-        return genomeActivatorPool.createTransient(genome, populationState);
+    public GenomeActivator create(final Genome genome, final PopulationState populationState) {
+        return genomeActivatorPool.create(genome, populationState);
     }
 
     @Override

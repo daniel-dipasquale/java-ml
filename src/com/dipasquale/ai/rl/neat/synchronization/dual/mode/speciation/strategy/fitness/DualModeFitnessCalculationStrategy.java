@@ -1,32 +1,32 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness;
 
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessContext;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationStrategy;
 import com.dipasquale.synchronization.dual.mode.ConcurrencyLevelState;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-public final class DualModeSpeciesFitnessStrategy implements SpeciesFitnessStrategy, DualModeObject, Serializable {
+public final class DualModeFitnessCalculationStrategy implements FitnessCalculationStrategy, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 2445300240545685079L;
     private final ConcurrencyLevelState concurrencyLevelState;
-    private final SpeciesFitnessStrategy concurrentStrategy;
-    private final SpeciesFitnessStrategy defaultStrategy;
+    private final FitnessCalculationStrategy concurrentStrategy;
+    private final FitnessCalculationStrategy defaultStrategy;
 
-    public DualModeSpeciesFitnessStrategy(final int concurrencyLevel, final SpeciesFitnessStrategy concurrentStrategy, final SpeciesFitnessStrategy defaultStrategy) {
+    public DualModeFitnessCalculationStrategy(final int concurrencyLevel, final FitnessCalculationStrategy concurrentStrategy, final FitnessCalculationStrategy defaultStrategy) {
         this.concurrencyLevelState = new ConcurrencyLevelState(concurrencyLevel);
         this.concurrentStrategy = concurrentStrategy;
         this.defaultStrategy = defaultStrategy;
     }
 
     @Override
-    public void update(final SpeciesFitnessContext context) {
+    public void calculate(final FitnessCalculationContext context) {
         if (concurrencyLevelState.getCurrent() > 0) {
-            concurrentStrategy.update(context);
+            concurrentStrategy.calculate(context);
         } else {
-            defaultStrategy.update(context);
+            defaultStrategy.calculate(context);
         }
     }
 

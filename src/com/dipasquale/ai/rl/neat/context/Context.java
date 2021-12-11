@@ -13,9 +13,9 @@ import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategyExecutor;
 import com.dipasquale.common.Pair;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
@@ -153,7 +153,7 @@ public interface Context {
 
         void setupInitialConnections(Genome genome);
 
-        InnovationId getOrCreateInnovationId(NodeGene inputNode, NodeGene outputNode);
+        InnovationId provideInnovationId(NodeGene inputNode, NodeGene outputNode);
 
         boolean containsInnovationId(InnovationId innovationId);
 
@@ -164,12 +164,17 @@ public interface Context {
         void reset();
     }
 
-    interface ActivationSupport {
-        GenomeActivator getOrCreateActivator(Genome genome, PopulationState populationState);
+    enum GenomeActivatorType {
+        PERSISTENT,
+        TRANSIENT
+    }
 
-        GenomeActivator createTransientActivator(Genome genome, PopulationState populationState);
+    interface ActivationSupport {
+        GenomeActivator provideActivator(Genome genome, PopulationState populationState, GenomeActivatorType type);
 
         float calculateFitness(GenomeActivator genomeActivator);
+
+        List<Float> calculateAllFitness(List<GenomeActivator> genomeActivators);
     }
 
     interface MutationSupport {
@@ -247,11 +252,11 @@ public interface Context {
 
         ReproductionType generateReproductionType(int organisms);
 
-        SpeciesFitnessStrategy getFitnessStrategy();
+        FitnessCalculationStrategy getFitnessCalculationStrategy();
 
-        SpeciesSelectionStrategyExecutor getSelectionStrategy();
+        SelectionStrategyExecutor getSelectionStrategy();
 
-        SpeciesReproductionStrategy getReproductionStrategy();
+        ReproductionStrategy getReproductionStrategy();
 
         void disposeGenomeId(Genome genome);
 

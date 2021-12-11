@@ -197,19 +197,13 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
     @Override
     public void clear() {
-        lowerPriorityLock.lock();
+        higherPriorityLock.lock();
 
         try {
-            higherPriorityLock.lock();
-
-            try {
-                eventRecords.clear();
-                untilEmptyWaitHandle.countDown();
-            } finally {
-                higherPriorityLock.unlock();
-            }
+            eventRecords.clear();
+            untilEmptyWaitHandle.countDown();
         } finally {
-            lowerPriorityLock.unlock();
+            higherPriorityLock.unlock();
         }
     }
 

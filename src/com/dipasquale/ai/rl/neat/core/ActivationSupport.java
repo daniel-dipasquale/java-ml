@@ -10,7 +10,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public final class ActivationSupport {
-    DefaultContextActivationSupport create(final InitializationContext initializationContext, final GeneralEvaluatorSupport generalEvaluatorSupport, final ConnectionGeneSupport connectionGeneSupport) {
-        return DefaultContextActivationSupport.create(initializationContext, generalEvaluatorSupport, connectionGeneSupport);
+    DefaultContextActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport) {
+        return DefaultContextActivationSupport.create(initializationContext, generalSupport, connectionGeneSupport);
     }
 }

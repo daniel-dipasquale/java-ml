@@ -74,8 +74,8 @@ public final class Genome implements Serializable {
         NodeGene inNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
         NodeGene outNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
         NodeGene newNode = context.nodes().createHidden();
-        ConnectionGene inToNewConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(inNode, newNode), 1f);
-        ConnectionGene newToOutConnection = new ConnectionGene(context.connections().getOrCreateInnovationId(newNode, outNode), connection.getWeight());
+        ConnectionGene inToNewConnection = new ConnectionGene(context.connections().provideInnovationId(inNode, newNode), 1f);
+        ConnectionGene newToOutConnection = new ConnectionGene(context.connections().provideInnovationId(newNode, outNode), connection.getWeight());
 
         getNodes().put(newNode);
         getConnections().put(inToNewConnection);
@@ -116,9 +116,9 @@ public final class Genome implements Serializable {
         return switch (ConnectionGene.getType(node1.getId(), node2.getId())) {
             case REFLEXIVE -> null;
 
-            case BACKWARD -> connectionGeneSupport.getOrCreateInnovationId(node2, node1);
+            case BACKWARD -> connectionGeneSupport.provideInnovationId(node2, node1);
 
-            case FORWARD -> connectionGeneSupport.getOrCreateInnovationId(node1, node2);
+            case FORWARD -> connectionGeneSupport.provideInnovationId(node1, node2);
         };
     }
 
@@ -132,20 +132,20 @@ public final class Genome implements Serializable {
 
         if (shouldAllowRecurrent) {
             return switch (node1.getType()) {
-                case BIAS -> context.connections().getOrCreateInnovationId(node1, node2);
+                case BIAS -> context.connections().provideInnovationId(node1, node2);
 
                 default -> switch (node2.getType()) {
-                    case BIAS -> context.connections().getOrCreateInnovationId(node2, node1);
+                    case BIAS -> context.connections().provideInnovationId(node2, node1);
 
-                    default -> context.connections().getOrCreateInnovationId(node1, node2);
+                    default -> context.connections().provideInnovationId(node1, node2);
                 };
             };
         }
 
         return switch (node1.getType()) {
-            case INPUT, BIAS -> context.connections().getOrCreateInnovationId(node1, node2);
+            case INPUT, BIAS -> context.connections().provideInnovationId(node1, node2);
 
-            case OUTPUT -> context.connections().getOrCreateInnovationId(node2, node1);
+            case OUTPUT -> context.connections().provideInnovationId(node2, node1);
 
             case HIDDEN -> switch (node2.getType()) {
                 case INPUT, BIAS -> createFeedForwardInnovationIdIfPossible(context.connections(), node2, node1);

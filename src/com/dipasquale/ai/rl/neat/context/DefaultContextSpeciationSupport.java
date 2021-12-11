@@ -2,30 +2,31 @@ package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.core.FloatNumber;
-import com.dipasquale.ai.rl.neat.core.GeneralEvaluatorSupport;
+import com.dipasquale.ai.rl.neat.core.GeneralSupport;
 import com.dipasquale.ai.rl.neat.core.InitializationContext;
 import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.core.SpeciationSupport;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.MultiSpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ParallelUpdateSpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateAllFitnessSpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.UpdateSharedSpeciesFitnessStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.GenesisSpeciesReproductionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MateAndMutateSpeciesReproductionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MultiSpeciesReproductionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.PreserveMostFitSpeciesReproductionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.AllFitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ConcurrentOrganismFitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.MultiFitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SharedFitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SharedGenomeFitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.GenesisReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MateAndMutateReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MultiReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.PreserveMostFitReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionPromoterSelectionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSpeciesSelectionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionStrategyExecutor;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSelectionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategyExecutor;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomePool;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeIdFactory;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeSpeciesFitnessStrategy;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeFitnessCalculationStrategy;
 import com.dipasquale.common.factory.ObjectIndexer;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
@@ -46,9 +47,9 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
     private DualModeGenomePool genomePool;
     private GenomeCompatibilityCalculator genomeCompatibilityCalculator;
     private DualModeReproductionTypeFactory reproductionTypeFactory;
-    private DualModeSpeciesFitnessStrategy fitnessStrategy;
-    private SpeciesSelectionStrategyExecutor selectionStrategy;
-    private SpeciesReproductionStrategy reproductionStrategy;
+    private DualModeFitnessCalculationStrategy fitnessCalculationStrategy;
+    private SelectionStrategyExecutor selectionStrategy;
+    private ReproductionStrategy reproductionStrategy;
 
     private static OutputClassifier<ReproductionType> createGeneralReproductionTypeClassifier(final float mateOnlyRate, final float mutateOnlyRate) {
         float totalRate = mateOnlyRate * 2 + mutateOnlyRate * 2;
@@ -85,40 +86,55 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         return new DualModeReproductionTypeFactory(initializationContext.getRandomSupport(), generalReproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
     }
 
-    private static DualModeSpeciesFitnessStrategy createFitnessStrategy(final InitializationContext initializationContext) {
-        List<SpeciesFitnessStrategy> concurrentStrategies = List.of(
-                new ParallelUpdateSpeciesFitnessStrategy(),
-                new UpdateSharedSpeciesFitnessStrategy()
-        );
+    private static DualModeFitnessCalculationStrategy createFitnessCalculationStrategy(final InitializationContext initializationContext) {
+        return switch (initializationContext.getNeatEnvironmentType()) {
+            case ISOLATED -> {
+                List<FitnessCalculationStrategy> concurrentStrategies = List.of(
+                        new ConcurrentOrganismFitnessCalculationStrategy(),
+                        new SharedFitnessCalculationStrategy()
+                );
 
-        SpeciesFitnessStrategy concurrentStrategy = new MultiSpeciesFitnessStrategy(concurrentStrategies);
-        SpeciesFitnessStrategy defaultStrategy = new UpdateAllFitnessSpeciesFitnessStrategy();
+                FitnessCalculationStrategy concurrentStrategy = new MultiFitnessCalculationStrategy(concurrentStrategies);
+                FitnessCalculationStrategy defaultStrategy = new AllFitnessCalculationStrategy();
 
-        return new DualModeSpeciesFitnessStrategy(initializationContext.getParallelism().getConcurrencyLevel(), concurrentStrategy, defaultStrategy);
+                yield new DualModeFitnessCalculationStrategy(initializationContext.getParallelism().getConcurrencyLevel(), concurrentStrategy, defaultStrategy);
+            }
+
+            case SHARED -> {
+                List<FitnessCalculationStrategy> strategies = List.of(
+                        new SharedGenomeFitnessCalculationStrategy(),
+                        new SharedFitnessCalculationStrategy()
+                );
+
+                FitnessCalculationStrategy strategy = new MultiFitnessCalculationStrategy(strategies);
+
+                yield new DualModeFitnessCalculationStrategy(initializationContext.getParallelism().getConcurrencyLevel(), strategy, strategy);
+            }
+        };
     }
 
-    private static SpeciesSelectionStrategyExecutor createSelectionStrategy() {
-        List<SpeciesSelectionStrategy> strategies = List.of(
-                new LeastFitRemoverSpeciesSelectionStrategy(),
+    private static SelectionStrategyExecutor createSelectionStrategy() {
+        List<SelectionStrategy> strategies = List.of(
+                new LeastFitRemoverSelectionStrategy(),
                 new ChampionPromoterSelectionStrategy()
         );
 
-        return new SpeciesSelectionStrategyExecutor(strategies);
+        return new SelectionStrategyExecutor(strategies);
     }
 
-    private static SpeciesReproductionStrategy createReproductionStrategy() {
-        List<SpeciesReproductionStrategy> strategies = List.of(
-                new PreserveMostFitSpeciesReproductionStrategy(),
-                new MateAndMutateSpeciesReproductionStrategy(),
-                new GenesisSpeciesReproductionStrategy()
+    private static ReproductionStrategy createReproductionStrategy() {
+        List<ReproductionStrategy> strategies = List.of(
+                new PreserveMostFitReproductionStrategy(),
+                new MateAndMutateReproductionStrategy(),
+                new GenesisReproductionStrategy()
         );
 
-        return new MultiSpeciesReproductionStrategy(strategies);
+        return new MultiReproductionStrategy(strategies);
     }
 
-    public static DefaultContextSpeciationSupport create(final InitializationContext initializationContext, final SpeciationSupport speciationSupport, final GeneralEvaluatorSupport generalEvaluatorSupport) {
+    public static DefaultContextSpeciationSupport create(final InitializationContext initializationContext, final SpeciationSupport speciationSupport, final GeneralSupport generalSupport) {
         DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
-                .maximumSpecies(Math.min(speciationSupport.getMaximumSpecies().getSingletonValue(initializationContext), generalEvaluatorSupport.getPopulationSize().getSingletonValue(initializationContext)))
+                .maximumSpecies(Math.min(speciationSupport.getMaximumSpecies().getSingletonValue(initializationContext), generalSupport.getPopulationSize().getSingletonValue(initializationContext)))
                 .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingletonValue(initializationContext))
                 .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingletonValue(initializationContext))
                 .eugenicsThreshold(speciationSupport.getEugenicsThreshold().getSingletonValue(initializationContext))
@@ -135,11 +151,11 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         DualModeGenomePool genomePool = new DualModeGenomePool(initializationContext.getParallelism().getDequeFactory());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         DualModeReproductionTypeFactory reproductionTypeFactory = createReproductionTypeFactory(initializationContext, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate());
-        DualModeSpeciesFitnessStrategy fitnessStrategy = createFitnessStrategy(initializationContext);
-        SpeciesSelectionStrategyExecutor selectionStrategy = createSelectionStrategy();
-        SpeciesReproductionStrategy reproductionStrategy = createReproductionStrategy();
+        DualModeFitnessCalculationStrategy fitnessCalculationStrategy = createFitnessCalculationStrategy(initializationContext);
+        SelectionStrategyExecutor selectionStrategy = createSelectionStrategy();
+        ReproductionStrategy reproductionStrategy = createReproductionStrategy();
 
-        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePool, genomeCompatibilityCalculator, reproductionTypeFactory, fitnessStrategy, selectionStrategy, reproductionStrategy);
+        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePool, genomeCompatibilityCalculator, reproductionTypeFactory, fitnessCalculationStrategy, selectionStrategy, reproductionStrategy);
     }
 
     @Override
@@ -182,18 +198,17 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         return reproductionTypeFactory.get(organisms);
     }
 
-    @Override
-    public SpeciesFitnessStrategy getFitnessStrategy() {
-        return fitnessStrategy;
+    public FitnessCalculationStrategy getFitnessCalculationStrategy() {
+        return fitnessCalculationStrategy;
     }
 
     @Override
-    public SpeciesSelectionStrategyExecutor getSelectionStrategy() {
+    public SelectionStrategyExecutor getSelectionStrategy() {
         return selectionStrategy;
     }
 
     @Override
-    public SpeciesReproductionStrategy getReproductionStrategy() {
+    public ReproductionStrategy getReproductionStrategy() {
         return reproductionStrategy;
     }
 
@@ -213,7 +228,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         stateGroup.put("speciation.genomePool", genomePool);
         stateGroup.put("speciation.genomeCompatibilityCalculator", genomeCompatibilityCalculator);
         stateGroup.put("speciation.reproductionTypeFactory", reproductionTypeFactory);
-        stateGroup.put("speciation.fitnessStrategy", fitnessStrategy);
+        stateGroup.put("speciation.fitnessCalculationStrategy", fitnessCalculationStrategy);
         stateGroup.put("speciation.selectionStrategy", selectionStrategy);
         stateGroup.put("speciation.reproductionStrategy", reproductionStrategy);
     }
@@ -224,7 +239,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         genomePool = DualModeObject.activateMode(stateGroup.get("speciation.genomePool"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         genomeCompatibilityCalculator = stateGroup.get("speciation.genomeCompatibilityCalculator");
         reproductionTypeFactory = DualModeObject.activateMode(stateGroup.get("speciation.reproductionTypeFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        fitnessStrategy = DualModeObject.activateMode(stateGroup.get("speciation.fitnessStrategy"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        fitnessCalculationStrategy = DualModeObject.activateMode(stateGroup.get("speciation.fitnessCalculationStrategy"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         selectionStrategy = stateGroup.get("speciation.selectionStrategy");
         reproductionStrategy = stateGroup.get("speciation.reproductionStrategy");
     }

@@ -60,7 +60,7 @@ final class XorTaskSetup implements TaskSetup {
     @Override
     public EvaluatorSettings createSettings(final Set<String> genomeIds, final IterableEventLoop eventLoop) {
         return EvaluatorSettings.builder()
-                .general(GeneralEvaluatorSupport.builder()
+                .general(GeneralSupport.builder()
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(2))
@@ -69,7 +69,7 @@ final class XorTaskSetup implements TaskSetup {
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction(ga -> {
+                        .fitnessFunction((IsolatedNeatEnvironment) ga -> {
                             genomeIds.add(ga.getGenome().getId());
 
                             return calculateFitness(ga);

@@ -7,14 +7,14 @@ import java.io.Serializable;
 import java.util.Collection;
 
 @RequiredArgsConstructor
-public final class MultiSpeciesReproductionStrategy implements SpeciesReproductionStrategy, Serializable {
+public final class MultiReproductionStrategy implements ReproductionStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = 7605352967985128776L;
-    private final Collection<SpeciesReproductionStrategy> strategies;
+    private final Collection<ReproductionStrategy> strategies;
 
     @Override
-    public void reproduce(final SpeciesReproductionContext context) {
-        for (SpeciesReproductionStrategy strategy : strategies) {
+    public void reproduce(final ReproductionContext context) {
+        for (ReproductionStrategy strategy : strategies) {
             strategy.reproduce(context);
         }
     }

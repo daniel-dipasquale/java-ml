@@ -4,11 +4,11 @@ import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SpeciesFitnessContext;
-import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesReproductionContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionContext;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesState;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionOrganismMissingException;
-import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SpeciesSelectionContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionContext;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import com.dipasquale.data.structure.deque.SimpleNodeDeque;
@@ -125,7 +125,7 @@ public final class Population {
     }
 
     public void updateFitness(final Context context) {
-        context.speciation().getFitnessStrategy().update(new SpeciesFitnessContext(context, speciesNodes));
+        context.speciation().getFitnessCalculationStrategy().calculate(new FitnessCalculationContext(context, speciesNodes));
         context.metrics().prepareNextFitnessCalculation();
     }
 
@@ -147,11 +147,11 @@ public final class Population {
         throw new PopulationExtinctionException("not enough organisms are allowed to reproduce the next generation");
     }
 
-    private void reproduceThroughAllSpecies(final SpeciesSelectionContext selectionContext) {
+    private void reproduceThroughAllSpecies(final SelectionContext selectionContext) {
         Context context = selectionContext.getParent();
         Context.SpeciationSupport speciationSupport = context.speciation();
         SpeciesState speciesState = createSpeciesState(speciationSupport);
-        SpeciesReproductionContext reproductionContext = new SpeciesReproductionContext(context, speciesState, organismsWithoutSpecies, organismsToBirth);
+        ReproductionContext reproductionContext = new ReproductionContext(context, speciesState, organismsWithoutSpecies, organismsToBirth);
 
         selectionContext.getParent().speciation().getReproductionStrategy().reproduce(reproductionContext);
     }
@@ -161,7 +161,7 @@ public final class Population {
         assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
 
-        SpeciesSelectionContext selectionContext = new SpeciesSelectionContext(context, this);
+        SelectionContext selectionContext = new SelectionContext(context, this);
 
         try {
             context.speciation().getSelectionStrategy().select(selectionContext, speciesNodes);

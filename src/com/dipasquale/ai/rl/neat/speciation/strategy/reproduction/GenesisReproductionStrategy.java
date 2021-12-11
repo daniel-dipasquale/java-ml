@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class GenesisSpeciesReproductionStrategy implements SpeciesReproductionStrategy, Serializable {
+public final class GenesisReproductionStrategy implements ReproductionStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = -4687936745852249338L;
 
@@ -20,7 +20,7 @@ public final class GenesisSpeciesReproductionStrategy implements SpeciesReproduc
     }
 
     @Override
-    public void reproduce(final SpeciesReproductionContext context) {
+    public void reproduce(final ReproductionContext context) {
         Context.RandomSupport randomSupport = context.getParent().random();
         Context.MetricSupport metricSupport = context.getParent().metrics();
 

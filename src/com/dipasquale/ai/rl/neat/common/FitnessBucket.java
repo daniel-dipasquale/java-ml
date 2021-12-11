@@ -15,7 +15,7 @@ public final class FitnessBucket implements Serializable {
     private int generation = 0;
     private final FitnessDeterminer fitnessDeterminer;
 
-    private void ensurePrepared(final GenomeActivator genomeActivator) {
+    private void ensureProperState(final GenomeActivator genomeActivator) {
         if (iteration == genomeActivator.getIteration() && generation == genomeActivator.getGeneration()) {
             return;
         }
@@ -25,9 +25,21 @@ public final class FitnessBucket implements Serializable {
         fitnessDeterminer.clear();
     }
 
+    private static float normalize(final float fitness) {
+        if (fitness == Float.NEGATIVE_INFINITY) {
+            return 0f;
+        }
+
+        if (fitness == Float.POSITIVE_INFINITY) {
+            return Float.MAX_VALUE;
+        }
+
+        return Math.max(fitness, 0f);
+    }
+
     public float addFitness(final GenomeActivator genomeActivator, final float fitness) {
-        ensurePrepared(genomeActivator);
-        fitnessDeterminer.add(fitness);
+        ensureProperState(genomeActivator);
+        fitnessDeterminer.add(normalize(fitness));
 
         return fitnessDeterminer.get();
     }

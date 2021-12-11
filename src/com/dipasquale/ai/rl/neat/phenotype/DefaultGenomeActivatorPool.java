@@ -11,7 +11,7 @@ public final class DefaultGenomeActivatorPool implements GenomeActivatorPool {
     private final Map<String, GenomeActivator> genomeActivators;
     private final NeuralNetworkFactory neuralNetworkFactory;
 
-    private GenomeActivator create(final Genome genome, final PopulationState populationState) {
+    private GenomeActivator createInternal(final Genome genome, final PopulationState populationState) {
         return new GenomeActivator(genome, populationState, neuralNetworkFactory.create(genome));
     }
 
@@ -20,16 +20,16 @@ public final class DefaultGenomeActivatorPool implements GenomeActivatorPool {
             return oldGenomeActivator;
         }
 
-        return create(genome, populationState);
+        return createInternal(genome, populationState);
     }
 
     @Override
-    public GenomeActivator getOrCreate(final Genome genome, final PopulationState populationState) {
+    public GenomeActivator provide(final Genome genome, final PopulationState populationState) {
         return genomeActivators.compute(genome.getId(), (gid, oga) -> getOrCreate(oga, genome, populationState));
     }
 
     @Override
-    public GenomeActivator createTransient(final Genome genome, final PopulationState populationState) {
-        return create(genome, populationState.createClone());
+    public GenomeActivator create(final Genome genome, final PopulationState populationState) {
+        return createInternal(genome, populationState.createClone());
     }
 }

@@ -10,13 +10,13 @@ import java.io.Serializable;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class PreserveMostFitSpeciesReproductionStrategy implements SpeciesReproductionStrategy, Serializable {
+public final class PreserveMostFitReproductionStrategy implements ReproductionStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = -1918824077284264052L;
     private static final boolean INCLUDE_REPRESENTATIVE_ORGANISM = false;
 
     @Override
-    public void reproduce(final SpeciesReproductionContext context) {
+    public void reproduce(final ReproductionContext context) {
         Context.SpeciationSupport speciationSupport = context.getParent().speciation();
 
         for (Species species : context.getSpeciesState().getAll()) {

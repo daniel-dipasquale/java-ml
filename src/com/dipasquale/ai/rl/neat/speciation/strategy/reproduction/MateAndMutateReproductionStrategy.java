@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Queue;
 
 @RequiredArgsConstructor
-public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesReproductionStrategy, Serializable {
+public final class MateAndMutateReproductionStrategy implements ReproductionStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = -8229774363987716310L;
 
@@ -25,7 +25,7 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
         organismsToBirth.add(organismToBirth);
     }
 
-    private int reproduceInterSpecies(final SpeciesReproductionContext context) {
+    private int reproduceInterSpecies(final ReproductionContext context) {
         int populationSize = context.getParent().general().params().populationSize();
         List<Species> rankedSpecies = context.getSpeciesState().getRanked();
         int reproduced = 0;
@@ -58,7 +58,7 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
         organismsToBirth.addAll(species.reproduce(context, reproductionCount));
     }
 
-    private void reproduceIntraSpecies(final SpeciesReproductionContext context) {
+    private void reproduceIntraSpecies(final ReproductionContext context) {
         int populationSize = context.getParent().general().params().populationSize();
         List<Species> rankedSpecies = context.getSpeciesState().getRanked();
         int speciesCount = context.getSpeciesState().getAll().size();
@@ -89,7 +89,7 @@ public final class MateAndMutateSpeciesReproductionStrategy implements SpeciesRe
     }
 
     @Override
-    public void reproduce(final SpeciesReproductionContext context) {
+    public void reproduce(final ReproductionContext context) {
         reproduceInterSpecies(context);
         reproduceIntraSpecies(context);
     }

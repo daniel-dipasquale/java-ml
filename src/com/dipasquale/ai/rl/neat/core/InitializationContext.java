@@ -11,6 +11,7 @@ import java.util.Map;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 public final class InitializationContext {
+    private final NeatEnvironmentType neatEnvironmentType;
     private final ParallelismSupport parallelism;
     private final Map<RandomType, DualModeRandomSupport> randomSupports;
     private final DualModeRandomSupport randomSupport;

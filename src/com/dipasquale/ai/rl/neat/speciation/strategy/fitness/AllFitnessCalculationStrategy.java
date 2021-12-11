@@ -8,12 +8,12 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class UpdateAllFitnessSpeciesFitnessStrategy implements SpeciesFitnessStrategy, Serializable {
+public final class AllFitnessCalculationStrategy implements FitnessCalculationStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = 9126364579807820036L;
 
     @Override
-    public void update(final SpeciesFitnessContext context) {
+    public void calculate(final FitnessCalculationContext context) {
         for (SimpleNode<Species> speciesNode : context.getSpeciesNodes()) {
             Species species = context.getSpeciesNodes().getValue(speciesNode);
 

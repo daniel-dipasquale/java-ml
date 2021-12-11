@@ -12,7 +12,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
-public final class GeneralEvaluatorSupport {
+public final class GeneralSupport {
     @Builder.Default
     private final IntegerNumber populationSize = IntegerNumber.literal(150);
     @Builder.Default
