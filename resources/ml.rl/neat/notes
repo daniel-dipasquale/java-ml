@@ -2,6 +2,7 @@ neat (main resources):
 http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 http://nn.cs.utexas.edu/downloads/papers/stanley.gecco02_1.pdf
 http://nn.cs.utexas.edu/downloads/papers/stanley.phd04.pdf
+https://digitalcommons.colby.edu/cgi/viewcontent.cgi?article=1836&context=honorstheses
 https://www.heatonresearch.com/encog/ (very good)
 https://www.heatonresearch.com/encog/neat/neat_structure.html (very good)
 https://neat-python.readthedocs.io/en/latest/xor_example.html
@@ -122,7 +123,6 @@ speciation:
 - https://stackoverflow.com/questions/47898104/adjusted-fitness-in-neat-algorithm
 - https://ai.stackexchange.com/questions/9550/how-does-the-neat-speciation-algorithm-work
 
-
 random:
 //        return () -> -Math.log(1D - (1D - Math.exp(-5D)) * randomSupport.next()) / 5D; // -> negative exponential
 //        return () -> Math.log(1D - randomSupport.next()) / -5D; // -> exponential
@@ -152,3 +152,81 @@ http://www.mathematik.uni-ulm.de/stochastik/lehre/ss06/markov/BoxMuller.java
 
             return x * y;
         };
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 0.5f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 2f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.5f))
+*/
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 0.5f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 2.25f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.85f))
+*/
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 0.15f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 2.5f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.STEEPENED_SIGMOID))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.15f))
+*/
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 0.15f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 4f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.STEEPENED_SIGMOID))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.15f))
+*/
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 0.05f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 2.5f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.STEEPENED_SIGMOID))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.05f))
+*/
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 0.05f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 1.5f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.STEEPENED_SIGMOID))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.1f))
+*/

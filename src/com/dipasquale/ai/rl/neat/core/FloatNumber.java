@@ -33,6 +33,10 @@ public final class FloatNumber {
         return new FloatNumber(factoryCreator);
     }
 
+    public static FloatNumber random(final RandomType type, final float range) {
+        return random(type, -range, range);
+    }
+
     public DualModeFactory createFactory(final InitializationContext initializationContext) {
         return factoryCreator.create(initializationContext);
     }

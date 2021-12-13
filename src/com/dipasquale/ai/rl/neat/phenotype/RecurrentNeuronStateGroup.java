@@ -54,7 +54,7 @@ abstract class RecurrentNeuronStateGroup implements NeuronStateGroup {
         NeuronState state = states.computeIfAbsent(id, k -> new NeuronState());
 
         state.clear();
-        state.replace(id, value);
+        state.put(id, value);
     }
 
     protected abstract void setMemoryValue(Id id, float value, Id inputId);
@@ -63,7 +63,7 @@ abstract class RecurrentNeuronStateGroup implements NeuronStateGroup {
     public final void addValue(final Id id, final float value, final Id inputId) {
         NeuronState state = states.computeIfAbsent(id, k -> new NeuronState());
 
-        state.replace(inputId, value);
+        state.put(inputId, value);
         setMemoryValue(id, value, inputId);
     }
 

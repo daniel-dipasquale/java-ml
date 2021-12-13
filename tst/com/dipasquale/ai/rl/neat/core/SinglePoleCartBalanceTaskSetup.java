@@ -106,8 +106,8 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
     public NeatTrainingPolicy createTrainingPolicy() {
         return NeatTrainingPolicies.builder()
                 .add(SupervisorTrainingPolicy.builder()
-                        .maximumGeneration(100)
-                        .maximumRestartCount(4)
+                        .maximumGeneration(50)
+                        .maximumRestartCount(9)
                         .build())
                 .add(new DelegatedTrainingPolicy(SinglePoleCartBalanceTaskSetup::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()

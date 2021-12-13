@@ -7,12 +7,12 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SigmoidActivationFunction implements ActivationFunction, Serializable {
+public final class SteepenedSigmoidActivationFunction implements ActivationFunction, Serializable {
     @Serial
-    private static final long serialVersionUID = 530244118549052601L;
-    private static final SigmoidActivationFunction INSTANCE = new SigmoidActivationFunction();
+    private static final long serialVersionUID = -2180574309538173061L;
+    private static final SteepenedSigmoidActivationFunction INSTANCE = new SteepenedSigmoidActivationFunction();
 
-    public static SigmoidActivationFunction getInstance() {
+    public static SteepenedSigmoidActivationFunction getInstance() {
         return INSTANCE;
     }
 
@@ -23,11 +23,11 @@ public final class SigmoidActivationFunction implements ActivationFunction, Seri
 
     @Override
     public float forward(final float input) {
-        return 1f / (1f + (float) Math.exp(-input));
+        return 1f / (1f + (float) Math.exp(-4.9f * input));
     }
 
     @Override
     public String toString() {
-        return "Sigmoid";
+        return "SteepenedSigmoid";
     }
 }

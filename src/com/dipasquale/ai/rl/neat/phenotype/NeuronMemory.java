@@ -39,6 +39,6 @@ public final class NeuronMemory implements Serializable {
         String id = getId(dimension, nodeId);
         NeuronState state = states.computeIfAbsent(id, k -> new NeuronState());
 
-        state.replace(inputNodeId, value);
+        state.put(inputNodeId, value);
     }
 }

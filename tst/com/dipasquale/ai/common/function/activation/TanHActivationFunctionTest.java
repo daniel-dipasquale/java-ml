@@ -1,6 +1,5 @@
-package com.dipasquale.ai.common.function.activation.function;
+package com.dipasquale.ai.common.function.activation;
 
-import com.dipasquale.ai.common.function.activation.TanHActivationFunction;
 import com.dipasquale.io.serialization.SerializableSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

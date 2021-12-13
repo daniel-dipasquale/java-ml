@@ -12,6 +12,7 @@ public enum OutputActivationFunctionType {
     IDENTITY(ActivationFunctionType.IDENTITY),
     RE_LU(ActivationFunctionType.RE_LU),
     SIGMOID(ActivationFunctionType.SIGMOID),
+    STEEPENED_SIGMOID(ActivationFunctionType.STEEPENED_SIGMOID),
     TAN_H(ActivationFunctionType.TAN_H),
     STEP(ActivationFunctionType.STEP);
 

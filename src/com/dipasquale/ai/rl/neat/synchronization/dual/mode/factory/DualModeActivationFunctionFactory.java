@@ -6,6 +6,7 @@ import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.IdentityActivationFunction;
 import com.dipasquale.ai.common.function.activation.ReLUActivationFunction;
 import com.dipasquale.ai.common.function.activation.SigmoidActivationFunction;
+import com.dipasquale.ai.common.function.activation.SteepenedSigmoidActivationFunction;
 import com.dipasquale.ai.common.function.activation.StepActivationFunction;
 import com.dipasquale.ai.common.function.activation.TanHActivationFunction;
 import com.dipasquale.common.factory.EnumFactory;
@@ -26,6 +27,7 @@ public final class DualModeActivationFunctionFactory<T extends EnumFactory<Activ
             Map.entry(ActivationFunctionType.IDENTITY, IdentityActivationFunction.getInstance()),
             Map.entry(ActivationFunctionType.RE_LU, ReLUActivationFunction.getInstance()),
             Map.entry(ActivationFunctionType.SIGMOID, SigmoidActivationFunction.getInstance()),
+            Map.entry(ActivationFunctionType.STEEPENED_SIGMOID, SteepenedSigmoidActivationFunction.getInstance()),
             Map.entry(ActivationFunctionType.TAN_H, TanHActivationFunction.getInstance()),
             Map.entry(ActivationFunctionType.STEP, StepActivationFunction.getInstance())
     );

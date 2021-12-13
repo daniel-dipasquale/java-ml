@@ -18,11 +18,11 @@ public final class NodeGeneSupport {
     @Builder.Default
     private final EnumValue<ActivationFunctionType> inputActivationFunction = EnumValue.literal(ActivationFunctionType.IDENTITY);
     @Builder.Default
-    private final FloatNumber outputBias = FloatNumber.random(RandomType.UNIFORM, -1f, 1f);
+    private final FloatNumber outputBias = FloatNumber.random(RandomType.UNIFORM, 0.05f);
     @Builder.Default
     private final EnumValue<OutputActivationFunctionType> outputActivationFunction = EnumValue.literal(OutputActivationFunctionType.SIGMOID);
     @Builder.Default
-    private final FloatNumber hiddenBias = FloatNumber.random(RandomType.UNIFORM, -1f, 1f);
+    private final FloatNumber hiddenBias = FloatNumber.random(RandomType.UNIFORM, 2.5f);
     @Builder.Default
     private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.TAN_H);
 

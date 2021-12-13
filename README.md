@@ -89,13 +89,13 @@ algorithms I'm interested in learning and using:
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
                         .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
-                        .outputBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
-                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, -1f, 1f))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 0.05f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 2.5f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.STEEPENED_SIGMOID))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, -0.5f, 0.5f))
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.1f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
                         .recurrentStateType(RecurrentStateType.DEFAULT)
@@ -166,5 +166,6 @@ algorithms I'm interested in learning and using:
                                 return (float) fitness;
                         })
                         .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
-                        .build());
+                        .build())
+                .build());
    ```
