@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class RandomSupportTest {
-    private static final double MAXIMUM_VALUE = Double.longBitsToDouble(Double.doubleToRawLongBits(1D) - 1L);
+    private static final double MAX_VALUE_LESS_THAN_ONE = Double.longBitsToDouble(Double.doubleToRawLongBits(1D) - 1L);
     private static final AtomicDouble RANDOM_SEED = new AtomicDouble(0D);
     private static final RandomSupport TEST = RANDOM_SEED::get;
     private static final int RANDOM_TEST_COUNT = 1_000_000;
@@ -42,8 +42,8 @@ public final class RandomSupportTest {
         Assertions.assertEquals(0.75D, TEST.next(0D, 1D), 0D);
         Assertions.assertEquals(0.6500000000000001D, TEST.next(0.2D, 0.8D), 0D);
         Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
-        RANDOM_SEED.set(MAXIMUM_VALUE);
-        Assertions.assertEquals(MAXIMUM_VALUE, TEST.next(0D, 1D), 0D);
+        RANDOM_SEED.set(MAX_VALUE_LESS_THAN_ONE);
+        Assertions.assertEquals(MAX_VALUE_LESS_THAN_ONE, TEST.next(0D, 1D), 0D);
         Assertions.assertEquals(0.8D, TEST.next(0.2D, 0.8D), 0D);
         Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D), 0D);
     }
@@ -67,7 +67,7 @@ public final class RandomSupportTest {
         Assertions.assertEquals(3L, TEST.next(0L, 5L));
         RANDOM_SEED.set(0.8D);
         Assertions.assertEquals(4L, TEST.next(0L, 5L));
-        RANDOM_SEED.set(MAXIMUM_VALUE);
+        RANDOM_SEED.set(MAX_VALUE_LESS_THAN_ONE);
         Assertions.assertEquals(4L, TEST.next(0L, 5L));
     }
 
@@ -85,7 +85,7 @@ public final class RandomSupportTest {
         RANDOM_SEED.set(0.5D);
         Assertions.assertEquals(0.5D, test.next(), 0);
         Assertions.assertEquals(0.5D, test.next(0.3D, 0.7D), 0);
-        RANDOM_SEED.set(MAXIMUM_VALUE);
+        RANDOM_SEED.set(MAX_VALUE_LESS_THAN_ONE);
         Assertions.assertEquals(0.8D, test.next(), 0);
         Assertions.assertEquals(0.56D, test.next(0.4D, 0.6D), 0);
     }
@@ -135,7 +135,7 @@ public final class RandomSupportTest {
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
-        RandomSupport test = new DefaultRandomSupport();
+        RandomSupport test = new UniformRandomSupport();
 
         Assertions.assertTrue(isNextLongEquallyDistributed(test));
     }
@@ -154,21 +154,21 @@ public final class RandomSupportTest {
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-        RandomSupport test = new DefaultRandomSupport();
+        RandomSupport test = new UniformRandomSupport();
 
         Assertions.assertTrue(isNextDoubleBounded(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_are_equally_distributed_through_out() {
-        RandomSupport test = new DefaultRandomSupport();
+        RandomSupport test = new UniformRandomSupport();
 
         Assertions.assertTrue(isNextLongEquallyDistributed(test));
     }
 
     @Test
     public void GIVEN_a_random_number_generator_that_is_thread_safe_WHEN_generating_multiple_random_numbers_THEN_the_numbers_range_from_0_inclusively_to_1_exclusively() {
-        RandomSupport test = new DefaultRandomSupport();
+        RandomSupport test = new UniformRandomSupport();
 
         Assertions.assertTrue(isNextDoubleBounded(test));
     }

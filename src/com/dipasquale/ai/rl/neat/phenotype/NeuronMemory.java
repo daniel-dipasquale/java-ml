@@ -26,7 +26,8 @@ public final class NeuronMemory implements Serializable {
     }
 
     Float getValue(final String dimension, final Id nodeId) {
-        NeuronState state = states.get(getId(dimension, nodeId));
+        String id = getId(dimension, nodeId);
+        NeuronState state = states.get(id);
 
         if (state == null) {
             return null;

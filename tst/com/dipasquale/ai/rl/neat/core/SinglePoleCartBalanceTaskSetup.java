@@ -1,12 +1,13 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
+import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
-import com.dipasquale.common.random.float2.CyclicRandomSupport;
+import com.dipasquale.common.random.float2.DeterministicRandomSupport;
 import com.dipasquale.common.random.float2.RandomSupport;
-import com.dipasquale.common.random.float2.ThreadLocalRandomSupport;
+import com.dipasquale.common.random.float2.ThreadLocalUniformRandomSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
@@ -21,7 +22,7 @@ import java.util.Set;
 @Getter
 final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
     private static final double TIME_SPENT_GOAL = 60D;
-    private static final RandomSupport RANDOM_SUPPORT = new ThreadLocalRandomSupport();
+    private static final RandomSupport RANDOM_SUPPORT = new ThreadLocalUniformRandomSupport();
     private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
     private final String name = "Single Pole Cart Balance";
@@ -59,7 +60,7 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
 
     private static boolean determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
-        CyclicRandomSupport randomSupport = new CyclicRandomSupport(SUCCESSFUL_SCENARIOS * 4);
+        DeterministicRandomSupport randomSupport = new DeterministicRandomSupport(SUCCESSFUL_SCENARIOS * 4);
 
         for (int i = 0; success && i < SUCCESSFUL_SCENARIOS; i++) {
             CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
@@ -93,6 +94,9 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.75f))
                         .build())
                 .metrics(MetricSupport.builder()
                         .type(metricsEmissionEnabled

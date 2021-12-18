@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 public final class ConnectionGeneSupport {
     @Builder.Default
-    private final FloatNumber weightFactory = FloatNumber.random(RandomType.UNIFORM, 0.1f);
+    private final FloatNumber weightFactory = FloatNumber.random(RandomType.BELL_CURVE, 2f);
     @Builder.Default
     private final FloatNumber weightPerturber = FloatNumber.literal(2.5f);
     @Builder.Default

@@ -1,13 +1,12 @@
 package com.dipasquale.ai.common.sequence;
 
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 @EqualsAndHashCode
 public final class LongSequentialId implements SequentialId<LongSequentialId>, Serializable {
     @Serial

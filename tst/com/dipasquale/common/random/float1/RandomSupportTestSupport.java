@@ -1,5 +1,6 @@
 package com.dipasquale.common.random.float1;
 
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
@@ -8,8 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@NoArgsConstructor
-public final class RandomSupportTestSupport {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+final class RandomSupportTestSupport {
     public static boolean isNextFloatBounded(final RandomSupport randomSupport, final int count, final float min, final float max) {
         for (int i = 0; i < count; i++) {
             float result = randomSupport.next();
@@ -22,7 +23,7 @@ public final class RandomSupportTestSupport {
         return true;
     }
 
-    public static boolean isNextIntegerMeanDistributed(final RandomSupport randomSupport, final int count, final int min, final int max, final List<Float> marginOfErrors) {
+    public static boolean isNextIntegerEvenlyDistributed(final RandomSupport randomSupport, final int count, final int min, final int max, final List<Float> marginOfErrors) {
         Map<Integer, AtomicInteger> distribution = new HashMap<>();
 
         for (int i = 0; i < count; i++) {

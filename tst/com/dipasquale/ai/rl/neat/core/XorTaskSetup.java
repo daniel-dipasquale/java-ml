@@ -31,6 +31,7 @@ final class XorTaskSetup implements TaskSetup {
     private final int populationSize = 150;
 
     private static float calculateFitness(final GenomeActivator genomeActivator) {
+        // I love you :)
         float error = 0f;
         NeuronMemory neuronMemory = genomeActivator.createMemory();
 
@@ -85,13 +86,13 @@ final class XorTaskSetup implements TaskSetup {
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
                         .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
-                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 0.05f))
-                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
-                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 2.5f))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.STEEPENED_SIGMOID))
+                        .outputBias(FloatNumber.random(RandomType.QUADRUPLE_SIGMOID, 15f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 30f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.1f))
+                        .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
                         .recurrentStateType(RecurrentStateType.DEFAULT)

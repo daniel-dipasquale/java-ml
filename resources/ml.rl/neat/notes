@@ -230,3 +230,42 @@ http://www.mathematik.uni-ulm.de/stochastik/lehre/ss06/markov/BoxMuller.java
                 .connections(ConnectionGeneSupport.builder()
                         .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.1f))
 */
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.QUADRUPLE_SIGMOID, 20f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 40f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.STEEPENED_SIGMOID))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.1f))
+*/
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.QUADRUPLE_SIGMOID, 30f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 60f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.STEEPENED_SIGMOID))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.15f))
+*/
+
+/*
+                .nodes(NodeGeneSupport.builder()
+                        .inputBias(FloatNumber.literal(0f))
+                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .outputBias(FloatNumber.random(RandomType.QUADRUPLE_SIGMOID, 15f))
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
+                        .hiddenBias(FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 30f))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
+*/

@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
+import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
@@ -93,6 +94,9 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
+                        .build())
+                .connections(ConnectionGeneSupport.builder()
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.75f))
                         .build())
                 .metrics(MetricSupport.builder()
                         .type(metricsEmissionEnabled

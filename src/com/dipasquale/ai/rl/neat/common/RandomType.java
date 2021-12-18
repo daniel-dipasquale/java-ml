@@ -2,5 +2,7 @@ package com.dipasquale.ai.rl.neat.common;
 
 public enum RandomType {
     UNIFORM,
-    MEAN_DISTRIBUTED
+    BELL_CURVE,
+    QUADRUPLE_SIGMOID,
+    QUADRUPLE_STEEPENED_SIGMOID
 }

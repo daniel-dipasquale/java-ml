@@ -18,13 +18,13 @@ public final class NodeGeneSupport {
     @Builder.Default
     private final EnumValue<ActivationFunctionType> inputActivationFunction = EnumValue.literal(ActivationFunctionType.IDENTITY);
     @Builder.Default
-    private final FloatNumber outputBias = FloatNumber.random(RandomType.UNIFORM, 0.05f);
+    private final FloatNumber outputBias = FloatNumber.random(RandomType.QUADRUPLE_SIGMOID, 15f);
     @Builder.Default
     private final EnumValue<OutputActivationFunctionType> outputActivationFunction = EnumValue.literal(OutputActivationFunctionType.SIGMOID);
     @Builder.Default
-    private final FloatNumber hiddenBias = FloatNumber.random(RandomType.UNIFORM, 2.5f);
+    private final FloatNumber hiddenBias = FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 30f);
     @Builder.Default
-    private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.TAN_H);
+    private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.RE_LU);
 
     DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate) {
         return DefaultContextNodeGeneSupport.create(initializationContext, genesisGenomeTemplate, this);
