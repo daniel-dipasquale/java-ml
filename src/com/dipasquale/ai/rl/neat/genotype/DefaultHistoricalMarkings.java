@@ -55,8 +55,6 @@ public final class DefaultHistoricalMarkings<T extends NodeGeneDependencyTracker
             nodeDependencyTracker.removeEdgesFrom(innovationIds);
             nodeDependencyTrackers.remove(node.getId());
         }
-
-        assert blastRadius >= 0;
     }
 
     @Override
