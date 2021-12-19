@@ -8,21 +8,23 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public final class DefaultHistoricalMarkings<T extends NodeGeneIdDependencyTracker> implements HistoricalMarkings {
+public final class DefaultHistoricalMarkings<T extends NodeGeneDependencyTracker> implements HistoricalMarkings {
     private final DualModeIdFactory innovationIdFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
-    private final ObjectFactory<T> nodeIdDependencyTrackerFactory;
-    private final Map<Id, T> nodeIdDependencyTrackers;
+    private final ObjectFactory<T> nodeDependencyTrackerFactory;
+    private final Map<Id, T> nodeDependencyTrackers;
 
-    private void addDependency(final Id nodeId, final DirectedEdge directedEdge) {
-        NodeGeneIdDependencyTracker nodeIdDependencyTracker = nodeIdDependencyTrackers.computeIfAbsent(nodeId, nid -> nodeIdDependencyTrackerFactory.create());
+    private NodeGeneDependencyTracker getOrCreateNodeDependencyTracker(final Id nodeId) {
+        return nodeDependencyTrackers.computeIfAbsent(nodeId, nid -> nodeDependencyTrackerFactory.create());
+    }
 
-        nodeIdDependencyTracker.add(directedEdge);
+    private void addDependencyToNode(final Id nodeId, final DirectedEdge directedEdge) {
+        getOrCreateNodeDependencyTracker(nodeId).addEdge(directedEdge);
     }
 
     private InnovationId createInnovationId(final DirectedEdge directedEdge) {
-        addDependency(directedEdge.getSourceNodeId(), directedEdge);
-        addDependency(directedEdge.getTargetNodeId(), directedEdge);
+        addDependencyToNode(directedEdge.getSourceNodeId(), directedEdge);
+        addDependencyToNode(directedEdge.getTargetNodeId(), directedEdge);
 
         return new InnovationId(directedEdge, innovationIdFactory.create());
     }
@@ -39,24 +41,25 @@ public final class DefaultHistoricalMarkings<T extends NodeGeneIdDependencyTrack
 
     @Override
     public void registerNode(final NodeGene node) {
-        NodeGeneIdDependencyTracker nodeIdDependencyTracker = nodeIdDependencyTrackers.computeIfAbsent(node.getId(), nid -> nodeIdDependencyTrackerFactory.create());
-
-        nodeIdDependencyTracker.increaseBlastRadius();
+        getOrCreateNodeDependencyTracker(node.getId()).increaseBlastRadius();
     }
 
     @Override
     public void deregisterNode(final NodeGene node) {
-        NodeGeneIdDependencyTracker nodeIdDependencyTracker = nodeIdDependencyTrackers.get(node.getId());
+        NodeGeneDependencyTracker nodeDependencyTracker = nodeDependencyTrackers.get(node.getId());
+        int blastRadius = nodeDependencyTracker.decreaseBlastRadius();
 
-        if (nodeIdDependencyTracker.decreaseBlastRadius() == 0) {
-            nodeIdDependencyTracker.removeFrom(innovationIds);
+        if (blastRadius == 0) {
+            nodeDependencyTracker.removeEdgesFrom(innovationIds);
         }
+
+        assert blastRadius >= 0;
     }
 
     @Override
     public void clear() {
         innovationIdFactory.reset();
         innovationIds.clear();
-        nodeIdDependencyTrackers.clear();
+        nodeDependencyTrackers.clear();
     }
 }

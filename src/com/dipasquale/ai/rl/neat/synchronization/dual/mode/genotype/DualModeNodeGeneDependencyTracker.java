@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneIdDependencyTracker;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneDependencyTracker;
 import com.dipasquale.common.factory.data.structure.set.SetFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeIntegerCounter;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
@@ -15,14 +15,14 @@ import java.io.Serializable;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DualModeNodeGeneIdDependencyTracker<T extends SetFactory & DualModeObject> implements NodeGeneIdDependencyTracker, DualModeObject, Serializable {
+public final class DualModeNodeGeneDependencyTracker<T extends SetFactory & DualModeObject> implements NodeGeneDependencyTracker, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -3057494575848684621L;
     private final DualModeIntegerCounter blastRadius;
     private final DualModeSet<DirectedEdge, T> directedEdges;
 
-    public DualModeNodeGeneIdDependencyTracker(final T setFactory) {
-        this(new DualModeIntegerCounter(setFactory.concurrencyLevel()), new DualModeSet<>(setFactory));
+    public DualModeNodeGeneDependencyTracker(final T setFactory) {
+        this(new DualModeIntegerCounter(setFactory.concurrencyLevel(), 0), new DualModeSet<>(setFactory));
     }
 
     public void increaseBlastRadius() {
@@ -33,11 +33,11 @@ public final class DualModeNodeGeneIdDependencyTracker<T extends SetFactory & Du
         return blastRadius.decrement();
     }
 
-    public void add(final DirectedEdge directedEdge) {
+    public void addEdge(final DirectedEdge directedEdge) {
         directedEdges.add(directedEdge);
     }
 
-    public void removeFrom(final Map<DirectedEdge, InnovationId> innovationIds) {
+    public void removeEdgesFrom(final Map<DirectedEdge, InnovationId> innovationIds) {
         for (DirectedEdge directedEdge : directedEdges) {
             innovationIds.remove(directedEdge);
         }
