@@ -14,12 +14,12 @@ public final class DefaultHistoricalMarkings<T extends NodeGeneDependencyTracker
     private final ObjectFactory<T> nodeDependencyTrackerFactory;
     private final Map<Id, T> nodeDependencyTrackers;
 
-    private NodeGeneDependencyTracker getOrCreateNodeDependencyTracker(final Id nodeId) {
-        return nodeDependencyTrackers.computeIfAbsent(nodeId, nid -> nodeDependencyTrackerFactory.create());
-    }
-
     private void addDependencyToNode(final Id nodeId, final DirectedEdge directedEdge) {
-        getOrCreateNodeDependencyTracker(nodeId).addEdge(directedEdge);
+        NodeGeneDependencyTracker nodeDependencyTracker = nodeDependencyTrackers.get(nodeId);
+
+        if (nodeDependencyTracker != null) {
+            nodeDependencyTracker.addEdge(directedEdge);
+        }
     }
 
     private InnovationId createInnovationId(final DirectedEdge directedEdge) {
@@ -41,7 +41,9 @@ public final class DefaultHistoricalMarkings<T extends NodeGeneDependencyTracker
 
     @Override
     public void registerNode(final NodeGene node) {
-        getOrCreateNodeDependencyTracker(node.getId()).increaseBlastRadius();
+        NodeGeneDependencyTracker nodeDependencyTracker = nodeDependencyTrackers.computeIfAbsent(node.getId(), nid -> nodeDependencyTrackerFactory.create());
+
+        nodeDependencyTracker.increaseBlastRadius();
     }
 
     @Override
@@ -51,6 +53,7 @@ public final class DefaultHistoricalMarkings<T extends NodeGeneDependencyTracker
 
         if (blastRadius == 0) {
             nodeDependencyTracker.removeEdgesFrom(innovationIds);
+            nodeDependencyTrackers.remove(node.getId());
         }
 
         assert blastRadius >= 0;
