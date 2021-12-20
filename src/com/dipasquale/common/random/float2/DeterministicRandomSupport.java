@@ -1,5 +1,7 @@
 package com.dipasquale.common.random.float2;
 
+import com.dipasquale.common.ArgumentValidatorSupport;
+
 public final class DeterministicRandomSupport implements RandomSupport {
     private static final double MAX_VALUE_LESS_THAN_ONE = Double.longBitsToDouble(Double.doubleToRawLongBits(1D) - 1L);
     private long index;
@@ -7,6 +9,7 @@ public final class DeterministicRandomSupport implements RandomSupport {
     private final long max;
 
     public DeterministicRandomSupport(final long size) {
+        ArgumentValidatorSupport.ensureGreaterThan(size, 1L, "size");
         this.index = 0L;
         this.size = (double) (size - 1L);
         this.max = size;

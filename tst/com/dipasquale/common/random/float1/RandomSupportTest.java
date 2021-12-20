@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+
 public final class RandomSupportTest {
     private static final float MAX_VALUE_LESS_THAN_ONE = Float.intBitsToFloat(Float.floatToRawIntBits(1f) - 1);
     private static final FloatValue RANDOM_STATE = new FloatValue();
@@ -18,30 +22,30 @@ public final class RandomSupportTest {
 
     @Test
     public void GIVEN_a_random_number_generator_WHEN_generates_a_sometimes_bounded_but_always_random_number_THEN_get_a_random_number() {
-        Assertions.assertEquals(0f, TEST.next(), 0f);
-        Assertions.assertEquals(0f, TEST.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.2f, TEST.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0f, TEST.next());
+        Assertions.assertEquals(0f, TEST.next(0f, 1f));
+        Assertions.assertEquals(0.2f, TEST.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f));
         RANDOM_STATE.value = 0.25f;
-        Assertions.assertEquals(0.25f, TEST.next(), 0f);
-        Assertions.assertEquals(0.25f, TEST.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.35000002f, TEST.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0.25f, TEST.next());
+        Assertions.assertEquals(0.25f, TEST.next(0f, 1f));
+        Assertions.assertEquals(0.35000002f, TEST.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f));
         RANDOM_STATE.value = 0.5f;
-        Assertions.assertEquals(0.5f, TEST.next(), 0f);
-        Assertions.assertEquals(0.5f, TEST.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.5f, TEST.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0.5f, TEST.next());
+        Assertions.assertEquals(0.5f, TEST.next(0f, 1f));
+        Assertions.assertEquals(0.5f, TEST.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f));
         RANDOM_STATE.value = 0.75f;
-        Assertions.assertEquals(0.75f, TEST.next(), 0f);
-        Assertions.assertEquals(0.75f, TEST.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.65000004f, TEST.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0.75f, TEST.next());
+        Assertions.assertEquals(0.75f, TEST.next(0f, 1f));
+        Assertions.assertEquals(0.65000004f, TEST.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f));
         RANDOM_STATE.value = MAX_VALUE_LESS_THAN_ONE;
-        Assertions.assertEquals(MAX_VALUE_LESS_THAN_ONE, TEST.next(), 0f);
-        Assertions.assertEquals(MAX_VALUE_LESS_THAN_ONE, TEST.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.79999995f, TEST.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(MAX_VALUE_LESS_THAN_ONE, TEST.next());
+        Assertions.assertEquals(MAX_VALUE_LESS_THAN_ONE, TEST.next(0f, 1f));
+        Assertions.assertEquals(0.79999995f, TEST.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, TEST.next(0.5f, 0.5f));
     }
 
     @Test
@@ -84,30 +88,30 @@ public final class RandomSupportTest {
     public void GIVEN_a_bounded_random_number_generator_WHEN_generates_a_sometimes_with_an_additional_boundary_but_always_random_number_THEN_get_a_random_number() {
         RandomSupport test = TEST.bounded(0.2f, 0.8f);
 
-        Assertions.assertEquals(0.2f, test.next(), 0f);
-        Assertions.assertEquals(0.2f, test.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.32f, test.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0.2f, test.next());
+        Assertions.assertEquals(0.2f, test.next(0f, 1f));
+        Assertions.assertEquals(0.32f, test.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f));
         RANDOM_STATE.value = 0.25f;
-        Assertions.assertEquals(0.35000002f, test.next(), 0f);
-        Assertions.assertEquals(0.35000002f, test.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.41000003f, test.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0.35000002f, test.next());
+        Assertions.assertEquals(0.35000002f, test.next(0f, 1f));
+        Assertions.assertEquals(0.41000003f, test.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f));
         RANDOM_STATE.value = 0.5f;
-        Assertions.assertEquals(0.5f, test.next(), 0f);
-        Assertions.assertEquals(0.5f, test.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.5f, test.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0.5f, test.next());
+        Assertions.assertEquals(0.5f, test.next(0f, 1f));
+        Assertions.assertEquals(0.5f, test.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f));
         RANDOM_STATE.value = 0.75f;
-        Assertions.assertEquals(0.65000004f, test.next(), 0f);
-        Assertions.assertEquals(0.65000004f, test.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.59000003f, test.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0.65000004f, test.next());
+        Assertions.assertEquals(0.65000004f, test.next(0f, 1f));
+        Assertions.assertEquals(0.59000003f, test.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f));
         RANDOM_STATE.value = MAX_VALUE_LESS_THAN_ONE;
-        Assertions.assertEquals(0.7999999523162842f, test.next(), 0f);
-        Assertions.assertEquals(0.7999999523162842f, test.next(0f, 1f), 0f);
-        Assertions.assertEquals(0.68f, test.next(0.2f, 0.8f), 0f);
-        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f), 0f);
+        Assertions.assertEquals(0.7999999523162842f, test.next());
+        Assertions.assertEquals(0.7999999523162842f, test.next(0f, 1f));
+        Assertions.assertEquals(0.68f, test.next(0.2f, 0.8f));
+        Assertions.assertEquals(0.5f, test.next(0.5f, 0.5f));
     }
 
     @Test
@@ -226,8 +230,36 @@ public final class RandomSupportTest {
         Assertions.assertTrue(TEST.isLessThan(1f));
     }
 
+    @Test
+    public void GIVEN_a_random_number_generator_WHEN_shuffling_items_in_place_THEN_shuffle_all_items() {
+        DeterministicRandomSupport test = new DeterministicRandomSupport(2);
+        int size = 10;
+
+        List<Integer> items = new ArrayList<>(IntStream.range(0, size)
+                .mapToObj(i -> size - 1 - i)
+                .toList());
+
+        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);
+        test.shuffle(items);
+        Assertions.assertEquals(List.of(8, 6, 7, 4, 5, 2, 3, 0, 1, 9), items);
+    }
+
+    @Test
+    public void GIVEN_a_random_number_generator_WHEN_creating_a_copy_of_the_shuffled_items_THEN_create_a_copy_of_the_shuffled_items() {
+        DeterministicRandomSupport test = new DeterministicRandomSupport(2);
+        int size = 10;
+
+        List<Integer> items = new ArrayList<>(IntStream.range(0, size)
+                .mapToObj(i -> size - 1 - i)
+                .toList());
+
+        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);
+        Assertions.assertEquals(List.of(8, 6, 7, 4, 5, 2, 3, 0, 1, 9), test.shuffled(items, Integer.class));
+        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);
+    }
+
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class FloatValue {
-        private float value;
+        private float value = 0f;
     }
 }

@@ -29,16 +29,12 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     private AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirationFactory expirationFactory, final boolean collectRecycledReferences, final RecyclableReference.Collector<T> recycledReferenceCollector) {
         Queue<RecyclableReference<T>> recycledReferences = new ConcurrentLinkedQueue<>();
 
-        RecyclableReference.Collector<T> recycledReferenceCollectorFixed = !collectRecycledReferences
-                ? recycledReferenceCollector
-                : (RecyclableReference.Collector<T> & Serializable) recycledReferences::add;
-
         this.referenceFactory = referenceFactory;
         this.expirationFactory = expirationFactory;
         this.recyclableReferenceEnvelope = new AtomicReference<>();
         this.recycledDateTime = new AtomicLong(Long.MIN_VALUE);
         this.recycledReferences = recycledReferences;
-        this.recycledReferenceCollector = recycledReferenceCollectorFixed;
+        this.recycledReferenceCollector = ensureRecycledReferenceCollector(collectRecycledReferences, recycledReferenceCollector, recycledReferences);
         this.recycledConfirmationDateTime = Long.MIN_VALUE;
     }
 
@@ -64,6 +60,14 @@ public final class AtomicRecyclableReference<T> implements Serializable {
 
     public AtomicRecyclableReference(final ObjectFactory<T> referenceFactory, final ExpirationFactory expirationFactory) {
         this(new RecyclableReferenceFactory<>(referenceFactory), expirationFactory);
+    }
+
+    private static <T> RecyclableReference.Collector<T> ensureRecycledReferenceCollector(final boolean collectRecycledReferences, final RecyclableReference.Collector<T> recycledReferenceCollector, final Queue<RecyclableReference<T>> recycledReferences) {
+        if (!collectRecycledReferences) {
+            return recycledReferenceCollector;
+        }
+
+        return (RecyclableReference.Collector<T> & Serializable) recycledReferences::add;
     }
 
     private boolean tryReplaceRecycledDateTime(final ExpirationRecord expirationRecord) {
