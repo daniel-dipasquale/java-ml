@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@Generated // TODO: should the testing tool be tested? I'm feeling like it should be
+@Generated
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AsserterBase<T> {
     private final TestCaseCollectionRunner<T> testCaseRunner;

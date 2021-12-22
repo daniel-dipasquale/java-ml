@@ -10,7 +10,7 @@ import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Generated // TODO: should the testing tool be tested? I'm feeling like it should be
+@Generated
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class TestCaseCollectionRunner<T> {
     private final Collection<T> collection;

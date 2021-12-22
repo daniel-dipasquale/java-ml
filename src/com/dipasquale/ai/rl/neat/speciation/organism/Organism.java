@@ -50,7 +50,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
         context.metrics().collectFitness(species, this);
     }
 
-    public float updateFitness(final Species species, final Context context) { // TODO: should I let an exception bubble up from here, if the fitness functions fail
+    public float updateFitness(final Species species, final Context context) { // TODO: should let an exception bubble up from here, if the fitness functions fail
         Context.ActivationSupport activationSupport = context.activation();
         GenomeActivator genomeActivator = getActivator(activationSupport);
         float fitness = activationSupport.calculateFitness(genomeActivator);

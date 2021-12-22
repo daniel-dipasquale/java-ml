@@ -1,17 +1,18 @@
 package com.dipasquale.search.mcts;
 
+import com.dipasquale.common.random.float1.RandomSupport;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-public final class Node<T> {
+public final class Node<T extends State> {
     @Getter
     private final Node<T> parent;
-    @Getter
-    private final int participantId;
     @Getter
     private int visited;
     @Getter
@@ -28,31 +29,49 @@ public final class Node<T> {
     @Getter(AccessLevel.PACKAGE)
     private List<Node<T>> unexploredChildren;
 
-    Node(final Node<T> parent, final int participantId, final T state) {
+    Node(final Node<T> parent, final T state) {
         this.parent = parent;
-        this.participantId = participantId;
         this.visited = parent.visited;
         this.won = parent.won;
         this.drawn = parent.drawn;
         this.state = state;
+        this.environment = null;
         this.exploredChildren = null;
         this.unexploredChildren = null;
     }
 
-    void addVisited() {
+    void increaseVisited() {
         visited++;
     }
 
-    void addWon() {
+    void increaseWon() {
         won++;
     }
 
-    void addDrawn() {
+    void increaseDrawn() {
         drawn++;
     }
 
-    void expandChildren(final List<Node<T>> children) {
+    List<Node<T>> createAllPossibleChildNodes(final RandomSupport randomSupport) {
+        Iterable<T> possibleStates = environment.createAllPossibleStates();
+
+        List<Node<T>> childNodes = StreamSupport.stream(possibleStates.spliterator(), false)
+                .map(s -> new Node<>(this, s))
+                .collect(Collectors.toList());
+
+        randomSupport.shuffle(childNodes);
+
+        return childNodes;
+    }
+
+    void initializeChildren(final RandomSupport randomSupport) {
         exploredChildren = new ArrayList<>();
-        unexploredChildren = children;
+        unexploredChildren = createAllPossibleChildNodes(randomSupport);
+    }
+
+    void initializeEnvironment() {
+        Environment<T> environment = parent.getEnvironment().accept(this);
+
+        setEnvironment(environment);
     }
 }

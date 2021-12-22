@@ -1,11 +1,9 @@
 package com.dipasquale.search.mcts;
 
-public interface Environment<T> {
+public interface Environment<T extends State> {
     int getStatusId();
 
     float[] getScoreEstimates();
-
-    int getNextParticipantId();
 
     Node<T> getCurrentNode();
 

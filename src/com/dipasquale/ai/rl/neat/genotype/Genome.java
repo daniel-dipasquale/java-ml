@@ -169,7 +169,7 @@ public final class Genome implements Serializable {
             }
 
             if (!connection.isExpressed() || shouldAllowRecurrent && context.connections().shouldAllowMultiCycle()) {
-                connections.getExpressed().addCyclesAllowed(connection, 1); // TODO: consider balancing out the cycles (meaning if a cycle between two nodes is larger than the reverse cycle, then reverse it
+                connections.getExpressed().addCyclesAllowed(connection, 1);
 
                 return true;
             }
@@ -190,7 +190,7 @@ public final class Genome implements Serializable {
         }
 
         if (connections.getExpressed().isEmpty() || context.mutation().shouldAddConnection()) {
-            mutated |= addRandomConnection(context); // TODO: determine if this algorithm is consistent enough when converging
+            mutated |= addRandomConnection(context);
         }
 
         return mutated;

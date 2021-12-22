@@ -29,7 +29,7 @@ public final class DualModeNodeGeneDependencyTracker<T extends SetFactory & Dual
         blastRadius.increment();
     }
 
-    public int decreaseBlastRadius() { // TODO: assert blastRadius >= 0
+    public int decreaseBlastRadius() {
         return blastRadius.decrement();
     }
 

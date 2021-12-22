@@ -6,7 +6,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
 
-@Generated // TODO: should the testing tool be tested? I'm feeling like it should be
+@Generated
 final class ToArrayAsserter<T> extends AsserterBase<T> {
     private static final int ITEM_COUNT = 5;
     private final Collection<T> collection;

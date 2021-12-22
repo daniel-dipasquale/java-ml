@@ -1,5 +1,6 @@
 package com.dipasquale.search.mcts;
 
+import com.dipasquale.common.EntryOptimizer;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.random.float1.UniformRandomSupport;
 import lombok.AccessLevel;
@@ -7,181 +8,182 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.NavigableMap;
 import java.util.Objects;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class MonteCarloTreeSearch<T> {
-    private static final int IN_PROGRESS = 0;
-    private static final int DRAWN = -1;
-    private Environment<T> environment;
-    private final SimulationPredicate simulationPredicate;
-    private final RandomSupport randomSupport;
+public final class MonteCarloTreeSearch<T extends State> {
+    private static final Comparator<Float> FLOAT_COMPARATOR = Float::compare;
+    static final int IN_PROGRESS = 0;
+    static final int DRAWN = -1;
+    private final SimulationPolicy simulationPolicy;
     private final ExplorationPolicy<T> explorationPolicy;
+    private final ExplorationPolicy<T> simulationRolloutPolicy;
+    private final SimulationResultFactory<T> simulationResultFactory;
+    private final BackPropagationPolicy<T> backPropagationPolicy;
+    private final StrategyCalculator<T> strategyCalculator;
 
-    private static <T> HighestUctExplorationPolicy<T> createHighestUctExplorationPolicy(final UctCalculator<T> uctCalculator) {
+    private static <T extends State> HighestUctExplorationPolicy<T> createHighestUctExplorationPolicy(final UctCalculator<T> uctCalculator) {
         UctCalculator<T> uctCalculatorFixed = Objects.requireNonNullElseGet(uctCalculator, DefaultUctCalculator::new);
 
         return new HighestUctExplorationPolicy<>(uctCalculatorFixed);
     }
 
-    @Builder
-    public static <T> MonteCarloTreeSearch<T> create(final Environment<T> environment, final SimulationPredicate simulationPredicate, final UctCalculator<T> uctCalculator) {
-        RandomSupport randomSupport = new UniformRandomSupport();
+    private static <T extends State> ExplorationPolicy<T> createExplorationPolicy(final InitializeChildrenExplorationPolicy<T> initializeChildrenExplorationPolicy, final UctCalculator<T> uctCalculator) {
         List<ExplorationPolicy<T>> explorationPolicies = new ArrayList<>();
 
-        explorationPolicies.add(new UnexploredChildrenFirstExplorationPolicy<>());
+        explorationPolicies.add(initializeChildrenExplorationPolicy);
+        explorationPolicies.add(new UnexploredFirstExplorationPolicy<>());
         explorationPolicies.add(createHighestUctExplorationPolicy(uctCalculator));
 
-        ExplorationPolicy<T> explorationPolicy = new MultiExplorationPolicy<>(explorationPolicies);
-
-        return new MonteCarloTreeSearch<>(environment, simulationPredicate, randomSupport, explorationPolicy);
+        return new MultiExplorationPolicy<>(explorationPolicies);
     }
 
-    private static <T> void initializeEnvironment(final Node<T> parentNode, final Node<T> childNode) {
-        Environment<T> childEnvironment = parentNode.getEnvironment().accept(childNode);
+    private static <T extends State> ExplorationPolicy<T> createSimulationRolloutPolicy(final InitializeChildrenExplorationPolicy<T> initializeChildrenExplorationPolicy, final SimulationRolloutType simulationRolloutType, final RandomSupport randomSupport) {
+        List<ExplorationPolicy<T>> simulationRolloutPolicies = new ArrayList<>();
 
-        childNode.setEnvironment(childEnvironment);
-    }
+        switch (simulationRolloutType) {
+            case DETERMINISTIC -> {
+                simulationRolloutPolicies.add(initializeChildrenExplorationPolicy);
+                simulationRolloutPolicies.add(new StatefulRandomExplorationPolicy<>(randomSupport));
+            }
 
-    private Node<T> selectPromisingNode(final Node<T> node, final int simulations) {
-        if (node.getEnvironment().getStatusId() == 0 && node.getExploredChildren() == null) {
-            List<Node<T>> childNodes = createAllPossibleNodes(node.getEnvironment());
-
-            randomSupport.shuffle(childNodes);
-            node.expandChildren(childNodes);
+            case RANDOM -> simulationRolloutPolicies.add(new StatelessRandomExplorationPolicy<>(randomSupport));
         }
 
-        Node<T> childNode = explorationPolicy.next(node, simulations);
-
-        if (childNode == null) {
-            return null;
-        }
-
-        initializeEnvironment(node, childNode);
-
-        return childNode;
+        return new MultiExplorationPolicy<>(simulationRolloutPolicies);
     }
 
-    private static <T> List<Node<T>> createAllPossibleNodes(final Environment<T> environment) {
-        Node<T> parentNode = environment.getCurrentNode();
-        int participantId = environment.getNextParticipantId();
-        Iterable<T> possibleStates = environment.createAllPossibleStates();
+    private static <T extends State> SimulationResultFactory<T> createSimulationResultFactory(final SimulationRolloutType simulationRolloutType) {
+        return switch (simulationRolloutType) {
+            case DETERMINISTIC -> new StatefulSimulationResultFactory<>();
 
-        return StreamSupport.stream(possibleStates.spliterator(), false)
-                .map(s -> new Node<>(parentNode, participantId, s))
-                .collect(Collectors.toList());
+            case RANDOM -> new StatelessSimulationResultFactory<>();
+        };
     }
 
-    private Node<T> selectRandomChildNode(final Node<T> node) {
-        List<Node<T>> childNodes = createAllPossibleNodes(node.getEnvironment());
-        int size = childNodes.size();
+    private static <T extends State> BackPropagationPolicy<T> createBackPropagationPolicy(final SimulationRolloutType simulationRolloutType) {
+        List<BackPropagationPolicy<T>> backPropagationPolicies = new ArrayList<>();
 
-        if (size == 0) {
-            return null;
+        if (simulationRolloutType == SimulationRolloutType.DETERMINISTIC) {
+            backPropagationPolicies.add(new AvoidDoubleDipBackPropagationPolicy<>());
         }
 
-        int index = randomSupport.next(0, size);
+        backPropagationPolicies.add(new DefaultBackPropagationPolicy<>());
 
-        return childNodes.get(index);
+        return new MultiBackPropagationPolicy<>(backPropagationPolicies);
     }
 
-    private static <T> int getEstimatedStatusId(final Environment<T> environment) {
-        float[] scores = environment.getScoreEstimates();
-        NavigableMap<Float, List<Integer>> participantScores = new TreeMap<>(Float::compare);
+    @Builder
+    public static <T extends State> MonteCarloTreeSearch<T> create(final SimulationPolicy simulationPolicy, final UctCalculator<T> uctCalculator, final SimulationRolloutType simulationRolloutType, final StrategyCalculator<T> strategyCalculator) {
+        RandomSupport randomSupport = new UniformRandomSupport();
+        InitializeChildrenExplorationPolicy<T> initializeChildrenExplorationPolicy = new InitializeChildrenExplorationPolicy<>(randomSupport);
+        ExplorationPolicy<T> explorationPolicy = createExplorationPolicy(initializeChildrenExplorationPolicy, uctCalculator);
+        ExplorationPolicy<T> simulationRolloutPolicy = createSimulationRolloutPolicy(initializeChildrenExplorationPolicy, simulationRolloutType, randomSupport);
+        SimulationResultFactory<T> simulationResultFactory = createSimulationResultFactory(simulationRolloutType);
+        BackPropagationPolicy<T> backPropagationPolicy = createBackPropagationPolicy(simulationRolloutType);
 
-        for (int i = 0; i < scores.length; i++) {
-            participantScores.computeIfAbsent(scores[i], k -> new ArrayList<>()).add(i);
+        return new MonteCarloTreeSearch<>(simulationPolicy, explorationPolicy, simulationRolloutPolicy, simulationResultFactory, backPropagationPolicy, strategyCalculator);
+    }
+
+    private static <T extends State> int getEstimatedStatusId(final Environment<T> environment) {
+        float[] scoreEstimates = environment.getScoreEstimates();
+        EntryOptimizer<Float, List<Integer>> winningParticipantOptimizer = new EntryOptimizer<>(FLOAT_COMPARATOR);
+
+        for (int i = 0; i < scoreEstimates.length; i++) {
+            if (winningParticipantOptimizer.computeIfMoreOptimum(scoreEstimates[i], ArrayList::new)) {
+                winningParticipantOptimizer.getValue().add(i);
+            }
         }
 
-        List<Integer> winningParticipants = participantScores.lastEntry().getValue();
+        List<Integer> winningParticipants = winningParticipantOptimizer.getValue();
 
         if (winningParticipants.size() > 1) {
-            return -1;
+            return DRAWN;
         }
 
         return winningParticipants.get(0);
     }
 
-    private int simulateNodeRollout(final Node<T> node, final int simulation) {
+    private SimulationResult<T> simulateNodeRollout(final Node<T> node, final int simulations) {
         Node<T> currentNode = node;
+        int currentStatusId;
 
-        for (int depth = 0; true; depth++) {
-            if (!simulationPredicate.allowDepth(simulation, depth)) {
-                return getEstimatedStatusId(currentNode.getEnvironment());
-            }
-
-            Node<T> childNode = selectRandomChildNode(currentNode);
-
-            if (childNode == null && currentNode.getEnvironment().getStatusId() == IN_PROGRESS) {
-                return getEstimatedStatusId(currentNode.getEnvironment());
-            }
+        for (int depth = 0; true; ) {
+            Node<T> childNode = simulationRolloutPolicy.next(currentNode, simulations);
 
             if (childNode == null) {
-                return currentNode.getEnvironment().getStatusId();
-            }
+                int statusId = getEstimatedStatusId(currentNode.getEnvironment());
 
-            initializeEnvironment(currentNode, childNode);
-
-            if (childNode.getEnvironment().getStatusId() != IN_PROGRESS) {
-                return childNode.getEnvironment().getStatusId();
+                return simulationResultFactory.create(node, currentNode, statusId);
             }
 
             currentNode = childNode;
-        }
-    }
+            currentStatusId = currentNode.getEnvironment().getStatusId();
 
-    private void backPropagateNode(final Node<T> node, final int statusId) {
-        for (Node<T> currentNode = node; currentNode != null; currentNode = currentNode.getParent()) {
-            currentNode.addVisited();
+            if (currentStatusId != IN_PROGRESS) {
+                return simulationResultFactory.create(node, currentNode, currentStatusId);
+            }
 
-            if (currentNode.getParticipantId() == statusId) {
-                currentNode.addWon();
-            } else if (statusId == DRAWN) {
-                currentNode.addDrawn();
+            if (!simulationPolicy.allowDepth(simulations, ++depth)) {
+                int statusId = getEstimatedStatusId(currentNode.getEnvironment());
+
+                return simulationResultFactory.create(node, currentNode, statusId);
             }
         }
     }
 
-    private Node<T> findBestNode() {
-        int simulation = 0;
+    private Node<T> findBestNode(final Environment<T> environment) {
+        if (environment.getStatusId() != IN_PROGRESS) {
+            return null;
+        }
 
-        while (simulationPredicate.allowSimulation(simulation)) {
-            Node<T> promisingNode = selectPromisingNode(environment.getCurrentNode(), simulation);
+        Node<T> currentNode = environment.getCurrentNode();
+        int simulations = currentNode.getVisited();
+        int aborted = 0;
+        Node<T> promisingNode = explorationPolicy.next(currentNode, simulations);
 
-            if (promisingNode == null) {
-                return null;
-            }
+        if (promisingNode == null) {
+            return null;
+        }
 
-            if (promisingNode.getEnvironment().getStatusId() == IN_PROGRESS) {
-                int statusId = simulateNodeRollout(promisingNode, simulation);
+        for (boolean allowed = true; allowed; ) {
+            int statusId = promisingNode.getEnvironment().getStatusId();
+            boolean backPropagated;
 
-                backPropagateNode(promisingNode, statusId);
+            if (statusId == IN_PROGRESS) {
+                SimulationResult<T> simulationResult = simulateNodeRollout(promisingNode, simulations);
+
+                backPropagated = backPropagationPolicy.process(simulationResult.getNode(), simulationResult.getStatusId());
             } else {
-                int statusId = promisingNode.getEnvironment().getStatusId();
-
-                backPropagateNode(promisingNode, statusId);
+                backPropagated = backPropagationPolicy.process(promisingNode, statusId);
             }
 
-            simulation++;
+            allowed = simulationPolicy.allowSimulation(++simulations, backPropagated ? ++aborted : aborted);
+
+            if (allowed) {
+                promisingNode = explorationPolicy.next(currentNode, simulations);
+            }
         }
 
-        return selectPromisingNode(environment.getCurrentNode(), simulation);
+        EntryOptimizer<Float, Node<T>> childNodeOptimizer = new EntryOptimizer<>(FLOAT_COMPARATOR);
+
+        for (Node<T> childNode : currentNode.getExploredChildren()) {
+            float efficiency = strategyCalculator.calculateEfficiency(childNode);
+
+            childNodeOptimizer.collectIfMoreOptimum(efficiency, childNode);
+        }
+
+        return childNodeOptimizer.getValue();
     }
 
-    public Environment<T> findNext() {
-        simulationPredicate.beginSearch();
+    public Environment<T> findNext(final Environment<T> environment) {
+        simulationPolicy.beginSearch();
 
-        Node<T> bestNode = findBestNode();
-
-        if (bestNode == null) {
-            return environment = null;
-        }
-
-        return environment = bestNode.getEnvironment();
+        return Optional.ofNullable(findBestNode(environment))
+                .map(Node::getEnvironment)
+                .orElse(null);
     }
 }

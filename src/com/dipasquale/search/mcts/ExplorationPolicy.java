@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts;
 
 @FunctionalInterface
-public interface ExplorationPolicy<T> {
+interface ExplorationPolicy<T extends State> {
     Node<T> next(Node<T> node, int simulations);
 }

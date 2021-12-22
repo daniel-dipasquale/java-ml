@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class MultiExplorationPolicy<T> implements ExplorationPolicy<T> {
+final class MultiExplorationPolicy<T extends State> implements ExplorationPolicy<T> {
     private final List<ExplorationPolicy<T>> explorationPolicies;
 
     @Override

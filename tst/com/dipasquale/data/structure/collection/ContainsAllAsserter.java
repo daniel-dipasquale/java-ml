@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.IntFunction;
 
-@Generated // TODO: should the testing tool be tested? I'm feeling like it should be
+@Generated
 final class ContainsAllAsserter<T> extends AsserterBase<T> {
     private static final int ITEM_COUNT = 5;
     private final Collection<T> collection;

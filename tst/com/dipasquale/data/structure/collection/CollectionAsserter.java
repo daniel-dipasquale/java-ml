@@ -5,7 +5,7 @@ import lombok.Generated;
 import java.util.Collection;
 import java.util.function.IntFunction;
 
-@Generated // TODO: should the testing tool be tested? I'm feeling like it should be
+@Generated
 public final class CollectionAsserter<T> {
     private final TestCaseCollectionRunner<T> testCaseRunner;
     private final Collection<T> collection;

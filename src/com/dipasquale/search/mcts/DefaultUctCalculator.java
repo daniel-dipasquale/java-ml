@@ -3,7 +3,7 @@ package com.dipasquale.search.mcts;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class DefaultUctCalculator<T> implements UctCalculator<T> {
+public final class DefaultUctCalculator<T extends State> implements UctCalculator<T> {
     private static final float CONSTANT = (float) Math.sqrt(2);
     private final float constant;
 
