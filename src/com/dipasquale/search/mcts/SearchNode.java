@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts;
 
-import com.dipasquale.common.random.float1.RandomSupport;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,32 +9,46 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public final class Node<T extends State> {
+public final class SearchNode<T extends State> {
     @Getter
-    private final Node<T> parent;
+    private final SearchNode<T> parent;
+    private final SearchNode<T> owner;
     @Getter
     private int visited;
     @Getter
     private int won;
     @Getter
     private int drawn;
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PRIVATE)
+    private Environment<T> environment;
     @Getter
     private final T state;
     @Getter(AccessLevel.PACKAGE)
-    @Setter(AccessLevel.PACKAGE)
-    private Environment<T> environment;
+    private List<SearchNode<T>> exploredChildren;
     @Getter(AccessLevel.PACKAGE)
-    private List<Node<T>> exploredChildren;
-    @Getter(AccessLevel.PACKAGE)
-    private List<Node<T>> unexploredChildren;
+    private List<SearchNode<T>> unexploredChildren;
 
-    Node(final Node<T> parent, final T state) {
+    private SearchNode(final SearchNode<T> parent, final T state) {
         this.parent = parent;
+        this.owner = parent;
         this.visited = parent.visited;
         this.won = parent.won;
         this.drawn = parent.drawn;
-        this.state = state;
         this.environment = null;
+        this.state = state;
+        this.exploredChildren = null;
+        this.unexploredChildren = null;
+    }
+
+    SearchNode(final Environment<T> environment) {
+        this.parent = null;
+        this.owner = this;
+        this.visited = 0;
+        this.won = 0;
+        this.drawn = 0;
+        this.environment = environment;
+        this.state = environment.getCurrentState();
         this.exploredChildren = null;
         this.unexploredChildren = null;
     }
@@ -52,25 +65,21 @@ public final class Node<T extends State> {
         drawn++;
     }
 
-    List<Node<T>> createAllPossibleChildNodes(final RandomSupport randomSupport) {
+    List<SearchNode<T>> createAllPossibleChildNodes() {
         Iterable<T> possibleStates = environment.createAllPossibleStates();
 
-        List<Node<T>> childNodes = StreamSupport.stream(possibleStates.spliterator(), false)
-                .map(s -> new Node<>(this, s))
+        return StreamSupport.stream(possibleStates.spliterator(), false)
+                .map(s -> new SearchNode<>(this, s))
                 .collect(Collectors.toList());
-
-        randomSupport.shuffle(childNodes);
-
-        return childNodes;
     }
 
-    void initializeChildren(final RandomSupport randomSupport) {
+    void initializeChildren(final List<SearchNode<T>> children) {
         exploredChildren = new ArrayList<>();
-        unexploredChildren = createAllPossibleChildNodes(randomSupport);
+        unexploredChildren = children;
     }
 
     void initializeEnvironment() {
-        Environment<T> environment = parent.getEnvironment().accept(this);
+        Environment<T> environment = owner.environment.accept(state);
 
         setEnvironment(environment);
     }

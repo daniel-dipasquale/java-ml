@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import com.dipasquale.ai.rl.neat.internal.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

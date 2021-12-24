@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
-import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.synchronization.dual.mode.ConcurrencyLevelState;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 

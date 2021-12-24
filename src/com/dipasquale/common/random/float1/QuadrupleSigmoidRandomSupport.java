@@ -1,6 +1,11 @@
 package com.dipasquale.common.random.float1;
 
-public final class QuadrupleSigmoidRandomSupport implements RandomSupport {
+import java.io.Serial;
+import java.io.Serializable;
+
+public final class QuadrupleSigmoidRandomSupport implements RandomSupport, Serializable {
+    @Serial
+    private static final long serialVersionUID = -4181447142293325129L;
     private static final float MAX_VALUE_LESS_THAN_ONE = Float.intBitsToFloat(Float.floatToRawIntBits(1f) - 1);
     private static final float SINGLE_SIGMOID_BOUNDARY = 0.5f;
     private final RandomSupport randomSupport;

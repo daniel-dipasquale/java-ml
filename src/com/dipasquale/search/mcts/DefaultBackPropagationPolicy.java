@@ -6,14 +6,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class DefaultBackPropagationPolicy<T extends State> implements BackPropagationPolicy<T> {
     @Override
-    public boolean process(final Node<T> node, final int statusId) {
-        for (Node<T> currentNode = node; currentNode != null; currentNode = currentNode.getParent()) {
-            currentNode.increaseVisited();
+    public boolean process(final SearchNode<T> searchNode, final int statusId) {
+        for (SearchNode<T> currentSearchNode = searchNode; currentSearchNode != null; currentSearchNode = currentSearchNode.getParent()) {
+            currentSearchNode.increaseVisited();
 
-            if (currentNode.getState().getParticipantId() == statusId) {
-                currentNode.increaseWon();
+            if (currentSearchNode.getState().getParticipantId() == statusId) {
+                currentSearchNode.increaseWon();
             } else if (statusId == MonteCarloTreeSearch.DRAWN) {
-                currentNode.increaseDrawn();
+                currentSearchNode.increaseDrawn();
             }
         }
 

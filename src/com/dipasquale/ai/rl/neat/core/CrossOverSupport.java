@@ -2,11 +2,11 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.DefaultContextCrossOverSupport;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 public final class CrossOverSupport {

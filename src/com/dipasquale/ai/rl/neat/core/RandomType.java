@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.common;
+package com.dipasquale.ai.rl.neat.core;
 
 public enum RandomType {
     UNIFORM,

@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeBoundedRandomIntegerFactory;
 import com.dipasquale.common.factory.IntegerFactory;
 import com.dipasquale.common.factory.LiteralIntegerFactory;
@@ -19,7 +18,7 @@ public final class IntegerNumber {
 
     public static IntegerNumber literal(final int value) {
         DualModeFactoryCreator factoryCreator = ic -> {
-            DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(ic.getParallelism().getConcurrencyLevel(), new LiteralIntegerFactory(value));
+            DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(ic.getConcurrencyLevel(), new LiteralIntegerFactory(value));
 
             return new InternalDualModeFactory<>(integerFactory);
         };
@@ -29,7 +28,7 @@ public final class IntegerNumber {
 
     public static IntegerNumber random(final RandomType type, final int min, final int max) {
         DualModeFactoryCreator factoryCreator = ic -> {
-            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(ic.getRandomSupports().get(type), min, max);
+            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(ic.createRandomSupport(type), min, max);
 
             return new InternalDualModeFactory<>(integerFactory);
         };

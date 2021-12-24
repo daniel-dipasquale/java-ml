@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.rl.neat.common.Id;
+import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeIdFactory;
 import com.dipasquale.common.factory.ObjectFactory;
 import lombok.RequiredArgsConstructor;

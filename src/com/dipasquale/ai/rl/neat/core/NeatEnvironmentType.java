@@ -4,7 +4,7 @@ public enum NeatEnvironmentType {
     ISOLATED,
     SHARED;
 
-    public static NeatEnvironmentType from(final NeatEnvironment neatEnvironment) {
+    static NeatEnvironmentType from(final NeatEnvironment neatEnvironment) {
         if (neatEnvironment instanceof IsolatedNeatEnvironment) {
             return NeatEnvironmentType.ISOLATED;
         }

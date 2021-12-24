@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.common;
+package com.dipasquale.ai.rl.neat.internal;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminer;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;

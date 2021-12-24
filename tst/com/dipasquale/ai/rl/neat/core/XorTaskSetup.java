@@ -3,7 +3,6 @@ package com.dipasquale.ai.rl.neat.core;
 import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;

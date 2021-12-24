@@ -1,10 +1,8 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
-import com.dipasquale.ai.rl.neat.common.RandomType;
+import com.dipasquale.ai.rl.neat.core.InitializationContext;
 import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
-import com.dipasquale.ai.rl.neat.core.RandomSupport;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomSupportFactory;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
@@ -13,54 +11,45 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
-
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class DefaultContextRandomSupport implements Context.RandomSupport {
-    private Map<RandomType, DualModeRandomSupport> randomSupports;
-    private DualModeRandomSupport randomSupport;
+    private DualModeRandomSupport generateIndexRandomSupport;
+    private DualModeRandomSupport isLessThanRandomSupport;
+    private DualModeRandomSupport generateItemRandomSupport;
 
-    private static Map<RandomType, DualModeRandomSupport> createRandomSupports(final ParallelismSupport parallelismSupport) {
-        DualModeRandomSupportFactory randomSupportFactory = DualModeRandomSupportFactory.getInstance();
-        int concurrencyLevel = parallelismSupport.getConcurrencyLevel();
-        Map<RandomType, DualModeRandomSupport> randomSupports = new EnumMap<>(RandomType.class);
+    public static DefaultContextRandomSupport create(final InitializationContext initializationContext) {
+        DualModeRandomSupport generateIndexRandomSupport = initializationContext.createDefaultRandomSupport();
+        DualModeRandomSupport isLessThanRandomSupport = initializationContext.createDefaultRandomSupport();
+        DualModeRandomSupport generateItemRandomSupport = initializationContext.createDefaultRandomSupport();
 
-        for (RandomType type : RandomType.values()) {
-            randomSupports.put(type, randomSupportFactory.create(concurrencyLevel, type));
-        }
-
-        return Collections.unmodifiableMap(randomSupports);
-    }
-
-    public static DefaultContextRandomSupport create(final ParallelismSupport parallelismSupport, final RandomSupport randomSupport) {
-        Map<RandomType, DualModeRandomSupport> randomSupports = createRandomSupports(parallelismSupport);
-
-        return new DefaultContextRandomSupport(randomSupports, randomSupports.get(randomSupport.getType()));
+        return new DefaultContextRandomSupport(generateIndexRandomSupport, isLessThanRandomSupport, generateItemRandomSupport);
     }
 
     @Override
     public int generateIndex(final int offset, final int count) {
-        return randomSupport.next(offset, count);
+        return generateIndexRandomSupport.next(offset, count);
     }
 
     @Override
     public boolean isLessThan(final float rate) {
-        return randomSupport.isLessThan(rate);
+        return isLessThanRandomSupport.isLessThan(rate);
     }
 
     @Override
     public <T> T generateItem(final OutputClassifier<T> outputClassifier) {
-        return outputClassifier.resolve(randomSupport.next());
+        return outputClassifier.resolve(generateItemRandomSupport.next());
     }
 
     public void save(final SerializableStateGroup stateGroup) {
-        stateGroup.put("random.randomSupport", randomSupport);
+        stateGroup.put("random.generateIndexRandomSupport", generateIndexRandomSupport);
+        stateGroup.put("random.isLessThanRandomSupport", isLessThanRandomSupport);
+        stateGroup.put("random.generateItemRandomSupport", generateItemRandomSupport);
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        randomSupport = DualModeObject.activateMode(stateGroup.get("random.randomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        generateIndexRandomSupport = DualModeObject.activateMode(stateGroup.get("random.generateIndexRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        isLessThanRandomSupport = DualModeObject.activateMode(stateGroup.get("random.isLessThanRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        generateItemRandomSupport = DualModeObject.activateMode(stateGroup.get("random.generateItemRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

@@ -62,10 +62,10 @@ public final class EvaluatorSettings {
             .build();
 
     Context createContext() {
-        DefaultContextRandomSupport randomFixed = random.create(parallelism);
-        InitializationContext initializationContext = new InitializationContext(NeatEnvironmentType.from(general.getFitnessFunction()), parallelism, randomFixed.getRandomSupports(), randomFixed.getRandomSupport());
+        InitializationContext initializationContext = new InitializationContext(NeatEnvironmentType.from(general.getFitnessFunction()), parallelism, random);
         DefaultContextGeneralSupport generalFixed = general.create(initializationContext);
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
+        DefaultContextRandomSupport randomFixed = random.create(initializationContext);
         DefaultContextNodeGeneSupport nodesFixed = nodes.create(initializationContext, general.getGenesisGenomeTemplate());
         DefaultContextConnectionGeneSupport connectionsFixed = connections.create(initializationContext, general.getGenesisGenomeTemplate());
         DefaultContextActivationSupport activationFixed = activation.create(initializationContext, general, connections);

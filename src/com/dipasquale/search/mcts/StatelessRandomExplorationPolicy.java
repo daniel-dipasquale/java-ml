@@ -11,19 +11,22 @@ final class StatelessRandomExplorationPolicy<T extends State> implements Explora
     private final RandomSupport randomSupport;
 
     @Override
-    public Node<T> next(final Node<T> node, final int simulations) {
-        List<Node<T>> childNodes = node.createAllPossibleChildNodes(randomSupport);
-        int size = childNodes.size();
+    public SearchNode<T> next(final int simulations, final SearchNode<T> searchNode) {
+        List<SearchNode<T>> childSearchNodes = searchNode.createAllPossibleChildNodes();
+
+        randomSupport.shuffle(childSearchNodes);
+
+        int size = childSearchNodes.size();
 
         if (size == 0) {
             return null;
         }
 
         int index = randomSupport.next(0, size);
-        Node<T> childNode = childNodes.get(index);
+        SearchNode<T> childSearchNode = childSearchNodes.get(index);
 
-        childNode.initializeEnvironment();
+        childSearchNode.initializeEnvironment();
 
-        return childNode;
+        return childSearchNode;
     }
 }

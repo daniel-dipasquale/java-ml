@@ -10,9 +10,9 @@ final class MultiBackPropagationPolicy<T extends State> implements BackPropagati
     private final List<BackPropagationPolicy<T>> backPropagationPolicies;
 
     @Override
-    public boolean process(final Node<T> node, final int statusId) {
+    public boolean process(final SearchNode<T> searchNode, final int statusId) {
         for (BackPropagationPolicy<T> backPropagationPolicy : backPropagationPolicies) {
-            if (!backPropagationPolicy.process(node, statusId)) {
+            if (!backPropagationPolicy.process(searchNode, statusId)) {
                 return false;
             }
         }

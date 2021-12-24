@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.common.sequence.LongSequentialId;
 import com.dipasquale.ai.common.sequence.StrategyLongSequentialId;
-import com.dipasquale.ai.rl.neat.common.Id;
+import com.dipasquale.ai.rl.neat.internal.Id;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

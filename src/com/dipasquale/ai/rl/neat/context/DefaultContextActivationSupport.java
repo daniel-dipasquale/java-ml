@@ -1,9 +1,6 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
-import com.dipasquale.ai.rl.neat.common.FitnessBucket;
-import com.dipasquale.ai.rl.neat.common.StandardNeatEnvironment;
-import com.dipasquale.ai.rl.neat.common.StandardSharedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.core.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.core.FitnessFunctionNotLoadedException;
 import com.dipasquale.ai.rl.neat.core.GeneralSupport;
@@ -14,6 +11,9 @@ import com.dipasquale.ai.rl.neat.core.NeatEnvironmentType;
 import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.core.SharedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.internal.FitnessBucket;
+import com.dipasquale.ai.rl.neat.internal.StandardNeatEnvironment;
+import com.dipasquale.ai.rl.neat.internal.StandardSharedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.DefaultRecurrentNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.FeedForwardNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
@@ -70,7 +70,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
 
     private static Map<String, FitnessBucket> createFitnessBuckets(final InitializationContext initializationContext, final GeneralSupport generalSupport) {
         int populationSize = generalSupport.getPopulationSize().getSingletonValue(initializationContext);
-        DualModeIdFactory genomeIdFactory = new DualModeIdFactory(initializationContext.getParallelism().getConcurrencyLevel(), "genome");
+        DualModeIdFactory genomeIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), "genome");
         FitnessDeterminerFactory fitnessDeterminerFactory = generalSupport.getFitnessDeterminerFactory();
         Map<String, FitnessBucket> fitnessBuckets = new HashMap<>();
 
@@ -84,13 +84,13 @@ public final class DefaultContextActivationSupport implements Context.Activation
     }
 
     public static DefaultContextActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport) {
-        DualModeMapFactory mapFactory = initializationContext.getParallelism().getMapFactory();
+        DualModeMapFactory mapFactory = initializationContext.getMapFactory();
         NeuralNetworkFactory neuralNetworkFactory = createNeuralNetworkFactory(initializationContext, connectionGeneSupport);
         DualModeGenomeActivatorPool genomeActivatorPool = new DualModeGenomeActivatorPool(mapFactory, neuralNetworkFactory);
         NeatEnvironment fitnessFunction = generalSupport.getFitnessFunction();
         Map<String, FitnessBucket> fitnessBuckets = createFitnessBuckets(initializationContext, generalSupport);
 
-        return switch (initializationContext.getNeatEnvironmentType()) {
+        return switch (initializationContext.getEnvironmentType()) {
             case ISOLATED -> new DefaultContextActivationSupport(genomeActivatorPool, NeatEnvironmentType.ISOLATED, (IsolatedNeatEnvironment) fitnessFunction, null, fitnessBuckets);
 
             case SHARED -> new DefaultContextActivationSupport(genomeActivatorPool, NeatEnvironmentType.SHARED, null, (SharedNeatEnvironment) fitnessFunction, fitnessBuckets);

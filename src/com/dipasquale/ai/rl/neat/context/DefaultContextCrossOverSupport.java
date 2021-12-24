@@ -17,7 +17,7 @@ public final class DefaultContextCrossOverSupport implements Context.CrossOverSu
     private DualModeIsLessThanRandomGateProvider shouldUseWeightFromRandomParentGateProvider;
 
     private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final InitializationContext initializationContext, final FloatNumber max) {
-        return new DualModeIsLessThanRandomGateProvider(initializationContext.getRandomSupport(), max.getSingletonValue(initializationContext));
+        return new DualModeIsLessThanRandomGateProvider(initializationContext.createDefaultRandomSupport(), max.getSingletonValue(initializationContext));
     }
 
     public static DefaultContextCrossOverSupport create(final InitializationContext initializationContext, final CrossOverSupport crossOverSupport) {

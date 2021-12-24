@@ -11,30 +11,30 @@ final class StatefulRandomExplorationPolicy<T extends State> implements Explorat
     private final RandomSupport randomSupport;
 
     @Override
-    public Node<T> next(final Node<T> node, final int simulations) {
-        List<Node<T>> exploredChildNodes = node.getExploredChildren();
-        int exploredSize = exploredChildNodes.size();
-        List<Node<T>> unexploredChildNodes = node.getUnexploredChildren();
-        int unexploredSize = unexploredChildNodes.size();
+    public SearchNode<T> next(final int simulations, final SearchNode<T> searchNode) {
+        List<SearchNode<T>> exploredChildSearchNodes = searchNode.getExploredChildren();
+        int exploredSize = exploredChildSearchNodes.size();
+        List<SearchNode<T>> unexploredChildSearchNodes = searchNode.getUnexploredChildren();
+        int unexploredSize = unexploredChildSearchNodes.size();
         float totalSize = (float) (exploredSize + unexploredSize);
 
         if (randomSupport.isLessThan((float) exploredSize / totalSize)) {
             int index = randomSupport.next(0, exploredSize);
 
-            Node<T> childNode = exploredChildNodes.get(index);
+            SearchNode<T> childSearchNode = exploredChildSearchNodes.get(index);
 
-            if (childNode.getEnvironment() == null) {
-                childNode.initializeEnvironment();
+            if (childSearchNode.getEnvironment() == null) {
+                childSearchNode.initializeEnvironment();
             }
 
-            return childNode;
+            return childSearchNode;
         }
 
-        Node<T> childNode = unexploredChildNodes.remove(unexploredSize - 1);
+        SearchNode<T> childSearchNode = unexploredChildSearchNodes.remove(unexploredSize - 1);
 
-        exploredChildNodes.add(childNode);
-        childNode.initializeEnvironment();
+        exploredChildSearchNodes.add(childSearchNode);
+        childSearchNode.initializeEnvironment();
 
-        return childNode;
+        return childSearchNode;
     }
 }

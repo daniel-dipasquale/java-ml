@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.common;
+package com.dipasquale.ai.rl.neat.internal;
 
 import com.dipasquale.ai.common.sequence.StrategyLongSequentialId;
 import lombok.EqualsAndHashCode;

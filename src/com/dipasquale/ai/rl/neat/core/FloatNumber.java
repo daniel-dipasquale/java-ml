@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeBoundedRandomFloatFactory;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.factory.LiteralFloatFactory;
@@ -22,13 +21,13 @@ public final class FloatNumber {
     }
 
     public static FloatNumber literal(final float value) {
-        DualModeFactoryCreator factoryCreator = ic -> createFactory(new DualModeFloatFactory(ic.getParallelism().getConcurrencyLevel(), new LiteralFloatFactory(value)));
+        DualModeFactoryCreator factoryCreator = ic -> createFactory(new DualModeFloatFactory(ic.getConcurrencyLevel(), new LiteralFloatFactory(value)));
 
         return new FloatNumber(factoryCreator);
     }
 
     public static FloatNumber random(final RandomType type, final float min, final float max) {
-        DualModeFactoryCreator factoryCreator = ic -> createFactory(new DualModeBoundedRandomFloatFactory(ic.getRandomSupports().get(type), min, max));
+        DualModeFactoryCreator factoryCreator = ic -> createFactory(new DualModeBoundedRandomFloatFactory(ic.createRandomSupport(type), min, max));
 
         return new FloatNumber(factoryCreator);
     }

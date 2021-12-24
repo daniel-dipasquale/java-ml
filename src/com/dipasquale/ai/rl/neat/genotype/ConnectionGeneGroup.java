@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.sequence.OrderedGroup;
-import com.dipasquale.ai.rl.neat.common.Id;
+import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;

@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomEnumFactory;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.LiteralEnumFactory;
@@ -23,24 +22,24 @@ public final class EnumValue<T extends Enum<T>> {
     }
 
     public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
-        DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeEnumFactory<>(ic.getParallelism().getConcurrencyLevel(), new LiteralEnumFactory<>(value)));
+        DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeEnumFactory<>(ic.getConcurrencyLevel(), new LiteralEnumFactory<>(value)));
 
         return new EnumValue<>(factoryCreator);
     }
 
-    private static <T extends Enum<T>> EnumValue<T> createRandom(final RandomType type, final T[] values) {
-        DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeRandomEnumFactory<>(ic.getRandomSupports().get(type), Lists.create(values)));
+    private static <T extends Enum<T>> EnumValue<T> createRandom(final T[] values) {
+        DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeRandomEnumFactory<>(ic.createRandomSupport(RandomType.UNIFORM), Lists.create(values)));
 
         return new EnumValue<>(factoryCreator);
     }
 
     public static <T extends Enum<T>> EnumValue<T> randomAll(final Class<T> type) {
-        return createRandom(RandomType.UNIFORM, type.getEnumConstants());
+        return createRandom(type.getEnumConstants());
     }
 
     @SafeVarargs
     public static <T extends Enum<T>> EnumValue<T> random(final T... values) {
-        return createRandom(RandomType.UNIFORM, values);
+        return createRandom(values);
     }
 
     public DualModeFactory<T> createFactory(final InitializationContext initializationContext) {

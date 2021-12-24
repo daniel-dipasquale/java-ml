@@ -3,7 +3,6 @@ package com.dipasquale.ai.rl.neat.context;
 import com.dipasquale.ai.common.function.activation.ActivationFunction;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
-import com.dipasquale.ai.rl.neat.common.Id;
 import com.dipasquale.ai.rl.neat.core.EnumValue;
 import com.dipasquale.ai.rl.neat.core.FloatNumber;
 import com.dipasquale.ai.rl.neat.core.GenesisGenomeTemplate;
@@ -13,6 +12,7 @@ import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeActivationFunctionFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutputActivationFunctionFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeStrategyActivationFunctionFactory;
@@ -58,14 +58,14 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         if (biases.isEmpty()) {
             IllegalStateFloatFactory floatFactory = new IllegalStateFloatFactory("there are no biases allowed in this genome");
 
-            return FloatNumber.createFactory(new DualModeFloatFactory(initializationContext.getParallelism().getConcurrencyLevel(), floatFactory));
+            return FloatNumber.createFactory(new DualModeFloatFactory(initializationContext.getConcurrencyLevel(), floatFactory));
         }
 
         List<FloatNumber.DualModeFactory> biasNodeBiasFactories = biases.stream()
                 .map(sfn -> sfn.createFactory(initializationContext))
                 .collect(Collectors.toList());
 
-        return FloatNumber.createFactory(new DualModeCyclicFloatFactory<>(initializationContext.getParallelism().getConcurrencyLevel(), biasNodeBiasFactories));
+        return FloatNumber.createFactory(new DualModeCyclicFloatFactory<>(initializationContext.getConcurrencyLevel(), biasNodeBiasFactories));
     }
 
     private static Map<NodeGeneType, FloatNumber.DualModeFactory> createBiasFactories(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final NodeGeneSupport nodeGeneSupport) {
@@ -80,20 +80,20 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
     }
 
     private static DualModeStrategyActivationFunctionFactory<DualModeActivationFunctionFactory<EnumValue.DualModeFactory<ActivationFunctionType>>> createActivationFunctionFactory(final InitializationContext initializationContext, final EnumValue.DualModeFactory<ActivationFunctionType> activationFunctionTypeFactory) {
-        DualModeActivationFunctionFactory<EnumValue.DualModeFactory<ActivationFunctionType>> activationFunctionFactory = new DualModeActivationFunctionFactory<>(initializationContext.getRandomSupport(), activationFunctionTypeFactory);
+        DualModeActivationFunctionFactory<EnumValue.DualModeFactory<ActivationFunctionType>> activationFunctionFactory = new DualModeActivationFunctionFactory<>(initializationContext.createDefaultRandomSupport(), activationFunctionTypeFactory);
 
         return new DualModeStrategyActivationFunctionFactory<>(activationFunctionFactory);
     }
 
     private static DualModeStrategyActivationFunctionFactory<DualModeOutputActivationFunctionFactory<EnumValue.DualModeFactory<OutputActivationFunctionType>, EnumValue.DualModeFactory<ActivationFunctionType>>> createActivationFunctionFactory(final InitializationContext initializationContext, final EnumValue.DualModeFactory<OutputActivationFunctionType> outputActivationFunctionTypeFactory, final EnumValue.DualModeFactory<ActivationFunctionType> hiddenActivationFunctionTypeFactory) {
-        DualModeOutputActivationFunctionFactory<EnumValue.DualModeFactory<OutputActivationFunctionType>, EnumValue.DualModeFactory<ActivationFunctionType>> activationFunctionFactory = new DualModeOutputActivationFunctionFactory<>(initializationContext.getRandomSupport(), outputActivationFunctionTypeFactory, hiddenActivationFunctionTypeFactory);
+        DualModeOutputActivationFunctionFactory<EnumValue.DualModeFactory<OutputActivationFunctionType>, EnumValue.DualModeFactory<ActivationFunctionType>> activationFunctionFactory = new DualModeOutputActivationFunctionFactory<>(initializationContext.createDefaultRandomSupport(), outputActivationFunctionTypeFactory, hiddenActivationFunctionTypeFactory);
 
         return new DualModeStrategyActivationFunctionFactory<>(activationFunctionFactory);
     }
 
     private static DualModeStrategyActivationFunctionFactory<DualModeActivationFunctionFactory<EnumValue.DualModeFactory<ActivationFunctionType>>> createActivationFunctionFactory(final InitializationContext initializationContext, final ActivationFunctionType activationFunctionType) {
         EnumValue.DualModeFactory<ActivationFunctionType> activationFunctionTypeFactory = EnumValue.literal(activationFunctionType).createFactory(initializationContext);
-        DualModeActivationFunctionFactory<EnumValue.DualModeFactory<ActivationFunctionType>> activationFunctionFactory = new DualModeActivationFunctionFactory<>(initializationContext.getRandomSupport(), activationFunctionTypeFactory);
+        DualModeActivationFunctionFactory<EnumValue.DualModeFactory<ActivationFunctionType>> activationFunctionFactory = new DualModeActivationFunctionFactory<>(initializationContext.createDefaultRandomSupport(), activationFunctionTypeFactory);
 
         return new DualModeStrategyActivationFunctionFactory<>(activationFunctionFactory);
     }
@@ -113,7 +113,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
     }
 
     public static DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final NodeGeneSupport nodeGeneSupport) {
-        DualModeNodeGeneIdFactory nodeIdFactory = new DualModeNodeGeneIdFactory(initializationContext.getParallelism().getConcurrencyLevel());
+        DualModeNodeGeneIdFactory nodeIdFactory = new DualModeNodeGeneIdFactory(initializationContext.getConcurrencyLevel());
         Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories = createBiasFactories(initializationContext, genesisGenomeTemplate, nodeGeneSupport);
         Map<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>> activationFunctionFactories = createActivationFunctionFactories(initializationContext, nodeGeneSupport);
         int inputs = genesisGenomeTemplate.getInputs().getSingletonValue(initializationContext);

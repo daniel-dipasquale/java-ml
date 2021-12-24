@@ -83,11 +83,11 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         OutputClassifier<ReproductionType> generalReproductionTypeClassifier = createGeneralReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
         OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier = createLessThan2ReproductionTypeClassifier(_mutateOnlyRate);
 
-        return new DualModeReproductionTypeFactory(initializationContext.getRandomSupport(), generalReproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
+        return new DualModeReproductionTypeFactory(initializationContext.createDefaultRandomSupport(), generalReproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
     }
 
     private static DualModeFitnessCalculationStrategy createFitnessCalculationStrategy(final InitializationContext initializationContext) {
-        return switch (initializationContext.getNeatEnvironmentType()) {
+        return switch (initializationContext.getEnvironmentType()) {
             case ISOLATED -> {
                 List<FitnessCalculationStrategy> concurrentStrategies = List.of(
                         new ConcurrentOrganismFitnessCalculationStrategy(),
@@ -97,7 +97,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
                 FitnessCalculationStrategy concurrentStrategy = new MultiFitnessCalculationStrategy(concurrentStrategies);
                 FitnessCalculationStrategy defaultStrategy = new AllFitnessCalculationStrategy();
 
-                yield new DualModeFitnessCalculationStrategy(initializationContext.getParallelism().getConcurrencyLevel(), concurrentStrategy, defaultStrategy);
+                yield new DualModeFitnessCalculationStrategy(initializationContext.getConcurrencyLevel(), concurrentStrategy, defaultStrategy);
             }
 
             case SHARED -> {
@@ -108,7 +108,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
 
                 FitnessCalculationStrategy strategy = new MultiFitnessCalculationStrategy(strategies);
 
-                yield new DualModeFitnessCalculationStrategy(initializationContext.getParallelism().getConcurrencyLevel(), strategy, strategy);
+                yield new DualModeFitnessCalculationStrategy(initializationContext.getConcurrencyLevel(), strategy, strategy);
             }
         };
     }
@@ -147,8 +147,8 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingletonValue(initializationContext);
         float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingletonValue(initializationContext);
         float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingletonValue(initializationContext);
-        DualModeIdFactory speciesIdFactory = new DualModeIdFactory(initializationContext.getParallelism().getConcurrencyLevel(), "species");
-        DualModeGenomePool genomePool = new DualModeGenomePool(initializationContext.getParallelism().getDequeFactory());
+        DualModeIdFactory speciesIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), "species");
+        DualModeGenomePool genomePool = new DualModeGenomePool(initializationContext.getDequeFactory());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         DualModeReproductionTypeFactory reproductionTypeFactory = createReproductionTypeFactory(initializationContext, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate());
         DualModeFitnessCalculationStrategy fitnessCalculationStrategy = createFitnessCalculationStrategy(initializationContext);

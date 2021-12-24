@@ -2,7 +2,12 @@ package com.dipasquale.common.random.float2;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
 
-public final class DeterministicRandomSupport implements RandomSupport {
+import java.io.Serial;
+import java.io.Serializable;
+
+public final class DeterministicRandomSupport implements RandomSupport, Serializable {
+    @Serial
+    private static final long serialVersionUID = -5482523579406345116L;
     private static final double MAX_VALUE_LESS_THAN_ONE = Double.longBitsToDouble(Double.doubleToRawLongBits(1D) - 1L);
     private long index;
     private final double size;

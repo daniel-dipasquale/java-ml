@@ -2,13 +2,13 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.context.DefaultContextMetricSupport;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.EnumSet;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 public final class MetricSupport {

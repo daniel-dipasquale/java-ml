@@ -1,7 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;

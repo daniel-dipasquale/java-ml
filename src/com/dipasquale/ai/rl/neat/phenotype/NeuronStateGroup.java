@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.rl.neat.common.Id;
+import com.dipasquale.ai.rl.neat.internal.Id;
 
 interface NeuronStateGroup {
     float getValue(Id id);

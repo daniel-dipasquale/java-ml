@@ -7,6 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 final class SimulationResult<T extends State> {
-    private final Node<T> node;
+    private final SearchNode<T> searchNode;
     private final int statusId;
 }

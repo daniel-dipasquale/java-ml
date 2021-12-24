@@ -10,12 +10,12 @@ final class MultiExplorationPolicy<T extends State> implements ExplorationPolicy
     private final List<ExplorationPolicy<T>> explorationPolicies;
 
     @Override
-    public Node<T> next(final Node<T> node, final int simulations) {
+    public SearchNode<T> next(final int simulations, final SearchNode<T> searchNode) {
         for (ExplorationPolicy<T> explorationPolicy : explorationPolicies) {
-            Node<T> nextNode = explorationPolicy.next(node, simulations);
+            SearchNode<T> nextSearchNode = explorationPolicy.next(simulations, searchNode);
 
-            if (nextNode != null) {
-                return nextNode;
+            if (nextSearchNode != null) {
+                return nextSearchNode;
             }
         }
 

@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
 import com.dipasquale.ai.common.sequence.LongSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.StrategyLongSequentialIdFactory;
-import com.dipasquale.ai.rl.neat.common.Id;
+import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeLongCounter;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;

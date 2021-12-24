@@ -1,11 +1,11 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
-import com.dipasquale.ai.rl.neat.common.WeightMutationType;
 import com.dipasquale.ai.rl.neat.core.FloatNumber;
 import com.dipasquale.ai.rl.neat.core.InitializationContext;
 import com.dipasquale.ai.rl.neat.core.MutationSupport;
 import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.core.WeightMutationType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutputClassifierFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomFloatFactory;
 import com.dipasquale.io.serialization.SerializableStateGroup;
@@ -23,7 +23,7 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
     private DualModeIsLessThanRandomGateProvider shouldDisableExpressedConnectionGateProvider;
 
     private static DualModeIsLessThanRandomGateProvider createIsLessThanGateProvider(final InitializationContext initializationContext, final FloatNumber max) {
-        return new DualModeIsLessThanRandomGateProvider(initializationContext.getRandomSupport(), max.getSingletonValue(initializationContext));
+        return new DualModeIsLessThanRandomGateProvider(initializationContext.createDefaultRandomSupport(), max.getSingletonValue(initializationContext));
     }
 
     private static DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> createWeightMutationTypeFactory(final InitializationContext initializationContext, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate) {
@@ -39,7 +39,7 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
 
         weightMutationTypeClassifier.addRemainingRangeFor(WeightMutationType.NONE);
 
-        return new DualModeOutputClassifierFactory<>(new DualModeRandomFloatFactory(initializationContext.getRandomSupport()), weightMutationTypeClassifier);
+        return new DualModeOutputClassifierFactory<>(new DualModeRandomFloatFactory(initializationContext.createDefaultRandomSupport()), weightMutationTypeClassifier);
     }
 
     public static DefaultContextMutationSupport create(final InitializationContext initializationContext, final MutationSupport mutationSupport) {

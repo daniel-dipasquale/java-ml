@@ -36,7 +36,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
     }
 
     private static DualModeIsLessThanRandomGateProvider createIsLessThanRandomGateProvider(final InitializationContext initializationContext, final FloatNumber max) {
-        return new DualModeIsLessThanRandomGateProvider(initializationContext.getRandomSupport(), max.getSingletonValue(initializationContext));
+        return new DualModeIsLessThanRandomGateProvider(initializationContext.createDefaultRandomSupport(), max.getSingletonValue(initializationContext));
     }
 
     public static DefaultContextConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
@@ -45,7 +45,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
         DualModeIsLessThanRandomGateProvider shouldAllowRecurrentGateProvider = createIsLessThanRandomGateProvider(initializationContext, connectionGeneSupport.getRecurrentAllowanceRate());
         DualModeIsLessThanRandomGateProvider shouldAllowMultiCycleGateProvider = createIsLessThanRandomGateProvider(initializationContext, connectionGeneSupport.getMultiCycleAllowanceRate());
         GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(initializationContext, weightFactory);
-        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(initializationContext.getParallelism().getMapFactory());
+        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(initializationContext.getMapFactory());
 
         return new DefaultContextConnectionGeneSupport(weightFactory, weightPerturber, shouldAllowRecurrentGateProvider, shouldAllowMultiCycleGateProvider, genesisGenomeConnector, historicalMarkings);
     }

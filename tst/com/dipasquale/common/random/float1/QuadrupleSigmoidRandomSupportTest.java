@@ -12,7 +12,7 @@ public final class QuadrupleSigmoidRandomSupportTest {
 
     private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float min, final float max) {
         Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, min, max));
-        Assertions.assertTrue(RandomSupportTestSupport.isNextIntegerEvenlyDistributed(randomSupport, ITERATIONS, 0, 10, List.of(0.03f)));
+        Assertions.assertTrue(RandomSupportTestSupport.isNextIntegerEvenlyDistributed(randomSupport, ITERATIONS, 0, 10, List.of(0.05f)));
     }
 
     @Test

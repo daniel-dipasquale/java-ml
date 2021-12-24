@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
-import com.dipasquale.ai.rl.neat.common.WeightMutationType;
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.WeightMutationType;
 import com.dipasquale.common.Pair;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

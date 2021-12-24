@@ -1,7 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
-import com.dipasquale.ai.rl.neat.common.RandomType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
@@ -21,8 +20,8 @@ import java.util.Set;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
-    private static final double TIME_SPENT_GOAL = 60D;
     private static final RandomSupport RANDOM_SUPPORT = new ThreadLocalUniformRandomSupport();
+    private static final double TIME_SPENT_GOAL = 15D;
     private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
     private final String name = "Single Pole Cart Balance";
