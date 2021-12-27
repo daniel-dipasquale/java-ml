@@ -14,12 +14,12 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.internal.FitnessBucket;
 import com.dipasquale.ai.rl.neat.internal.StandardIsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.internal.StandardSharedNeatEnvironment;
-import com.dipasquale.ai.rl.neat.phenotype.RecurrentNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.FeedForwardNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.GruNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.LstmNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
+import com.dipasquale.ai.rl.neat.phenotype.RecurrentNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
@@ -28,12 +28,15 @@ import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DefaultContextActivationSupport implements Context.ActivationSupport {
     private DualModeGenomeActivatorPool genomeActivatorPool;
     private NeatEnvironmentType neatEnvironmentType;
@@ -43,14 +46,12 @@ public final class DefaultContextActivationSupport implements Context.Activation
     private StandardIsolatedNeatEnvironment standardIsolatedNeatEnvironment;
     private StandardSharedNeatEnvironment standardSharedNeatEnvironment;
 
-    private DefaultContextActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final NeatEnvironmentType neatEnvironmentType, final IsolatedNeatEnvironment isolatedNeatEnvironment, final SharedNeatEnvironment sharedNeatEnvironment, final Map<String, FitnessBucket> fitnessBuckets) {
-        this.genomeActivatorPool = genomeActivatorPool;
-        this.neatEnvironmentType = neatEnvironmentType;
-        this.isolatedNeatEnvironment = isolatedNeatEnvironment;
-        this.sharedNeatEnvironment = sharedNeatEnvironment;
-        this.fitnessBuckets = fitnessBuckets;
-        this.standardIsolatedNeatEnvironment = new StandardIsolatedNeatEnvironment(isolatedNeatEnvironment, fitnessBuckets);
-        this.standardSharedNeatEnvironment = new StandardSharedNeatEnvironment(sharedNeatEnvironment, fitnessBuckets);
+    private DefaultContextActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final IsolatedNeatEnvironment isolatedNeatEnvironment, final Map<String, FitnessBucket> fitnessBuckets) {
+        this(genomeActivatorPool, NeatEnvironmentType.ISOLATED, isolatedNeatEnvironment, null, fitnessBuckets, new StandardIsolatedNeatEnvironment(isolatedNeatEnvironment, fitnessBuckets), null);
+    }
+
+    private DefaultContextActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final SharedNeatEnvironment sharedNeatEnvironment, final Map<String, FitnessBucket> fitnessBuckets) {
+        this(genomeActivatorPool, NeatEnvironmentType.SHARED, null, sharedNeatEnvironment, fitnessBuckets, null, new StandardSharedNeatEnvironment(sharedNeatEnvironment, fitnessBuckets));
     }
 
     private static NeuralNetworkFactory createNeuralNetworkFactory(final InitializationContext initializationContext, final ConnectionGeneSupport connectionGeneSupport) {
@@ -61,7 +62,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
         }
 
         return switch (connectionGeneSupport.getRecurrentStateType()) {
-            case DEFAULT -> new RecurrentNeuralNetworkFactory();
+            case VANILLA -> new RecurrentNeuralNetworkFactory();
 
             case LSTM -> new LstmNeuralNetworkFactory();
 
@@ -77,8 +78,9 @@ public final class DefaultContextActivationSupport implements Context.Activation
 
         for (int i = 0; i < populationSize; i++) {
             String genomeId = genomeIdFactory.create().toString();
+            FitnessBucket fitnessBucket = new FitnessBucket(fitnessDeterminerFactory.create());
 
-            fitnessBuckets.put(genomeId, new FitnessBucket(fitnessDeterminerFactory.create()));
+            fitnessBuckets.put(genomeId, fitnessBucket);
         }
 
         return Collections.unmodifiableMap(fitnessBuckets);
@@ -92,9 +94,9 @@ public final class DefaultContextActivationSupport implements Context.Activation
         Map<String, FitnessBucket> fitnessBuckets = createFitnessBuckets(initializationContext, generalSupport);
 
         return switch (initializationContext.getEnvironmentType()) {
-            case ISOLATED -> new DefaultContextActivationSupport(genomeActivatorPool, NeatEnvironmentType.ISOLATED, (IsolatedNeatEnvironment) fitnessFunction, null, fitnessBuckets);
+            case ISOLATED -> new DefaultContextActivationSupport(genomeActivatorPool, (IsolatedNeatEnvironment) fitnessFunction, fitnessBuckets);
 
-            case SHARED -> new DefaultContextActivationSupport(genomeActivatorPool, NeatEnvironmentType.SHARED, null, (SharedNeatEnvironment) fitnessFunction, fitnessBuckets);
+            case SHARED -> new DefaultContextActivationSupport(genomeActivatorPool, (SharedNeatEnvironment) fitnessFunction, fitnessBuckets);
         };
     }
 
@@ -125,7 +127,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
         stateGroup.put("activation.fitnessBuckets", fitnessBuckets);
     }
 
-    private static IsolatedNeatEnvironment loadNeatEnvironment(final Object neatEnvironment, final NeatEnvironment fitnessFunctionOverride, final NeatEnvironmentType neatEnvironmentType) {
+    private static IsolatedNeatEnvironment loadIsolatedNeatEnvironment(final Object neatEnvironment, final NeatEnvironment fitnessFunctionOverride, final NeatEnvironmentType neatEnvironmentType) {
         if (fitnessFunctionOverride instanceof IsolatedNeatEnvironment isolatedNeatEnvironmentOverride) {
             if (neatEnvironmentType == NeatEnvironmentType.ISOLATED) {
                 return isolatedNeatEnvironmentOverride;
@@ -165,13 +167,29 @@ public final class DefaultContextActivationSupport implements Context.Activation
         return null;
     }
 
+    private static StandardIsolatedNeatEnvironment ensureStandardIsolatedNeatEnvironment(final IsolatedNeatEnvironment isolatedNeatEnvironment, final Map<String, FitnessBucket> fitnessBuckets) {
+        if (isolatedNeatEnvironment == null) {
+            return null;
+        }
+
+        return new StandardIsolatedNeatEnvironment(isolatedNeatEnvironment, fitnessBuckets);
+    }
+
+    private static StandardSharedNeatEnvironment ensureStandardSharedNeatEnvironment(final SharedNeatEnvironment sharedNeatEnvironment, final Map<String, FitnessBucket> fitnessBuckets) {
+        if (sharedNeatEnvironment == null) {
+            return null;
+        }
+
+        return new StandardSharedNeatEnvironment(sharedNeatEnvironment, fitnessBuckets);
+    }
+
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop, final NeatEnvironment fitnessFunctionOverride) {
         genomeActivatorPool = DualModeObject.activateMode(stateGroup.get("activation.genomeActivatorPool"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         neatEnvironmentType = stateGroup.get("activation.neatEnvironmentType");
-        isolatedNeatEnvironment = loadNeatEnvironment(stateGroup.get("activation.isolatedNeatEnvironment"), fitnessFunctionOverride, neatEnvironmentType);
+        isolatedNeatEnvironment = loadIsolatedNeatEnvironment(stateGroup.get("activation.isolatedNeatEnvironment"), fitnessFunctionOverride, neatEnvironmentType);
         sharedNeatEnvironment = loadSharedNeatEnvironment(stateGroup.get("activation.sharedNeatEnvironment"), fitnessFunctionOverride, neatEnvironmentType);
         fitnessBuckets = stateGroup.get("activation.fitnessBuckets");
-        standardIsolatedNeatEnvironment = new StandardIsolatedNeatEnvironment(isolatedNeatEnvironment, fitnessBuckets);
-        standardSharedNeatEnvironment = new StandardSharedNeatEnvironment(sharedNeatEnvironment, fitnessBuckets);
+        standardIsolatedNeatEnvironment = ensureStandardIsolatedNeatEnvironment(isolatedNeatEnvironment, fitnessBuckets);
+        standardSharedNeatEnvironment = ensureStandardSharedNeatEnvironment(sharedNeatEnvironment, fitnessBuckets);
     }
 }

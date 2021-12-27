@@ -16,13 +16,20 @@ public final class FitnessBucket implements Serializable {
     private final FitnessDeterminer fitnessDeterminer;
 
     private void ensureProperState(final GenomeActivator genomeActivator) {
-        if (iteration == genomeActivator.getIteration() && generation == genomeActivator.getGeneration()) {
-            return;
-        }
+        int currentIteration = genomeActivator.getIteration();
+        int currentGeneration = genomeActivator.getGeneration();
 
-        iteration = genomeActivator.getIteration();
-        generation = genomeActivator.getGeneration();
-        fitnessDeterminer.clear();
+        if (iteration != currentIteration || generation != currentGeneration) {
+            iteration = currentIteration;
+            generation = currentGeneration;
+            fitnessDeterminer.clear();
+        }
+    }
+
+    public float get(final GenomeActivator genomeActivator) {
+        ensureProperState(genomeActivator);
+
+        return fitnessDeterminer.get();
     }
 
     private static float normalize(final float fitness) {
@@ -37,7 +44,7 @@ public final class FitnessBucket implements Serializable {
         return Math.max(fitness, 0f);
     }
 
-    public float addFitness(final GenomeActivator genomeActivator, final float fitness) {
+    public float incorporate(final GenomeActivator genomeActivator, final float fitness) {
         ensureProperState(genomeActivator);
         fitnessDeterminer.add(normalize(fitness));
 

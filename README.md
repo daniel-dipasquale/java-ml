@@ -104,7 +104,7 @@ algorithms I'm interested in learning and using:
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
-                        .recurrentStateType(RecurrentStateType.DEFAULT)
+                        .recurrentStateType(RecurrentStateType.VANILLA)
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .mutation(MutationSupport.builder()

@@ -17,6 +17,6 @@ public final class StandardIsolatedNeatEnvironment implements FitnessFunction<Ge
         FitnessBucket fitnessBucket = fitnessBuckets.get(genomeActivator.getGenome().getId());
         float fitness = isolatedNeatEnvironment.test(genomeActivator);
 
-        return fitnessBucket.addFitness(genomeActivator, fitness);
+        return fitnessBucket.incorporate(genomeActivator, fitness);
     }
 }

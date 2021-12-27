@@ -17,7 +17,7 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber recurrentAllowanceRate = FloatNumber.literal(0.2f);
     @Builder.Default
-    private final RecurrentStateType recurrentStateType = RecurrentStateType.DEFAULT;
+    private final RecurrentStateType recurrentStateType = RecurrentStateType.VANILLA;
     @Builder.Default
     private final FloatNumber multiCycleAllowanceRate = FloatNumber.literal(0.0f);
 

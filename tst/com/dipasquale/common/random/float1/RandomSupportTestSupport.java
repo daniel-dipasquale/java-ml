@@ -32,26 +32,28 @@ final class RandomSupportTestSupport {
             distribution.computeIfAbsent(result, k -> new AtomicInteger()).incrementAndGet();
         }
 
-        if (distribution.size() > max) {
+        if (distribution.size() > max - min) {
             return false;
         }
 
-        for (int i = 0, c = max / 2; i < c; i++) { // TODO: not checking if the ratios are increase towards the mean
-            float number1 = (float) Optional.ofNullable(distribution.get(i))
+        int marginOfErrorsSize = marginOfErrors.size();
+
+        for (int i = 0, c = max / 2; i < c; i++) {
+            int number1 = Optional.ofNullable(distribution.get(i))
                     .map(AtomicInteger::get)
                     .orElse(1);
 
-            float number2 = (float) Optional.ofNullable(distribution.get(max - 1 - i))
+            int number2 = Optional.ofNullable(distribution.get(max - 1 - i))
                     .map(AtomicInteger::get)
                     .orElse(1);
 
-            float ratio = number1 / number2;
+            float rate = (float) number1 / (float) number2;
 
-            float marginOfError = i < marginOfErrors.size()
+            float marginOfError = i < marginOfErrorsSize
                     ? marginOfErrors.get(i)
-                    : marginOfErrors.get(marginOfErrors.size() - 1);
+                    : marginOfErrors.get(marginOfErrorsSize - 1);
 
-            if (Float.compare(ratio, 1f - marginOfError) < 0 || Float.compare(ratio, 1f + marginOfError) > 0) {
+            if (Float.compare(rate, 1f - marginOfError) < 0 || Float.compare(rate, 1f + marginOfError) > 0) {
                 return false;
             }
         }
