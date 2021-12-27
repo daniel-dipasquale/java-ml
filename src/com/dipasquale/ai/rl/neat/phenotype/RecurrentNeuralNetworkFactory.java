@@ -7,10 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class DefaultRecurrentNeuralNetworkFactory implements NeuralNetworkFactory, Serializable {
+public final class RecurrentNeuralNetworkFactory implements NeuralNetworkFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -7222558913199103708L;
-    private static final NeuronStateGroupFactory NEURON_STATE_FACTORY = (NeuronStateGroupFactory & Serializable) DefaultRecurrentNeuronStateGroup::new;
+    private static final NeuronStateGroupFactory NEURON_STATE_FACTORY = (NeuronStateGroupFactory & Serializable) RecurrentNeuronStateGroup::new;
 
     @Override
     public NeuralNetwork create(final Genome genome) {

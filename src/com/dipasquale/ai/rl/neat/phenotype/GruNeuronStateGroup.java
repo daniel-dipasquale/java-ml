@@ -7,7 +7,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class GruNeuronStateGroup extends RecurrentNeuronStateGroup {
+final class GruNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
     private static final String HIDDEN_DIMENSION = "GRU_H";
     private static final SigmoidActivationFunction SIGMOID_ACTIVATION_FUNCTION = SigmoidActivationFunction.getInstance();
     private static final TanHActivationFunction TAN_H_ACTIVATION_FUNCTION = TanHActivationFunction.getInstance();

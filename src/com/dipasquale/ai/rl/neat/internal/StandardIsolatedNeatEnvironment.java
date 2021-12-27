@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public final class StandardNeatEnvironment implements FitnessFunction<GenomeActivator> {
+public final class StandardIsolatedNeatEnvironment implements FitnessFunction<GenomeActivator> {
     private final IsolatedNeatEnvironment isolatedNeatEnvironment;
     private final Map<String, FitnessBucket> fitnessBuckets;
 

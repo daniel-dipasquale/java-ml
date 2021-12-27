@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class LstmNeuronStateGroup extends RecurrentNeuronStateGroup {
+final class LstmNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
     private static final String HIDDEN_DIMENSION = "LSTM_H";
     private static final String CELL_DIMENSION = "LSTM_C";
     private static final SigmoidActivationFunction SIGMOID_ACTIVATION_FUNCTION = SigmoidActivationFunction.getInstance();
