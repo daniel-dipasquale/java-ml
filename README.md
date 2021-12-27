@@ -173,8 +173,12 @@ algorithms I'm interested in learning and using:
                         })
                         .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
                         .build())
+                .nodes(NodeGeneSupport.builder()
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .build())
                 .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.75f))
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.5f))
                         .build())
                 .build());
    ```

@@ -9,19 +9,22 @@ import java.io.Serializable;
 public final class DelegatedTrainingPolicy implements NeatTrainingPolicy, Serializable {
     @Serial
     private static final long serialVersionUID = -8584467764466409799L;
-    private int iterationTested = 0;
-    private int generationTested = 0;
+    private int lastIterationTested = 0;
+    private int lastGenerationTested = 0;
     private NeatTrainingResult previousTestResult = null;
     private final NeatTrainingHandler handler;
 
     @Override
     public NeatTrainingResult test(final NeatActivator activator) {
-        if (iterationTested >= activator.getState().getIteration() && generationTested >= activator.getState().getGeneration()) {
+        int iteration = activator.getState().getIteration();
+        int generation = activator.getState().getGeneration();
+
+        if (lastIterationTested >= iteration && lastGenerationTested >= generation) {
             return previousTestResult;
         }
 
-        iterationTested = activator.getState().getIteration();
-        generationTested = activator.getState().getGeneration();
+        lastIterationTested = iteration;
+        lastGenerationTested = generation;
 
         if (handler.test(activator)) {
             return previousTestResult = NeatTrainingResult.WORKING_SOLUTION_FOUND;
@@ -32,8 +35,8 @@ public final class DelegatedTrainingPolicy implements NeatTrainingPolicy, Serial
 
     @Override
     public void reset() {
-        iterationTested = 0;
-        generationTested = 0;
+        lastIterationTested = 0;
+        lastGenerationTested = 0;
         previousTestResult = null;
     }
 

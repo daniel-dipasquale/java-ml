@@ -1,9 +1,12 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
+import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
+import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.openai.gym.client.GymClient;
 import com.dipasquale.simulation.openai.gym.client.StepResult;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
@@ -94,8 +97,12 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
                         .build())
+                .nodes(NodeGeneSupport.builder()
+                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .build())
                 .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.75f))
+                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.5f))
                         .build())
                 .metrics(MetricSupport.builder()
                         .type(metricsEmissionEnabled
@@ -112,6 +119,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                         .maximumGeneration(500)
                         .maximumRestartCount(4)
                         .build())
+                .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
                 .add(new DelegatedTrainingPolicy(this::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
                         .fitnessTestCount(SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST)

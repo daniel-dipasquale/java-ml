@@ -27,7 +27,7 @@ public final class SupervisorTrainingPolicy implements NeatTrainingPolicy, Seria
             return NeatTrainingResult.STOP_TRAINING;
         }
 
-        if (activator.getState().getGeneration() >= maximumGeneration) {
+        if (activator.getState().getGeneration() > maximumGeneration) {
             return NeatTrainingResult.RESTART;
         }
 
