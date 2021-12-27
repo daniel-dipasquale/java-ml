@@ -25,7 +25,8 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSe
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategyExecutor;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGenomePool;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeFitnessCalculationStrategy;
 import com.dipasquale.common.factory.ObjectIndexer;
 import com.dipasquale.io.serialization.SerializableStateGroup;
@@ -147,7 +148,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingletonValue(initializationContext);
         float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingletonValue(initializationContext);
         float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingletonValue(initializationContext);
-        DualModeIdFactory speciesIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), "species");
+        DualModeIdFactory speciesIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), IdType.SPECIES);
         DualModeGenomePool genomePool = new DualModeGenomePool(initializationContext.getDequeFactory());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         DualModeReproductionTypeFactory reproductionTypeFactory = createReproductionTypeFactory(initializationContext, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate());

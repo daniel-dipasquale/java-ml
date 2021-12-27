@@ -6,6 +6,8 @@ import com.dipasquale.ai.rl.neat.genotype.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.internal.Id;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
@@ -29,7 +31,7 @@ public final class DualModeHistoricalMarkings implements HistoricalMarkings, Dua
     private transient DefaultHistoricalMarkings<DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>> historicalMarkings;
 
     private DualModeHistoricalMarkings(final DualModeMapFactory mapFactory, final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds, final NodeGeneDependencyTrackerFactory nodeDependencyTrackerFactory, final DualModeMap<Id, DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeDependencyTrackers) {
-        this.innovationIdFactory = new DualModeIdFactory(mapFactory.concurrencyLevel(), "innovation-id");
+        this.innovationIdFactory = new DualModeIdFactory(mapFactory.concurrencyLevel(), IdType.INNOVATION_ID);
         this.innovationIds = innovationIds;
         this.nodeDependencyTrackerFactory = nodeDependencyTrackerFactory;
         this.nodeDependencyTrackers = nodeDependencyTrackers;

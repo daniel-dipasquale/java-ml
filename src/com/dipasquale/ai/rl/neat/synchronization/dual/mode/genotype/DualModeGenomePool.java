@@ -2,6 +2,8 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
 import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.deque.DualModeDeque;
 import com.dipasquale.synchronization.dual.mode.data.structure.deque.DualModeDequeFactory;
@@ -19,7 +21,7 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
     private final DualModeDeque<String, DualModeDequeFactory> disposedGenomeIds;
 
     public DualModeGenomePool(final DualModeDequeFactory dequeFactory) {
-        this(new DualModeIdFactory(dequeFactory.concurrencyLevel(), "genome"), new DualModeDeque<>(dequeFactory));
+        this(new DualModeIdFactory(dequeFactory.concurrencyLevel(), IdType.GENOME), new DualModeDeque<>(dequeFactory));
     }
 
     public String createId() {

@@ -21,10 +21,10 @@ final class NeuronState implements Serializable {
     public void put(final Id id, final float newValue) {
         Float oldValue = values.put(id, newValue);
 
-        value += newValue;
-
         if (oldValue != null) {
-            value -= oldValue;
+            value += (newValue - oldValue);
+        } else {
+            value += newValue;
         }
     }
 

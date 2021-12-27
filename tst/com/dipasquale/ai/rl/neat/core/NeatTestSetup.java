@@ -66,11 +66,12 @@ class NeatTestSetup {
     }
 
     private static void assertTrainingResults(final NeatTrainer trainer, final NeatTrainerSetup trainerSetup, final int populationSize) {
-        boolean success = trainer.train();
-
         System.out.printf("=========================================%n");
         System.out.printf("%s:%n", trainerSetup.name);
         System.out.printf("=========================================%n");
+
+        boolean success = trainer.train();
+
         System.out.printf("iteration: %d%n", trainer.getState().getIteration());
         System.out.printf("generation: %d%n", trainer.getState().getGeneration());
         System.out.printf("species: %d%n", trainer.getState().getSpeciesCount());

@@ -21,7 +21,8 @@ import com.dipasquale.ai.rl.neat.phenotype.GruNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.LstmNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype.DualModeGenomeActivatorPool;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
@@ -70,7 +71,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
 
     private static Map<String, FitnessBucket> createFitnessBuckets(final InitializationContext initializationContext, final GeneralSupport generalSupport) {
         int populationSize = generalSupport.getPopulationSize().getSingletonValue(initializationContext);
-        DualModeIdFactory genomeIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), "genome");
+        DualModeIdFactory genomeIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), IdType.GENOME);
         FitnessDeterminerFactory fitnessDeterminerFactory = generalSupport.getFitnessDeterminerFactory();
         Map<String, FitnessBucket> fitnessBuckets = new HashMap<>();
 

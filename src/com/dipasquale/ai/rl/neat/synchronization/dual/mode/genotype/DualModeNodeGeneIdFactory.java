@@ -2,6 +2,8 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.internal.Id;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.synchronization.dual.mode.ConcurrencyLevelState;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 
@@ -24,10 +26,10 @@ public final class DualModeNodeGeneIdFactory implements DualModeObject, Serializ
     private static Map<NodeGeneType, DualModeIdFactory> createNodeIdFactories(final int concurrencyLevel) {
         EnumMap<NodeGeneType, DualModeIdFactory> nodeIdFactories = new EnumMap<>(NodeGeneType.class);
 
-        nodeIdFactories.put(NodeGeneType.INPUT, new DualModeIdFactory(concurrencyLevel, "n1-input"));
-        nodeIdFactories.put(NodeGeneType.OUTPUT, new DualModeIdFactory(concurrencyLevel, "n4-output"));
-        nodeIdFactories.put(NodeGeneType.BIAS, new DualModeIdFactory(concurrencyLevel, "n2-bias"));
-        nodeIdFactories.put(NodeGeneType.HIDDEN, new DualModeIdFactory(concurrencyLevel, "n3-hidden"));
+        nodeIdFactories.put(NodeGeneType.INPUT, new DualModeIdFactory(concurrencyLevel, IdType.INPUT_NODE));
+        nodeIdFactories.put(NodeGeneType.OUTPUT, new DualModeIdFactory(concurrencyLevel, IdType.OUTPUT_NODE));
+        nodeIdFactories.put(NodeGeneType.BIAS, new DualModeIdFactory(concurrencyLevel, IdType.BIAS_NODE));
+        nodeIdFactories.put(NodeGeneType.HIDDEN, new DualModeIdFactory(concurrencyLevel, IdType.HIDDEN_NODE));
 
         return nodeIdFactories;
     }

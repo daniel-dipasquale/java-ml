@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
+package com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal;
 
 import com.dipasquale.ai.common.sequence.LongSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.StrategyLongSequentialIdFactory;
@@ -21,8 +21,8 @@ public final class DualModeIdFactory implements ObjectFactory<Id>, DualModeObjec
         this.sequentialIdFactory = new StrategyLongSequentialIdFactory(name, new LongSequentialIdFactory(id));
     }
 
-    public DualModeIdFactory(final int concurrencyLevel, final String name) {
-        this(new DualModeLongCounter(concurrencyLevel), name);
+    public DualModeIdFactory(final int concurrencyLevel, final IdType idType) {
+        this(new DualModeLongCounter(concurrencyLevel), idType.getName());
     }
 
     @Override
