@@ -14,21 +14,19 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class DefaultContextRandomSupport implements Context.RandomSupport {
-    private DualModeRandomSupport generateIndexRandomSupport;
+    private DualModeRandomSupport generateIndexOrItemRandomSupport;
     private DualModeRandomSupport isLessThanRandomSupport;
-    private DualModeRandomSupport generateItemRandomSupport;
 
     public static DefaultContextRandomSupport create(final InitializationContext initializationContext) {
         DualModeRandomSupport generateIndexRandomSupport = initializationContext.createDefaultRandomSupport();
         DualModeRandomSupport isLessThanRandomSupport = initializationContext.createDefaultRandomSupport();
-        DualModeRandomSupport generateItemRandomSupport = initializationContext.createDefaultRandomSupport();
 
-        return new DefaultContextRandomSupport(generateIndexRandomSupport, isLessThanRandomSupport, generateItemRandomSupport);
+        return new DefaultContextRandomSupport(generateIndexRandomSupport, isLessThanRandomSupport);
     }
 
     @Override
     public int generateIndex(final int offset, final int count) {
-        return generateIndexRandomSupport.next(offset, count);
+        return generateIndexOrItemRandomSupport.next(offset, count);
     }
 
     @Override
@@ -38,18 +36,16 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
 
     @Override
     public <T> T generateItem(final OutputClassifier<T> outputClassifier) {
-        return outputClassifier.resolve(generateItemRandomSupport.next());
+        return outputClassifier.resolve(generateIndexOrItemRandomSupport.next());
     }
 
     public void save(final SerializableStateGroup stateGroup) {
-        stateGroup.put("random.generateIndexRandomSupport", generateIndexRandomSupport);
+        stateGroup.put("random.generateIndexOrItemRandomSupport", generateIndexOrItemRandomSupport);
         stateGroup.put("random.isLessThanRandomSupport", isLessThanRandomSupport);
-        stateGroup.put("random.generateItemRandomSupport", generateItemRandomSupport);
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        generateIndexRandomSupport = DualModeObject.activateMode(stateGroup.get("random.generateIndexRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        generateIndexOrItemRandomSupport = DualModeObject.activateMode(stateGroup.get("random.generateIndexOrItemRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
         isLessThanRandomSupport = DualModeObject.activateMode(stateGroup.get("random.isLessThanRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        generateItemRandomSupport = DualModeObject.activateMode(stateGroup.get("random.generateItemRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }
