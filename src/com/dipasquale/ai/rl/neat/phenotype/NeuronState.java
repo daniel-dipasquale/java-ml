@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.rl.neat.internal.Id;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -15,21 +14,26 @@ final class NeuronState implements Serializable {
     @Serial
     private static final long serialVersionUID = 5859080064835741130L;
     private final Map<Id, Float> values = new HashMap<>();
-    @Getter
-    private float value = 0f;
+    private float currentValue = 0f;
 
-    public void put(final Id id, final float newValue) {
-        Float oldValue = values.put(id, newValue);
+    public float getValue() {
+        return currentValue;
+    }
+
+    public void put(final Id id, final float value) {
+        Float oldValue = values.put(id, value);
 
         if (oldValue != null) {
-            value += (newValue - oldValue);
+            float delta = value - oldValue;
+
+            currentValue += delta;
         } else {
-            value += newValue;
+            currentValue += value;
         }
     }
 
     public void clear() {
         values.clear();
-        value = 0f;
+        currentValue = 0f;
     }
 }

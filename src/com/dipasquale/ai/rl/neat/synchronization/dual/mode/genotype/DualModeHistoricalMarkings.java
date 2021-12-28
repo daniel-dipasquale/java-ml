@@ -43,8 +43,8 @@ public final class DualModeHistoricalMarkings implements HistoricalMarkings, Dua
     }
 
     @Override
-    public InnovationId getOrCreateInnovationId(final DirectedEdge directedEdge) {
-        return historicalMarkings.getOrCreateInnovationId(directedEdge);
+    public InnovationId provideInnovationId(final DirectedEdge directedEdge) {
+        return historicalMarkings.provideInnovationId(directedEdge);
     }
 
     @Override

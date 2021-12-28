@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @Generated
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public final class NodeGene implements Serializable {
     private final Id id;
     private final NodeGeneType type;
     private final float bias;
+    private final List<Float> recurrentBiases;
     private final ActivationFunction activationFunction;
 
     @Override

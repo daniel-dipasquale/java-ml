@@ -1,6 +1,6 @@
-package com.dipasquale.synchronization.dual.mode.provider;
+package com.dipasquale.synchronization.dual.mode.gate;
 
-import com.dipasquale.common.provider.GateProvider;
+import com.dipasquale.common.gate.Gate;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class DualModeIsLessThanRandomGateProvider implements GateProvider, DualModeObject, Serializable {
+public final class DualModeIsLessThanRandomGate implements Gate, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -3883271729484274647L;
     private final DualModeRandomSupport randomSupport;

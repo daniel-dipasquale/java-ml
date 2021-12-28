@@ -1,9 +1,10 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public enum IdType {
     INPUT_NODE("n1i"),

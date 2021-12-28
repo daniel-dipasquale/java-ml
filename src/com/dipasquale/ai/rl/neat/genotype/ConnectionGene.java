@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -19,11 +21,13 @@ public final class ConnectionGene implements Serializable {
     private final InnovationId innovationId;
     @Setter(AccessLevel.PACKAGE)
     private float weight;
+    private List<Float> recurrentWeights;
     private int cyclesAllowed;
 
-    public ConnectionGene(final InnovationId innovationId, final float weight) {
+    ConnectionGene(final InnovationId innovationId, final float weight, final List<Float> recurrentWeights) {
         this.innovationId = innovationId;
         this.weight = weight;
+        this.recurrentWeights = recurrentWeights;
         this.cyclesAllowed = 1;
     }
 
@@ -35,16 +39,16 @@ public final class ConnectionGene implements Serializable {
         return cyclesAllowed > 0;
     }
 
-    ConnectionGene createCopy(final int cyclesAllowed) {
-        return new ConnectionGene(innovationId, weight, cyclesAllowed);
+    ConnectionGene createCopy(final Context.ConnectionGeneSupport connectionGeneSupport, final int cyclesAllowed) {
+        return new ConnectionGene(innovationId, weight, connectionGeneSupport.cloneRecurrentWeights(recurrentWeights), cyclesAllowed);
     }
 
-    ConnectionGene createClone() {
-        return createCopy(cyclesAllowed);
+    ConnectionGene createClone(final Context.ConnectionGeneSupport connectionGeneSupport) {
+        return createCopy(connectionGeneSupport, cyclesAllowed);
     }
 
-    public static ConnectionType getType(final Id inputNodeId, final Id outputNodeId) {
-        int comparison = inputNodeId.compareTo(outputNodeId);
+    public static ConnectionType getType(final Id sourceNodeId, final Id targetNodeId) {
+        int comparison = sourceNodeId.compareTo(targetNodeId);
 
         if (comparison == 0) {
             return ConnectionType.REFLEXIVE;

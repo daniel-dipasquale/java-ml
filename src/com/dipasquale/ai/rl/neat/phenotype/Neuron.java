@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
+import com.dipasquale.ai.common.function.activation.ActivationFunction;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.internal.Id;
@@ -31,25 +32,53 @@ final class Neuron implements Serializable {
         return node.getType();
     }
 
-    public float getValue(final float value, final float weight) {
-        return node.getActivationFunction().forward(value * weight + node.getBias());
+    public float getBias() {
+        return node.getBias();
     }
 
-    public float getValue(final NeuronStateGroup neuronState) {
-        float value = neuronState.getValue(getId());
-
-        return getValue(value, 1f);
+    public float getRecurrentBias(final int index) {
+        return node.getRecurrentBiases().get(index);
     }
 
-    public float getValue(final NeuronStateGroup neuronState, final NeuronOutputConnection outputConnection) {
-        float value = neuronState.getValue(getId(), outputConnection.getOutputNeuronId());
-
-        return getValue(value, outputConnection.getConnectionWeight());
+    public ActivationFunction getActivationFunction() {
+        return node.getActivationFunction();
     }
 
     @Override
     public String toString() {
         return node.toString();
+    }
+
+    public static float calculateValue(final ActivationFunction activationFunction, final float[] weights, final float[] values, final float[] biases) {
+        float sum = 0f;
+
+        for (int i = 0; i < values.length; i++) {
+            float value = weights[i] * values[i] + biases[i];
+
+            sum += value;
+        }
+
+        return activationFunction.forward(sum);
+    }
+
+    public static float calculateValue(final ActivationFunction activationFunction, final float weight, final float value, final float bias) {
+        return activationFunction.forward(weight * value + bias);
+    }
+
+    public float calculateValue(final float weight, final float value) {
+        return calculateValue(getActivationFunction(), weight, value, getBias());
+    }
+
+    public float calculateValue(final NeuronOutputConnection connection, final float value) {
+        if (connection == null) {
+            return calculateValue(1f, value);
+        }
+
+        return calculateValue(connection.getWeight(), value);
+    }
+
+    public float calculateValue(final float value) {
+        return calculateValue(1f, value);
     }
 }
 

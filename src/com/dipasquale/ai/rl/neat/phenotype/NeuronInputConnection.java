@@ -13,11 +13,11 @@ import java.io.Serializable;
 final class NeuronInputConnection implements Serializable {
     @Serial
     private static final long serialVersionUID = 2600008683072648717L;
-    private final Id inputNeuronId;
+    private final Id sourceNeuronId;
     private final int cyclesAllowed;
 
     @Override
     public String toString() {
-        return String.format("%s (cyclesAllowed: %d)", inputNeuronId, cyclesAllowed);
+        return String.format("%s (cyclesAllowed: %d)", sourceNeuronId, cyclesAllowed);
     }
 }

@@ -3,15 +3,15 @@ package com.dipasquale.ai.rl.neat.phenotype;
 import com.dipasquale.ai.rl.neat.internal.Id;
 
 interface NeuronStateGroup {
-    float getValue(Id id);
+    float calculateValue(Neuron neuron);
 
-    float getValue(Id id, Id inputId);
+    float calculateValue(Neuron neuron, NeuronOutputConnection connection);
 
-    void setValue(Id id, float value);
+    void setValue(Id neuronId, float value);
 
-    void addValue(Id id, float value, Id inputId);
+    void addValue(Id neuronId, float value, Id sourceNeuronId);
 
-    void endCycle(Id id);
+    void endCycle(Id neuronId);
 
     void clear();
 }

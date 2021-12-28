@@ -13,8 +13,8 @@ import java.util.Map;
 abstract class AbstractRecurrentNeuronStateGroup implements NeuronStateGroup {
     private final Map<Id, NeuronState> states = new HashMap<>();
 
-    private static float getValue(final Map<Id, NeuronState> states, final Id nodeId) {
-        NeuronState state = states.get(nodeId);
+    protected float getValue(final Id neuronId) {
+        NeuronState state = states.get(neuronId);
 
         if (state == null) {
             return 0f;
@@ -24,52 +24,45 @@ abstract class AbstractRecurrentNeuronStateGroup implements NeuronStateGroup {
     }
 
     @Override
-    public final float getValue(final Id id) {
-        return getValue(states, id);
+    public float calculateValue(final Neuron neuron) {
+        float value = getValue(neuron.getId());
+
+        return neuron.calculateValue(value);
     }
 
-    protected static float getValue(final NeuronMemory memory, final String dimension, final Id nodeId) {
-        Float value = memory.getValue(dimension, nodeId);
-
-        if (value == null) {
-            return 0f;
-        }
-
-        return value;
-    }
-
-    protected abstract float getRecurrentValue(Id id);
+    protected abstract float calculateRecurrentValue(Neuron neuron, NeuronOutputConnection connection);
 
     @Override
-    public final float getValue(final Id id, final Id inputId) {
-        if (ConnectionGene.getType(inputId, id) == ConnectionType.FORWARD) {
-            return getValue(id);
+    public float calculateValue(final Neuron neuron, final NeuronOutputConnection connection) {
+        Id neuronId = neuron.getId();
+
+        if (ConnectionGene.getType(neuronId, connection.getTargetNeuronId()) != ConnectionType.FORWARD) {
+            return calculateRecurrentValue(neuron, connection);
         }
 
-        return getRecurrentValue(id);
+        float value = getValue(neuronId);
+
+        return neuron.calculateValue(connection, value);
+
     }
 
     @Override
-    public final void setValue(final Id id, final float value) {
-        NeuronState state = states.computeIfAbsent(id, k -> new NeuronState());
+    public void setValue(final Id neuronId, final float value) {
+        NeuronState state = states.computeIfAbsent(neuronId, k -> new NeuronState());
 
         state.clear();
-        state.put(id, value);
-    }
-
-    protected abstract void setMemoryValue(Id id, float value, Id inputId);
-
-    @Override
-    public final void addValue(final Id id, final float value, final Id inputId) {
-        NeuronState state = states.computeIfAbsent(id, k -> new NeuronState());
-
-        state.put(inputId, value);
-        setMemoryValue(id, value, inputId);
+        state.put(neuronId, value);
     }
 
     @Override
-    public void endCycle(final Id id) {
+    public void addValue(final Id neuronId, final float value, final Id sourceNeuronId) {
+        NeuronState state = states.computeIfAbsent(neuronId, k -> new NeuronState());
+
+        state.put(sourceNeuronId, value);
     }
+
+    @Override
+    public abstract void endCycle(Id neuronId);
 
     @Override
     public final void clear() {

@@ -7,17 +7,24 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-@Getter
 final class NeuronOutputConnection implements Serializable {
     @Serial
     private static final long serialVersionUID = -449674642630253269L;
-    private final Id outputNeuronId;
-    private final float connectionWeight;
+    @Getter
+    private final Id targetNeuronId;
+    @Getter
+    private final float weight;
+    private final List<Float> recurrentWeights;
+
+    public float getRecurrentWeight(final int index) {
+        return recurrentWeights.get(index);
+    }
 
     @Override
     public String toString() {
-        return String.format("%f => %s", connectionWeight, outputNeuronId);
+        return String.format("%f => %s", weight, targetNeuronId);
     }
 }

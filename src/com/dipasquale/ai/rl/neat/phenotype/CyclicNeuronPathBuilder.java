@@ -77,20 +77,20 @@ final class CyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
             if (!orderableNeuron.ordered) {
                 orderingNeurons.putLast(orderableNeuron.neuronOrderId, orderableNeuron.createOrdered());
 
-                for (NeuronInputConnection inputConnection : orderableNeuron.neuron.getInputConnections()) {
-                    NeuronOrderId inputNeuronId = new NeuronOrderId(inputConnection.getInputNeuronId(), orderableNeuron.neuronOrderId.cycle);
+                for (NeuronInputConnection connection : orderableNeuron.neuron.getInputConnections()) {
+                    NeuronOrderId sourceNeuronId = new NeuronOrderId(connection.getSourceNeuronId(), orderableNeuron.neuronOrderId.cycle);
 
-                    if (inputNeuronId.cycle < inputConnection.getCyclesAllowed()) {
-                        OrderableNeuron orderableInputNeuron = orderingNeurons.get(inputNeuronId);
+                    if (sourceNeuronId.cycle < connection.getCyclesAllowed()) {
+                        OrderableNeuron orderableSourceNeuron = orderingNeurons.get(sourceNeuronId);
 
-                        if ((orderableInputNeuron == null || !orderableInputNeuron.ordered) && !orderedNeuronIds.contains(inputNeuronId)) {
-                            OrderableNeuron orderableInputNeuronFixed = getOrderableOrCreateUnordered(orderableInputNeuron, inputNeuronId);
+                        if ((orderableSourceNeuron == null || !orderableSourceNeuron.ordered) && !orderedNeuronIds.contains(sourceNeuronId)) {
+                            OrderableNeuron orderableSourceNeuronFixed = getOrderableOrCreateUnordered(orderableSourceNeuron, sourceNeuronId);
 
-                            orderingNeurons.putLast(inputNeuronId, orderableInputNeuronFixed);
-                        } else if (orderableInputNeuron != null && orderableInputNeuron.ordered || orderedNeuronIds.contains(inputNeuronId)) {
-                            OrderableNeuron orderableInputNeuronFixed = createNextUnordered(inputNeuronId);
+                            orderingNeurons.putLast(sourceNeuronId, orderableSourceNeuronFixed);
+                        } else if (orderableSourceNeuron != null && orderableSourceNeuron.ordered || orderedNeuronIds.contains(sourceNeuronId)) {
+                            OrderableNeuron orderableSourceNeuronFixed = createNextUnordered(sourceNeuronId);
 
-                            orderingNeurons.putLast(orderableInputNeuronFixed.neuronOrderId, orderableInputNeuronFixed);
+                            orderingNeurons.putLast(orderableSourceNeuronFixed.neuronOrderId, orderableSourceNeuronFixed);
                         }
                     }
                 }

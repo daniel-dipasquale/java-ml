@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.net.http.HttpClient;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter(AccessLevel.PACKAGE)
 public enum HttpVersion {
     HTTP_1_1(HttpClient.Version.HTTP_1_1, "http"),

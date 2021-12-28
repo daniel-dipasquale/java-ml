@@ -60,12 +60,12 @@ final class AcyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable 
             if (!orderableNeuron.ordered) {
                 orderingNeurons.putLast(orderableNeuron.neuron.getId(), orderableNeuron.createOrdered());
 
-                for (NeuronInputConnection inputConnection : orderableNeuron.neuron.getInputConnections()) {
-                    Id inputNeuronId = inputConnection.getInputNeuronId();
-                    OrderableNeuron orderableInputNeuron = orderingNeurons.get(inputNeuronId);
+                for (NeuronInputConnection connection : orderableNeuron.neuron.getInputConnections()) {
+                    Id sourceNeuronId = connection.getSourceNeuronId();
+                    OrderableNeuron orderableSourceNeuron = orderingNeurons.get(sourceNeuronId);
 
-                    if ((orderableInputNeuron == null || !orderableInputNeuron.ordered) && !orderedNeuronIds.contains(inputNeuronId)) {
-                        orderingNeurons.putLast(inputNeuronId, getOrderableOrCreateUnordered(orderableInputNeuron, inputNeuronId));
+                    if ((orderableSourceNeuron == null || !orderableSourceNeuron.ordered) && !orderedNeuronIds.contains(sourceNeuronId)) {
+                        orderingNeurons.putLast(sourceNeuronId, getOrderableOrCreateUnordered(orderableSourceNeuron, sourceNeuronId));
                     }
                 }
             } else if (orderedNeuronIds.add(orderableNeuron.neuron.getId()) && !orderingNeurons.isEmpty()) {

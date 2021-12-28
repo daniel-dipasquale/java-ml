@@ -30,7 +30,6 @@ final class XorTaskSetup implements TaskSetup {
     private final int populationSize = 150;
 
     private static float calculateFitness(final GenomeActivator genomeActivator) {
-        // I love you :)
         float error = 0f;
         NeuronMemory neuronMemory = genomeActivator.createMemory();
 
@@ -94,7 +93,7 @@ final class XorTaskSetup implements TaskSetup {
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
-                        .recurrentStateType(RecurrentStateType.VANILLA)
+                        .recurrentStateType(RecurrentStateType.DEFAULT)
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .mutation(MutationSupport.builder()

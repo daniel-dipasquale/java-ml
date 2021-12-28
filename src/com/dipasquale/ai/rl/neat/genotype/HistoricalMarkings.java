@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 public interface HistoricalMarkings {
-    InnovationId getOrCreateInnovationId(DirectedEdge directedEdge);
+    InnovationId provideInnovationId(DirectedEdge directedEdge);
 
     boolean containsInnovationId(DirectedEdge directedEdge);
 

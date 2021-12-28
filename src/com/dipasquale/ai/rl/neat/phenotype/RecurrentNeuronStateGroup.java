@@ -10,12 +10,17 @@ final class RecurrentNeuronStateGroup extends AbstractRecurrentNeuronStateGroup 
     private final NeuronMemory memory;
 
     @Override
-    protected float getRecurrentValue(final Id id) {
-        return getValue(id) + getValue(memory, HIDDEN_DIMENSION, id);
+    protected float calculateRecurrentValue(final Neuron neuron, final NeuronOutputConnection connection) {
+        Id neuronId = neuron.getId();
+        float[] weights = {connection.getRecurrentWeight(0), connection.getWeight()};
+        float[] values = {memory.getValueOrDefault(HIDDEN_DIMENSION, neuronId), getValue(neuronId)};
+        float[] biases = {neuron.getRecurrentBias(0), neuron.getBias()};
+
+        return Neuron.calculateValue(neuron.getActivationFunction(), weights, values, biases);
     }
 
     @Override
-    protected void setMemoryValue(final Id id, final float value, final Id inputId) {
-        memory.setValue(HIDDEN_DIMENSION, id, value, inputId);
+    public void endCycle(final Id neuronId) {
+        memory.setValue(HIDDEN_DIMENSION, neuronId, getValue(neuronId));
     }
 }

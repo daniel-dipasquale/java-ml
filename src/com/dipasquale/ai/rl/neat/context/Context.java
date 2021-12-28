@@ -145,6 +145,12 @@ public interface Context {
     interface ConnectionGeneSupport {
         float generateWeight();
 
+        List<Float> generateRecurrentWeights();
+
+        List<Float> cloneRecurrentWeights(List<Float> recurrentWeights);
+
+        List<Float> createAverageRecurrentWeights(List<Float> recurrentWeights1, List<Float> recurrentWeights2);
+
         float perturbWeight(float weight);
 
         boolean shouldAllowRecurrent();
@@ -153,7 +159,7 @@ public interface Context {
 
         void setupInitialConnections(Genome genome);
 
-        InnovationId provideInnovationId(NodeGene inputNode, NodeGene outputNode);
+        InnovationId provideInnovationId(NodeGene sourceNode, NodeGene targetNode);
 
         boolean containsInnovationId(InnovationId innovationId);
 

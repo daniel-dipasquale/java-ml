@@ -30,7 +30,7 @@ public final class DefaultHistoricalMarkings<T extends NodeGeneDependencyTracker
     }
 
     @Override
-    public InnovationId getOrCreateInnovationId(final DirectedEdge directedEdge) {
+    public InnovationId provideInnovationId(final DirectedEdge directedEdge) {
         return innovationIds.computeIfAbsent(directedEdge, this::createInnovationId);
     }
 

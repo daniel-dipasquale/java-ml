@@ -66,7 +66,7 @@ public final class EvaluatorSettings {
         DefaultContextGeneralSupport generalFixed = general.create(initializationContext);
         DefaultContextParallelismSupport parallelismFixed = parallelism.create();
         DefaultContextRandomSupport randomFixed = random.create(initializationContext);
-        DefaultContextNodeGeneSupport nodesFixed = nodes.create(initializationContext, general.getGenesisGenomeTemplate());
+        DefaultContextNodeGeneSupport nodesFixed = nodes.create(initializationContext, general.getGenesisGenomeTemplate(), connections);
         DefaultContextConnectionGeneSupport connectionsFixed = connections.create(initializationContext, general.getGenesisGenomeTemplate());
         DefaultContextActivationSupport activationFixed = activation.create(initializationContext, general, connections);
         DefaultContextMutationSupport mutationFixed = mutation.create(initializationContext);

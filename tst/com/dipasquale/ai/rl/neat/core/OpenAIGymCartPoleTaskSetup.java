@@ -102,7 +102,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                         .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
-                        .weightFactory(FloatNumber.random(RandomType.UNIFORM, 0.5f))
+                        .recurrentAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .metrics(MetricSupport.builder()
                         .type(metricsEmissionEnabled

@@ -52,7 +52,7 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
         int index = 0;
 
         for (Neuron neuron : outputNeurons) {
-            outputValues[index++] = neuron.getValue(neuronState);
+            outputValues[index++] = neuronState.calculateValue(neuron);
         }
 
         return outputValues;

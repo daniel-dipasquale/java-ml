@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.phenotype;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
+import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.ObjectFactory;
 
@@ -37,7 +38,7 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
                 .collect(Collectors.toList());
 
         List<NeuronOutputConnection> outputConnections = genome.getConnections().getExpressed().getOutgoingFromNode(node).values().stream()
-                .map(c -> new NeuronOutputConnection(c.getInnovationId().getTargetNodeId(), c.getWeight()))
+                .map(c -> new NeuronOutputConnection(c.getInnovationId().getTargetNodeId(), c.getWeight(), c.getRecurrentWeights()))
                 .collect(Collectors.toList());
 
         switch (node.getType()) {
@@ -51,14 +52,11 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
         return new Neuron(node, inputConnections, outputConnections);
     }
 
-    private Iterable<NodeGene> getInputNodes() {
-        return () -> genome.getNodes().iterator(NodeGeneType.INPUT);
-    }
-
     private void initializeNeuronStates(final NeuronStateGroup neuronState, final float[] input) {
+        Iterable<NodeGene> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.INPUT);
         int index = 0;
 
-        for (NodeGene inputNode : getInputNodes()) {
+        for (NodeGene inputNode : inputNodes) {
             neuronState.setValue(inputNode.getId(), input[index++]);
         }
     }
@@ -93,14 +91,16 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
     }
 
     private void processNeurons(final NeuronStateGroup neuronState) {
-        for (Neuron inputNeuron : neuronNavigator) {
-            for (NeuronOutputConnection outputConnection : inputNeuron.getOutputConnections()) {
-                float value = inputNeuron.getValue(neuronState, outputConnection);
+        for (Neuron neuron : neuronNavigator) {
+            Id neuronId = neuron.getId();
 
-                neuronState.addValue(outputConnection.getOutputNeuronId(), value, inputNeuron.getId());
+            for (NeuronOutputConnection connection : neuron.getOutputConnections()) {
+                float value = neuronState.calculateValue(neuron, connection);
+
+                neuronState.addValue(connection.getTargetNeuronId(), value, neuronId);
             }
 
-            neuronState.endCycle(inputNeuron.getId());
+            neuronState.endCycle(neuronId);
         }
     }
 

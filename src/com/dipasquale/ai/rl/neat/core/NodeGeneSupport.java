@@ -25,7 +25,7 @@ public final class NodeGeneSupport {
     @Builder.Default
     private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.RE_LU);
 
-    DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate) {
-        return DefaultContextNodeGeneSupport.create(initializationContext, genesisGenomeTemplate, this);
+    DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
+        return DefaultContextNodeGeneSupport.create(initializationContext, genesisGenomeTemplate, this, connectionGeneSupport);
     }
 }

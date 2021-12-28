@@ -13,19 +13,44 @@ final class GruNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
     private static final TanHActivationFunction TAN_H_ACTIVATION_FUNCTION = TanHActivationFunction.getInstance();
     private final NeuronMemory memory;
 
-    @Override
-    protected float getRecurrentValue(final Id id) {
-        float inputValue = getValue(id);
-        float oldHiddenValue = getValue(memory, HIDDEN_DIMENSION, id);
-        float resetGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue);
-        float updateGate = SIGMOID_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue + 1f);
-        float candidateHiddenValue = TAN_H_ACTIVATION_FUNCTION.forward(inputValue + oldHiddenValue * resetGate);
+    private static float calculateUpdateGate(final Neuron neuron, final NeuronOutputConnection connection, final float previousValue, final float currentValue) {
+        float[] weights = {connection.getRecurrentWeight(0), connection.getWeight()};
+        float[] values = {previousValue, currentValue};
+        float[] biases = {neuron.getRecurrentBias(0), neuron.getBias()};
 
-        return oldHiddenValue * updateGate + (1f - updateGate) * candidateHiddenValue;
+        return Neuron.calculateValue(SIGMOID_ACTIVATION_FUNCTION, weights, values, biases);
+    }
+
+    private static float calculateResetGate(final Neuron neuron, final NeuronOutputConnection connection, final float previousValue, final float currentValue) {
+        float[] weights = {connection.getRecurrentWeight(1), connection.getWeight()};
+        float[] values = {previousValue, currentValue};
+        float[] biases = {neuron.getRecurrentBias(1), neuron.getBias()};
+
+        return Neuron.calculateValue(SIGMOID_ACTIVATION_FUNCTION, weights, values, biases);
+    }
+
+    private static float calculateCandidateValue(final Neuron neuron, final NeuronOutputConnection connection, final float previousValue, final float currentValue) {
+        float[] weights = {connection.getRecurrentWeight(2), connection.getWeight()};
+        float[] values = {previousValue, currentValue};
+        float[] biases = {neuron.getRecurrentBias(2), neuron.getBias()};
+
+        return Neuron.calculateValue(TAN_H_ACTIVATION_FUNCTION, weights, values, biases);
     }
 
     @Override
-    protected void setMemoryValue(final Id id, final float value, final Id inputId) {
-        memory.setValue(HIDDEN_DIMENSION, id, value, inputId);
+    protected float calculateRecurrentValue(final Neuron neuron, final NeuronOutputConnection connection) {
+        Id neuronId = neuron.getId();
+        float previousValue = memory.getValueOrDefault(HIDDEN_DIMENSION, neuronId);
+        float currentValue = getValue(neuronId);
+        float updateGate = calculateUpdateGate(neuron, connection, previousValue, currentValue);
+        float resetGate = calculateResetGate(neuron, connection, previousValue, currentValue);
+        float value = (1f - updateGate) * previousValue + updateGate * calculateCandidateValue(neuron, connection, resetGate * previousValue, currentValue);
+
+        return Neuron.calculateValue(neuron.getActivationFunction(), connection.getRecurrentWeight(3), value, neuron.getRecurrentBias(3));
+    }
+
+    @Override
+    public void endCycle(final Id neuronId) {
+        memory.setValue(HIDDEN_DIMENSION, neuronId, getValue(neuronId));
     }
 }

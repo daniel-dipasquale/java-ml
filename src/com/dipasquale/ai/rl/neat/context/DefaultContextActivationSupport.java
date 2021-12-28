@@ -62,7 +62,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
         }
 
         return switch (connectionGeneSupport.getRecurrentStateType()) {
-            case VANILLA -> new RecurrentNeuralNetworkFactory();
+            case DEFAULT -> new RecurrentNeuralNetworkFactory();
 
             case LSTM -> new LstmNeuralNetworkFactory();
 
