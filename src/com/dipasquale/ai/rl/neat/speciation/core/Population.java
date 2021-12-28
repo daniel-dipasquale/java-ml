@@ -131,7 +131,7 @@ public final class Population {
 
     private SpeciesState createSpeciesState(final Context.SpeciationSupport speciationSupport) {
         List<Species> all = new ArrayList<>();
-        float[] totalSharedFitness = new float[]{0f};
+        float[] totalSharedFitness = {0f};
 
         List<Species> ranked = speciesNodes.flattenedStream()
                 .peek(all::add)

@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
+import com.dipasquale.ai.common.function.activation.ActivationFunction;
 import com.dipasquale.ai.common.function.activation.SigmoidActivationFunction;
 import com.dipasquale.ai.common.function.activation.TanHActivationFunction;
 import com.dipasquale.ai.rl.neat.internal.Id;
@@ -60,12 +61,16 @@ final class LstmNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
         float forgetGate = calculateForgetGate(neuron, connection, previousValue, currentValue);
         float inputGate = calculateInputGate(neuron, connection, previousValue, currentValue);
         float currentCellValue = forgetGate * previousCellValue + inputGate * calculateCandidateCellValue(neuron, connection, previousValue, currentValue);
+        float outputValue = calculateOutputValue(neuron, connection, previousValue, currentValue) * TAN_H_ACTIVATION_FUNCTION.forward(currentCellValue);
+        ActivationFunction activationFunction = neuron.getActivationFunction();
 
         cellValues.put(neuronId, currentCellValue);
 
-        float outputValue = calculateOutputValue(neuron, connection, previousValue, currentValue) * TAN_H_ACTIVATION_FUNCTION.forward(currentCellValue);
+        if (activationFunction == TAN_H_ACTIVATION_FUNCTION) {
+            return outputValue;
+        }
 
-        return Neuron.calculateValue(neuron.getActivationFunction(), connection.getRecurrentWeight(4), outputValue, neuron.getRecurrentBias(4));
+        return Neuron.calculateValue(activationFunction, 1f, outputValue, 0f);
     }
 
     @Override

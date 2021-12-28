@@ -44,9 +44,9 @@ final class GruNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
         float currentValue = getValue(neuronId);
         float updateGate = calculateUpdateGate(neuron, connection, previousValue, currentValue);
         float resetGate = calculateResetGate(neuron, connection, previousValue, currentValue);
-        float value = (1f - updateGate) * previousValue + updateGate * calculateCandidateValue(neuron, connection, resetGate * previousValue, currentValue);
+        float outputValue = (1f - updateGate) * previousValue + updateGate * calculateCandidateValue(neuron, connection, resetGate * previousValue, currentValue);
 
-        return Neuron.calculateValue(neuron.getActivationFunction(), connection.getRecurrentWeight(3), value, neuron.getRecurrentBias(3));
+        return Neuron.calculateValue(neuron.getActivationFunction(), 1f, outputValue, 0f);
     }
 
     @Override

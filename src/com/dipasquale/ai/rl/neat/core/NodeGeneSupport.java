@@ -23,7 +23,7 @@ public final class NodeGeneSupport {
     @Builder.Default
     private final FloatNumber hiddenBias = FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 30f);
     @Builder.Default
-    private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.RE_LU);
+    private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.SIGMOID);
 
     DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
         return DefaultContextNodeGeneSupport.create(initializationContext, genesisGenomeTemplate, this, connectionGeneSupport);

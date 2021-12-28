@@ -17,14 +17,14 @@ import java.util.Set;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 final class XorTaskSetup implements TaskSetup {
-    private static final float[][] INPUTS = new float[][]{
-            new float[]{1f, 1f}, // 0f
-            new float[]{1f, 0f}, // 1f
-            new float[]{0f, 1f}, // 1f
-            new float[]{0f, 0f}  // 0f
+    private static final float[][] INPUTS = {
+            {1f, 1f}, // => 0f
+            {1f, 0f}, // => 1f
+            {0f, 1f}, // => 1f
+            {0f, 0f}  // => 0f
     };
 
-    private static final float[] EXPECTED_OUTPUTS = new float[]{0f, 1f, 1f, 0f};
+    private static final float[] EXPECTED_OUTPUTS = {0f, 1f, 1f, 0f};
     private final String name = "XOR";
     private final boolean metricsEmissionEnabled;
     private final int populationSize = 150;
@@ -87,13 +87,13 @@ final class XorTaskSetup implements TaskSetup {
                         .outputBias(FloatNumber.random(RandomType.QUADRUPLE_SIGMOID, 15f))
                         .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
                         .hiddenBias(FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 30f))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
-                        .recurrentStateType(RecurrentStateType.DEFAULT)
+                        .recurrentStateType(RecurrentStateType.GRU)
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .mutation(MutationSupport.builder()

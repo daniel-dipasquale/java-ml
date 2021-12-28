@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum RecurrentStateType {
     DEFAULT(1),
-    LSTM(5),
-    GRU(4);
+    LSTM(4),
+    GRU(3);
 
     private final int modifiers;
 }

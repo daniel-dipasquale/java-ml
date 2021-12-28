@@ -53,15 +53,15 @@ algorithms I'm interested in learning and using:
     1. XOR test
 
    ```java
-        float[][] inputs = new float[][]{
-                new float[]{1f, 1f}, // 0f
-                new float[]{1f, 0f}, // 1f
-                new float[]{0f, 1f}, // 1f
-                new float[]{0f, 0f}  // 0f
+        float[][] inputs = {
+                {1f, 1f}, // => 0f
+                {1f, 0f}, // => 1f
+                {0f, 1f}, // => 1f
+                {0f, 0f}  // => 0f
         };
 
-        float[] expectedOutputs = new float[]{0f, 1f, 1f, 0f};
-   
+        float[] expectedOutputs = {0f, 1f, 1f, 0f};
+
         NeatEvaluator neat = Neat.createEvaluator(EvaluatorSettings.builder()
                 .general(GeneralEvaluatorSupportSettings.builder()
                         .populationSize(IntegerNumber.literal(150))
@@ -98,13 +98,13 @@ algorithms I'm interested in learning and using:
                         .outputBias(FloatNumber.random(RandomType.QUADRUPLE_SIGMOID, 15f))
                         .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
                         .hiddenBias(FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 30f))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
-                        .recurrentStateType(RecurrentStateType.DEFAULT)
+                        .recurrentStateType(RecurrentStateType.GRU)
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .mutation(MutationSupport.builder()
@@ -174,8 +174,7 @@ algorithms I'm interested in learning and using:
                         .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
                         .build())
                 .nodes(NodeGeneSupport.builder()
-                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
