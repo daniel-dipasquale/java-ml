@@ -1,10 +1,10 @@
 package com.dipasquale.simulation.tictactoe;
 
-import com.dipasquale.search.mcts.DefaultStrategyCalculator;
 import com.dipasquale.search.mcts.DeterministicSimulationPolicy;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.PrevalentStrategyCalculator;
 import com.dipasquale.search.mcts.SimulationRolloutType;
-import com.dipasquale.search.mcts.UctSelectionPolicy;
+import com.dipasquale.search.mcts.UctConfidenceCalculator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -15,11 +15,10 @@ public class GameTest {
                 .simulationPolicy(DeterministicSimulationPolicy.builder()
                         .maximumSimulation(1_600)
                         .maximumDepth(8)
-                        .abortionRate(0.5f)
                         .build())
-                .selectionPolicy(new UctSelectionPolicy<>())
+                .confidenceCalculator(new UctConfidenceCalculator<>())
                 .simulationRolloutType(SimulationRolloutType.STOCHASTIC_CHOICE_DETERMINISTIC_OUTCOME)
-                .strategyCalculator(DefaultStrategyCalculator.<GameState>builder()
+                .strategyCalculator(PrevalentStrategyCalculator.<GameState>builder()
                         .winningFactor(2f)
                         .notLosingFactor(0.5f)
                         .build())

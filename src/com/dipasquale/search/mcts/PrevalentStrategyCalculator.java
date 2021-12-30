@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Builder
-public final class DefaultStrategyCalculator<T extends State> implements StrategyCalculator<T> {
+public final class PrevalentStrategyCalculator<T extends State> implements StrategyCalculator<T> {
     private final float winningFactor;
     private final float notLosingFactor;
 

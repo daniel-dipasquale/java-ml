@@ -129,7 +129,7 @@ public final class Genome implements Serializable {
             return null;
         }
 
-        NodeGene node1 = nodes.getByIndex(context.random().generateIndex(nodes.size()));
+        NodeGene node1 = nodes.getByIndex(context.random().generateIndex(nodes.size())); // TODO: consider relaxing the type of nodes that can connect with each other
         NodeGene node2 = getRandomNodeToMatch(context.random(), node1.getType());
 
         if (shouldAllowRecurrent) {

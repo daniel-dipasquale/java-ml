@@ -3,12 +3,14 @@ package com.dipasquale.search.mcts;
 import com.dipasquale.common.EntryOptimizer;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.random.float1.UniformRandomSupport;
+import com.dipasquale.data.structure.iterator.FlatIterator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,85 +21,69 @@ public final class MonteCarloTreeSearch<T extends State> {
     public static final int IN_PROGRESS = 0;
     public static final int DRAWN = -1;
     private final SimulationPolicy simulationPolicy;
-    private final ExplorationPolicy<T> explorationPolicy;
-    private final ExplorationPolicy<T> simulationRolloutPolicy;
-    private final SimulationResultFactory<T> simulationResultFactory;
+    private final SelectionPolicy<T> selectionPolicy;
+    private final SelectionPolicy<T> simulationRolloutPolicy;
     private final BackPropagationPolicy<T> backPropagationPolicy;
     private final StrategyCalculator<T> strategyCalculator;
 
-    private static <T extends State> InitializeChildrenExplorationPolicy<T> createInitializeChildrenExplorationPolicy(final SimulationRolloutType simulationRolloutType) {
-        if (simulationRolloutType == SimulationRolloutType.ALL_DETERMINISTIC) {
-            return new InitializeChildrenExplorationPolicy<>(null);
-        }
+    private static <T extends State> InitializeChildrenSelectionPolicy<T> createInitializeChildrenSelectionPolicy(final SimulationRolloutType simulationRolloutType) {
+        return switch (simulationRolloutType) {
+            case STOCHASTIC_CHOICE_DETERMINISTIC_OUTCOME, ALL_STOCHASTIC -> new InitializeChildrenSelectionPolicy<>(new UniformRandomSupport());
 
-        return new InitializeChildrenExplorationPolicy<>(new UniformRandomSupport());
+            case ALL_DETERMINISTIC -> new InitializeChildrenSelectionPolicy<>(null);
+        };
     }
 
-    private static <T extends State> HighestConfidenceExplorationPolicy<T> createHighestConfidenceExplorationPolicy(final SelectionPolicy<T> selectionPolicy) {
-        SelectionPolicy<T> selectionPolicyFixed = Objects.requireNonNullElseGet(selectionPolicy, UctSelectionPolicy::new);
+    private static <T extends State> HighestConfidenceSelectionPolicy<T> createHighestConfidenceSelectionPolicy(final ConfidenceCalculator<T> confidenceCalculator) {
+        ConfidenceCalculator<T> confidenceCalculatorFixed = Objects.requireNonNullElseGet(confidenceCalculator, UctConfidenceCalculator::new);
 
-        return new HighestConfidenceExplorationPolicy<>(selectionPolicyFixed);
+        return new HighestConfidenceSelectionPolicy<>(confidenceCalculatorFixed);
     }
 
-    private static <T extends State> ExplorationPolicy<T> createExplorationPolicy(final InitializeChildrenExplorationPolicy<T> initializeChildrenExplorationPolicy, final SelectionPolicy<T> selectionPolicy) {
-        List<ExplorationPolicy<T>> explorationPolicies = new ArrayList<>();
+    private static <T extends State> SelectionPolicy<T> createSelectionPolicy(final InitializeChildrenSelectionPolicy<T> initializeChildrenSelectionPolicy, final ConfidenceCalculator<T> confidenceCalculator) {
+        List<SelectionPolicy<T>> selectionPolicies = new ArrayList<>();
 
-        explorationPolicies.add(initializeChildrenExplorationPolicy);
-        explorationPolicies.add(new UnexploredFirstExplorationPolicy<>());
-        explorationPolicies.add(createHighestConfidenceExplorationPolicy(selectionPolicy));
+        selectionPolicies.add(initializeChildrenSelectionPolicy);
+        selectionPolicies.add(new UnexploredFirstSelectionPolicy<>());
+        selectionPolicies.add(createHighestConfidenceSelectionPolicy(confidenceCalculator));
 
-        return new MultiExplorationPolicy<>(explorationPolicies);
+        return new MultiSelectionPolicy<>(selectionPolicies);
     }
 
-    private static <T extends State> ExplorationPolicy<T> createSimulationRolloutPolicy(final InitializeChildrenExplorationPolicy<T> initializeChildrenExplorationPolicy, final SimulationRolloutType simulationRolloutType) {
-        List<ExplorationPolicy<T>> simulationRolloutPolicies = new ArrayList<>();
+    private static <T extends State> SelectionPolicy<T> createSimulationRolloutPolicy(final InitializeChildrenSelectionPolicy<T> initializeChildrenSelectionPolicy, final SimulationRolloutType simulationRolloutType) {
+        List<SelectionPolicy<T>> simulationRolloutPolicies = new ArrayList<>();
         RandomSupport randomSupport = new UniformRandomSupport();
 
         switch (simulationRolloutType) {
             case STOCHASTIC_CHOICE_DETERMINISTIC_OUTCOME -> {
-                simulationRolloutPolicies.add(initializeChildrenExplorationPolicy);
-                simulationRolloutPolicies.add(new StatefulRandomExplorationPolicy<>(randomSupport));
+                simulationRolloutPolicies.add(initializeChildrenSelectionPolicy);
+                simulationRolloutPolicies.add(new DeterministicSelectionPolicy<>(randomSupport));
             }
 
             case ALL_DETERMINISTIC -> throw new UnsupportedOperationException();
 
-            case ALL_STOCHASTIC -> simulationRolloutPolicies.add(new StatelessRandomExplorationPolicy<>(randomSupport));
+            case ALL_STOCHASTIC -> simulationRolloutPolicies.add(new StochasticSelectionPolicy<>(randomSupport));
         }
 
-        return new MultiExplorationPolicy<>(simulationRolloutPolicies);
-    }
-
-    private static <T extends State> SimulationResultFactory<T> createSimulationResultFactory(final SimulationRolloutType simulationRolloutType) {
-        return switch (simulationRolloutType) {
-            case STOCHASTIC_CHOICE_DETERMINISTIC_OUTCOME -> new StatefulSimulationResultFactory<>();
-
-            case ALL_DETERMINISTIC -> throw new UnsupportedOperationException();
-
-            case ALL_STOCHASTIC -> new StatelessSimulationResultFactory<>();
-        };
+        return new MultiSelectionPolicy<>(simulationRolloutPolicies);
     }
 
     private static <T extends State> BackPropagationPolicy<T> createBackPropagationPolicy(final SimulationRolloutType simulationRolloutType) {
-        List<BackPropagationPolicy<T>> backPropagationPolicies = new ArrayList<>();
+        return switch (simulationRolloutType) {
+            case STOCHASTIC_CHOICE_DETERMINISTIC_OUTCOME, ALL_DETERMINISTIC -> new DeterministicBackPropagationPolicy<>();
 
-        if (simulationRolloutType == SimulationRolloutType.STOCHASTIC_CHOICE_DETERMINISTIC_OUTCOME) {
-            backPropagationPolicies.add(new AvoidDoubleDipBackPropagationPolicy<>());
-        }
-
-        backPropagationPolicies.add(new DefaultBackPropagationPolicy<>());
-
-        return new MultiBackPropagationPolicy<>(backPropagationPolicies);
+            case ALL_STOCHASTIC -> throw new UnsupportedOperationException();
+        };
     }
 
     @Builder
-    public static <T extends State> MonteCarloTreeSearch<T> create(final SimulationPolicy simulationPolicy, final SelectionPolicy<T> selectionPolicy, final SimulationRolloutType simulationRolloutType, final StrategyCalculator<T> strategyCalculator) {
-        InitializeChildrenExplorationPolicy<T> initializeChildrenExplorationPolicy = createInitializeChildrenExplorationPolicy(simulationRolloutType);
-        ExplorationPolicy<T> explorationPolicy = createExplorationPolicy(initializeChildrenExplorationPolicy, selectionPolicy);
-        ExplorationPolicy<T> simulationRolloutPolicy = createSimulationRolloutPolicy(initializeChildrenExplorationPolicy, simulationRolloutType);
-        SimulationResultFactory<T> simulationResultFactory = createSimulationResultFactory(simulationRolloutType);
+    public static <T extends State> MonteCarloTreeSearch<T> create(final SimulationPolicy simulationPolicy, final ConfidenceCalculator<T> confidenceCalculator, final SimulationRolloutType simulationRolloutType, final StrategyCalculator<T> strategyCalculator) {
+        InitializeChildrenSelectionPolicy<T> initializeChildrenSelectionPolicy = createInitializeChildrenSelectionPolicy(simulationRolloutType);
+        SelectionPolicy<T> selectionPolicy = createSelectionPolicy(initializeChildrenSelectionPolicy, confidenceCalculator);
+        SelectionPolicy<T> simulationRolloutPolicy = createSimulationRolloutPolicy(initializeChildrenSelectionPolicy, simulationRolloutType);
         BackPropagationPolicy<T> backPropagationPolicy = createBackPropagationPolicy(simulationRolloutType);
 
-        return new MonteCarloTreeSearch<>(simulationPolicy, explorationPolicy, simulationRolloutPolicy, simulationResultFactory, backPropagationPolicy, strategyCalculator);
+        return new MonteCarloTreeSearch<>(simulationPolicy, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculator);
     }
 
     private SimulationResult<T> simulateNodeRollout(final SearchNode<T> rootSearchNode, final int simulations) {
@@ -106,20 +92,20 @@ public final class MonteCarloTreeSearch<T extends State> {
 
         for (int depth = 1; true; depth++) {
             if (!simulationPolicy.allowDepth(simulations, depth)) {
-                return simulationResultFactory.create(rootSearchNode, currentSearchNode, DRAWN);
+                return new SimulationResult<>(currentSearchNode, DRAWN);
             }
 
             SearchNode<T> childSearchNode = simulationRolloutPolicy.next(simulations, currentSearchNode);
 
             if (childSearchNode == null) {
-                return simulationResultFactory.create(rootSearchNode, currentSearchNode, DRAWN);
+                return new SimulationResult<>(currentSearchNode, DRAWN);
             }
 
             currentSearchNode = childSearchNode;
             currentStatusId = currentSearchNode.getEnvironment().getStatusId();
 
             if (currentStatusId != IN_PROGRESS) {
-                return simulationResultFactory.create(rootSearchNode, currentSearchNode, currentStatusId);
+                return new SimulationResult<>(currentSearchNode, currentStatusId);
             }
         }
     }
@@ -131,37 +117,37 @@ public final class MonteCarloTreeSearch<T extends State> {
 
         int simulations = 1;
         SearchNode<T> rootSearchNode = new SearchNode<>(environment);
-        SearchNode<T> promisingSearchNode = explorationPolicy.next(simulations, rootSearchNode);
+        SearchNode<T> promisingSearchNode = selectionPolicy.next(simulations, rootSearchNode);
 
         if (promisingSearchNode == null) {
             return null;
         }
 
-        int aborted = 0;
-
-        for (boolean allowed = true; allowed; ) {
+        do {
             int statusId = promisingSearchNode.getEnvironment().getStatusId();
 
-            boolean backPropagated = switch (statusId) {
+            switch (statusId) {
                 case IN_PROGRESS -> {
                     SimulationResult<T> simulationResult = simulateNodeRollout(promisingSearchNode, simulations);
 
-                    yield backPropagationPolicy.process(simulationResult.getSearchNode(), simulationResult.getStatusId());
+                    backPropagationPolicy.process(promisingSearchNode, simulationResult.getSearchNode(), simulationResult.getStatusId());
                 }
 
-                default -> backPropagationPolicy.process(promisingSearchNode, statusId);
-            };
-
-            allowed = simulationPolicy.allowSimulation(++simulations, backPropagated ? aborted : ++aborted);
-
-            if (allowed) {
-                promisingSearchNode = explorationPolicy.next(simulations, rootSearchNode);
+                default -> backPropagationPolicy.process(promisingSearchNode, promisingSearchNode, statusId);
             }
-        }
+
+            if (simulationPolicy.allowSimulation(++simulations)) {
+                promisingSearchNode = selectionPolicy.next(simulations, rootSearchNode);
+            } else {
+                promisingSearchNode = null;
+            }
+        } while (promisingSearchNode != null);
 
         EntryOptimizer<Float, SearchNode<T>> childSearchNodeOptimizer = new EntryOptimizer<>(FLOAT_COMPARATOR);
+        List<Iterator<SearchNode<T>>> childSearchNodeIterators = List.of(rootSearchNode.getExplorableChildren().iterator(), rootSearchNode.getFullyExploredChildren().iterator());
+        Iterable<SearchNode<T>> childSearchNodes = () -> FlatIterator.fromIterators(childSearchNodeIterators);
 
-        for (SearchNode<T> childSearchNode : rootSearchNode.getExploredChildren()) {
+        for (SearchNode<T> childSearchNode : childSearchNodes) {
             float efficiency = strategyCalculator.calculateEfficiency(childSearchNode);
 
             childSearchNodeOptimizer.collectIfMoreOptimum(efficiency, childSearchNode);

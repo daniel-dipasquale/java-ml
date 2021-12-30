@@ -18,7 +18,7 @@ public final class ZipIterator<T> implements Iterator<List<T>> {
             return (List<Iterator<T>>) iterators;
         }
 
-        return Lists.copyOf(iterators);
+        return Lists.createCopyOf(iterators);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts;
 
 @FunctionalInterface
-public interface SelectionPolicy<T extends State> {
-    float calculateConfidence(int simulations, SearchNode<T> searchNode);
+interface SelectionPolicy<T extends State> {
+    SearchNode<T> next(int simulations, SearchNode<T> searchNode);
 }

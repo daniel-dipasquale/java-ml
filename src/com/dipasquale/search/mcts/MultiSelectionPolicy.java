@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class MultiExplorationPolicy<T extends State> implements ExplorationPolicy<T> {
-    private final List<ExplorationPolicy<T>> explorationPolicies;
+final class MultiSelectionPolicy<T extends State> implements SelectionPolicy<T> {
+    private final List<SelectionPolicy<T>> explorationPolicies;
 
     @Override
     public SearchNode<T> next(final int simulations, final SearchNode<T> searchNode) {
-        for (ExplorationPolicy<T> explorationPolicy : explorationPolicies) {
-            SearchNode<T> nextSearchNode = explorationPolicy.next(simulations, searchNode);
+        for (SelectionPolicy<T> selectionPolicy : explorationPolicies) {
+            SearchNode<T> nextSearchNode = selectionPolicy.next(simulations, searchNode);
 
             if (nextSearchNode != null) {
                 return nextSearchNode;

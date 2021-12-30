@@ -106,7 +106,7 @@ public final class DequeHashSetDefaultTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add("item-1"));
         Assertions.assertTrue(TEST.add("item-2"));
         Assertions.assertTrue(TEST.add("item-3"));
-        Assertions.assertEquals(List.of("item-3", "item-2", "item-1"), Lists.copyOf(TEST.descendingIterator()));
+        Assertions.assertEquals(List.of("item-3", "item-2", "item-1"), Lists.createCopyOf(TEST.descendingIterator()));
     }
 
     @Test
@@ -116,7 +116,7 @@ public final class DequeHashSetDefaultTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add("item-3"));
         Assertions.assertTrue(TEST.remove("item-2"));
         Assertions.assertTrue(TEST.add("item-2"));
-        Assertions.assertEquals(List.of("item-2", "item-3", "item-1"), Lists.copyOf(TEST.descendingIterator()));
+        Assertions.assertEquals(List.of("item-2", "item-3", "item-1"), Lists.createCopyOf(TEST.descendingIterator()));
     }
 
     @Test

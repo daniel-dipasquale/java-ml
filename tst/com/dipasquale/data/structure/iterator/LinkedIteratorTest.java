@@ -47,7 +47,7 @@ public final class LinkedIteratorTest {
                 .map(li -> li.value)
                 .limit(2);
 
-        Assertions.assertEquals(List.of("val-1", "val-2"), Lists.copyOf(result.iterator()));
+        Assertions.assertEquals(List.of("val-1", "val-2"), Lists.createCopyOf(result.iterator()));
     }
 
     @Test
@@ -57,7 +57,7 @@ public final class LinkedIteratorTest {
         Stream<String> result = LinkedIterator.createStream(linkedItem, li -> li.next)
                 .map(li -> li.value);
 
-        Assertions.assertEquals(List.of("val-1", "val-2", "val-3"), Lists.copyOf(result.iterator()));
+        Assertions.assertEquals(List.of("val-1", "val-2", "val-3"), Lists.createCopyOf(result.iterator()));
     }
 
     @AllArgsConstructor

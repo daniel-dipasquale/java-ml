@@ -4,12 +4,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public final class SearchNode<T extends State> {
+    private static final int NO_CHILD_SELECTION_INDEX = -1;
     @Getter
     private final SearchNode<T> parent;
     private final SearchNode<T> owner;
@@ -25,9 +25,17 @@ public final class SearchNode<T extends State> {
     @Getter
     private final T state;
     @Getter(AccessLevel.PACKAGE)
-    private List<SearchNode<T>> exploredChildren;
-    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
     private List<SearchNode<T>> unexploredChildren;
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
+    private List<SearchNode<T>> explorableChildren;
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
+    private List<SearchNode<T>> fullyExploredChildren;
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
+    private int childSelectionIndex;
 
     private SearchNode(final SearchNode<T> parent, final T state) {
         this.parent = parent;
@@ -37,8 +45,10 @@ public final class SearchNode<T extends State> {
         this.drawn = parent.drawn;
         this.environment = null;
         this.state = state;
-        this.exploredChildren = null;
         this.unexploredChildren = null;
+        this.explorableChildren = null;
+        this.fullyExploredChildren = null;
+        this.childSelectionIndex = NO_CHILD_SELECTION_INDEX;
     }
 
     SearchNode(final Environment<T> environment) {
@@ -49,8 +59,10 @@ public final class SearchNode<T extends State> {
         this.drawn = 0;
         this.environment = environment;
         this.state = environment.getCurrentState();
-        this.exploredChildren = null;
         this.unexploredChildren = null;
+        this.explorableChildren = null;
+        this.fullyExploredChildren = null;
+        this.childSelectionIndex = NO_CHILD_SELECTION_INDEX;
     }
 
     void increaseVisited() {
@@ -73,14 +85,17 @@ public final class SearchNode<T extends State> {
                 .collect(Collectors.toList());
     }
 
-    void initializeChildren(final List<SearchNode<T>> children) {
-        exploredChildren = new ArrayList<>();
-        unexploredChildren = children;
-    }
-
     void initializeEnvironment() {
         Environment<T> environment = owner.environment.accept(state);
 
         setEnvironment(environment);
+    }
+
+    boolean isExpanded() {
+        return unexploredChildren != null;
+    }
+
+    boolean isFullyExplored() {
+        return unexploredChildren != null && unexploredChildren.isEmpty() && explorableChildren.isEmpty();
     }
 }

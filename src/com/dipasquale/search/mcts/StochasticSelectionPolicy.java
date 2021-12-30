@@ -7,15 +7,12 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class StatelessRandomExplorationPolicy<T extends State> implements ExplorationPolicy<T> {
+final class StochasticSelectionPolicy<T extends State> implements SelectionPolicy<T> {
     private final RandomSupport randomSupport;
 
     @Override
     public SearchNode<T> next(final int simulations, final SearchNode<T> searchNode) {
         List<SearchNode<T>> childSearchNodes = searchNode.createAllPossibleChildNodes();
-
-        randomSupport.shuffle(childSearchNodes);
-
         int size = childSearchNodes.size();
 
         if (size == 0) {
@@ -26,6 +23,7 @@ final class StatelessRandomExplorationPolicy<T extends State> implements Explora
         SearchNode<T> childSearchNode = childSearchNodes.get(index);
 
         childSearchNode.initializeEnvironment();
+        searchNode.setChildSelectionIndex(index);
 
         return childSearchNode;
     }

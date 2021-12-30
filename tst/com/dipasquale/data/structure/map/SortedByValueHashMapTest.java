@@ -26,7 +26,7 @@ public final class SortedByValueHashMapTest {
                 Map.entry("c", 1L),
                 Map.entry("a", 2L),
                 Map.entry("b", 4L)
-        ), Lists.copyOf(TEST.entrySet()));
+        ), Lists.createCopyOf(TEST.entrySet()));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -35,7 +35,7 @@ public final class SortedByValueHashMapTest {
     public void GIVEN_a_set_of_items_WHEN_inserting_an_item_whose_key_and_value_are_already_in_the_set_THEN_do_nothing() {
         Assertions.assertNull(TEST.put("a", 1L));
         Assertions.assertEquals(Long.valueOf(1L), TEST.put("a", 1L));
-        Assertions.assertEquals(List.of(Map.entry("a", 1L)), Lists.copyOf(TEST.entrySet()));
+        Assertions.assertEquals(List.of(Map.entry("a", 1L)), Lists.createCopyOf(TEST.entrySet()));
         Assertions.assertEquals(1, TEST.size());
     }
 
@@ -50,7 +50,7 @@ public final class SortedByValueHashMapTest {
                 Map.entry("a", 2L),
                 Map.entry("b", 4L),
                 Map.entry("c", 5L)
-        ), Lists.copyOf(TEST.entrySet()));
+        ), Lists.createCopyOf(TEST.entrySet()));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -65,7 +65,7 @@ public final class SortedByValueHashMapTest {
         Assertions.assertEquals(List.of(
                 Map.entry("c", 1L),
                 Map.entry("b", 4L)
-        ), Lists.copyOf(TEST.entrySet()));
+        ), Lists.createCopyOf(TEST.entrySet()));
 
         Assertions.assertEquals(2, TEST.size());
     }
@@ -74,7 +74,7 @@ public final class SortedByValueHashMapTest {
     public void GIVEN_a_set_of_items_with_one_item_in_it_WHEN_removing_it_by_key_THEN_ensure_the_set_becomes_empty() {
         Assertions.assertNull(TEST.put("a", 1L));
         Assertions.assertEquals(Long.valueOf(1L), TEST.remove("a"));
-        Assertions.assertEquals(List.of(), Lists.copyOf(TEST.entrySet()));
+        Assertions.assertEquals(List.of(), Lists.createCopyOf(TEST.entrySet()));
         Assertions.assertEquals(0, TEST.size());
     }
 
@@ -89,7 +89,7 @@ public final class SortedByValueHashMapTest {
                 Map.entry("c", 1L),
                 Map.entry("a", 2L),
                 Map.entry("b", 4L)
-        ), Lists.copyOf(TEST.entrySet()));
+        ), Lists.createCopyOf(TEST.entrySet()));
 
         Assertions.assertEquals(3, TEST.size());
     }
@@ -104,7 +104,7 @@ public final class SortedByValueHashMapTest {
         Assertions.assertEquals(List.of(
                 Map.entry("b", 1L),
                 Map.entry("c", 1L)
-        ), Lists.copyOf(TEST.entrySet()));
+        ), Lists.createCopyOf(TEST.entrySet()));
 
         Assertions.assertEquals(2, TEST.size());
     }
@@ -126,7 +126,7 @@ public final class SortedByValueHashMapTest {
         Assertions.assertNull(TEST.put("b", 4L));
         Assertions.assertNull(TEST.put("c", 1L));
         TEST.clear();
-        Assertions.assertEquals(List.of(), Lists.copyOf(TEST.entrySet()));
+        Assertions.assertEquals(List.of(), Lists.createCopyOf(TEST.entrySet()));
         Assertions.assertEquals(0, TEST.size());
     }
 

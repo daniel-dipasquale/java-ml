@@ -1,5 +1,6 @@
 package com.dipasquale.search.mcts;
 
+@FunctionalInterface
 interface BackPropagationPolicy<T extends State> {
-    boolean process(SearchNode<T> searchNode, int statusId);
+    void process(SearchNode<T> rootSearchNode, SearchNode<T> leafSearchNode, int statusId);
 }

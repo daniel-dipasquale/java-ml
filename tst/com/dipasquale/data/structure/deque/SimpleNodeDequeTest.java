@@ -292,7 +292,7 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
         Assertions.assertTrue(TEST.add(node3));
-        Assertions.assertEquals(List.of(node3, node2, node1), Lists.copyOf(TEST.descendingIterator()));
+        Assertions.assertEquals(List.of(node3, node2, node1), Lists.createCopyOf(TEST.descendingIterator()));
     }
 
     @Test

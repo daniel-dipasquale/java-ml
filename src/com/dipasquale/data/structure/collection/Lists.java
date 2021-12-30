@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public interface Lists {
-    static <T> List<T> copyOf(final Iterator<T> iterator) {
+    static <T> List<T> createCopyOf(final Iterator<T> iterator) {
         List<T> list = new ArrayList<>();
 
         while (iterator.hasNext()) {
@@ -16,8 +16,8 @@ public interface Lists {
         return list;
     }
 
-    static <T> List<T> copyOf(final Iterable<T> iterable) {
-        return copyOf(iterable.iterator());
+    static <T> List<T> createCopyOf(final Iterable<T> iterable) {
+        return createCopyOf(iterable.iterator());
     }
 
     @SafeVarargs
