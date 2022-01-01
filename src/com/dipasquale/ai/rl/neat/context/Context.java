@@ -155,6 +155,8 @@ public interface Context {
 
         boolean shouldAllowRecurrent();
 
+        boolean shouldAllowUnrestrictedDirection();
+
         boolean shouldAllowMultiCycle();
 
         void setupInitialConnections(Genome genome);

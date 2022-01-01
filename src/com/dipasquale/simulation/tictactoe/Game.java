@@ -1,6 +1,6 @@
 package com.dipasquale.simulation.tictactoe;
 
-import com.dipasquale.search.mcts.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 
 public final class Game {
     private final Player[] players;

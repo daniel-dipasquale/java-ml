@@ -210,16 +210,20 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         stateGroup.put("nodes.biasNodeIds", biasNodeIds);
     }
 
-    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        nodeIdFactory = DualModeObject.activateMode(stateGroup.get("nodes.nodeIdFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        biasFactories = DualModeObject.forEachValueActivateMode(stateGroup.get("nodes.biasFactories"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
+        nodeIdFactory = DualModeObject.activateMode(stateGroup.get("nodes.nodeIdFactory"), concurrencyLevel);
+        biasFactories = DualModeObject.forEachValueActivateMode(stateGroup.get("nodes.biasFactories"), concurrencyLevel);
         recurrentBiasesFactories = stateGroup.get("nodes.recurrentBiasesFactories");
-        activationFunctionFactories = DualModeObject.forEachValueActivateMode(stateGroup.get("nodes.activationFunctionFactories"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        activationFunctionFactories = DualModeObject.forEachValueActivateMode(stateGroup.get("nodes.activationFunctionFactories"), concurrencyLevel);
         inputs = stateGroup.get("nodes.inputs");
         outputs = stateGroup.get("nodes.outputs");
         biases = stateGroup.get("nodes.biases");
         inputNodeIds = stateGroup.get("nodes.inputNodeIds");
         outputNodeIds = stateGroup.get("nodes.outputNodeIds");
         biasNodeIds = stateGroup.get("nodes.biasNodeIds");
+    }
+
+    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
+        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

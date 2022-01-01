@@ -78,10 +78,14 @@ public final class DefaultContextMutationSupport implements Context.MutationSupp
         stateGroup.put("mutation.shouldDisableExpressedConnectionGate", shouldDisableExpressedConnectionGate);
     }
 
+    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
+        shouldAddNodeGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddNodeGate"), concurrencyLevel);
+        shouldAddConnectionGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddConnectionGate"), concurrencyLevel);
+        weightMutationTypeFactory = DualModeObject.activateMode(stateGroup.get("mutation.weightMutationTypeFactory"), concurrencyLevel);
+        shouldDisableExpressedConnectionGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldDisableExpressedConnectionGate"), concurrencyLevel);
+    }
+
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        shouldAddNodeGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddNodeGate"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        shouldAddConnectionGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddConnectionGate"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        weightMutationTypeFactory = DualModeObject.activateMode(stateGroup.get("mutation.weightMutationTypeFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        shouldDisableExpressedConnectionGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldDisableExpressedConnectionGate"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

@@ -42,8 +42,12 @@ public final class DefaultContextCrossOverSupport implements Context.CrossOverSu
         stateGroup.put("crossOver.shouldUseWeightFromRandomParentGate", shouldUseWeightFromRandomParentGate);
     }
 
+    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
+        shouldOverrideExpressedConnectionGate = DualModeObject.activateMode(stateGroup.get("crossOver.shouldOverrideExpressedConnectionGate"), concurrencyLevel);
+        shouldUseWeightFromRandomParentGate = DualModeObject.activateMode(stateGroup.get("crossOver.shouldUseWeightFromRandomParentGate"), concurrencyLevel);
+    }
+
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        shouldOverrideExpressedConnectionGate = DualModeObject.activateMode(stateGroup.get("crossOver.shouldOverrideExpressedConnectionGate"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        shouldUseWeightFromRandomParentGate = DualModeObject.activateMode(stateGroup.get("crossOver.shouldUseWeightFromRandomParentGate"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

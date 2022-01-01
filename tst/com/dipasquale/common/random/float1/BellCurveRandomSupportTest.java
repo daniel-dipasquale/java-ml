@@ -12,7 +12,7 @@ public final class BellCurveRandomSupportTest {
 
     private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float min, final float max) {
         Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, min, max));
-        Assertions.assertTrue(RandomSupportTestSupport.isNextIntegerEvenlyDistributed(randomSupport, ITERATIONS, 0, 10, List.of(0.09f, 0.03f, 0.02f)));
+        Assertions.assertTrue(RandomSupportTestSupport.isNextIntegerEvenlyDistributed(randomSupport, ITERATIONS, 0, 10, List.of(0.12f, 0.05f, 0.03f)));
     }
 
     @Test

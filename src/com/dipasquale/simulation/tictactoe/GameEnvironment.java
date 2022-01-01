@@ -1,7 +1,7 @@
 package com.dipasquale.simulation.tictactoe;
 
-import com.dipasquale.search.mcts.Environment;
-import com.dipasquale.search.mcts.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.core.Environment;
+import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -148,10 +148,10 @@ public final class GameEnvironment implements Environment<GameState> {
             throw new IllegalArgumentException("game state does not belong to the environment");
         }
 
-        int[] boardCopied = createBoard(board, state);
+        int[] boardFixed = createBoard(board, state);
         int playsFixed = plays + 1;
-        int newStatusId = getStatusId(boardCopied, playsFixed, state.getParticipantId());
+        int statusIdFixed = getStatusId(boardFixed, playsFixed, state.getParticipantId());
 
-        return new GameEnvironment(boardCopied, playsFixed, state, newStatusId);
+        return new GameEnvironment(boardFixed, playsFixed, state, statusIdFixed);
     }
 }

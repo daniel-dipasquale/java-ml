@@ -75,7 +75,7 @@ public interface BitManipulatorSupport {
             return new Only32BitManipulatorSupport();
         }
 
-        return new DefaultBitManipulatorSupport(bits);
+        return new NBitManipulatorSupport(bits);
     }
 
     @FunctionalInterface

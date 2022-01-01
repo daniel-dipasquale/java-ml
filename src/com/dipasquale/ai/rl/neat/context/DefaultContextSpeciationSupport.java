@@ -234,15 +234,19 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         stateGroup.put("speciation.reproductionStrategy", reproductionStrategy);
     }
 
-    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
+    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
         params = stateGroup.get("speciation.params");
-        speciesIdFactory = DualModeObject.activateMode(stateGroup.get("speciation.speciesIdFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        genomePool = DualModeObject.activateMode(stateGroup.get("speciation.genomePool"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        speciesIdFactory = DualModeObject.activateMode(stateGroup.get("speciation.speciesIdFactory"), concurrencyLevel);
+        genomePool = DualModeObject.activateMode(stateGroup.get("speciation.genomePool"), concurrencyLevel);
         genomeCompatibilityCalculator = stateGroup.get("speciation.genomeCompatibilityCalculator");
-        reproductionTypeFactory = DualModeObject.activateMode(stateGroup.get("speciation.reproductionTypeFactory"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        fitnessCalculationStrategy = DualModeObject.activateMode(stateGroup.get("speciation.fitnessCalculationStrategy"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        reproductionTypeFactory = DualModeObject.activateMode(stateGroup.get("speciation.reproductionTypeFactory"), concurrencyLevel);
+        fitnessCalculationStrategy = DualModeObject.activateMode(stateGroup.get("speciation.fitnessCalculationStrategy"), concurrencyLevel);
         selectionStrategy = stateGroup.get("speciation.selectionStrategy");
         reproductionStrategy = stateGroup.get("speciation.reproductionStrategy");
+    }
+
+    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
+        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

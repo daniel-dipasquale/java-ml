@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
-import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
@@ -98,8 +97,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                         .eventLoop(eventLoop)
                         .build())
                 .nodes(NodeGeneSupport.builder()
-                        .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.STEEPENED_SIGMOID))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
                         .recurrentAllowanceRate(FloatNumber.literal(0f))

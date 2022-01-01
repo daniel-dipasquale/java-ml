@@ -15,9 +15,11 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber weightPerturber = FloatNumber.literal(2.5f);
     @Builder.Default
+    private final RecurrentStateType recurrentStateType = RecurrentStateType.DEFAULT;
+    @Builder.Default
     private final FloatNumber recurrentAllowanceRate = FloatNumber.literal(0.2f);
     @Builder.Default
-    private final RecurrentStateType recurrentStateType = RecurrentStateType.DEFAULT;
+    private final FloatNumber unrestrictedDirectionAllowanceRate = FloatNumber.literal(1f);
     @Builder.Default
     private final FloatNumber multiCycleAllowanceRate = FloatNumber.literal(0f);
 

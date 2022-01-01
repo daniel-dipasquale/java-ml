@@ -25,20 +25,22 @@ public final class Genome implements Serializable {
 
     private boolean mutateWeights(final Context context) {
         boolean mutated = false;
+        Context.MutationSupport mutationSupport = context.mutation();
+        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
 
         for (ConnectionGene connection : connections.getAll()) {
-            WeightMutationType weightMutationType = context.mutation().generateWeightMutationType();
+            WeightMutationType weightMutationType = mutationSupport.generateWeightMutationType();
 
             switch (weightMutationType) {
                 case PERTURB -> {
-                    float weight = context.connections().perturbWeight(connection.getWeight());
+                    float weight = connectionGeneSupport.perturbWeight(connection.getWeight());
 
                     connection.setWeight(weight);
                     mutated = true;
                 }
 
                 case REPLACE -> {
-                    float weight = context.connections().generateWeight();
+                    float weight = connectionGeneSupport.generateWeight();
 
                     connection.setWeight(weight);
                     mutated = true;
@@ -125,34 +127,45 @@ public final class Genome implements Serializable {
     }
 
     private InnovationId createRandomInnovationId(final Context context, final boolean shouldAllowRecurrent) {
-        if (nodes.size() <= 1) {
+        int size = nodes.size();
+
+        if (size <= 1) {
             return null;
         }
 
-        NodeGene node1 = nodes.getByIndex(context.random().generateIndex(nodes.size())); // TODO: consider relaxing the type of nodes that can connect with each other
-        NodeGene node2 = getRandomNodeToMatch(context.random(), node1.getType());
+        Context.RandomSupport randomSupport = context.random();
+        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
+        NodeGene node1 = nodes.getByIndex(randomSupport.generateIndex(size));
+
+        if (shouldAllowRecurrent && connectionGeneSupport.shouldAllowUnrestrictedDirection()) {
+            NodeGene node2 = nodes.getByIndex(randomSupport.generateIndex(size));
+
+            return connectionGeneSupport.provideInnovationId(node1, node2);
+        }
+
+        NodeGene node2 = getRandomNodeToMatch(randomSupport, node1.getType());
 
         if (shouldAllowRecurrent) {
             return switch (node1.getType()) {
-                case BIAS -> context.connections().provideInnovationId(node1, node2);
+                case BIAS -> connectionGeneSupport.provideInnovationId(node1, node2);
 
                 default -> switch (node2.getType()) {
-                    case BIAS -> context.connections().provideInnovationId(node2, node1);
+                    case BIAS -> connectionGeneSupport.provideInnovationId(node2, node1);
 
-                    default -> context.connections().provideInnovationId(node1, node2);
+                    default -> connectionGeneSupport.provideInnovationId(node1, node2);
                 };
             };
         }
 
         return switch (node1.getType()) {
-            case INPUT, BIAS -> context.connections().provideInnovationId(node1, node2);
+            case INPUT, BIAS -> connectionGeneSupport.provideInnovationId(node1, node2);
 
-            case OUTPUT -> context.connections().provideInnovationId(node2, node1);
+            case OUTPUT -> connectionGeneSupport.provideInnovationId(node2, node1);
 
             case HIDDEN -> switch (node2.getType()) {
-                case INPUT, BIAS -> createFeedForwardInnovationIdIfPossible(context.connections(), node2, node1);
+                case INPUT, BIAS -> createFeedForwardInnovationIdIfPossible(connectionGeneSupport, node2, node1);
 
-                case OUTPUT, HIDDEN -> createFeedForwardInnovationIdIfPossible(context.connections(), node1, node2);
+                case OUTPUT, HIDDEN -> createFeedForwardInnovationIdIfPossible(connectionGeneSupport, node1, node2);
             };
         };
     }

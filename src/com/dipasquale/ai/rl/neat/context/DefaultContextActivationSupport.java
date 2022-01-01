@@ -183,13 +183,17 @@ public final class DefaultContextActivationSupport implements Context.Activation
         return new StandardSharedNeatEnvironment(sharedNeatEnvironment, fitnessBuckets);
     }
 
-    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop, final NeatEnvironment fitnessFunctionOverride) {
-        genomeActivatorPool = DualModeObject.activateMode(stateGroup.get("activation.genomeActivatorPool"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel, final NeatEnvironment fitnessFunctionOverride) {
+        genomeActivatorPool = DualModeObject.activateMode(stateGroup.get("activation.genomeActivatorPool"), concurrencyLevel);
         neatEnvironmentType = stateGroup.get("activation.neatEnvironmentType");
         isolatedNeatEnvironment = loadIsolatedNeatEnvironment(stateGroup.get("activation.isolatedNeatEnvironment"), fitnessFunctionOverride, neatEnvironmentType);
         sharedNeatEnvironment = loadSharedNeatEnvironment(stateGroup.get("activation.sharedNeatEnvironment"), fitnessFunctionOverride, neatEnvironmentType);
         fitnessBuckets = stateGroup.get("activation.fitnessBuckets");
         standardIsolatedNeatEnvironment = ensureStandardIsolatedNeatEnvironment(isolatedNeatEnvironment, fitnessBuckets);
         standardSharedNeatEnvironment = ensureStandardSharedNeatEnvironment(sharedNeatEnvironment, fitnessBuckets);
+    }
+
+    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop, final NeatEnvironment fitnessFunctionOverride) {
+        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop), fitnessFunctionOverride);
     }
 }

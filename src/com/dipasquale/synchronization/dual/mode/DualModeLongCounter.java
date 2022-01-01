@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.dual.mode;
 
-import com.dipasquale.common.DefaultLongCounter;
 import com.dipasquale.common.LongCounter;
+import com.dipasquale.common.PlainLongCounter;
 import com.dipasquale.common.concurrent.AtomicLongCounter;
 import lombok.EqualsAndHashCode;
 
@@ -34,7 +34,7 @@ public final class DualModeLongCounter implements LongCounter, DualModeObject, S
             return new AtomicLongCounter(value);
         }
 
-        return new DefaultLongCounter(value);
+        return new PlainLongCounter(value);
     }
 
     @Override

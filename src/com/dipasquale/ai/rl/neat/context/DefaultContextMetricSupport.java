@@ -170,14 +170,18 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
         stateGroup.put("metrics.metrics", metrics);
     }
 
-    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
+    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
         params = stateGroup.get("metrics.params");
         metricDatumFactory = stateGroup.get("metrics.metricDatumFactory");
-        metricsContainer = DualModeObject.activateMode(stateGroup.get("metrics.metricsContainer"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        metricsContainer = DualModeObject.activateMode(stateGroup.get("metrics.metricsContainer"), concurrencyLevel);
         metricsCollector = stateGroup.get("metrics.metricsCollector");
         stagnationDropOffAge = stateGroup.get("metrics.stagnationDropOffAge");
-        iteration = DualModeObject.activateMode(stateGroup.get("metrics.iteration"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        generation = DualModeObject.activateMode(stateGroup.get("metrics.generation"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        metrics = DualModeObject.activateMode(stateGroup.get("metrics.metrics"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        iteration = DualModeObject.activateMode(stateGroup.get("metrics.iteration"), concurrencyLevel);
+        generation = DualModeObject.activateMode(stateGroup.get("metrics.generation"), concurrencyLevel);
+        metrics = DualModeObject.activateMode(stateGroup.get("metrics.metrics"), concurrencyLevel);
+    }
+
+    public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
+        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

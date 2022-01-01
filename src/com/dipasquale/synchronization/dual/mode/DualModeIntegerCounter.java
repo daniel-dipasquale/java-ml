@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.dual.mode;
 
-import com.dipasquale.common.DefaultIntegerCounter;
 import com.dipasquale.common.IntegerCounter;
+import com.dipasquale.common.PlainIntegerCounter;
 import com.dipasquale.common.concurrent.AtomicIntegerCounter;
 import lombok.EqualsAndHashCode;
 
@@ -34,7 +34,7 @@ public final class DualModeIntegerCounter implements IntegerCounter, DualModeObj
             return new AtomicIntegerCounter(value);
         }
 
-        return new DefaultIntegerCounter(value);
+        return new PlainIntegerCounter(value);
     }
 
     @Override

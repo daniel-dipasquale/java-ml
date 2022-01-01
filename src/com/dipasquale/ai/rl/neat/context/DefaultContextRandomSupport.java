@@ -44,8 +44,12 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
         stateGroup.put("random.isLessThanRandomSupport", isLessThanRandomSupport);
     }
 
+    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
+        generateIndexOrItemRandomSupport = DualModeObject.activateMode(stateGroup.get("random.generateIndexOrItemRandomSupport"), concurrencyLevel);
+        isLessThanRandomSupport = DualModeObject.activateMode(stateGroup.get("random.isLessThanRandomSupport"), concurrencyLevel);
+    }
+
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {
-        generateIndexOrItemRandomSupport = DualModeObject.activateMode(stateGroup.get("random.generateIndexOrItemRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
-        isLessThanRandomSupport = DualModeObject.activateMode(stateGroup.get("random.isLessThanRandomSupport"), ParallelismSupport.getConcurrencyLevel(eventLoop));
+        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }
