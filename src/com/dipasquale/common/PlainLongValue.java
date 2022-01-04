@@ -10,33 +10,33 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public final class PlainLongCounter implements LongCounter, Serializable {
+public final class PlainLongValue implements LongValue, Serializable {
     @Serial
     private static final long serialVersionUID = 8880985247921190483L;
-    private long counter = -1L;
-
-    @Override
-    public long increment(final long delta) {
-        return counter += delta;
-    }
+    private long raw = -1L;
 
     @Override
     public long current() {
-        return counter;
+        return raw;
     }
 
     @Override
     public long current(final long value) {
-        return counter = value;
+        return raw = value;
+    }
+
+    @Override
+    public long increment(final long delta) {
+        return raw += delta;
     }
 
     @Override
     public int compareTo(final Long other) {
-        return Long.compare(counter, other);
+        return Long.compare(raw, other);
     }
 
     @Override
     public String toString() {
-        return Long.toString(counter);
+        return Long.toString(raw);
     }
 }

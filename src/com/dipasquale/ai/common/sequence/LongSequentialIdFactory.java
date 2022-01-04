@@ -1,6 +1,6 @@
 package com.dipasquale.ai.common.sequence;
 
-import com.dipasquale.common.LongCounter;
+import com.dipasquale.common.LongValue;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -8,10 +8,10 @@ import java.io.Serializable;
 public final class LongSequentialIdFactory implements SequentialIdFactory<LongSequentialId>, Serializable {
     @Serial
     private static final long serialVersionUID = -2914528594779687249L;
-    private final LongCounter counter;
+    private final LongValue counter;
     private final long resetValue;
 
-    public LongSequentialIdFactory(final LongCounter counter) {
+    public LongSequentialIdFactory(final LongValue counter) {
         this.counter = counter;
         this.resetValue = counter.current();
     }

@@ -1,18 +1,19 @@
 package com.dipasquale.search.mcts.classic;
 
 import com.dipasquale.search.mcts.core.BackPropagationPolicy;
+import com.dipasquale.search.mcts.core.Environment;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.core.SearchNode;
 import com.dipasquale.search.mcts.core.SearchState;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class ClassicDeterministicBackPropagationPolicy<T extends SearchState> implements BackPropagationPolicy<T, ClassicSearchEdge> {
+public final class ClassicDeterministicBackPropagationPolicy<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> implements BackPropagationPolicy<TState, ClassicSearchEdge, TEnvironment> {
     @Override
-    public void process(final SearchNode<T, ClassicSearchEdge> rootNode, final SearchNode<T, ClassicSearchEdge> leafNode, final int simulationStatusId) {
+    public void process(final SearchNode<TState, ClassicSearchEdge, TEnvironment> rootNode, final SearchNode<TState, ClassicSearchEdge, TEnvironment> leafNode, final int simulationStatusId) {
         boolean isFullyExplored = true;
 
-        for (SearchNode<T, ClassicSearchEdge> currentNode = leafNode; currentNode != null; ) {
+        for (SearchNode<TState, ClassicSearchEdge, TEnvironment> currentNode = leafNode; currentNode != null; ) {
             currentNode.getEdge().increaseVisited();
 
             if (currentNode.getState().getParticipantId() == simulationStatusId) {
@@ -21,7 +22,7 @@ public final class ClassicDeterministicBackPropagationPolicy<T extends SearchSta
                 currentNode.getEdge().increaseDrawn();
             }
 
-            SearchNode<T, ClassicSearchEdge> parentNode = currentNode.getParent();
+            SearchNode<TState, ClassicSearchEdge, TEnvironment> parentNode = currentNode.getParent();
 
             if (parentNode != null) {
                 if (isFullyExplored) {

@@ -10,6 +10,7 @@ import com.dipasquale.simulation.openai.gym.client.GymClient;
 import com.dipasquale.simulation.openai.gym.client.StepResult;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,18 +18,18 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@Getter
 public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
     private static final double REWARD_GOAL = 195D;
-    private final GymClient gymClient;
-    @Getter
     private final String name = "CartPole-v0";
-    @Getter
-    private final boolean metricsEmissionEnabled;
-    @Getter
+    private final GymClient gymClient;
+    @Builder.Default
     private final int populationSize = 150;
+    private final boolean metricsEmissionEnabled;
 
     private static float[] convertToFloat(final double[] input) {
         float[] output = new float[input.length];

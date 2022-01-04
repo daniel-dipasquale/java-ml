@@ -16,9 +16,8 @@ public interface RandomSupport {
 
     default long next(final long min, final long max) {
         double value = next();
-        double result = Math.floor(value * (double) (max - min)) + min;
 
-        return (long) result;
+        return (long) Math.floor(value * (double) (max - min)) + min;
     }
 
     default RandomSupport bounded(final double min, final double max) {

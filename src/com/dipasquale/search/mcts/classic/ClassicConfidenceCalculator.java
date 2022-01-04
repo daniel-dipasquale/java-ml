@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class ClassicConfidenceCalculator implements ConfidenceCalculator<ClassicSearchEdge> {
-    private static final double CONSTANT = Math.sqrt(2);
+    private static final double CONSTANT = Math.sqrt(2D);
     private final double constant;
 
     public ClassicConfidenceCalculator() {

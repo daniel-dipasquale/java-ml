@@ -9,7 +9,15 @@ public final class AtomicDouble extends Number {
     private final AtomicLong bits;
 
     public AtomicDouble(final double value) {
-        this.bits = new AtomicLong(Double.doubleToRawLongBits(value));
+        this.bits = new AtomicLong(translateTo(value));
+    }
+
+    private static long translateTo(final double value) {
+        return Double.doubleToRawLongBits(value);
+    }
+
+    private static double translateFrom(final long value) {
+        return Double.longBitsToDouble(value);
     }
 
     @Override
@@ -29,7 +37,7 @@ public final class AtomicDouble extends Number {
 
     @Override
     public double doubleValue() {
-        return Double.longBitsToDouble(bits.longValue());
+        return translateFrom(bits.longValue());
     }
 
     public double get() {
@@ -37,6 +45,6 @@ public final class AtomicDouble extends Number {
     }
 
     public void set(final double value) {
-        bits.set(Double.doubleToRawLongBits(value));
+        bits.set(translateTo(value));
     }
 }

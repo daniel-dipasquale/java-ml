@@ -13,11 +13,7 @@ public final class ClassicSearchEdgeFactory implements SearchEdgeFactory<Classic
     }
 
     @Override
-    public ClassicSearchEdge create(final ClassicSearchEdge parent) {
-        if (parent == null) {
-            return new ClassicSearchEdge();
-        }
-
-        return new ClassicSearchEdge(parent);
+    public ClassicSearchEdge create() {
+        return new ClassicSearchEdge();
     }
 }

@@ -7,13 +7,13 @@ import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class HighestConfidenceSelectionPolicy<TState extends SearchState, TEdge extends SearchEdge> implements SelectionPolicy<TState, TEdge> {
+public final class HighestConfidenceSelectionPolicy<TState extends SearchState, TEdge extends SearchEdge, TEnvironment extends Environment<TState, TEnvironment>> implements SelectionPolicy<TState, TEdge, TEnvironment> {
     private static final Comparator<Float> FLOAT_COMPARATOR = Float::compare;
     private final ConfidenceCalculator<TEdge> confidenceCalculator;
 
     @Override
-    public SearchNode<TState, TEdge> next(final int simulations, final SearchNode<TState, TEdge> node) {
-        List<SearchNode<TState, TEdge>> childNodes = node.getExplorableChildren();
+    public SearchNode<TState, TEdge, TEnvironment> next(final int simulations, final SearchNode<TState, TEdge, TEnvironment> node) {
+        List<SearchNode<TState, TEdge, TEnvironment>> childNodes = node.getExplorableChildren();
         int size = node.getExplorableChildren().size();
 
         if (size == 0) {
@@ -29,7 +29,7 @@ public final class HighestConfidenceSelectionPolicy<TState extends SearchState, 
         }
 
         int index = childNodeOptimizer.getValue();
-        SearchNode<TState, TEdge> childNode = childNodes.get(index);
+        SearchNode<TState, TEdge, TEnvironment> childNode = childNodes.get(index);
 
         if (childNode.getEnvironment() == null) {
             childNode.initializeEnvironment();

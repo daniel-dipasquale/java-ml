@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat.core;
 
+import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.metric.LazyValuesMetricDatumFactory;
 import com.dipasquale.metric.MetricDatum;
@@ -25,6 +27,8 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
     private long lastIterationDateTime = Long.MIN_VALUE;
     private final MetricDatum iterationTimeMetricDatum = METRIC_DATUM_FACTORY.create();
     private float lastMaximumFitness = 0f;
+    private int lastSpeciesCount = 0;
+    private Genome lastChampionGenome = null;
 
     private static String format(final float value) {
         if (Float.compare(value, (float) Math.floor(value)) != 0) {
@@ -34,11 +38,13 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
         return Integer.toString((int) value);
     }
 
-    private static void echo(final String name, final int number, final MetricDatum timeMetricDatum, final float maximumFitness) {
+    private static void echo(final String name, final int number, final MetricDatum timeMetricDatum, final float maximumFitness, final int species, final Genome genome) {
         float lastTime = timeMetricDatum.getValues().get(timeMetricDatum.getValues().size() - 1);
         float averageTime = timeMetricDatum.getAverage();
+        int hiddenNodes = genome.getNodes().size(NodeGeneType.HIDDEN);
+        int connections = genome.getConnections().getExpressed().size();
 
-        System.out.printf("%s: %d { time: (%s), average time: (%s), maximum fitness: (%s) }%n", name, number, format(lastTime), format(averageTime), format(maximumFitness));
+        System.out.printf("%s: %d { time: (%s), average time: (%s), maximum fitness: (%s), species: (%d), hidden nodes: (%d), connections: (%d) }%n", name, number, format(lastTime), format(averageTime), format(maximumFitness), species, hiddenNodes, connections);
     }
 
     @Override
@@ -50,6 +56,10 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
             long dateTime = dateTimeSupport.now();
             float maximumFitness = activator.getState().getMaximumFitness();
             float maximumFitnessFixed = generation > 1 ? maximumFitness : lastMaximumFitness;
+            int speciesCount = activator.getState().getSpeciesCount();
+            int speciesCountFixed = generation > 1 ? speciesCount : lastSpeciesCount;
+            Genome championGenome = activator.getState().getChampionGenome();
+            Genome championGenomeFixed = generation > 1 ? championGenome : lastChampionGenome;
 
             if (generation > 1 || iteration > 1 && lastIterationTested < iteration) {
                 int generationFixed = generation > 1 ? generation - 1 : lastGenerationTested;
@@ -57,7 +67,7 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
 
                 generationTimeMetricDatum.add(dateTime - lastGenerationDateTime);
                 System.out.printf("iteration: %d, ", iterationFixed);
-                echo("generation", generationFixed, generationTimeMetricDatum, maximumFitnessFixed);
+                echo("generation", generationFixed, generationTimeMetricDatum, maximumFitnessFixed, speciesCountFixed, championGenomeFixed);
             }
 
             lastGenerationDateTime = dateTime;
@@ -68,7 +78,7 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
                     generationTimeMetricData.add(generationTimeMetricDatum.createCopy());
                     generationTimeMetricDatum.clear();
                     iterationTimeMetricDatum.add(dateTime - lastIterationDateTime);
-                    echo("iteration", iteration - 1, iterationTimeMetricDatum, maximumFitnessFixed);
+                    echo("iteration", iteration - 1, iterationTimeMetricDatum, maximumFitnessFixed, speciesCountFixed, championGenomeFixed);
                     System.out.printf("=========================================%n");
                 }
 
@@ -77,6 +87,8 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
             }
 
             lastMaximumFitness = maximumFitness;
+            lastSpeciesCount = speciesCount;
+            lastChampionGenome = championGenome;
         }
 
         return NeatTrainingResult.CONTINUE_TRAINING;
@@ -92,6 +104,8 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
         lastIterationDateTime = Long.MIN_VALUE;
         iterationTimeMetricDatum.clear();
         lastMaximumFitness = 0f;
+        lastSpeciesCount = 0;
+        lastChampionGenome = null;
     }
 
     @Override

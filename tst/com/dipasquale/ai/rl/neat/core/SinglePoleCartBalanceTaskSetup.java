@@ -12,6 +12,7 @@ import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +20,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
     private static final RandomSupport RANDOM_SUPPORT = new ThreadLocalUniformRandomSupport();
@@ -27,8 +29,9 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
     private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
     private final String name = "Single Pole Cart Balance";
-    private final boolean metricsEmissionEnabled;
+    @Builder.Default
     private final int populationSize = 150;
+    private final boolean metricsEmissionEnabled;
 
     private static float[] convertToFloat(final double[] input) {
         float[] output = new float[input.length];

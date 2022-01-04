@@ -1,25 +1,16 @@
 package com.dipasquale.search.mcts.classic;
 
 import com.dipasquale.search.mcts.core.SearchEdge;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 public final class ClassicSearchEdge implements SearchEdge {
-    private int visited;
-    private int won;
-    private int drawn;
-
-    ClassicSearchEdge() {
-        this.visited = 0;
-        this.won = 0;
-        this.drawn = 0;
-    }
-
-    ClassicSearchEdge(final ClassicSearchEdge parent) {
-        this.visited = parent.visited;
-        this.won = parent.won;
-        this.drawn = parent.drawn;
-    }
+    private int visited = 0;
+    private int won = 0;
+    private int drawn = 0;
 
     void increaseVisited() {
         visited++;

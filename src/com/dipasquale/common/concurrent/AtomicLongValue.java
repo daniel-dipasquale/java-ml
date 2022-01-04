@@ -1,53 +1,53 @@
 package com.dipasquale.common.concurrent;
 
-import com.dipasquale.common.LongCounter;
+import com.dipasquale.common.LongValue;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class AtomicLongCounter implements LongCounter, Serializable {
+public final class AtomicLongValue implements LongValue, Serializable {
     @Serial
     private static final long serialVersionUID = -7703255803251431507L;
-    private final AtomicLong counter;
+    private final AtomicLong raw;
 
-    public AtomicLongCounter(final long value) {
-        this.counter = new AtomicLong(value);
+    public AtomicLongValue(final long value) {
+        this.raw = new AtomicLong(value);
     }
 
-    public AtomicLongCounter() {
+    public AtomicLongValue() {
         this(-1L);
     }
 
     @Override
-    public long increment(final long delta) {
-        return counter.addAndGet(delta);
-    }
-
-    @Override
     public long current() {
-        return counter.get();
+        return raw.get();
     }
 
     @Override
     public long current(final long value) {
-        counter.set(value);
+        raw.set(value);
 
         return value;
     }
 
     @Override
+    public long increment(final long delta) {
+        return raw.addAndGet(delta);
+    }
+
+    @Override
     public int compareTo(final Long other) {
-        return Long.compare(counter.get(), other);
+        return Long.compare(raw.get(), other);
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(counter.get());
+        return Long.hashCode(raw.get());
     }
 
-    private boolean equals(final AtomicLongCounter other) {
-        return counter.get() == other.counter.get();
+    private boolean equals(final AtomicLongValue other) {
+        return raw.get() == other.raw.get();
     }
 
     @Override
@@ -56,7 +56,7 @@ public final class AtomicLongCounter implements LongCounter, Serializable {
             return true;
         }
 
-        if (other instanceof AtomicLongCounter otherFixed) {
+        if (other instanceof AtomicLongValue otherFixed) {
             return equals(otherFixed);
         }
 
@@ -65,6 +65,6 @@ public final class AtomicLongCounter implements LongCounter, Serializable {
 
     @Override
     public String toString() {
-        return Long.toString(counter.get());
+        return Long.toString(raw.get());
     }
 }

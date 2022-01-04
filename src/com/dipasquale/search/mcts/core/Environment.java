@@ -1,11 +1,13 @@
 package com.dipasquale.search.mcts.core;
 
-public interface Environment<T extends SearchState> {
-    T getCurrentState();
+public interface Environment<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> {
+    TState getCurrentState();
+
+    int getNextParticipantId();
 
     int getStatusId();
 
-    Iterable<T> createAllPossibleStates();
+    Iterable<TState> createAllPossibleStates();
 
-    Environment<T> accept(T state);
+    TEnvironment accept(TState state);
 }

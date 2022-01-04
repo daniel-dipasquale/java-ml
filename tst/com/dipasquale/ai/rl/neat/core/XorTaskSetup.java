@@ -7,6 +7,7 @@ import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +15,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 final class XorTaskSetup implements TaskSetup {
     private static final float[][] INPUTS = {
@@ -26,8 +28,9 @@ final class XorTaskSetup implements TaskSetup {
 
     private static final float[] EXPECTED_OUTPUTS = {0f, 1f, 1f, 0f};
     private final String name = "XOR";
-    private final boolean metricsEmissionEnabled;
+    @Builder.Default
     private final int populationSize = 150;
+    private final boolean metricsEmissionEnabled;
 
     private static float calculateFitness(final GenomeActivator genomeActivator) {
         float error = 0f;
@@ -92,7 +95,7 @@ final class XorTaskSetup implements TaskSetup {
                 .connections(ConnectionGeneSupport.builder()
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
                         .weightPerturber(FloatNumber.literal(2.5f))
-                        .recurrentStateType(RecurrentStateType.DEFAULT)
+                        .recurrentStateType(RecurrentStateType.GRU)
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
                         .unrestrictedDirectionAllowanceRate(FloatNumber.literal(1f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))

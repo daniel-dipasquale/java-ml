@@ -10,33 +10,33 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public final class PlainIntegerCounter implements IntegerCounter, Serializable {
+public final class PlainIntegerValue implements IntegerValue, Serializable {
     @Serial
     private static final long serialVersionUID = 4677307812574374001L;
-    private int counter = -1;
-
-    @Override
-    public int increment(final int delta) {
-        return counter += delta;
-    }
+    private int raw = -1;
 
     @Override
     public int current() {
-        return counter;
+        return raw;
     }
 
     @Override
     public int current(final int value) {
-        return counter = value;
+        return raw = value;
+    }
+
+    @Override
+    public int increment(final int delta) {
+        return raw += delta;
     }
 
     @Override
     public int compareTo(final Integer other) {
-        return Integer.compare(counter, other);
+        return Integer.compare(raw, other);
     }
 
     @Override
     public String toString() {
-        return Integer.toString(counter);
+        return Integer.toString(raw);
     }
 }

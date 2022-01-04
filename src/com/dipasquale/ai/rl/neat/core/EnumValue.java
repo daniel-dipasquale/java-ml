@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomEnumFactory;
+import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeSequentialEnumFactory;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.LiteralEnumFactory;
 import com.dipasquale.data.structure.collection.Lists;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EnumValue<T extends Enum<T>> {
@@ -25,6 +27,16 @@ public final class EnumValue<T extends Enum<T>> {
         DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeEnumFactory<>(ic.getConcurrencyLevel(), new LiteralEnumFactory<>(value)));
 
         return new EnumValue<>(factoryCreator);
+    }
+
+    private static <T extends Enum<T>> EnumValue<T> createSequence(final List<T> values) {
+        DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeSequentialEnumFactory<>(ic.getConcurrencyLevel(), values));
+
+        return new EnumValue<>(factoryCreator);
+    }
+
+    public static <T extends Enum<T>> EnumValue<T> sequence(final Sequence<T> sequence) {
+        return createSequence(sequence.getValues());
     }
 
     private static <T extends Enum<T>> EnumValue<T> createRandom(final T[] values) {
@@ -48,7 +60,11 @@ public final class EnumValue<T extends Enum<T>> {
 
     public T getSingletonValue(final InitializationContext initializationContext) {
         if (!initializationContext.getContainer().containsKey(singletonKey)) {
-            initializationContext.getContainer().setValue(singletonKey, factoryCreator.create(initializationContext).create());
+            T singleton = factoryCreator.create(initializationContext).create();
+
+            initializationContext.getContainer().setValue(singletonKey, singleton);
+
+            return singleton;
         }
 
         return (T) initializationContext.getContainer().getValue(singletonKey);

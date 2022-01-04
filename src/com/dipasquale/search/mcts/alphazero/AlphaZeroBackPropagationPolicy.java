@@ -1,12 +1,13 @@
 package com.dipasquale.search.mcts.alphazero;
 
 import com.dipasquale.search.mcts.core.BackPropagationPolicy;
+import com.dipasquale.search.mcts.core.Environment;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.core.SearchNode;
 import com.dipasquale.search.mcts.core.SearchState;
 
-public final class AlphaZeroBackPropagationPolicy<T extends SearchState> implements BackPropagationPolicy<T, AlphaZeroSearchEdge> {
-    private static <T extends SearchState> float getReward(final SearchNode<T, AlphaZeroSearchEdge> node, final int ownerParticipantId, final int simulationStatusId) {
+public final class AlphaZeroBackPropagationPolicy<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> implements BackPropagationPolicy<TState, AlphaZeroSearchEdge, TEnvironment> {
+    private static <TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> float getReward(final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> node, final int ownerParticipantId, final int simulationStatusId) {
         if (ownerParticipantId == simulationStatusId) {
             return 1f;
         }
@@ -30,12 +31,12 @@ public final class AlphaZeroBackPropagationPolicy<T extends SearchState> impleme
     }
 
     @Override
-    public void process(final SearchNode<T, AlphaZeroSearchEdge> rootNode, final SearchNode<T, AlphaZeroSearchEdge> leafNode, final int simulationStatusId) {
+    public void process(final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> rootNode, final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> leafNode, final int simulationStatusId) {
         boolean isFullyExplored = true;
         int ownerParticipantId = leafNode.getState().getParticipantId();
         float reward = getReward(leafNode, ownerParticipantId, simulationStatusId);
 
-        for (SearchNode<T, AlphaZeroSearchEdge> currentNode = leafNode; currentNode != null; ) {
+        for (SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> currentNode = leafNode; currentNode != null; ) {
             AlphaZeroSearchEdge currentEdge = currentNode.getEdge();
             int visited = currentEdge.getVisited();
 
@@ -47,7 +48,7 @@ public final class AlphaZeroBackPropagationPolicy<T extends SearchState> impleme
                 setExpectedReward(currentEdge, -reward, visited);
             }
 
-            SearchNode<T, AlphaZeroSearchEdge> parentNode = currentNode.getParent();
+            SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> parentNode = currentNode.getParent();
 
             if (parentNode != null) {
                 if (isFullyExplored) {

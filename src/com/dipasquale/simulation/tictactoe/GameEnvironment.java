@@ -2,17 +2,19 @@ package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.core.Environment;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-public final class GameEnvironment implements Environment<GameState> {
+public final class GameEnvironment implements Environment<GameState, GameEnvironment> {
     private static final int MAXIMUM_PLAYS = 9;
     private static final int NO_PARTICIPANT_ID = -1;
     private static final int NO_LOCATION = -1;
     private static final int UNPLAYED_STATE = 0;
     private final Object membership;
+    @Getter(AccessLevel.PACKAGE)
     private final int[] board;
     private final int plays;
     @Getter
@@ -36,7 +38,8 @@ public final class GameEnvironment implements Environment<GameState> {
         this.statusId = statusId;
     }
 
-    private int getNextParticipantId() {
+    @Override
+    public int getNextParticipantId() {
         if (plays == 0) {
             return 1;
         }

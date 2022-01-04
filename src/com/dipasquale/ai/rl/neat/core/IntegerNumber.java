@@ -42,7 +42,11 @@ public final class IntegerNumber {
 
     public int getSingletonValue(final InitializationContext initializationContext) {
         if (!initializationContext.getContainer().containsKey(singletonKey)) {
-            initializationContext.getContainer().setValue(singletonKey, factoryCreator.create(initializationContext).create());
+            int singleton = factoryCreator.create(initializationContext).create();
+
+            initializationContext.getContainer().setValue(singletonKey, singleton);
+
+            return singleton;
         }
 
         return (int) initializationContext.getContainer().getValue(singletonKey);

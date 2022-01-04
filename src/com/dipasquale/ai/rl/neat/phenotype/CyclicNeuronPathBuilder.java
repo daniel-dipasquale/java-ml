@@ -8,20 +8,14 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class CyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
     @Serial
     private static final long serialVersionUID = 1299761107234360133L;
     private final Map<Id, Neuron> neurons = new HashMap<>();
-    private final Set<NeuronOrderId> orderedNeuronIds = new HashSet<>();
+    private final Set<NeuronPathId> orderedNeuronIds = new HashSet<>();
     private final Collection<Neuron> orderedNeurons = new LinkedList<>();
 
     @Override
@@ -39,63 +33,60 @@ final class CyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
         neurons.put(neuron.getId(), neuron);
     }
 
-    private OrderableNeuron getOrderableOrCreateUnordered(final OrderableNeuron orderableNeuron, final NeuronOrderId neuronOrderId) {
-        if (orderableNeuron != null) {
-            return orderableNeuron;
+    private static void addRootPathTo(final HashDequeMap<NeuronPathId, NeuronPath> deque, final Neuron neuron) {
+        NeuronPathId neuronPathId = new NeuronPathId(neuron.getId(), 0);
+        NeuronPath neuronPath = new NeuronPath(neuronPathId, neuron, true);
+
+        deque.putLast(neuronPath.id, neuronPath);
+    }
+
+    private NeuronPath getOrCreatePath(final NeuronPath neuronPath, final NeuronPathId neuronPathId) {
+        if (neuronPath != null) {
+            return neuronPath;
         }
 
-        Neuron neuron = neurons.get(neuronOrderId.neuronId);
+        Neuron neuron = neurons.get(neuronPathId.neuronId);
 
-        return new OrderableNeuron(neuronOrderId, neuron, false);
+        return new NeuronPath(neuronPathId, neuron, false);
     }
 
-    private static OrderableNeuron createUnordered(final Neuron neuron) {
-        NeuronOrderId neuronOrderId = new NeuronOrderId(neuron.getId(), 0);
-
-        return new OrderableNeuron(neuronOrderId, neuron, false);
-    }
-
-    private static void addRootTo(final HashDequeMap<NeuronOrderId, OrderableNeuron> deque, final Neuron neuron) {
-        OrderableNeuron orderableNeuron = createUnordered(neuron);
-
-        deque.putLast(orderableNeuron.neuronOrderId, orderableNeuron);
-    }
-
-    private OrderableNeuron createNextUnordered(final NeuronOrderId neuronOrderId) {
-        return new OrderableNeuron(neuronOrderId.createNext(), neurons.get(neuronOrderId.neuronId), false);
+    private NeuronPath createNextPath(final NeuronPathId neuronPathId) {
+        return new NeuronPath(neuronPathId.createNext(), neurons.get(neuronPathId.neuronId), false);
     }
 
     @Override
-    public void addPathLeadingTo(final Neuron neuron) {
-        HashDequeMap<NeuronOrderId, OrderableNeuron> orderingNeurons = new HashDequeMap<>();
+    public void addPathsLeadingTo(final List<Neuron> neurons) {
+        HashDequeMap<NeuronPathId, NeuronPath> orderingNeuronPaths = new HashDequeMap<>();
 
-        addRootTo(orderingNeurons, neuron);
+        for (Neuron neuron : neurons) {
+            addRootPathTo(orderingNeuronPaths, neuron);
+        }
 
-        while (!orderingNeurons.isEmpty()) {
-            OrderableNeuron orderableNeuron = orderingNeurons.removeLast();
+        while (!orderingNeuronPaths.isEmpty()) {
+            NeuronPath neuronPath = orderingNeuronPaths.removeLast();
 
-            if (!orderableNeuron.ordered) {
-                orderingNeurons.putLast(orderableNeuron.neuronOrderId, orderableNeuron.createOrdered());
+            if (!neuronPath.ordered) {
+                orderingNeuronPaths.putLast(neuronPath.id, neuronPath.flipOrdered());
 
-                for (NeuronInputConnection connection : orderableNeuron.neuron.getInputConnections()) {
-                    NeuronOrderId sourceNeuronId = new NeuronOrderId(connection.getSourceNeuronId(), orderableNeuron.neuronOrderId.cycle);
+                for (NeuronInputConnection connection : neuronPath.neuron.getInputConnections()) {
+                    NeuronPathId sourceNeuronPathId = new NeuronPathId(connection.getSourceNeuronId(), neuronPath.id.cycle);
 
-                    if (sourceNeuronId.cycle < connection.getCyclesAllowed()) {
-                        OrderableNeuron orderableSourceNeuron = orderingNeurons.get(sourceNeuronId);
+                    if (sourceNeuronPathId.cycle < connection.getCyclesAllowed()) {
+                        NeuronPath sourceNeuronPath = orderingNeuronPaths.get(sourceNeuronPathId);
 
-                        if ((orderableSourceNeuron == null || !orderableSourceNeuron.ordered) && !orderedNeuronIds.contains(sourceNeuronId)) {
-                            OrderableNeuron orderableSourceNeuronFixed = getOrderableOrCreateUnordered(orderableSourceNeuron, sourceNeuronId);
+                        if ((sourceNeuronPath == null || !sourceNeuronPath.ordered) && !orderedNeuronIds.contains(sourceNeuronPathId)) {
+                            NeuronPath sourceNeuronPathFixed = getOrCreatePath(sourceNeuronPath, sourceNeuronPathId);
 
-                            orderingNeurons.putLast(sourceNeuronId, orderableSourceNeuronFixed);
-                        } else if (orderableSourceNeuron != null && orderableSourceNeuron.ordered || orderedNeuronIds.contains(sourceNeuronId)) {
-                            OrderableNeuron orderableSourceNeuronFixed = createNextUnordered(sourceNeuronId);
+                            orderingNeuronPaths.putLast(sourceNeuronPathId, sourceNeuronPathFixed);
+                        } else if (sourceNeuronPath != null && sourceNeuronPath.ordered) {
+                            NeuronPath sourceNeuronPathFixed = createNextPath(sourceNeuronPathId);
 
-                            orderingNeurons.putLast(orderableSourceNeuronFixed.neuronOrderId, orderableSourceNeuronFixed);
+                            orderingNeuronPaths.putLast(sourceNeuronPathFixed.id, sourceNeuronPathFixed);
                         }
                     }
                 }
-            } else if (orderedNeuronIds.add(orderableNeuron.neuronOrderId) && !orderingNeurons.isEmpty()) {
-                orderedNeurons.add(orderableNeuron.neuron);
+            } else if (orderedNeuronIds.add(neuronPath.id) && !neuronPath.root) {
+                orderedNeurons.add(neuronPath.neuron);
             }
         }
     }
@@ -113,14 +104,14 @@ final class CyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
-    private static final class NeuronOrderId implements Serializable {
+    private static final class NeuronPathId implements Serializable {
         @Serial
         private static final long serialVersionUID = -445055006068211779L;
         private final Id neuronId;
         private final int cycle;
 
-        private NeuronOrderId createNext() {
-            return new NeuronOrderId(neuronId, cycle + 1);
+        private NeuronPathId createNext() {
+            return new NeuronPathId(neuronId, cycle + 1);
         }
 
         @Override
@@ -129,21 +120,30 @@ final class CyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class OrderableNeuron implements Serializable {
+    private static final class NeuronPath implements Serializable {
         @Serial
         private static final long serialVersionUID = -4219700326308862911L;
-        private final NeuronOrderId neuronOrderId;
+        private final NeuronPathId id;
         private final Neuron neuron;
-        private final boolean ordered;
+        private boolean ordered;
+        private final boolean root;
 
-        public OrderableNeuron createOrdered() {
-            return new OrderableNeuron(neuronOrderId, neuron, true);
+        private NeuronPath(final NeuronPathId id, final Neuron neuron, final boolean root) {
+            this.id = id;
+            this.neuron = neuron;
+            this.ordered = false;
+            this.root = root;
+        }
+
+        public NeuronPath flipOrdered() {
+            ordered = !ordered;
+
+            return this;
         }
 
         @Override
         public String toString() {
-            return String.format("%s:%b", neuronOrderId, ordered);
+            return String.format("%s:%b", id, ordered);
         }
     }
 }

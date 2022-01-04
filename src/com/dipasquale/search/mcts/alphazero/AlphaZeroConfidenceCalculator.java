@@ -11,7 +11,7 @@ public final class AlphaZeroConfidenceCalculator implements ConfidenceCalculator
     public float calculate(final int simulations, final AlphaZeroSearchEdge edge) {
         float exploitationRate = edge.getExpectedReward();
         int visited = edge.getVisited();
-        double visitedPlusOne = edge.getVisited() + 1;
+        double visitedPlusOne = visited + 1;
         float explorationRate = cpuct.getValue(simulations, visited) * edge.getExplorationProbability() * (float) (Math.sqrt(simulations) / visitedPlusOne);
 
         return exploitationRate + explorationRate;

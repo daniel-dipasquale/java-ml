@@ -1,6 +1,10 @@
 package com.dipasquale.common;
 
-public interface LongCounter extends Comparable<Long> {
+public interface LongValue extends Comparable<Long> {
+    long current();
+
+    long current(long value);
+
     long increment(long delta);
 
     default long increment() {
@@ -10,10 +14,6 @@ public interface LongCounter extends Comparable<Long> {
     default long decrement() {
         return increment(-1L);
     }
-
-    long current();
-
-    long current(long value);
 
     boolean equals(Object other);
 

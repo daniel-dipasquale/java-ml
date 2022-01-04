@@ -7,13 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class AcyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
@@ -38,38 +32,42 @@ final class AcyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable 
         neurons.put(neuron.getId(), neuron);
     }
 
-    private OrderableNeuron getOrderableOrCreateUnordered(final OrderableNeuron orderableNeuron, final Id neuronId) {
-        if (orderableNeuron != null) {
-            return orderableNeuron;
+    private NeuronPath getOrCreatePath(final NeuronPath neuronPath, final Id neuronId) {
+        if (neuronPath != null) {
+            return neuronPath;
         }
 
         Neuron neuron = neurons.get(neuronId);
 
-        return new OrderableNeuron(neuron, false);
+        return new NeuronPath(neuron, false);
     }
 
     @Override
-    public void addPathLeadingTo(final Neuron neuron) { // inspired from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
-        HashDequeMap<Id, OrderableNeuron> orderingNeurons = new HashDequeMap<>();
+    public void addPathsLeadingTo(final List<Neuron> neurons) { // inspired from http://sergebg.blogspot.com/2014/11/non-recursive-dfs-topological-sort.html
+        HashDequeMap<Id, NeuronPath> orderingNeuronPaths = new HashDequeMap<>();
 
-        orderingNeurons.putLast(neuron.getId(), new OrderableNeuron(neuron, false));
+        for (Neuron neuron : neurons) {
+            orderingNeuronPaths.putLast(neuron.getId(), new NeuronPath(neuron, true));
+        }
 
-        while (!orderingNeurons.isEmpty()) {
-            OrderableNeuron orderableNeuron = orderingNeurons.removeLast();
+        while (!orderingNeuronPaths.isEmpty()) {
+            NeuronPath neuronPath = orderingNeuronPaths.removeLast();
 
-            if (!orderableNeuron.ordered) {
-                orderingNeurons.putLast(orderableNeuron.neuron.getId(), orderableNeuron.createOrdered());
+            if (!neuronPath.ordered) {
+                orderingNeuronPaths.putLast(neuronPath.neuron.getId(), neuronPath.flipOrdered());
 
-                for (NeuronInputConnection connection : orderableNeuron.neuron.getInputConnections()) {
-                    Id sourceNeuronId = connection.getSourceNeuronId();
-                    OrderableNeuron orderableSourceNeuron = orderingNeurons.get(sourceNeuronId);
+                for (NeuronInputConnection connection : neuronPath.neuron.getInputConnections()) {
+                    Id sourceId = connection.getSourceNeuronId();
+                    NeuronPath sourceNeuronPath = orderingNeuronPaths.get(sourceId);
 
-                    if ((orderableSourceNeuron == null || !orderableSourceNeuron.ordered) && !orderedNeuronIds.contains(sourceNeuronId)) {
-                        orderingNeurons.putLast(sourceNeuronId, getOrderableOrCreateUnordered(orderableSourceNeuron, sourceNeuronId));
+                    if ((sourceNeuronPath == null || !sourceNeuronPath.ordered) && !orderedNeuronIds.contains(sourceId)) {
+                        NeuronPath sourceNeuronPathFixed = getOrCreatePath(sourceNeuronPath, sourceId);
+
+                        orderingNeuronPaths.putLast(sourceId, sourceNeuronPathFixed);
                     }
                 }
-            } else if (orderedNeuronIds.add(orderableNeuron.neuron.getId()) && !orderingNeurons.isEmpty()) {
-                orderedNeurons.add(orderableNeuron.neuron);
+            } else if (orderedNeuronIds.add(neuronPath.neuron.getId()) && !neuronPath.root) {
+                orderedNeurons.add(neuronPath.neuron);
             }
         }
     }
@@ -86,15 +84,23 @@ final class AcyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable 
         return orderedNeurons.iterator();
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class OrderableNeuron implements Serializable {
+    private static final class NeuronPath implements Serializable {
         @Serial
         private static final long serialVersionUID = -6397213033769512814L;
         private final Neuron neuron;
-        private final boolean ordered;
+        private boolean ordered;
+        private final boolean root;
 
-        public OrderableNeuron createOrdered() {
-            return new OrderableNeuron(neuron, true);
+        private NeuronPath(final Neuron neuron, final boolean root) {
+            this.neuron = neuron;
+            this.ordered = false;
+            this.root = root;
+        }
+
+        public NeuronPath flipOrdered() {
+            ordered = !ordered;
+
+            return this;
         }
 
         @Override

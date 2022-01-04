@@ -2,6 +2,8 @@ package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.rl.neat.internal.Id;
 
+import java.util.List;
+
 public interface NeuronPathBuilder extends Iterable<Neuron> {
     boolean hasNeurons();
 
@@ -9,7 +11,7 @@ public interface NeuronPathBuilder extends Iterable<Neuron> {
 
     void add(Neuron neuron);
 
-    void addPathLeadingTo(Neuron neuron);
+    void addPathsLeadingTo(List<Neuron> neurons);
 
     void clear();
 }

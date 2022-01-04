@@ -27,6 +27,7 @@ public final class NeatTest {
     private static final boolean SINGLE_POLE_CART_BALANCE_TASK_ENABLED = true;
     private static final boolean OPEN_AI_TASKS_ENABLED = false;
     private static final boolean OPEN_AI_CART_POLE_TASK_ENABLED = true;
+    private static final boolean TIC_TAC_TOE_TASK_ENABLED = true;
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
@@ -86,7 +87,8 @@ public final class NeatTest {
     private static boolean isTaskEnabled(final TaskSetup taskSetup) {
         return XOR_TASK_ENABLED && taskSetup instanceof XorTaskSetup
                 || SINGLE_POLE_CART_BALANCE_TASK_ENABLED && taskSetup instanceof SinglePoleCartBalanceTaskSetup
-                || OPEN_AI_TASKS_ENABLED && OPEN_AI_CART_POLE_TASK_ENABLED && taskSetup instanceof OpenAIGymCartPoleTaskSetup;
+                || OPEN_AI_TASKS_ENABLED && OPEN_AI_CART_POLE_TASK_ENABLED && taskSetup instanceof OpenAIGymCartPoleTaskSetup
+                || TIC_TAC_TOE_TASK_ENABLED && taskSetup instanceof TicTacToeTaskSetup;
     }
 
     private static void assertTaskSolution(final NeatTestSetup testSetup) {
@@ -99,9 +101,11 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .task(XorTaskSetup.builder()
+                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+                        .build())
                 .eventLoop(null)
                 .shouldTestPersistence(false)
                 .build());
@@ -109,9 +113,11 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .task(XorTaskSetup.builder()
+                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+                        .build())
                 .eventLoop(EVENT_LOOP)
                 .shouldTestPersistence(false)
                 .build());
@@ -119,9 +125,11 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
+    public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .task(XorTaskSetup.builder()
+                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+                        .build())
                 .eventLoop(null)
                 .shouldTestPersistence(true)
                 .build());
@@ -129,11 +137,26 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution_to_then_save_it_and_transfer_it() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
+                .task(XorTaskSetup.builder()
+                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+                        .build())
                 .eventLoop(EVENT_LOOP)
                 .shouldTestPersistence(true)
+                .build());
+    }
+
+    @Test
+    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
+    public void GIVEN_a_multi_instance_neat_trainer_WHEN_finding_the_solution_to_the_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+        assertTaskSolution(NeatTestSetup.builder()
+                .task(XorTaskSetup.builder()
+                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+                        .build())
+                .eventLoop(EVENT_LOOP)
+                .neatTrainerFactory(Neat::createMultiTrainer)
+                .shouldTestPersistence(false)
                 .build());
     }
 
@@ -141,19 +164,10 @@ public final class NeatTest {
     @Timeout(value = 105_500, unit = TimeUnit.MILLISECONDS)
     public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_single_pole_cart_balance_problem_in_a_discrete_environment_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(new SinglePoleCartBalanceTaskSetup(METRICS_EMISSION_ENABLED))
+                .task(SinglePoleCartBalanceTaskSetup.builder()
+                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+                        .build())
                 .eventLoop(EVENT_LOOP)
-                .shouldTestPersistence(false)
-                .build());
-    }
-
-    @Test
-    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    public void GIVEN_a_multi_instance_neat_trainer_WHEN_finding_the_solution_to_the_is_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
-        assertTaskSolution(NeatTestSetup.builder()
-                .task(new XorTaskSetup(METRICS_EMISSION_ENABLED))
-                .eventLoop(EVENT_LOOP)
-                .neatTrainerFactory(Neat::createMultiTrainer)
                 .shouldTestPersistence(false)
                 .build());
     }
@@ -162,10 +176,25 @@ public final class NeatTest {
     @Timeout(value = 300_500, unit = TimeUnit.MILLISECONDS)
     public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_open_ai_gym_cart_pole_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetupOpenAIGym.openAIGymBuilder()
-                .task(new OpenAIGymCartPoleTaskSetup(GYM_CLIENT, METRICS_EMISSION_ENABLED))
+                .task(OpenAIGymCartPoleTaskSetup.builder()
+                        .gymClient(GYM_CLIENT)
+                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+                        .build())
                 .eventLoop(null)
                 .shouldTestPersistence(false)
                 .shouldVisualizeSolution(false)
                 .build());
     }
+
+//    @Test
+////    @Timeout(value = 300_500, unit = TimeUnit.MILLISECONDS)
+//    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_tic_tac_toe_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+//        assertTaskSolution(NeatTestSetup.builder()
+//                .task(TicTacToeTaskSetup.builder()
+//                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+//                        .build())
+//                .eventLoop(EVENT_LOOP)
+//                .shouldTestPersistence(false)
+//                .build());
+//    }
 }

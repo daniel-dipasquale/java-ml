@@ -1,15 +1,13 @@
 package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Game {
-    private final Player[] players;
-
-    public Game(final Player player1, final Player player2) {
-        this.players = new Player[]{player1, player2};
-    }
-
-    public int play() {
+    public static int play(final Player player1, final Player player2) {
+        Player[] players = new Player[]{player1, player2};
         GameEnvironment environment = new GameEnvironment();
         int statusId = environment.getStatusId();
 

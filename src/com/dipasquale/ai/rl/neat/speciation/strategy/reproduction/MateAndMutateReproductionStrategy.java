@@ -38,9 +38,10 @@ public final class MateAndMutateReproductionStrategy implements ReproductionStra
             float organismsToReproduce = organismsNeeded * context.getParent().speciation().params().interSpeciesMatingRate();
             float organismsToReproduceFloored = (float) Math.floor(organismsToReproduce);
             int organismsToReproduceFlooredFixed = (int) organismsToReproduceFloored;
+            Context.RandomSupport randomSupport = context.getParent().random();
 
             for (int i = 0; i < organismsToReproduceFlooredFixed; i++) {
-                reproduceInterSpecies(context.getParent().random(), rankedSpecies, organismsToBirth);
+                reproduceInterSpecies(randomSupport, rankedSpecies, organismsToBirth);
             }
 
             reproduced = organismsToReproduceFlooredFixed;

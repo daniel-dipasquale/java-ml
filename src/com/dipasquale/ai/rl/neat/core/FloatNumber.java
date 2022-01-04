@@ -42,7 +42,11 @@ public final class FloatNumber {
 
     public float getSingletonValue(final InitializationContext initializationContext) {
         if (!initializationContext.getContainer().containsKey(singletonKey)) {
-            initializationContext.getContainer().setValue(singletonKey, factoryCreator.create(initializationContext).create());
+            float singleton = factoryCreator.create(initializationContext).create();
+
+            initializationContext.getContainer().setValue(singletonKey, singleton);
+
+            return singleton;
         }
 
         return (float) initializationContext.getContainer().getValue(singletonKey);

@@ -3,25 +3,19 @@ package com.dipasquale.search.mcts.alphazero;
 import com.dipasquale.search.mcts.core.SearchEdge;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 public final class AlphaZeroSearchEdge implements SearchEdge {
+    private int visited = 0;
     @Setter(AccessLevel.PACKAGE)
-    private float expectedReward;
+    private float expectedReward = 0f;
     @Setter(AccessLevel.PACKAGE)
-    private float probableReward;
-    private int visited;
+    private float probableReward = 0f;
     @Setter(AccessLevel.PACKAGE)
-    private float explorationProbability;
-
-    AlphaZeroSearchEdge() {
-        this.visited = 0;
-    }
-
-    AlphaZeroSearchEdge(final AlphaZeroSearchEdge parent) {
-        this.visited = parent.visited;
-    }
+    private float explorationProbability = 0f;
 
     void increaseVisited() {
         visited++;

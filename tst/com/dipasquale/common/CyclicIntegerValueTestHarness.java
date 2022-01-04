@@ -8,11 +8,24 @@ import java.io.IOException;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class CyclicIntegerCounterTestHarness {
-    private final IntegerCounterFactory integerCounterFactory;
+public final class CyclicIntegerValueTestHarness {
+    private final IntegerValueFactory integerValueFactory;
 
-    public void assertContinuousIncrementAndCurrent() {
-        IntegerCounter test = integerCounterFactory.create(3);
+    public void assertInitialState() {
+        IntegerValue test1 = integerValueFactory.create(10);
+        IntegerValue test2 = integerValueFactory.create(10, 0);
+        IntegerValue test3 = integerValueFactory.create(10, -1);
+
+        Assertions.assertEquals(9, test1.current());
+        Assertions.assertEquals(0, test1.increment());
+        Assertions.assertEquals(0, test2.current());
+        Assertions.assertEquals(1, test2.increment());
+        Assertions.assertEquals(9, test3.current());
+        Assertions.assertEquals(0, test3.increment());
+    }
+
+    public void assertMultiCycleIncrement() {
+        IntegerValue test = integerValueFactory.create(3);
 
         for (int i = 0; i < 2; i++) {
             Assertions.assertEquals(0, test.increment());
@@ -24,8 +37,8 @@ public final class CyclicIntegerCounterTestHarness {
         }
     }
 
-    public void assertContinuousDecrementAndCurrent() {
-        IntegerCounter test = integerCounterFactory.create(3, 0);
+    public void assertMultiCycleDecrement() {
+        IntegerValue test = integerValueFactory.create(3, 0);
 
         for (int i = 0; i < 2; i++) {
             Assertions.assertEquals(2, test.decrement());
@@ -37,8 +50,8 @@ public final class CyclicIntegerCounterTestHarness {
         }
     }
 
-    public void assertCyclicIncrementAndCurrent() {
-        IntegerCounter test = integerCounterFactory.create(3);
+    public void assertMultiCycleIncrementDecrement() {
+        IntegerValue test = integerValueFactory.create(3);
 
         for (int i = 0; i < 2; i++) {
             Assertions.assertEquals(0, test.increment());
@@ -48,8 +61,8 @@ public final class CyclicIntegerCounterTestHarness {
         }
     }
 
-    public void assertCurrentGetAndSet() {
-        IntegerCounter test = integerCounterFactory.create(3, 0);
+    public void assertMultiCycleReadWrite() {
+        IntegerValue test = integerValueFactory.create(3, 0);
 
         for (int i = 0; i < 6; i++) {
             Assertions.assertEquals(i % 3, test.current(i));
@@ -58,7 +71,7 @@ public final class CyclicIntegerCounterTestHarness {
     }
 
     public void assertCompareTo() {
-        IntegerCounter test = integerCounterFactory.create(3, 0);
+        IntegerValue test = integerValueFactory.create(3, 0);
 
         Assertions.assertEquals(1, test.current(1));
         Assertions.assertEquals(Integer.compare(1, 0), test.compareTo(0));
@@ -75,8 +88,8 @@ public final class CyclicIntegerCounterTestHarness {
     }
 
     public void assertEqualsAndHashCode() {
-        IntegerCounter test1 = integerCounterFactory.create(3, 0);
-        IntegerCounter test2 = integerCounterFactory.create(3);
+        IntegerValue test1 = integerValueFactory.create(3, 0);
+        IntegerValue test2 = integerValueFactory.create(3);
 
         Assertions.assertNotEquals(test1, test2);
         Assertions.assertEquals(1, test1.current(1));
@@ -85,7 +98,7 @@ public final class CyclicIntegerCounterTestHarness {
     }
 
     public void assertToString() {
-        IntegerCounter test = integerCounterFactory.create(3, 0);
+        IntegerValue test = integerValueFactory.create(3, 0);
 
         Assertions.assertEquals(0, test.current(0));
         Assertions.assertEquals("0", test.toString());
@@ -94,14 +107,14 @@ public final class CyclicIntegerCounterTestHarness {
     }
 
     public void assertSerialization() {
-        IntegerCounter test1 = integerCounterFactory.create(3, 0);
+        IntegerValue test1 = integerValueFactory.create(3, 0);
 
         if (test1 instanceof Serializable) {
             Assertions.assertEquals(2, test1.current(2));
 
             try {
                 byte[] test1Bytes = SerializableSupport.serializeObject((Serializable) test1);
-                IntegerCounter test2 = SerializableSupport.deserializeObject(test1Bytes);
+                IntegerValue test2 = SerializableSupport.deserializeObject(test1Bytes);
 
                 Assertions.assertNotSame(test1, test2);
 

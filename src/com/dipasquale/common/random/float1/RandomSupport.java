@@ -15,10 +15,9 @@ public interface RandomSupport {
     }
 
     default int next(final int min, final int max) {
-        float value = next();
-        float result = (float) Math.floor(value * (float) (max - min)) + min;
+        double value = next();
 
-        return (int) result;
+        return (int) Math.floor(value * (double) (max - min)) + min;
     }
 
     default RandomSupport bounded(final float min, final float max) {

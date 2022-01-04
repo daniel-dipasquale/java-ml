@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.dual.mode.factory;
 
 import com.dipasquale.common.factory.FloatFactory;
-import com.dipasquale.synchronization.dual.mode.DualModeCyclicIntegerCounter;
+import com.dipasquale.synchronization.dual.mode.DualModeCyclicIntegerValue;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 
 import java.io.Serial;
@@ -12,11 +12,11 @@ public final class DualModeCyclicFloatFactory<T extends FloatFactory & DualModeO
     @Serial
     private static final long serialVersionUID = 610333221078013332L;
     private final List<T> floatFactories;
-    private final DualModeCyclicIntegerCounter index;
+    private final DualModeCyclicIntegerValue index;
 
     public DualModeCyclicFloatFactory(final int concurrencyLevel, final List<T> floatFactories, final int index) {
         this.floatFactories = List.copyOf(floatFactories);
-        this.index = new DualModeCyclicIntegerCounter(concurrencyLevel, floatFactories.size(), -1, index);
+        this.index = new DualModeCyclicIntegerValue(concurrencyLevel, floatFactories.size(), -1, index);
     }
 
     public DualModeCyclicFloatFactory(final int concurrencyLevel, final List<T> floatFactories) {

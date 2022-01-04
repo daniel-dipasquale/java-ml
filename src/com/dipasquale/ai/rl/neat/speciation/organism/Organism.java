@@ -45,8 +45,8 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return activationSupport.provideActivator(genome, populationState, Context.GenomeActivatorType.TRANSIENT);
     }
 
-    public void setFitness(final Species species, final Context context, final float newFitness) {
-        fitness = newFitness;
+    public void setFitness(final Species species, final Context context, final float fitnessValue) {
+        fitness = fitnessValue;
         context.metrics().collectFitness(species, this);
     }
 
@@ -71,10 +71,11 @@ public final class Organism implements Comparable<Organism>, Serializable {
 
     public Organism mate(final Context context, final Organism other) {
         int comparison = compareTo(other);
+        Context.CrossOverSupport crossOverSupport = context.crossOver();
 
-        Genome crossedOverGenome = comparison == 0 ? context.crossOver().crossOverByEqualTreatment(context, genome, other.genome)
-                : comparison > 0 ? context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, genome, other.genome)
-                : context.crossOver().crossOverBySkippingUnfitDisjointOrExcess(context, other.genome, genome);
+        Genome crossedOverGenome = comparison == 0 ? crossOverSupport.crossOverByEqualTreatment(context, genome, other.genome)
+                : comparison > 0 ? crossOverSupport.crossOverBySkippingUnfitDisjointOrExcess(context, genome, other.genome)
+                : crossOverSupport.crossOverBySkippingUnfitDisjointOrExcess(context, other.genome, genome);
 
         return new Organism(crossedOverGenome, populationState);
     }

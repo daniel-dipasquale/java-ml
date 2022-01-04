@@ -13,11 +13,7 @@ public final class AlphaZeroSearchEdgeFactory implements SearchEdgeFactory<Alpha
     }
 
     @Override
-    public AlphaZeroSearchEdge create(final AlphaZeroSearchEdge parent) {
-        if (parent == null) {
-            return new AlphaZeroSearchEdge();
-        }
-
-        return new AlphaZeroSearchEdge(parent);
+    public AlphaZeroSearchEdge create() {
+        return new AlphaZeroSearchEdge();
     }
 }

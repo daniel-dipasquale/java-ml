@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
@@ -20,13 +21,14 @@ public final class SharedGenomeFitnessCalculationStrategy implements FitnessCalc
     private OrganismGenomeZippedCollections createOrganismGenomeZippedCollections(final FitnessCalculationContext context) {
         List<OrganismHierarchy> organismHierarchies = new ArrayList<>();
         List<GenomeActivator> genomeActivators = new ArrayList<>();
+        Context.ActivationSupport activationSupport = context.getParent().activation();
 
         for (SimpleNode<Species> speciesNode : context.getSpeciesNodes()) {
             Species species = context.getSpeciesNodes().getValue(speciesNode);
 
             for (Organism organism : species.getOrganisms()) {
                 organismHierarchies.add(new OrganismHierarchy(organism, species));
-                genomeActivators.add(organism.getActivator(context.getParent().activation()));
+                genomeActivators.add(organism.getActivator(activationSupport));
             }
         }
 
@@ -36,7 +38,7 @@ public final class SharedGenomeFitnessCalculationStrategy implements FitnessCalc
     @Override
     public void calculate(final FitnessCalculationContext context) {
         OrganismGenomeZippedCollections zippedCollections = createOrganismGenomeZippedCollections(context);
-        List<Float> allFitness = context.getParent().activation().calculateAllFitness(zippedCollections.genomeActivators);
+        List<Float> allFitness = context.getParent().activation().calculateAllFitness(context.getParent(), zippedCollections.genomeActivators);
 
         for (int i = 0, c = zippedCollections.genomeActivators.size(); i < c; i++) {
             OrganismHierarchy organismHierarchy = zippedCollections.organismHierarchies.get(i);

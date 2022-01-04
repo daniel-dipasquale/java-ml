@@ -1,7 +1,9 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.internal.FitnessBucket;
+import com.dipasquale.ai.rl.neat.context.Context;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.synchronization.dual.mode.DualModeFloatValue;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,21 +12,13 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 public final class SharedGenomeActivator {
+    @Getter(AccessLevel.PACKAGE)
+    private final Context context;
     @Getter
     private final List<GenomeActivator> genomeActivators;
-    private final Map<String, FitnessBucket> fitnessBuckets;
+    private final Map<GenomeActivator, DualModeFloatValue> fitnessValues;
 
-    private FitnessBucket getFitnessBucket(final GenomeActivator genomeActivator) {
-        String genomeId = genomeActivator.getGenome().getId();
-
-        return fitnessBuckets.get(genomeId);
-    }
-
-    public float getFitness(final GenomeActivator genomeActivator) {
-        return getFitnessBucket(genomeActivator).get(genomeActivator);
-    }
-
-    public void putFitness(final GenomeActivator genomeActivator, final float fitness) {
-        getFitnessBucket(genomeActivator).incorporate(genomeActivator, fitness);
+    public void addFitness(final GenomeActivator genomeActivator, final float fitness) {
+        fitnessValues.get(genomeActivator).increment(fitness);
     }
 }

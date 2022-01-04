@@ -9,9 +9,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class GameTest {
-    @Test
-    public void TEST_1() {
-        MonteCarloTreeSearch<GameState, ClassicSearchEdge> mcts = MonteCarloTreeSearch.<GameState>classicBuilder()
+    private static MonteCarloTreeSearch<GameState, ClassicSearchEdge, GameEnvironment> createMcts() {
+        return MonteCarloTreeSearch.<GameState, GameEnvironment>classicBuilder()
                 .simulationPolicy(DeterministicSimulationPolicy.builder()
                         .maximumSimulation(1_600)
                         .maximumDepth(8)
@@ -22,13 +21,15 @@ public class GameTest {
                         .notLosingFactor(0.5f)
                         .build())
                 .build();
+    }
 
-        MctsPlayer player1 = new MctsPlayer(mcts);
-        MctsPlayer player2 = new MctsPlayer(mcts);
-        Game test = new Game(player1, player2);
+    @Test
+    public void TEST_1() {
+        MctsPlayer player1 = new MctsPlayer(createMcts());
+        MctsPlayer player2 = new MctsPlayer(createMcts());
 
         for (int i = 0; i < 20; i++) {
-            int result = test.play();
+            int result = Game.play(player1, player2);
 
             System.out.printf("game outcome was: %d%n", result);
             Assertions.assertTrue(result >= -1 && result <= 1);

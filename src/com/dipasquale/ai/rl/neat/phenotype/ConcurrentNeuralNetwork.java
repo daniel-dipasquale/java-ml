@@ -17,6 +17,7 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
     @Serial
     private static final long serialVersionUID = 2271165226501445902L;
     private final Genome genome;
+    private final int inputSize;
     private final NeuronNavigator neuronNavigator;
     private final AtomicBoolean neuronNavigatorInitialized;
     private volatile boolean neuronNavigatorFinalized;
@@ -25,11 +26,17 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
 
     ConcurrentNeuralNetwork(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final ObjectFactory<NeuronMemory> neuronMemoryFactory, final NeuronStateGroupFactory neuronStateFactory) {
         this.genome = genome;
+        this.inputSize = genome.getNodes().size(NodeGeneType.INPUT);
         this.neuronNavigator = new NeuronNavigator(neuronPathBuilder);
         this.neuronNavigatorInitialized = new AtomicBoolean(false);
         this.neuronNavigatorFinalized = false;
         this.neuronMemoryFactory = neuronMemoryFactory;
         this.neuronStateFactory = neuronStateFactory;
+    }
+
+    @Override
+    public NeuronMemory createMemory() {
+        return neuronMemoryFactory.create();
     }
 
     private Neuron createNeuron(final NodeGene node) {
@@ -52,7 +59,7 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
         return new Neuron(node, inputConnections, outputConnections);
     }
 
-    private void initializeNeuronStates(final NeuronStateGroup neuronState, final float[] input) {
+    private void initializeNeuronValues(final NeuronStateGroup neuronState, final float[] input) {
         Iterable<NodeGene> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.INPUT);
         int index = 0;
 
@@ -61,7 +68,7 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
         }
     }
 
-    private void setNeuronInvocationOrderAndInitialValue(final NeuronStateGroup neuronState, final float[] input) {
+    private void setNeuronInvocationOrderAndInitialValues(final NeuronStateGroup neuronState, final float[] input) {
         int index = 0;
 
         for (NodeGene node : genome.getNodes()) {
@@ -83,9 +90,9 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
                 Thread.onSpinWait();
             }
 
-            initializeNeuronStates(neuronState, input);
+            initializeNeuronValues(neuronState, input);
         } else {
-            setNeuronInvocationOrderAndInitialValue(neuronState, input);
+            setNeuronInvocationOrderAndInitialValues(neuronState, input);
             neuronNavigatorFinalized = true;
         }
     }
@@ -112,13 +119,8 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
     }
 
     @Override
-    public NeuronMemory createMemory() {
-        return neuronMemoryFactory.create();
-    }
-
-    @Override
     public float[] activate(final float[] input, final NeuronMemory neuronMemory) {
-        ArgumentValidatorSupport.ensureEqual(input.length, genome.getNodes().size(NodeGeneType.INPUT), "input.length");
+        ArgumentValidatorSupport.ensureEqual(input.length, inputSize, "input.length");
         ArgumentValidatorSupport.ensureTrue(neuronMemory == null || neuronMemory.isOwnedBy(genome), "neuronMemory", "does not belong to the genome");
 
         return activate(neuronStateFactory.create(neuronMemory), input);

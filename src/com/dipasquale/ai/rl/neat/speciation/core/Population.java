@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.speciation.core;
 
 import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
@@ -28,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 public final class Population {
@@ -49,11 +49,16 @@ public final class Population {
     }
 
     private void fillOrganismsWithoutSpeciesWithGenesisGenomes(final Context context) {
-        IntStream.range(0, context.general().params().populationSize())
-                .mapToObj(i -> context.speciation().createGenesisGenome(context))
-                .map(g -> new Organism(g, populationState))
-                .peek(o -> o.registerNodes(context.connections()))
-                .forEach(organismsWithoutSpecies::add);
+        Context.SpeciationSupport speciationSupport = context.speciation();
+        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
+
+        for (int i = 0, c = context.general().params().populationSize(); i < c; i++) {
+            Genome genome = speciationSupport.createGenesisGenome(context);
+            Organism organism = new Organism(genome, populationState);
+
+            organism.registerNodes(connectionGeneSupport);
+            organismsWithoutSpecies.add(organism);
+        }
     }
 
     private int countOrganismsInAllSpecies() {
@@ -84,8 +89,9 @@ public final class Population {
     }
 
     private void assignOrganismsToSpecies(final Context context) {
-        OrganismMatchMaker matchMaker = new OrganismMatchMaker(context.speciation());
-        int maximumSpecies = context.speciation().params().maximumSpecies();
+        Context.SpeciationSupport speciationSupport = context.speciation();
+        OrganismMatchMaker matchMaker = new OrganismMatchMaker(speciationSupport);
+        int maximumSpecies = speciationSupport.params().maximumSpecies();
 
         Iterable<Organism> organismsBirthed = organismsToBirth.stream()
                 .map(of -> of.create(context))
@@ -97,7 +103,7 @@ public final class Population {
             }
 
             if (speciesNodes.size() < maximumSpecies && !matchMaker.isBestMatchCompatible(populationState.getGeneration())) {
-                addSpecies(createSpecies(context.speciation(), organism));
+                addSpecies(createSpecies(speciationSupport, organism));
             } else {
                 matchMaker.getBestMatch().add(organism);
             }

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-final class SimulationResult<TState extends SearchState, TEdge extends SearchEdge> {
-    private final SearchNode<TState, TEdge> node;
+final class SimulationResult<TState extends SearchState, TEdge extends SearchEdge, TEnvironment extends Environment<TState, TEnvironment>> {
+    private final SearchNode<TState, TEdge, TEnvironment> node;
     private final int statusId;
 }

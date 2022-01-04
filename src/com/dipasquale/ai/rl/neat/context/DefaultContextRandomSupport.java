@@ -11,17 +11,21 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class DefaultContextRandomSupport implements Context.RandomSupport {
     private DualModeRandomSupport generateIndexOrItemRandomSupport;
     private DualModeRandomSupport isLessThanRandomSupport;
+    private DualModeRandomSupport shuffleRandomSupport;
 
     public static DefaultContextRandomSupport create(final InitializationContext initializationContext) {
         DualModeRandomSupport generateIndexRandomSupport = initializationContext.createDefaultRandomSupport();
         DualModeRandomSupport isLessThanRandomSupport = initializationContext.createDefaultRandomSupport();
+        DualModeRandomSupport shuffleRandomSupport = initializationContext.createDefaultRandomSupport();
 
-        return new DefaultContextRandomSupport(generateIndexRandomSupport, isLessThanRandomSupport);
+        return new DefaultContextRandomSupport(generateIndexRandomSupport, isLessThanRandomSupport, shuffleRandomSupport);
     }
 
     @Override
@@ -39,14 +43,21 @@ public final class DefaultContextRandomSupport implements Context.RandomSupport 
         return outputClassifier.resolve(generateIndexOrItemRandomSupport.next());
     }
 
+    @Override
+    public <T> void shuffle(final List<T> items) {
+        shuffleRandomSupport.shuffle(items);
+    }
+
     public void save(final SerializableStateGroup stateGroup) {
         stateGroup.put("random.generateIndexOrItemRandomSupport", generateIndexOrItemRandomSupport);
         stateGroup.put("random.isLessThanRandomSupport", isLessThanRandomSupport);
+        stateGroup.put("random.shuffleRandomSupport", shuffleRandomSupport);
     }
 
     private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
         generateIndexOrItemRandomSupport = DualModeObject.activateMode(stateGroup.get("random.generateIndexOrItemRandomSupport"), concurrencyLevel);
         isLessThanRandomSupport = DualModeObject.activateMode(stateGroup.get("random.isLessThanRandomSupport"), concurrencyLevel);
+        shuffleRandomSupport = DualModeObject.activateMode(stateGroup.get("random.shuffleRandomSupport"), concurrencyLevel);
     }
 
     public void load(final SerializableStateGroup stateGroup, final IterableEventLoop eventLoop) {

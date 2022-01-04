@@ -28,7 +28,6 @@ import com.dipasquale.synchronization.dual.mode.factory.DualModeCyclicFloatFacto
 import com.dipasquale.synchronization.dual.mode.factory.DualModeFloatFactory;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +81,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         biasFactories.put(NodeGeneType.BIAS, createBiasFactory(initializationContext, genesisGenomeTemplate.getBiases()));
         biasFactories.put(NodeGeneType.HIDDEN, nodeGeneSupport.getHiddenBias().createFactory(initializationContext));
 
-        return Collections.unmodifiableMap(biasFactories);
+        return biasFactories;
     }
 
     private static RecurrentModifiersFactory createRecurrentBiasesFactory(final InitializationContext initializationContext, final ConnectionGeneSupport connectionGeneSupport, final FloatNumber.DualModeFactory biasFactory) {
@@ -105,7 +104,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
             recurrentBiasesFactories.put(type, recurrentBiasFactory);
         }
 
-        return Collections.unmodifiableMap(recurrentBiasesFactories);
+        return recurrentBiasesFactories;
     }
 
     private static DualModeStrategyActivationFunctionFactory<DualModeActivationFunctionFactory<EnumValue.DualModeFactory<ActivationFunctionType>>> createActivationFunctionFactory(final InitializationContext initializationContext, final EnumValue.DualModeFactory<ActivationFunctionType> activationFunctionTypeFactory) {
@@ -138,7 +137,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         activationFunctionFactories.put(NodeGeneType.BIAS, createActivationFunctionFactory(initializationContext, ActivationFunctionType.IDENTITY));
         activationFunctionFactories.put(NodeGeneType.HIDDEN, createActivationFunctionFactory(initializationContext, hiddenActivationFunctionTypeFactory));
 
-        return Collections.unmodifiableMap(activationFunctionFactories);
+        return activationFunctionFactories;
     }
 
     public static DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final NodeGeneSupport nodeGeneSupport, final ConnectionGeneSupport connectionGeneSupport) {

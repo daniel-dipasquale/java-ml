@@ -140,25 +140,27 @@ public final class Species implements Serializable {
     public List<OrganismFactory> reproduce(final Context context, final int count) {
         List<OrganismFactory> organismsToBirth = new ArrayList<>();
         int size = organisms.size();
+        Context.SpeciationSupport speciationSupport = context.speciation();
+        Context.RandomSupport randomSupport = context.random();
 
         for (int i = 0; i < count; i++) {
-            ReproductionType reproductionType = context.speciation().generateReproductionType(size);
+            ReproductionType reproductionType = speciationSupport.generateReproductionType(size);
 
             OrganismFactory organismToBirth = switch (reproductionType) {
                 case MATE_AND_MUTATE, MATE_ONLY -> {
-                    Pair<Organism> organismCouple = context.random().generateItemPair(organisms);
+                    Pair<Organism> organismCouple = randomSupport.generateItemPair(organisms);
 
                     yield new MateBetweenOrganismsFactory(organismCouple.getLeft(), organismCouple.getRight(), reproductionType == ReproductionType.MATE_AND_MUTATE);
                 }
 
                 case MUTATE_ONLY -> {
-                    Organism organism = context.random().generateItem(organisms);
+                    Organism organism = randomSupport.generateItem(organisms);
 
                     yield new MutateSingleOrganismFactory(organism);
                 }
 
                 case CLONE -> {
-                    Organism organism = context.random().generateItem(organisms);
+                    Organism organism = randomSupport.generateItem(organisms);
 
                     yield new CloneSingleOrganismFactory(organism);
                 }

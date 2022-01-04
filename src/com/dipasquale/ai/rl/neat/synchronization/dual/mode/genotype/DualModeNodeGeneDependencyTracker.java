@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneDependencyTracker;
 import com.dipasquale.common.factory.data.structure.set.SetFactory;
-import com.dipasquale.synchronization.dual.mode.DualModeIntegerCounter;
+import com.dipasquale.synchronization.dual.mode.DualModeIntegerValue;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.set.DualModeSet;
 import lombok.AccessLevel;
@@ -18,11 +18,11 @@ import java.util.Map;
 public final class DualModeNodeGeneDependencyTracker<T extends SetFactory & DualModeObject> implements NodeGeneDependencyTracker, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -3057494575848684621L;
-    private final DualModeIntegerCounter blastRadius;
+    private final DualModeIntegerValue blastRadius;
     private final DualModeSet<DirectedEdge, T> directedEdges;
 
     public DualModeNodeGeneDependencyTracker(final T setFactory) {
-        this(new DualModeIntegerCounter(setFactory.concurrencyLevel(), 0), new DualModeSet<>(setFactory));
+        this(new DualModeIntegerValue(setFactory.concurrencyLevel(), 0), new DualModeSet<>(setFactory));
     }
 
     public void increaseBlastRadius() {

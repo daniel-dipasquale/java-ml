@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.sequence.LongSequentialIdFactory;
 import com.dipasquale.ai.common.sequence.StrategyLongSequentialIdFactory;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.synchronization.dual.mode.DualModeLongCounter;
+import com.dipasquale.synchronization.dual.mode.DualModeLongValue;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 
 import java.io.Serial;
@@ -13,16 +13,16 @@ import java.io.Serializable;
 public final class DualModeIdFactory implements ObjectFactory<Id>, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -8362275222819817723L;
-    private final DualModeLongCounter id;
+    private final DualModeLongValue id;
     private final StrategyLongSequentialIdFactory sequentialIdFactory;
 
-    private DualModeIdFactory(final DualModeLongCounter id, final String name) {
+    private DualModeIdFactory(final DualModeLongValue id, final String name) {
         this.id = id;
         this.sequentialIdFactory = new StrategyLongSequentialIdFactory(name, new LongSequentialIdFactory(id));
     }
 
     public DualModeIdFactory(final int concurrencyLevel, final IdType idType) {
-        this(new DualModeLongCounter(concurrencyLevel), idType.getName());
+        this(new DualModeLongValue(concurrencyLevel), idType.getName());
     }
 
     @Override

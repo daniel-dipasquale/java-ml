@@ -37,22 +37,22 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
         orderedNeurons = null;
     }
 
-    private void ensureOrderedIsInitialized() {
-        if (orderedNeurons == null) {
-            for (Neuron neuron : outputNeurons) {
-                neuronPathBuilder.addPathLeadingTo(neuron);
-            }
-
-            orderedNeurons = neuronPathBuilder;
+    private void ensureOrderedNeuronsIsInitialized() {
+        if (orderedNeurons != null) {
+            return;
         }
+
+        neuronPathBuilder.addPathsLeadingTo(outputNeurons);
+        orderedNeurons = neuronPathBuilder;
     }
 
     public float[] getOutputValues(final NeuronStateGroup neuronState) {
         float[] outputValues = new float[outputNeurons.size()];
-        int index = 0;
 
-        for (Neuron neuron : outputNeurons) {
-            outputValues[index++] = neuronState.calculateValue(neuron);
+        for (int i = 0; i < outputValues.length; i++) {
+            Neuron outputNeuron = outputNeurons.get(i);
+
+            outputValues[i] = neuronState.calculateValue(outputNeuron);
         }
 
         return outputValues;
@@ -66,7 +66,7 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
 
     @Override
     public Iterator<Neuron> iterator() {
-        ensureOrderedIsInitialized();
+        ensureOrderedNeuronsIsInitialized();
 
         return orderedNeurons.iterator();
     }

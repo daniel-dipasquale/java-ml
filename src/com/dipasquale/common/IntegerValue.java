@@ -1,6 +1,10 @@
 package com.dipasquale.common;
 
-public interface IntegerCounter extends Comparable<Integer> {
+public interface IntegerValue extends Comparable<Integer> {
+    int current();
+
+    int current(int value);
+
     int increment(int delta);
 
     default int increment() {
@@ -10,10 +14,6 @@ public interface IntegerCounter extends Comparable<Integer> {
     default int decrement() {
         return increment(-1);
     }
-
-    int current();
-
-    int current(int value);
 
     boolean equals(Object other);
 

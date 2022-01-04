@@ -121,17 +121,18 @@ public interface Context {
             }
 
             int index1 = generateIndex(size);
-            float first = (float) index1;
-            float total = (float) (size - 1);
+            int index2 = generateIndex(size - 1);
 
-            int index2 = isLessThan(first / total)
-                    ? generateIndex(index1)
-                    : generateIndex(index1 + 1, size);
+            if (index2 < index1) {
+                return new Pair<>(items.get(index1), items.get(index2));
+            }
 
-            return new Pair<>(items.get(index1), items.get(index2));
+            return new Pair<>(items.get(index1), items.get(index2 + 1));
         }
 
         <T> T generateItem(OutputClassifier<T> outputClassifier);
+
+        <T> void shuffle(List<T> items);
     }
 
     interface NodeGeneSupport {
@@ -182,7 +183,7 @@ public interface Context {
 
         float calculateFitness(GenomeActivator genomeActivator);
 
-        List<Float> calculateAllFitness(List<GenomeActivator> genomeActivators);
+        List<Float> calculateAllFitness(Context context, List<GenomeActivator> genomeActivators);
     }
 
     interface MutationSupport {

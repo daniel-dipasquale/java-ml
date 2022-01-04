@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -89,16 +88,25 @@ public final class Genome implements Serializable {
     }
 
     private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType... types) {
-        float totalSize = (float) Arrays.stream(types)
-                .map(nodes::size)
-                .reduce(0, Integer::sum);
+        int[] sizes = new int[types.length];
+        int totalSize = 0;
 
+        for (int i = 0; i < types.length; i++) {
+            NodeGeneType type = types[i];
+            int size = nodes.size(type);
+
+            sizes[i] = size;
+            totalSize += size;
+        }
+
+        float totalSizeFixed = (float) totalSize;
         OutputClassifier<NodeGeneType> typeOutputClassifier = new OutputClassifier<>();
 
         for (int i = 0, c = types.length - 1; i < c; i++) {
+            float size = (float) sizes[i];
             NodeGeneType type = types[i];
 
-            typeOutputClassifier.addRangeFor(nodes.size(type) / totalSize, type);
+            typeOutputClassifier.addRangeFor(size / totalSizeFixed, type);
         }
 
         typeOutputClassifier.addRemainingRangeFor(types[types.length - 1]);
@@ -129,7 +137,7 @@ public final class Genome implements Serializable {
     private InnovationId createRandomInnovationId(final Context context, final boolean shouldAllowRecurrent) {
         int size = nodes.size();
 
-        if (size <= 1) {
+        if (size == 0 || !shouldAllowRecurrent && size == 1) {
             return null;
         }
 
@@ -197,16 +205,17 @@ public final class Genome implements Serializable {
 
     public boolean mutate(final Context context) {
         boolean mutated = mutateWeights(context);
+        Context.MutationSupport mutationSupport = context.mutation();
 
-        if (context.mutation().shouldDisableExpressedConnection()) {
+        if (mutationSupport.shouldDisableExpressedConnection()) {
             mutated |= disableRandomConnection(context.random());
         }
 
-        if (context.mutation().shouldAddNode()) {
+        if (mutationSupport.shouldAddNode()) {
             mutated |= addRandomNode(context);
         }
 
-        if (connections.getExpressed().isEmpty() || context.mutation().shouldAddConnection()) {
+        if (connections.getExpressed().isEmpty() || mutationSupport.shouldAddConnection()) {
             mutated |= addRandomConnection(context);
         }
 
@@ -227,10 +236,11 @@ public final class Genome implements Serializable {
 
     private static ConnectionGene createChildConnection(final Context context, final ConnectionGene parent1Connection, final ConnectionGene parent2Connection) {
         ConnectionGene randomParentConnection = getRandom(context.random(), parent1Connection, parent2Connection);
-        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
+        Context.CrossOverSupport crossOverSupport = context.crossOver();
+        boolean expressed = parent1Connection.isExpressed() && parent2Connection.isExpressed() || crossOverSupport.shouldOverrideExpressedConnection();
         int cyclesAllowed = determineCyclesAllowed(randomParentConnection, expressed);
 
-        if (context.crossOver().shouldUseWeightFromRandomParent()) {
+        if (crossOverSupport.shouldUseWeightFromRandomParent()) {
             return randomParentConnection.createCopy(context.connections(), cyclesAllowed);
         }
 
@@ -259,16 +269,18 @@ public final class Genome implements Serializable {
 
     public static Genome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final Genome fitParent, final Genome unfitParent) {
         Genome child = new Genome(context.speciation().createGenomeId());
+        Context.RandomSupport randomSupport = context.random();
 
         for (Pair<NodeGene> nodePair : fullJoinBetweenNodes(fitParent, unfitParent)) {
             if (nodePair.getLeft() != null && nodePair.getRight() != null) {
-                child.nodes.put(getRandom(context.random(), nodePair.getLeft(), nodePair.getRight()));
+                child.nodes.put(getRandom(randomSupport, nodePair.getLeft(), nodePair.getRight()));
             } else if (nodePair.getLeft() != null) {
                 child.nodes.put(nodePair.getLeft());
             }
         }
 
         Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
+        Context.CrossOverSupport crossOverSupport = context.crossOver();
 
         for (ConnectionGene fitConnection : fitParent.connections.getAll()) {
             if (isInnovationIdValid(connectionGeneSupport, fitConnection)) {
@@ -276,7 +288,7 @@ public final class Genome implements Serializable {
                 ConnectionGene childConnection;
 
                 if (unfitConnection == null) {
-                    boolean expressed = fitConnection.isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
+                    boolean expressed = fitConnection.isExpressed() || crossOverSupport.shouldOverrideExpressedConnection();
                     int cyclesAllowed = determineCyclesAllowed(fitConnection, expressed);
 
                     childConnection = fitConnection.createCopy(connectionGeneSupport, cyclesAllowed);
@@ -297,10 +309,11 @@ public final class Genome implements Serializable {
 
     public static Genome crossOverByEqualTreatment(final Context context, final Genome parent1, final Genome parent2) {
         Genome child = new Genome(context.speciation().createGenomeId());
+        Context.RandomSupport randomSupport = context.random();
 
         for (Pair<NodeGene> nodePair : fullJoinBetweenNodes(parent1, parent2)) {
             if (nodePair.getLeft() != null && nodePair.getRight() != null) {
-                child.nodes.put(getRandom(context.random(), nodePair.getLeft(), nodePair.getRight()));
+                child.nodes.put(getRandom(randomSupport, nodePair.getLeft(), nodePair.getRight()));
             } else if (nodePair.getLeft() != null) {
                 child.nodes.put(nodePair.getLeft());
             } else {
@@ -309,6 +322,7 @@ public final class Genome implements Serializable {
         }
 
         Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
+        Context.CrossOverSupport crossOverSupport = context.crossOver();
 
         for (Pair<ConnectionGene> connectionPair : fullJoinBetweenConnections(parent1, parent2)) {
             if (isInnovationIdValid(connectionGeneSupport, connectionPair.getLeft(), connectionPair.getRight())) {
@@ -317,13 +331,13 @@ public final class Genome implements Serializable {
 
                     child.connections.put(childConnection);
                 } else if (connectionPair.getLeft() != null) {
-                    boolean expressed = connectionPair.getLeft().isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
+                    boolean expressed = connectionPair.getLeft().isExpressed() || crossOverSupport.shouldOverrideExpressedConnection();
                     int cyclesAllowed = determineCyclesAllowed(connectionPair.getLeft(), expressed);
                     ConnectionGene childConnection = connectionPair.getLeft().createCopy(connectionGeneSupport, cyclesAllowed);
 
                     child.connections.put(childConnection);
                 } else {
-                    boolean expressed = connectionPair.getRight().isExpressed() || context.crossOver().shouldOverrideExpressedConnection();
+                    boolean expressed = connectionPair.getRight().isExpressed() || crossOverSupport.shouldOverrideExpressedConnection();
                     int cyclesAllowed = determineCyclesAllowed(connectionPair.getRight(), expressed);
                     ConnectionGene childConnection = connectionPair.getRight().createCopy(connectionGeneSupport, cyclesAllowed);
 

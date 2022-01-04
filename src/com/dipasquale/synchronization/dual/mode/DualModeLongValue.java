@@ -1,45 +1,40 @@
 package com.dipasquale.synchronization.dual.mode;
 
-import com.dipasquale.common.LongCounter;
-import com.dipasquale.common.PlainLongCounter;
-import com.dipasquale.common.concurrent.AtomicLongCounter;
+import com.dipasquale.common.LongValue;
+import com.dipasquale.common.PlainLongValue;
+import com.dipasquale.common.concurrent.AtomicLongValue;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public final class DualModeLongCounter implements LongCounter, DualModeObject, Serializable {
+public final class DualModeLongValue implements LongValue, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 6310708806974536759L;
     private final ConcurrencyLevelState concurrencyLevelState;
     @EqualsAndHashCode.Include
-    private LongCounter counter;
+    private LongValue counter;
 
-    private DualModeLongCounter(final ConcurrencyLevelState concurrencyLevelState, final long value) {
+    private DualModeLongValue(final ConcurrencyLevelState concurrencyLevelState, final long value) {
         this.concurrencyLevelState = concurrencyLevelState;
         this.counter = create(concurrencyLevelState, value);
     }
 
-    public DualModeLongCounter(final int concurrencyLevel, final long value) {
+    public DualModeLongValue(final int concurrencyLevel, final long value) {
         this(new ConcurrencyLevelState(concurrencyLevel), value);
     }
 
-    public DualModeLongCounter(final int concurrencyLevel) {
+    public DualModeLongValue(final int concurrencyLevel) {
         this(concurrencyLevel, -1L);
     }
 
-    private static LongCounter create(final ConcurrencyLevelState concurrencyLevelState, final long value) {
+    private static LongValue create(final ConcurrencyLevelState concurrencyLevelState, final long value) {
         if (concurrencyLevelState.getCurrent() > 0) {
-            return new AtomicLongCounter(value);
+            return new AtomicLongValue(value);
         }
 
-        return new PlainLongCounter(value);
-    }
-
-    @Override
-    public long increment(final long delta) {
-        return counter.increment(delta);
+        return new PlainLongValue(value);
     }
 
     @Override
@@ -50,6 +45,11 @@ public final class DualModeLongCounter implements LongCounter, DualModeObject, S
     @Override
     public long current(final long value) {
         return counter.current(value);
+    }
+
+    @Override
+    public long increment(final long delta) {
+        return counter.increment(delta);
     }
 
     @Override
