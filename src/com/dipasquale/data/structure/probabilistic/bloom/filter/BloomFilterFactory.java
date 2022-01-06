@@ -1,11 +1,10 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter;
 
 import com.dipasquale.common.ArgumentValidatorSupport;
-import com.dipasquale.common.bit.int2.BitManipulatorSupport;
 
 public interface BloomFilterFactory {
     default int getSizePerRecord() {
-        return BitManipulatorSupport.MAXIMUM_BITS;
+        return 64;
     }
 
     <T> BloomFilter<T> create(int estimatedSize, int hashingFunctions, double falsePositiveRatio, long size);

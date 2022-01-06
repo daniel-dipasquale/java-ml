@@ -3,7 +3,7 @@ package com.dipasquale.common.bit.int2;
 public interface BitManipulator {
     long size();
 
-    boolean isOutOfBounds(long value);
+    boolean isWithinBounds(long value);
 
     long extract(long offset);
 
@@ -23,14 +23,14 @@ public interface BitManipulator {
         return oldValue;
     }
 
-    default long accumulateAndGet(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {
+    default long accumulateAndGet(final long offset, final long value, final Accumulator accumulator) {
         long oldValue = extract(offset);
         long newValue = accumulator.accumulate(oldValue, value);
 
         return setAndGet(offset, newValue);
     }
 
-    default long getAndAccumulate(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {
+    default long getAndAccumulate(final long offset, final long value, final Accumulator accumulator) {
         long oldValue = extract(offset);
         long newValue = accumulator.accumulate(oldValue, value);
 
@@ -61,5 +61,10 @@ public interface BitManipulator {
 
     default long getAndDecrement(final long offset) {
         return getAndAdd(offset, -1L);
+    }
+
+    @FunctionalInterface
+    interface Accumulator {
+        long accumulate(long oldValue, long newValue);
     }
 }

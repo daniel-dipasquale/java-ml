@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public final class DeterministicSimulationPolicy implements SimulationPolicy {
-    private final int maximumSimulation;
+    private final int maximumSimulations;
     private final int maximumDepth;
 
     @Override
@@ -13,7 +13,7 @@ public final class DeterministicSimulationPolicy implements SimulationPolicy {
 
     @Override
     public boolean allowSimulation(final int simulation) {
-        return simulation <= maximumSimulation;
+        return simulation <= maximumSimulations;
     }
 
     @Override

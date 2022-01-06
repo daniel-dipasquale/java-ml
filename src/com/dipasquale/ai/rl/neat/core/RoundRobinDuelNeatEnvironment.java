@@ -9,60 +9,104 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 @RequiredArgsConstructor
-@Builder
 public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironment {
     @Serial
     private static final long serialVersionUID = -4718577446760598268L;
+    private static final Comparator<Double> COMPARATOR = Double::compareTo;
     private final ContestNeatEnvironment environment;
-    @Builder.Default
-    private final float matchesRate = 1f;
-    @Builder.Default
-    private final int rematches = 1;
+    private final int approximateMatchesPerGenome;
+    private final int rematches;
+
+    @Builder
+    private static RoundRobinDuelNeatEnvironment create(final ContestNeatEnvironment environment, final int approximateMatchesPerGenome, final int rematches) {
+        int approximateMatchesPerGenomeFixed = approximateMatchesPerGenome <= 0
+                ? Integer.MAX_VALUE
+                : approximateMatchesPerGenome;
+
+        int rematchesFixed = Math.max(rematches, 0);
+
+        return new RoundRobinDuelNeatEnvironment(environment, approximateMatchesPerGenomeFixed, rematchesFixed);
+    }
+
+    private static void addLeagueSizeIfCompatible(final NavigableMap<Double, Integer> possibleLeagueSizes, final double leagueSizeExponent, final int populationSize) {
+        int leagueSize = (int) Math.pow(2D, leagueSizeExponent);
+
+        if (populationSize % leagueSize == 0) {
+            possibleLeagueSizes.put(leagueSizeExponent, leagueSize);
+        }
+    }
+
+    private static int getBestLeagueSize(final NavigableMap<Double, Integer> possibleLeagueSizes, final double leagueSizeExponent, final int populationSize, final int approximateMatchCount) {
+        if (!possibleLeagueSizes.isEmpty()) {
+            Integer leagueSize = possibleLeagueSizes.get(leagueSizeExponent);
+
+            if (leagueSize != null) {
+                return leagueSize;
+            }
+
+            return possibleLeagueSizes.lastEntry().getValue();
+        }
+
+        String message = String.format("Unable to fit an even amount of round robin duels for a population of %d genomes, where each genome should duel %d", populationSize, approximateMatchCount);
+
+        throw new IllegalStateException(message);
+    }
+
+    private static void fillMatches(final List<Match> matches, final List<GenomeActivator> genomeActivators, final int leagueSize, final int matchCount) {
+        int size = genomeActivators.size();
+
+        for (int i1 = 0; i1 < size; i1 += leagueSize) {
+            for (int i2 = i1, c2 = i1 + matchCount; i2 < c2; i2++) {
+                GenomeActivator genomeActivator1 = genomeActivators.get(i2);
+
+                for (int i3 = i2 + 1, c3 = i1 + leagueSize; i3 < c3; i3++) {
+                    GenomeActivator genomeActivator2 = genomeActivators.get(i3);
+                    Match match = new Match(genomeActivator1, genomeActivator2);
+
+                    matches.add(match);
+                }
+            }
+        }
+    }
 
     private List<Match> createMatches(final SharedGenomeActivator sharedGenomeActivator) {
         List<Match> matches = new ArrayList<>();
         List<GenomeActivator> genomeActivators = sharedGenomeActivator.getGenomeActivators();
-        int originalSize = genomeActivators.size();
-        double maximumExponent = Math.log(originalSize) / Math.log(2D);
-        int maximumSize = (int) Math.pow(2D, maximumExponent);
-        double adjustedExponent = Math.floor(maximumExponent * matchesRate);
-        int adjustedSize = (int) Math.pow(2D, adjustedExponent);
+        int populationSize = genomeActivators.size();
+        int approximateMatchCount = Math.min(populationSize - 1, approximateMatchesPerGenome);
 
-        for (int remainderSize = originalSize; remainderSize > 1; ) {
-            int matchCount = adjustedSize - 1;
+        if (populationSize - approximateMatchCount > 1) {
+            NavigableMap<Double, Integer> possibleLeagueSizes = new TreeMap<>(COMPARATOR);
+            double leagueSizeExponent = Math.log(approximateMatchCount + 1) / Math.log(2D);
 
-            for (int i1 = originalSize - remainderSize; i1 < maximumSize; i1 += adjustedSize) {
-                for (int i2 = i1, c2 = i1 + matchCount; i2 < c2; i2++) {
-                    GenomeActivator genomeActivator1 = genomeActivators.get(i2);
+            addLeagueSizeIfCompatible(possibleLeagueSizes, Math.ceil(leagueSizeExponent), populationSize);
+            addLeagueSizeIfCompatible(possibleLeagueSizes, Math.floor(leagueSizeExponent), populationSize);
 
-                    for (int i3 = i2 + 1, c3 = i1 + adjustedSize; i3 < c3; i3++) {
-                        GenomeActivator genomeActivator2 = genomeActivators.get(i3);
-                        Match match = new Match(genomeActivator1, genomeActivator2);
+            int leagueSize = getBestLeagueSize(possibleLeagueSizes, Math.round(leagueSizeExponent), populationSize, approximateMatchCount);
 
-                        matches.add(match);
-                    }
-                }
-            }
-
-            remainderSize -= maximumSize;
-            maximumExponent = Math.log(remainderSize) / Math.log(2D);
-            maximumSize = (int) Math.pow(2D, maximumExponent);
+            sharedGenomeActivator.getContext().random().shuffle(genomeActivators);
+            fillMatches(matches, genomeActivators, leagueSize, approximateMatchCount);
+        } else {
+            fillMatches(matches, genomeActivators, populationSize, populationSize - 1);
         }
 
         return matches;
     }
 
-    private void test(final SharedGenomeActivator sharedGenomeActivator, final Match match) {
+    private void playMatches(final SharedGenomeActivator sharedGenomeActivator, final Match match) {
         int rematch = 0;
 
         for (Match currentMatch = match; rematch++ <= rematches; currentMatch = currentMatch.next) {
             float[] fitnessValues = environment.test(currentMatch.genomeActivators);
 
-            for (int i = 0; i < currentMatch.genomeActivators.length; i++) {
-                sharedGenomeActivator.addFitness(currentMatch.genomeActivators[i], fitnessValues[i]);
+            for (int i = 0; i < 2; i++) {
+                sharedGenomeActivator.addFitness(currentMatch.genomeActivators.get(i), fitnessValues[i]);
             }
         }
     }
@@ -70,7 +114,7 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
     @Override
     public void test(final SharedGenomeActivator sharedGenomeActivator) {
         List<Match> matches = createMatches(sharedGenomeActivator);
-        WaitHandle waitHandle = sharedGenomeActivator.getContext().parallelism().forEach(matches, m -> test(sharedGenomeActivator, m));
+        WaitHandle waitHandle = sharedGenomeActivator.getContext().parallelism().forEach(matches, m -> playMatches(sharedGenomeActivator, m));
 
         try {
             waitHandle.await();
@@ -83,12 +127,12 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Match {
-        private final GenomeActivator[] genomeActivators;
+        private final List<GenomeActivator> genomeActivators;
         private final Match next;
 
         private Match(final GenomeActivator genomeActivator1, final GenomeActivator genomeActivator2) {
-            this.genomeActivators = new GenomeActivator[]{genomeActivator1, genomeActivator2};
-            this.next = new Match(new GenomeActivator[]{genomeActivator2, genomeActivator1}, this);
+            this.genomeActivators = List.of(genomeActivator1, genomeActivator2);
+            this.next = new Match(List.of(genomeActivator2, genomeActivator1), this);
         }
     }
 }

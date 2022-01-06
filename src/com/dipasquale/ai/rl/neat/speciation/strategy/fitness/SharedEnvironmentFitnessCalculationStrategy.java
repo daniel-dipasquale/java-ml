@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class SharedGenomeFitnessCalculationStrategy implements FitnessCalculationStrategy, Serializable {
+public final class SharedEnvironmentFitnessCalculationStrategy implements FitnessCalculationStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = -2984214590812474966L;
 

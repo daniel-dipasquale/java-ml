@@ -254,7 +254,7 @@ public final class RandomSupportTest {
                 .toList());
 
         Assertions.assertEquals(List.of(9L, 8L, 7L, 6L, 5L, 4L, 3L, 2L, 1L, 0L), items);
-        Assertions.assertEquals(List.of(8L, 6L, 7L, 4L, 5L, 2L, 3L, 0L, 1L, 9L), test.shuffled(items, Long.class));
+        Assertions.assertEquals(List.of(8L, 6L, 7L, 4L, 5L, 2L, 3L, 0L, 1L, 9L), test.createShuffled(items, Long.class));
         Assertions.assertEquals(List.of(9L, 8L, 7L, 6L, 5L, 4L, 3L, 2L, 1L, 0L), items);
     }
 

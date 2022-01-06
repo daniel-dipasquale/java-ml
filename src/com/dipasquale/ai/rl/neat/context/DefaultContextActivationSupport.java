@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.context;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
+import com.dipasquale.ai.rl.neat.core.ActivationSupport;
 import com.dipasquale.ai.rl.neat.core.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.core.FitnessFunctionNotLoadedException;
 import com.dipasquale.ai.rl.neat.core.GeneralSupport;
@@ -48,19 +49,19 @@ public final class DefaultContextActivationSupport implements Context.Activation
         this(genomeActivatorPool, null, new StandardSharedNeatEnvironment(concurrencyLevel, environment, fitnessBuckets));
     }
 
-    private static NeuralNetworkFactory createNeuralNetworkFactory(final InitializationContext initializationContext, final ConnectionGeneSupport connectionGeneSupport) {
+    private static NeuralNetworkFactory createNeuralNetworkFactory(final InitializationContext initializationContext, final ConnectionGeneSupport connectionGeneSupport, final ActivationSupport activationSupport) {
         float recurrentAllowanceRate = connectionGeneSupport.getRecurrentAllowanceRate().getSingletonValue(initializationContext);
 
         if (Float.compare(recurrentAllowanceRate, 0f) <= 0) {
-            return new FeedForwardNeuralNetworkFactory();
+            return new FeedForwardNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
         }
 
         return switch (connectionGeneSupport.getRecurrentStateType()) {
-            case DEFAULT -> new RecurrentNeuralNetworkFactory();
+            case DEFAULT -> new RecurrentNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
 
-            case LSTM -> new LstmNeuralNetworkFactory();
+            case LSTM -> new LstmNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
 
-            case GRU -> new GruNeuralNetworkFactory();
+            case GRU -> new GruNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
         };
     }
 
@@ -80,9 +81,9 @@ public final class DefaultContextActivationSupport implements Context.Activation
         return fitnessBuckets;
     }
 
-    public static DefaultContextActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport) {
+    public static DefaultContextActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport, final ActivationSupport activationSupport) {
         DualModeMapFactory mapFactory = initializationContext.getMapFactory();
-        NeuralNetworkFactory neuralNetworkFactory = createNeuralNetworkFactory(initializationContext, connectionGeneSupport);
+        NeuralNetworkFactory neuralNetworkFactory = createNeuralNetworkFactory(initializationContext, connectionGeneSupport, activationSupport);
         DualModeGenomeActivatorPool genomeActivatorPool = new DualModeGenomeActivatorPool(mapFactory, neuralNetworkFactory);
         NeatEnvironment fitnessFunction = generalSupport.getFitnessFunction();
         Map<String, FitnessBucket> fitnessBuckets = createFitnessBuckets(initializationContext, generalSupport);

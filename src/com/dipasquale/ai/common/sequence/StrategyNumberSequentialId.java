@@ -8,14 +8,14 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public final class StrategyLongSequentialId implements SequentialId<StrategyLongSequentialId>, Serializable {
+public final class StrategyNumberSequentialId implements SequentialId<StrategyNumberSequentialId>, Serializable {
     @Serial
     private static final long serialVersionUID = -1101575222645635713L;
     private final String name;
-    private final LongSequentialId sequentialId;
+    private final NumberSequentialId sequentialId;
 
     @Override
-    public int compareTo(final StrategyLongSequentialId other) {
+    public int compareTo(final StrategyNumberSequentialId other) {
         int comparison = name.compareTo(other.name);
 
         if (comparison != 0) {

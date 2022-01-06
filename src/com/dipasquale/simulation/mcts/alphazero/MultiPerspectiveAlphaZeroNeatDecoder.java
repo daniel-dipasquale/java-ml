@@ -16,14 +16,6 @@ public final class MultiPerspectiveAlphaZeroNeatDecoder<TState extends SearchSta
 
     @Override
     public AlphaZeroPrediction decode(final NeatAlphaZeroHeuristicContext<TState, TEnvironment> context, final float[] output) {
-        TEnvironment environment = context.getEnvironment();
-        int nextParticipantId = environment.getNextParticipantId();
-        int currentParticipantId = environment.getCurrentState().getParticipantId();
-
-        if (context.getChildrenCount() <= output.length - 1) {
-            return new MultiPerspectivePolicySuperSetAlphaZeroPrediction(nextParticipantId, currentParticipantId, perspectiveParticipantId, output, valueIndex);
-        }
-
-        return new MultiPerspectivePolicySubSetAlphaZeroPrediction(nextParticipantId, currentParticipantId, perspectiveParticipantId, output, valueIndex);
+        return new MultiPerspectiveAlphaZeroPrediction<>(perspectiveParticipantId, valueIndex, context, output);
     }
 }

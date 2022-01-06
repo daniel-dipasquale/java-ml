@@ -44,7 +44,7 @@ public interface RandomSupport {
         }
     }
 
-    default <T> List<T> shuffled(final List<T> items, final Class<T> itemType) {
+    default <T> List<T> createShuffled(final List<T> items, final Class<T> itemType) {
         int size = items.size();
         T[] shuffledItems = (T[]) Array.newInstance(itemType, size);
 

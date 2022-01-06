@@ -108,6 +108,9 @@ algorithms I'm interested in learning and using:
                         .unrestrictedDirectionAllowanceRate(FloatNumber.literal(1f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
+                .activation(ActivationSupport.builder()
+                        .outputLayerNormalizer(new IdentityNeuronLayerNormalizer())
+                        .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))
                         .addConnectionRate(FloatNumber.literal(0.06f))
@@ -179,6 +182,9 @@ algorithms I'm interested in learning and using:
                         .build())
                 .connections(ConnectionGeneSupport.builder()
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
+                        .build())
+                .activation(ActivationSupport.builder()
+                        .outputLayerNormalizer(new IdentityNeuronLayerNormalizer())
                         .build())
                 .build());
    ```

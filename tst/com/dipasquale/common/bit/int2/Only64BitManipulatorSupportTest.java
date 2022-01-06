@@ -13,23 +13,24 @@ public final class Only64BitManipulatorSupportTest {
 
     @Test
     public void TEST_2() {
-        Assertions.assertFalse(TEST.isOutOfBounds(Long.MAX_VALUE));
-        Assertions.assertFalse(TEST.isOutOfBounds(Long.MIN_VALUE));
+        Assertions.assertTrue(TEST.isWithinBounds(Long.MIN_VALUE));
+        Assertions.assertTrue(TEST.isWithinBounds(0L));
+        Assertions.assertTrue(TEST.isWithinBounds(Long.MAX_VALUE));
     }
 
     @Test
     public void TEST_3() {
+        Assertions.assertEquals(0L, TEST.extract(0L, 0L));
         Assertions.assertEquals(0L, TEST.extract(0L, 1L));
-        Assertions.assertEquals(0L, TEST.extract(0L, 2L));
-        Assertions.assertEquals(1L, TEST.extract(1L, 2L));
-        Assertions.assertEquals(1L, TEST.extract(1L, 3L));
+        Assertions.assertEquals(1L, TEST.extract(1L, 0L));
+        Assertions.assertEquals(1L, TEST.extract(1L, 1L));
     }
 
     @Test
     public void TEST_4() {
+        Assertions.assertEquals(2L, TEST.merge(0L, 0L, 2L));
         Assertions.assertEquals(2L, TEST.merge(0L, 1L, 2L));
-        Assertions.assertEquals(4L, TEST.merge(0L, 2L, 4L));
-        Assertions.assertEquals(4L, TEST.merge(1L, 2L, 4L));
-        Assertions.assertEquals(6L, TEST.merge(1L, 3L, 6L));
+        Assertions.assertEquals(2L, TEST.merge(1L, 0L, 2L));
+        Assertions.assertEquals(2L, TEST.merge(1L, 1L, 2L));
     }
 }

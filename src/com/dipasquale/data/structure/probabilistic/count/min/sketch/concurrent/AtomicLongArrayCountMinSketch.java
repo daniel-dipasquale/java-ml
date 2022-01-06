@@ -14,12 +14,12 @@ import java.util.stream.IntStream;
 final class AtomicLongArrayCountMinSketch<T> implements CountMinSketch<T> {
     private static final int MAXIMUM_SHIFTS = 32;
     private final HashingFunction multiHashingFunction;
-    private final List<AtomicLongArrayBitManipulator> dataBitManipulators;
+    private final List<AtomicLongArrayBitManipulator> bitManipulators;
     private final int hashingFunctions;
 
     AtomicLongArrayCountMinSketch(final HashingFunction multiHashingFunction, final int size, final int hashingFunctions, final int bitsForCounter) {
         this.multiHashingFunction = multiHashingFunction;
-        this.dataBitManipulators = createDataBitManipulators(hashingFunctions, size, bitsForCounter);
+        this.bitManipulators = createDataBitManipulators(hashingFunctions, size, bitsForCounter);
         this.hashingFunctions = hashingFunctions;
     }
 
@@ -37,7 +37,7 @@ final class AtomicLongArrayCountMinSketch<T> implements CountMinSketch<T> {
         long hashCodeMerged = multiHashingFunction.hashCode(hashCode, hashFunctionIndex);
 
         for (int i = 0; i < hashingFunctions; i++) {
-            AtomicLongArrayBitManipulator dataBitManipulator = dataBitManipulators.get(i);
+            AtomicLongArrayBitManipulator dataBitManipulator = bitManipulators.get(i);
 
             long hashCodeFixed = hashCodeMerged >= 0L
                     ? hashCodeMerged
@@ -60,7 +60,7 @@ final class AtomicLongArrayCountMinSketch<T> implements CountMinSketch<T> {
 
     @Override
     public long put(final T item, final long count) {
-        ArgumentValidatorSupport.ensureFalse(dataBitManipulators.get(0).isOutOfBounds(count), "count", "is out of bounds");
+        ArgumentValidatorSupport.ensureTrue(bitManipulators.get(0).isWithinBounds(count), "count", "is out of bounds");
 
         return selectOrUpdateData(item, (bm, i) -> bm.getAndAdd(i, count));
     }

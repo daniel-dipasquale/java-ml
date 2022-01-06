@@ -13,8 +13,8 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.AllFitnessCalculati
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ConcurrentOrganismFitnessCalculationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.MultiFitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SharedEnvironmentFitnessCalculationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SharedFitnessCalculationStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SharedGenomeFitnessCalculationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.GenesisReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MateAndMutateReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MultiReproductionStrategy;
@@ -103,7 +103,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
 
             case SHARED -> {
                 List<FitnessCalculationStrategy> strategies = List.of(
-                        new SharedGenomeFitnessCalculationStrategy(),
+                        new SharedEnvironmentFitnessCalculationStrategy(),
                         new SharedFitnessCalculationStrategy()
                 );
 

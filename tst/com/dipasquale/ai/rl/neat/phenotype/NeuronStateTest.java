@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.sequence.LongSequentialId;
-import com.dipasquale.ai.common.sequence.StrategyLongSequentialId;
+import com.dipasquale.ai.common.sequence.NumberSequentialId;
+import com.dipasquale.ai.common.sequence.StrategyNumberSequentialId;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ public final class NeuronStateTest {
     }
 
     private static Id createNeuronId(final long id) {
-        return new Id(new StrategyLongSequentialId("neuron", new LongSequentialId(id)));
+        return new Id(new StrategyNumberSequentialId("neuron", new NumberSequentialId(id)));
     }
 
     @Test

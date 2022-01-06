@@ -8,13 +8,13 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public final class LongSequentialId implements SequentialId<LongSequentialId>, Serializable {
+public final class NumberSequentialId implements SequentialId<NumberSequentialId>, Serializable {
     @Serial
     private static final long serialVersionUID = 8593186826114247631L;
     private final long value;
 
     @Override
-    public int compareTo(final LongSequentialId other) {
+    public int compareTo(final NumberSequentialId other) {
         return Long.compare(value, other.value);
     }
 

@@ -5,6 +5,7 @@ import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
+import com.dipasquale.ai.rl.neat.phenotype.SubtractionNeuronLayerNormalizer;
 import com.dipasquale.common.random.float2.DeterministicRandomSupport;
 import com.dipasquale.common.random.float2.RandomSupport;
 import com.dipasquale.common.random.float2.ThreadLocalUniformRandomSupport;
@@ -26,8 +27,8 @@ import java.util.Set;
 final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
     private static final RandomSupport RANDOM_SUPPORT = new ThreadLocalUniformRandomSupport();
     private static final double TIME_SPENT_GOAL = 60D;
-    private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
+    private static final int FITNESS_TESTS = 5;
     private final String name = "Single Pole Cart Balance";
     @Builder.Default
     private final int populationSize = 150;
@@ -84,7 +85,7 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(4))
-                                .outputs(IntegerNumber.literal(1))
+                                .outputs(IntegerNumber.literal(2))
                                 .biases(List.of())
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
@@ -105,6 +106,9 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                 .connections(ConnectionGeneSupport.builder()
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
                         .build())
+                .activation(ActivationSupport.builder()
+                        .outputLayerNormalizer(new SubtractionNeuronLayerNormalizer())
+                        .build())
                 .metrics(MetricSupport.builder()
                         .type(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
@@ -123,7 +127,7 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                 .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
                 .add(new DelegatedTrainingPolicy(SinglePoleCartBalanceTaskSetup::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
-                        .fitnessTestCount(SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST)
+                        .fitnessTestCount(FITNESS_TESTS)
                         .build())
                 .build();
     }

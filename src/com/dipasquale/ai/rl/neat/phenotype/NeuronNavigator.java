@@ -18,6 +18,7 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
     private final NeuronPathBuilder neuronPathBuilder;
     private final List<Neuron> outputNeurons = new ArrayList<>();
     private Iterable<Neuron> orderedNeurons = null;
+    private final NeuronLayerNormalizer neuronLayerNormalizer;
 
     public boolean isEmpty() {
         return !neuronPathBuilder.hasNeurons();
@@ -28,6 +29,10 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
     }
 
     public void add(final Neuron neuron) {
+        if (orderedNeurons != null) {
+            orderedNeurons = null;
+        }
+
         neuronPathBuilder.add(neuron);
 
         if (neuron.getType() == NodeGeneType.OUTPUT) {
@@ -37,7 +42,7 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
         orderedNeurons = null;
     }
 
-    private void ensureOrderedNeuronsIsInitialized() {
+    public void build() {
         if (orderedNeurons != null) {
             return;
         }
@@ -47,15 +52,9 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
     }
 
     public float[] getOutputValues(final NeuronStateGroup neuronState) {
-        float[] outputValues = new float[outputNeurons.size()];
+        NeuronLayerReader reader = new NeuronLayerReader(outputNeurons, neuronState);
 
-        for (int i = 0; i < outputValues.length; i++) {
-            Neuron outputNeuron = outputNeurons.get(i);
-
-            outputValues[i] = neuronState.calculateValue(outputNeuron);
-        }
-
-        return outputValues;
+        return neuronLayerNormalizer.getValues(reader);
     }
 
     public void clear() {
@@ -66,7 +65,7 @@ final class NeuronNavigator implements Iterable<Neuron>, Serializable {
 
     @Override
     public Iterator<Neuron> iterator() {
-        ensureOrderedNeuronsIsInitialized();
+        build();
 
         return orderedNeurons.iterator();
     }

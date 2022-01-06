@@ -4,9 +4,18 @@ import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.Collections;
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Game {
-    public static int play(final Player player1, final Player player2) {
+    private static GameResult create(final int outcomeId, final GameEnvironment environment) {
+        List<Integer> moves = Collections.unmodifiableList(environment.getMoves());
+
+        return new GameResult(outcomeId, moves);
+    }
+
+    public static GameResult play(final Player player1, final Player player2) {
         Player[] players = new Player[]{player1, player2};
         GameEnvironment environment = new GameEnvironment();
         int statusId = environment.getStatusId();
@@ -19,9 +28,9 @@ public final class Game {
         }
 
         if (statusId == MonteCarloTreeSearch.DRAWN) {
-            return statusId;
+            return create(statusId, environment);
         }
 
-        return statusId - 1;
+        return create(statusId - 1, environment);
     }
 }

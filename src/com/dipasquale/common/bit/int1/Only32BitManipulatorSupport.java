@@ -9,8 +9,8 @@ final class Only32BitManipulatorSupport implements BitManipulatorSupport {
     }
 
     @Override
-    public boolean isOutOfBounds(final int value) {
-        return false;
+    public boolean isWithinBounds(final int value) {
+        return true;
     }
 
     @Override

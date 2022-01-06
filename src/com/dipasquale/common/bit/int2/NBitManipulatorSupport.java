@@ -8,7 +8,7 @@ final class NBitManipulatorSupport implements BitManipulatorSupport {
     NBitManipulatorSupport(final int bits) {
         this.bits = bits;
         this.mask = (1L << bits) - 1L;
-        this.size = (long) BitManipulatorSupport.MAXIMUM_BITS / (long) bits;
+        this.size = 64L / (long) bits;
     }
 
     @Override
@@ -17,8 +17,8 @@ final class NBitManipulatorSupport implements BitManipulatorSupport {
     }
 
     @Override
-    public boolean isOutOfBounds(final long value) {
-        return value != (value & mask);
+    public boolean isWithinBounds(final long value) {
+        return value == (value & mask);
     }
 
     @Override

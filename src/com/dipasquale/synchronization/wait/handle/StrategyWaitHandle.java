@@ -35,7 +35,11 @@ public final class StrategyWaitHandle implements WaitHandle {
     public void await()
             throws InterruptedException {
         try {
-            if (waitHandle != null) {
+            if (waitHandle == null) {
+                if (Thread.interrupted()) {
+                    throw new InterruptedException("thread was interrupted");
+                }
+            } else {
                 waitHandle.await();
             }
         } catch (InterruptedException e) {

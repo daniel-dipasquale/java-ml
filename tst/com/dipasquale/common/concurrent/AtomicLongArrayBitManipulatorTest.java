@@ -29,10 +29,10 @@ public final class AtomicLongArrayBitManipulatorTest {
 
     @Test
     public void TEST_2() {
-        Assertions.assertTrue(TEST.isOutOfBounds(-1L));
-        Assertions.assertFalse(TEST.isOutOfBounds(0L));
-        Assertions.assertFalse(TEST.isOutOfBounds(1_023L));
-        Assertions.assertTrue(TEST.isOutOfBounds(1_024L));
+        Assertions.assertFalse(TEST.isWithinBounds(-1L));
+        Assertions.assertTrue(TEST.isWithinBounds(0L));
+        Assertions.assertTrue(TEST.isWithinBounds(1_023L));
+        Assertions.assertFalse(TEST.isWithinBounds(1_024L));
     }
 
     @Test

@@ -30,9 +30,9 @@ public final class SingleInputNeatEncoder implements NeatEncoder<GameEnvironment
             int play = board[i];
 
             if (play == perspectiveParticipantId) {
-                result = BIT_MANIPULATOR_SUPPORT.setAndGet(result, i, 1);
+                result = BIT_MANIPULATOR_SUPPORT.merge(result, i, 1);
             } else if (play != 0) {
-                result = BIT_MANIPULATOR_SUPPORT.setAndGet(result, i, 2);
+                result = BIT_MANIPULATOR_SUPPORT.merge(result, i, 2);
             }
         }
 

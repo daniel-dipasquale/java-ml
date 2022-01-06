@@ -5,6 +5,7 @@ import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
+import com.dipasquale.ai.rl.neat.phenotype.SubtractionNeuronLayerNormalizer;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -66,7 +67,7 @@ final class XorTaskSetup implements TaskSetup {
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(2))
-                                .outputs(IntegerNumber.literal(1))
+                                .outputs(IntegerNumber.literal(2))
                                 .biases(List.of(FloatNumber.literal(1f)))
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
@@ -99,6 +100,9 @@ final class XorTaskSetup implements TaskSetup {
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
                         .unrestrictedDirectionAllowanceRate(FloatNumber.literal(1f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
+                        .build())
+                .activation(ActivationSupport.builder()
+                        .outputLayerNormalizer(new SubtractionNeuronLayerNormalizer())
                         .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))

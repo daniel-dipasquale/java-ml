@@ -27,7 +27,7 @@ public final class NeatTest {
     private static final boolean SINGLE_POLE_CART_BALANCE_TASK_ENABLED = true;
     private static final boolean OPEN_AI_TASKS_ENABLED = false;
     private static final boolean OPEN_AI_CART_POLE_TASK_ENABLED = true;
-    private static final boolean TIC_TAC_TOE_TASK_ENABLED = true;
+    private static final boolean TIC_TAC_TOE_TASK_ENABLED = false;
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
@@ -186,15 +186,14 @@ public final class NeatTest {
                 .build());
     }
 
-//    @Test
-////    @Timeout(value = 300_500, unit = TimeUnit.MILLISECONDS)
-//    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_tic_tac_toe_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
-//        assertTaskSolution(NeatTestSetup.builder()
-//                .task(TicTacToeTaskSetup.builder()
-//                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
-//                        .build())
-//                .eventLoop(EVENT_LOOP)
-//                .shouldTestPersistence(false)
-//                .build());
-//    }
+    @Test
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_tic_tac_toe_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+        assertTaskSolution(NeatTestSetup.builder()
+                .task(TicTacToeTaskSetup.builder()
+                        .metricsEmissionEnabled(METRICS_EMISSION_ENABLED)
+                        .build())
+                .eventLoop(EVENT_LOOP)
+                .shouldTestPersistence(false)
+                .build());
+    }
 }

@@ -2,9 +2,11 @@ package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.ai.rl.neat.core.NeatEncoder;
 import com.dipasquale.common.bit.int1.BitManipulatorSupport;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Builder
 public final class DoubleInputNeatEncoder implements NeatEncoder<GameEnvironment> {
     private static final BitManipulatorSupport BIT_MANIPULATOR_SUPPORT = BitManipulatorSupport.create(2);
     private final int perspectiveParticipantId;
@@ -28,9 +30,9 @@ public final class DoubleInputNeatEncoder implements NeatEncoder<GameEnvironment
             int play = board[i];
 
             if (play == perspectiveParticipantId) {
-                result1 = BIT_MANIPULATOR_SUPPORT.setAndGet(result1, i, 1);
+                result1 = BIT_MANIPULATOR_SUPPORT.merge(result1, i, 1);
             } else if (play != 0) {
-                result2 = BIT_MANIPULATOR_SUPPORT.setAndGet(result2, i, 1);
+                result2 = BIT_MANIPULATOR_SUPPORT.merge(result2, i, 1);
             }
         }
 

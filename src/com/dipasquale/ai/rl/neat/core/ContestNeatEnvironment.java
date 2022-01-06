@@ -2,7 +2,9 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 
+import java.util.List;
+
 @FunctionalInterface
 public interface ContestNeatEnvironment extends NeatEnvironment {
-    float[] test(GenomeActivator[] genomeActivator);
+    float[] test(List<GenomeActivator> genomeActivator);
 }

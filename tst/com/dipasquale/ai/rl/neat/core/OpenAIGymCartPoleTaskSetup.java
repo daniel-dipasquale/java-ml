@@ -22,9 +22,9 @@ import java.util.Set;
 @Builder
 @Getter
 public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
-    private static final int SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST = 5;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
     private static final double REWARD_GOAL = 195D;
+    private static final int FITNESS_TESTS = 5;
     private final String name = "CartPole-v0";
     private final GymClient gymClient;
     @Builder.Default
@@ -121,7 +121,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                 .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
                 .add(new DelegatedTrainingPolicy(this::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
-                        .fitnessTestCount(SUCCESSFUL_SCENARIOS_WHILE_FITNESS_TEST)
+                        .fitnessTestCount(FITNESS_TESTS)
                         .build())
                 .build();
     }

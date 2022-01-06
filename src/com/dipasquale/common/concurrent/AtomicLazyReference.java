@@ -12,18 +12,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class AtomicLazyReference<T> implements Serializable {
     @Serial
     private static final long serialVersionUID = -6226524128351563527L;
-    private final AtomicBoolean initialized = new AtomicBoolean();
+    private final AtomicBoolean initializing = new AtomicBoolean();
     private final ObjectFactory<T> referenceFactory;
     private volatile ReferenceEnvelope<T> referenceEnvelope = null;
 
     public boolean initialized() {
-        return initialized.get();
+        return referenceEnvelope != null;
     }
 
     public T reference() {
         ReferenceEnvelope<T> referenceEnvelopeFixed;
 
-        if (!initialized.compareAndSet(false, true)) {
+        if (!initializing.compareAndSet(false, true)) {
             referenceEnvelopeFixed = referenceEnvelope;
 
             while (referenceEnvelopeFixed == null) {

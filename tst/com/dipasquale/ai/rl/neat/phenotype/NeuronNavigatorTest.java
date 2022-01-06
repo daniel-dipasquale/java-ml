@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.common.function.activation.IdentityActivationFunction;
-import com.dipasquale.ai.common.sequence.LongSequentialIdFactory;
-import com.dipasquale.ai.common.sequence.StrategyLongSequentialId;
+import com.dipasquale.ai.common.sequence.NumberSequentialIdFactory;
+import com.dipasquale.ai.common.sequence.StrategyNumberSequentialId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.internal.Id;
@@ -18,10 +18,10 @@ import java.util.stream.StreamSupport;
 
 public final class NeuronNavigatorTest {
     private static List<Id> createNodeIds(final int count) {
-        LongSequentialIdFactory nodeIdFactory = new LongSequentialIdFactory(new PlainLongValue(0L));
+        NumberSequentialIdFactory nodeIdFactory = new NumberSequentialIdFactory(new PlainLongValue(0L));
 
         return IntStream.range(0, count)
-                .mapToObj(i -> new Id(new StrategyLongSequentialId("test", nodeIdFactory.create())))
+                .mapToObj(i -> new Id(new StrategyNumberSequentialId("test", nodeIdFactory.create())))
                 .collect(Collectors.toList());
     }
 
@@ -248,9 +248,10 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_feed_forward_with_feed_forward_path_builder() {
         List<Neuron> neurons = createFeedForwardNetwork();
-        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
 
         neurons.forEach(test::add);
+        test.build();
 
         List<Id> result = StreamSupport.stream(test.spliterator(), false)
                 .map(Neuron::getId)
@@ -267,9 +268,10 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_reflexive_with_feed_forward_path_builder() {
         List<Neuron> neurons = createRecurrentReflexiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
 
         neurons.forEach(test::add);
+        test.build();
 
         List<Id> result = StreamSupport.stream(test.spliterator(), false)
                 .map(Neuron::getId)
@@ -286,9 +288,10 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_symmetric_with_feed_forward_path_builder() {
         List<Neuron> neurons = createRecurrentSymmetricNetwork();
-        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
 
         neurons.forEach(test::add);
+        test.build();
 
         List<Id> result = StreamSupport.stream(test.spliterator(), false)
                 .map(Neuron::getId)
@@ -305,9 +308,10 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_transitive_with_feed_forward_path_builder() {
         List<Neuron> neurons = createRecurrentTransitiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
 
         neurons.forEach(test::add);
+        test.build();
 
         List<Id> result = StreamSupport.stream(test.spliterator(), false)
                 .map(Neuron::getId)
@@ -324,9 +328,10 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_feed_forward_with_recurrent_path_builder() {
         List<Neuron> neurons = createFeedForwardNetwork();
-        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
 
         neurons.forEach(test::add);
+        test.build();
 
         List<Id> result = StreamSupport.stream(test.spliterator(), false)
                 .map(Neuron::getId)
@@ -343,9 +348,10 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_reflexive_with_recurrent_path_builder() {
         List<Neuron> neurons = createRecurrentReflexiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
 
         neurons.forEach(test::add);
+        test.build();
 
         List<Id> result = StreamSupport.stream(test.spliterator(), false)
                 .map(Neuron::getId)
@@ -363,9 +369,10 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_symmetric_with_recurrent_path_builder() {
         List<Neuron> neurons = createRecurrentSymmetricNetwork();
-        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
 
         neurons.forEach(test::add);
+        test.build();
 
         List<Id> result = StreamSupport.stream(test.spliterator(), false)
                 .map(Neuron::getId)
@@ -383,9 +390,10 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_transitive_with_recurrent_path_builder() {
         List<Neuron> neurons = createRecurrentTransitiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder());
+        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
 
         neurons.forEach(test::add);
+        test.build();
 
         List<Id> result = StreamSupport.stream(test.spliterator(), false)
                 .map(Neuron::getId)

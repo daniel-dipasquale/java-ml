@@ -1,12 +1,17 @@
 package com.dipasquale.search.mcts.alphazero;
 
-import com.dipasquale.search.mcts.core.BackPropagationPolicy;
+import com.dipasquale.search.mcts.core.AbstractBackPropagationPolicy;
+import com.dipasquale.search.mcts.core.BackPropagationObserver;
 import com.dipasquale.search.mcts.core.Environment;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.core.SearchNode;
 import com.dipasquale.search.mcts.core.SearchState;
 
-public final class AlphaZeroBackPropagationPolicy<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> implements BackPropagationPolicy<TState, AlphaZeroSearchEdge, TEnvironment> {
+public final class AlphaZeroBackPropagationPolicy<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> extends AbstractBackPropagationPolicy<TState, AlphaZeroSearchEdge, TEnvironment> {
+    public AlphaZeroBackPropagationPolicy(final BackPropagationObserver<TState, AlphaZeroSearchEdge, TEnvironment> observer) {
+        super(observer);
+    }
+
     private static <TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> float getReward(final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> node, final int ownerParticipantId, final int simulationStatusId) {
         if (ownerParticipantId == simulationStatusId) {
             return 1f;
@@ -31,36 +36,18 @@ public final class AlphaZeroBackPropagationPolicy<TState extends SearchState, TE
     }
 
     @Override
-    public void process(final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> rootNode, final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> leafNode, final int simulationStatusId) {
-        boolean isFullyExplored = true;
+    protected void processCurrent(final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> leafNode, final int simulationStatusId, final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> currentNode) {
         int ownerParticipantId = leafNode.getState().getParticipantId();
         float reward = getReward(leafNode, ownerParticipantId, simulationStatusId);
+        AlphaZeroSearchEdge currentEdge = currentNode.getEdge();
+        int visited = currentEdge.getVisited();
 
-        for (SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> currentNode = leafNode; currentNode != null; ) {
-            AlphaZeroSearchEdge currentEdge = currentNode.getEdge();
-            int visited = currentEdge.getVisited();
+        currentEdge.increaseVisited();
 
-            currentEdge.increaseVisited();
-
-            if (currentNode.getState().getParticipantId() == ownerParticipantId) {
-                setExpectedReward(currentEdge, reward, visited);
-            } else {
-                setExpectedReward(currentEdge, -reward, visited);
-            }
-
-            SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> parentNode = currentNode.getParent();
-
-            if (parentNode != null) {
-                if (isFullyExplored) {
-                    parentNode.getExplorableChildren().remove(parentNode.getChildSelectedIndex());
-                    parentNode.getFullyExploredChildren().add(currentNode);
-                    isFullyExplored = parentNode.isFullyExplored();
-                }
-
-                parentNode.setChildSelectedIndex(-1);
-            }
-
-            currentNode = parentNode;
+        if (currentNode.getState().getParticipantId() == ownerParticipantId) {
+            setExpectedReward(currentEdge, reward, visited);
+        } else {
+            setExpectedReward(currentEdge, -reward, visited);
         }
     }
 }

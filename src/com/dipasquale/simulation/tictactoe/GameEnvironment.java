@@ -5,18 +5,21 @@ import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
 
 public final class GameEnvironment implements Environment<GameState, GameEnvironment> {
-    private static final int MAXIMUM_PLAYS = 9;
+    private static final int MAXIMUM_MOVES = 9;
     private static final int NO_PARTICIPANT_ID = -1;
     private static final int NO_LOCATION = -1;
     private static final int UNPLAYED_STATE = 0;
     private final Object membership;
     @Getter(AccessLevel.PACKAGE)
     private final int[] board;
-    private final int plays;
+    @Getter(AccessLevel.PACKAGE)
+    private final List<Integer> moves;
     @Getter
     private final GameState currentState;
     @Getter
@@ -24,23 +27,23 @@ public final class GameEnvironment implements Environment<GameState, GameEnviron
 
     GameEnvironment() {
         this.membership = new Object();
-        this.board = new int[MAXIMUM_PLAYS];
-        this.plays = 0;
+        this.board = new int[MAXIMUM_MOVES];
+        this.moves = List.of();
         this.currentState = new GameState(null, NO_PARTICIPANT_ID, NO_LOCATION);
         this.statusId = MonteCarloTreeSearch.IN_PROGRESS;
     }
 
-    private GameEnvironment(final int[] board, final int plays, final GameState currentState, final int statusId) {
+    private GameEnvironment(final int[] board, final List<Integer> moves, final GameState currentState, final int statusId) {
         this.membership = new Object();
         this.board = board;
-        this.plays = plays;
+        this.moves = moves;
         this.currentState = currentState;
         this.statusId = statusId;
     }
 
     @Override
     public int getNextParticipantId() {
-        if (plays == 0) {
+        if (moves.isEmpty()) {
             return 1;
         }
 
@@ -48,7 +51,7 @@ public final class GameEnvironment implements Environment<GameState, GameEnviron
     }
 
     public GameState createPossibleState(final int location) {
-        if (location < 0 || location >= MAXIMUM_PLAYS || board[location] != UNPLAYED_STATE) {
+        if (location < 0 || location >= MAXIMUM_MOVES || board[location] != UNPLAYED_STATE) {
             String message = String.format("game state is not possible due to location: %d", location);
 
             throw new IllegalArgumentException(message);
@@ -70,11 +73,19 @@ public final class GameEnvironment implements Environment<GameState, GameEnviron
     }
 
     private static int[] createBoard(final int[] board, final GameState state) {
-        int[] boardCopied = Arrays.copyOf(board, 9);
+        int[] boardFixed = Arrays.copyOf(board, 9);
 
-        boardCopied[state.getLocation()] = state.getParticipantId();
+        boardFixed[state.getLocation()] = state.getParticipantId();
 
-        return boardCopied;
+        return boardFixed;
+    }
+
+    private static List<Integer> createMoves(final List<Integer> moves, final GameState state) {
+        List<Integer> movesFixed = new ArrayList<>(moves);
+
+        movesFixed.add(state.getLocation());
+
+        return movesFixed;
     }
 
     private static boolean isRowTaken(final int[] board, final int participantId) {
@@ -133,12 +144,12 @@ public final class GameEnvironment implements Environment<GameState, GameEnviron
         return isRowTaken(board, participantId) || isColumnTaken(board, participantId) || isDiagonal1Taken(board, participantId) || isDiagonal2Taken(board, participantId);
     }
 
-    private static int getStatusId(final int[] board, final int plays, final int participantId) {
+    private static int getStatusId(final int[] board, final List<Integer> moves, final int participantId) {
         if (isWon(board, participantId)) {
             return participantId;
         }
 
-        if (plays == MAXIMUM_PLAYS) {
+        if (moves.size() == MAXIMUM_MOVES) {
             return MonteCarloTreeSearch.DRAWN;
         }
 
@@ -152,9 +163,9 @@ public final class GameEnvironment implements Environment<GameState, GameEnviron
         }
 
         int[] boardFixed = createBoard(board, state);
-        int playsFixed = plays + 1;
-        int statusIdFixed = getStatusId(boardFixed, playsFixed, state.getParticipantId());
+        List<Integer> movesFixed = createMoves(moves, state);
+        int statusIdFixed = getStatusId(boardFixed, movesFixed, state.getParticipantId());
 
-        return new GameEnvironment(boardFixed, playsFixed, state, statusIdFixed);
+        return new GameEnvironment(boardFixed, movesFixed, state, statusIdFixed);
     }
 }

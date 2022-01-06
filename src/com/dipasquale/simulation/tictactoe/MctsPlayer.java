@@ -11,6 +11,6 @@ public final class MctsPlayer implements Player {
 
     @Override
     public GameState createNextState(final GameEnvironment environment) {
-        return mcts.findNextState(environment);
+        return mcts.proposeNextState(environment);
     }
 }

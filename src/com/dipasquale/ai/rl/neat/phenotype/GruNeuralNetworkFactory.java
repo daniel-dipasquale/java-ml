@@ -11,12 +11,13 @@ public final class GruNeuralNetworkFactory implements NeuralNetworkFactory, Seri
     @Serial
     private static final long serialVersionUID = -8981717991145980316L;
     private static final NeuronStateGroupFactory NEURON_STATE_FACTORY = (NeuronStateGroupFactory & Serializable) GruNeuronStateGroup::new;
+    private final NeuronLayerNormalizer outputLayerNormalizer;
 
     @Override
     public NeuralNetwork create(final Genome genome) {
         NeuronPathBuilder neuronPathBuilder = new CyclicNeuronPathBuilder();
         NeuronMemoryFactory neuronMemoryFactory = new NeuronMemoryFactory(genome);
 
-        return new ConcurrentNeuralNetwork(genome, neuronPathBuilder, neuronMemoryFactory, NEURON_STATE_FACTORY);
+        return new ConcurrentNeuralNetwork(genome, neuronPathBuilder, outputLayerNormalizer, neuronMemoryFactory, NEURON_STATE_FACTORY);
     }
 }

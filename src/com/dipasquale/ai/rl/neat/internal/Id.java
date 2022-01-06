@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.internal;
 
-import com.dipasquale.ai.common.sequence.StrategyLongSequentialId;
+import com.dipasquale.ai.common.sequence.StrategyNumberSequentialId;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -12,7 +12,7 @@ import java.io.Serializable;
 public final class Id implements Comparable<Id>, Serializable {
     @Serial
     private static final long serialVersionUID = 6434796669671390116L;
-    private final StrategyLongSequentialId sequentialId;
+    private final StrategyNumberSequentialId sequentialId;
 
     @Override
     public int compareTo(final Id other) {

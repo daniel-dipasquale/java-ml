@@ -1,14 +1,13 @@
 package com.dipasquale.common.bit.concurrent;
 
 import com.dipasquale.common.bit.int2.BitManipulator;
-import com.dipasquale.common.bit.int2.BitManipulatorSupport;
 import lombok.Generated;
 import lombok.ToString;
 
 import java.util.concurrent.atomic.AtomicLongArray;
 
 public final class SingleBitAtomicLongArrayBitManipulator implements BitManipulator {
-    private static final int RECORD_SIZE = 64;
+    private static final long RECORD_SIZE = 64L;
     private final AtomicLongArray array;
     private final long size;
 
@@ -23,8 +22,8 @@ public final class SingleBitAtomicLongArrayBitManipulator implements BitManipula
     }
 
     @Override
-    public boolean isOutOfBounds(final long value) {
-        return value < 0L || value > 1L;
+    public boolean isWithinBounds(final long value) {
+        return value >= 0L && value <= 1L;
     }
 
     private int getArrayIndex(final long offset) {
@@ -35,7 +34,7 @@ public final class SingleBitAtomicLongArrayBitManipulator implements BitManipula
         return 1L << (int) (offset % 64);
     }
 
-    private long getValueFromBitMask(final long mask, final long offset) {
+    private long extract(final long mask, final long offset) {
         return (mask & createBitMask(offset)) == 0L ? 0L : 1L;
     }
 
@@ -44,10 +43,10 @@ public final class SingleBitAtomicLongArrayBitManipulator implements BitManipula
         int arrayIndex = getArrayIndex(offset);
         long mask = array.get(arrayIndex);
 
-        return getValueFromBitMask(mask, offset);
+        return extract(mask, offset);
     }
 
-    private static long mergeOutOfCas(final long value, final long oldMask, final long newMask) {
+    private static long merge(final long value, final long oldMask, final long newMask) {
         if (value == 1L) {
             return oldMask | newMask;
         }
@@ -56,68 +55,56 @@ public final class SingleBitAtomicLongArrayBitManipulator implements BitManipula
     }
 
     private long merge(final int arrayIndex, final long value, final long mask) {
-        return array.accumulateAndGet(arrayIndex, mask, (om, nm) -> mergeOutOfCas(value, om, nm));
+        return array.accumulateAndGet(arrayIndex, mask, (om, nm) -> merge(value, om, nm));
     }
 
     @Override
     public long merge(final long offset, final long value) {
         int arrayIndex = getArrayIndex(offset);
-        long valueNew = value % 2;
+        long newValue = value % 2;
 
-        return merge(arrayIndex, valueNew, createBitMask(offset));
+        return merge(arrayIndex, newValue, createBitMask(offset));
     }
 
-    private ValueGatherer compareAndSwap(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {
-        ValueGatherer valueGatherer = new ValueGatherer();
+    private AccumulatorAudit compareAndSwap(final long offset, final long value, final Accumulator accumulator) {
+        AccumulatorAudit accumulatorAudit = new AccumulatorAudit();
         int arrayIndex = getArrayIndex(offset);
         long valueFixed = value % 2;
 
-        array.accumulateAndGet(arrayIndex, createBitMask(offset), (om, nm) -> {
-            valueGatherer.valueOld = getValueFromBitMask(om, offset);
-            valueGatherer.valueNew = accumulator.accumulate(valueGatherer.valueOld, valueFixed) % 2;
+        array.accumulateAndGet(arrayIndex, createBitMask(offset), (oldMask, newMask) -> {
+            accumulatorAudit.oldValue = extract(oldMask, offset);
+            accumulatorAudit.newValue = accumulator.accumulate(accumulatorAudit.oldValue, valueFixed) % 2;
 
-            return mergeOutOfCas(valueGatherer.valueNew, om, nm);
+            return merge(accumulatorAudit.newValue, oldMask, newMask);
         });
 
-        return valueGatherer;
+        return accumulatorAudit;
     }
 
     @Override
     public long setAndGet(final long offset, final long value) {
-        return compareAndSwap(offset, value, (o, n) -> n).valueNew;
+        return compareAndSwap(offset, value, (o, n) -> n).newValue;
     }
 
     @Override
     public long getAndSet(final long offset, final long value) {
-        return compareAndSwap(offset, value, (o, n) -> n).valueOld;
+        return compareAndSwap(offset, value, (o, n) -> n).oldValue;
     }
 
     @Override
-    public long accumulateAndGet(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {
-        return compareAndSwap(offset, value, accumulator).valueNew;
+    public long accumulateAndGet(final long offset, final long value, final Accumulator accumulator) {
+        return compareAndSwap(offset, value, accumulator).newValue;
     }
 
     @Override
-    public long getAndAccumulate(final long offset, final long value, final BitManipulatorSupport.Accumulator accumulator) {
-        return compareAndSwap(offset, value, accumulator).valueOld;
+    public long getAndAccumulate(final long offset, final long value, final Accumulator accumulator) {
+        return compareAndSwap(offset, value, accumulator).oldValue;
     }
 
     @Generated
     @ToString
-    private static final class ValueGatherer {
-        private long valueOld;
-        private long valueNew;
+    private static final class AccumulatorAudit {
+        private long oldValue;
+        private long newValue;
     }
 }
-
-/*
-        int index = (int) (offset >>> 6);
-
-        if (index == 0 || index >= array.length() - 1) {
-            synchronized (System.out) {
-                System.out.printf("offset: %d, index: %d, length: %d%n", offset, index, array.length());
-            }
-        }
-
-        return index;
- */

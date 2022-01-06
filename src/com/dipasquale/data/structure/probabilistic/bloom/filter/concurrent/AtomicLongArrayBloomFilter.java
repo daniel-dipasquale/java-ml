@@ -15,12 +15,12 @@ final class AtomicLongArrayBloomFilter<T> implements BloomFilter<T>, Serializabl
     private static final long serialVersionUID = 1962455033871627455L;
     private static final int MAXIMUM_SHIFTS = 32;
     private final HashingFunction hashingFunction;
-    private final BitManipulator dataBitManipulator;
+    private final BitManipulator bitManipulator;
     private final int hashingFunctions;
 
     private AtomicLongArrayBloomFilter(final HashingFunction hashingFunction, final AtomicLongArray array, final int hashingFunctions) {
         this.hashingFunction = hashingFunction;
-        this.dataBitManipulator = new SingleBitAtomicLongArrayBitManipulator(array);
+        this.bitManipulator = new SingleBitAtomicLongArrayBitManipulator(array);
         this.hashingFunctions = hashingFunctions;
     }
 
@@ -44,7 +44,7 @@ final class AtomicLongArrayBloomFilter<T> implements BloomFilter<T>, Serializabl
 
         for (int i = 0; i < hashingFunctions; i++) {
             long hashCodeFixed = getNextHashCode(hashCodeMerged);
-            long index = hashCodeFixed % dataBitManipulator.size();
+            long index = hashCodeFixed % bitManipulator.size();
             int shifts = 8 + (i + hashFunctionIndex) % MAXIMUM_SHIFTS;
 
             if (bitRetriever.get(index)) {
@@ -59,14 +59,14 @@ final class AtomicLongArrayBloomFilter<T> implements BloomFilter<T>, Serializabl
 
     @Override
     public boolean mightContain(final T item) {
-        BitSet flags = selectOrUpdateData(item, i -> dataBitManipulator.extract(i) == 1L);
+        BitSet flags = selectOrUpdateData(item, i -> bitManipulator.extract(i) == 1L);
 
         return flags.cardinality() == hashingFunctions;
     }
 
     @Override
     public boolean add(final T item) {
-        BitSet flags = selectOrUpdateData(item, i -> dataBitManipulator.getAndSet(i, 1L) == 1L);
+        BitSet flags = selectOrUpdateData(item, i -> bitManipulator.getAndSet(i, 1L) == 1L);
 
         return flags.cardinality() < hashingFunctions;
     }
