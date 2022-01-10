@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivatorPool;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
-import com.dipasquale.ai.rl.neat.phenotype.StrategyStateGenomeActivatorPool;
+import com.dipasquale.ai.rl.neat.phenotype.StateStrategyGenomeActivatorPool;
 import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
@@ -20,12 +20,12 @@ public final class DualModeGenomeActivatorPool implements GenomeActivatorPool, D
     private static final long serialVersionUID = -3956562667609505308L;
     private final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators;
     private final NeuralNetworkFactory neuralNetworkFactory;
-    private transient StrategyStateGenomeActivatorPool genomeActivatorPool;
+    private transient StateStrategyGenomeActivatorPool genomeActivatorPool;
 
     private DualModeGenomeActivatorPool(final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators, final NeuralNetworkFactory neuralNetworkFactory) {
         this.genomeActivators = genomeActivators;
         this.neuralNetworkFactory = neuralNetworkFactory;
-        this.genomeActivatorPool = new StrategyStateGenomeActivatorPool(genomeActivators, neuralNetworkFactory);
+        this.genomeActivatorPool = new StateStrategyGenomeActivatorPool(genomeActivators, neuralNetworkFactory);
     }
 
     public DualModeGenomeActivatorPool(final DualModeMapFactory mapFactory, final NeuralNetworkFactory neuralNetworkFactory) {
@@ -56,6 +56,6 @@ public final class DualModeGenomeActivatorPool implements GenomeActivatorPool, D
     private void readObject(final ObjectInputStream objectInputStream)
             throws IOException, ClassNotFoundException {
         objectInputStream.defaultReadObject();
-        genomeActivatorPool = new StrategyStateGenomeActivatorPool(genomeActivators, neuralNetworkFactory);
+        genomeActivatorPool = new StateStrategyGenomeActivatorPool(genomeActivators, neuralNetworkFactory);
     }
 }

@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironment {
@@ -22,16 +23,18 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
     private final ContestNeatEnvironment environment;
     private final int approximateMatchesPerGenome;
     private final int rematches;
+    private final int eliminationRounds;
 
     @Builder
-    private static RoundRobinDuelNeatEnvironment create(final ContestNeatEnvironment environment, final int approximateMatchesPerGenome, final int rematches) {
+    private static RoundRobinDuelNeatEnvironment create(final ContestNeatEnvironment environment, final int approximateMatchesPerGenome, final int rematches, final int eliminationRounds) {
         int approximateMatchesPerGenomeFixed = approximateMatchesPerGenome <= 0
                 ? Integer.MAX_VALUE
                 : approximateMatchesPerGenome;
 
         int rematchesFixed = Math.max(rematches, 0);
+        int roundsFixed = Math.max(eliminationRounds, 0);
 
-        return new RoundRobinDuelNeatEnvironment(environment, approximateMatchesPerGenomeFixed, rematchesFixed);
+        return new RoundRobinDuelNeatEnvironment(environment, approximateMatchesPerGenomeFixed, rematchesFixed, roundsFixed);
     }
 
     private static void addLeagueSizeIfCompatible(final NavigableMap<Double, Integer> possibleLeagueSizes, final double leagueSizeExponent, final int populationSize) {
@@ -58,10 +61,8 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
         throw new IllegalStateException(message);
     }
 
-    private static void fillMatches(final List<Match> matches, final List<GenomeActivator> genomeActivators, final int leagueSize, final int matchCount) {
-        int size = genomeActivators.size();
-
-        for (int i1 = 0; i1 < size; i1 += leagueSize) {
+    private static void fillMatches(final List<Match> matches, final List<GenomeActivator> genomeActivators, final int populationSize, final int leagueSize, final int matchCount) {
+        for (int i1 = 0; i1 < populationSize; i1 += leagueSize) {
             for (int i2 = i1, c2 = i1 + matchCount; i2 < c2; i2++) {
                 GenomeActivator genomeActivator1 = genomeActivators.get(i2);
 
@@ -75,11 +76,11 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
         }
     }
 
-    private List<Match> createMatches(final SharedGenomeActivator sharedGenomeActivator) {
+    private List<Match> createMatches(final Context.RandomSupport randomSupport, final List<GenomeActivator> genomeActivators) {
         List<Match> matches = new ArrayList<>();
-        List<GenomeActivator> genomeActivators = sharedGenomeActivator.getGenomeActivators();
         int populationSize = genomeActivators.size();
-        int approximateMatchCount = Math.min(populationSize - 1, approximateMatchesPerGenome);
+        int defaultMatchCount = populationSize - 1;
+        int approximateMatchCount = Math.min(defaultMatchCount, approximateMatchesPerGenome);
 
         if (populationSize - approximateMatchCount > 1) {
             NavigableMap<Double, Integer> possibleLeagueSizes = new TreeMap<>(COMPARATOR);
@@ -90,20 +91,20 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
 
             int leagueSize = getBestLeagueSize(possibleLeagueSizes, Math.round(leagueSizeExponent), populationSize, approximateMatchCount);
 
-            sharedGenomeActivator.getContext().random().shuffle(genomeActivators);
-            fillMatches(matches, genomeActivators, leagueSize, approximateMatchCount);
+            randomSupport.shuffle(genomeActivators);
+            fillMatches(matches, genomeActivators, populationSize, leagueSize, approximateMatchCount);
         } else {
-            fillMatches(matches, genomeActivators, populationSize, populationSize - 1);
+            fillMatches(matches, genomeActivators, populationSize, populationSize, defaultMatchCount);
         }
 
         return matches;
     }
 
-    private void playMatch(final SharedGenomeActivator sharedGenomeActivator, final Match match) {
+    private void playMatch(final SharedGenomeActivator sharedGenomeActivator, final Match match, final int round) {
         int rematch = 0;
 
         for (Match currentMatch = match; rematch++ <= rematches; currentMatch = currentMatch.next) {
-            float[] fitnessValues = environment.test(currentMatch.genomeActivators);
+            float[] fitnessValues = environment.test(currentMatch.genomeActivators, round);
 
             for (int i = 0; i < 2; i++) {
                 sharedGenomeActivator.addFitness(currentMatch.genomeActivators.get(i), fitnessValues[i]);
@@ -111,10 +112,8 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
         }
     }
 
-    @Override
-    public void test(final SharedGenomeActivator sharedGenomeActivator) {
-        List<Match> matches = createMatches(sharedGenomeActivator);
-        WaitHandle waitHandle = sharedGenomeActivator.getContext().parallelism().forEach(matches, match -> playMatch(sharedGenomeActivator, match));
+    private void playMatches(final Context.ParallelismSupport parallelismSupport, final List<Match> matches, final SharedGenomeActivator sharedGenomeActivator, final int round) {
+        WaitHandle waitHandle = parallelismSupport.forEach(matches, match -> playMatch(sharedGenomeActivator, match, round));
 
         try {
             waitHandle.await();
@@ -122,6 +121,29 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
             Thread.currentThread().interrupt();
 
             throw new InterruptedRuntimeException("thread was interrupted while all genomes were dueling", e);
+        }
+    }
+
+    @Override
+    public void test(final SharedGenomeActivator sharedGenomeActivator) {
+        Context context = sharedGenomeActivator.getContext();
+        Context.RandomSupport randomSupport = context.random();
+        List<GenomeActivator> genomeActivators = sharedGenomeActivator.getGenomeActivators();
+        int possibleRounds = (int) (Math.log(genomeActivators.size()) / Math.log(2D));
+        Context.ParallelismSupport parallelismSupport = context.parallelism();
+        Comparator<GenomeActivator> mostFitComparator = new MostFitGenomeActivatorComparator(sharedGenomeActivator);
+
+        for (int i = 0, c = Math.min(possibleRounds, eliminationRounds + 1), limit = (int) Math.pow(2D, possibleRounds); i < c; ) {
+            List<Match> matches = createMatches(randomSupport, genomeActivators);
+
+            playMatches(parallelismSupport, matches, sharedGenomeActivator, i);
+
+            if (++i < c) {
+                genomeActivators = genomeActivators.stream()
+                        .sorted(mostFitComparator)
+                        .limit(limit /= 2)
+                        .collect(Collectors.toList());
+            }
         }
     }
 
@@ -133,6 +155,19 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
         private Match(final GenomeActivator genomeActivator1, final GenomeActivator genomeActivator2) {
             this.genomeActivators = List.of(genomeActivator1, genomeActivator2);
             this.next = new Match(List.of(genomeActivator2, genomeActivator1), this);
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class MostFitGenomeActivatorComparator implements Comparator<GenomeActivator> {
+        private final SharedGenomeActivator sharedGenomeActivator;
+
+        @Override
+        public int compare(final GenomeActivator genomeActivator1, final GenomeActivator genomeActivator2) {
+            float fitness1 = sharedGenomeActivator.getFitness(genomeActivator1);
+            float fitness2 = sharedGenomeActivator.getFitness(genomeActivator2);
+
+            return Float.compare(fitness2, fitness1);
         }
     }
 }

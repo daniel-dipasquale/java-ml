@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
-import com.dipasquale.ai.rl.neat.genotype.StrategyStateHistoricalMarkings;
+import com.dipasquale.ai.rl.neat.genotype.StateStrategyHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
@@ -28,14 +28,14 @@ public final class DualModeHistoricalMarkings implements HistoricalMarkings, Dua
     private final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds;
     private final DualModeNodeGeneDependencyTrackerFactory nodeDependencyTrackerFactory;
     private final DualModeMap<Id, DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeDependencyTrackers;
-    private transient StrategyStateHistoricalMarkings<DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>> historicalMarkings;
+    private transient StateStrategyHistoricalMarkings<DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>> historicalMarkings;
 
     private DualModeHistoricalMarkings(final DualModeMapFactory mapFactory, final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds, final DualModeNodeGeneDependencyTrackerFactory nodeDependencyTrackerFactory, final DualModeMap<Id, DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeDependencyTrackers) {
         this.innovationIdFactory = new DualModeIdFactory(mapFactory.concurrencyLevel(), IdType.INNOVATION_ID);
         this.innovationIds = innovationIds;
         this.nodeDependencyTrackerFactory = nodeDependencyTrackerFactory;
         this.nodeDependencyTrackers = nodeDependencyTrackers;
-        this.historicalMarkings = new StrategyStateHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
+        this.historicalMarkings = new StateStrategyHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
     }
 
     public DualModeHistoricalMarkings(final DualModeMapFactory mapFactory) {
@@ -79,14 +79,14 @@ public final class DualModeHistoricalMarkings implements HistoricalMarkings, Dua
         nodeDependencyTrackerFactory.activateMode(concurrencyLevel);
         DualModeObject.forEachValueActivateMode(nodeDependencyTrackers, concurrencyLevel);
         nodeDependencyTrackers.activateMode(concurrencyLevel);
-        historicalMarkings = new StrategyStateHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
+        historicalMarkings = new StateStrategyHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
     }
 
     @Serial
     private void readObject(final ObjectInputStream objectInputStream)
             throws IOException, ClassNotFoundException {
         objectInputStream.defaultReadObject();
-        historicalMarkings = new StrategyStateHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
+        historicalMarkings = new StateStrategyHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

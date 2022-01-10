@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts.core;
 
 @FunctionalInterface
-public interface SearchEdge {
+public interface Edge {
     int getVisited();
 }

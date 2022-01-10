@@ -3,8 +3,11 @@ package com.dipasquale.ai.rl.neat.core;
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
+import com.dipasquale.ai.rl.neat.phenotype.SubtractionNeuronLayerNormalizer;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.openai.gym.client.GymClient;
 import com.dipasquale.simulation.openai.gym.client.StepResult;
@@ -22,6 +25,7 @@ import java.util.Set;
 @Builder
 @Getter
 public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
+    private static final TopologySettingsType TOPOLOGY_SETTINGS_TYPE = TopologySettingsType.DOUBLE_OUTPUT;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
     private static final double REWARD_GOAL = 195D;
     private static final int FITNESS_TESTS = 5;
@@ -82,7 +86,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(4))
-                                .outputs(IntegerNumber.literal(1))
+                                .outputs(TOPOLOGY_SETTINGS_TYPE.outputs)
                                 .biases(List.of())
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
@@ -102,6 +106,9 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                         .build())
                 .connections(ConnectionGeneSupport.builder()
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
+                        .build())
+                .activation(ActivationSupport.builder()
+                        .outputLayerNormalizer(TOPOLOGY_SETTINGS_TYPE.outputLayerNormalizer)
                         .build())
                 .metrics(MetricsSupport.builder()
                         .type(metricsEmissionEnabled
@@ -129,5 +136,14 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     @Override
     public void visualize(final NeatActivator activator) {
         calculateFitness(activator, true);
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private enum TopologySettingsType {
+        SINGLE_OUTPUT(IntegerNumber.literal(1), new IdentityNeuronLayerNormalizer()),
+        DOUBLE_OUTPUT(IntegerNumber.literal(2), new SubtractionNeuronLayerNormalizer());
+
+        private final IntegerNumber outputs;
+        private final NeuronLayerNormalizer outputLayerNormalizer;
     }
 }

@@ -23,13 +23,13 @@ public final class EntryOptimizerTest {
     public void TEST_2() {
         EntryOptimizer<Float, String> test = new EntryOptimizer<>(FLOAT_COMPARATOR_ASCENDING);
 
-        Assertions.assertTrue(test.collectIfMoreOptimum(1f, "one"));
+        Assertions.assertTrue(test.setValueIfMoreOptimum(1f, "one"));
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals("one", test.getValue());
-        Assertions.assertFalse(test.collectIfMoreOptimum(0.9f, "zero point nine"));
+        Assertions.assertFalse(test.setValueIfMoreOptimum(0.9f, "zero point nine"));
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals("one", test.getValue());
-        Assertions.assertTrue(test.collectIfMoreOptimum(1.1f, "one point one"));
+        Assertions.assertTrue(test.setValueIfMoreOptimum(1.1f, "one point one"));
         Assertions.assertEquals(1.1f, test.getKey());
         Assertions.assertEquals("one point one", test.getValue());
     }
@@ -38,15 +38,15 @@ public final class EntryOptimizerTest {
     public void TEST_3() {
         EntryOptimizer<Float, List<String>> test = new EntryOptimizer<>(FLOAT_COMPARATOR_ASCENDING);
 
-        Assertions.assertTrue(test.computeIfMoreOptimum(1f, ArrayList::new));
+        Assertions.assertTrue(test.computeValueIfMoreOptimum(1f, ArrayList::new));
         test.getValue().add("one a");
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals(List.of("one a"), test.getValue());
-        Assertions.assertFalse(test.computeIfMoreOptimum(0.9f, ArrayList::new));
+        Assertions.assertFalse(test.computeValueIfMoreOptimum(0.9f, ArrayList::new));
         test.getValue().add("zero point nine a");
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals(List.of("one a", "zero point nine a"), test.getValue());
-        Assertions.assertTrue(test.computeIfMoreOptimum(1.1f, ArrayList::new));
+        Assertions.assertTrue(test.computeValueIfMoreOptimum(1.1f, ArrayList::new));
         test.getValue().add("one point one a");
         Assertions.assertEquals(1.1f, test.getKey());
         Assertions.assertEquals(List.of("one point one a"), test.getValue());
@@ -64,13 +64,13 @@ public final class EntryOptimizerTest {
     public void TEST_5() {
         EntryOptimizer<Float, String> test = new EntryOptimizer<>(FLOAT_COMPARATOR_DESCENDING);
 
-        Assertions.assertTrue(test.collectIfMoreOptimum(1f, "one"));
+        Assertions.assertTrue(test.setValueIfMoreOptimum(1f, "one"));
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals("one", test.getValue());
-        Assertions.assertTrue(test.collectIfMoreOptimum(0.9f, "zero point nine"));
+        Assertions.assertTrue(test.setValueIfMoreOptimum(0.9f, "zero point nine"));
         Assertions.assertEquals(0.9f, test.getKey());
         Assertions.assertEquals("zero point nine", test.getValue());
-        Assertions.assertFalse(test.collectIfMoreOptimum(1.1f, "one point one"));
+        Assertions.assertFalse(test.setValueIfMoreOptimum(1.1f, "one point one"));
         Assertions.assertEquals(0.9f, test.getKey());
         Assertions.assertEquals("zero point nine", test.getValue());
     }
@@ -79,15 +79,15 @@ public final class EntryOptimizerTest {
     public void TEST_6() {
         EntryOptimizer<Float, List<String>> test = new EntryOptimizer<>(FLOAT_COMPARATOR_DESCENDING);
 
-        Assertions.assertTrue(test.computeIfMoreOptimum(1f, ArrayList::new));
+        Assertions.assertTrue(test.computeValueIfMoreOptimum(1f, ArrayList::new));
         test.getValue().add("one a");
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals(List.of("one a"), test.getValue());
-        Assertions.assertTrue(test.computeIfMoreOptimum(0.9f, ArrayList::new));
+        Assertions.assertTrue(test.computeValueIfMoreOptimum(0.9f, ArrayList::new));
         test.getValue().add("zero point nine a");
         Assertions.assertEquals(0.9f, test.getKey());
         Assertions.assertEquals(List.of("zero point nine a"), test.getValue());
-        Assertions.assertFalse(test.computeIfMoreOptimum(1.1f, ArrayList::new));
+        Assertions.assertFalse(test.computeValueIfMoreOptimum(1.1f, ArrayList::new));
         test.getValue().add("one point one a");
         Assertions.assertEquals(0.9f, test.getKey());
         Assertions.assertEquals(List.of("zero point nine a", "one point one a"), test.getValue());

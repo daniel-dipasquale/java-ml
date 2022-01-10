@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.speciation.metric.FitnessMetrics;
 import com.dipasquale.ai.rl.neat.speciation.metric.GenerationMetrics;
 import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsContainer;
-import com.dipasquale.ai.rl.neat.speciation.metric.StrategyStateMetricsContainer;
+import com.dipasquale.ai.rl.neat.speciation.metric.StateStrategyMetricsContainer;
 import com.dipasquale.metric.MetricDatumFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
@@ -17,12 +17,12 @@ public final class DualModeMetricsContainer implements MetricsContainer, DualMod
     private static final long serialVersionUID = -4469062666149439132L;
     private final DualModeMapFactory mapFactory;
     private final MetricDatumFactory metricDatumFactory;
-    private StrategyStateMetricsContainer metricsContainer;
+    private StateStrategyMetricsContainer metricsContainer;
 
     public DualModeMetricsContainer(final DualModeMapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
         this.mapFactory = mapFactory;
         this.metricDatumFactory = metricDatumFactory;
-        this.metricsContainer = new StrategyStateMetricsContainer(mapFactory, metricDatumFactory);
+        this.metricsContainer = new StateStrategyMetricsContainer(mapFactory, metricDatumFactory);
     }
 
     @Override
@@ -60,12 +60,12 @@ public final class DualModeMetricsContainer implements MetricsContainer, DualMod
         return mapFactory.concurrencyLevel();
     }
 
-    private StrategyStateMetricsContainer createMetricsContainer() {
+    private StateStrategyMetricsContainer createMetricsContainer() {
         FitnessMetrics fitnessMetrics = metricsContainer.getFitnessMetrics().createCopy(mapFactory);
         GenerationMetrics generationMetrics = metricsContainer.getGenerationMetrics().createCopy(mapFactory);
         IterationMetrics iterationMetrics = metricsContainer.getIterationMetrics().createCopy(mapFactory);
 
-        return new StrategyStateMetricsContainer(mapFactory, metricDatumFactory, fitnessMetrics, generationMetrics, iterationMetrics);
+        return new StateStrategyMetricsContainer(mapFactory, metricDatumFactory, fitnessMetrics, generationMetrics, iterationMetrics);
     }
 
     @Override

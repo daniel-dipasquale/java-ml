@@ -3,27 +3,27 @@ package com.dipasquale.search.mcts.alphazero;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.search.mcts.core.ConfidenceCalculator;
 import com.dipasquale.search.mcts.core.Environment;
-import com.dipasquale.search.mcts.core.HighestConfidenceSelectionPolicy;
-import com.dipasquale.search.mcts.core.MultiSelectionPolicy;
-import com.dipasquale.search.mcts.core.SearchState;
-import com.dipasquale.search.mcts.core.SelectionPolicy;
+import com.dipasquale.search.mcts.core.HighestConfidenceTraversalPolicy;
+import com.dipasquale.search.mcts.core.MultiTraversalPolicy;
+import com.dipasquale.search.mcts.core.State;
+import com.dipasquale.search.mcts.core.TraversalPolicy;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class AlphaZeroSelectionPolicyFactory<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> implements ObjectFactory<SelectionPolicy<TState, AlphaZeroSearchEdge, TEnvironment>> {
-    private final AlphaZeroChildrenInitializerSelectionPolicy<TState, TEnvironment> childrenInitializerSelectionPolicy;
-    private final ConfidenceCalculator<AlphaZeroSearchEdge> confidenceCalculator;
+public final class AlphaZeroSelectionPolicyFactory<TState extends State, TEnvironment extends Environment<TState, TEnvironment>> implements ObjectFactory<TraversalPolicy<TState, AlphaZeroEdge, TEnvironment>> {
+    private final AlphaZeroChildrenInitializerTraversalPolicy<TState, TEnvironment> childrenInitializerTraversalPolicy;
+    private final ConfidenceCalculator<AlphaZeroEdge> confidenceCalculator;
 
     @Override
-    public SelectionPolicy<TState, AlphaZeroSearchEdge, TEnvironment> create() {
-        List<SelectionPolicy<TState, AlphaZeroSearchEdge, TEnvironment>> selectionPolicies = new ArrayList<>();
+    public TraversalPolicy<TState, AlphaZeroEdge, TEnvironment> create() {
+        List<TraversalPolicy<TState, AlphaZeroEdge, TEnvironment>> selectionPolicies = new ArrayList<>();
 
-        selectionPolicies.add(childrenInitializerSelectionPolicy);
-        selectionPolicies.add(new HighestConfidenceSelectionPolicy<>(confidenceCalculator));
+        selectionPolicies.add(childrenInitializerTraversalPolicy);
+        selectionPolicies.add(new HighestConfidenceTraversalPolicy<>(confidenceCalculator));
 
-        return new MultiSelectionPolicy<>(selectionPolicies);
+        return new MultiTraversalPolicy<>(selectionPolicies);
     }
 }

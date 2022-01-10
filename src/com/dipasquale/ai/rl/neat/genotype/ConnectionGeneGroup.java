@@ -44,6 +44,10 @@ public final class ConnectionGeneGroup implements Serializable {
         private static final long serialVersionUID = -2991129194086625584L;
         private final OrderedGroup<InnovationId, ConnectionGene> connections = new OrderedGroup<>();
 
+        public int size() {
+            return connections.size();
+        }
+
         public ConnectionGene getById(final InnovationId innovationId) {
             return connections.getById(innovationId);
         }

@@ -3,12 +3,12 @@ package com.dipasquale.search.mcts.core;
 import lombok.Builder;
 
 @Builder
-public final class DeterministicSimulationPolicy implements SimulationPolicy {
+public final class DeterministicSearchPolicy implements SearchPolicy {
     private final int maximumSimulations;
     private final int maximumDepth;
 
     @Override
-    public void beginSearch() {
+    public void begin() {
     }
 
     @Override
@@ -19,5 +19,9 @@ public final class DeterministicSimulationPolicy implements SimulationPolicy {
     @Override
     public boolean allowDepth(final int simulation, final int depth) {
         return depth <= maximumDepth;
+    }
+
+    @Override
+    public void end() {
     }
 }

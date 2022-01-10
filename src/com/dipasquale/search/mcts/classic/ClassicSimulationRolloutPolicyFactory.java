@@ -3,35 +3,26 @@ package com.dipasquale.search.mcts.classic;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.search.mcts.core.Environment;
-import com.dipasquale.search.mcts.core.MultiSelectionPolicy;
-import com.dipasquale.search.mcts.core.SearchEdgeFactory;
-import com.dipasquale.search.mcts.core.SearchState;
-import com.dipasquale.search.mcts.core.SelectionPolicy;
+import com.dipasquale.search.mcts.core.MultiTraversalPolicy;
+import com.dipasquale.search.mcts.core.State;
+import com.dipasquale.search.mcts.core.TraversalPolicy;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class ClassicSimulationRolloutPolicyFactory<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> implements ObjectFactory<SelectionPolicy<TState, ClassicSearchEdge, TEnvironment>> {
-    private final ClassicSimulationRolloutType classicSimulationRolloutType;
-    private final ClassicChildrenInitializerSelectionPolicy<TState, TEnvironment> classicChildrenInitializerSelectionPolicy;
-    private final SearchEdgeFactory<ClassicSearchEdge> edgeFactory;
+public final class ClassicSimulationRolloutPolicyFactory<TState extends State, TEnvironment extends Environment<TState, TEnvironment>> implements ObjectFactory<TraversalPolicy<TState, ClassicEdge, TEnvironment>> {
+    private final ClassicChildrenInitializerTraversalPolicy<TState, TEnvironment> childrenInitializerTraversalPolicy;
     private final RandomSupport randomSupport;
 
     @Override
-    public SelectionPolicy<TState, ClassicSearchEdge, TEnvironment> create() {
-        return switch (classicSimulationRolloutType) {
-            case STOCHASTIC_CHOICE_DETERMINISTIC_OUTCOME -> {
-                List<SelectionPolicy<TState, ClassicSearchEdge, TEnvironment>> simulationRolloutPolicies = new ArrayList<>();
+    public TraversalPolicy<TState, ClassicEdge, TEnvironment> create() {
+        List<TraversalPolicy<TState, ClassicEdge, TEnvironment>> simulationRolloutPolicies = new ArrayList<>();
 
-                simulationRolloutPolicies.add(classicChildrenInitializerSelectionPolicy);
-                simulationRolloutPolicies.add(new ClassicDeterministicSelectionPolicy<>(randomSupport));
+        simulationRolloutPolicies.add(childrenInitializerTraversalPolicy);
+        simulationRolloutPolicies.add(new ClassicSimulationRolloutPolicy<>(randomSupport));
 
-                yield new MultiSelectionPolicy<>(simulationRolloutPolicies);
-            }
-
-            case ALL_STOCHASTIC -> new ClassicStochasticSelectionPolicy<>(edgeFactory, randomSupport);
-        };
+        return new MultiTraversalPolicy<>(simulationRolloutPolicies);
     }
 }

@@ -4,6 +4,8 @@ import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.phenotype.SubtractionNeuronLayerNormalizer;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
@@ -20,6 +22,8 @@ import java.util.Set;
 @Builder
 @Getter
 final class XorTaskSetup implements TaskSetup {
+    private static final TopologySettingsType TOPOLOGY_SETTINGS_TYPE = TopologySettingsType.DOUBLE_OUTPUT;
+
     private static final float[][] INPUTS = {
             {1f, 1f}, // => 0f
             {1f, 0f}, // => 1f
@@ -67,7 +71,7 @@ final class XorTaskSetup implements TaskSetup {
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(2))
-                                .outputs(IntegerNumber.literal(2))
+                                .outputs(TOPOLOGY_SETTINGS_TYPE.outputs)
                                 .biases(List.of(FloatNumber.literal(1f)))
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
@@ -98,11 +102,11 @@ final class XorTaskSetup implements TaskSetup {
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentStateType(RecurrentStateType.GRU)
                         .recurrentAllowanceRate(FloatNumber.literal(0.2f))
-                        .unrestrictedDirectionAllowanceRate(FloatNumber.literal(1f))
+                        .unrestrictedDirectionAllowanceRate(FloatNumber.literal(0.5f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .activation(ActivationSupport.builder()
-                        .outputLayerNormalizer(new SubtractionNeuronLayerNormalizer())
+                        .outputLayerNormalizer(TOPOLOGY_SETTINGS_TYPE.outputLayerNormalizer)
                         .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))
@@ -148,5 +152,14 @@ final class XorTaskSetup implements TaskSetup {
                 .add(new DelegatedTrainingPolicy(XorTaskSetup::determineTrainingResult))
                 .add(new ContinuousTrainingPolicy())
                 .build();
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private enum TopologySettingsType {
+        SINGLE_OUTPUT(IntegerNumber.literal(1), new IdentityNeuronLayerNormalizer()),
+        DOUBLE_OUTPUT(IntegerNumber.literal(2), new SubtractionNeuronLayerNormalizer());
+
+        private final IntegerNumber outputs;
+        private final NeuronLayerNormalizer outputLayerNormalizer;
     }
 }

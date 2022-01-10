@@ -76,8 +76,9 @@ class NeatTestSetup {
         System.out.printf("generation: %d%n", trainer.getState().getGeneration());
         System.out.printf("species: %d%n", trainer.getState().getSpeciesCount());
         System.out.printf("hidden nodes: %d%n", trainer.getState().getChampionGenome().getNodes().size(NodeGeneType.HIDDEN));
-        System.out.printf("connections: %d%n", trainer.getState().getChampionGenome().getConnections().getExpressed().size());
-        System.out.printf("fitness: %f%n", trainer.getState().getMaximumFitness());
+        System.out.printf("expressed connections: %d%n", trainer.getState().getChampionGenome().getConnections().getExpressed().size());
+        System.out.printf("total connections: %d%n", trainer.getState().getChampionGenome().getConnections().getAll().size());
+        System.out.printf("maximum fitness: %f%n", trainer.getState().getMaximumFitness());
         Assertions.assertTrue(success);
         Assertions.assertEquals(populationSize, trainerSetup.genomeIds.size());
     }

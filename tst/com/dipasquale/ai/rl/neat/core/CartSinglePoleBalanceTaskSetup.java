@@ -3,7 +3,9 @@ package com.dipasquale.ai.rl.neat.core;
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.phenotype.SubtractionNeuronLayerNormalizer;
 import com.dipasquale.common.random.float2.DeterministicRandomSupport;
@@ -24,7 +26,8 @@ import java.util.Set;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
-final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
+final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
+    private static final TopologySettingsType TOPOLOGY_SETTINGS_TYPE = TopologySettingsType.DOUBLE_OUTPUT;
     private static final RandomSupport RANDOM_SUPPORT = new ThreadLocalUniformRandomSupport();
     private static final double TIME_SPENT_GOAL = 60D;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
@@ -85,7 +88,7 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(IntegerNumber.literal(4))
-                                .outputs(IntegerNumber.literal(2))
+                                .outputs(TOPOLOGY_SETTINGS_TYPE.outputs)
                                 .biases(List.of())
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
@@ -107,7 +110,7 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .activation(ActivationSupport.builder()
-                        .outputLayerNormalizer(new SubtractionNeuronLayerNormalizer())
+                        .outputLayerNormalizer(TOPOLOGY_SETTINGS_TYPE.outputLayerNormalizer)
                         .build())
                 .metrics(MetricsSupport.builder()
                         .type(metricsEmissionEnabled
@@ -125,10 +128,19 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                         .maximumRestartCount(9)
                         .build())
                 .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
-                .add(new DelegatedTrainingPolicy(SinglePoleCartBalanceTaskSetup::determineTrainingResult))
+                .add(new DelegatedTrainingPolicy(CartSinglePoleBalanceTaskSetup::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
                         .fitnessTestCount(FITNESS_TESTS)
                         .build())
                 .build();
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private enum TopologySettingsType {
+        SINGLE_OUTPUT(IntegerNumber.literal(1), new IdentityNeuronLayerNormalizer()),
+        DOUBLE_OUTPUT(IntegerNumber.literal(2), new SubtractionNeuronLayerNormalizer());
+
+        private final IntegerNumber outputs;
+        private final NeuronLayerNormalizer outputLayerNormalizer;
     }
 }

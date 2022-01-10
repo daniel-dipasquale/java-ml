@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum OutputActivationFunctionType {
     COPY_FROM_HIDDEN(null),
-    RANDOM(ActivationFunctionType.RANDOM),
     IDENTITY(ActivationFunctionType.IDENTITY),
     RE_LU(ActivationFunctionType.RE_LU),
     SIGMOID(ActivationFunctionType.SIGMOID),

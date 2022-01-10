@@ -13,16 +13,17 @@ public final class SubtractionNeuronLayerNormalizer implements NeuronLayerNormal
 
         for (int i = 0; i < values.length; i++) {
             int index = i * 2;
-            float value = reader.getValue(index) - reader.getValue(index + 1);
+            float value1 = reader.getValue(index);
+            float value2 = reader.getValue(index + 1);
 
             values[i] = switch (reader.getType(index)) {
-                case RE_LU, SIGMOID, STEEPENED_SIGMOID, STEP -> Math.abs(value);
+                case RE_LU, SIGMOID, STEEPENED_SIGMOID, STEP -> Math.abs(value1 - value2);
 
-                case TAN_H -> value / 2f;
+                case TAN_H -> Math.abs(value1 - value2) - 1f;
 
-                case IDENTITY -> value;
-
-                case RANDOM -> throw new IllegalStateException("exception will not occur, just avoiding a compilation error");
+                case IDENTITY -> Float.compare(value1, value2) >= 0
+                        ? value1 - value2
+                        : value2 - value1;
             };
         }
 

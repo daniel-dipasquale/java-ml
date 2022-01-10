@@ -1,24 +1,24 @@
 package com.dipasquale.search.mcts.alphazero;
 
+import com.dipasquale.search.mcts.core.EdgeFactory;
 import com.dipasquale.search.mcts.core.Environment;
-import com.dipasquale.search.mcts.core.SearchEdgeFactory;
 import com.dipasquale.search.mcts.core.SearchNode;
-import com.dipasquale.search.mcts.core.SearchState;
-import com.dipasquale.search.mcts.core.SelectionPolicy;
+import com.dipasquale.search.mcts.core.State;
+import com.dipasquale.search.mcts.core.TraversalPolicy;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class AlphaZeroChildrenInitializerSelectionPolicy<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> implements SelectionPolicy<TState, AlphaZeroSearchEdge, TEnvironment> {
-    private final SearchEdgeFactory<AlphaZeroSearchEdge> edgeFactory;
+public final class AlphaZeroChildrenInitializerTraversalPolicy<TState extends State, TEnvironment extends Environment<TState, TEnvironment>> implements TraversalPolicy<TState, AlphaZeroEdge, TEnvironment> {
+    private final EdgeFactory<AlphaZeroEdge> edgeFactory;
     private final AlphaZeroHeuristic<TState, TEnvironment> heuristic;
 
     @Override
-    public SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> next(final int simulations, final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> node) {
+    public SearchNode<TState, AlphaZeroEdge, TEnvironment> next(final int simulations, final SearchNode<TState, AlphaZeroEdge, TEnvironment> node) {
         if (!node.isExpanded()) {
-            List<SearchNode<TState, AlphaZeroSearchEdge, TEnvironment>> childNodes = node.createAllPossibleChildNodes(edgeFactory);
+            List<SearchNode<TState, AlphaZeroEdge, TEnvironment>> childNodes = node.createAllPossibleChildNodes(edgeFactory);
             int childNodesSize = childNodes.size();
             AlphaZeroPrediction prediction = heuristic.predict(node, childNodesSize);
 

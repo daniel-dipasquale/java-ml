@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Builder
-public final class ClassicPrevalentStrategyCalculator implements StrategyCalculator<ClassicSearchEdge> {
+public final class ClassicPrevalentStrategyCalculator implements StrategyCalculator<ClassicEdge> {
     private final float winningFactor;
     private final float notLosingFactor;
 
     @Override
-    public float calculateEfficiency(final ClassicSearchEdge edge) {
+    public float calculateEfficiency(final ClassicEdge edge) {
         float visited = (float) edge.getVisited();
         float won = (float) edge.getWon();
         float drawn = (float) edge.getDrawn();

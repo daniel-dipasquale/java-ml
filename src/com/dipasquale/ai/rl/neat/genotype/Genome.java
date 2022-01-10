@@ -22,10 +22,8 @@ public final class Genome implements Serializable {
     private final NodeGeneGroup nodes = new NodeGeneGroup();
     private final ConnectionGeneGroup connections = new ConnectionGeneGroup();
 
-    private boolean mutateWeights(final Context context) {
+    private boolean mutateWeights(final Context.MutationSupport mutationSupport, final Context.ConnectionGeneSupport connectionGeneSupport) {
         boolean mutated = false;
-        Context.MutationSupport mutationSupport = context.mutation();
-        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
 
         for (ConnectionGene connection : connections.getAll()) {
             WeightMutationType weightMutationType = mutationSupport.generateWeightMutationType();
@@ -64,19 +62,18 @@ public final class Genome implements Serializable {
         return true;
     }
 
-    private boolean addRandomNode(final Context context) {
+    private boolean addRandomNode(final Context.RandomSupport randomSupport, final Context.NodeGeneSupport nodeGeneSupport, final Context.ConnectionGeneSupport connectionGeneSupport) {
         int size = connections.getExpressed().size();
 
         if (size == 0) {
             return false;
         }
 
-        int index = context.random().generateIndex(size);
+        int index = randomSupport.generateIndex(size);
         ConnectionGene connection = connections.getExpressed().disableByIndex(index);
         NodeGene sourceNode = nodes.getById(connection.getInnovationId().getSourceNodeId());
         NodeGene targetNode = nodes.getById(connection.getInnovationId().getTargetNodeId());
-        NodeGene newNode = context.nodes().createHidden();
-        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
+        NodeGene newNode = nodeGeneSupport.createHidden();
         ConnectionGene sourceToNewConnection = new ConnectionGene(connectionGeneSupport.provideInnovationId(sourceNode, newNode), 1f, connectionGeneSupport.generateRecurrentWeights());
         ConnectionGene newToTargetConnection = new ConnectionGene(connectionGeneSupport.provideInnovationId(newNode, targetNode), connection.getWeight(), connectionGeneSupport.cloneRecurrentWeights(connection.getRecurrentWeights()));
 
@@ -134,15 +131,13 @@ public final class Genome implements Serializable {
         };
     }
 
-    private InnovationId createRandomInnovationId(final Context context, final boolean shouldAllowRecurrent) {
+    private InnovationId createRandomInnovationId(final Context.RandomSupport randomSupport, final Context.ConnectionGeneSupport connectionGeneSupport, final boolean shouldAllowRecurrent) {
         int size = nodes.size();
 
         if (size == 0 || !shouldAllowRecurrent && size == 1) {
             return null;
         }
 
-        Context.RandomSupport randomSupport = context.random();
-        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
         NodeGene node1 = nodes.getByIndex(randomSupport.generateIndex(size));
 
         if (shouldAllowRecurrent && connectionGeneSupport.shouldAllowUnrestrictedDirection()) {
@@ -178,10 +173,9 @@ public final class Genome implements Serializable {
         };
     }
 
-    private boolean addRandomConnection(final Context context) {
-        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
+    private boolean addRandomConnection(final Context.RandomSupport randomSupport, final Context.ConnectionGeneSupport connectionGeneSupport) {
         boolean shouldAllowRecurrent = connectionGeneSupport.shouldAllowRecurrent();
-        InnovationId innovationId = createRandomInnovationId(context, shouldAllowRecurrent);
+        InnovationId innovationId = createRandomInnovationId(randomSupport, connectionGeneSupport, shouldAllowRecurrent);
 
         if (innovationId != null) {
             ConnectionGene connection = connections.getAll().getById(innovationId);
@@ -204,19 +198,21 @@ public final class Genome implements Serializable {
     }
 
     public boolean mutate(final Context context) {
-        boolean mutated = mutateWeights(context);
+        Context.RandomSupport randomSupport = context.random();
         Context.MutationSupport mutationSupport = context.mutation();
+        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
+        boolean mutated = mutateWeights(mutationSupport, connectionGeneSupport);
 
         if (mutationSupport.shouldDisableExpressedConnection()) {
-            mutated |= disableRandomConnection(context.random());
+            mutated |= disableRandomConnection(randomSupport);
         }
 
         if (mutationSupport.shouldAddNode()) {
-            mutated |= addRandomNode(context);
+            mutated |= addRandomNode(randomSupport, context.nodes(), connectionGeneSupport);
         }
 
         if (connections.getExpressed().isEmpty() || mutationSupport.shouldAddConnection()) {
-            mutated |= addRandomConnection(context);
+            mutated |= addRandomConnection(randomSupport, connectionGeneSupport);
         }
 
         return mutated;

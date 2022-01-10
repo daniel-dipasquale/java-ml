@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts.core;
 
-public interface Environment<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> {
+public interface Environment<TState extends State, TEnvironment extends Environment<TState, TEnvironment>> {
     TState getCurrentState();
 
     int getNextParticipantId();

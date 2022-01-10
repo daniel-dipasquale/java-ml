@@ -19,7 +19,7 @@ public final class EntryOptimizer<TKey extends Comparable<TKey>, TValue> {
         return optimumValue;
     }
 
-    public boolean collectIfMoreOptimum(final TKey key, final TValue value) {
+    public boolean setValueIfMoreOptimum(final TKey key, final TValue value) {
         if (optimumKey != null && comparator.compare(key, optimumKey) <= 0) {
             return false;
         }
@@ -30,7 +30,7 @@ public final class EntryOptimizer<TKey extends Comparable<TKey>, TValue> {
         return true;
     }
 
-    public boolean computeIfMoreOptimum(final TKey key, final Supplier<TValue> supplier) {
+    public boolean computeValueIfMoreOptimum(final TKey key, final Supplier<TValue> supplier) {
         if (optimumKey != null && comparator.compare(key, optimumKey) <= 0) {
             return false;
         }

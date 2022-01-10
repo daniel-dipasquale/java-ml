@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public final class StrategyStateGenomeActivatorPool implements GenomeActivatorPool {
+public final class StateStrategyGenomeActivatorPool implements GenomeActivatorPool {
     private final Map<String, GenomeActivator> genomeActivators;
     private final NeuralNetworkFactory neuralNetworkFactory;
 

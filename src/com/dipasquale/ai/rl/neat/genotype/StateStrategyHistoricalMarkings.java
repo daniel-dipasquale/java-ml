@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public final class StrategyStateHistoricalMarkings<T extends NodeGeneDependencyTracker> implements HistoricalMarkings {
+public final class StateStrategyHistoricalMarkings<T extends NodeGeneDependencyTracker> implements HistoricalMarkings {
     private final SequentialIdFactory<Id> innovationIdFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
     private final ObjectFactory<T> nodeDependencyTrackerFactory;

@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class HighestConfidenceSelectionPolicy<TState extends SearchState, TEdge extends SearchEdge, TEnvironment extends Environment<TState, TEnvironment>> implements SelectionPolicy<TState, TEdge, TEnvironment> {
+public final class HighestConfidenceTraversalPolicy<TState extends State, TEdge extends Edge, TEnvironment extends Environment<TState, TEnvironment>> implements TraversalPolicy<TState, TEdge, TEnvironment> {
     private static final Comparator<Float> FLOAT_COMPARATOR = Float::compare;
     private final ConfidenceCalculator<TEdge> confidenceCalculator;
 
@@ -25,7 +25,7 @@ public final class HighestConfidenceSelectionPolicy<TState extends SearchState, 
         for (int i = 0; i < size; i++) {
             float confidence = confidenceCalculator.calculate(simulations, childNodes.get(i).getEdge());
 
-            childNodeOptimizer.collectIfMoreOptimum(confidence, i);
+            childNodeOptimizer.setValueIfMoreOptimum(confidence, i);
         }
 
         int index = childNodeOptimizer.getValue();
@@ -35,7 +35,7 @@ public final class HighestConfidenceSelectionPolicy<TState extends SearchState, 
             childNode.initializeEnvironment();
         }
 
-        node.setChildSelectedIndex(index);
+        node.setSelectedExplorableChildIndex(index);
 
         return childNode;
     }

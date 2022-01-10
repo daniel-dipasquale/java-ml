@@ -17,6 +17,10 @@ public final class SharedGenomeActivator {
     private final List<GenomeActivator> genomeActivators;
     private final Map<GenomeActivator, DualModeFloatValue> fitnessValues;
 
+    float getFitness(final GenomeActivator genomeActivator) {
+        return fitnessValues.get(genomeActivator).current();
+    }
+
     public void addFitness(final GenomeActivator genomeActivator, final float fitness) {
         fitnessValues.get(genomeActivator).increment(fitness);
     }

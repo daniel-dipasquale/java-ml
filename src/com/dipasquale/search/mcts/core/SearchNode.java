@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public final class SearchNode<TState extends SearchState, TEdge extends SearchEdge, TEnvironment extends Environment<TState, TEnvironment>> {
+public final class SearchNode<TState extends State, TEdge extends Edge, TEnvironment extends Environment<TState, TEnvironment>> {
     private static final int NO_CHILD_SELECTED_INDEX = -1;
     @Getter
     private final SearchNode<TState, TEdge, TEnvironment> parent;
+    @Getter
+    private final int depth;
     private final SearchNode<TState, TEdge, TEnvironment> owner;
     @Getter
     private final TState state;
@@ -31,10 +33,11 @@ public final class SearchNode<TState extends SearchState, TEdge extends SearchEd
     private List<SearchNode<TState, TEdge, TEnvironment>> fullyExploredChildren;
     @Getter
     @Setter
-    private int childSelectedIndex;
+    private int selectedExplorableChildIndex;
 
     SearchNode(final TEnvironment environment, final TEdge edge) {
         this.parent = null;
+        this.depth = 0;
         this.owner = this;
         this.state = environment.getCurrentState();
         this.edge = edge;
@@ -42,11 +45,12 @@ public final class SearchNode<TState extends SearchState, TEdge extends SearchEd
         this.unexploredChildren = null;
         this.explorableChildren = null;
         this.fullyExploredChildren = null;
-        this.childSelectedIndex = NO_CHILD_SELECTED_INDEX;
+        this.selectedExplorableChildIndex = NO_CHILD_SELECTED_INDEX;
     }
 
     private SearchNode(final SearchNode<TState, TEdge, TEnvironment> parent, final TState state, final TEdge edge) {
         this.parent = parent;
+        this.depth = parent.depth + 1;
         this.owner = parent;
         this.state = state;
         this.edge = edge;
@@ -54,10 +58,10 @@ public final class SearchNode<TState extends SearchState, TEdge extends SearchEd
         this.unexploredChildren = null;
         this.explorableChildren = null;
         this.fullyExploredChildren = null;
-        this.childSelectedIndex = NO_CHILD_SELECTED_INDEX;
+        this.selectedExplorableChildIndex = NO_CHILD_SELECTED_INDEX;
     }
 
-    public List<SearchNode<TState, TEdge, TEnvironment>> createAllPossibleChildNodes(final SearchEdgeFactory<TEdge> edgeFactory) {
+    public List<SearchNode<TState, TEdge, TEnvironment>> createAllPossibleChildNodes(final EdgeFactory<TEdge> edgeFactory) {
         Iterable<TState> possibleStates = environment.createAllPossibleStates();
 
         return StreamSupport.stream(possibleStates.spliterator(), false)

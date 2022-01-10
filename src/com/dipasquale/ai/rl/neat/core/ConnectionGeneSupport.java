@@ -18,7 +18,7 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber recurrentAllowanceRate = FloatNumber.literal(0.2f);
     @Builder.Default
-    private final FloatNumber unrestrictedDirectionAllowanceRate = FloatNumber.literal(1f);
+    private final FloatNumber unrestrictedDirectionAllowanceRate = FloatNumber.literal(0.5f);
     @Builder.Default
     private final FloatNumber multiCycleAllowanceRate = FloatNumber.literal(0f);
 

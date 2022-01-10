@@ -5,14 +5,14 @@ import com.dipasquale.search.mcts.core.BackPropagationObserver;
 import com.dipasquale.search.mcts.core.Environment;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.core.SearchNode;
-import com.dipasquale.search.mcts.core.SearchState;
+import com.dipasquale.search.mcts.core.State;
 
-public final class AlphaZeroBackPropagationPolicy<TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> extends AbstractBackPropagationPolicy<TState, AlphaZeroSearchEdge, TEnvironment> {
-    public AlphaZeroBackPropagationPolicy(final BackPropagationObserver<TState, AlphaZeroSearchEdge, TEnvironment> observer) {
+public final class AlphaZeroBackPropagationPolicy<TState extends State, TEnvironment extends Environment<TState, TEnvironment>> extends AbstractBackPropagationPolicy<TState, AlphaZeroEdge, TEnvironment> {
+    public AlphaZeroBackPropagationPolicy(final BackPropagationObserver<TState, AlphaZeroEdge, TEnvironment> observer) {
         super(observer);
     }
 
-    private static <TState extends SearchState, TEnvironment extends Environment<TState, TEnvironment>> float getReward(final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> node, final int ownerParticipantId, final int simulationStatusId) {
+    private static <TState extends State, TEnvironment extends Environment<TState, TEnvironment>> float getReward(final SearchNode<TState, AlphaZeroEdge, TEnvironment> node, final int ownerParticipantId, final int simulationStatusId) {
         if (ownerParticipantId == simulationStatusId) {
             return 1f;
         }
@@ -28,7 +28,7 @@ public final class AlphaZeroBackPropagationPolicy<TState extends SearchState, TE
         return -1f;
     }
 
-    private static void setExpectedReward(final AlphaZeroSearchEdge edge, final float reward, final int visited) {
+    private static void setExpectedReward(final AlphaZeroEdge edge, final float reward, final int visited) {
         float visitedFixed = (float) visited;
         float expectedReward = visitedFixed * edge.getExpectedReward() + reward / (visitedFixed + 1f);
 
@@ -36,10 +36,10 @@ public final class AlphaZeroBackPropagationPolicy<TState extends SearchState, TE
     }
 
     @Override
-    protected void processCurrent(final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> leafNode, final int simulationStatusId, final SearchNode<TState, AlphaZeroSearchEdge, TEnvironment> currentNode) {
+    protected void process(final SearchNode<TState, AlphaZeroEdge, TEnvironment> leafNode, final int simulationStatusId, final SearchNode<TState, AlphaZeroEdge, TEnvironment> currentNode) {
         int ownerParticipantId = leafNode.getState().getParticipantId();
         float reward = getReward(leafNode, ownerParticipantId, simulationStatusId);
-        AlphaZeroSearchEdge currentEdge = currentNode.getEdge();
+        AlphaZeroEdge currentEdge = currentNode.getEdge();
         int visited = currentEdge.getVisited();
 
         currentEdge.increaseVisited();

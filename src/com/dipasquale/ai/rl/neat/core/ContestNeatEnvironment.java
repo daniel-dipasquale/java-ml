@@ -6,5 +6,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface ContestNeatEnvironment extends NeatEnvironment {
-    float[] test(List<GenomeActivator> genomeActivator);
+    float[] test(List<GenomeActivator> genomeActivators, int round);
 }

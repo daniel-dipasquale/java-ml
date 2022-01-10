@@ -4,11 +4,11 @@ import com.dipasquale.search.mcts.core.ConfidenceCalculator;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class AlphaZeroConfidenceCalculator implements ConfidenceCalculator<AlphaZeroSearchEdge> {
+public final class AlphaZeroConfidenceCalculator implements ConfidenceCalculator<AlphaZeroEdge> {
     private final CPuctAlgorithm cpuct;
 
     @Override
-    public float calculate(final int simulations, final AlphaZeroSearchEdge edge) {
+    public float calculate(final int simulations, final AlphaZeroEdge edge) {
         float exploitationRate = edge.getExpectedReward();
         int visited = edge.getVisited();
         double visitedPlusOne = visited + 1;

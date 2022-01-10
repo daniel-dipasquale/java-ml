@@ -39,12 +39,14 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
     }
 
     private static void echo(final String name, final int number, final MetricDatum timeMetricDatum, final float maximumFitness, final int species, final Genome genome) {
-        float lastTime = timeMetricDatum.getValues().get(timeMetricDatum.getValues().size() - 1);
+        String messageFormat = "%s: %d { time: (%s), average time: (%s), species: (%d), hidden nodes: (%d), expressed connections: (%d), total connections: (%d), maximum fitness: (%s) }%n";
+        float time = timeMetricDatum.getValues().get(timeMetricDatum.getValues().size() - 1);
         float averageTime = timeMetricDatum.getAverage();
         int hiddenNodes = genome.getNodes().size(NodeGeneType.HIDDEN);
-        int connections = genome.getConnections().getExpressed().size();
+        int expressedConnections = genome.getConnections().getExpressed().size();
+        int totalConnections = genome.getConnections().getAll().size();
 
-        System.out.printf("%s: %d { time: (%s), average time: (%s), maximum fitness: (%s), species: (%d), hidden nodes: (%d), connections: (%d) }%n", name, number, format(lastTime), format(averageTime), format(maximumFitness), species, hiddenNodes, connections);
+        System.out.printf(messageFormat, name, number, format(time), format(averageTime), species, hiddenNodes, expressedConnections, totalConnections, format(maximumFitness));
     }
 
     @Override
