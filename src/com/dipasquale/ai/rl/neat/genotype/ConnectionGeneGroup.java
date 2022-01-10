@@ -122,8 +122,8 @@ public final class ConnectionGeneGroup implements Serializable {
             DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
 
             connections.put(connection.getInnovationId(), connection);
-            incomingToNodeId.computeIfAbsent(targetNodeId, ni -> new LinkedHashMap<>()).put(directedEdge, connection);
-            outgoingFromNodeId.computeIfAbsent(sourceNodeId, ni -> new LinkedHashMap<>()).put(directedEdge, connection);
+            incomingToNodeId.computeIfAbsent(targetNodeId, __ -> new LinkedHashMap<>()).put(directedEdge, connection);
+            outgoingFromNodeId.computeIfAbsent(sourceNodeId, __ -> new LinkedHashMap<>()).put(directedEdge, connection);
         }
 
         private void remove(final ConnectionGene connection) {
@@ -132,8 +132,8 @@ public final class ConnectionGeneGroup implements Serializable {
             DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
 
             connections.removeById(connection.getInnovationId());
-            incomingToNodeId.computeIfPresent(targetNodeId, (k, oic) -> removeIfEmpty(oic, directedEdge));
-            outgoingFromNodeId.computeIfPresent(sourceNodeId, (k, oic) -> removeIfEmpty(oic, directedEdge));
+            incomingToNodeId.computeIfPresent(targetNodeId, (__, connections) -> removeIfEmpty(connections, directedEdge));
+            outgoingFromNodeId.computeIfPresent(sourceNodeId, (__, connections) -> removeIfEmpty(connections, directedEdge));
         }
 
         boolean addCyclesAllowed(final ConnectionGene connection, final int delta) {

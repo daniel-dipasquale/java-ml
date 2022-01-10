@@ -83,8 +83,8 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
 
         if (!itemsToRetain.isEmpty()) {
             List<T> itemsToRemove = stream()
-                    .filter(k -> !itemsToRetain.contains(k))
-                    .collect(Collectors.toList());
+                    .filter(key -> !itemsToRetain.contains(key))
+                    .toList();
 
             if (itemsToRemove.isEmpty()) {
                 return false;

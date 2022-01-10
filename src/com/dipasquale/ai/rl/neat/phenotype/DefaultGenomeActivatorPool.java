@@ -25,7 +25,7 @@ public final class DefaultGenomeActivatorPool implements GenomeActivatorPool {
 
     @Override
     public GenomeActivator provide(final Genome genome, final PopulationState populationState) {
-        return genomeActivators.compute(genome.getId(), (gid, oga) -> getOrCreate(oga, genome, populationState));
+        return genomeActivators.compute(genome.getId(), (__, oldGenomeActivator) -> getOrCreate(oldGenomeActivator, genome, populationState));
     }
 
     @Override

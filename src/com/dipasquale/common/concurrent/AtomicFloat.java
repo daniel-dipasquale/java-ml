@@ -16,8 +16,8 @@ public final class AtomicFloat extends Number {
         return Float.floatToRawIntBits(value);
     }
 
-    private static float translateFrom(final int value) {
-        return Float.intBitsToFloat(value);
+    private static float translateFrom(final int bits) {
+        return Float.intBitsToFloat(bits);
     }
 
     @Override
@@ -49,8 +49,8 @@ public final class AtomicFloat extends Number {
     }
 
     public float addAndGet(final float delta) {
-        int value = bits.accumulateAndGet(0, (ov, nv) -> {
-            float oldValue = translateFrom(ov);
+        int value = bits.accumulateAndGet(-1, (oldBits, __) -> {
+            float oldValue = translateFrom(oldBits);
 
             return translateTo(oldValue + delta);
         });

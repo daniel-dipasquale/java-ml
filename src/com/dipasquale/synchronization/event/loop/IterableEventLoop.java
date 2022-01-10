@@ -18,7 +18,7 @@ public final class IterableEventLoop {
 
     private IterableEventLoop(final IterableEventLoopSettings settings, final List<EventLoop> eventLoops) {
         this.eventLoops = eventLoops;
-        this.eventLoopsWaitHandleUntilDone = MultiWaitHandle.create(eventLoops, EventLoopWaitHandle::new, settings.getDateTimeSupport(), a -> !isEmpty(eventLoops));
+        this.eventLoopsWaitHandleUntilDone = MultiWaitHandle.create(eventLoops, EventLoopWaitHandle::new, settings.getDateTimeSupport(), __ -> !isEmpty(eventLoops));
         this.eventLoopsShutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
@@ -69,7 +69,7 @@ public final class IterableEventLoop {
 
     public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> itemHandler, final ErrorHandler errorHandler) {
         IteratorProducer<T> iteratorProducer = new SynchronizedIteratorProducer<>(iterator);
-        IteratorProducerFactory<T> iteratorProducerFactory = (i, c) -> iteratorProducer;
+        IteratorProducerFactory<T> iteratorProducerFactory = (__a, __b) -> iteratorProducer;
 
         return queue(iteratorProducerFactory, itemHandler, errorHandler);
     }
@@ -79,7 +79,7 @@ public final class IterableEventLoop {
     }
 
     public <T> InteractiveWaitHandle queue(final List<T> list, final Consumer<T> itemHandler, final ErrorHandler errorHandler) {
-        IteratorProducerFactory<T> iteratorProducerFactory = (i, c) -> new IsolatedIteratorProducer<>(list, i, c);
+        IteratorProducerFactory<T> iteratorProducerFactory = (offset, step) -> new IsolatedIteratorProducer<>(list, offset, step);
 
         return queue(iteratorProducerFactory, itemHandler, errorHandler);
     }

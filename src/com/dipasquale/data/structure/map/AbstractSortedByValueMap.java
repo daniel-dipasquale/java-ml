@@ -50,8 +50,8 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
     }
 
     private static <TKey, TValue> Stream<Entry<TKey, TValue>> descendingStream(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap) {
-        return stream(navigableMap.descendingMap(), ios -> {
-            Spliterator<Entry<TKey, TValue>> spliterator = Spliterators.spliteratorUnknownSize(ios.descendingIterator(), 0);
+        return stream(navigableMap.descendingMap(), dequeSet -> {
+            Spliterator<Entry<TKey, TValue>> spliterator = Spliterators.spliteratorUnknownSize(dequeSet.descendingIterator(), 0);
 
             return StreamSupport.stream(spliterator, false);
         });
@@ -97,7 +97,7 @@ public abstract class AbstractSortedByValueMap<TKey, TValue> extends AbstractMap
     }
 
     private static <TKey, TValue> void addTo(final NavigableMap<TValue, DequeSet<Entry<TKey, TValue>>> navigableMap, final Entry<TKey, TValue> entry, final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory) {
-        Set<Entry<TKey, TValue>> entries = navigableMap.computeIfAbsent(entry.getValue(), k -> entriesSetFactory.create());
+        Set<Entry<TKey, TValue>> entries = navigableMap.computeIfAbsent(entry.getValue(), __ -> entriesSetFactory.create());
 
         entries.add(entry);
     }

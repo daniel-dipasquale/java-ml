@@ -56,7 +56,7 @@ public final class AtomicLongArrayBitManipulator implements BitManipulator {
         int arrayIndex = getArrayIndex(offset);
         long bitIndex = getBitIndex(offset);
 
-        return array.accumulateAndGet(arrayIndex, -1L, (om, nm) -> bitManipulatorSupport.merge(om, bitIndex, value));
+        return array.accumulateAndGet(arrayIndex, -1L, (oldMask, __) -> bitManipulatorSupport.merge(oldMask, bitIndex, value));
     }
 
     private AccumulatorAudit compareAndSwap(final long offset, final long value, final Accumulator accumulator) {
@@ -80,12 +80,12 @@ public final class AtomicLongArrayBitManipulator implements BitManipulator {
 
     @Override
     public long setAndGet(final long offset, final long value) {
-        return compareAndSwap(offset, value, (o, n) -> n).newValue;
+        return compareAndSwap(offset, value, (__, newValue) -> newValue).newValue;
     }
 
     @Override
     public long getAndSet(final long offset, final long value) {
-        return compareAndSwap(offset, value, (o, n) -> n).oldValue;
+        return compareAndSwap(offset, value, (__, newValue) -> newValue).oldValue;
     }
 
     @Override

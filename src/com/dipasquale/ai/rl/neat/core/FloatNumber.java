@@ -21,13 +21,21 @@ public final class FloatNumber {
     }
 
     public static FloatNumber literal(final float value) {
-        DualModeFactoryCreator factoryCreator = ic -> createFactory(new DualModeFloatFactory(ic.getConcurrencyLevel(), new LiteralFloatFactory(value)));
+        DualModeFactoryCreator factoryCreator = initializationContext -> {
+            DualModeFloatFactory floatFactory = new DualModeFloatFactory(initializationContext.getConcurrencyLevel(), new LiteralFloatFactory(value));
+
+            return createFactory(floatFactory);
+        };
 
         return new FloatNumber(factoryCreator);
     }
 
     public static FloatNumber random(final RandomType type, final float min, final float max) {
-        DualModeFactoryCreator factoryCreator = ic -> createFactory(new DualModeBoundedRandomFloatFactory(ic.createRandomSupport(type), min, max));
+        DualModeFactoryCreator factoryCreator = initializationContext -> {
+            DualModeBoundedRandomFloatFactory floatFactory = new DualModeBoundedRandomFloatFactory(initializationContext.createRandomSupport(type), min, max);
+
+            return createFactory(floatFactory);
+        };
 
         return new FloatNumber(factoryCreator);
     }

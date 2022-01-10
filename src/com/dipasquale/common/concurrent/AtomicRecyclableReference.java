@@ -20,7 +20,7 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     private static final long serialVersionUID = -6186153219728688627L;
     private final RecyclableReference.Factory<T> referenceFactory;
     private final ExpirationFactory expirationFactory;
-    private final AtomicReference<RecyclableReferenceEnvelope<T>> recyclableReferenceEnvelope;
+    private final AtomicReference<RecyclableReferenceContainer<T>> recyclableReferenceContainerProvider;
     private final AtomicLong recycledDateTime;
     private final Queue<RecyclableReference<T>> recycledReferences;
     private final RecyclableReference.Collector<T> recycledReferenceCollector;
@@ -31,7 +31,7 @@ public final class AtomicRecyclableReference<T> implements Serializable {
 
         this.referenceFactory = referenceFactory;
         this.expirationFactory = expirationFactory;
-        this.recyclableReferenceEnvelope = new AtomicReference<>();
+        this.recyclableReferenceContainerProvider = new AtomicReference<>();
         this.recycledDateTime = new AtomicLong(Long.MIN_VALUE);
         this.recycledReferences = recycledReferences;
         this.recycledReferenceCollector = ensureRecycledReferenceCollector(collectRecycledReferences, recycledReferenceCollector, recycledReferences);
@@ -71,11 +71,11 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     }
 
     private boolean tryReplaceRecycledDateTime(final ExpirationRecord expirationRecord) {
-        boolean[] replaced = new boolean[1];
+        boolean[] replaced = new boolean[]{false};
 
-        recycledDateTime.accumulateAndGet(-1L, (ordt, nrdt) -> {
-            if (ordt != recycledConfirmationDateTime || ordt >= expirationRecord.getExpirationDateTime()) {
-                return ordt;
+        recycledDateTime.accumulateAndGet(-1L, (oldRecycledDateTime, __) -> {
+            if (oldRecycledDateTime != recycledConfirmationDateTime || oldRecycledDateTime >= expirationRecord.getExpirationDateTime()) {
+                return oldRecycledDateTime;
             }
 
             replaced[0] = true;
@@ -86,41 +86,41 @@ public final class AtomicRecyclableReference<T> implements Serializable {
         return replaced[0];
     }
 
-    private RecyclableReferenceEnvelope<T> recycleIfExpired(final RecyclableReferenceEnvelope<T> referenceEnvelope, final ExpirationRecord expirationRecord) {
-        if (referenceEnvelope != null && expirationRecord.getCurrentDateTime() < referenceEnvelope.expirationDateTime) {
-            return referenceEnvelope;
+    private RecyclableReferenceContainer<T> recycleIfExpired(final RecyclableReferenceContainer<T> recyclableReferenceContainer, final ExpirationRecord expirationRecord) {
+        if (recyclableReferenceContainer != null && expirationRecord.getCurrentDateTime() < recyclableReferenceContainer.expirationDateTime) {
+            return recyclableReferenceContainer;
         }
 
         if (!tryReplaceRecycledDateTime(expirationRecord)) {
-            RecyclableReferenceEnvelope<T> recyclableReferenceEnvelopeFixed = recyclableReferenceEnvelope.get();
+            RecyclableReferenceContainer<T> recyclableReferenceContainerFixed = recyclableReferenceContainerProvider.get();
 
-            while (recyclableReferenceEnvelopeFixed == referenceEnvelope) {
+            while (recyclableReferenceContainerFixed == recyclableReferenceContainer) {
                 Thread.onSpinWait();
-                recyclableReferenceEnvelopeFixed = recyclableReferenceEnvelope.get();
+                recyclableReferenceContainerFixed = recyclableReferenceContainerProvider.get();
             }
 
-            return recyclableReferenceEnvelopeFixed;
+            return recyclableReferenceContainerFixed;
         }
 
-        if (referenceEnvelope != null && recycledReferenceCollector != null) {
-            recycledReferenceCollector.collect(referenceEnvelope.retrieve());
+        if (recyclableReferenceContainer != null && recycledReferenceCollector != null) {
+            recycledReferenceCollector.collect(recyclableReferenceContainer.get());
         }
 
-        return new RecyclableReferenceEnvelope<>(referenceFactory, expirationRecord.getExpirationDateTime());
+        return new RecyclableReferenceContainer<>(referenceFactory, expirationRecord.getExpirationDateTime());
     }
 
-    private RecyclableReferenceEnvelope<T> recycleIfExpired(final RecyclableReferenceEnvelope<T> recyclableReferenceEnvelope) {
-        return recycleIfExpired(recyclableReferenceEnvelope, expirationFactory.create());
+    private RecyclableReferenceContainer<T> recycleIfExpired(final RecyclableReferenceContainer<T> recyclableReferenceContainer) {
+        return recycleIfExpired(recyclableReferenceContainer, expirationFactory.create());
     }
 
-    private RecyclableReferenceEnvelope<T> compareAndSwapIfExpired() {
-        RecyclableReferenceEnvelopeAudit<T> audit = new RecyclableReferenceEnvelopeAudit<>();
+    private RecyclableReferenceContainer<T> compareAndSwapIfExpired() {
+        RecyclableReferenceContainerAudit<T> audit = new RecyclableReferenceContainerAudit<>();
 
         try {
-            return recyclableReferenceEnvelope.accumulateAndGet(null, (orre, nrre) -> {
-                audit.previous = orre;
+            return recyclableReferenceContainerProvider.accumulateAndGet(null, (previous, __) -> {
+                audit.previous = previous;
 
-                return audit.next = recycleIfExpired(orre);
+                return audit.next = recycleIfExpired(previous);
             });
         } finally {
             if (audit.previous != audit.next) {
@@ -130,7 +130,7 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     }
 
     public RecyclableReference<T> recyclableReference() {
-        return compareAndSwapIfExpired().retrieve();
+        return compareAndSwapIfExpired().get();
     }
 
     public T reference() {
@@ -181,18 +181,18 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class RecyclableReferenceEnvelope<T> implements Serializable {
+    private static final class RecyclableReferenceContainer<T> implements Serializable {
         @Serial
         private static final long serialVersionUID = 731224291034674365L;
         private final RecyclableReference.Factory<T> referenceFactory;
         private final long expirationDateTime;
-        private final AtomicBoolean initializedCas = new AtomicBoolean();
+        private final AtomicBoolean initialized = new AtomicBoolean();
         private volatile RecyclableReference<T> recyclableReference = null;
 
-        private RecyclableReference<T> retrieve() {
+        private RecyclableReference<T> get() {
             RecyclableReference<T> recyclableReferenceFixed;
 
-            if (!initializedCas.compareAndSet(false, true)) {
+            if (!initialized.compareAndSet(false, true)) {
                 recyclableReferenceFixed = recyclableReference;
 
                 while (recyclableReferenceFixed == null) {
@@ -211,8 +211,8 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class RecyclableReferenceEnvelopeAudit<T> {
-        private RecyclableReferenceEnvelope<T> previous;
-        private RecyclableReferenceEnvelope<T> next;
+    private static final class RecyclableReferenceContainerAudit<T> {
+        private RecyclableReferenceContainer<T> previous;
+        private RecyclableReferenceContainer<T> next;
     }
 }

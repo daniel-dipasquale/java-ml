@@ -29,8 +29,8 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
 
     @Override
     public void collectOrganismTopology(final MetricsContainer metricsContainer, final String speciesId, final int hiddenNodes, final int connections) {
-        metricsContainer.getGenerationMetrics().getOrganismsTopology().compute(speciesId, (sid, otm) -> {
-            TopologyMetrics topologyMetrics = otm;
+        metricsContainer.getGenerationMetrics().getOrganismsTopology().compute(speciesId, (__, oldTopologyMetrics) -> {
+            TopologyMetrics topologyMetrics = oldTopologyMetrics;
 
             if (topologyMetrics == null) {
                 topologyMetrics = MetricsContainer.createTopologyMetrics(metricDatumFactory);
@@ -47,8 +47,8 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
 
     @Override
     public void collectOrganismFitness(final MetricsContainer metricsContainer, final String speciesId, final float fitness) {
-        metricsContainer.getFitnessMetrics().getOrganisms().compute(speciesId, (sid, o) -> {
-            MetricDatum organisms = o;
+        metricsContainer.getFitnessMetrics().getOrganisms().compute(speciesId, (__, oldOrganisms) -> {
+            MetricDatum organisms = oldOrganisms;
 
             if (organisms == null) {
                 organisms = metricDatumFactory.create();
@@ -70,8 +70,8 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
 
     @Override
     public void collectOrganismsKilled(final MetricsContainer metricsContainer, final String speciesId, final int count) {
-        metricsContainer.getGenerationMetrics().getOrganismsKilled().compute(speciesId, (sid, ok) -> {
-            MetricDatum organismsKilled = ok;
+        metricsContainer.getGenerationMetrics().getOrganismsKilled().compute(speciesId, (__, oldOrganismsKilled) -> {
+            MetricDatum organismsKilled = oldOrganismsKilled;
 
             if (organismsKilled == null) {
                 organismsKilled = metricDatumFactory.create();

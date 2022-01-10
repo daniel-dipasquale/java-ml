@@ -24,7 +24,7 @@ public final class LeastFitRemoverSelectionStrategy implements SelectionStrategy
         Context.SpeciationSupport speciationSupport = context.getParent().speciation();
         List<Organism> organisms = species.removeUnfitToReproduce(speciationSupport);
 
-        organisms.forEach(o -> killOrganism(o, context.getParent()));
+        organisms.forEach(organism -> killOrganism(organism, context.getParent()));
         context.getParent().metrics().collectKilled(species, organisms);
     }
 
@@ -32,7 +32,7 @@ public final class LeastFitRemoverSelectionStrategy implements SelectionStrategy
     public void prepareExtinction(final SelectionContext context, final Species species) {
         List<Organism> organisms = species.getOrganisms();
 
-        organisms.forEach(o -> killOrganism(o, context.getParent()));
+        organisms.forEach(organism -> killOrganism(organism, context.getParent()));
         context.getParent().metrics().collectKilled(species, organisms);
     }
 

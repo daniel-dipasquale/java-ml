@@ -121,7 +121,7 @@ public final class DequeHashSetDefaultTest { // TODO: redo these test cases
 
     @Test
     public void TEST_12() {
-        CollectionAsserter<String> collectionAsserter = new CollectionAsserter<>(TEST, i -> String.format("item-%d", i), String.class, Assertions::assertEquals);
+        CollectionAsserter<String> collectionAsserter = new CollectionAsserter<>(TEST, index -> String.format("item-%d", index), String.class, Assertions::assertEquals);
 
         collectionAsserter.assertToArray();
         collectionAsserter.assertContainsAll();

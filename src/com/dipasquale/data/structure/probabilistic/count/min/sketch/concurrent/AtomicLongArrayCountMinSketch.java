@@ -25,8 +25,8 @@ final class AtomicLongArrayCountMinSketch<T> implements CountMinSketch<T> {
 
     private static List<AtomicLongArrayBitManipulator> createDataBitManipulators(final int hashingFunctions, final int size, final int bitsForCounter) {
         return IntStream.range(0, hashingFunctions)
-                .mapToObj(i -> new AtomicLongArray(size))
-                .map(a -> new AtomicLongArrayBitManipulator(a, bitsForCounter))
+                .mapToObj(__ -> new AtomicLongArray(size))
+                .map(array -> new AtomicLongArrayBitManipulator(array, bitsForCounter))
                 .collect(Collectors.toList());
     }
 
@@ -37,16 +37,16 @@ final class AtomicLongArrayCountMinSketch<T> implements CountMinSketch<T> {
         long hashCodeMerged = multiHashingFunction.hashCode(hashCode, hashFunctionIndex);
 
         for (int i = 0; i < hashingFunctions; i++) {
-            AtomicLongArrayBitManipulator dataBitManipulator = bitManipulators.get(i);
+            AtomicLongArrayBitManipulator bitManipulator = bitManipulators.get(i);
 
             long hashCodeFixed = hashCodeMerged >= 0L
                     ? hashCodeMerged
                     : hashCodeMerged >>> (1 + (int) (~hashCodeMerged % MAXIMUM_SHIFTS));
 
-            long index = hashCodeFixed % dataBitManipulator.size();
+            long index = hashCodeFixed % bitManipulator.size();
             int shifts = 8 + (i + hashFunctionIndex) % MAXIMUM_SHIFTS;
 
-            value = Math.min(value, bitsRetriever.get(dataBitManipulator, index));
+            value = Math.min(value, bitsRetriever.get(bitManipulator, index)); // TODO: verify whether this is needed
             hashCodeMerged = (hashCodeMerged >> MAXIMUM_SHIFTS) ^ (hashCodeMerged << shifts);
         }
 
@@ -62,11 +62,11 @@ final class AtomicLongArrayCountMinSketch<T> implements CountMinSketch<T> {
     public long put(final T item, final long count) {
         ArgumentValidatorSupport.ensureTrue(bitManipulators.get(0).isWithinBounds(count), "count", "is out of bounds");
 
-        return selectOrUpdateData(item, (bm, i) -> bm.getAndAdd(i, count));
+        return selectOrUpdateData(item, (bitManipulator, index) -> bitManipulator.getAndAdd(index, count));
     }
 
     @FunctionalInterface
     private interface BitsRetriever {
-        long get(AtomicLongArrayBitManipulator dataBitManipulator, long index);
+        long get(AtomicLongArrayBitManipulator bitManipulator, long index);
     }
 }

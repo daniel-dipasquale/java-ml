@@ -17,7 +17,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class IterableEventLoopTest {
@@ -51,11 +50,11 @@ public final class IterableEventLoopTest {
         ItemCollector collector = new ItemCollector();
 
         List<Item> items = IntStream.range(0, 256)
-                .mapToObj(i -> new Item((long) i + 1L))
-                .collect(Collectors.toList());
+                .mapToObj(index -> new Item((long) index + 1L))
+                .toList();
 
         try {
-            test.queue(items.iterator(), i -> collector.value.addAndGet(i.value));
+            test.queue(items.iterator(), item -> collector.value.addAndGet(item.value));
             test.awaitUntilDone();
             Assertions.assertEquals(32_896L, collector.value.get());
         } catch (InterruptedException e) {
@@ -71,11 +70,11 @@ public final class IterableEventLoopTest {
         ItemCollector collector = new ItemCollector();
 
         List<Item> items = IntStream.range(0, 256)
-                .mapToObj(i -> new Item((long) i + 1L))
-                .collect(Collectors.toList());
+                .mapToObj(index -> new Item((long) index + 1L))
+                .toList();
 
         try {
-            test.queue(items.stream().peek(i -> i.value++).iterator(), i -> collector.value.addAndGet(i.value));
+            test.queue(items.stream().peek(item -> item.value++).iterator(), item -> collector.value.addAndGet(item.value));
             test.awaitUntilDone();
             Assertions.assertEquals(33_152L, collector.value.get());
         } catch (InterruptedException e) {

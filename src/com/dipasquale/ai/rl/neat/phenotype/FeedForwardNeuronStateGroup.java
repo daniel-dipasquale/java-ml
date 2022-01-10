@@ -43,7 +43,7 @@ final class FeedForwardNeuronStateGroup implements NeuronStateGroup {
 
     @Override
     public void addValue(final Id neuronId, final float value, final Id sourceNeuronId) {
-        NeuronState state = states.computeIfAbsent(neuronId, id -> new NeuronState(0f));
+        NeuronState state = states.computeIfAbsent(neuronId, __ -> new NeuronState(0f));
 
         state.value += value;
     }

@@ -19,7 +19,7 @@ public final class MetricsViewer {
     private static Iterable<Record<Float, GenerationMetrics>> createGenerationRecords(final Map<Integer, GenerationMetrics> generations) {
         return generations.keySet().stream()
                 .sorted(Integer::compare)
-                .map(gid -> new Record<>((float) gid, generations.get(gid)))
+                .map(generation -> new Record<>((float) generation, generations.get(generation)))
                 ::iterator;
     }
 

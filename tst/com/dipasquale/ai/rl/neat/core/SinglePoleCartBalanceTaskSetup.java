@@ -90,10 +90,10 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                                 .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction((IsolatedNeatEnvironment) ga -> {
-                            genomeIds.add(ga.getGenome().getId());
+                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
+                            genomeIds.add(genomeActivator.getGenome().getId());
 
-                            return calculateFitness(ga);
+                            return calculateFitness(genomeActivator);
                         })
                         .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
                         .build())

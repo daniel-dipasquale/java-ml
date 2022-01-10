@@ -36,16 +36,16 @@ public final class JsonObject implements Iterable<Object>, Serializable {
     private static Map<Class<?>, Converter> createConverters() {
         Map<Class<?>, Converter> converters = new HashMap<>();
 
-        converters.put(Boolean.class, b -> b);
-        converters.put(Character.class, c -> Character.toString((char) c));
-        converters.put(Byte.class, b -> (long) (byte) b);
-        converters.put(Short.class, s -> (long) (short) s);
-        converters.put(Integer.class, s -> (long) (int) s);
-        converters.put(Long.class, l -> l);
-        converters.put(Float.class, f -> (double) (float) f);
-        converters.put(Double.class, d -> d);
-        converters.put(String.class, s -> s);
-        converters.put(JsonObject.class, o -> o);
+        converters.put(Boolean.class, booleanValue -> booleanValue);
+        converters.put(Character.class, characterValue -> Character.toString((char) characterValue));
+        converters.put(Byte.class, byteValue -> (long) (byte) byteValue);
+        converters.put(Short.class, shortValue -> (long) (short) shortValue);
+        converters.put(Integer.class, integerValue -> (long) (int) integerValue);
+        converters.put(Long.class, longValue -> longValue);
+        converters.put(Float.class, floatValue -> (double) (float) floatValue);
+        converters.put(Double.class, doubleValue -> doubleValue);
+        converters.put(String.class, stringValue -> stringValue);
+        converters.put(JsonObject.class, objectValue -> objectValue);
 
         return converters;
     }

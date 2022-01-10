@@ -10,13 +10,13 @@ final class SynchronizedIteratorProducer<T> implements IteratorProducer<T> {
     private final Iterator<T> iterator;
 
     @Override
-    public Envelope<T> next() {
+    public Container<T> next() {
         synchronized (iterator) {
             if (!iterator.hasNext()) {
                 return null;
             }
 
-            return new Envelope<>(iterator.next());
+            return new Container<>(iterator.next());
         }
     }
 }

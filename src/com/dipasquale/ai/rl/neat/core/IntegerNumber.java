@@ -16,21 +16,25 @@ public final class IntegerNumber {
     private final DualModeFactoryCreator factoryCreator;
     private final Object singletonKey = new Object();
 
-    public static IntegerNumber literal(final int value) {
-        DualModeFactoryCreator factoryCreator = ic -> {
-            DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(ic.getConcurrencyLevel(), new LiteralIntegerFactory(value));
+    public static <T extends IntegerFactory & DualModeObject> DualModeFactory createFactory(final T integerFactory) {
+        return new InternalDualModeFactory<>(integerFactory);
+    }
 
-            return new InternalDualModeFactory<>(integerFactory);
+    public static IntegerNumber literal(final int value) {
+        DualModeFactoryCreator factoryCreator = initializationContext -> {
+            DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(initializationContext.getConcurrencyLevel(), new LiteralIntegerFactory(value));
+
+            return createFactory(integerFactory);
         };
 
         return new IntegerNumber(factoryCreator);
     }
 
     public static IntegerNumber random(final RandomType type, final int min, final int max) {
-        DualModeFactoryCreator factoryCreator = ic -> {
-            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(ic.createRandomSupport(type), min, max);
+        DualModeFactoryCreator factoryCreator = initializationContext -> {
+            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(initializationContext.createRandomSupport(type), min, max);
 
-            return new InternalDualModeFactory<>(integerFactory);
+            return createFactory(integerFactory);
         };
 
         return new IntegerNumber(factoryCreator);

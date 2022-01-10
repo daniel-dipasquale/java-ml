@@ -29,15 +29,15 @@ public final class ErrorComparator {
 
     private static Optional<MessageComparator> createMessagePattern(final Object message) {
         return Optional.ofNullable(message)
-                .filter(m -> m instanceof Pattern)
-                .map(m -> (Pattern) m)
+                .filter(__message -> __message instanceof Pattern)
+                .map(__message -> (Pattern) __message)
                 .map(MessageComparator::pattern);
     }
 
     private static Optional<MessageComparator> createMessageLiteral(final Object message) {
         return Optional.ofNullable(message)
-                .filter(m -> m instanceof String)
-                .map(m -> (String) m)
+                .filter(__message -> __message instanceof String)
+                .map(__message -> (String) __message)
                 .map(MessageComparator::literal);
     }
 
@@ -54,7 +54,7 @@ public final class ErrorComparator {
                 .orElseGet(List::of);
 
         FieldComparatorGroup<T> fieldsFixed = Optional.ofNullable(fields)
-                .map(f -> new FieldComparatorGroup<>(null, f))
+                .map(fieldComparators -> new FieldComparatorGroup<>(null, fieldComparators))
                 .orElseGet(() -> new FieldComparatorGroup<>(null, new ArrayList<>()));
 
         return new ErrorComparator(type, messageFixed, cause, suppressedFixed, fieldsFixed);

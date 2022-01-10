@@ -99,7 +99,7 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
         return matches;
     }
 
-    private void playMatches(final SharedGenomeActivator sharedGenomeActivator, final Match match) {
+    private void playMatch(final SharedGenomeActivator sharedGenomeActivator, final Match match) {
         int rematch = 0;
 
         for (Match currentMatch = match; rematch++ <= rematches; currentMatch = currentMatch.next) {
@@ -114,7 +114,7 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
     @Override
     public void test(final SharedGenomeActivator sharedGenomeActivator) {
         List<Match> matches = createMatches(sharedGenomeActivator);
-        WaitHandle waitHandle = sharedGenomeActivator.getContext().parallelism().forEach(matches, m -> playMatches(sharedGenomeActivator, m));
+        WaitHandle waitHandle = sharedGenomeActivator.getContext().parallelism().forEach(matches, match -> playMatch(sharedGenomeActivator, match));
 
         try {
             waitHandle.await();

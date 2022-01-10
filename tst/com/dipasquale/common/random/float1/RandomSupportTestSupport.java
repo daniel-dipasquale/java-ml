@@ -29,7 +29,7 @@ final class RandomSupportTestSupport {
         for (int i = 0; i < count; i++) {
             int result = randomSupport.next(min, max);
 
-            distribution.computeIfAbsent(result, k -> new AtomicInteger()).incrementAndGet();
+            distribution.computeIfAbsent(result, __ -> new AtomicInteger()).incrementAndGet();
         }
 
         if (distribution.size() > max - min) {

@@ -297,7 +297,7 @@ public final class SimpleNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_18() {
-        CollectionAsserter<SimpleNode<String>> collectionAsserter = new CollectionAsserter<>(TEST, i -> TEST.createUnbound(String.format("item-%d", i)), SimpleNode.class, Assertions::assertEquals);
+        CollectionAsserter<SimpleNode<String>> collectionAsserter = new CollectionAsserter<>(TEST, index -> TEST.createUnbound(String.format("item-%d", index)), SimpleNode.class, Assertions::assertEquals);
 
         collectionAsserter.assertToArray();
         collectionAsserter.assertContainsAll();

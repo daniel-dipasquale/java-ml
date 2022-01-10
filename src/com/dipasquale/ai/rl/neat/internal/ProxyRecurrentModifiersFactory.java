@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-public final class DefaultRecurrentModifiersFactory implements RecurrentModifiersFactory, Serializable {
+public final class ProxyRecurrentModifiersFactory implements RecurrentModifiersFactory, Serializable {
     @Serial
     private static final long serialVersionUID = 4439420908217479283L;
     private final FloatFactory modifierFactory;
     private final int size;
 
-    public DefaultRecurrentModifiersFactory(final FloatFactory modifierFactory, final RecurrentStateType recurrentStateType) {
+    public ProxyRecurrentModifiersFactory(final FloatFactory modifierFactory, final RecurrentStateType recurrentStateType) {
         this.modifierFactory = modifierFactory;
         this.size = recurrentStateType.getModifiers();
     }
@@ -27,7 +27,7 @@ public final class DefaultRecurrentModifiersFactory implements RecurrentModifier
     @Override
     public List<Float> create() {
         return IntStream.range(0, size)
-                .mapToObj(i -> modifierFactory.create())
+                .mapToObj(__ -> modifierFactory.create())
                 .collect(Collectors.toList());
     }
 
@@ -42,7 +42,7 @@ public final class DefaultRecurrentModifiersFactory implements RecurrentModifier
         Iterable<List<Float>> iterable = () -> new ZipIterator<>(iterators);
 
         return StreamSupport.stream(iterable.spliterator(), false)
-                .map(i -> (i.get(0) + i.get(1)) / 2f)
+                .map(recurrentWeights -> (recurrentWeights.get(0) + recurrentWeights.get(1)) / 2f)
                 .collect(Collectors.toList());
     }
 }

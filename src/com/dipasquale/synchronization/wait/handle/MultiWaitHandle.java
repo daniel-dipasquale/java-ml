@@ -14,7 +14,7 @@ public final class MultiWaitHandle implements WaitHandle {
     private final WaitHandleStrategy waitHandleStrategy;
 
     public MultiWaitHandle(final List<? extends WaitHandle> waitHandles, final DateTimeSupport dateTimeSupport) {
-        this(waitHandles, dateTimeSupport, a -> a == 1);
+        this(waitHandles, dateTimeSupport, await -> await == 1);
     }
 
     private static <TWaitHandle extends WaitHandle, TItem> List<TWaitHandle> adapt(final List<TItem> items, final WaitHandleFactory<TItem, TWaitHandle> waitHandlerFactory) {

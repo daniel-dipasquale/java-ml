@@ -195,12 +195,12 @@ final class TicTacToeTaskSetup implements TaskSetup {
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
                         .fitnessFunction(RoundRobinDuelNeatEnvironment.builder()
-                                .environment(ga -> {
-                                    for (GenomeActivator genomeActivator : ga) {
+                                .environment(genomeActivators -> {
+                                    for (GenomeActivator genomeActivator : genomeActivators) {
                                         genomeIds.add(genomeActivator.getGenome().getId());
                                     }
 
-                                    return FITNESS_FUNCTION_TYPE.environment.test(ga);
+                                    return FITNESS_FUNCTION_TYPE.environment.test(genomeActivators);
                                 })
                                 .approximateMatchesPerGenome(3)
                                 .rematches(1)

@@ -94,7 +94,7 @@ public final class Population {
         int maximumSpecies = speciationSupport.params().maximumSpecies();
 
         Iterable<Organism> organismsBirthed = organismsToBirth.stream()
-                .map(of -> of.create(context))
+                .map(organismFactory -> organismFactory.create(context))
                 ::iterator;
 
         for (Organism organism : Iterables.concatenate(organismsWithoutSpecies, organismsBirthed)) {
@@ -141,8 +141,8 @@ public final class Population {
 
         List<Species> ranked = speciesNodes.flattenedStream()
                 .peek(all::add)
-                .peek(s -> totalSharedFitness[0] += s.getSharedFitness())
-                .filter(s -> !s.isStagnant(speciationSupport))
+                .peek(species -> totalSharedFitness[0] += species.getSharedFitness())
+                .filter(species -> !species.isStagnant(speciationSupport))
                 .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 

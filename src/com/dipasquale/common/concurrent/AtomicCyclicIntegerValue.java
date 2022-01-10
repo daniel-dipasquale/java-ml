@@ -58,7 +58,7 @@ public final class AtomicCyclicIntegerValue implements IntegerValue, Serializabl
 
     @Override
     public int increment(final int delta) {
-        return pair.accumulateAndGet(null, (oc, nc) -> createPair(offset, oc.value, delta, max)).total;
+        return pair.accumulateAndGet(null, (oldPair, newPair) -> createPair(offset, oldPair.value, delta, max)).total;
     }
 
     @Override

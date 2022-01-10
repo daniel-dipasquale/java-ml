@@ -55,7 +55,7 @@ public final class SingleBitAtomicLongArrayBitManipulator implements BitManipula
     }
 
     private long merge(final int arrayIndex, final long value, final long mask) {
-        return array.accumulateAndGet(arrayIndex, mask, (om, nm) -> merge(value, om, nm));
+        return array.accumulateAndGet(arrayIndex, mask, (oldMask, newMask) -> merge(value, oldMask, newMask));
     }
 
     @Override
@@ -83,12 +83,12 @@ public final class SingleBitAtomicLongArrayBitManipulator implements BitManipula
 
     @Override
     public long setAndGet(final long offset, final long value) {
-        return compareAndSwap(offset, value, (o, n) -> n).newValue;
+        return compareAndSwap(offset, value, (__, newMask) -> newMask).newValue;
     }
 
     @Override
     public long getAndSet(final long offset, final long value) {
-        return compareAndSwap(offset, value, (o, n) -> n).oldValue;
+        return compareAndSwap(offset, value, (__, newMask) -> newMask).oldValue;
     }
 
     @Override

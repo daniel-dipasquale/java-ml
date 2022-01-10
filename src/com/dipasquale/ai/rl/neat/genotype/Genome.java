@@ -359,7 +359,7 @@ public final class Genome implements Serializable {
         Genome genome = new Genome(id);
 
         nodes.forEach(genome.nodes::put);
-        connections.getAll().forEach(c -> addConnectionIfValid(connectionGeneSupport, c, genome));
+        connections.getAll().forEach(connection -> addConnectionIfValid(connectionGeneSupport, connection, genome));
 
         return genome;
     }

@@ -41,7 +41,7 @@ public final class DefaultHistoricalMarkings<T extends NodeGeneDependencyTracker
 
     @Override
     public void registerNode(final NodeGene node) {
-        NodeGeneDependencyTracker nodeDependencyTracker = nodeDependencyTrackers.computeIfAbsent(node.getId(), nid -> nodeDependencyTrackerFactory.create());
+        NodeGeneDependencyTracker nodeDependencyTracker = nodeDependencyTrackers.computeIfAbsent(node.getId(), __ -> nodeDependencyTrackerFactory.create());
 
         nodeDependencyTracker.increaseBlastRadius();
     }

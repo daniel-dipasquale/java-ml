@@ -33,7 +33,7 @@ public final class AtomicRecyclableReferenceTest {
     }
 
     private static AtomicRecyclableReference<String> createAtomicRecyclableReference(final boolean collectRecycledReferences) {
-        return createAtomicRecyclableReference(edt -> Integer.toString(REFERENCE_SEED.incrementAndGet()), collectRecycledReferences);
+        return createAtomicRecyclableReference(__ -> Integer.toString(REFERENCE_SEED.incrementAndGet()), collectRecycledReferences);
     }
 
     private static AtomicRecyclableReference<String> createAtomicRecyclableReference() {

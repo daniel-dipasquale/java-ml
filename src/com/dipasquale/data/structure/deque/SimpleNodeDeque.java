@@ -268,13 +268,13 @@ public final class SimpleNodeDeque<T> extends AbstractDeque<SimpleNode<T>> imple
 
     @Override
     public Iterator<SimpleNode<T>> iterator() {
-        return LinkedIterator.createStream(start.next, e -> e.next, e -> e != end)
+        return LinkedIterator.createStream(start.next, node -> node.next, node -> node != end)
                 .iterator();
     }
 
     @Override
     public Iterator<SimpleNode<T>> descendingIterator() {
-        return LinkedIterator.createStream(end.previous, e -> e.previous, e -> e != start)
+        return LinkedIterator.createStream(end.previous, node -> node.previous, node -> node != start)
                 .iterator();
     }
 

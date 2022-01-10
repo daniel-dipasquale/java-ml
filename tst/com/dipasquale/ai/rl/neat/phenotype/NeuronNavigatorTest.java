@@ -21,7 +21,7 @@ public final class NeuronNavigatorTest {
         NumberSequentialIdFactory nodeIdFactory = new NumberSequentialIdFactory(new PlainLongValue(0L));
 
         return IntStream.range(0, count)
-                .mapToObj(i -> new Id(new StrategyNumberSequentialId("test", nodeIdFactory.create())))
+                .mapToObj(__ -> new Id(new StrategyNumberSequentialId("test", nodeIdFactory.create())))
                 .collect(Collectors.toList());
     }
 
@@ -30,19 +30,19 @@ public final class NeuronNavigatorTest {
         List<NodeGene> nodes = new ArrayList<>();
 
         IntStream.range(0, inputBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(i), NodeGeneType.INPUT, inputBiases.get(i), List.of(), IdentityActivationFunction.getInstance()))
+                .mapToObj(index -> new NodeGene(ids.get(index), NodeGeneType.INPUT, inputBiases.get(index), List.of(), IdentityActivationFunction.getInstance()))
                 .forEach(nodes::add);
 
         IntStream.range(0, outputBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + i), NodeGeneType.OUTPUT, outputBiases.get(i), List.of(), IdentityActivationFunction.getInstance()))
+                .mapToObj(index -> new NodeGene(ids.get(inputBiases.size() + index), NodeGeneType.OUTPUT, outputBiases.get(index), List.of(), IdentityActivationFunction.getInstance()))
                 .forEach(nodes::add);
 
         IntStream.range(0, biasBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + i), NodeGeneType.BIAS, biasBiases.get(i), List.of(), IdentityActivationFunction.getInstance()))
+                .mapToObj(index -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + index), NodeGeneType.BIAS, biasBiases.get(index), List.of(), IdentityActivationFunction.getInstance()))
                 .forEach(nodes::add);
 
         IntStream.range(0, hiddenBiases.size())
-                .mapToObj(i -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + biasBiases.size() + i), NodeGeneType.HIDDEN, hiddenBiases.get(i), List.of(), IdentityActivationFunction.getInstance()))
+                .mapToObj(index -> new NodeGene(ids.get(inputBiases.size() + outputBiases.size() + biasBiases.size() + index), NodeGeneType.HIDDEN, hiddenBiases.get(index), List.of(), IdentityActivationFunction.getInstance()))
                 .forEach(nodes::add);
 
         return nodes;

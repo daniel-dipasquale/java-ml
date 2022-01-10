@@ -19,7 +19,7 @@ public final class LinkedIteratorTest {
         }
 
         List<LinkedItem> linkedItems = IntStream.range(1, count + 1)
-                .mapToObj(i -> new LinkedItem(String.format("val-%d", i), null))
+                .mapToObj(index -> new LinkedItem(String.format("val-%d", index), null))
                 .collect(Collectors.toList());
 
         for (int i = 1; i < count; i++) {
@@ -43,8 +43,8 @@ public final class LinkedIteratorTest {
     public void GIVEN_an_endless_linked_list_in_the_form_of_a_circular_linked_list_WHEN_iterating_through_it_with_a_limit_THEN_iterate_through_all_items_until_the_limit_is_hit_before_terminating_the_iteration() {
         LinkedItem linkedItem = createCircularLinkedItems(3).get(0);
 
-        Stream<String> result = LinkedIterator.createStream(linkedItem, li -> li.next)
-                .map(li -> li.value)
+        Stream<String> result = LinkedIterator.createStream(linkedItem, __linkedItem -> __linkedItem.next)
+                .map(__linkedItem -> __linkedItem.value)
                 .limit(2);
 
         Assertions.assertEquals(List.of("val-1", "val-2"), Lists.createCopyOf(result.iterator()));
@@ -54,8 +54,8 @@ public final class LinkedIteratorTest {
     public void GIVEN_a_linked_list_with_a_natural_end_WHEN_iterating_through_it_THEN_iterate_through_all_items() {
         LinkedItem linkedItem = createLinkedItems(3).get(0);
 
-        Stream<String> result = LinkedIterator.createStream(linkedItem, li -> li.next)
-                .map(li -> li.value);
+        Stream<String> result = LinkedIterator.createStream(linkedItem, __linkedItem -> __linkedItem.next)
+                .map(__linkedItem -> __linkedItem.value);
 
         Assertions.assertEquals(List.of("val-1", "val-2", "val-3"), Lists.createCopyOf(result.iterator()));
     }

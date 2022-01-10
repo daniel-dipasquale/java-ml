@@ -11,8 +11,8 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.internal.DefaultRecurrentModifiersFactory;
 import com.dipasquale.ai.rl.neat.internal.NoopRecurrentModifiersFactory;
+import com.dipasquale.ai.rl.neat.internal.ProxyRecurrentModifiersFactory;
 import com.dipasquale.ai.rl.neat.internal.RecurrentModifiersFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeWeightPerturber;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeHistoricalMarkings;
@@ -43,7 +43,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
             return new NoopRecurrentModifiersFactory();
         }
 
-        return new DefaultRecurrentModifiersFactory(weightFactory, connectionGeneSupport.getRecurrentStateType());
+        return new ProxyRecurrentModifiersFactory(weightFactory, connectionGeneSupport.getRecurrentStateType());
     }
 
     private static DualModeWeightPerturber<FloatNumber.DualModeFactory> createWeightPerturber(final InitializationContext initializationContext, final FloatNumber weightPerturber) {

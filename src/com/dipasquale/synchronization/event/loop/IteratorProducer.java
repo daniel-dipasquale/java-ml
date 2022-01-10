@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 
 @FunctionalInterface
 interface IteratorProducer<T> {
-    Envelope<T> next();
+    Container<T> next();
 
     @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     @Getter
-    final class Envelope<T> {
+    final class Container<T> {
         private final T item;
     }
 }

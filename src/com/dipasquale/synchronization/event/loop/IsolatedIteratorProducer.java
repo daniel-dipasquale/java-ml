@@ -13,7 +13,7 @@ final class IsolatedIteratorProducer<T> implements IteratorProducer<T> {
     private final int step;
 
     @Override
-    public Envelope<T> next() {
+    public Container<T> next() {
         int i = index + offset;
 
         if (i >= list.size()) {
@@ -23,7 +23,7 @@ final class IsolatedIteratorProducer<T> implements IteratorProducer<T> {
         try {
             T item = list.get(i);
 
-            return new Envelope<>(item);
+            return new Container<>(item);
         } finally {
             index += step;
         }

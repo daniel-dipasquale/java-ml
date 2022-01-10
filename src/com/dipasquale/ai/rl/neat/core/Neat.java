@@ -16,7 +16,7 @@ public final class Neat {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
                         .genesisGenomeTemplate(GenesisGenomeTemplate.createDefault(1, 1)) // NOTE: shamelessly avoiding a null pointer exception instead of coming up with a better design
-                        .fitnessFunction((IsolatedNeatEnvironment) ga -> 0f)
+                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> 0f)
                         .build())
                 .build();
     }
@@ -61,7 +61,7 @@ public final class Neat {
                 .build();
 
         List<Context> contexts = IntStream.range(0, settings.getParallelism().getConcurrencyLevel())
-                .mapToObj(i -> settingsFixed.createContext())
+                .mapToObj(__ -> settingsFixed.createContext())
                 .collect(Collectors.toList());
 
         return new ConcurrentNeatMultiTrainer(parallelismSupport, contexts, trainingPolicy);

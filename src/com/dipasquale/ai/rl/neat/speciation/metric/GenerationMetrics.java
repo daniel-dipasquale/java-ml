@@ -26,10 +26,10 @@ public final class GenerationMetrics implements Serializable {
 
     public GenerationMetrics createCopy(final MapFactory mapFactory) {
         Map<String, TopologyMetrics> organismsTopologyCopied = organismsTopology.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().createCopy()));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy()));
 
         List<FitnessMetrics> fitnessCalculationsCopied = fitnessCalculations.stream()
-                .map(fm -> fm.createCopy(mapFactory))
+                .map(fitnessMetrics -> fitnessMetrics.createCopy(mapFactory))
                 .collect(Collectors.toList());
 
         MetricDatum speciesAgeCopied = speciesAge.createCopy();
@@ -37,7 +37,7 @@ public final class GenerationMetrics implements Serializable {
         MetricDatum speciesStagnantCopied = speciesStagnant.createCopy();
 
         Map<String, MetricDatum> organismsKilledCopied = organismsKilled.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().createCopy()));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy()));
 
         MetricDatum speciesExtinctCopied = speciesExtinct.createCopy();
 

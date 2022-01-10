@@ -51,7 +51,7 @@ public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Se
     @Override
     public boolean containsValue(final Object value) {
         return iteratorFactory.createStream()
-                .anyMatch(e -> Objects.equals(e.getValue(), value));
+                .anyMatch(entry -> Objects.equals(entry.getValue(), value));
     }
 
     @Override

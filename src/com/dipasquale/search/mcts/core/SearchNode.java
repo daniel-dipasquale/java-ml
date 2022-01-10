@@ -61,7 +61,7 @@ public final class SearchNode<TState extends SearchState, TEdge extends SearchEd
         Iterable<TState> possibleStates = environment.createAllPossibleStates();
 
         return StreamSupport.stream(possibleStates.spliterator(), false)
-                .map(s -> new SearchNode<>(this, s, edgeFactory.create()))
+                .map(state -> new SearchNode<>(this, state, edgeFactory.create()))
                 .collect(Collectors.toList());
     }
 

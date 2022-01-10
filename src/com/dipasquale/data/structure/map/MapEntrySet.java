@@ -68,15 +68,15 @@ final class MapEntrySet<TKey, TValue> extends AbstractCollection<Map.Entry<TKey,
     @Override
     public boolean retainAll(final Collection<?> entries) {
         Map<TKey, TValue> entriesToRetain = entries.stream()
-                .filter(e -> e instanceof Map.Entry<?, ?>)
-                .map(e -> (Map.Entry<TKey, TValue>) e)
+                .filter(entry -> entry instanceof Map.Entry<?, ?>)
+                .map(entry -> (Map.Entry<TKey, TValue>) entry)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         List<Map.Entry<TKey, TValue>> entriesToRemove = iteratorFactory.createStream()
-                .filter(e -> !entriesToRetain.containsKey(e.getKey()) || !Objects.equals(entriesToRetain.get(e.getKey()), e.getValue()))
-                .collect(Collectors.toList());
+                .filter(entry -> !entriesToRetain.containsKey(entry.getKey()) || !Objects.equals(entriesToRetain.get(entry.getKey()), entry.getValue()))
+                .toList();
 
-        entriesToRemove.forEach(e -> map.remove(e.getKey()));
+        entriesToRemove.forEach(entry -> map.remove(entry.getKey()));
 
         return !entriesToRemove.isEmpty();
     }

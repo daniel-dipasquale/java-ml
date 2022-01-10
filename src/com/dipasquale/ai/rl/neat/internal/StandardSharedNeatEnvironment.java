@@ -60,7 +60,7 @@ public final class StandardSharedNeatEnvironment implements DualModeObject, Seri
         environment.test(sharedGenomeActivator);
 
         return genomeActivators.stream()
-                .map(ga -> incorporateFitness(ga, fitnessValues.get(ga).current()))
+                .map(genomeActivator -> incorporateFitness(genomeActivator, fitnessValues.get(genomeActivator).current()))
                 .collect(Collectors.toList());
     }
 

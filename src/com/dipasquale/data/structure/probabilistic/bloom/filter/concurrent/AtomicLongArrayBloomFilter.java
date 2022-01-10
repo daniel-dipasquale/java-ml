@@ -59,14 +59,14 @@ final class AtomicLongArrayBloomFilter<T> implements BloomFilter<T>, Serializabl
 
     @Override
     public boolean mightContain(final T item) {
-        BitSet flags = selectOrUpdateData(item, i -> bitManipulator.extract(i) == 1L);
+        BitSet flags = selectOrUpdateData(item, index -> bitManipulator.extract(index) == 1L);
 
         return flags.cardinality() == hashingFunctions;
     }
 
     @Override
     public boolean add(final T item) {
-        BitSet flags = selectOrUpdateData(item, i -> bitManipulator.getAndSet(i, 1L) == 1L);
+        BitSet flags = selectOrUpdateData(item, index -> bitManipulator.getAndSet(index, 1L) == 1L);
 
         return flags.cardinality() < hashingFunctions;
     }

@@ -25,11 +25,11 @@ public final class ConcurrentOrganismFitnessCalculationStrategy implements Fitne
     @Override
     public void calculate(final FitnessCalculationContext context) {
         List<OrganismHierarchy> organismHierarchies = context.getSpeciesNodes().flattenedStream()
-                .flatMap(s -> s.getOrganisms().stream()
-                        .map(o -> new OrganismHierarchy(o, s)))
+                .flatMap(species -> species.getOrganisms().stream()
+                        .map(organism -> new OrganismHierarchy(organism, species)))
                 .collect(Collectors.toList());
 
-        WaitHandle waitHandle = context.getParent().parallelism().forEach(organismHierarchies, oh -> updateFitness(oh, context.getParent()));
+        WaitHandle waitHandle = context.getParent().parallelism().forEach(organismHierarchies, organismHierarchy -> updateFitness(organismHierarchy, context.getParent()));
 
         try {
             waitHandle.await();

@@ -236,7 +236,7 @@ public final class RandomSupportTest {
         long size = 10L;
 
         List<Long> items = new ArrayList<>(LongStream.range(0, size)
-                .mapToObj(i -> size - 1L - i)
+                .mapToObj(index -> size - 1L - index)
                 .toList());
 
         Assertions.assertEquals(List.of(9L, 8L, 7L, 6L, 5L, 4L, 3L, 2L, 1L, 0L), items);
@@ -250,7 +250,7 @@ public final class RandomSupportTest {
         long size = 10L;
 
         List<Long> items = new ArrayList<>(LongStream.range(0, size)
-                .mapToObj(i -> size - 1L - i)
+                .mapToObj(index -> size - 1L - index)
                 .toList());
 
         Assertions.assertEquals(List.of(9L, 8L, 7L, 6L, 5L, 4L, 3L, 2L, 1L, 0L), items);

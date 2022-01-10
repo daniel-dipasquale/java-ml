@@ -67,8 +67,8 @@ public final class GameEnvironment implements Environment<GameState, GameEnviron
         int participantId = getNextParticipantId();
 
         return IntStream.range(0, board.length)
-                .filter(i -> board[i] == UNPLAYED_STATE)
-                .mapToObj(i -> new GameState(membership, participantId, i))
+                .filter(index -> board[index] == UNPLAYED_STATE)
+                .mapToObj(index -> new GameState(membership, participantId, index))
                 ::iterator;
     }
 

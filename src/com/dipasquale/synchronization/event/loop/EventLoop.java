@@ -56,8 +56,8 @@ public interface EventLoop {
         }
 
         String name = String.format("%s-router", settings.getName());
-        int[] index = new int[1];
-        EventLoopFactory.Proxy eventLoopFactoryProxy = nep -> settings.getFactory().create(String.format("%s-%d", settings.getName(), ++index[0]), params, nep);
+        int[] index = new int[]{0};
+        EventLoopFactory.Proxy eventLoopFactoryProxy = eventLoop -> settings.getFactory().create(String.format("%s-%d", settings.getName(), ++index[0]), params, eventLoop);
 
         EventLoopSelector eventLoopSelector = Optional.ofNullable(settings.getEventLoopSelector())
                 .orElseGet(() -> new ThreadLocalRandomEventLoopSelector(settings.getConcurrencyLevel()));

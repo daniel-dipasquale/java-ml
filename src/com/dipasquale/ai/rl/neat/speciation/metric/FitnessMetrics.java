@@ -20,7 +20,7 @@ public final class FitnessMetrics implements Serializable {
 
     public FitnessMetrics createCopy(final MapFactory mapFactory) {
         Map<String, MetricDatum> organismsCopied = organisms.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().createCopy()));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy()));
 
         MetricDatum sharedCopied = shared.createCopy();
 

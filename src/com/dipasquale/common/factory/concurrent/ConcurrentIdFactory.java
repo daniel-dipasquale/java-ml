@@ -27,7 +27,7 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId<Long>> 
     }
 
     private static RecyclableReference.Factory<MajorId> createMajorIdFactory(final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
-        return edt -> new MajorId(edt, minorIdContainerFactory.create());
+        return majorId -> new MajorId(majorId, minorIdContainerFactory.create());
     }
 
     @Override

@@ -34,7 +34,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, a -> false);
+        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, __ -> false);
 
         test.await();
 
@@ -154,7 +154,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, a -> false);
+        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, __ -> false);
 
         Assertions.assertTrue(test.await(10L, TimeUnit.MILLISECONDS));
 
@@ -204,7 +204,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, a -> true);
+        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, __ -> true);
 
         Assertions.assertTrue(test.await(4L, TimeUnit.MILLISECONDS));
 

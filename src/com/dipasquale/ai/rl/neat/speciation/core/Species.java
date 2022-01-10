@@ -103,7 +103,7 @@ public final class Species implements Serializable {
     }
 
     public float updateAllFitness(final Context context) {
-        updateAllFitness(o -> o.updateFitness(this, context));
+        updateAllFitness(organism -> organism.updateFitness(this, context));
         context.metrics().collectFitness(this);
 
         return sharedFitness;
@@ -216,7 +216,7 @@ public final class Species implements Serializable {
 
     public List<Organism> restart(final Context.RandomSupport randomSupport, final DequeSet<Organism> organismsTaken) {
         List<Organism> organismsFixed = organisms.stream()
-                .filter(o -> !organismsTaken.contains(o))
+                .filter(organism -> !organismsTaken.contains(organism))
                 .collect(Collectors.toList());
 
         int index = randomSupport.generateIndex(organismsFixed.size());

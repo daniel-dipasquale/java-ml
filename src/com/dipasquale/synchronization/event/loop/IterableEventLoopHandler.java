@@ -12,8 +12,8 @@ final class IterableEventLoopHandler<T> implements EventLoopHandler {
 
     @Override
     public void handle(final String name) {
-        for (IteratorProducer.Envelope<T> envelope = iteratorProducer.next(); envelope != null; envelope = iteratorProducer.next()) {
-            itemHandler.accept(envelope.getItem());
+        for (IteratorProducer.Container<T> container = iteratorProducer.next(); container != null; container = iteratorProducer.next()) {
+            itemHandler.accept(container.getItem());
         }
     }
 }

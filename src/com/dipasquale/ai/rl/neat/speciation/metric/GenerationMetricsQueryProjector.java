@@ -49,8 +49,8 @@ public final class GenerationMetricsQueryProjector {
             MetricDatum metricDatum = metricDatumFactory.create();
 
             generationMetrics.getOrganismsTopology().values().stream()
-                    .map(ot -> ot.getHiddenNodes().getValues().size())
-                    .forEach(s -> metricDatum.add((float) s));
+                    .map(organismTopologyMetrics -> organismTopologyMetrics.getHiddenNodes().getValues().size())
+                    .forEach(size -> metricDatum.add((float) size));
 
             return metricDatum;
         }
@@ -65,7 +65,7 @@ public final class GenerationMetricsQueryProjector {
             MetricDatum metricDatum = metricDatumFactory.create();
 
             generationMetrics.getFitnessCalculations().stream()
-                    .flatMap(fc -> fc.getOrganisms().values().stream())
+                    .flatMap(fitnessMetrics -> fitnessMetrics.getOrganisms().values().stream())
                     .forEach(metricDatum::merge);
 
             return metricDatum;

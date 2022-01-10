@@ -16,7 +16,7 @@ final class NeatMetricsReporter {
         StringJoiner headerNamesJoiner = new StringJoiner(",");
 
         headerNamesJoiner.add(result.getDefaultKey());
-        queryProjections.forEach(qp -> headerNamesJoiner.add(qp.getId()));
+        queryProjections.forEach(queryProjection -> headerNamesJoiner.add(queryProjection.getId()));
 
         return headerNamesJoiner.toString();
     }
@@ -43,8 +43,8 @@ final class NeatMetricsReporter {
 
         addRecordValue(recordValues, defaultValue);
 
-        queryProjections.forEach(qp -> {
-            Float value = record.getValue(qp.getId());
+        queryProjections.forEach(queryProjection -> {
+            Float value = record.getValue(queryProjection.getId());
 
             addRecordValue(recordValues, value);
         });
@@ -56,7 +56,7 @@ final class NeatMetricsReporter {
         StringJoiner headerNamesJoiner = new StringJoiner(",");
 
         headerNamesJoiner.add(result.getDefaultKey());
-        result.getProjections().forEach(qp -> headerNamesJoiner.add(qp.getId()));
+        result.getProjections().forEach(queryProjection -> headerNamesJoiner.add(queryProjection.getId()));
 
         System.out.println(getCsvHeader(result.getProjections(), result));
 

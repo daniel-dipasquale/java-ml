@@ -12,7 +12,7 @@ public final class FlatIterator<T> implements Iterator<T> {
 
     public static <T> FlatIterator<T> fromIterables(final Iterable<Iterable<T>> iterables) {
         Iterator<T> iterator = StreamSupport.stream(iterables.spliterator(), false)
-                .flatMap(i -> StreamSupport.stream(i.spliterator(), false))
+                .flatMap(iterable -> StreamSupport.stream(iterable.spliterator(), false))
                 .iterator();
 
         return new FlatIterator<>(iterator);
@@ -20,7 +20,7 @@ public final class FlatIterator<T> implements Iterator<T> {
 
     public static <T> FlatIterator<T> fromIterators(final Iterable<Iterator<T>> iterators) {
         Iterable<Iterable<T>> iterables = StreamSupport.stream(iterators.spliterator(), false)
-                .map(i -> (Iterable<T>) () -> i)
+                .map(iterator -> (Iterable<T>) () -> iterator)
                 ::iterator;
 
         return fromIterables(iterables);

@@ -11,7 +11,6 @@ import com.dipasquale.common.factory.ObjectFactory;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
     @Serial
@@ -28,6 +27,26 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
         this.neuronNavigatorProvider = new AtomicLazyReference<>((ObjectFactory<NeuronNavigator> & Serializable) () -> createNeuronNavigator(genome, neuronPathBuilder, outputLayerNormalizer));
         this.neuronMemoryFactory = neuronMemoryFactory;
         this.neuronStateFactory = neuronStateFactory;
+    }
+
+    private static Neuron createNeuronIfApplicable(final Genome genome, final NodeGene node) {
+        List<NeuronInputConnection> inputConnections = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
+                .map(connection -> new NeuronInputConnection(connection.getInnovationId().getSourceNodeId(), connection.getCyclesAllowed()))
+                .toList();
+
+        List<NeuronOutputConnection> outputConnections = genome.getConnections().getExpressed().getOutgoingFromNode(node).values().stream()
+                .map(connection -> new NeuronOutputConnection(connection.getInnovationId().getTargetNodeId(), connection.getWeight(), connection.getRecurrentWeights()))
+                .toList();
+
+        switch (node.getType()) {
+            case BIAS:
+            case HIDDEN:
+                if (inputConnections.size() + outputConnections.size() == 0) {
+                    return null;
+                }
+        }
+
+        return new Neuron(node, inputConnections, outputConnections);
     }
 
     private static NeuronNavigator createNeuronNavigator(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final NeuronLayerNormalizer outputLayerNormalizer) {
@@ -49,26 +68,6 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
     @Override
     public NeuronMemory createMemory() {
         return neuronMemoryFactory.create();
-    }
-
-    private static Neuron createNeuronIfApplicable(final Genome genome, final NodeGene node) {
-        List<NeuronInputConnection> inputConnections = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
-                .map(c -> new NeuronInputConnection(c.getInnovationId().getSourceNodeId(), c.getCyclesAllowed()))
-                .collect(Collectors.toList());
-
-        List<NeuronOutputConnection> outputConnections = genome.getConnections().getExpressed().getOutgoingFromNode(node).values().stream()
-                .map(c -> new NeuronOutputConnection(c.getInnovationId().getTargetNodeId(), c.getWeight(), c.getRecurrentWeights()))
-                .collect(Collectors.toList());
-
-        switch (node.getType()) {
-            case BIAS:
-            case HIDDEN:
-                if (inputConnections.size() + outputConnections.size() == 0) {
-                    return null;
-                }
-        }
-
-        return new Neuron(node, inputConnections, outputConnections);
     }
 
     private void initializeNeurons(final NeuronStateGroup neuronState, final float[] input) {

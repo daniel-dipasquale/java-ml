@@ -66,7 +66,7 @@ public final class OrderedGroup<TId extends Comparable<TId>, TItem> implements I
     public TItem removeById(final TId id) {
         TItem item = navigableMap.remove(id);
 
-        list.removeIf(e -> e.item == item);
+        list.removeIf(entry -> entry.item == item);
 
         return item;
     }
@@ -74,7 +74,7 @@ public final class OrderedGroup<TId extends Comparable<TId>, TItem> implements I
     @Override
     public Iterator<TItem> iterator() {
         return list.stream()
-                .map(e -> e.item)
+                .map(entry -> entry.item)
                 .iterator();
     }
 

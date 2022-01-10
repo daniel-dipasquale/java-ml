@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
-    private static final Comparator<IndexedNeatTrainer> MAXIMUM_FITNESS_COMPARATOR = Comparator.comparing(it -> it.trainer.getState().getMaximumFitness());
+    private static final Comparator<IndexedNeatTrainer> MAXIMUM_FITNESS_COMPARATOR = Comparator.comparing(indexedTrainer -> indexedTrainer.trainer.getState().getMaximumFitness());
     private final ReadWriteLock lock;
     private volatile Context.ParallelismSupport parallelismSupport;
     private final AtomicBoolean solutionFound;
@@ -71,7 +71,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
 
     private static List<IndexedNeatTrainer> createTrainers(final List<Context> contexts, final MultiTrainingPolicy multiTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
         return IntStream.range(0, contexts.size())
-                .mapToObj(i -> new IndexedNeatTrainer(i, createTrainer(contexts.get(i), multiTrainingPolicy, trainingPolicy)))
+                .mapToObj(index -> new IndexedNeatTrainer(index, createTrainer(contexts.get(index), multiTrainingPolicy, trainingPolicy)))
                 .collect(Collectors.toList());
     }
 
@@ -109,7 +109,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
     private static int getChampionTrainerIndex(final SynchronizingTrainingHandler trainingHandler, final int defaultChampionTrainerIndex) {
         return trainingHandler.successfulIndexedTrainers.stream()
                 .max(MAXIMUM_FITNESS_COMPARATOR)
-                .map(t -> t.index)
+                .map(indexedTrainer -> indexedTrainer.index)
                 .orElse(defaultChampionTrainerIndex);
     }
 

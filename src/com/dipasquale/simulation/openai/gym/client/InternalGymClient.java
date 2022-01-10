@@ -160,7 +160,7 @@ final class InternalGymClient implements Closeable {
     private static <T> Map<String, T> translateToMap(final JsonObject jsonObject) {
         return StreamSupport.stream(jsonObject.spliterator(), false)
                 .map(Object::toString)
-                .collect(Collectors.toMap(k -> k, k -> (T) jsonObject.get(k)));
+                .collect(Collectors.toMap(key -> key, key -> (T) jsonObject.get(key)));
     }
 
     public Map<String, String> getEnvironments() {
@@ -207,8 +207,8 @@ final class InternalGymClient implements Closeable {
 
     private static double[] translateToDoubleArray(final JsonObject jsonObject) {
         return StreamSupport.stream(jsonObject.spliterator(), false)
-                .map(k -> (Integer) k)
-                .mapToDouble(i -> (double) jsonObject.get(i))
+                .map(key -> (Integer) key)
+                .mapToDouble(index -> (double) jsonObject.get(index))
                 .toArray();
     }
 

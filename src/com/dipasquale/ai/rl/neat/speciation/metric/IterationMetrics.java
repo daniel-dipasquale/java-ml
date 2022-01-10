@@ -18,7 +18,7 @@ public final class IterationMetrics implements Serializable {
 
     public IterationMetrics createCopy(final MapFactory mapFactory) {
         Map<Integer, GenerationMetrics> generationsCopied = generations.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().createCopy(mapFactory)));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy(mapFactory)));
 
         return new IterationMetrics(mapFactory.create(generationsCopied));
     }

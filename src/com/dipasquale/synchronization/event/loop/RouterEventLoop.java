@@ -25,7 +25,7 @@ final class RouterEventLoop implements EventLoop {
         this.name = name;
         this.eventLoops = eventLoops;
         this.eventLoopSelector = eventLoopSelector;
-        this.waitUntilEmptyEventLoopsHandle = MultiWaitHandle.create(eventLoops, EventLoopWaitHandle::new, dateTimeSupport, a -> !isEmpty());
+        this.waitUntilEmptyEventLoopsHandle = MultiWaitHandle.create(eventLoops, EventLoopWaitHandle::new, dateTimeSupport, __ -> !isEmpty());
         this.shutdownEventLoopsHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 

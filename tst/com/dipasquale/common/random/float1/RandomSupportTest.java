@@ -236,7 +236,7 @@ public final class RandomSupportTest {
         int size = 10;
 
         List<Integer> items = new ArrayList<>(IntStream.range(0, size)
-                .mapToObj(i -> size - 1 - i)
+                .mapToObj(index -> size - 1 - index)
                 .toList());
 
         Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);
@@ -250,7 +250,7 @@ public final class RandomSupportTest {
         int size = 10;
 
         List<Integer> items = new ArrayList<>(IntStream.range(0, size)
-                .mapToObj(i -> size - 1 - i)
+                .mapToObj(index -> size - 1 - index)
                 .toList());
 
         Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);

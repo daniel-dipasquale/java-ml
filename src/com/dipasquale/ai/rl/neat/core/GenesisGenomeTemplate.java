@@ -29,7 +29,7 @@ public final class GenesisGenomeTemplate {
                 .inputs(IntegerNumber.literal(inputs))
                 .outputs(IntegerNumber.literal(outputs))
                 .biases(IntStream.range(0, bias.length)
-                        .mapToObj(i -> FloatNumber.literal(bias[i]))
+                        .mapToObj(index -> FloatNumber.literal(bias[index]))
                         .collect(Collectors.toList()))
                 .build();
     }

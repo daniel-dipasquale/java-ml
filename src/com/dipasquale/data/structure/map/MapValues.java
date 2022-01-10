@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
@@ -45,7 +44,7 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
     @Override
     public boolean remove(final Object value) {
         Optional<TKey> keyToRemove = iteratorFactory.createStream()
-                .filter(e -> Objects.equals(e.getValue(), value))
+                .filter(entry -> Objects.equals(entry.getValue(), value))
                 .map(Map.Entry::getKey)
                 .findFirst();
 
@@ -72,10 +71,10 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
         Set<?> valuesToRemove = ensureSet(values);
 
         List<Map.Entry<TKey, TValue>> entriesToRemove = iteratorFactory.createStream()
-                .filter(e -> valuesToRemove.contains(e.getValue()))
-                .collect(Collectors.toList());
+                .filter(entry -> valuesToRemove.contains(entry.getValue()))
+                .toList();
 
-        entriesToRemove.forEach(e -> map.remove(e.getKey()));
+        entriesToRemove.forEach(entry -> map.remove(entry.getKey()));
 
         return !entriesToRemove.isEmpty();
     }
@@ -85,10 +84,10 @@ final class MapValues<TKey, TValue> extends AbstractCollection<TValue> {
         Set<?> valuesToRetain = ensureSet(values);
 
         List<Map.Entry<TKey, TValue>> entriesToRemove = iteratorFactory.createStream()
-                .filter(e -> !valuesToRetain.contains(e.getValue()))
-                .collect(Collectors.toList());
+                .filter(entry -> !valuesToRetain.contains(entry.getValue()))
+                .toList();
 
-        entriesToRemove.forEach(e -> map.remove(e.getKey()));
+        entriesToRemove.forEach(entry -> map.remove(entry.getKey()));
 
         return !entriesToRemove.isEmpty();
     }

@@ -27,7 +27,7 @@ public final class GenesisReproductionStrategy implements ReproductionStrategy, 
         for (Species species : context.getSpeciesState().getAll()) {
             List<Organism> organismsToKill = species.restart(randomSupport, context.getOrganismsWithoutSpecies());
 
-            organismsToKill.forEach(otk -> killOrganism(otk, context.getParent()));
+            organismsToKill.forEach(organismToKill -> killOrganism(organismToKill, context.getParent()));
             metricSupport.collectKilled(species, organismsToKill);
         }
     }

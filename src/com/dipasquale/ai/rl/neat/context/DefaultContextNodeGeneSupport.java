@@ -13,9 +13,9 @@ import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.internal.DefaultRecurrentModifiersFactory;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.ai.rl.neat.internal.NoopRecurrentModifiersFactory;
+import com.dipasquale.ai.rl.neat.internal.ProxyRecurrentModifiersFactory;
 import com.dipasquale.ai.rl.neat.internal.RecurrentModifiersFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeActivationFunctionFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutputActivationFunctionFactory;
@@ -67,7 +67,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         }
 
         List<FloatNumber.DualModeFactory> biasNodeBiasFactories = biases.stream()
-                .map(sfn -> sfn.createFactory(initializationContext))
+                .map(bias -> bias.createFactory(initializationContext))
                 .collect(Collectors.toList());
 
         return FloatNumber.createFactory(new DualModeCyclicFloatFactory<>(initializationContext.getConcurrencyLevel(), biasNodeBiasFactories));
@@ -91,7 +91,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
             return new NoopRecurrentModifiersFactory();
         }
 
-        return new DefaultRecurrentModifiersFactory(biasFactory, connectionGeneSupport.getRecurrentStateType());
+        return new ProxyRecurrentModifiersFactory(biasFactory, connectionGeneSupport.getRecurrentStateType());
     }
 
     private static Map<NodeGeneType, RecurrentModifiersFactory> createRecurrentBiasesFactories(final InitializationContext initializationContext, final Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories, final ConnectionGeneSupport connectionGeneSupport) {
@@ -154,7 +154,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
 
     private static List<Id> createNodeIds(final DualModeNodeGeneIdFactory nodeIdFactory, final NodeGeneType type, final int count) {
         return IntStream.range(0, count)
-                .mapToObj(i -> nodeIdFactory.createNodeId(type))
+                .mapToObj(__ -> nodeIdFactory.createNodeId(type))
                 .collect(Collectors.toList());
     }
 

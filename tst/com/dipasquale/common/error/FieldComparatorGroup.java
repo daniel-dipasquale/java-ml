@@ -23,7 +23,7 @@ final class FieldComparatorGroup<T extends Throwable> {
         target.fields.clear();
 
         source.fields.stream()
-                .map(f -> new FieldComparator<T>(null, f.getValue(target.error)))
+                .map(fieldComparator -> new FieldComparator<T>(null, fieldComparator.getValue(target.error)))
                 .forEach(target.fields::add);
     }
 

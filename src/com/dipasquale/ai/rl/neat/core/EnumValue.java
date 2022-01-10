@@ -24,13 +24,21 @@ public final class EnumValue<T extends Enum<T>> {
     }
 
     public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
-        DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeEnumFactory<>(ic.getConcurrencyLevel(), new LiteralEnumFactory<>(value)));
+        DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
+            DualModeEnumFactory<T> enumFactory = new DualModeEnumFactory<>(initializationContext.getConcurrencyLevel(), new LiteralEnumFactory<>(value));
+
+            return createFactory(enumFactory);
+        };
 
         return new EnumValue<>(factoryCreator);
     }
 
     private static <T extends Enum<T>> EnumValue<T> createSequence(final List<T> values) {
-        DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeSequentialEnumFactory<>(ic.getConcurrencyLevel(), values));
+        DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
+            DualModeSequentialEnumFactory<T> enumFactory = new DualModeSequentialEnumFactory<>(initializationContext.getConcurrencyLevel(), values);
+
+            return createFactory(enumFactory);
+        };
 
         return new EnumValue<>(factoryCreator);
     }
@@ -40,7 +48,11 @@ public final class EnumValue<T extends Enum<T>> {
     }
 
     private static <T extends Enum<T>> EnumValue<T> createRandom(final T[] values) {
-        DualModeFactoryCreator<T> factoryCreator = ic -> createFactory(new DualModeRandomEnumFactory<>(ic.createRandomSupport(RandomType.UNIFORM), Lists.create(values)));
+        DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
+            DualModeRandomEnumFactory<T> enumFactory = new DualModeRandomEnumFactory<>(initializationContext.createRandomSupport(RandomType.UNIFORM), Lists.create(values));
+
+            return createFactory(enumFactory);
+        };
 
         return new EnumValue<>(factoryCreator);
     }

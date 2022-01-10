@@ -36,7 +36,7 @@ public final class GymClient implements Closeable {
     }
 
     private Map<String, String> getOrCreateInternalInstances(final String environmentId) {
-        return environments.computeIfAbsent(environmentId, eid -> new HashMap<>());
+        return environments.computeIfAbsent(environmentId, __ -> new HashMap<>());
     }
 
     private static String getValidInstanceId(final String id) {

@@ -48,7 +48,7 @@ abstract class AbstractRecurrentNeuronStateGroup implements NeuronStateGroup {
 
     @Override
     public void setValue(final Id neuronId, final float value) {
-        NeuronState state = states.computeIfAbsent(neuronId, k -> new NeuronState());
+        NeuronState state = states.computeIfAbsent(neuronId, __ -> new NeuronState());
 
         state.clear();
         state.put(neuronId, value);
@@ -56,7 +56,7 @@ abstract class AbstractRecurrentNeuronStateGroup implements NeuronStateGroup {
 
     @Override
     public void addValue(final Id neuronId, final float value, final Id sourceNeuronId) {
-        NeuronState state = states.computeIfAbsent(neuronId, k -> new NeuronState());
+        NeuronState state = states.computeIfAbsent(neuronId, __ -> new NeuronState());
 
         state.put(sourceNeuronId, value);
     }
