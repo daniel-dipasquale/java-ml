@@ -1,10 +1,10 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype;
 
-import com.dipasquale.ai.rl.neat.genotype.DefaultHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
+import com.dipasquale.ai.rl.neat.genotype.StrategyStateHistoricalMarkings;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
@@ -26,20 +26,20 @@ public final class DualModeHistoricalMarkings implements HistoricalMarkings, Dua
     private static final long serialVersionUID = 2505708313091427289L;
     private final DualModeIdFactory innovationIdFactory;
     private final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds;
-    private final NodeGeneDependencyTrackerFactory nodeDependencyTrackerFactory;
+    private final DualModeNodeGeneDependencyTrackerFactory nodeDependencyTrackerFactory;
     private final DualModeMap<Id, DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeDependencyTrackers;
-    private transient DefaultHistoricalMarkings<DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>> historicalMarkings;
+    private transient StrategyStateHistoricalMarkings<DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>> historicalMarkings;
 
-    private DualModeHistoricalMarkings(final DualModeMapFactory mapFactory, final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds, final NodeGeneDependencyTrackerFactory nodeDependencyTrackerFactory, final DualModeMap<Id, DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeDependencyTrackers) {
+    private DualModeHistoricalMarkings(final DualModeMapFactory mapFactory, final DualModeMap<DirectedEdge, InnovationId, DualModeMapFactory> innovationIds, final DualModeNodeGeneDependencyTrackerFactory nodeDependencyTrackerFactory, final DualModeMap<Id, DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>, DualModeMapFactory> nodeDependencyTrackers) {
         this.innovationIdFactory = new DualModeIdFactory(mapFactory.concurrencyLevel(), IdType.INNOVATION_ID);
         this.innovationIds = innovationIds;
         this.nodeDependencyTrackerFactory = nodeDependencyTrackerFactory;
         this.nodeDependencyTrackers = nodeDependencyTrackers;
-        this.historicalMarkings = new DefaultHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
+        this.historicalMarkings = new StrategyStateHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
     }
 
     public DualModeHistoricalMarkings(final DualModeMapFactory mapFactory) {
-        this(mapFactory, new DualModeMap<>(mapFactory), new NodeGeneDependencyTrackerFactory(new DualModeMapToSetFactory(mapFactory)), new DualModeMap<>(mapFactory));
+        this(mapFactory, new DualModeMap<>(mapFactory), new DualModeNodeGeneDependencyTrackerFactory(new DualModeMapToSetFactory(mapFactory)), new DualModeMap<>(mapFactory));
     }
 
     @Override
@@ -79,18 +79,18 @@ public final class DualModeHistoricalMarkings implements HistoricalMarkings, Dua
         nodeDependencyTrackerFactory.activateMode(concurrencyLevel);
         DualModeObject.forEachValueActivateMode(nodeDependencyTrackers, concurrencyLevel);
         nodeDependencyTrackers.activateMode(concurrencyLevel);
-        historicalMarkings = new DefaultHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
+        historicalMarkings = new StrategyStateHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
     }
 
     @Serial
     private void readObject(final ObjectInputStream objectInputStream)
             throws IOException, ClassNotFoundException {
         objectInputStream.defaultReadObject();
-        historicalMarkings = new DefaultHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
+        historicalMarkings = new StrategyStateHistoricalMarkings<>(innovationIdFactory, innovationIds, nodeDependencyTrackerFactory, nodeDependencyTrackers);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class NodeGeneDependencyTrackerFactory implements ObjectFactory<DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>>, DualModeObject, Serializable {
+    private static final class DualModeNodeGeneDependencyTrackerFactory implements ObjectFactory<DualModeNodeGeneDependencyTracker<DualModeMapToSetFactory>>, DualModeObject, Serializable {
         @Serial
         private static final long serialVersionUID = 107984128175600587L;
         private final DualModeMapToSetFactory setFactory;

@@ -1,15 +1,6 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
-import com.dipasquale.ai.rl.neat.core.ActivationSupport;
-import com.dipasquale.ai.rl.neat.core.ConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.core.FitnessFunctionNotLoadedException;
-import com.dipasquale.ai.rl.neat.core.GeneralSupport;
-import com.dipasquale.ai.rl.neat.core.InitializationContext;
-import com.dipasquale.ai.rl.neat.core.IsolatedNeatEnvironment;
-import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
-import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
-import com.dipasquale.ai.rl.neat.core.SharedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.internal.FitnessBucket;
 import com.dipasquale.ai.rl.neat.internal.StandardIsolatedNeatEnvironment;
@@ -36,16 +27,16 @@ import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DefaultContextActivationSupport implements Context.ActivationSupport {
+final class ContextObjectActivationSupport implements Context.ActivationSupport {
     private DualModeGenomeActivatorPool genomeActivatorPool;
     private StandardIsolatedNeatEnvironment standardIsolatedEnvironment;
     private StandardSharedNeatEnvironment standardSharedEnvironment;
 
-    private DefaultContextActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final IsolatedNeatEnvironment environment, final Map<String, FitnessBucket> fitnessBuckets) {
+    private ContextObjectActivationSupport(final DualModeGenomeActivatorPool genomeActivatorPool, final IsolatedNeatEnvironment environment, final Map<String, FitnessBucket> fitnessBuckets) {
         this(genomeActivatorPool, new StandardIsolatedNeatEnvironment(environment, fitnessBuckets), null);
     }
 
-    private DefaultContextActivationSupport(final int concurrencyLevel, final DualModeGenomeActivatorPool genomeActivatorPool, final SharedNeatEnvironment environment, final Map<String, FitnessBucket> fitnessBuckets) {
+    private ContextObjectActivationSupport(final int concurrencyLevel, final DualModeGenomeActivatorPool genomeActivatorPool, final SharedNeatEnvironment environment, final Map<String, FitnessBucket> fitnessBuckets) {
         this(genomeActivatorPool, null, new StandardSharedNeatEnvironment(concurrencyLevel, environment, fitnessBuckets));
     }
 
@@ -81,7 +72,7 @@ public final class DefaultContextActivationSupport implements Context.Activation
         return fitnessBuckets;
     }
 
-    public static DefaultContextActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport, final ActivationSupport activationSupport) {
+    static ContextObjectActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport, final ActivationSupport activationSupport) {
         DualModeMapFactory mapFactory = initializationContext.getMapFactory();
         NeuralNetworkFactory neuralNetworkFactory = createNeuralNetworkFactory(initializationContext, connectionGeneSupport, activationSupport);
         DualModeGenomeActivatorPool genomeActivatorPool = new DualModeGenomeActivatorPool(mapFactory, neuralNetworkFactory);
@@ -89,9 +80,9 @@ public final class DefaultContextActivationSupport implements Context.Activation
         Map<String, FitnessBucket> fitnessBuckets = createFitnessBuckets(initializationContext, generalSupport);
 
         return switch (initializationContext.getEnvironmentType()) {
-            case ISOLATED -> new DefaultContextActivationSupport(genomeActivatorPool, (IsolatedNeatEnvironment) fitnessFunction, fitnessBuckets);
+            case ISOLATED -> new ContextObjectActivationSupport(genomeActivatorPool, (IsolatedNeatEnvironment) fitnessFunction, fitnessBuckets);
 
-            case SHARED -> new DefaultContextActivationSupport(initializationContext.getConcurrencyLevel(), genomeActivatorPool, (SharedNeatEnvironment) fitnessFunction, fitnessBuckets);
+            case SHARED -> new ContextObjectActivationSupport(initializationContext.getConcurrencyLevel(), genomeActivatorPool, (SharedNeatEnvironment) fitnessFunction, fitnessBuckets);
         };
     }
 

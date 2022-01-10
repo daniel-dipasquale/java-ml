@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,7 +36,7 @@ public final class SpeciationSupport {
     @Builder.Default
     private final FloatNumber mutateOnlyRate = FloatNumber.literal(0.25f);
 
-    DefaultContextSpeciationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport) {
-        return DefaultContextSpeciationSupport.create(initializationContext, this, generalSupport);
+    ContextObjectSpeciationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport) {
+        return ContextObjectSpeciationSupport.create(initializationContext, this, generalSupport);
     }
 }

@@ -29,7 +29,7 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
         this.neuronStateFactory = neuronStateFactory;
     }
 
-    private static Neuron createNeuronIfApplicable(final Genome genome, final NodeGene node) {
+    private static Neuron createNeuronIfValid(final Genome genome, final NodeGene node) {
         List<NeuronInputConnection> inputConnections = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
                 .map(connection -> new NeuronInputConnection(connection.getInnovationId().getSourceNodeId(), connection.getCyclesAllowed()))
                 .toList();
@@ -53,7 +53,7 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
         NeuronNavigator neuronNavigator = new NeuronNavigator(neuronPathBuilder, outputLayerNormalizer);
 
         for (NodeGene node : genome.getNodes()) {
-            Neuron neuron = createNeuronIfApplicable(genome, node);
+            Neuron neuron = createNeuronIfValid(genome, node);
 
             if (neuron != null) {
                 neuronNavigator.add(neuron);

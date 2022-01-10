@@ -109,7 +109,7 @@ final class SinglePoleCartBalanceTaskSetup implements TaskSetup {
                 .activation(ActivationSupport.builder()
                         .outputLayerNormalizer(new SubtractionNeuronLayerNormalizer())
                         .build())
-                .metrics(MetricSupport.builder()
+                .metrics(MetricsSupport.builder()
                         .type(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))

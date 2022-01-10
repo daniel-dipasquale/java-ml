@@ -1,7 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.context.DefaultContextStateOverrideSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,6 +14,6 @@ public final class EvaluatorLoadSettings {
     private final IterableEventLoop eventLoop;
 
     Context.StateOverrideSupport createContext() {
-        return new DefaultContextStateOverrideSupport(fitnessFunction, eventLoop);
+        return new ContextObjectStateOverrideSupport(fitnessFunction, eventLoop);
     }
 }

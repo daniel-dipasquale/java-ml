@@ -1,15 +1,16 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-@AllArgsConstructor
-public final class DefaultContextParallelismSupport implements Context.ParallelismSupport {
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+final class ContextObjectParallelismSupport implements Context.ParallelismSupport {
     private Context.ParallelismSupport parallelism;
 
     @Override

@@ -8,7 +8,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public final class DefaultHashingFunctionFactory implements HashingFunctionFactory, Serializable {
+public final class JdkHashingFunctionFactory implements HashingFunctionFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -1040358716918215789L;
     private static final Map<HashingFunctionAlgorithm, HashingFunctionFactoryProxy> HASHING_FUNCTION_FACTORIES = createHashingFunctionFactories();
@@ -17,7 +17,7 @@ public final class DefaultHashingFunctionFactory implements HashingFunctionFacto
     private final int seed;
     private final long offset;
 
-    public DefaultHashingFunctionFactory() {
+    public JdkHashingFunctionFactory() {
         this(SEED, OFFSET);
     }
 

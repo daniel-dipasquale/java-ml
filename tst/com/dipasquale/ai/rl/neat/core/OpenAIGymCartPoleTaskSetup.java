@@ -103,7 +103,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                 .connections(ConnectionGeneSupport.builder()
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
                         .build())
-                .metrics(MetricSupport.builder()
+                .metrics(MetricsSupport.builder()
                         .type(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))

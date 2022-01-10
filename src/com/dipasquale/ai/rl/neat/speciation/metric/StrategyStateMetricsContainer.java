@@ -9,7 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @AllArgsConstructor
-public final class DefaultMetricsContainer implements MetricsContainer, Serializable {
+public final class StrategyStateMetricsContainer implements MetricsContainer, Serializable {
     @Serial
     private static final long serialVersionUID = -7518500811630022903L;
     private final MapFactory mapFactory;
@@ -21,7 +21,7 @@ public final class DefaultMetricsContainer implements MetricsContainer, Serializ
     @Getter
     private IterationMetrics iterationMetrics;
 
-    public DefaultMetricsContainer(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
+    public StrategyStateMetricsContainer(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
         this(mapFactory, metricDatumFactory, MetricsContainer.createFitnessMetrics(mapFactory, metricDatumFactory), MetricsContainer.createGenerationMetrics(mapFactory, metricDatumFactory), MetricsContainer.createIterationMetrics(mapFactory));
     }
 

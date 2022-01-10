@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.reproduction;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +22,13 @@ public final class GenesisReproductionStrategy implements ReproductionStrategy, 
     @Override
     public void reproduce(final ReproductionContext context) {
         Context.RandomSupport randomSupport = context.getParent().random();
-        Context.MetricSupport metricSupport = context.getParent().metrics();
+        Context.MetricsSupport metricsSupport = context.getParent().metrics();
 
         for (Species species : context.getSpeciesState().getAll()) {
             List<Organism> organismsToKill = species.restart(randomSupport, context.getOrganismsWithoutSpecies());
 
             organismsToKill.forEach(organismToKill -> killOrganism(organismToKill, context.getParent()));
-            metricSupport.collectKilled(species, organismsToKill);
+            metricsSupport.collectKilled(species, organismsToKill);
         }
     }
 }

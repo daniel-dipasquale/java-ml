@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +20,7 @@ public final class MutationSupport {
     @Builder.Default
     private final FloatNumber disableExpressedConnectionRate = FloatNumber.literal(0.015f);
 
-    DefaultContextMutationSupport create(final InitializationContext initializationContext) {
-        return DefaultContextMutationSupport.create(initializationContext, this);
+    ContextObjectMutationSupport create(final InitializationContext initializationContext) {
+        return ContextObjectMutationSupport.create(initializationContext, this);
     }
 }

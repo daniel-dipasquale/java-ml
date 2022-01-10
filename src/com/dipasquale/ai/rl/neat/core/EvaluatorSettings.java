@@ -1,17 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.context.DefaultContext;
-import com.dipasquale.ai.rl.neat.context.DefaultContextActivationSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextCrossOverSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextMetricSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextMutationSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextNodeGeneSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextParallelismSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextRandomSupport;
-import com.dipasquale.ai.rl.neat.context.DefaultContextSpeciationSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,22 +46,22 @@ public final class EvaluatorSettings {
             .build();
 
     @Builder.Default
-    private final MetricSupport metrics = MetricSupport.builder()
+    private final MetricsSupport metrics = MetricsSupport.builder()
             .build();
 
     Context createContext() {
         InitializationContext initializationContext = new InitializationContext(NeatEnvironmentType.from(general.getFitnessFunction()), parallelism, random);
-        DefaultContextGeneralSupport generalFixed = general.create(initializationContext);
-        DefaultContextParallelismSupport parallelismFixed = parallelism.create();
-        DefaultContextRandomSupport randomFixed = random.create(initializationContext);
-        DefaultContextNodeGeneSupport nodesFixed = nodes.create(initializationContext, general.getGenesisGenomeTemplate(), connections);
-        DefaultContextConnectionGeneSupport connectionsFixed = connections.create(initializationContext, general.getGenesisGenomeTemplate());
-        DefaultContextActivationSupport activationFixed = activation.create(initializationContext, general, connections);
-        DefaultContextMutationSupport mutationFixed = mutation.create(initializationContext);
-        DefaultContextCrossOverSupport crossOverFixed = crossOver.create(initializationContext);
-        DefaultContextSpeciationSupport speciationFixed = speciation.create(initializationContext, general);
-        DefaultContextMetricSupport metricsFixed = metrics.create(initializationContext, speciation);
+        ContextObjectGeneralSupport generalFixed = general.create(initializationContext);
+        ContextObjectParallelismSupport parallelismFixed = parallelism.create();
+        ContextObjectRandomSupport randomFixed = random.create(initializationContext);
+        ContextObjectNodeGeneSupport nodesFixed = nodes.create(initializationContext, general.getGenesisGenomeTemplate(), connections);
+        ContextObjectConnectionGeneSupport connectionsFixed = connections.create(initializationContext, general.getGenesisGenomeTemplate());
+        ContextObjectActivationSupport activationFixed = activation.create(initializationContext, general, connections);
+        ContextObjectMutationSupport mutationFixed = mutation.create(initializationContext);
+        ContextObjectCrossOverSupport crossOverFixed = crossOver.create(initializationContext);
+        ContextObjectSpeciationSupport speciationFixed = speciation.create(initializationContext, general);
+        ContextObjectMetricsSupport metricsFixed = metrics.create(initializationContext, speciation);
 
-        return new DefaultContext(generalFixed, parallelismFixed, randomFixed, nodesFixed, connectionsFixed, activationFixed, mutationFixed, crossOverFixed, speciationFixed, metricsFixed);
+        return new ContextObject(generalFixed, parallelismFixed, randomFixed, nodesFixed, connectionsFixed, activationFixed, mutationFixed, crossOverFixed, speciationFixed, metricsFixed);
     }
 }

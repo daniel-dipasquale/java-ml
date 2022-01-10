@@ -1,9 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.context.Context;
-import com.dipasquale.ai.rl.neat.context.DefaultContextParallelismSupport;
-import com.dipasquale.ai.rl.neat.context.MultiThreadContextParallelismSupport;
-import com.dipasquale.ai.rl.neat.context.SingleThreadContextParallelismSupport;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -30,15 +26,15 @@ public final class ParallelismSupport {
         return getConcurrencyLevel(eventLoop);
     }
 
-    DefaultContextParallelismSupport create() {
+    ContextObjectParallelismSupport create() {
         if (!isEnabled()) {
             Context.ParallelismSupport parallelismSupport = new SingleThreadContextParallelismSupport();
 
-            return new DefaultContextParallelismSupport(parallelismSupport);
+            return new ContextObjectParallelismSupport(parallelismSupport);
         }
 
         Context.ParallelismSupport parallelismSupport = new MultiThreadContextParallelismSupport(eventLoop);
 
-        return new DefaultContextParallelismSupport(parallelismSupport);
+        return new ContextObjectParallelismSupport(parallelismSupport);
     }
 }

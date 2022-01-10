@@ -1,9 +1,7 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
-import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
-import com.dipasquale.ai.rl.neat.core.WeightMutationType;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
@@ -46,7 +44,7 @@ public interface Context {
 
     SpeciationSupport speciation();
 
-    MetricSupport metrics();
+    MetricsSupport metrics();
 
     void save(ObjectOutputStream outputStream) throws IOException;
 
@@ -273,12 +271,12 @@ public interface Context {
     }
 
     @FunctionalInterface
-    interface MetricParameters {
+    interface MetricsParameters {
         boolean enabled();
     }
 
-    interface MetricSupport {
-        MetricParameters params();
+    interface MetricsSupport {
+        MetricsParameters params();
 
         void collectInitialCompositions(Iterable<Species> allSpecies);
 

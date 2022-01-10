@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.context.DefaultContextConnectionGeneSupport;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +22,7 @@ public final class ConnectionGeneSupport {
     @Builder.Default
     private final FloatNumber multiCycleAllowanceRate = FloatNumber.literal(0f);
 
-    DefaultContextConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate) {
-        return DefaultContextConnectionGeneSupport.create(initializationContext, genesisGenomeTemplate, this);
+    ContextObjectConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate) {
+        return ContextObjectConnectionGeneSupport.create(initializationContext, genesisGenomeTemplate, this);
     }
 }

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;

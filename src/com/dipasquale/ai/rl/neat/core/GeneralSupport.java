@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
 import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
-import com.dipasquale.ai.rl.neat.context.DefaultContextGeneralSupport;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,7 +21,7 @@ public final class GeneralSupport {
     @Builder.Default
     private final FitnessDeterminerFactory fitnessDeterminerFactory = new LastValueFitnessDeterminerFactory();
 
-    DefaultContextGeneralSupport create(final InitializationContext initializationContext) {
+    ContextObjectGeneralSupport create(final InitializationContext initializationContext) {
         int populationSizeFixed = populationSize.getSingletonValue(initializationContext);
 
         ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSizeFixed, 20, "populationSize");
@@ -30,6 +29,6 @@ public final class GeneralSupport {
         ArgumentValidatorSupport.ensureNotNull(fitnessFunction, "fitnessFunction");
         ArgumentValidatorSupport.ensureNotNull(fitnessDeterminerFactory, "fitnessDeterminerFactory");
 
-        return DefaultContextGeneralSupport.create(populationSizeFixed);
+        return ContextObjectGeneralSupport.create(populationSizeFixed);
     }
 }

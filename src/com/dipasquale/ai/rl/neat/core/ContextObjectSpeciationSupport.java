@@ -1,11 +1,6 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
-import com.dipasquale.ai.rl.neat.core.FloatNumber;
-import com.dipasquale.ai.rl.neat.core.GeneralSupport;
-import com.dipasquale.ai.rl.neat.core.InitializationContext;
-import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
-import com.dipasquale.ai.rl.neat.core.SpeciationSupport;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.speciation.core.ReproductionType;
@@ -42,8 +37,8 @@ import java.io.Serializable;
 import java.util.List;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DefaultContextSpeciationSupport implements Context.SpeciationSupport {
-    private DefaultContextSpeciationParameters params;
+final class ContextObjectSpeciationSupport implements Context.SpeciationSupport {
+    private ContextObjectSpeciationParameters params;
     private DualModeIdFactory speciesIdFactory;
     private DualModeGenomePool genomePool;
     private GenomeCompatibilityCalculator genomeCompatibilityCalculator;
@@ -133,8 +128,8 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         return new MultiReproductionStrategy(strategies);
     }
 
-    public static DefaultContextSpeciationSupport create(final InitializationContext initializationContext, final SpeciationSupport speciationSupport, final GeneralSupport generalSupport) {
-        DefaultContextSpeciationParameters params = DefaultContextSpeciationParameters.builder()
+    static ContextObjectSpeciationSupport create(final InitializationContext initializationContext, final SpeciationSupport speciationSupport, final GeneralSupport generalSupport) {
+        ContextObjectSpeciationParameters params = ContextObjectSpeciationParameters.builder()
                 .maximumSpecies(Math.min(speciationSupport.getMaximumSpecies().getSingletonValue(initializationContext), generalSupport.getPopulationSize().getSingletonValue(initializationContext)))
                 .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingletonValue(initializationContext))
                 .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingletonValue(initializationContext))
@@ -156,7 +151,7 @@ public final class DefaultContextSpeciationSupport implements Context.Speciation
         SelectionStrategyExecutor selectionStrategy = createSelectionStrategy();
         ReproductionStrategy reproductionStrategy = createReproductionStrategy();
 
-        return new DefaultContextSpeciationSupport(params, speciesIdFactory, genomePool, genomeCompatibilityCalculator, reproductionTypeFactory, fitnessCalculationStrategy, selectionStrategy, reproductionStrategy);
+        return new ContextObjectSpeciationSupport(params, speciesIdFactory, genomePool, genomeCompatibilityCalculator, reproductionTypeFactory, fitnessCalculationStrategy, selectionStrategy, reproductionStrategy);
     }
 
     @Override

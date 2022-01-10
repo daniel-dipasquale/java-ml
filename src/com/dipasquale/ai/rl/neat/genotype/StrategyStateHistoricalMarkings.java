@@ -1,15 +1,15 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
+import com.dipasquale.ai.common.sequence.SequentialIdFactory;
 import com.dipasquale.ai.rl.neat.internal.Id;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
 import com.dipasquale.common.factory.ObjectFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
 @RequiredArgsConstructor
-public final class DefaultHistoricalMarkings<T extends NodeGeneDependencyTracker> implements HistoricalMarkings {
-    private final DualModeIdFactory innovationIdFactory;
+public final class StrategyStateHistoricalMarkings<T extends NodeGeneDependencyTracker> implements HistoricalMarkings {
+    private final SequentialIdFactory<Id> innovationIdFactory;
     private final Map<DirectedEdge, InnovationId> innovationIds;
     private final ObjectFactory<T> nodeDependencyTrackerFactory;
     private final Map<Id, T> nodeDependencyTrackers;

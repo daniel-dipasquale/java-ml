@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
@@ -14,8 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-@RequiredArgsConstructor
-public final class MultiThreadContextParallelismSupport implements Context.ParallelismSupport {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class MultiThreadContextParallelismSupport implements Context.ParallelismSupport {
     private final InternalParameters params = new InternalParameters();
     private final IterableEventLoop eventLoop;
 

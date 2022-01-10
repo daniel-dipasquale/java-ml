@@ -1,19 +1,19 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DefaultContextGeneralSupport implements Context.GeneralSupport {
-    private DefaultContextGeneralParameters params;
+final class ContextObjectGeneralSupport implements Context.GeneralSupport {
+    private ContextObjectGeneralParameters params;
 
-    public static DefaultContextGeneralSupport create(final int populationSize) {
-        DefaultContextGeneralParameters params = DefaultContextGeneralParameters.builder()
+    static ContextObjectGeneralSupport create(final int populationSize) {
+        ContextObjectGeneralParameters params = ContextObjectGeneralParameters.builder()
                 .populationSize(populationSize)
                 .build();
 
-        return new DefaultContextGeneralSupport(params);
+        return new ContextObjectGeneralSupport(params);
     }
 
     @Override

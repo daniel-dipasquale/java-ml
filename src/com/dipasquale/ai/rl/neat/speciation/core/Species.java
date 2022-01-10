@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.core;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.speciation.organism.CloneSingleOrganismFactory;
 import com.dipasquale.ai.rl.neat.speciation.organism.MateBetweenOrganismsFactory;
 import com.dipasquale.ai.rl.neat.speciation.organism.MutateSingleOrganismFactory;
@@ -95,9 +95,9 @@ public final class Species implements Serializable {
         return sharedFitness;
     }
 
-    public float updateSharedFitnessOnly(final Context.MetricSupport metricSupport) {
+    public float updateSharedFitnessOnly(final Context.MetricsSupport metricsSupport) {
         updateAllFitness(Organism::getFitness);
-        metricSupport.collectFitness(this);
+        metricsSupport.collectFitness(this);
 
         return sharedFitness;
     }

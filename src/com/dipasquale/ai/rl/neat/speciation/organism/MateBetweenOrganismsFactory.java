@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;

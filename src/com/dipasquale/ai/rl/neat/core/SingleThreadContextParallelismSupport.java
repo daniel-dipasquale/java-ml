@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.synchronization.wait.handle.StrategyWaitHandle;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
@@ -12,7 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-public final class SingleThreadContextParallelismSupport implements Context.ParallelismSupport {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class SingleThreadContextParallelismSupport implements Context.ParallelismSupport {
     private final InternalParameters params = new InternalParameters();
     private final Collection<Throwable> unhandledExceptions = Collections.newSetFromMap(new IdentityHashMap<>());
 

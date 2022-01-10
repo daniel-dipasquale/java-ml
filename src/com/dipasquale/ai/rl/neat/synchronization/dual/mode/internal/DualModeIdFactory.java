@@ -1,16 +1,16 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal;
 
 import com.dipasquale.ai.common.sequence.NumberSequentialIdFactory;
+import com.dipasquale.ai.common.sequence.SequentialIdFactory;
 import com.dipasquale.ai.common.sequence.StrategyNumberSequentialIdFactory;
 import com.dipasquale.ai.rl.neat.internal.Id;
-import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeLongValue;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-public final class DualModeIdFactory implements ObjectFactory<Id>, DualModeObject, Serializable {
+public final class DualModeIdFactory implements SequentialIdFactory<Id>, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -8362275222819817723L;
     private final DualModeLongValue id;
@@ -30,6 +30,7 @@ public final class DualModeIdFactory implements ObjectFactory<Id>, DualModeObjec
         return new Id(sequentialIdFactory.create());
     }
 
+    @Override
     public void reset() {
         sequentialIdFactory.reset();
     }

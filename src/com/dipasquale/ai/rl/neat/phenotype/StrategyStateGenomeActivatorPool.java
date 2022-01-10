@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public final class DefaultGenomeActivatorPool implements GenomeActivatorPool {
+public final class StrategyStateGenomeActivatorPool implements GenomeActivatorPool {
     private final Map<String, GenomeActivator> genomeActivators;
     private final NeuralNetworkFactory neuralNetworkFactory;
 
-    private GenomeActivator createInternal(final Genome genome, final PopulationState populationState) {
+    private GenomeActivator createGenomeActivator(final Genome genome, final PopulationState populationState) {
         return new GenomeActivator(genome, populationState, neuralNetworkFactory.create(genome));
     }
 
@@ -20,7 +20,7 @@ public final class DefaultGenomeActivatorPool implements GenomeActivatorPool {
             return oldGenomeActivator;
         }
 
-        return createInternal(genome, populationState);
+        return createGenomeActivator(genome, populationState);
     }
 
     @Override
@@ -30,6 +30,6 @@ public final class DefaultGenomeActivatorPool implements GenomeActivatorPool {
 
     @Override
     public GenomeActivator create(final Genome genome, final PopulationState populationState) {
-        return createInternal(genome, populationState.createClone());
+        return createGenomeActivator(genome, populationState.createClone());
     }
 }

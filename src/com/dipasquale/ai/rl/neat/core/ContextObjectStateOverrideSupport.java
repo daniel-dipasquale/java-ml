@@ -1,11 +1,11 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.core.NeatEnvironment;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-public final class DefaultContextStateOverrideSupport implements Context.StateOverrideSupport {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class ContextObjectStateOverrideSupport implements Context.StateOverrideSupport {
     private final NeatEnvironment fitnessFunction;
     private final IterableEventLoop eventLoop;
 

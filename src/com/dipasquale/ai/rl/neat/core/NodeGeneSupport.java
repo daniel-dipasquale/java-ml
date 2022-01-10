@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
-import com.dipasquale.ai.rl.neat.context.DefaultContextNodeGeneSupport;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +24,7 @@ public final class NodeGeneSupport {
     @Builder.Default
     private final EnumValue<ActivationFunctionType> hiddenActivationFunction = EnumValue.literal(ActivationFunctionType.SIGMOID);
 
-    DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
-        return DefaultContextNodeGeneSupport.create(initializationContext, genesisGenomeTemplate, this, connectionGeneSupport);
+    ContextObjectNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
+        return ContextObjectNodeGeneSupport.create(initializationContext, genesisGenomeTemplate, this, connectionGeneSupport);
     }
 }

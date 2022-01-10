@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PACKAGE)
-public final class DefaultContextMetricParameters implements Context.MetricParameters, Serializable {
+final class ContextObjectMetricsParameters implements Context.MetricsParameters, Serializable {
     @Serial
     private static final long serialVersionUID = 3933676175004672652L;
     private final boolean enabled;

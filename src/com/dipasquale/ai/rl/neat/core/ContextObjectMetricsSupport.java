@@ -1,10 +1,5 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.core.InitializationContext;
-import com.dipasquale.ai.rl.neat.core.MetricCollectionType;
-import com.dipasquale.ai.rl.neat.core.MetricSupport;
-import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
-import com.dipasquale.ai.rl.neat.core.SpeciationSupport;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.metric.ConfigurableMetricsCollector;
 import com.dipasquale.ai.rl.neat.speciation.metric.GenerationMetrics;
@@ -33,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DefaultContextMetricSupport implements Context.MetricSupport {
-    private DefaultContextMetricParameters params;
+final class ContextObjectMetricsSupport implements Context.MetricsSupport {
+    private ContextObjectMetricsParameters params;
     private MetricDatumFactory metricDatumFactory;
     private DualModeMetricsContainer metricsContainer;
     private MetricsCollector metricsCollector;
@@ -63,24 +58,24 @@ public final class DefaultContextMetricSupport implements Context.MetricSupport 
         return new ConfigurableMetricsCollector(metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd);
     }
 
-    public static DefaultContextMetricSupport create(final InitializationContext initializationContext, final MetricSupport metricSupport, final SpeciationSupport speciationSupport) {
-        DefaultContextMetricParameters params = DefaultContextMetricParameters.builder()
-                .enabled(metricSupport.getType().contains(MetricCollectionType.ENABLED))
+    static ContextObjectMetricsSupport create(final InitializationContext initializationContext, final MetricsSupport metricsSupport, final SpeciationSupport speciationSupport) {
+        ContextObjectMetricsParameters params = ContextObjectMetricsParameters.builder()
+                .enabled(metricsSupport.getType().contains(MetricCollectionType.ENABLED))
                 .build();
 
-        MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricSupport.getType());
+        MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricsSupport.getType());
         DualModeMetricsContainer metricsContainer = new DualModeMetricsContainer(initializationContext.getMapFactory(), metricDatumFactory);
-        MetricsCollector metricsCollector = createMetricsCollector(metricDatumFactory, metricSupport.getType());
+        MetricsCollector metricsCollector = createMetricsCollector(metricDatumFactory, metricsSupport.getType());
         int stagnationDropOffAge = speciationSupport.getStagnationDropOffAge().getSingletonValue(initializationContext);
         DualModeIntegerValue iteration = new DualModeIntegerValue(initializationContext.getConcurrencyLevel(), 1);
         DualModeIntegerValue generation = new DualModeIntegerValue(initializationContext.getConcurrencyLevel(), 1);
         DualModeMap<Integer, IterationMetrics, DualModeMapFactory> metrics = new DualModeMap<>(initializationContext.getMapFactory());
 
-        return new DefaultContextMetricSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, metrics);
+        return new ContextObjectMetricsSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, metrics);
     }
 
     @Override
-    public Context.MetricParameters params() {
+    public Context.MetricsParameters params() {
         return params;
     }
 

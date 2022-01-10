@@ -1,9 +1,5 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.core.CrossOverSupport;
-import com.dipasquale.ai.rl.neat.core.FloatNumber;
-import com.dipasquale.ai.rl.neat.core.InitializationContext;
-import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.gate.DualModeIsLessThanRandomGate;
@@ -12,7 +8,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DefaultContextCrossOverSupport implements Context.CrossOverSupport {
+final class ContextObjectCrossOverSupport implements Context.CrossOverSupport {
     private DualModeIsLessThanRandomGate shouldOverrideExpressedConnectionGate;
     private DualModeIsLessThanRandomGate shouldUseWeightFromRandomParentGate;
 
@@ -20,11 +16,11 @@ public final class DefaultContextCrossOverSupport implements Context.CrossOverSu
         return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), max.getSingletonValue(initializationContext));
     }
 
-    public static DefaultContextCrossOverSupport create(final InitializationContext initializationContext, final CrossOverSupport crossOverSupport) {
+    static ContextObjectCrossOverSupport create(final InitializationContext initializationContext, final CrossOverSupport crossOverSupport) {
         DualModeIsLessThanRandomGate shouldOverrideExpressedConnectionGate = createIsLessThanGate(initializationContext, crossOverSupport.getOverrideExpressedConnectionRate());
         DualModeIsLessThanRandomGate shouldUseWeightFromRandomParentGate = createIsLessThanGate(initializationContext, crossOverSupport.getUseWeightFromRandomParentRate());
 
-        return new DefaultContextCrossOverSupport(shouldOverrideExpressedConnectionGate, shouldUseWeightFromRandomParentGate);
+        return new ContextObjectCrossOverSupport(shouldOverrideExpressedConnectionGate, shouldUseWeightFromRandomParentGate);
     }
 
     @Override

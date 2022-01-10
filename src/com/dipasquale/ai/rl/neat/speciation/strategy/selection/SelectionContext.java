@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.core.Population;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;

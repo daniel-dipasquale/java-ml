@@ -5,10 +5,10 @@ import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ExpirationFactoryProvider;
 import com.dipasquale.common.time.LiteralExpirationFactoryProvider;
 import com.dipasquale.common.time.StaggeringExpirationFactoryProvider;
-import com.dipasquale.data.structure.probabilistic.DefaultHashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.HashingFunction;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionFactory;
+import com.dipasquale.data.structure.probabilistic.JdkHashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.MultiPartBloomFilterFactory;
@@ -22,7 +22,7 @@ import java.io.Serializable;
 public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializable {
     @Serial
     private static final long serialVersionUID = -3477491277835878755L;
-    private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new DefaultHashingFunctionFactory();
+    private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new JdkHashingFunctionFactory();
     private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.SHA_1, ConcurrentBloomFilter.class.getSimpleName());
     private static final AtomicLongArrayBloomFilterFactory DEFAULT_BLOOM_FILTER_FACTORY = new AtomicLongArrayBloomFilterFactory(HASHING_FUNCTION);
     private static final MultiPartBloomFilterFactory MULTI_PART_BLOOM_FILTER_FACTORY = new MultiPartBloomFilterFactory(new StrategyBloomFilterPartitionFactory(DEFAULT_BLOOM_FILTER_FACTORY), 1);

@@ -1,15 +1,8 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.function.activation.ActivationFunction;
 import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
 import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
-import com.dipasquale.ai.rl.neat.core.ConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.core.EnumValue;
-import com.dipasquale.ai.rl.neat.core.FloatNumber;
-import com.dipasquale.ai.rl.neat.core.GenesisGenomeTemplate;
-import com.dipasquale.ai.rl.neat.core.InitializationContext;
-import com.dipasquale.ai.rl.neat.core.NodeGeneSupport;
-import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
@@ -34,7 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupport {
+final class ContextObjectNodeGeneSupport implements Context.NodeGeneSupport {
     private DualModeNodeGeneIdFactory nodeIdFactory;
     private Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories;
     private Map<NodeGeneType, RecurrentModifiersFactory> recurrentBiasesFactories;
@@ -46,7 +39,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
     private List<Id> outputNodeIds;
     private List<Id> biasNodeIds;
 
-    private DefaultContextNodeGeneSupport(final DualModeNodeGeneIdFactory nodeIdFactory, final Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories, final Map<NodeGeneType, RecurrentModifiersFactory> recurrentBiasesFactories, final Map<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>> activationFunctionFactories, final int inputs, final int outputs, final int biases) {
+    private ContextObjectNodeGeneSupport(final DualModeNodeGeneIdFactory nodeIdFactory, final Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories, final Map<NodeGeneType, RecurrentModifiersFactory> recurrentBiasesFactories, final Map<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>> activationFunctionFactories, final int inputs, final int outputs, final int biases) {
         this.nodeIdFactory = nodeIdFactory;
         this.biasFactories = biasFactories;
         this.recurrentBiasesFactories = recurrentBiasesFactories;
@@ -140,7 +133,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         return activationFunctionFactories;
     }
 
-    public static DefaultContextNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final NodeGeneSupport nodeGeneSupport, final ConnectionGeneSupport connectionGeneSupport) {
+    static ContextObjectNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final NodeGeneSupport nodeGeneSupport, final ConnectionGeneSupport connectionGeneSupport) {
         DualModeNodeGeneIdFactory nodeIdFactory = new DualModeNodeGeneIdFactory(initializationContext.getConcurrencyLevel());
         Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories = createBiasFactories(initializationContext, genesisGenomeTemplate, nodeGeneSupport);
         Map<NodeGeneType, RecurrentModifiersFactory> recurrentBiasesFactories = createRecurrentBiasesFactories(initializationContext, biasFactories, connectionGeneSupport);
@@ -149,7 +142,7 @@ public final class DefaultContextNodeGeneSupport implements Context.NodeGeneSupp
         int outputs = genesisGenomeTemplate.getOutputs().getSingletonValue(initializationContext);
         int biases = genesisGenomeTemplate.getBiases().size();
 
-        return new DefaultContextNodeGeneSupport(nodeIdFactory, biasFactories, recurrentBiasesFactories, activationFunctionFactories, inputs, outputs, biases);
+        return new ContextObjectNodeGeneSupport(nodeIdFactory, biasFactories, recurrentBiasesFactories, activationFunctionFactories, inputs, outputs, biases);
     }
 
     private static List<Id> createNodeIds(final DualModeNodeGeneIdFactory nodeIdFactory, final NodeGeneType type, final int count) {

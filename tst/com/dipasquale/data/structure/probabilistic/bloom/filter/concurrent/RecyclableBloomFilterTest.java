@@ -3,10 +3,10 @@ package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ProxyDateTimeSupport;
-import com.dipasquale.data.structure.probabilistic.DefaultHashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.HashingFunction;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionFactory;
+import com.dipasquale.data.structure.probabilistic.JdkHashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class RecyclableBloomFilterTest {
     private static final int CONSISTENCY_CHECK_COUNT = 15;
-    private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new DefaultHashingFunctionFactory();
+    private static final HashingFunctionFactory HASHING_FUNCTION_FACTORY = new JdkHashingFunctionFactory();
     private static final HashingFunction HASHING_FUNCTION = HASHING_FUNCTION_FACTORY.create(HashingFunctionAlgorithm.MD5, RecyclableBloomFilterTest.class.getSimpleName());
     private static final AtomicLongArrayBloomFilterFactory BLOOM_FILTER_DEFAULT_FACTORY = new AtomicLongArrayBloomFilterFactory(HASHING_FUNCTION);
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();

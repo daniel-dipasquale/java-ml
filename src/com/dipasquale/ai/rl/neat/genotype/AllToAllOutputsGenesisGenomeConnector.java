@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.common.factory.FloatFactory;
 import lombok.RequiredArgsConstructor;
 

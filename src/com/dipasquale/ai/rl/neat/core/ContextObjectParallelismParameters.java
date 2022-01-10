@@ -1,12 +1,12 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-public final class DefaultContextParallelismParameters implements Context.ParallelismParameters {
+@Builder(access = AccessLevel.PACKAGE)
+final class ContextObjectParallelismParameters implements Context.ParallelismParameters {
     private final Context.ParallelismParameters parameters;
 
     @Override

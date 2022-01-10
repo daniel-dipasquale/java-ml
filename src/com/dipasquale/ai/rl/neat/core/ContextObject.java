@@ -1,24 +1,25 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.io.serialization.SerializableStateGroup;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-@RequiredArgsConstructor
-public final class DefaultContext implements Context {
-    private final DefaultContextGeneralSupport generalSupport;
-    private final DefaultContextParallelismSupport parallelismSupport;
-    private final DefaultContextRandomSupport randomSupport;
-    private final DefaultContextNodeGeneSupport nodeGeneSupport;
-    private final DefaultContextConnectionGeneSupport connectionGeneSupport;
-    private final DefaultContextActivationSupport activationSupport;
-    private final DefaultContextMutationSupport mutationSupport;
-    private final DefaultContextCrossOverSupport crossOverSupport;
-    private final DefaultContextSpeciationSupport speciationSupport;
-    private final DefaultContextMetricSupport metricSupport;
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class ContextObject implements Context {
+    private final ContextObjectGeneralSupport generalSupport;
+    private final ContextObjectParallelismSupport parallelismSupport;
+    private final ContextObjectRandomSupport randomSupport;
+    private final ContextObjectNodeGeneSupport nodeGeneSupport;
+    private final ContextObjectConnectionGeneSupport connectionGeneSupport;
+    private final ContextObjectActivationSupport activationSupport;
+    private final ContextObjectMutationSupport mutationSupport;
+    private final ContextObjectCrossOverSupport crossOverSupport;
+    private final ContextObjectSpeciationSupport speciationSupport;
+    private final ContextObjectMetricsSupport metricsSupport;
 
     @Override
     public GeneralSupport general() {
@@ -66,8 +67,8 @@ public final class DefaultContext implements Context {
     }
 
     @Override
-    public MetricSupport metrics() {
-        return metricSupport;
+    public MetricsSupport metrics() {
+        return metricsSupport;
     }
 
     @Override
@@ -83,7 +84,7 @@ public final class DefaultContext implements Context {
         mutationSupport.save(stateGroup);
         crossOverSupport.save(stateGroup);
         speciationSupport.save(stateGroup);
-        metricSupport.save(stateGroup);
+        metricsSupport.save(stateGroup);
         stateGroup.writeTo(outputStream);
     }
 
@@ -102,6 +103,6 @@ public final class DefaultContext implements Context {
         mutationSupport.load(stateGroup, override.eventLoop());
         crossOverSupport.load(stateGroup, override.eventLoop());
         speciationSupport.load(stateGroup, override.eventLoop());
-        metricSupport.load(stateGroup, override.eventLoop());
+        metricsSupport.load(stateGroup, override.eventLoop());
     }
 }

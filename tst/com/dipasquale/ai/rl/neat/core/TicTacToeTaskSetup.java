@@ -261,7 +261,7 @@ final class TicTacToeTaskSetup implements TaskSetup {
                         .mateOnlyRate(FloatNumber.literal(0.2f))
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
-                .metrics(MetricSupport.builder()
+                .metrics(MetricsSupport.builder()
                         .type(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))

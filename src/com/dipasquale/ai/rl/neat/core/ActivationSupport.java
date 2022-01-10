@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.context.DefaultContextActivationSupport;
 import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
 import lombok.AccessLevel;
@@ -15,7 +14,7 @@ public final class ActivationSupport {
     @Builder.Default
     private final NeuronLayerNormalizer outputLayerNormalizer = new IdentityNeuronLayerNormalizer();
 
-    DefaultContextActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport) {
-        return DefaultContextActivationSupport.create(initializationContext, generalSupport, connectionGeneSupport, this);
+    ContextObjectActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport) {
+        return ContextObjectActivationSupport.create(initializationContext, generalSupport, connectionGeneSupport, this);
     }
 }

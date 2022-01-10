@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
@@ -17,7 +17,7 @@ public final class SelectionStrategyExecutor implements Serializable {
     private final Collection<SelectionStrategy> strategies;
 
     public void select(final SelectionContext context, final NodeDeque<Species, SimpleNode<Species>> speciesNodes) {
-        Context.MetricSupport metricSupport = context.getParent().metrics();
+        Context.MetricsSupport metricsSupport = context.getParent().metrics();
 
         for (SimpleNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
             Species species = speciesNodes.getValue(speciesNode);
@@ -31,7 +31,7 @@ public final class SelectionStrategyExecutor implements Serializable {
                 }
             }
 
-            metricSupport.collectExtinction(species, !survives);
+            metricsSupport.collectExtinction(species, !survives);
 
             if (!survives) {
                 SimpleNode<Species> speciesNodeNext = speciesNodes.peekNext(speciesNode);

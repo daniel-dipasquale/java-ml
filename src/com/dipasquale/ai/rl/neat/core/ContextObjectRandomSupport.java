@@ -1,8 +1,6 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
-import com.dipasquale.ai.rl.neat.core.InitializationContext;
-import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
@@ -15,17 +13,17 @@ import java.util.List;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public final class DefaultContextRandomSupport implements Context.RandomSupport {
+final class ContextObjectRandomSupport implements Context.RandomSupport {
     private DualModeRandomSupport generateIndexOrItemRandomSupport;
     private DualModeRandomSupport isLessThanRandomSupport;
     private DualModeRandomSupport shuffleRandomSupport;
 
-    public static DefaultContextRandomSupport create(final InitializationContext initializationContext) {
+    static ContextObjectRandomSupport create(final InitializationContext initializationContext) {
         DualModeRandomSupport generateIndexRandomSupport = initializationContext.createDefaultRandomSupport();
         DualModeRandomSupport isLessThanRandomSupport = initializationContext.createDefaultRandomSupport();
         DualModeRandomSupport shuffleRandomSupport = initializationContext.createDefaultRandomSupport();
 
-        return new DefaultContextRandomSupport(generateIndexRandomSupport, isLessThanRandomSupport, shuffleRandomSupport);
+        return new ContextObjectRandomSupport(generateIndexRandomSupport, isLessThanRandomSupport, shuffleRandomSupport);
     }
 
     @Override

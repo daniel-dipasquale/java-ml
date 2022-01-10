@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.core;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

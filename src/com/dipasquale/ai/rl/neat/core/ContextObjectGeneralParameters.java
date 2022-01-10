@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PACKAGE)
-public final class DefaultContextGeneralParameters implements Context.GeneralParams, Serializable {
+final class ContextObjectGeneralParameters implements Context.GeneralParams, Serializable {
     @Serial
     private static final long serialVersionUID = 7845128541290517542L;
     private final int populationSize;

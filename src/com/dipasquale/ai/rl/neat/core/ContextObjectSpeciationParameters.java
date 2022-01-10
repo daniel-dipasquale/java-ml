@@ -1,4 +1,4 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PACKAGE)
-public final class DefaultContextSpeciationParameters implements Context.SpeciationParameters, Serializable {
+final class ContextObjectSpeciationParameters implements Context.SpeciationParameters, Serializable {
     @Serial
     private static final long serialVersionUID = -7007214942183273340L;
     private final int maximumSpecies;

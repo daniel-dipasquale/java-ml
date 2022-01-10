@@ -137,7 +137,7 @@ algorithms I'm interested in learning and using:
                         .mateOnlyRate(FloatNumber.literal(0.2f))
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
-                .metrics(MetricSupport.builder()
+                .metrics(MetricsSupport.builder()
                         .type(EnumSet.noneOf(MetricCollectionType.class))
                         .build())
                 .build());

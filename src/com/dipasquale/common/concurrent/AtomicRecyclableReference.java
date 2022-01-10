@@ -86,7 +86,7 @@ public final class AtomicRecyclableReference<T> implements Serializable {
         return replaced[0];
     }
 
-    private RecyclableReferenceContainer<T> recycleIfExpired(final RecyclableReferenceContainer<T> recyclableReferenceContainer, final ExpirationRecord expirationRecord) {
+    private RecyclableReferenceContainer<T> getReferenceOrRecycleIfExpired(final RecyclableReferenceContainer<T> recyclableReferenceContainer, final ExpirationRecord expirationRecord) {
         if (recyclableReferenceContainer != null && expirationRecord.getCurrentDateTime() < recyclableReferenceContainer.expirationDateTime) {
             return recyclableReferenceContainer;
         }
@@ -109,18 +109,18 @@ public final class AtomicRecyclableReference<T> implements Serializable {
         return new RecyclableReferenceContainer<>(referenceFactory, expirationRecord.getExpirationDateTime());
     }
 
-    private RecyclableReferenceContainer<T> recycleIfExpired(final RecyclableReferenceContainer<T> recyclableReferenceContainer) {
-        return recycleIfExpired(recyclableReferenceContainer, expirationFactory.create());
+    private RecyclableReferenceContainer<T> getReferenceOrRecycleIfExpired(final RecyclableReferenceContainer<T> recyclableReferenceContainer) {
+        return getReferenceOrRecycleIfExpired(recyclableReferenceContainer, expirationFactory.create());
     }
 
-    private RecyclableReferenceContainer<T> compareAndSwapIfExpired() {
+    private RecyclableReferenceContainer<T> getReferenceOrRecycleIfExpired() {
         RecyclableReferenceContainerAudit<T> audit = new RecyclableReferenceContainerAudit<>();
 
         try {
-            return recyclableReferenceContainerProvider.accumulateAndGet(null, (previous, __) -> {
-                audit.previous = previous;
+            return recyclableReferenceContainerProvider.accumulateAndGet(null, (oldRecyclableReferenceContainer, __) -> {
+                audit.previous = oldRecyclableReferenceContainer;
 
-                return audit.next = recycleIfExpired(previous);
+                return audit.next = getReferenceOrRecycleIfExpired(oldRecyclableReferenceContainer);
             });
         } finally {
             if (audit.previous != audit.next) {
@@ -130,7 +130,7 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     }
 
     public RecyclableReference<T> recyclableReference() {
-        return compareAndSwapIfExpired().get();
+        return getReferenceOrRecycleIfExpired().get();
     }
 
     public T reference() {

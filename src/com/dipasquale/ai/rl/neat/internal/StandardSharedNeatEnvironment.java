@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.internal;
 
-import com.dipasquale.ai.rl.neat.context.Context;
+import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.core.SharedGenomeActivator;
 import com.dipasquale.ai.rl.neat.core.SharedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;

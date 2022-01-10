@@ -1,10 +1,5 @@
-package com.dipasquale.ai.rl.neat.context;
+package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.core.ConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.core.FloatNumber;
-import com.dipasquale.ai.rl.neat.core.GenesisGenomeTemplate;
-import com.dipasquale.ai.rl.neat.core.InitializationContext;
-import com.dipasquale.ai.rl.neat.core.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
@@ -26,7 +21,7 @@ import lombok.AllArgsConstructor;
 import java.util.List;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DefaultContextConnectionGeneSupport implements Context.ConnectionGeneSupport {
+final class ContextObjectConnectionGeneSupport implements Context.ConnectionGeneSupport {
     private FloatNumber.DualModeFactory weightFactory;
     private RecurrentModifiersFactory recurrentWeightsFactory;
     private DualModeWeightPerturber<FloatNumber.DualModeFactory> weightPerturber;
@@ -56,7 +51,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
         return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), max.getSingletonValue(initializationContext));
     }
 
-    public static DefaultContextConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
+    static ContextObjectConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
         FloatNumber.DualModeFactory weightFactory = connectionGeneSupport.getWeightFactory().createFactory(initializationContext);
         RecurrentModifiersFactory recurrentWeightsFactory = createRecurrentWeightsFactory(initializationContext, connectionGeneSupport, weightFactory);
         DualModeWeightPerturber<FloatNumber.DualModeFactory> weightPerturber = createWeightPerturber(initializationContext, connectionGeneSupport.getWeightPerturber());
@@ -66,7 +61,7 @@ public final class DefaultContextConnectionGeneSupport implements Context.Connec
         GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(initializationContext, weightFactory);
         DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(initializationContext.getMapFactory());
 
-        return new DefaultContextConnectionGeneSupport(weightFactory, recurrentWeightsFactory, weightPerturber, shouldAllowRecurrentGate, shouldAllowUnrestrictedDirectionGate, shouldAllowMultiCycleGate, genesisGenomeConnector, historicalMarkings);
+        return new ContextObjectConnectionGeneSupport(weightFactory, recurrentWeightsFactory, weightPerturber, shouldAllowRecurrentGate, shouldAllowUnrestrictedDirectionGate, shouldAllowMultiCycleGate, genesisGenomeConnector, historicalMarkings);
     }
 
     @Override

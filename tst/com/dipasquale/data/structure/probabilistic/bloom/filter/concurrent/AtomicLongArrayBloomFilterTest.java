@@ -1,15 +1,15 @@
 package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 
-import com.dipasquale.data.structure.probabilistic.DefaultHashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.HashingFunction;
 import com.dipasquale.data.structure.probabilistic.HashingFunctionAlgorithm;
+import com.dipasquale.data.structure.probabilistic.JdkHashingFunctionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public final class AtomicLongArrayBloomFilterTest {
     private static final int CONSISTENCY_CHECK = 15;
-    private static final HashingFunction HASHING_FUNCTION = new DefaultHashingFunctionFactory().create(HashingFunctionAlgorithm.MD5, AtomicLongArrayBloomFilterTest.class.getSimpleName());
+    private static final HashingFunction HASHING_FUNCTION = new JdkHashingFunctionFactory().create(HashingFunctionAlgorithm.MD5, AtomicLongArrayBloomFilterTest.class.getSimpleName());
     private static final AtomicLongArrayBloomFilterFactory BLOOM_FILTER_FACTORY = new AtomicLongArrayBloomFilterFactory(HASHING_FUNCTION);
 
     @Test
