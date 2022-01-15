@@ -1,7 +1,8 @@
 package com.dipasquale.synchronization.event.loop;
 
-public interface EventLoopSelector {
-    int next();
+import java.util.List;
 
-    int size();
+@FunctionalInterface
+public interface EventLoopSelector {
+    int nextIndex(List<EventLoop> eventLoops);
 }

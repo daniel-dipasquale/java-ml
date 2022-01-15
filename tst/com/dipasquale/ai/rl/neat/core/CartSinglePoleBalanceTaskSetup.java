@@ -28,7 +28,7 @@ import java.util.Set;
 @Getter
 final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
     private static final TopologySettingsType TOPOLOGY_SETTINGS_TYPE = TopologySettingsType.DOUBLE_OUTPUT;
-    private static final RandomSupport RANDOM_SUPPORT = new ThreadLocalUniformRandomSupport();
+    private static final RandomSupport RANDOM_SUPPORT = ThreadLocalUniformRandomSupport.getInstance();
     private static final double TIME_SPENT_GOAL = 60D;
     private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
     private static final int FITNESS_TESTS = 5;

@@ -7,7 +7,7 @@ import java.util.List;
 
 public final class ThreadLocalUniformRandomSupportTest {
     private static final int ITERATIONS = 10_000_000;
-    private static final ThreadLocalUniformRandomSupport TEST = new ThreadLocalUniformRandomSupport();
+    private static final ThreadLocalUniformRandomSupport TEST = ThreadLocalUniformRandomSupport.getInstance();
 
     private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float min, final float max) {
         Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, min, max));

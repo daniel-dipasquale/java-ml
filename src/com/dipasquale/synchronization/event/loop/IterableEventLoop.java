@@ -13,13 +13,13 @@ import java.util.function.Consumer;
 
 public final class IterableEventLoop {
     private final List<EventLoop> eventLoops;
-    private final MultiWaitHandle eventLoopsWaitHandleUntilDone;
-    private final IterableErrorHandler<EventLoop> eventLoopsShutdownHandler;
+    private final MultiWaitHandle eventLoops_whileBusy_waitHandle;
+    private final IterableErrorHandler<EventLoop> eventLoops_shutdownHandler;
 
     private IterableEventLoop(final IterableEventLoopSettings settings, final List<EventLoop> eventLoops) {
         this.eventLoops = eventLoops;
-        this.eventLoopsWaitHandleUntilDone = MultiWaitHandle.create(eventLoops, EventLoopWaitHandle::new, settings.getDateTimeSupport(), __ -> !isEmpty(eventLoops));
-        this.eventLoopsShutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
+        this.eventLoops_whileBusy_waitHandle = new MultiWaitHandle(eventLoops, settings.getDateTimeSupport(), __ -> !areEmpty(eventLoops));
+        this.eventLoops_shutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
     public IterableEventLoop(final IterableEventLoopSettings settings) {
@@ -44,7 +44,7 @@ public final class IterableEventLoop {
         return eventLoops;
     }
 
-    private static boolean isEmpty(final List<EventLoop> eventLoops) {
+    private static boolean areEmpty(final List<EventLoop> eventLoops) {
         return eventLoops.stream()
                 .allMatch(EventLoop::isEmpty);
     }
@@ -69,7 +69,7 @@ public final class IterableEventLoop {
 
     public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> itemHandler, final ErrorHandler errorHandler) {
         IteratorProducer<T> iteratorProducer = new SynchronizedIteratorProducer<>(iterator);
-        IteratorProducerFactory<T> iteratorProducerFactory = (__a, __b) -> iteratorProducer;
+        IteratorProducerFactory<T> iteratorProducerFactory = (__, ___) -> iteratorProducer;
 
         return queue(iteratorProducerFactory, itemHandler, errorHandler);
     }
@@ -90,7 +90,7 @@ public final class IterableEventLoop {
 
     public void awaitUntilDone()
             throws InterruptedException {
-        eventLoopsWaitHandleUntilDone.await();
+        eventLoops_whileBusy_waitHandle.await();
     }
 
     public void clear() {
@@ -98,7 +98,7 @@ public final class IterableEventLoop {
     }
 
     public void shutdown() {
-        eventLoopsShutdownHandler.handleAll("unable to shutdown the event loops");
+        eventLoops_shutdownHandler.handleAll("unable to shutdown the event loops");
     }
 
     @FunctionalInterface

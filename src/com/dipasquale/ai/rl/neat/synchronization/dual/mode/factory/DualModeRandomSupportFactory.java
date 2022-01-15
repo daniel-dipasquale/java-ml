@@ -36,7 +36,7 @@ public final class DualModeRandomSupportFactory implements Serializable {
             return createRandomSupport(type, new UniformRandomSupport());
         }
 
-        return createRandomSupport(type, new ThreadLocalUniformRandomSupport());
+        return createRandomSupport(type, ThreadLocalUniformRandomSupport.getInstance());
     }
 
     public DualModeRandomSupport create(final int concurrencyLevel, final RandomType type) {

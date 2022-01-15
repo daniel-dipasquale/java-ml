@@ -5,34 +5,16 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public final class MultiWaitHandle implements WaitHandle {
+    private static final WaitHandleStrategy DEFAULT_WAIT_HANDLE_STRATEGY = await -> await == 1;
     private final List<? extends WaitHandle> waitHandles;
     private final DateTimeSupport dateTimeSupport;
     private final WaitHandleStrategy waitHandleStrategy;
 
     public MultiWaitHandle(final List<? extends WaitHandle> waitHandles, final DateTimeSupport dateTimeSupport) {
-        this(waitHandles, dateTimeSupport, await -> await == 1);
-    }
-
-    private static <TWaitHandle extends WaitHandle, TItem> List<TWaitHandle> adapt(final List<TItem> items, final WaitHandleFactory<TItem, TWaitHandle> waitHandlerFactory) {
-        return items.stream()
-                .map(waitHandlerFactory::create)
-                .collect(Collectors.toList());
-    }
-
-    public static <TWaitHandle extends WaitHandle, TItem> MultiWaitHandle create(final List<TItem> items, final WaitHandleFactory<TItem, TWaitHandle> waitHandlerFactory, final DateTimeSupport dateTimeSupport, final WaitHandleStrategy waitHandleStrategy) {
-        List<TWaitHandle> waitHandles = adapt(items, waitHandlerFactory);
-
-        return new MultiWaitHandle(waitHandles, dateTimeSupport, waitHandleStrategy);
-    }
-
-    public static <TWaitHandle extends WaitHandle, TItem> MultiWaitHandle create(final List<TItem> items, final WaitHandleFactory<TItem, TWaitHandle> waitHandlerFactory, final DateTimeSupport dateTimeSupport) {
-        List<TWaitHandle> waitHandles = adapt(items, waitHandlerFactory);
-
-        return new MultiWaitHandle(waitHandles, dateTimeSupport);
+        this(waitHandles, dateTimeSupport, DEFAULT_WAIT_HANDLE_STRATEGY);
     }
 
     @Override

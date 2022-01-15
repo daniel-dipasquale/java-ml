@@ -13,15 +13,15 @@ final class NoDelayEventLoop implements EventLoop {
     private static final Map<TimeUnit, ZeroDateTimeSupport> ZERO_DATE_TIME_SUPPORTS = createZeroDateTimeSupports();
     private final ExplicitDelayEventLoop eventLoop;
 
-    NoDelayEventLoop(final String name, final EventLoopParams params, final EventLoop nextEntryPoint) {
+    NoDelayEventLoop(final String name, final EventLoopParams params, final EventLoop entryPoint) {
         ExplicitDelayEventLoopParams paramsFixed = ExplicitDelayEventLoopParams.builder()
-                .eventRecords(new LinkedList<>())
+                .eventLoopRecords(new LinkedList<>())
                 .executorService(params.getExecutorService())
                 .dateTimeSupport(ZERO_DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().timeUnit()))
                 .errorHandler(params.getErrorHandler())
                 .build();
 
-        this.eventLoop = new ExplicitDelayEventLoop(name, paramsFixed, nextEntryPoint);
+        this.eventLoop = new ExplicitDelayEventLoop(name, paramsFixed, entryPoint);
     }
 
     private static Map<TimeUnit, ZeroDateTimeSupport> createZeroDateTimeSupports() {
@@ -64,15 +64,15 @@ final class NoDelayEventLoop implements EventLoop {
     }
 
     @Override
-    public void awaitUntilEmpty()
+    public void await()
             throws InterruptedException {
-        eventLoop.awaitUntilEmpty();
+        eventLoop.await();
     }
 
     @Override
-    public boolean awaitUntilEmpty(final long timeout, final TimeUnit unit)
+    public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return eventLoop.awaitUntilEmpty(timeout, unit);
+        return eventLoop.await(timeout, unit);
     }
 
     @Override

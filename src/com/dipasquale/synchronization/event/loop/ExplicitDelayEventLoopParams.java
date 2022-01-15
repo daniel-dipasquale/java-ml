@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 @Builder(access = AccessLevel.PACKAGE)
 @Getter
 final class ExplicitDelayEventLoopParams {
-    private final Queue<EventRecord> eventRecords;
+    private final Queue<EventLoopRecord> eventLoopRecords;
     private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
     private final ErrorHandler errorHandler;
