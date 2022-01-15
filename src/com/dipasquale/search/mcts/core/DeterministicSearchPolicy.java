@@ -17,7 +17,7 @@ public final class DeterministicSearchPolicy implements SearchPolicy {
     }
 
     @Override
-    public boolean allowDepth(final int simulation, final int depth) {
+    public boolean allowDepth(final int simulation, final int depth, final int simulatedDepth) {
         return depth <= maximumDepth;
     }
 

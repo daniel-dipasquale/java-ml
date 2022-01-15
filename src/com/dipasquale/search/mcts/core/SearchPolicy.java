@@ -5,7 +5,7 @@ public interface SearchPolicy {
 
     boolean allowSimulation(int simulation);
 
-    boolean allowDepth(int simulation, int depth);
+    boolean allowDepth(int simulation, int depth, int simulatedDepth);
 
     void end();
 }

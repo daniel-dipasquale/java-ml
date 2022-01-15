@@ -33,8 +33,8 @@ public class GameTest {
 
     @Test
     public void TEST_1() {
-        MctsPlayer player1 = new MctsPlayer(createMcts(400, new ClassicConfidenceCalculator(), null));
-        MctsPlayer player2 = new MctsPlayer(createMcts(3_600, null, null));
+        MctsPlayer player1 = new MctsPlayer(createMcts(200, new ClassicConfidenceCalculator(), null));
+        MctsPlayer player2 = new MctsPlayer(createMcts(1_600, null, null));
 
         for (int i = 0; i < 20; i++) {
             GameResult result = Game.play(player1, player2);
@@ -48,7 +48,7 @@ public class GameTest {
     @Test
     public void TEST_2() {
         StatisticsCollector statisticsCollector = new StatisticsCollector();
-        MonteCarloTreeSearch<GameState, ClassicEdge, GameEnvironment> mcts = createMcts(400_000, null, statisticsCollector);
+        MonteCarloTreeSearch<GameState, ClassicEdge, GameEnvironment> mcts = createMcts(255_168, null, statisticsCollector);
 
         Assertions.assertNotNull(mcts.proposeNextState(new GameEnvironment()));
         System.out.println(Arrays.deepToString(statisticsCollector.statistics));

@@ -32,25 +32,15 @@ final class ClassicSelectionPolicy<TState extends State, TEnvironment extends En
 
     @Override
     public SearchNode<TState, ClassicEdge, TEnvironment> next(final int simulations, final SearchNode<TState, ClassicEdge, TEnvironment> node) {
-        SearchNode<TState, ClassicEdge, TEnvironment> temporaryNode = finalTraversalPolicy.next(simulations, node);
+        for (SearchNode<TState, ClassicEdge, TEnvironment> nextNode = node, temporaryNode = finalTraversalPolicy.next(simulations, nextNode); true; temporaryNode = finalTraversalPolicy.next(simulations, nextNode)) {
+            if (temporaryNode != null) {
+                return temporaryNode;
+            }
 
-        if (temporaryNode != null) {
-            return temporaryNode;
-        }
-
-        SearchNode<TState, ClassicEdge, TEnvironment> nextNode = node;
-
-        while (true) {
             nextNode = partialTraversalPolicy.next(simulations, nextNode);
 
             if (nextNode == null) {
                 return null;
-            }
-
-            temporaryNode = finalTraversalPolicy.next(simulations, nextNode);
-
-            if (temporaryNode != null) {
-                return temporaryNode;
             }
         }
     }

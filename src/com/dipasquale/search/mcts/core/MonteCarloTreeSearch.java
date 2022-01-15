@@ -78,10 +78,14 @@ public final class MonteCarloTreeSearch<TState extends State, TEdge extends Edge
     }
 
     private SimulationResult<TState, TEdge, TEnvironment> simulateNodeRollout(final SearchNode<TState, TEdge, TEnvironment> selectedNode, final int simulations) {
+        int selectedDepth = selectedNode.getDepth();
         int currentStatusId;
 
         for (SearchNode<TState, TEdge, TEnvironment> currentNode = selectedNode; true; ) {
-            if (!searchPolicy.allowDepth(simulations, currentNode.getDepth() + 1)) {
+            int nextDepth = currentNode.getDepth() + 1;
+            int simulatedNextDepth = nextDepth - selectedDepth;
+
+            if (!searchPolicy.allowDepth(simulations, nextDepth, simulatedNextDepth)) {
                 return new SimulationResult<>(currentNode, IN_PROGRESS);
             }
 
