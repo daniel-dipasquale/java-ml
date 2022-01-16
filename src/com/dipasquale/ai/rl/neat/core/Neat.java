@@ -11,10 +11,12 @@ import java.util.stream.IntStream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Neat {
+    private static final GenesisGenomeTemplate AVOID_NULL_POINTER_GENESIS_GENOME_TEMPLATE = GenesisGenomeTemplate.createDefault(1, 1);
+
     static EvaluatorSettings createOverridableSettings() {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
-                        .genesisGenomeTemplate(GenesisGenomeTemplate.createDefault(1, 1)) // NOTE: shamelessly avoiding a null pointer exception instead of coming up with a better design
+                        .genesisGenomeTemplate(AVOID_NULL_POINTER_GENESIS_GENOME_TEMPLATE)
                         .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> 0f)
                         .build())
                 .build();

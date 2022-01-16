@@ -66,7 +66,7 @@ public final class GenomeCompatibilityCalculator implements Serializable {
         }
 
         int maximumNodes = Math.max(genome1.getNodes().size(), genome2.getNodes().size());
-        double n = maximumNodes < 20 ? 1D : (double) maximumNodes;
+        double n = maximumNodes >= 20 ? (double) maximumNodes : 1D;
         double averageWeightDifference = weightDifference / (double) (1 + matchingCount);
         double compatibility = excessCoefficient * (double) excessCount / n + disjointCoefficient * (double) disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
 

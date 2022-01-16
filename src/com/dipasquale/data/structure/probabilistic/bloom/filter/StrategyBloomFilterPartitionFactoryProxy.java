@@ -12,11 +12,11 @@ public final class StrategyBloomFilterPartitionFactoryProxy implements BloomFilt
     private final BloomFilterPartitionFactory bloomFilterPartitionFactory;
     private final int estimatedSize;
     private final int hashingFunctions;
-    private final double falsePositiveRatio;
+    private final double falsePositiveRate;
     private final long size;
 
     @Override
     public <T> BloomFilter<T> create(final int index) {
-        return bloomFilterPartitionFactory.create(index, estimatedSize, hashingFunctions, falsePositiveRatio, size);
+        return bloomFilterPartitionFactory.create(index, estimatedSize, hashingFunctions, falsePositiveRate, size);
     }
 }

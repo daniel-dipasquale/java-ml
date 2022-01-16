@@ -12,12 +12,12 @@ public final class StrategyCountMinSketchPartitionFactoryProxy implements CountM
     private final CountMinSketchPartitionFactory countMinSketchPartitionFactory;
     private final int estimatedSize;
     private final int hashingFunctions;
-    private final double falsePositiveRatio;
+    private final double falsePositiveRate;
     private final long size;
     private final int bitsForCounter;
 
     @Override
     public <T> CountMinSketch<T> create(final int index) {
-        return countMinSketchPartitionFactory.create(index, estimatedSize, hashingFunctions, falsePositiveRatio, size, bitsForCounter);
+        return countMinSketchPartitionFactory.create(index, estimatedSize, hashingFunctions, falsePositiveRate, size, bitsForCounter);
     }
 }

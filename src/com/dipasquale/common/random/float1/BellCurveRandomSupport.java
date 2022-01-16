@@ -8,12 +8,12 @@ public final class BellCurveRandomSupport implements RandomSupport, Serializable
     private static final long serialVersionUID = -2580047376540693357L;
     private final RandomSupport randomSupport;
     private final int iterations;
-    private final float ratio;
+    private final float rate;
 
     public BellCurveRandomSupport(final RandomSupport randomSupport, final int iterations) {
         this.randomSupport = randomSupport;
         this.iterations = iterations;
-        this.ratio = 1f / (float) iterations;
+        this.rate = 1f / (float) iterations;
     }
 
     @Override
@@ -21,7 +21,7 @@ public final class BellCurveRandomSupport implements RandomSupport, Serializable
         float value = 0f;
 
         for (int i = 0; i < iterations; i++) {
-            value += randomSupport.next() * ratio;
+            value += randomSupport.next() * rate;
         }
 
         return value;

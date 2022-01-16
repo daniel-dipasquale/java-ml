@@ -30,9 +30,7 @@ public final class ZipIterator<T> implements Iterator<List<T>> {
     @Override
     public List<T> next() {
         return iterators.stream()
-                .map(iterator -> iterator.hasNext()
-                        ? iterator.next()
-                        : null)
+                .map(iterator -> iterator.hasNext() ? iterator.next() : null)
                 .collect(Collectors.toList());
     }
 }

@@ -43,6 +43,18 @@ public interface MetricDatum {
 
     void add(float value);
 
+    default void add(final int value) {
+        add((float) value);
+    }
+
+    default void add(final boolean value) {
+        if (value) {
+            add(1f);
+        } else {
+            add(0f);
+        }
+    }
+
     void merge(MetricDatum other);
 
     MetricDatum createCopy();

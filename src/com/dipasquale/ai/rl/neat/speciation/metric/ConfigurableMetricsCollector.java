@@ -21,9 +21,9 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
 
     @Override
     public void collectSpeciesComposition(final MetricsContainer metricsContainer, final int age, final int stagnationPeriod, final boolean isStagnant) {
-        metricsContainer.getGenerationMetrics().getSpeciesAge().add((float) age);
-        metricsContainer.getGenerationMetrics().getSpeciesStagnationPeriod().add((float) stagnationPeriod);
-        metricsContainer.getGenerationMetrics().getSpeciesStagnant().add(isStagnant ? 1f : 0f);
+        metricsContainer.getGenerationMetrics().getSpeciesAge().add(age);
+        metricsContainer.getGenerationMetrics().getSpeciesStagnationPeriod().add(stagnationPeriod);
+        metricsContainer.getGenerationMetrics().getSpeciesStagnant().add(isStagnant);
         generationMetricsOutstanding = true;
     }
 
@@ -36,8 +36,8 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
                 topologyMetrics = MetricsContainer.createTopologyMetrics(metricDatumFactory);
             }
 
-            topologyMetrics.getHiddenNodes().add((float) hiddenNodes);
-            topologyMetrics.getConnections().add((float) connections);
+            topologyMetrics.getHiddenNodes().add(hiddenNodes);
+            topologyMetrics.getConnections().add(connections);
 
             return topologyMetrics;
         });
@@ -77,7 +77,7 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
                 organismsKilled = metricDatumFactory.create();
             }
 
-            organismsKilled.add((float) count);
+            organismsKilled.add(count);
 
             return organismsKilled;
         });
@@ -87,7 +87,7 @@ public final class ConfigurableMetricsCollector implements MetricsCollector, Ser
 
     @Override
     public void collectSpeciesExtinction(final MetricsContainer metricsContainer, final boolean extinct) {
-        metricsContainer.getGenerationMetrics().getSpeciesExtinct().add(extinct ? 1f : 0f);
+        metricsContainer.getGenerationMetrics().getSpeciesExtinct().add(extinct);
         generationMetricsOutstanding = true;
     }
 

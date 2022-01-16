@@ -51,21 +51,38 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
 
     @Override
     public NeatTrainingResult test(final NeatActivator activator) {
-        int iteration = activator.getState().getIteration();
-        int generation = activator.getState().getGeneration();
+        NeatState state = activator.getState();
+        int iteration = state.getIteration();
+        int generation = state.getGeneration();
 
         if (lastGenerationTested < generation || lastIterationTested < iteration) {
             long dateTime = dateTimeSupport.now();
-            float maximumFitness = activator.getState().getMaximumFitness();
-            float maximumFitnessFixed = generation > 1 ? maximumFitness : lastMaximumFitness;
-            int speciesCount = activator.getState().getSpeciesCount();
-            int speciesCountFixed = generation > 1 ? speciesCount : lastSpeciesCount;
-            Genome championGenome = activator.getState().getChampionGenome();
-            Genome championGenomeFixed = generation > 1 ? championGenome : lastChampionGenome;
+            float maximumFitness = state.getMaximumFitness();
+
+            float maximumFitnessFixed = generation > 1
+                    ? maximumFitness
+                    : lastMaximumFitness;
+
+            int speciesCount = state.getSpeciesCount();
+
+            int speciesCountFixed = generation > 1
+                    ? speciesCount
+                    : lastSpeciesCount;
+
+            Genome championGenome = state.getChampionGenome();
+
+            Genome championGenomeFixed = generation > 1
+                    ? championGenome
+                    : lastChampionGenome;
 
             if (generation > 1 || iteration > 1 && lastIterationTested < iteration) {
-                int generationFixed = generation > 1 ? generation - 1 : lastGenerationTested;
-                int iterationFixed = generation > 1 ? iteration : iteration - 1;
+                int generationFixed = generation > 1
+                        ? generation - 1
+                        : lastGenerationTested;
+
+                int iterationFixed = generation > 1
+                        ? iteration
+                        : iteration - 1;
 
                 generationTimeMetricDatum.add(dateTime - lastGenerationDateTime);
                 System.out.printf("iteration: %d, ", iterationFixed);

@@ -16,8 +16,9 @@ public final class DelegatedTrainingPolicy implements NeatTrainingPolicy, Serial
 
     @Override
     public NeatTrainingResult test(final NeatActivator activator) {
-        int iteration = activator.getState().getIteration();
-        int generation = activator.getState().getGeneration();
+        NeatState state = activator.getState();
+        int iteration = state.getIteration();
+        int generation = state.getGeneration();
 
         if (lastIterationTested >= iteration && lastGenerationTested >= generation) {
             return previousTestResult;

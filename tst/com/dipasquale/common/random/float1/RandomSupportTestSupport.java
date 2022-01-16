@@ -49,9 +49,9 @@ final class RandomSupportTestSupport {
 
             float rate = (float) number1 / (float) number2;
 
-            float marginOfError = i < marginOfErrorsSize
-                    ? marginOfErrors.get(i)
-                    : marginOfErrors.get(marginOfErrorsSize - 1);
+            float marginOfError = i >= marginOfErrorsSize
+                    ? marginOfErrors.get(marginOfErrorsSize - 1)
+                    : marginOfErrors.get(i);
 
             if (Float.compare(rate, 1f - marginOfError) < 0 || Float.compare(rate, 1f + marginOfError) > 0) {
                 return false;

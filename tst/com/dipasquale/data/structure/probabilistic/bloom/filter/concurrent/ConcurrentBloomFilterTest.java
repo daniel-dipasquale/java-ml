@@ -28,11 +28,11 @@ public final class ConcurrentBloomFilterTest {
     private static final boolean DEBUG_MODE = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     private static final boolean TEST_AGAINST_BLOOM_FILTER = true; // 8,000,000 items and 3 test cases (and default p) = 613,112,000 bytes without sets
     private static final boolean TEST_AGAINST_SET = true; // 8,000,000 items and 3 test cases = 3,534,360,000 bytes without bloom filters
-    private static final int CPU_CORES = DEBUG_MODE ? 1 : Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+    private static final int CPU_CORES = !DEBUG_MODE ? Math.max(1, Runtime.getRuntime().availableProcessors() - 1) : 1;
     private static final int SIZE = 1_000_000;
     private static final int ESTIMATED_SIZE = SIZE;
     private static final int HASH_FUNCTIONS = 8;
-    private static final double FALSE_POSITIVE_RATIO = 0.003D;
+    private static final double FALSE_POSITIVE_RATE = 0.003D;
     private static final int BLOOM_FILTER_PARTITIONS = CPU_CORES * 4;
     private static final long TIMEOUT = 45_000L;
     private static final TimeUnit TIMEOUT_UNIT = TimeUnit.MILLISECONDS;
@@ -85,8 +85,8 @@ public final class ConcurrentBloomFilterTest {
     }
 
     private static void performTest(final ObjectFactory<BloomFilter<String>> bloomFilterFactory) {
-        BloomFilter<String> bloomFilter = !TEST_AGAINST_BLOOM_FILTER ? null : bloomFilterFactory.create();
-        Set<String> set = !TEST_AGAINST_SET ? null : Collections.newSetFromMap(new ConcurrentHashMap<>());
+        BloomFilter<String> bloomFilter = TEST_AGAINST_BLOOM_FILTER ? bloomFilterFactory.create() : null;
+        Set<String> set = TEST_AGAINST_SET ? Collections.newSetFromMap(new ConcurrentHashMap<>()) : null;
 
         queueItemAdditionsConcurrently(bloomFilter, set);
 
@@ -102,10 +102,10 @@ public final class ConcurrentBloomFilterTest {
             throw new RuntimeException(e);
         }
 
-        int setNotAdded = set == null ? 0 : SIZE - set.size();
+        int setNotAdded = set != null ? SIZE - set.size() : 0;
         int bloomFilterMismatches = MISMATCHES.get();
         String message = String.format("aimed to add: %d, set.notAdded: %d, bloomFilter.mismatches: %d", SIZE, setNotAdded, bloomFilterMismatches);
-        double expectedFailures = (double) SIZE * FALSE_POSITIVE_RATIO;
+        double expectedFailures = (double) SIZE * FALSE_POSITIVE_RATE;
         double actualFailures = (double) bloomFilterMismatches - (double) setNotAdded;
 
         Assertions.assertEquals(0, setNotAdded);

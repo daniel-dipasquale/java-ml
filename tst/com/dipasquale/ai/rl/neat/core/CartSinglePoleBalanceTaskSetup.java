@@ -68,7 +68,7 @@ final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
 
     private static boolean determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
-        DeterministicRandomSupport randomSupport = new DeterministicRandomSupport(SUCCESSFUL_SCENARIOS * 4);
+        DeterministicRandomSupport randomSupport = new DeterministicRandomSupport((long) SUCCESSFUL_SCENARIOS * 4L);
 
         for (int i = 0; success && i < SUCCESSFUL_SCENARIOS; i++) {
             CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);

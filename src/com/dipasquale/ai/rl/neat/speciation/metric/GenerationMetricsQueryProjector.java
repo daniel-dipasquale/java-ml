@@ -50,7 +50,7 @@ public final class GenerationMetricsQueryProjector {
 
             generationMetrics.getOrganismsTopology().values().stream()
                     .map(organismTopologyMetrics -> organismTopologyMetrics.getHiddenNodes().getValues().size())
-                    .forEach(size -> metricDatum.add((float) size));
+                    .forEach(metricDatum::add);
 
             return metricDatum;
         }

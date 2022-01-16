@@ -21,9 +21,9 @@ final class NeatTestSetupOpenAIGym extends NeatTestSetup {
 
     @Builder(access = AccessLevel.PACKAGE, builderMethodName = "openAIGymBuilder")
     private static NeatTestSetupOpenAIGym create(final OpenAIGymTaskSetup task, final IterableEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
-        Set<String> genomeIds = eventLoop == null
-                ? new HashSet<>()
-                : Collections.newSetFromMap(new ConcurrentHashMap<>());
+        Set<String> genomeIds = eventLoop != null
+                ? Collections.newSetFromMap(new ConcurrentHashMap<>())
+                : new HashSet<>();
 
         NeatTrainerFactory neatTrainerFactoryFixed = neatTrainerFactory == null
                 ? Neat::createTrainer

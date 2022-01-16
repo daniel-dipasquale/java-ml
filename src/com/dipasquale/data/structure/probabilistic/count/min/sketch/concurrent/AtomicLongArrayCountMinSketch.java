@@ -39,9 +39,9 @@ final class AtomicLongArrayCountMinSketch<T> implements CountMinSketch<T> {
         for (int i = 0; i < hashingFunctions; i++) {
             AtomicLongArrayBitManipulator bitManipulator = bitManipulators.get(i);
 
-            long hashCodeFixed = hashCodeMerged >= 0L
-                    ? hashCodeMerged
-                    : hashCodeMerged >>> (1 + (int) (~hashCodeMerged % MAXIMUM_SHIFTS));
+            long hashCodeFixed = hashCodeMerged < 0L
+                    ? hashCodeMerged >>> (1 + (int) (~hashCodeMerged % MAXIMUM_SHIFTS))
+                    : hashCodeMerged;
 
             long index = hashCodeFixed % bitManipulator.size();
             int shifts = 8 + (i + hashFunctionIndex) % MAXIMUM_SHIFTS;
