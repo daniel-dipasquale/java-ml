@@ -13,7 +13,7 @@ import java.io.Serializable;
 final class PercentileFitnessDeterminer implements FitnessDeterminer, Serializable {
     @Serial
     private static final long serialVersionUID = -5316290173390134390L;
-    private static final MetricDatumFactory METRIC_DATUM_FACTORY = new LazyValuesMetricDatumFactory();
+    private static final MetricDatumFactory METRIC_DATUM_FACTORY = LazyValuesMetricDatumFactory.getInstance();
     private final MetricDatum metricDatum = METRIC_DATUM_FACTORY.create();
     private final float percentage;
 

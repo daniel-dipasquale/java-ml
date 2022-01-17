@@ -8,30 +8,30 @@ import java.util.List;
 public interface RandomSupport {
     float next();
 
-    default float next(final float min, final float max) {
+    default float next(final float minimum, final float maximum) {
         float value = next();
 
-        return value * (max - min) + min;
+        return value * (maximum - minimum) + minimum;
     }
 
-    default int next(final int min, final int max) {
+    default int next(final int minimum, final int maximum) {
         double value = next();
 
-        return (int) Math.floor(value * (double) (max - min)) + min;
+        return (int) Math.floor(value * (double) (maximum - minimum)) + minimum;
     }
 
-    default RandomSupport bounded(final float min, final float max) {
-        return new BoundedRandomSupport(this, min, max);
+    default RandomSupport bounded(final float minimum, final float maximum) {
+        return new BoundedRandomSupport(this, minimum, maximum);
     }
 
-    default boolean isBetween(final float min, final float max) {
+    default boolean isBetween(final float minimum, final float maximum) {
         float value = next();
 
-        return Float.compare(value, min) >= 0 && Float.compare(value, max) < 0;
+        return Float.compare(value, minimum) >= 0 && Float.compare(value, maximum) < 0;
     }
 
-    default boolean isLessThan(final float max) {
-        return isBetween(0f, max);
+    default boolean isLessThan(final float maximum) {
+        return isBetween(0f, maximum);
     }
 
     default <T> void shuffle(final List<T> items) {

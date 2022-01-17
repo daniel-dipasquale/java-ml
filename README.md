@@ -19,7 +19,7 @@ algorithms I'm interested in learning and using:
 ## Test Configuration Examples
 
 1. **NEAT Algorithm**
-    - [x] XOR test :+1: (random data sample)
+    - [x] [XOR test](blob/main/tst/com/dipasquale/ai/rl/neat/core/XorTaskSetup.java) :+1: (random data sample)
         - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=2d5ht3rcy&view)
 
       ```
@@ -64,7 +64,7 @@ algorithms I'm interested in learning and using:
 
                                  return (float) inputs.length - error;
                          })
-                         .fitnessDeterminerFactory(new LastValueFitnessDeterminerFactory())
+                         .fitnessDeterminerFactory(LastValueFitnessDeterminerFactory.getInstance())
                          .build())
                  .parallelism(ParallelismSupport.builder()
                          .eventLoop(eventLoop)
@@ -89,7 +89,7 @@ algorithms I'm interested in learning and using:
                          .multiCycleAllowanceRate(FloatNumber.literal(0f))
                          .build())
                  .activation(ActivationSupport.builder()
-                         .outputLayerNormalizer(new IdentityNeuronLayerNormalizer())
+                         .outputLayerNormalizer(IdentityNeuronLayerNormalizer.getInstance())
                          .build())
                  .mutation(MutationSupport.builder()
                          .addNodeRate(FloatNumber.literal(0.03f))
@@ -123,10 +123,11 @@ algorithms I'm interested in learning and using:
                  .build());
       ```
 
-    - [x] Single Pole Cart Balance test: :+1: (random data sample)
+    - [x] [Cart Single Pole Balance test](blob/main/tst/com/dipasquale/ai/rl/neat/core/OpenAIGymCartPoleTaskSetup.java)
+      test: :+1: (random data sample)
         - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=nz4b9euc5&view)
 
-          ![Single Pole Balancing test](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
+          ![Cart Single Pole Balance](https://i.makeagif.com/media/9-30-2015/3TntUH.gif)
 
       ```
       iteration: 1
@@ -168,16 +169,13 @@ algorithms I'm interested in learning and using:
 
                                    return (float) fitness;
                            })
-                           .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
+                           .fitnessDeterminerFactory(AverageFitnessDeterminerFactory.getInstance())
                            .build())
                    .nodes(NodeGeneSupport.builder()
                            .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
                            .build())
                    .connections(ConnectionGeneSupport.builder()
                            .recurrentAllowanceRate(FloatNumber.literal(0f))
-                           .build())
-                   .activation(ActivationSupport.builder()
-                           .outputLayerNormalizer(new IdentityNeuronLayerNormalizer())
                            .build())
                    .build());
       ```

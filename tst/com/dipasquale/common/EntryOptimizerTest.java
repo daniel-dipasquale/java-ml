@@ -23,13 +23,13 @@ public final class EntryOptimizerTest {
     public void TEST_2() {
         EntryOptimizer<Float, String> test = new EntryOptimizer<>(FLOAT_COMPARATOR_ASCENDING);
 
-        Assertions.assertTrue(test.setValueIfMoreOptimum(1f, "one"));
+        Assertions.assertTrue(test.replaceValueIfMoreOptimum(1f, "one"));
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals("one", test.getValue());
-        Assertions.assertFalse(test.setValueIfMoreOptimum(0.9f, "zero point nine"));
+        Assertions.assertFalse(test.replaceValueIfMoreOptimum(0.9f, "zero point nine"));
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals("one", test.getValue());
-        Assertions.assertTrue(test.setValueIfMoreOptimum(1.1f, "one point one"));
+        Assertions.assertTrue(test.replaceValueIfMoreOptimum(1.1f, "one point one"));
         Assertions.assertEquals(1.1f, test.getKey());
         Assertions.assertEquals("one point one", test.getValue());
     }
@@ -64,13 +64,13 @@ public final class EntryOptimizerTest {
     public void TEST_5() {
         EntryOptimizer<Float, String> test = new EntryOptimizer<>(FLOAT_COMPARATOR_DESCENDING);
 
-        Assertions.assertTrue(test.setValueIfMoreOptimum(1f, "one"));
+        Assertions.assertTrue(test.replaceValueIfMoreOptimum(1f, "one"));
         Assertions.assertEquals(1f, test.getKey());
         Assertions.assertEquals("one", test.getValue());
-        Assertions.assertTrue(test.setValueIfMoreOptimum(0.9f, "zero point nine"));
+        Assertions.assertTrue(test.replaceValueIfMoreOptimum(0.9f, "zero point nine"));
         Assertions.assertEquals(0.9f, test.getKey());
         Assertions.assertEquals("zero point nine", test.getValue());
-        Assertions.assertFalse(test.setValueIfMoreOptimum(1.1f, "one point one"));
+        Assertions.assertFalse(test.replaceValueIfMoreOptimum(1.1f, "one point one"));
         Assertions.assertEquals(0.9f, test.getKey());
         Assertions.assertEquals("zero point nine", test.getValue());
     }

@@ -74,8 +74,8 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
     }
 
     private static DualModeReproductionTypeFactory createReproductionTypeFactory(final InitializationContext initializationContext, final FloatNumber mateOnlyRate, final FloatNumber mutateOnlyRate) {
-        float _mateOnlyRate = mateOnlyRate.getSingletonValue(initializationContext);
-        float _mutateOnlyRate = mutateOnlyRate.getSingletonValue(initializationContext);
+        float _mateOnlyRate = initializationContext.getFloatSingleton(mateOnlyRate);
+        float _mutateOnlyRate = initializationContext.getFloatSingleton(mutateOnlyRate);
         OutputClassifier<ReproductionType> generalReproductionTypeClassifier = createGeneralReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
         OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier = createLessThan2ReproductionTypeClassifier(_mutateOnlyRate);
 
@@ -130,21 +130,21 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
 
     static ContextObjectSpeciationSupport create(final InitializationContext initializationContext, final SpeciationSupport speciationSupport, final GeneralSupport generalSupport) {
         ContextObjectSpeciationParameters params = ContextObjectSpeciationParameters.builder()
-                .maximumSpecies(Math.min(speciationSupport.getMaximumSpecies().getSingletonValue(initializationContext), generalSupport.getPopulationSize().getSingletonValue(initializationContext)))
-                .compatibilityThreshold(speciationSupport.getCompatibilityThreshold().getSingletonValue(initializationContext))
-                .compatibilityThresholdModifier(speciationSupport.getCompatibilityThresholdModifier().getSingletonValue(initializationContext))
-                .eugenicsThreshold(speciationSupport.getEugenicsThreshold().getSingletonValue(initializationContext))
-                .elitistThreshold(speciationSupport.getElitistThreshold().getSingletonValue(initializationContext))
-                .elitistThresholdMinimum(speciationSupport.getElitistThresholdMinimum().getSingletonValue(initializationContext))
-                .stagnationDropOffAge(speciationSupport.getStagnationDropOffAge().getSingletonValue(initializationContext))
-                .interSpeciesMatingRate(speciationSupport.getInterSpeciesMatingRate().getSingletonValue(initializationContext))
+                .maximumSpecies(Math.min(initializationContext.getIntegerSingleton(speciationSupport.getMaximumSpecies()), initializationContext.getIntegerSingleton(generalSupport.getPopulationSize())))
+                .compatibilityThreshold(initializationContext.getFloatSingleton(speciationSupport.getCompatibilityThreshold()))
+                .compatibilityThresholdModifier(initializationContext.getFloatSingleton(speciationSupport.getCompatibilityThresholdModifier()))
+                .eugenicsThreshold(initializationContext.getFloatSingleton(speciationSupport.getEugenicsThreshold()))
+                .elitistThreshold(initializationContext.getFloatSingleton(speciationSupport.getElitistThreshold()))
+                .elitistThresholdMinimum(initializationContext.getIntegerSingleton(speciationSupport.getElitistThresholdMinimum()))
+                .stagnationDropOffAge(initializationContext.getIntegerSingleton(speciationSupport.getStagnationDropOffAge()))
+                .interSpeciesMatingRate(initializationContext.getFloatSingleton(speciationSupport.getInterSpeciesMatingRate()))
                 .build();
 
-        float weightDifferenceCoefficientFixed = speciationSupport.getWeightDifferenceCoefficient().getSingletonValue(initializationContext);
-        float disjointCoefficientFixed = speciationSupport.getDisjointCoefficient().getSingletonValue(initializationContext);
-        float excessCoefficientFixed = speciationSupport.getExcessCoefficient().getSingletonValue(initializationContext);
+        float weightDifferenceCoefficientFixed = initializationContext.getFloatSingleton(speciationSupport.getWeightDifferenceCoefficient());
+        float disjointCoefficientFixed = initializationContext.getFloatSingleton(speciationSupport.getDisjointCoefficient());
+        float excessCoefficientFixed = initializationContext.getFloatSingleton(speciationSupport.getExcessCoefficient());
         DualModeIdFactory speciesIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), IdType.SPECIES);
-        DualModeGenomePool genomePool = new DualModeGenomePool(initializationContext.getDequeFactory());
+        DualModeGenomePool genomePool = new DualModeGenomePool(initializationContext.getConcurrencyLevel(), initializationContext.createDeque());
         GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
         DualModeReproductionTypeFactory reproductionTypeFactory = createReproductionTypeFactory(initializationContext, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate());
         DualModeFitnessCalculationStrategy fitnessCalculationStrategy = createFitnessCalculationStrategy(initializationContext);
@@ -261,11 +261,6 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
             }
 
             return lessThan2ReproductionTypeClassifier.resolve(value);
-        }
-
-        @Override
-        public int concurrencyLevel() {
-            return randomSupport.concurrencyLevel();
         }
 
         @Override

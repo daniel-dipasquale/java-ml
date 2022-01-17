@@ -3,8 +3,6 @@ package com.dipasquale.synchronization.dual.mode;
 import java.util.Map;
 
 public interface DualModeObject {
-    int concurrencyLevel();
-
     void activateMode(int concurrencyLevel);
 
     static <T extends DualModeObject> T activateMode(final T dualObject, final int concurrencyLevel) {

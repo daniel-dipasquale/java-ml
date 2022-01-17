@@ -36,11 +36,6 @@ public final class DualModeIdFactory implements SequentialIdFactory<Id>, DualMod
     }
 
     @Override
-    public int concurrencyLevel() {
-        return id.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         id.activateMode(concurrencyLevel);
     }

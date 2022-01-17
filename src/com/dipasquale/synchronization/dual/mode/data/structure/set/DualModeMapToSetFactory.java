@@ -30,11 +30,6 @@ public final class DualModeMapToSetFactory implements SetFactory, DualModeObject
     }
 
     @Override
-    public int concurrencyLevel() {
-        return mapFactory.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         mapFactory.activateMode(concurrencyLevel);
     }

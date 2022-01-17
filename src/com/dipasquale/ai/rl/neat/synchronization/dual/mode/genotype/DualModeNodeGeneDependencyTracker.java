@@ -15,14 +15,14 @@ import java.io.Serializable;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DualModeNodeGeneDependencyTracker<T extends SetFactory & DualModeObject> implements NodeGeneDependencyTracker, DualModeObject, Serializable {
+final class DualModeNodeGeneDependencyTracker<T extends SetFactory & DualModeObject> implements NodeGeneDependencyTracker, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -3057494575848684621L;
     private final DualModeIntegerValue blastRadius;
     private final DualModeSet<DirectedEdge, T> directedEdges;
 
-    public DualModeNodeGeneDependencyTracker(final T setFactory) {
-        this(new DualModeIntegerValue(setFactory.concurrencyLevel(), 0), new DualModeSet<>(setFactory));
+    DualModeNodeGeneDependencyTracker(final int concurrencyLevel, final DualModeSet<DirectedEdge, T> directedEdges) {
+        this(new DualModeIntegerValue(concurrencyLevel, 0), directedEdges);
     }
 
     public void increaseBlastRadius() {
@@ -41,11 +41,6 @@ public final class DualModeNodeGeneDependencyTracker<T extends SetFactory & Dual
         for (DirectedEdge directedEdge : directedEdges) {
             innovationIds.remove(directedEdge);
         }
-    }
-
-    @Override
-    public int concurrencyLevel() {
-        return blastRadius.concurrencyLevel();
     }
 
     @Override

@@ -17,7 +17,6 @@ import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype.DualModeGenomeActivatorPool;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -41,7 +40,7 @@ final class ContextObjectActivationSupport implements Context.ActivationSupport 
     }
 
     private static NeuralNetworkFactory createNeuralNetworkFactory(final InitializationContext initializationContext, final ConnectionGeneSupport connectionGeneSupport, final ActivationSupport activationSupport) {
-        float recurrentAllowanceRate = connectionGeneSupport.getRecurrentAllowanceRate().getSingletonValue(initializationContext);
+        float recurrentAllowanceRate = initializationContext.getFloatSingleton(connectionGeneSupport.getRecurrentAllowanceRate());
 
         if (Float.compare(recurrentAllowanceRate, 0f) <= 0) {
             return new FeedForwardNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
@@ -57,7 +56,7 @@ final class ContextObjectActivationSupport implements Context.ActivationSupport 
     }
 
     private static Map<String, FitnessBucket> createFitnessBuckets(final InitializationContext initializationContext, final GeneralSupport generalSupport) {
-        int populationSize = generalSupport.getPopulationSize().getSingletonValue(initializationContext);
+        int populationSize = initializationContext.getIntegerSingleton(generalSupport.getPopulationSize());
         DualModeIdFactory genomeIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), IdType.GENOME);
         FitnessDeterminerFactory fitnessDeterminerFactory = generalSupport.getFitnessDeterminerFactory();
         Map<String, FitnessBucket> fitnessBuckets = new HashMap<>();
@@ -73,9 +72,8 @@ final class ContextObjectActivationSupport implements Context.ActivationSupport 
     }
 
     static ContextObjectActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport, final ActivationSupport activationSupport) {
-        DualModeMapFactory mapFactory = initializationContext.getMapFactory();
         NeuralNetworkFactory neuralNetworkFactory = createNeuralNetworkFactory(initializationContext, connectionGeneSupport, activationSupport);
-        DualModeGenomeActivatorPool genomeActivatorPool = new DualModeGenomeActivatorPool(mapFactory, neuralNetworkFactory);
+        DualModeGenomeActivatorPool genomeActivatorPool = new DualModeGenomeActivatorPool(initializationContext.createMap(), neuralNetworkFactory);
         NeatEnvironment fitnessFunction = generalSupport.getFitnessFunction();
         Map<String, FitnessBucket> fitnessBuckets = createFitnessBuckets(initializationContext, generalSupport);
 

@@ -92,13 +92,13 @@ public final class DualModeCyclicIntegerValueTest {
         private final int concurrencyLevel;
 
         @Override
-        public IntegerValue create(final int max, final int offset) {
-            return new DualModeCyclicIntegerValue(concurrencyLevel, max, offset);
+        public IntegerValue create(final int maximum, final int offset) {
+            return new DualModeCyclicIntegerValue(concurrencyLevel, maximum, offset);
         }
 
         @Override
-        public IntegerValue create(final int max) {
-            return new DualModeCyclicIntegerValue(concurrencyLevel, max);
+        public IntegerValue create(final int maximum) {
+            return new DualModeCyclicIntegerValue(concurrencyLevel, maximum);
         }
     }
 }

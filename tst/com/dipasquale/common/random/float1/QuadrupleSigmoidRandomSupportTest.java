@@ -10,8 +10,8 @@ public final class QuadrupleSigmoidRandomSupportTest {
     private static final UniformRandomSupport UNIFORM_RANDOM_SUPPORT = new UniformRandomSupport();
     private static final QuadrupleSigmoidRandomSupport TEST = new QuadrupleSigmoidRandomSupport(UNIFORM_RANDOM_SUPPORT, 0.99f, 0.05f, (float) Math.pow(10D, 3D));
 
-    private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float min, final float max) {
-        Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, min, max));
+    private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float minimum, final float maximum) {
+        Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, minimum, maximum));
         Assertions.assertTrue(RandomSupportTestSupport.isNextIntegerEvenlyDistributed(randomSupport, ITERATIONS, 0, 10, List.of(0.05f)));
     }
 

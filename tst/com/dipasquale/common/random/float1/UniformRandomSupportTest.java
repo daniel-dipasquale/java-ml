@@ -9,8 +9,8 @@ public final class UniformRandomSupportTest {
     private static final int ITERATIONS = 10_000_000;
     private static final UniformRandomSupport TEST = new UniformRandomSupport();
 
-    private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float min, final float max) {
-        Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, min, max));
+    private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float minimum, final float maximum) {
+        Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, minimum, maximum));
         Assertions.assertTrue(RandomSupportTestSupport.isNextIntegerEvenlyDistributed(randomSupport, ITERATIONS, 0, 10, List.of(0.01f)));
     }
 

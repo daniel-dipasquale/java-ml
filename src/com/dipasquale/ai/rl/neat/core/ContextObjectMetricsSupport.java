@@ -40,15 +40,15 @@ final class ContextObjectMetricsSupport implements Context.MetricsSupport {
 
     private static MetricDatumFactory createMetricDatumFactory(final EnumSet<MetricCollectionType> type) {
         if (!type.contains(MetricCollectionType.ENABLED) || type.contains(MetricCollectionType.SKIP_NORMAL_DISTRIBUTION_METRICS)) {
-            return new EmptyValuesMetricDatumFactory();
+            return EmptyValuesMetricDatumFactory.getInstance();
         }
 
-        return new LazyValuesMetricDatumFactory();
+        return LazyValuesMetricDatumFactory.getInstance();
     }
 
     private static MetricsCollector createMetricsCollector(final MetricDatumFactory metricDatumFactory, final EnumSet<MetricCollectionType> type) {
         if (!type.contains(MetricCollectionType.ENABLED)) {
-            return new NoopMetricsCollector();
+            return NoopMetricsCollector.getInstance();
         }
 
         boolean clearFitnessOnAdd = type.contains(MetricCollectionType.ONLY_KEEP_LAST_FITNESS_EVALUATION);
@@ -64,14 +64,13 @@ final class ContextObjectMetricsSupport implements Context.MetricsSupport {
                 .build();
 
         MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricsSupport.getType());
-        DualModeMetricsContainer metricsContainer = new DualModeMetricsContainer(initializationContext.getMapFactory(), metricDatumFactory);
+        DualModeMetricsContainer metricsContainer = new DualModeMetricsContainer(initializationContext.createMapFactory(), metricDatumFactory);
         MetricsCollector metricsCollector = createMetricsCollector(metricDatumFactory, metricsSupport.getType());
-        int stagnationDropOffAge = speciationSupport.getStagnationDropOffAge().getSingletonValue(initializationContext);
+        int stagnationDropOffAge = initializationContext.getIntegerSingleton(speciationSupport.getStagnationDropOffAge());
         DualModeIntegerValue iteration = new DualModeIntegerValue(initializationContext.getConcurrencyLevel(), 1);
         DualModeIntegerValue generation = new DualModeIntegerValue(initializationContext.getConcurrencyLevel(), 1);
-        DualModeMap<Integer, IterationMetrics, DualModeMapFactory> metrics = new DualModeMap<>(initializationContext.getMapFactory());
 
-        return new ContextObjectMetricsSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, metrics);
+        return new ContextObjectMetricsSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, initializationContext.createMap());
     }
 
     @Override

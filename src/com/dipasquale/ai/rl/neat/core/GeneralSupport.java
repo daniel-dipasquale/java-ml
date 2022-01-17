@@ -19,10 +19,10 @@ public final class GeneralSupport {
     @Builder.Default
     private final NeatEnvironment fitnessFunction = null;
     @Builder.Default
-    private final FitnessDeterminerFactory fitnessDeterminerFactory = new LastValueFitnessDeterminerFactory();
+    private final FitnessDeterminerFactory fitnessDeterminerFactory = LastValueFitnessDeterminerFactory.getInstance();
 
     ContextObjectGeneralSupport create(final InitializationContext initializationContext) {
-        int populationSizeFixed = populationSize.getSingletonValue(initializationContext);
+        int populationSizeFixed = initializationContext.getIntegerSingleton(populationSize);
 
         ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSizeFixed, 20, "populationSize");
         ArgumentValidatorSupport.ensureNotNull(genesisGenomeTemplate, "genesisGenomeTemplate");

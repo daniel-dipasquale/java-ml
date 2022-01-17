@@ -12,7 +12,11 @@ final class OrganismMatchMaker {
     private double bestMatchCompatibility = MINIMUM_COMPATIBILITY;
     private Species bestMatchSpecies = null;
 
-    public boolean collectIfBetterMatch(final Organism organism, final Species species) {
+    public Species getBestMatch() {
+        return bestMatchSpecies;
+    }
+
+    public boolean replaceIfBetterMatch(final Organism organism, final Species species) {
         double compatibility = organism.calculateCompatibility(speciationSupport, species);
 
         if (Double.compare(bestMatchCompatibility, compatibility) <= 0) {
@@ -29,10 +33,6 @@ final class OrganismMatchMaker {
         double compatibilityThreshold = speciationSupport.params().compatibilityThreshold(generation);
 
         return Double.compare(bestMatchCompatibility, compatibilityThreshold) < 0;
-    }
-
-    public Species getBestMatch() {
-        return bestMatchSpecies;
     }
 
     public void clear() {

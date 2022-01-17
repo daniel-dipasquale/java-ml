@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.LongStream;
 
 public final class RandomSupportTest {
-    private static final double MAX_VALUE_LESS_THAN_ONE = Double.longBitsToDouble(Double.doubleToRawLongBits(1D) - 1L);
+    private static final double MAXIMUM_VALUE_LESS_THAN_ONE = Double.longBitsToDouble(Double.doubleToRawLongBits(1D) - 1L);
     private static final DoubleValue RANDOM_STATE = new DoubleValue();
     private static final RandomSupport TEST = () -> RANDOM_STATE.value;
 
@@ -41,9 +41,9 @@ public final class RandomSupportTest {
         Assertions.assertEquals(0.75D, TEST.next(0D, 1D));
         Assertions.assertEquals(0.6500000000000001D, TEST.next(0.2D, 0.8D));
         Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D));
-        RANDOM_STATE.value = MAX_VALUE_LESS_THAN_ONE;
-        Assertions.assertEquals(MAX_VALUE_LESS_THAN_ONE, TEST.next());
-        Assertions.assertEquals(MAX_VALUE_LESS_THAN_ONE, TEST.next(0D, 1D));
+        RANDOM_STATE.value = MAXIMUM_VALUE_LESS_THAN_ONE;
+        Assertions.assertEquals(MAXIMUM_VALUE_LESS_THAN_ONE, TEST.next());
+        Assertions.assertEquals(MAXIMUM_VALUE_LESS_THAN_ONE, TEST.next(0D, 1D));
         Assertions.assertEquals(0.8D, TEST.next(0.2D, 0.8D));
         Assertions.assertEquals(0.5D, TEST.next(0.5D, 0.5D));
     }
@@ -79,7 +79,7 @@ public final class RandomSupportTest {
         RANDOM_STATE.value = 0.99D;
         Assertions.assertEquals(4L, TEST.next(4L, 5L));
         Assertions.assertEquals(4L, TEST.next(0L, 5L));
-        RANDOM_STATE.value = MAX_VALUE_LESS_THAN_ONE;
+        RANDOM_STATE.value = MAXIMUM_VALUE_LESS_THAN_ONE;
         Assertions.assertEquals(4L, TEST.next(4L, 5L));
         Assertions.assertEquals(4L, TEST.next(0L, 5L));
     }
@@ -107,7 +107,7 @@ public final class RandomSupportTest {
         Assertions.assertEquals(0.6500000000000001D, test.next(0D, 1D));
         Assertions.assertEquals(0.5900000000000001D, test.next(0.2D, 0.8D));
         Assertions.assertEquals(0.5D, test.next(0.5D, 0.5D));
-        RANDOM_STATE.value = MAX_VALUE_LESS_THAN_ONE;
+        RANDOM_STATE.value = MAXIMUM_VALUE_LESS_THAN_ONE;
         Assertions.assertEquals(0.8D, test.next());
         Assertions.assertEquals(0.8D, test.next(0D, 1D));
         Assertions.assertEquals(0.6800000000000002D, test.next(0.2D, 0.8D));
@@ -147,7 +147,7 @@ public final class RandomSupportTest {
         RANDOM_STATE.value = 0.99D;
         Assertions.assertEquals(3L, test.next(3L, 4L));
         Assertions.assertEquals(3L, test.next(0L, 5L));
-        RANDOM_STATE.value = MAX_VALUE_LESS_THAN_ONE;
+        RANDOM_STATE.value = MAXIMUM_VALUE_LESS_THAN_ONE;
         Assertions.assertEquals(3L, test.next(3L, 4L));
         Assertions.assertEquals(4L, test.next(0L, 5L));
     }
@@ -183,7 +183,7 @@ public final class RandomSupportTest {
         Assertions.assertFalse(TEST.isBetween(0.25D, 0.5D));
         Assertions.assertFalse(TEST.isBetween(0.5D, 0.75D));
         Assertions.assertTrue(TEST.isBetween(0.75D, 1D));
-        RANDOM_STATE.value = MAX_VALUE_LESS_THAN_ONE;
+        RANDOM_STATE.value = MAXIMUM_VALUE_LESS_THAN_ONE;
         Assertions.assertFalse(TEST.isBetween(0D, Double.MIN_VALUE));
         Assertions.assertFalse(TEST.isBetween(0D, 0.25D));
         Assertions.assertFalse(TEST.isBetween(0.25D, 0.5D));
@@ -222,7 +222,7 @@ public final class RandomSupportTest {
         Assertions.assertFalse(TEST.isLessThan(0.5D));
         Assertions.assertFalse(TEST.isLessThan(0.75D));
         Assertions.assertTrue(TEST.isLessThan(1D));
-        RANDOM_STATE.value = MAX_VALUE_LESS_THAN_ONE;
+        RANDOM_STATE.value = MAXIMUM_VALUE_LESS_THAN_ONE;
         Assertions.assertFalse(TEST.isLessThan(Double.MIN_VALUE));
         Assertions.assertFalse(TEST.isLessThan(0.25D));
         Assertions.assertFalse(TEST.isLessThan(0.5D));

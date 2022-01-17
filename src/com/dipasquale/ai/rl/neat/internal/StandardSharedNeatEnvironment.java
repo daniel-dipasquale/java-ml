@@ -4,9 +4,9 @@ import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.core.SharedGenomeActivator;
 import com.dipasquale.ai.rl.neat.core.SharedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.synchronization.dual.mode.ConcurrencyLevelState;
 import com.dipasquale.synchronization.dual.mode.DualModeFloatValue;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
 public final class StandardSharedNeatEnvironment implements DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -6417656439061002573L;
-    private final ConcurrencyLevelState concurrencyLevelState;
+    @Setter(AccessLevel.PRIVATE)
+    private int concurrencyLevel;
     @Setter
     private transient SharedNeatEnvironment environment;
     @Getter
@@ -33,7 +34,7 @@ public final class StandardSharedNeatEnvironment implements DualModeObject, Seri
     private final Map<String, FitnessBucket> fitnessBuckets;
 
     public StandardSharedNeatEnvironment(final int concurrencyLevel, final SharedNeatEnvironment environment, final Map<String, FitnessBucket> fitnessBuckets) {
-        this.concurrencyLevelState = new ConcurrencyLevelState(concurrencyLevel);
+        this.concurrencyLevel = concurrencyLevel;
         this.environment = environment;
         this.environmentLoadException = null;
         this.fitnessBuckets = fitnessBuckets;
@@ -48,7 +49,6 @@ public final class StandardSharedNeatEnvironment implements DualModeObject, Seri
     public List<Float> test(final Context context, final List<GenomeActivator> genomeActivators) {
         List<GenomeActivator> genomeActivatorsFixed = new ArrayList<>();
         Map<GenomeActivator, DualModeFloatValue> fitnessValues = new IdentityHashMap<>();
-        int concurrencyLevel = concurrencyLevelState.getCurrent();
 
         for (GenomeActivator genomeActivator : genomeActivators) {
             genomeActivatorsFixed.add(genomeActivator);
@@ -65,13 +65,8 @@ public final class StandardSharedNeatEnvironment implements DualModeObject, Seri
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
-        concurrencyLevelState.setCurrent(concurrencyLevel);
+        setConcurrencyLevel(concurrencyLevel);
     }
 
     @Serial

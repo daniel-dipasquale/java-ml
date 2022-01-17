@@ -1,16 +1,27 @@
 package com.dipasquale.ai.rl.neat.internal;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class NoopRecurrentModifiersFactory implements RecurrentModifiersFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -8312992005103689278L;
     private static final List<Float> EMPTY = List.of();
+    private static final NoopRecurrentModifiersFactory INSTANCE = new NoopRecurrentModifiersFactory();
+
+    public static NoopRecurrentModifiersFactory getInstance() {
+        return INSTANCE;
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
+    }
 
     @Override
     public List<Float> create() {

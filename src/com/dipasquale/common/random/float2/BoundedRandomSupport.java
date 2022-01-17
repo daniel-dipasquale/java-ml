@@ -11,11 +11,11 @@ final class BoundedRandomSupport implements RandomSupport, Serializable {
     @Serial
     private static final long serialVersionUID = 6034184836835887844L;
     private final RandomSupport randomSupport;
-    private final double min;
-    private final double max;
+    private final double minimum;
+    private final double maximum;
 
     @Override
     public double next() {
-        return randomSupport.next(min, max);
+        return randomSupport.next(minimum, maximum);
     }
 }

@@ -13,17 +13,12 @@ public final class DualModeBoundedRandomFloatFactory implements FloatFactory, Du
     @Serial
     private static final long serialVersionUID = -791004180256061334L;
     private final DualModeRandomSupport randomSupport;
-    private final float min;
-    private final float max;
+    private final float minimum;
+    private final float maximum;
 
     @Override
     public float create() {
-        return randomSupport.next(min, max);
-    }
-
-    @Override
-    public int concurrencyLevel() {
-        return randomSupport.concurrencyLevel();
+        return randomSupport.next(minimum, maximum);
     }
 
     @Override

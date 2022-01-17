@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.metric;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -7,11 +8,21 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class NoopMetricsCollector implements MetricsCollector, Serializable {
     @Serial
     private static final long serialVersionUID = -3442321706503755754L;
+    private static final NoopMetricsCollector INSTANCE = new NoopMetricsCollector();
+
+    public static NoopMetricsCollector getInstance() {
+        return INSTANCE;
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
+    }
 
     @Override
     public void collectSpeciesComposition(final MetricsContainer metricsContainer, final int age, final int stagnationPeriod, final boolean isStagnant) {

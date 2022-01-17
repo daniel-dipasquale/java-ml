@@ -10,8 +10,8 @@ public final class BellCurveRandomSupportTest {
     private static final UniformRandomSupport UNIFORM_RANDOM_SUPPORT = new UniformRandomSupport();
     private static final BellCurveRandomSupport TEST = new BellCurveRandomSupport(UNIFORM_RANDOM_SUPPORT, 5);
 
-    private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float min, final float max) {
-        Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, min, max));
+    private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float minimum, final float maximum) {
+        Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, minimum, maximum));
         Assertions.assertTrue(RandomSupportTestSupport.isNextIntegerEvenlyDistributed(randomSupport, ITERATIONS, 0, 10, List.of(0.12f, 0.05f, 0.03f)));
     }
 

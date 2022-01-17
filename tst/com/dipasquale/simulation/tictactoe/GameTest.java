@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-public class GameTest {
+public final class GameTest {
     private static MonteCarloTreeSearch<GameState, ClassicEdge, GameEnvironment> createMcts(final int maximumSimulations, final ConfidenceCalculator<ClassicEdge> confidenceCalculator, final BackPropagationObserver<GameState, ClassicEdge, GameEnvironment> backPropagationObserver) {
         return MonteCarloTreeSearch.<GameState, GameEnvironment>classicBuilder()
                 .searchPolicy(DeterministicSearchPolicy.builder()

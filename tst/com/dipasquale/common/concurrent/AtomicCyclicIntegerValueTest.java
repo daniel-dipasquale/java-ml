@@ -55,13 +55,13 @@ public final class AtomicCyclicIntegerValueTest {
 
     private static final class AtomicCyclicIntegerValueFactory implements IntegerValueFactory {
         @Override
-        public IntegerValue create(final int max, final int offset) {
-            return new AtomicCyclicIntegerValue(max, offset);
+        public IntegerValue create(final int maximum, final int offset) {
+            return new AtomicCyclicIntegerValue(maximum, offset);
         }
 
         @Override
-        public IntegerValue create(final int max) {
-            return new AtomicCyclicIntegerValue(max);
+        public IntegerValue create(final int maximum) {
+            return new AtomicCyclicIntegerValue(maximum);
         }
     }
 }

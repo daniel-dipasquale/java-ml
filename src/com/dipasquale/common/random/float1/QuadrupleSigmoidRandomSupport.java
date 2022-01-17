@@ -6,7 +6,7 @@ import java.io.Serializable;
 public final class QuadrupleSigmoidRandomSupport implements RandomSupport, Serializable {
     @Serial
     private static final long serialVersionUID = -4181447142293325129L;
-    private static final float MAX_VALUE_LESS_THAN_ONE = Float.intBitsToFloat(Float.floatToRawIntBits(1f) - 1);
+    private static final float MAXIMUM_VALUE_LESS_THAN_ONE = Float.intBitsToFloat(Float.floatToRawIntBits(1f) - 1);
     private static final float SINGLE_SIGMOID_BOUNDARY = 0.5f;
     private final RandomSupport randomSupport;
     private final float plateauAreaRate;
@@ -52,7 +52,7 @@ public final class QuadrupleSigmoidRandomSupport implements RandomSupport, Seria
     }
 
     private static float calculate(final float value, final float minimum, final float maximum) {
-        return (value - minimum) / (maximum - minimum) * MAX_VALUE_LESS_THAN_ONE;
+        return (value - minimum) / (maximum - minimum) * MAXIMUM_VALUE_LESS_THAN_ONE;
     }
 
     @Override

@@ -136,11 +136,6 @@ public final class DualModeSet<TItem, TSetFactory extends SetFactory & DualModeO
     }
 
     @Override
-    public int concurrencyLevel() {
-        return setFactory.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         setFactory.activateMode(concurrencyLevel);
         set = setFactory.create(set);

@@ -17,17 +17,16 @@ import java.util.List;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EnumValue<T extends Enum<T>> {
     private final DualModeFactoryCreator<T> factoryCreator;
-    private final Object singletonKey = new Object();
 
-    public static <TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> DualModeFactory<TEnum> createFactory(final TEnumFactory enumFactory) {
-        return new InternalDualModeFactory<>(enumFactory);
+    static <TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> DualModeFactory<TEnum> createFactoryAdapter(final TEnumFactory enumFactory) {
+        return new DualModeFactoryAdapter<>(enumFactory);
     }
 
     public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
         DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
             DualModeEnumFactory<T> enumFactory = new DualModeEnumFactory<>(initializationContext.getConcurrencyLevel(), new LiteralEnumFactory<>(value));
 
-            return createFactory(enumFactory);
+            return createFactoryAdapter(enumFactory);
         };
 
         return new EnumValue<>(factoryCreator);
@@ -37,7 +36,7 @@ public final class EnumValue<T extends Enum<T>> {
         DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
             DualModeSequentialEnumFactory<T> enumFactory = new DualModeSequentialEnumFactory<>(initializationContext.getConcurrencyLevel(), values);
 
-            return createFactory(enumFactory);
+            return createFactoryAdapter(enumFactory);
         };
 
         return new EnumValue<>(factoryCreator);
@@ -51,7 +50,7 @@ public final class EnumValue<T extends Enum<T>> {
         DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
             DualModeRandomEnumFactory<T> enumFactory = new DualModeRandomEnumFactory<>(initializationContext.createRandomSupport(RandomType.UNIFORM), Lists.create(values));
 
-            return createFactory(enumFactory);
+            return createFactoryAdapter(enumFactory);
         };
 
         return new EnumValue<>(factoryCreator);
@@ -66,27 +65,15 @@ public final class EnumValue<T extends Enum<T>> {
         return createRandom(values);
     }
 
-    public DualModeFactory<T> createFactory(final InitializationContext initializationContext) {
+    DualModeFactory<T> createFactory(final InitializationContext initializationContext) {
         return factoryCreator.create(initializationContext);
     }
 
-    public T getSingletonValue(final InitializationContext initializationContext) {
-        if (!initializationContext.getContainer().containsKey(singletonKey)) {
-            T singleton = factoryCreator.create(initializationContext).create();
-
-            initializationContext.getContainer().setValue(singletonKey, singleton);
-
-            return singleton;
-        }
-
-        return (T) initializationContext.getContainer().getValue(singletonKey);
-    }
-
-    public interface DualModeFactory<T extends Enum<T>> extends EnumFactory<T>, DualModeObject {
+    interface DualModeFactory<T extends Enum<T>> extends EnumFactory<T>, DualModeObject {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalDualModeFactory<TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> implements DualModeFactory<TEnum>, Serializable {
+    private static final class DualModeFactoryAdapter<TEnum extends Enum<TEnum>, TEnumFactory extends EnumFactory<TEnum> & DualModeObject> implements DualModeFactory<TEnum>, Serializable {
         @Serial
         private static final long serialVersionUID = 3324024183810540982L;
         private final TEnumFactory enumFactory;
@@ -94,11 +81,6 @@ public final class EnumValue<T extends Enum<T>> {
         @Override
         public TEnum create() {
             return enumFactory.create();
-        }
-
-        @Override
-        public int concurrencyLevel() {
-            return enumFactory.concurrencyLevel();
         }
 
         @Override

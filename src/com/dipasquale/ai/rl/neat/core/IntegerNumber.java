@@ -14,53 +14,40 @@ import java.io.Serializable;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IntegerNumber {
     private final DualModeFactoryCreator factoryCreator;
-    private final Object singletonKey = new Object();
 
-    public static <T extends IntegerFactory & DualModeObject> DualModeFactory createFactory(final T integerFactory) {
-        return new InternalDualModeFactory<>(integerFactory);
+    static <T extends IntegerFactory & DualModeObject> DualModeFactory createFactoryAdapter(final T integerFactory) {
+        return new DualModeFactoryAdapter<>(integerFactory);
     }
 
     public static IntegerNumber literal(final int value) {
         DualModeFactoryCreator factoryCreator = initializationContext -> {
             DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(initializationContext.getConcurrencyLevel(), new LiteralIntegerFactory(value));
 
-            return createFactory(integerFactory);
+            return createFactoryAdapter(integerFactory);
         };
 
         return new IntegerNumber(factoryCreator);
     }
 
-    public static IntegerNumber random(final RandomType type, final int min, final int max) {
+    public static IntegerNumber random(final RandomType type, final int minimum, final int maximum) {
         DualModeFactoryCreator factoryCreator = initializationContext -> {
-            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(initializationContext.createRandomSupport(type), min, max);
+            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(initializationContext.createRandomSupport(type), minimum, maximum);
 
-            return createFactory(integerFactory);
+            return createFactoryAdapter(integerFactory);
         };
 
         return new IntegerNumber(factoryCreator);
     }
 
-    public DualModeFactory createFactory(final InitializationContext initializationContext) {
+    DualModeFactory createFactory(final InitializationContext initializationContext) {
         return factoryCreator.create(initializationContext);
     }
 
-    public int getSingletonValue(final InitializationContext initializationContext) {
-        if (!initializationContext.getContainer().containsKey(singletonKey)) {
-            int singleton = factoryCreator.create(initializationContext).create();
-
-            initializationContext.getContainer().setValue(singletonKey, singleton);
-
-            return singleton;
-        }
-
-        return (int) initializationContext.getContainer().getValue(singletonKey);
-    }
-
-    public interface DualModeFactory extends IntegerFactory, DualModeObject {
+    interface DualModeFactory extends IntegerFactory, DualModeObject {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalDualModeFactory<T extends IntegerFactory & DualModeObject> implements DualModeFactory, Serializable {
+    private static final class DualModeFactoryAdapter<T extends IntegerFactory & DualModeObject> implements DualModeFactory, Serializable {
         @Serial
         private static final long serialVersionUID = 3324024183810540982L;
         private final T integerFactory;
@@ -68,11 +55,6 @@ public final class IntegerNumber {
         @Override
         public int create() {
             return integerFactory.create();
-        }
-
-        @Override
-        public int concurrencyLevel() {
-            return integerFactory.concurrencyLevel();
         }
 
         @Override

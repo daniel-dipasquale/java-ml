@@ -32,10 +32,10 @@ final class ContextObjectConnectionGeneSupport implements Context.ConnectionGene
     private DualModeHistoricalMarkings historicalMarkings;
 
     private static RecurrentModifiersFactory createRecurrentWeightsFactory(final InitializationContext initializationContext, final ConnectionGeneSupport connectionGeneSupport, final FloatNumber.DualModeFactory weightFactory) {
-        float recurrentAllowanceRate = connectionGeneSupport.getRecurrentAllowanceRate().getSingletonValue(initializationContext);
+        float recurrentAllowanceRate = initializationContext.getFloatSingleton(connectionGeneSupport.getRecurrentAllowanceRate());
 
         if (Float.compare(recurrentAllowanceRate, 0f) <= 0) {
-            return new NoopRecurrentModifiersFactory();
+            return NoopRecurrentModifiersFactory.getInstance();
         }
 
         return new ProxyRecurrentModifiersFactory(weightFactory, connectionGeneSupport.getRecurrentStateType());
@@ -47,8 +47,8 @@ final class ContextObjectConnectionGeneSupport implements Context.ConnectionGene
         return new DualModeWeightPerturber<>(floatFactory);
     }
 
-    private static DualModeIsLessThanRandomGate createIsLessThanRandomGate(final InitializationContext initializationContext, final FloatNumber max) {
-        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), max.getSingletonValue(initializationContext));
+    private static DualModeIsLessThanRandomGate createIsLessThanRandomGate(final InitializationContext initializationContext, final FloatNumber maximum) {
+        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.getFloatSingleton(maximum));
     }
 
     static ContextObjectConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
@@ -59,7 +59,7 @@ final class ContextObjectConnectionGeneSupport implements Context.ConnectionGene
         DualModeIsLessThanRandomGate shouldAllowUnrestrictedDirectionGate = createIsLessThanRandomGate(initializationContext, connectionGeneSupport.getUnrestrictedDirectionAllowanceRate());
         DualModeIsLessThanRandomGate shouldAllowMultiCycleGate = createIsLessThanRandomGate(initializationContext, connectionGeneSupport.getMultiCycleAllowanceRate());
         GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(initializationContext, weightFactory);
-        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(initializationContext.getMapFactory());
+        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(initializationContext.getConcurrencyLevel(), initializationContext.createMap(), initializationContext.createSetFactory(), initializationContext.createMap());
 
         return new ContextObjectConnectionGeneSupport(weightFactory, recurrentWeightsFactory, weightPerturber, shouldAllowRecurrentGate, shouldAllowUnrestrictedDirectionGate, shouldAllowMultiCycleGate, genesisGenomeConnector, historicalMarkings);
     }

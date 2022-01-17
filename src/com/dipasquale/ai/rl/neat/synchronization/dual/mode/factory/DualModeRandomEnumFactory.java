@@ -24,11 +24,6 @@ public final class DualModeRandomEnumFactory<T extends Enum<T>> implements EnumF
     }
 
     @Override
-    public int concurrencyLevel() {
-        return randomSupport.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         randomSupport.activateMode(concurrencyLevel);
     }

@@ -19,7 +19,7 @@ public final class EntryOptimizer<TKey extends Comparable<TKey>, TValue> {
         return optimumValue;
     }
 
-    public boolean setValueIfMoreOptimum(final TKey key, final TValue value) {
+    public boolean replaceValueIfMoreOptimum(final TKey key, final TValue value) {
         if (optimumKey != null && comparator.compare(key, optimumKey) <= 0) {
             return false;
         }

@@ -17,13 +17,13 @@ final class ContextObjectMutationSupport implements Context.MutationSupport {
     private DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> weightMutationTypeFactory;
     private DualModeIsLessThanRandomGate shouldDisableExpressedConnectionGate;
 
-    private static DualModeIsLessThanRandomGate createIsLessThanGate(final InitializationContext initializationContext, final FloatNumber max) {
-        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), max.getSingletonValue(initializationContext));
+    private static DualModeIsLessThanRandomGate createIsLessThanGate(final InitializationContext initializationContext, final FloatNumber maximum) {
+        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.getFloatSingleton(maximum));
     }
 
     private static DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> createWeightMutationTypeFactory(final InitializationContext initializationContext, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate) {
-        float perturbRate = perturbWeightRate.getSingletonValue(initializationContext);
-        float replaceRate = replaceWeightRate.getSingletonValue(initializationContext);
+        float perturbRate = initializationContext.getFloatSingleton(perturbWeightRate);
+        float replaceRate = initializationContext.getFloatSingleton(replaceWeightRate);
         float totalRate = (float) Math.ceil(perturbRate + replaceRate);
         OutputClassifier<WeightMutationType> weightMutationTypeClassifier = new OutputClassifier<>();
 

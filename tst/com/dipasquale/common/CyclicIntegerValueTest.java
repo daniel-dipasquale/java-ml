@@ -52,13 +52,13 @@ public final class CyclicIntegerValueTest {
 
     private static final class CyclicIntegerValueFactory implements IntegerValueFactory {
         @Override
-        public IntegerValue create(final int max, final int offset) {
-            return new CyclicIntegerValue(max, offset);
+        public IntegerValue create(final int maximum, final int offset) {
+            return new CyclicIntegerValue(maximum, offset);
         }
 
         @Override
-        public IntegerValue create(final int max) {
-            return new CyclicIntegerValue(max);
+        public IntegerValue create(final int maximum) {
+            return new CyclicIntegerValue(maximum);
         }
     }
 }

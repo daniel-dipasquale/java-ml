@@ -20,8 +20,8 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
     private final DualModeIdFactory genomeIdFactory;
     private final DualModeDeque<String, DualModeDequeFactory> disposedGenomeIds;
 
-    public DualModeGenomePool(final DualModeDequeFactory dequeFactory) {
-        this(new DualModeIdFactory(dequeFactory.concurrencyLevel(), IdType.GENOME), new DualModeDeque<>(dequeFactory));
+    public DualModeGenomePool(final int concurrencyLevel, final DualModeDeque<String, DualModeDequeFactory> disposedGenomeIds) {
+        this(new DualModeIdFactory(concurrencyLevel, IdType.GENOME), disposedGenomeIds);
     }
 
     public String createId() {
@@ -54,11 +54,6 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
 
     public int getDisposedCount() {
         return disposedGenomeIds.size();
-    }
-
-    @Override
-    public int concurrencyLevel() {
-        return disposedGenomeIds.concurrencyLevel();
     }
 
     @Override

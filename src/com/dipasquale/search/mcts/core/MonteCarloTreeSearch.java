@@ -140,7 +140,7 @@ public final class MonteCarloTreeSearch<TState extends State, TEdge extends Edge
         for (SearchNode<TState, TEdge, TEnvironment> childNode : childNodes) {
             float efficiency = strategyCalculator.calculateEfficiency(childNode.getEdge());
 
-            childNodeOptimizer.setValueIfMoreOptimum(efficiency, childNode);
+            childNodeOptimizer.replaceValueIfMoreOptimum(efficiency, childNode);
         }
 
         return childNodeOptimizer.getValue();

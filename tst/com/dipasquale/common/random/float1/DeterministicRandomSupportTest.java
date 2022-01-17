@@ -16,8 +16,8 @@ public final class DeterministicRandomSupportTest {
         TEST = new DeterministicRandomSupport(SIZE);
     }
 
-    private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float min, final float max) {
-        Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, min, max));
+    private static void assertMultiIterationsTest(final RandomSupport randomSupport, final float minimum, final float maximum) {
+        Assertions.assertTrue(RandomSupportTestSupport.isNextFloatBounded(randomSupport, ITERATIONS, minimum, maximum));
         Assertions.assertTrue(RandomSupportTestSupport.isNextIntegerEvenlyDistributed(randomSupport, ITERATIONS, 0, SIZE, List.of(0.001f)));
     }
 

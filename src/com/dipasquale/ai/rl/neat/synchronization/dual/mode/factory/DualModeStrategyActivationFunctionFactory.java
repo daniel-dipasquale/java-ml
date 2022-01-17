@@ -20,11 +20,6 @@ public final class DualModeStrategyActivationFunctionFactory<T extends Activatio
     }
 
     @Override
-    public int concurrencyLevel() {
-        return activationFunctionFactory.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         activationFunctionFactory.activateMode(concurrencyLevel);
     }

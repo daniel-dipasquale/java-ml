@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
-import com.dipasquale.ai.rl.neat.phenotype.SubtractionNeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.TwoSolutionNeuronLayerNormalizer;
 import com.dipasquale.common.random.float2.DeterministicRandomSupport;
 import com.dipasquale.common.random.float2.RandomSupport;
 import com.dipasquale.common.random.float2.ThreadLocalUniformRandomSupport;
@@ -98,7 +98,7 @@ final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
 
                             return calculateFitness(genomeActivator);
                         })
-                        .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
+                        .fitnessDeterminerFactory(AverageFitnessDeterminerFactory.getInstance())
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -137,8 +137,8 @@ final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TopologySettingsType {
-        SINGLE_OUTPUT(IntegerNumber.literal(1), new IdentityNeuronLayerNormalizer()),
-        DOUBLE_OUTPUT(IntegerNumber.literal(2), new SubtractionNeuronLayerNormalizer());
+        SINGLE_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerNormalizer.getInstance()),
+        DOUBLE_OUTPUT(IntegerNumber.literal(2), TwoSolutionNeuronLayerNormalizer.getInstance());
 
         private final IntegerNumber outputs;
         private final NeuronLayerNormalizer outputLayerNormalizer;

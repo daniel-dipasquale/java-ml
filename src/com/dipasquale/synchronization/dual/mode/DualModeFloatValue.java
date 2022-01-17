@@ -12,25 +12,19 @@ import java.io.Serializable;
 public final class DualModeFloatValue implements FloatValue, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 2200200182292131268L;
-    private final ConcurrencyLevelState concurrencyLevelState;
     @EqualsAndHashCode.Include
     private FloatValue floatValue;
 
-    private DualModeFloatValue(final ConcurrencyLevelState concurrencyLevelState, final float value) {
-        this.concurrencyLevelState = concurrencyLevelState;
-        this.floatValue = create(concurrencyLevelState, value);
-    }
-
     public DualModeFloatValue(final int concurrencyLevel, final float value) {
-        this(new ConcurrencyLevelState(concurrencyLevel), value);
+        this.floatValue = create(concurrencyLevel, value);
     }
 
     public DualModeFloatValue(final int concurrencyLevel) {
         this(concurrencyLevel, -1);
     }
 
-    private static FloatValue create(final ConcurrencyLevelState concurrencyLevelState, final float value) {
-        if (concurrencyLevelState.getCurrent() > 0) {
+    private static FloatValue create(final int concurrencyLevel, final float value) {
+        if (concurrencyLevel > 0) {
             return new AtomicFloatValue(value);
         }
 
@@ -58,13 +52,7 @@ public final class DualModeFloatValue implements FloatValue, DualModeObject, Ser
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
-        concurrencyLevelState.setCurrent(concurrencyLevel);
-        floatValue = create(concurrencyLevelState, floatValue.current());
+        floatValue = create(concurrencyLevel, floatValue.current());
     }
 }

@@ -4,7 +4,6 @@ import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
-import com.dipasquale.synchronization.dual.mode.ConcurrencyLevelState;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 
 import java.io.Serial;
@@ -15,11 +14,9 @@ import java.util.Map;
 public final class DualModeNodeGeneIdFactory implements DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -361628531407045333L;
-    private final ConcurrencyLevelState concurrencyLevelState;
     private final Map<NodeGeneType, DualModeIdFactory> nodeIdFactories;
 
     public DualModeNodeGeneIdFactory(final int concurrencyLevel) {
-        this.concurrencyLevelState = new ConcurrencyLevelState(concurrencyLevel);
         this.nodeIdFactories = createNodeIdFactories(concurrencyLevel);
     }
 
@@ -39,17 +36,8 @@ public final class DualModeNodeGeneIdFactory implements DualModeObject, Serializ
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
-        concurrencyLevelState.setCurrent(concurrencyLevel);
-
-        for (DualModeIdFactory sequentialIdFactory : nodeIdFactories.values()) {
-            sequentialIdFactory.activateMode(concurrencyLevel);
-        }
+        DualModeObject.forEachValueActivateMode(nodeIdFactories, concurrencyLevel);
     }
 
     public void reset() {

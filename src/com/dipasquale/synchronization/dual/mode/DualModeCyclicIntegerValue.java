@@ -12,37 +12,31 @@ import java.io.Serializable;
 public final class DualModeCyclicIntegerValue implements IntegerValue, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -8709366941955699964L;
-    private final ConcurrencyLevelState concurrencyLevelState;
-    private final int max;
+    private final int maximum;
     private final int offset;
     @EqualsAndHashCode.Include
     private IntegerValue integerValue;
 
-    private DualModeCyclicIntegerValue(final ConcurrencyLevelState concurrencyLevelState, final int max, final int offset, final int value) {
-        this.concurrencyLevelState = concurrencyLevelState;
-        this.max = max;
+    public DualModeCyclicIntegerValue(final int concurrencyLevel, final int maximum, final int offset, final int value) {
+        this.maximum = maximum;
         this.offset = offset;
-        this.integerValue = create(concurrencyLevelState, max, offset, value);
+        this.integerValue = create(concurrencyLevel, maximum, offset, value);
     }
 
-    public DualModeCyclicIntegerValue(final int concurrencyLevel, final int max, final int offset, final int value) {
-        this(new ConcurrencyLevelState(concurrencyLevel), max, offset, value);
+    public DualModeCyclicIntegerValue(final int concurrencyLevel, final int maximum, final int offset) {
+        this(concurrencyLevel, maximum, offset, 0);
     }
 
-    public DualModeCyclicIntegerValue(final int concurrencyLevel, final int max, final int offset) {
-        this(concurrencyLevel, max, offset, 0);
+    public DualModeCyclicIntegerValue(final int concurrencyLevel, final int maximum) {
+        this(concurrencyLevel, maximum, -1);
     }
 
-    public DualModeCyclicIntegerValue(final int concurrencyLevel, final int max) {
-        this(concurrencyLevel, max, -1);
-    }
-
-    private static IntegerValue create(final ConcurrencyLevelState concurrencyLevelState, final int max, final int offset, final int value) {
-        if (concurrencyLevelState.getCurrent() > 0) {
-            return new AtomicCyclicIntegerValue(max, offset, value);
+    private static IntegerValue create(final int concurrencyLevel, final int maximum, final int offset, final int value) {
+        if (concurrencyLevel > 0) {
+            return new AtomicCyclicIntegerValue(maximum, offset, value);
         }
 
-        return new CyclicIntegerValue(max, offset, value);
+        return new CyclicIntegerValue(maximum, offset, value);
     }
 
     @Override
@@ -66,14 +60,8 @@ public final class DualModeCyclicIntegerValue implements IntegerValue, DualModeO
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
-        concurrencyLevelState.setCurrent(concurrencyLevel);
-        integerValue = create(concurrencyLevelState, max, offset, integerValue.current() - offset);
+        integerValue = create(concurrencyLevel, maximum, offset, integerValue.current() - offset);
     }
 
     @Override

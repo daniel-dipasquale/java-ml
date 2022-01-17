@@ -25,7 +25,7 @@ public final class HighestConfidenceTraversalPolicy<TState extends State, TEdge 
         for (int i = 0; i < size; i++) {
             float confidence = confidenceCalculator.calculate(simulations, childNodes.get(i).getEdge());
 
-            childNodeOptimizer.setValueIfMoreOptimum(confidence, i);
+            childNodeOptimizer.replaceValueIfMoreOptimum(confidence, i);
         }
 
         int index = childNodeOptimizer.getValue();

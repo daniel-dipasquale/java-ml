@@ -89,17 +89,17 @@ public final class Population {
     }
 
     private void assignOrganismsToSpecies(final Context context) {
-        Context.SpeciationSupport speciationSupport = context.speciation();
-        OrganismMatchMaker matchMaker = new OrganismMatchMaker(speciationSupport);
-        int maximumSpecies = speciationSupport.params().maximumSpecies();
-
         Iterable<Organism> organismsBirthed = organismsToBirth.stream()
                 .map(organismFactory -> organismFactory.create(context))
                 ::iterator;
 
+        Context.SpeciationSupport speciationSupport = context.speciation();
+        OrganismMatchMaker matchMaker = new OrganismMatchMaker(speciationSupport);
+        int maximumSpecies = speciationSupport.params().maximumSpecies();
+
         for (Organism organism : Iterables.concatenate(organismsWithoutSpecies, organismsBirthed)) {
             for (SimpleNode<Species> speciesNode : speciesNodes) {
-                matchMaker.collectIfBetterMatch(organism, speciesNodes.getValue(speciesNode));
+                matchMaker.replaceIfBetterMatch(organism, speciesNodes.getValue(speciesNode));
             }
 
             if (speciesNodes.size() < maximumSpecies && !matchMaker.isBestMatchCompatible(populationState.getGeneration())) {
@@ -163,11 +163,11 @@ public final class Population {
     }
 
     public void evolve(final Context context) {
+        SelectionContext selectionContext = new SelectionContext(context, this);
+
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
-
-        SelectionContext selectionContext = new SelectionContext(context, this);
 
         try {
             context.speciation().getSelectionStrategy().select(selectionContext, speciesNodes);

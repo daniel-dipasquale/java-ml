@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class RandomSupportTestSupport {
-    public static boolean isNextFloatBounded(final RandomSupport randomSupport, final int count, final float min, final float max) {
+    public static boolean isNextFloatBounded(final RandomSupport randomSupport, final int count, final float minimum, final float maximum) {
         for (int i = 0; i < count; i++) {
             float result = randomSupport.next();
 
-            if (Float.compare(result, min) < 0 || Float.compare(result, max) >= 0) {
+            if (Float.compare(result, minimum) < 0 || Float.compare(result, maximum) >= 0) {
                 return false;
             }
         }
@@ -23,27 +23,27 @@ final class RandomSupportTestSupport {
         return true;
     }
 
-    public static boolean isNextIntegerEvenlyDistributed(final RandomSupport randomSupport, final int count, final int min, final int max, final List<Float> marginOfErrors) {
+    public static boolean isNextIntegerEvenlyDistributed(final RandomSupport randomSupport, final int count, final int minimum, final int maximum, final List<Float> marginOfErrors) {
         Map<Integer, AtomicInteger> distribution = new HashMap<>();
 
         for (int i = 0; i < count; i++) {
-            int result = randomSupport.next(min, max);
+            int result = randomSupport.next(minimum, maximum);
 
             distribution.computeIfAbsent(result, __ -> new AtomicInteger()).incrementAndGet();
         }
 
-        if (distribution.size() > max - min) {
+        if (distribution.size() > maximum - minimum) {
             return false;
         }
 
         int marginOfErrorsSize = marginOfErrors.size();
 
-        for (int i = 0, c = max / 2; i < c; i++) {
+        for (int i = 0, c = maximum / 2; i < c; i++) {
             int number1 = Optional.ofNullable(distribution.get(i))
                     .map(AtomicInteger::get)
                     .orElse(1);
 
-            int number2 = Optional.ofNullable(distribution.get(max - 1 - i))
+            int number2 = Optional.ofNullable(distribution.get(maximum - 1 - i))
                     .map(AtomicInteger::get)
                     .orElse(1);
 

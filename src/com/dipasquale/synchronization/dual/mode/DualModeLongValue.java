@@ -12,25 +12,19 @@ import java.io.Serializable;
 public final class DualModeLongValue implements LongValue, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = 6310708806974536759L;
-    private final ConcurrencyLevelState concurrencyLevelState;
     @EqualsAndHashCode.Include
     private LongValue counter;
 
-    private DualModeLongValue(final ConcurrencyLevelState concurrencyLevelState, final long value) {
-        this.concurrencyLevelState = concurrencyLevelState;
-        this.counter = create(concurrencyLevelState, value);
-    }
-
     public DualModeLongValue(final int concurrencyLevel, final long value) {
-        this(new ConcurrencyLevelState(concurrencyLevel), value);
+        this.counter = create(concurrencyLevel, value);
     }
 
     public DualModeLongValue(final int concurrencyLevel) {
         this(concurrencyLevel, -1L);
     }
 
-    private static LongValue create(final ConcurrencyLevelState concurrencyLevelState, final long value) {
-        if (concurrencyLevelState.getCurrent() > 0) {
+    private static LongValue create(final int concurrencyLevel, final long value) {
+        if (concurrencyLevel > 0) {
             return new AtomicLongValue(value);
         }
 
@@ -58,13 +52,7 @@ public final class DualModeLongValue implements LongValue, DualModeObject, Seria
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
-        concurrencyLevelState.setCurrent(concurrencyLevel);
-        counter = create(concurrencyLevelState, counter.current());
+        counter = create(concurrencyLevel, counter.current());
     }
 }

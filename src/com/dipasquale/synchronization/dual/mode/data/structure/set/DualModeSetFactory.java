@@ -36,11 +36,6 @@ public final class DualModeSetFactory implements SetFactory, DualModeObject, Ser
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         concurrencyLevelState.setCurrent(concurrencyLevel);
         setFactory = setFactoryCreator.create(concurrencyLevelState);

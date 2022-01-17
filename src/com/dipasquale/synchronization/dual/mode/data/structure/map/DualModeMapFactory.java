@@ -36,11 +36,6 @@ public final class DualModeMapFactory implements MapFactory, DualModeObject, Ser
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         concurrencyLevelState.setCurrent(concurrencyLevel);
         mapFactory = mapFactoryCreator.create(concurrencyLevelState);

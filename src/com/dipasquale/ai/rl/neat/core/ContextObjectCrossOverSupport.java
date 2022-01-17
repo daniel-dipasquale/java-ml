@@ -12,8 +12,8 @@ final class ContextObjectCrossOverSupport implements Context.CrossOverSupport {
     private DualModeIsLessThanRandomGate shouldOverrideExpressedConnectionGate;
     private DualModeIsLessThanRandomGate shouldUseWeightFromRandomParentGate;
 
-    private static DualModeIsLessThanRandomGate createIsLessThanGate(final InitializationContext initializationContext, final FloatNumber max) {
-        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), max.getSingletonValue(initializationContext));
+    private static DualModeIsLessThanRandomGate createIsLessThanGate(final InitializationContext initializationContext, final FloatNumber maximum) {
+        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.getFloatSingleton(maximum));
     }
 
     static ContextObjectCrossOverSupport create(final InitializationContext initializationContext, final CrossOverSupport crossOverSupport) {

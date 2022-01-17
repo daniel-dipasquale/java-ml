@@ -248,7 +248,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_feed_forward_with_feed_forward_path_builder() {
         List<Neuron> neurons = createFeedForwardNetwork();
-        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
+        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), IdentityNeuronLayerNormalizer.getInstance());
 
         neurons.forEach(test::add);
         test.build();
@@ -268,7 +268,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_reflexive_with_feed_forward_path_builder() {
         List<Neuron> neurons = createRecurrentReflexiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
+        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), IdentityNeuronLayerNormalizer.getInstance());
 
         neurons.forEach(test::add);
         test.build();
@@ -288,7 +288,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_symmetric_with_feed_forward_path_builder() {
         List<Neuron> neurons = createRecurrentSymmetricNetwork();
-        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
+        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), IdentityNeuronLayerNormalizer.getInstance());
 
         neurons.forEach(test::add);
         test.build();
@@ -308,7 +308,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_transitive_with_feed_forward_path_builder() {
         List<Neuron> neurons = createRecurrentTransitiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
+        NeuronNavigator test = new NeuronNavigator(new AcyclicNeuronPathBuilder(), IdentityNeuronLayerNormalizer.getInstance());
 
         neurons.forEach(test::add);
         test.build();
@@ -328,7 +328,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_feed_forward_with_recurrent_path_builder() {
         List<Neuron> neurons = createFeedForwardNetwork();
-        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
+        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), IdentityNeuronLayerNormalizer.getInstance());
 
         neurons.forEach(test::add);
         test.build();
@@ -348,7 +348,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_reflexive_with_recurrent_path_builder() {
         List<Neuron> neurons = createRecurrentReflexiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
+        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), IdentityNeuronLayerNormalizer.getInstance());
 
         neurons.forEach(test::add);
         test.build();
@@ -369,7 +369,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_symmetric_with_recurrent_path_builder() {
         List<Neuron> neurons = createRecurrentSymmetricNetwork();
-        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
+        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), IdentityNeuronLayerNormalizer.getInstance());
 
         neurons.forEach(test::add);
         test.build();
@@ -390,7 +390,7 @@ public final class NeuronNavigatorTest {
     @Test
     public void TEST_recurrent_transitive_with_recurrent_path_builder() {
         List<Neuron> neurons = createRecurrentTransitiveNetwork();
-        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), new IdentityNeuronLayerNormalizer());
+        NeuronNavigator test = new NeuronNavigator(new CyclicNeuronPathBuilder(), IdentityNeuronLayerNormalizer.getInstance());
 
         neurons.forEach(test::add);
         test.build();

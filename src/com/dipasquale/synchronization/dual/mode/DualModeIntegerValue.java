@@ -12,25 +12,19 @@ import java.io.Serializable;
 public final class DualModeIntegerValue implements IntegerValue, DualModeObject, Serializable {
     @Serial
     private static final long serialVersionUID = -7472742036609010053L;
-    private final ConcurrencyLevelState concurrencyLevelState;
     @EqualsAndHashCode.Include
     private IntegerValue integerValue;
 
-    private DualModeIntegerValue(final ConcurrencyLevelState concurrencyLevelState, final int value) {
-        this.concurrencyLevelState = concurrencyLevelState;
-        this.integerValue = create(concurrencyLevelState, value);
-    }
-
     public DualModeIntegerValue(final int concurrencyLevel, final int value) {
-        this(new ConcurrencyLevelState(concurrencyLevel), value);
+        this.integerValue = create(concurrencyLevel, value);
     }
 
     public DualModeIntegerValue(final int concurrencyLevel) {
         this(concurrencyLevel, -1);
     }
 
-    private static IntegerValue create(final ConcurrencyLevelState concurrencyLevelState, final int value) {
-        if (concurrencyLevelState.getCurrent() > 0) {
+    private static IntegerValue create(final int concurrencyLevel, final int value) {
+        if (concurrencyLevel > 0) {
             return new AtomicIntegerValue(value);
         }
 
@@ -58,13 +52,7 @@ public final class DualModeIntegerValue implements IntegerValue, DualModeObject,
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
-        concurrencyLevelState.setCurrent(concurrencyLevel);
-        integerValue = create(concurrencyLevelState, integerValue.current());
+        integerValue = create(concurrencyLevel, integerValue.current());
     }
 }

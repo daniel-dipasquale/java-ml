@@ -25,11 +25,6 @@ public final class DualModeSequentialEnumFactory<T extends Enum<T>> implements E
     }
 
     @Override
-    public int concurrencyLevel() {
-        return index.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         index.activateMode(concurrencyLevel);
     }

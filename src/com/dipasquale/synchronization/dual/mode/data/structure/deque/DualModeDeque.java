@@ -231,11 +231,6 @@ public final class DualModeDeque<TItem, TDequeFactory extends DequeFactory & Dua
     }
 
     @Override
-    public int concurrencyLevel() {
-        return dequeFactory.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         dequeFactory.activateMode(concurrencyLevel);
         deque = dequeFactory.create(deque);

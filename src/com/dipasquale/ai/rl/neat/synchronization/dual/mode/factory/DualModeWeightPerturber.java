@@ -30,11 +30,6 @@ public final class DualModeWeightPerturber<T extends FloatFactory & DualModeObje
     }
 
     @Override
-    public int concurrencyLevel() {
-        return floatFactory.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         floatFactory.activateMode(concurrencyLevel);
     }

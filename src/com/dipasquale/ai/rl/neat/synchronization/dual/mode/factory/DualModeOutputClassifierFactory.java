@@ -24,11 +24,6 @@ public final class DualModeOutputClassifierFactory<TFloatFactory extends FloatFa
     }
 
     @Override
-    public int concurrencyLevel() {
-        return floatFactory.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         floatFactory.activateMode(concurrencyLevel);
     }

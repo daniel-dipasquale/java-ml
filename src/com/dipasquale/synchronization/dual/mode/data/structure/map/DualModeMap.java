@@ -154,11 +154,6 @@ public final class DualModeMap<TKey, TValue, TMapFactory extends MapFactory & Du
     }
 
     @Override
-    public int concurrencyLevel() {
-        return mapFactory.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         mapFactory.activateMode(concurrencyLevel);
         map = mapFactory.create(map);

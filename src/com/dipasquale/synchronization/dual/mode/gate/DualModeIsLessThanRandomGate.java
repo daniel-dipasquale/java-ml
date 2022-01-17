@@ -13,16 +13,11 @@ public final class DualModeIsLessThanRandomGate implements Gate, DualModeObject,
     @Serial
     private static final long serialVersionUID = -3883271729484274647L;
     private final DualModeRandomSupport randomSupport;
-    private final float max;
+    private final float maximum;
 
     @Override
-    public boolean isOn() { // NOTE: benchmarking when most cases max are 0, since it should always be false
-        return Float.compare(max, 0f) > 0 && randomSupport.isLessThan(max);
-    }
-
-    @Override
-    public int concurrencyLevel() {
-        return randomSupport.concurrencyLevel();
+    public boolean isOn() {
+        return Float.compare(maximum, 0f) > 0 && randomSupport.isLessThan(maximum);
     }
 
     @Override

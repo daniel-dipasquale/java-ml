@@ -36,11 +36,6 @@ public final class DualModeDequeFactory implements DequeFactory, DualModeObject,
     }
 
     @Override
-    public int concurrencyLevel() {
-        return concurrencyLevelState.getCurrent();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         concurrencyLevelState.setCurrent(concurrencyLevel);
         dequeFactory = dequeFactoryCreator.create(concurrencyLevelState);

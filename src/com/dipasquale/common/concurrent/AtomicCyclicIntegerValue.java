@@ -11,33 +11,33 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class AtomicCyclicIntegerValue implements IntegerValue, Serializable {
     @Serial
     private static final long serialVersionUID = -1148140015461196927L;
-    private final int max;
+    private final int maximum;
     private final int offset;
     private final AtomicReference<Pair> pair;
 
-    public AtomicCyclicIntegerValue(final int max, final int offset, final int value) {
-        this.max = max;
+    public AtomicCyclicIntegerValue(final int maximum, final int offset, final int value) {
+        this.maximum = maximum;
         this.offset = offset;
-        this.pair = new AtomicReference<>(createPair(offset, value, 0, max));
+        this.pair = new AtomicReference<>(createPair(offset, value, 0, maximum));
     }
 
-    public AtomicCyclicIntegerValue(final int max, final int offset) {
-        this(max, offset, 0);
+    public AtomicCyclicIntegerValue(final int maximum, final int offset) {
+        this(maximum, offset, 0);
     }
 
-    public AtomicCyclicIntegerValue(final int max) {
-        this(max, -1);
+    public AtomicCyclicIntegerValue(final int maximum) {
+        this(maximum, -1);
     }
 
-    private static int calculateModulus(final int offset, final int counter, final int delta, final int max) {
-        int remainder = (offset + counter + delta) % max;
+    private static int calculateModulus(final int offset, final int counter, final int delta, final int maximum) {
+        int remainder = (offset + counter + delta) % maximum;
 
-        return (remainder + max) % max;
+        return (remainder + maximum) % maximum;
     }
 
-    private static Pair createPair(final int offset, final int counter, final int delta, final int max) {
-        int total = calculateModulus(offset, counter, delta, max);
-        int value = calculateModulus(0, counter, delta, max);
+    private static Pair createPair(final int offset, final int counter, final int delta, final int maximum) {
+        int total = calculateModulus(offset, counter, delta, maximum);
+        int value = calculateModulus(0, counter, delta, maximum);
 
         return new Pair(total, value);
     }
@@ -49,7 +49,7 @@ public final class AtomicCyclicIntegerValue implements IntegerValue, Serializabl
 
     @Override
     public int current(final int value) {
-        Pair pairFixed = createPair(offset, value, 0, max);
+        Pair pairFixed = createPair(offset, value, 0, maximum);
 
         pair.set(pairFixed);
 
@@ -58,12 +58,12 @@ public final class AtomicCyclicIntegerValue implements IntegerValue, Serializabl
 
     @Override
     public int increment(final int delta) {
-        return pair.accumulateAndGet(null, (oldPair, newPair) -> createPair(offset, oldPair.value, delta, max)).total;
+        return pair.accumulateAndGet(null, (oldPair, newPair) -> createPair(offset, oldPair.value, delta, maximum)).total;
     }
 
     @Override
     public int compareTo(final Integer other) {
-        return Integer.compare(pair.get().total, calculateModulus(offset, other, 0, max));
+        return Integer.compare(pair.get().total, calculateModulus(offset, other, 0, maximum));
     }
 
     @Override

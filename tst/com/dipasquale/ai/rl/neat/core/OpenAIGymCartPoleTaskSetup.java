@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
-import com.dipasquale.ai.rl.neat.phenotype.SubtractionNeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.TwoSolutionNeuronLayerNormalizer;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.openai.gym.client.GymClient;
 import com.dipasquale.simulation.openai.gym.client.StepResult;
@@ -96,7 +96,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
 
                             return calculateFitness(genomeActivator);
                         })
-                        .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
+                        .fitnessDeterminerFactory(AverageFitnessDeterminerFactory.getInstance())
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -140,8 +140,8 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TopologySettingsType {
-        SINGLE_OUTPUT(IntegerNumber.literal(1), new IdentityNeuronLayerNormalizer()),
-        DOUBLE_OUTPUT(IntegerNumber.literal(2), new SubtractionNeuronLayerNormalizer());
+        SINGLE_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerNormalizer.getInstance()),
+        DOUBLE_OUTPUT(IntegerNumber.literal(2), TwoSolutionNeuronLayerNormalizer.getInstance());
 
         private final IntegerNumber outputs;
         private final NeuronLayerNormalizer outputLayerNormalizer;

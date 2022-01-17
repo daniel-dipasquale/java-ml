@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public final class ActivationSupport {
     @Builder.Default
-    private final NeuronLayerNormalizer outputLayerNormalizer = new IdentityNeuronLayerNormalizer();
+    private final NeuronLayerNormalizer outputLayerNormalizer = IdentityNeuronLayerNormalizer.getInstance();
 
     ContextObjectActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport) {
         return ContextObjectActivationSupport.create(initializationContext, generalSupport, connectionGeneSupport, this);

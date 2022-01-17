@@ -13,17 +13,12 @@ public final class DualModeBoundedRandomIntegerFactory implements IntegerFactory
     @Serial
     private static final long serialVersionUID = 3322232093472816035L;
     private final DualModeRandomSupport randomSupport;
-    private final int min;
-    private final int max;
+    private final int minimum;
+    private final int maximum;
 
     @Override
     public int create() {
-        return randomSupport.next(min, max);
-    }
-
-    @Override
-    public int concurrencyLevel() {
-        return randomSupport.concurrencyLevel();
+        return randomSupport.next(minimum, maximum);
     }
 
     @Override

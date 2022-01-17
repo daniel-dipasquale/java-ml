@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
-import com.dipasquale.ai.rl.neat.phenotype.SubtractionNeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.TwoSolutionNeuronLayerNormalizer;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
 import com.dipasquale.search.mcts.classic.ClassicConfidenceCalculator;
@@ -55,8 +55,8 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
     private final int populationSize = POPULATION_SETTINGS_TYPE.populationSize;
     private final boolean metricsEmissionEnabled;
 
-    private static float getValue(final float value, final float min, final float max) {
-        return (value - min) / (max - min);
+    private static float getValue(final float value, final float minimum, final float maximum) {
+        return (value - minimum) / (maximum - minimum);
     }
 
     private static float[][] createMovementScoreFitnessTable() {
@@ -75,23 +75,23 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
         float[][] tableFixed = new float[table.length][table[0].length];
 
         for (int i1 = 0, c1 = table.length, c2 = table[0].length; i1 < c1; i1++) {
-            float min = Float.MAX_VALUE;
-            float max = -Float.MAX_VALUE;
+            float minimum = Float.MAX_VALUE;
+            float maximum = -Float.MAX_VALUE;
 
             for (int i2 = 0; i2 < c2; i2++) {
                 float value = table[i1][i2];
 
-                if (Float.compare(value, min) < 0) {
-                    min = value;
+                if (Float.compare(value, minimum) < 0) {
+                    minimum = value;
                 }
 
-                if (Float.compare(value, max) > 0) {
-                    max = value;
+                if (Float.compare(value, maximum) > 0) {
+                    maximum = value;
                 }
             }
 
             for (int i2 = 0; i2 < c2; i2++) {
-                tableFixed[i1][i2] = getValue(table[i1][i2], min, max);
+                tableFixed[i1][i2] = getValue(table[i1][i2], minimum, maximum);
             }
         }
 
@@ -232,7 +232,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                                 .rematches(1)
                                 .eliminationRounds(POPULATION_SETTINGS_TYPE.eliminationRounds)
                                 .build())
-                        .fitnessDeterminerFactory(new AverageFitnessDeterminerFactory())
+                        .fitnessDeterminerFactory(AverageFitnessDeterminerFactory.getInstance())
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -356,7 +356,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                         .add(1, OutputActivationFunctionType.TAN_H)
                         .add(9, OutputActivationFunctionType.SIGMOID)
                         .build()),
-                new IdentityNeuronLayerNormalizer(),
+                IdentityNeuronLayerNormalizer.getInstance(),
                 MultiPerspectiveAlphaZeroNeatDecoder.<GameState, GameEnvironment>builder()
                         .perspectiveParticipantId(1)
                         .valueIndex(0)
@@ -366,7 +366,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                         .add(2, OutputActivationFunctionType.TAN_H)
                         .add(18, OutputActivationFunctionType.SIGMOID)
                         .build()),
-                new SubtractionNeuronLayerNormalizer(),
+                TwoSolutionNeuronLayerNormalizer.getInstance(),
                 MultiPerspectiveAlphaZeroNeatDecoder.<GameState, GameEnvironment>builder()
                         .perspectiveParticipantId(1)
                         .valueIndex(0)
@@ -376,7 +376,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                         .add(2, OutputActivationFunctionType.TAN_H)
                         .add(6, OutputActivationFunctionType.SIGMOID)
                         .build()),
-                new SubtractionNeuronLayerNormalizer(),
+                TwoSolutionNeuronLayerNormalizer.getInstance(),
                 MultiPerspectiveAlphaZeroNeatDecoder.<GameState, GameEnvironment>builder()
                         .perspectiveParticipantId(1)
                         .valueIndex(0)

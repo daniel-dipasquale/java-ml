@@ -22,14 +22,10 @@ public final class DualModeGenomeActivatorPool implements GenomeActivatorPool, D
     private final NeuralNetworkFactory neuralNetworkFactory;
     private transient StateStrategyGenomeActivatorPool genomeActivatorPool;
 
-    private DualModeGenomeActivatorPool(final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators, final NeuralNetworkFactory neuralNetworkFactory) {
+    public DualModeGenomeActivatorPool(final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators, final NeuralNetworkFactory neuralNetworkFactory) {
         this.genomeActivators = genomeActivators;
         this.neuralNetworkFactory = neuralNetworkFactory;
         this.genomeActivatorPool = new StateStrategyGenomeActivatorPool(genomeActivators, neuralNetworkFactory);
-    }
-
-    public DualModeGenomeActivatorPool(final DualModeMapFactory mapFactory, final NeuralNetworkFactory neuralNetworkFactory) {
-        this(new DualModeMap<>(mapFactory), neuralNetworkFactory);
     }
 
     @Override
@@ -40,11 +36,6 @@ public final class DualModeGenomeActivatorPool implements GenomeActivatorPool, D
     @Override
     public GenomeActivator create(final Genome genome, final PopulationState populationState) {
         return genomeActivatorPool.create(genome, populationState);
-    }
-
-    @Override
-    public int concurrencyLevel() {
-        return genomeActivators.concurrencyLevel();
     }
 
     @Override

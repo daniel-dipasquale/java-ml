@@ -55,11 +55,6 @@ public final class DualModeMetricsContainer implements MetricsContainer, DualMod
         return metricsContainer.replaceIterationMetrics();
     }
 
-    @Override
-    public int concurrencyLevel() {
-        return mapFactory.concurrencyLevel();
-    }
-
     private StateStrategyMetricsContainer createMetricsContainer() {
         FitnessMetrics fitnessMetrics = metricsContainer.getFitnessMetrics().createCopy(mapFactory);
         GenerationMetrics generationMetrics = metricsContainer.getGenerationMetrics().createCopy(mapFactory);

@@ -17,7 +17,7 @@ import java.util.List;
 public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, Serializable { // TODO: come up with a plan for this
     @Serial
     private static final long serialVersionUID = 6023334719020977847L;
-    private static final MetricDatumFactory METRIC_DATUM_FACTORY = new LazyValuesMetricDatumFactory();
+    private static final MetricDatumFactory METRIC_DATUM_FACTORY = LazyValuesMetricDatumFactory.getInstance();
     private final DateTimeSupport dateTimeSupport;
     private int lastGenerationTested = 0;
     private long lastGenerationDateTime = Long.MIN_VALUE;
@@ -31,7 +31,7 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
     private Genome lastChampionGenome = null;
 
     private static String format(final float value) {
-        if (Float.compare(value, (float) Math.floor(value)) != 0) {
+        if (Double.compare(value, Math.floor(value)) != 0) {
             return Float.toString(value);
         }
 

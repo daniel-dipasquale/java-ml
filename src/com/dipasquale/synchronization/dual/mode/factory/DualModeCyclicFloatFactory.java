@@ -31,11 +31,6 @@ public final class DualModeCyclicFloatFactory<T extends FloatFactory & DualModeO
     }
 
     @Override
-    public int concurrencyLevel() {
-        return index.concurrencyLevel();
-    }
-
-    @Override
     public void activateMode(final int concurrencyLevel) {
         DualModeObject.forEachActivateMode(floatFactories, concurrencyLevel);
         index.activateMode(concurrencyLevel);
