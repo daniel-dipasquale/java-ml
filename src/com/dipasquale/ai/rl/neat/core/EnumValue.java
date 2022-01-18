@@ -8,6 +8,7 @@ import com.dipasquale.data.structure.collection.Lists;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeEnumFactory;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -15,6 +16,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 public final class EnumValue<T extends Enum<T>> {
     private final DualModeFactoryCreator<T> factoryCreator;
 
@@ -23,23 +25,23 @@ public final class EnumValue<T extends Enum<T>> {
     }
 
     public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
-        DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
-            DualModeEnumFactory<T> enumFactory = new DualModeEnumFactory<>(initializationContext.getConcurrencyLevel(), new LiteralEnumFactory<>(value));
+        return EnumValue.<T>builder()
+                .factoryCreator(initializationContext -> {
+                    DualModeEnumFactory<T> enumFactory = new DualModeEnumFactory<>(initializationContext.getConcurrencyLevel(), new LiteralEnumFactory<>(value));
 
-            return createFactoryAdapter(enumFactory);
-        };
-
-        return new EnumValue<>(factoryCreator);
+                    return createFactoryAdapter(enumFactory);
+                })
+                .build();
     }
 
     private static <T extends Enum<T>> EnumValue<T> createSequence(final List<T> values) {
-        DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
-            DualModeSequentialEnumFactory<T> enumFactory = new DualModeSequentialEnumFactory<>(initializationContext.getConcurrencyLevel(), values);
+        return EnumValue.<T>builder()
+                .factoryCreator(initializationContext -> {
+                    DualModeSequentialEnumFactory<T> enumFactory = new DualModeSequentialEnumFactory<>(initializationContext.getConcurrencyLevel(), values);
 
-            return createFactoryAdapter(enumFactory);
-        };
-
-        return new EnumValue<>(factoryCreator);
+                    return createFactoryAdapter(enumFactory);
+                })
+                .build();
     }
 
     public static <T extends Enum<T>> EnumValue<T> sequence(final Sequence<T> sequence) {
@@ -47,13 +49,13 @@ public final class EnumValue<T extends Enum<T>> {
     }
 
     private static <T extends Enum<T>> EnumValue<T> createRandom(final T[] values) {
-        DualModeFactoryCreator<T> factoryCreator = initializationContext -> {
-            DualModeRandomEnumFactory<T> enumFactory = new DualModeRandomEnumFactory<>(initializationContext.createRandomSupport(RandomType.UNIFORM), Lists.create(values));
+        return EnumValue.<T>builder()
+                .factoryCreator(initializationContext -> {
+                    DualModeRandomEnumFactory<T> enumFactory = new DualModeRandomEnumFactory<>(initializationContext.createDefaultRandomSupport(), Lists.create(values));
 
-            return createFactoryAdapter(enumFactory);
-        };
-
-        return new EnumValue<>(factoryCreator);
+                    return createFactoryAdapter(enumFactory);
+                })
+                .build();
     }
 
     public static <T extends Enum<T>> EnumValue<T> randomAll(final Class<T> type) {

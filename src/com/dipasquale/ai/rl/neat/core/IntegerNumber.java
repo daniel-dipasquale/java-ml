@@ -6,12 +6,14 @@ import com.dipasquale.common.factory.LiteralIntegerFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeIntegerFactory;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 public final class IntegerNumber {
     private final DualModeFactoryCreator factoryCreator;
 
@@ -20,23 +22,23 @@ public final class IntegerNumber {
     }
 
     public static IntegerNumber literal(final int value) {
-        DualModeFactoryCreator factoryCreator = initializationContext -> {
-            DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(initializationContext.getConcurrencyLevel(), new LiteralIntegerFactory(value));
+        return IntegerNumber.builder()
+                .factoryCreator(initializationContext -> {
+                    DualModeIntegerFactory integerFactory = new DualModeIntegerFactory(initializationContext.getConcurrencyLevel(), new LiteralIntegerFactory(value));
 
-            return createFactoryAdapter(integerFactory);
-        };
-
-        return new IntegerNumber(factoryCreator);
+                    return createFactoryAdapter(integerFactory);
+                })
+                .build();
     }
 
     public static IntegerNumber random(final RandomType type, final int minimum, final int maximum) {
-        DualModeFactoryCreator factoryCreator = initializationContext -> {
-            DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(initializationContext.createRandomSupport(type), minimum, maximum);
+        return IntegerNumber.builder()
+                .factoryCreator(initializationContext -> {
+                    DualModeBoundedRandomIntegerFactory integerFactory = new DualModeBoundedRandomIntegerFactory(initializationContext.createRandomSupport(type), minimum, maximum);
 
-            return createFactoryAdapter(integerFactory);
-        };
-
-        return new IntegerNumber(factoryCreator);
+                    return createFactoryAdapter(integerFactory);
+                })
+                .build();
     }
 
     DualModeFactory createFactory(final InitializationContext initializationContext) {

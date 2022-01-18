@@ -6,12 +6,14 @@ import com.dipasquale.common.factory.LiteralFloatFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeFloatFactory;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 public final class FloatNumber {
     private final DualModeFactoryCreator factoryCreator;
 
@@ -20,23 +22,23 @@ public final class FloatNumber {
     }
 
     public static FloatNumber literal(final float value) {
-        DualModeFactoryCreator factoryCreator = initializationContext -> {
-            DualModeFloatFactory floatFactory = new DualModeFloatFactory(initializationContext.getConcurrencyLevel(), new LiteralFloatFactory(value));
+        return FloatNumber.builder()
+                .factoryCreator(initializationContext -> {
+                    DualModeFloatFactory floatFactory = new DualModeFloatFactory(initializationContext.getConcurrencyLevel(), new LiteralFloatFactory(value));
 
-            return createFactoryAdapter(floatFactory);
-        };
-
-        return new FloatNumber(factoryCreator);
+                    return createFactoryAdapter(floatFactory);
+                })
+                .build();
     }
 
     public static FloatNumber random(final RandomType type, final float minimum, final float maximum) {
-        DualModeFactoryCreator factoryCreator = initializationContext -> {
-            DualModeBoundedRandomFloatFactory floatFactory = new DualModeBoundedRandomFloatFactory(initializationContext.createRandomSupport(type), minimum, maximum);
+        return FloatNumber.builder()
+                .factoryCreator(initializationContext -> {
+                    DualModeBoundedRandomFloatFactory floatFactory = new DualModeBoundedRandomFloatFactory(initializationContext.createRandomSupport(type), minimum, maximum);
 
-            return createFactoryAdapter(floatFactory);
-        };
-
-        return new FloatNumber(factoryCreator);
+                    return createFactoryAdapter(floatFactory);
+                })
+                .build();
     }
 
     public static FloatNumber random(final RandomType type, final float range) {

@@ -12,7 +12,7 @@ import lombok.Getter;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-public final class InitializationContext {
+final class InitializationContext {
     private static final DualModeRandomSupportFactory RANDOM_SUPPORT_FACTORY = DualModeRandomSupportFactory.getInstance();
     @Getter
     private final NeatEnvironmentType environmentType;
@@ -23,8 +23,10 @@ public final class InitializationContext {
     private final Map<Object, Object> singletons;
 
     InitializationContext(final NeatEnvironmentType environmentType, final ParallelismSupport parallelism, final RandomSupport random) {
+        int concurrencyLevel = parallelism.getConcurrencyLevel();
+
         this.environmentType = environmentType;
-        this.concurrencyLevel = parallelism.getConcurrencyLevel();
+        this.concurrencyLevel = concurrencyLevel;
         this.maximumConcurrencyLevel = getMaximumConcurrencyLevel(concurrencyLevel);
         this.random = random;
         this.singletons = new IdentityHashMap<>();
