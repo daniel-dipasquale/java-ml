@@ -19,7 +19,7 @@ algorithms I'm interested in learning and using:
 ## Test Configuration Examples
 
 1. **NEAT Algorithm**
-    - [x] [XOR test](blob/main/tst/com/dipasquale/ai/rl/neat/core/XorTaskSetup.java) :+1: (random data sample)
+    - [x] [XOR test](tst/com/dipasquale/ai/rl/neat/core/XorTaskSetup.java) :+1: (random data sample)
         - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=2d5ht3rcy&view)
 
       ```
@@ -123,7 +123,7 @@ algorithms I'm interested in learning and using:
                  .build());
       ```
 
-    - [x] [Cart Single Pole Balance test](blob/main/tst/com/dipasquale/ai/rl/neat/core/OpenAIGymCartPoleTaskSetup.java)
+    - [x] [Cart Single Pole Balance test](tst/com/dipasquale/ai/rl/neat/core/OpenAIGymCartPoleTaskSetup.java)
       test: :+1: (random data sample)
         - [metrics](https://fv9-3.failiem.lv/thumb_show.php?i=nz4b9euc5&view)
 

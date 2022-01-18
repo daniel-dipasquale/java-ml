@@ -6,7 +6,6 @@ import com.dipasquale.synchronization.dual.mode.data.structure.deque.DualModeDeq
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
 import com.dipasquale.synchronization.dual.mode.data.structure.set.DualModeMapToSetFactory;
-import com.dipasquale.synchronization.dual.mode.data.structure.set.DualModeSet;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.Getter;
 
@@ -20,23 +19,13 @@ public final class InitializationContext {
     @Getter
     private final int concurrencyLevel;
     private final int maximumConcurrencyLevel;
-    private final DualModeMapFactory mapFactory;
-    private final DualModeMapToSetFactory setFactory;
-    private final DualModeDequeFactory dequeFactory;
     private final RandomSupport random;
     private final Map<Object, Object> singletons;
 
     InitializationContext(final NeatEnvironmentType environmentType, final ParallelismSupport parallelism, final RandomSupport random) {
-        int concurrencyLevel = parallelism.getConcurrencyLevel();
-        int maximumConcurrencyLevel = getMaximumConcurrencyLevel(concurrencyLevel);
-        DualModeMapFactory mapFactory = new DualModeMapFactory(concurrencyLevel, maximumConcurrencyLevel);
-
         this.environmentType = environmentType;
-        this.concurrencyLevel = concurrencyLevel;
-        this.maximumConcurrencyLevel = maximumConcurrencyLevel;
-        this.mapFactory = mapFactory;
-        this.setFactory = new DualModeMapToSetFactory(mapFactory);
-        this.dequeFactory = new DualModeDequeFactory(concurrencyLevel, maximumConcurrencyLevel);
+        this.concurrencyLevel = parallelism.getConcurrencyLevel();
+        this.maximumConcurrencyLevel = getMaximumConcurrencyLevel(concurrencyLevel);
         this.random = random;
         this.singletons = new IdentityHashMap<>();
     }
@@ -52,19 +41,19 @@ public final class InitializationContext {
     }
 
     public <TKey, TValue> DualModeMap<TKey, TValue, DualModeMapFactory> createMap() {
-        return new DualModeMap<>(mapFactory);
+        return new DualModeMap<>(createMapFactory());
     }
 
     public DualModeMapToSetFactory createSetFactory() {
         return new DualModeMapToSetFactory(createMapFactory());
     }
 
-    public <T> DualModeSet<T, DualModeMapToSetFactory> createSet() {
-        return new DualModeSet<>(setFactory);
+    public DualModeDequeFactory createDequeFactory() {
+        return new DualModeDequeFactory(concurrencyLevel, maximumConcurrencyLevel);
     }
 
     public <T> DualModeDeque<T, DualModeDequeFactory> createDeque() {
-        return new DualModeDeque<>(dequeFactory);
+        return new DualModeDeque<>(createDequeFactory());
     }
 
     public DualModeRandomSupport createRandomSupport(final RandomType randomType) {
