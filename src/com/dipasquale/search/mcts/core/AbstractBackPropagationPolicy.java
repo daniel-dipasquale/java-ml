@@ -4,17 +4,17 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractBackPropagationPolicy<TState extends State, TEdge extends Edge, TEnvironment extends Environment<TState, TEnvironment>> implements BackPropagationPolicy<TState, TEdge, TEnvironment> {
-    private final BackPropagationObserver<TState, TEdge, TEnvironment> observer;
+public abstract class AbstractBackPropagationPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements BackPropagationPolicy<TAction, TEdge, TState> {
+    private final BackPropagationObserver<TAction, TEdge, TState> observer;
 
-    protected abstract void process(SearchNode<TState, TEdge, TEnvironment> leafNode, int simulationStatusId, SearchNode<TState, TEdge, TEnvironment> currentNode);
+    protected abstract void process(SearchNode<TAction, TEdge, TState> leafNode, int simulationStatusId, SearchNode<TAction, TEdge, TState> currentNode);
 
     @Override
-    public final void process(final SearchNode<TState, TEdge, TEnvironment> leafNode, final int simulationStatusId) {
+    public final void process(final SearchNode<TAction, TEdge, TState> leafNode, final int simulationStatusId) {
         boolean isFullyExplored = true;
 
-        for (SearchNode<TState, TEdge, TEnvironment> currentNode = leafNode; currentNode != null; ) {
-            SearchNode<TState, TEdge, TEnvironment> parentNode = currentNode.getParent();
+        for (SearchNode<TAction, TEdge, TState> currentNode = leafNode; currentNode != null; ) {
+            SearchNode<TAction, TEdge, TState> parentNode = currentNode.getParent();
 
             process(leafNode, simulationStatusId, currentNode);
 

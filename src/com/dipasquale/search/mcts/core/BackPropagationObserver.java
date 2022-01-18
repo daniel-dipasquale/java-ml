@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts.core;
 
 @FunctionalInterface
-public interface BackPropagationObserver<TState extends State, TEdge extends Edge, TEnvironment extends Environment<TState, TEnvironment>> {
-    void notify(SearchNode<TState, TEdge, TEnvironment> leafNode, int simulationStatusId);
+public interface BackPropagationObserver<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
+    void notify(SearchNode<TAction, TEdge, TState> leafNode, int simulationStatusId);
 }

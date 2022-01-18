@@ -1,10 +1,10 @@
 package com.dipasquale.simulation.mcts.alphazero;
 
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
-import com.dipasquale.search.mcts.core.Environment;
+import com.dipasquale.search.mcts.core.Action;
 import com.dipasquale.search.mcts.core.State;
 
-public final class MultiPerspectiveAlphaZeroPrediction<TState extends State, TEnvironment extends Environment<TState, TEnvironment>> implements AlphaZeroPrediction {
+public final class MultiPerspectiveAlphaZeroPrediction<TAction extends Action, TEnvironment extends State<TAction, TEnvironment>> implements AlphaZeroPrediction {
     private final int nextParticipantId;
     private final int currentParticipantId;
     private final int perspectiveParticipantId;
@@ -14,13 +14,13 @@ public final class MultiPerspectiveAlphaZeroPrediction<TState extends State, TEn
     private final int valueIndex;
     private final float[] output;
 
-    MultiPerspectiveAlphaZeroPrediction(final int perspectiveParticipantId, final int valueIndex, final NeatAlphaZeroHeuristicContext<TState, TEnvironment> context, final float[] output) {
+    MultiPerspectiveAlphaZeroPrediction(final int perspectiveParticipantId, final int valueIndex, final NeatAlphaZeroHeuristicContext<TAction, TEnvironment> context, final float[] output) {
         TEnvironment environment = context.getEnvironment();
         int policyChoiceCount = context.getChildrenCount();
         int policyChoiceAvailableCount = output.length - 1;
 
         this.nextParticipantId = environment.getNextParticipantId();
-        this.currentParticipantId = environment.getCurrentState().getParticipantId();
+        this.currentParticipantId = environment.getLastAction().getParticipantId();
         this.perspectiveParticipantId = perspectiveParticipantId;
         this.policySuperSet = policyChoiceCount <= policyChoiceAvailableCount;
         this.policyChoiceCount = (float) policyChoiceCount;

@@ -3,18 +3,20 @@ package com.dipasquale.search.mcts.alphazero;
 import com.dipasquale.search.mcts.core.Edge;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
+@Setter(AccessLevel.PACKAGE)
 public final class AlphaZeroEdge implements Edge {
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.NONE)
+    private final AlphaZeroEdge parent;
+    @Setter(AccessLevel.NONE)
     private int visited = 0;
-    @Setter(AccessLevel.PACKAGE)
     private float expectedReward = 0f;
-    @Setter(AccessLevel.PACKAGE)
     private float probableReward = 0f;
-    @Setter(AccessLevel.PACKAGE)
     private float explorationProbability = 0f;
 
     void increaseVisited() {

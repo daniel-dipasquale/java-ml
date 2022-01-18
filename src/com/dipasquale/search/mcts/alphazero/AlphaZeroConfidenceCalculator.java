@@ -8,11 +8,12 @@ public final class AlphaZeroConfidenceCalculator implements ConfidenceCalculator
     private final CPuctAlgorithm cpuct;
 
     @Override
-    public float calculate(final int simulations, final AlphaZeroEdge edge) {
+    public float calculate(final AlphaZeroEdge edge) {
         float exploitationRate = edge.getExpectedReward();
+        int parentVisited = edge.getParent().getVisited();
         int visited = edge.getVisited();
         double visitedPlusOne = visited + 1;
-        float explorationRate = cpuct.getValue(simulations, visited) * edge.getExplorationProbability() * (float) (Math.sqrt(simulations) / visitedPlusOne);
+        float explorationRate = cpuct.getValue(parentVisited, visited) * edge.getExplorationProbability() * (float) (Math.sqrt(parentVisited) / visitedPlusOne);
 
         return exploitationRate + explorationRate;
     }

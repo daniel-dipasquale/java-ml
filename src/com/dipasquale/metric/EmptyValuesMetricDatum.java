@@ -15,37 +15,21 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
+@Getter
+final class EmptyValuesMetricDatum extends AbstractMetricDatum {
     @Serial
     private static final long serialVersionUID = 1380744331140358748L;
-    @Getter
     private final List<Float> values = new EmptyList(this);
+    @Getter(AccessLevel.NONE)
     private int count = 0;
-    @Getter
-    private Float sum = null;
-    @Getter
     private Float average = null;
-    @Getter
-    private Float minimum = null;
-    @Getter
-    private Float maximum = null;
 
     @Override
     public void add(final float value) {
         int size = count;
 
         count++;
-
-        if (size == 0) {
-            sum = value;
-            minimum = value;
-            maximum = value;
-        } else {
-            sum += value;
-            minimum = Math.min(minimum, value);
-            maximum = Math.max(maximum, value);
-        }
-
+        appendStatistics(size, value);
         average = sum / (float) count;
     }
 
@@ -58,17 +42,7 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
         int size = count;
 
         count += other.getValues().size();
-
-        if (size == 0) {
-            sum = other.getSum();
-            minimum = other.getMinimum();
-            maximum = other.getMaximum();
-        } else {
-            sum += other.getSum();
-            minimum = Math.min(minimum, other.getMinimum());
-            maximum = Math.max(maximum, other.getMaximum());
-        }
-
+        mergeStatistics(size, other);
         average = sum / (float) count;
     }
 
@@ -103,10 +77,8 @@ final class EmptyValuesMetricDatum implements MetricDatum, Serializable {
     @Override
     public void clear() {
         count = 0;
-        sum = null;
+        super.clear();
         average = null;
-        minimum = null;
-        maximum = null;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

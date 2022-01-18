@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class PlainInputNeatEncoder implements NeatEncoder<GameEnvironment> {
+public final class PlainInputNeatEncoder implements NeatEncoder<GameState> {
     private final int perspectiveParticipantId;
 
     @Override
-    public float[] encode(final GameEnvironment input) {
+    public float[] encode(final GameState input) {
         int[] board = input.getBoard();
         float[] encodedInput = new float[9];
 

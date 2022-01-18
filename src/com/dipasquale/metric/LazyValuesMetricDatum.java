@@ -1,35 +1,25 @@
 package com.dipasquale.metric;
 
-import lombok.Getter;
-
 import java.io.Serial;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-final class LazyValuesMetricDatum implements MetricDatum, Serializable {
+final class LazyValuesMetricDatum extends AbstractMetricDatum {
     @Serial
     private static final long serialVersionUID = 6618085287572626284L;
     private boolean valuesSorted;
     private final List<Float> values;
     private final List<Float> valuesReadOnly;
-    @Getter
-    private Float sum;
-    @Getter
-    private Float minimum;
-    @Getter
-    private Float maximum;
 
-    LazyValuesMetricDatum() {
-        List<Float> values = new ArrayList<>();
-
+    private LazyValuesMetricDatum(final List<Float> values) {
         this.valuesSorted = true;
         this.values = values;
         this.valuesReadOnly = Collections.unmodifiableList(values);
-        this.sum = null;
-        this.minimum = null;
-        this.maximum = null;
+    }
+
+    LazyValuesMetricDatum() {
+        this(new ArrayList<>());
     }
 
     private List<Float> ensureValuesIsSorted() {
@@ -52,16 +42,7 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
 
         valuesSorted = size == 0;
         values.add(value);
-
-        if (size == 0) {
-            sum = value;
-            minimum = value;
-            maximum = value;
-        } else {
-            sum += value;
-            minimum = Math.min(minimum, value);
-            maximum = Math.max(maximum, value);
-        }
+        appendStatistics(size, value);
     }
 
     @Override
@@ -74,16 +55,7 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
 
         valuesSorted = false;
         values.addAll(other.getValues());
-
-        if (size == 0) {
-            sum = other.getSum();
-            minimum = other.getMinimum();
-            maximum = other.getMaximum();
-        } else {
-            sum += other.getSum();
-            minimum = Math.min(minimum, other.getMinimum());
-            maximum = Math.max(maximum, other.getMaximum());
-        }
+        mergeStatistics(size, other);
     }
 
     @Override
@@ -117,8 +89,6 @@ final class LazyValuesMetricDatum implements MetricDatum, Serializable {
     public void clear() {
         valuesSorted = true;
         values.clear();
-        sum = null;
-        minimum = null;
-        maximum = null;
+        super.clear();
     }
 }

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class MonteCarloTreeSearch<TState extends State, TEdge extends Edge, TEnvironment extends Environment<TState, TEnvironment>> {
+public final class MonteCarloTreeSearch<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
     private static final Comparator<Float> FLOAT_COMPARATOR = Float::compare;
     private static final ClassicPrevalentStrategyCalculator CLASSIC_PREVALENT_STRATEGY_CALCULATOR = new ClassicPrevalentStrategyCalculator(2f, 0.5f);
     private static final RosinCPuctAlgorithm ROSIN_C_PUCT_ALGORITHM = new RosinCPuctAlgorithm();
@@ -38,50 +38,60 @@ public final class MonteCarloTreeSearch<TState extends State, TEdge extends Edge
     public static final int IN_PROGRESS = 0;
     public static final int DRAWN = -1;
     private final SearchPolicy searchPolicy;
-    private final EdgeFactory<TEdge> edgeFactory;
-    private final TraversalPolicy<TState, TEdge, TEnvironment> selectionPolicy;
-    private final TraversalPolicy<TState, TEdge, TEnvironment> simulationRolloutPolicy;
-    private final BackPropagationPolicy<TState, TEdge, TEnvironment> backPropagationPolicy;
+    private final SearchNodeCache<TAction, TEdge, TState> nodeCache;
+    private final TraversalPolicy<TAction, TEdge, TState> selectionPolicy;
+    private final TraversalPolicy<TAction, TEdge, TState> simulationRolloutPolicy;
+    private final BackPropagationPolicy<TAction, TEdge, TState> backPropagationPolicy;
     private final StrategyCalculator<TEdge> strategyCalculator;
 
+    private static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> SearchNodeCache<TAction, TEdge, TState> createNodeCache(final SearchCacheSettings searchCacheSettings, final EdgeFactory<TEdge> edgeFactory) {
+        if (searchCacheSettings == null) {
+            return null;
+        }
+
+        return searchCacheSettings.create(edgeFactory);
+    }
+
     @Builder(builderMethodName = "classicBuilder", builderClassName = "ClassicBuilder")
-    public static <TState extends State, TEnvironment extends Environment<TState, TEnvironment>> MonteCarloTreeSearch<TState, ClassicEdge, TEnvironment> createClassic(final SearchPolicy searchPolicy, final ConfidenceCalculator<ClassicEdge> confidenceCalculator, final BackPropagationObserver<TState, ClassicEdge, TEnvironment> backPropagationObserver, final StrategyCalculator<ClassicEdge> strategyCalculator) {
+    public static <TAction extends Action, TState extends State<TAction, TState>> MonteCarloTreeSearch<TAction, ClassicEdge, TState> createClassic(final SearchPolicy searchPolicy, final SearchCacheSettings searchCacheSettings, final ConfidenceCalculator<ClassicEdge> confidenceCalculator, final BackPropagationObserver<TAction, ClassicEdge, TState> backPropagationObserver, final StrategyCalculator<ClassicEdge> strategyCalculator) {
         EdgeFactory<ClassicEdge> edgeFactory = ClassicEdgeFactory.getInstance();
         RandomSupport randomSupport = new UniformRandomSupport();
-        ClassicChildrenInitializerTraversalPolicy<TState, TEnvironment> childrenInitializerTraversalPolicy = new ClassicChildrenInitializerTraversalPolicy<>(edgeFactory, randomSupport);
-        ClassicSimulationRolloutPolicyFactory<TState, TEnvironment> simulationRolloutPolicyFactory = new ClassicSimulationRolloutPolicyFactory<>(childrenInitializerTraversalPolicy, randomSupport);
-        TraversalPolicy<TState, ClassicEdge, TEnvironment> simulationRolloutPolicy = simulationRolloutPolicyFactory.create();
-        BackPropagationPolicy<TState, ClassicEdge, TEnvironment> backPropagationPolicy = new ClassicBackPropagationPolicy<>(backPropagationObserver);
+        SearchNodeCache<TAction, ClassicEdge, TState> nodeCache = createNodeCache(searchCacheSettings, edgeFactory);
+        ClassicChildrenInitializerTraversalPolicy<TAction, TState> childrenInitializerTraversalPolicy = new ClassicChildrenInitializerTraversalPolicy<>(edgeFactory, randomSupport, nodeCache);
+        ClassicSimulationRolloutPolicyFactory<TAction, TState> simulationRolloutPolicyFactory = new ClassicSimulationRolloutPolicyFactory<>(childrenInitializerTraversalPolicy, randomSupport);
+        TraversalPolicy<TAction, ClassicEdge, TState> simulationRolloutPolicy = simulationRolloutPolicyFactory.create();
+        BackPropagationPolicy<TAction, ClassicEdge, TState> backPropagationPolicy = new ClassicBackPropagationPolicy<>(backPropagationObserver);
         StrategyCalculator<ClassicEdge> strategyCalculatorFixed = Objects.requireNonNullElse(strategyCalculator, CLASSIC_PREVALENT_STRATEGY_CALCULATOR);
 
         if (confidenceCalculator == null) {
-            return new MonteCarloTreeSearch<>(searchPolicy, edgeFactory, simulationRolloutPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculatorFixed);
+            return new MonteCarloTreeSearch<>(searchPolicy, nodeCache, simulationRolloutPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculatorFixed);
         }
 
-        ClassicSelectionPolicyFactory<TState, TEnvironment> selectionPolicyFactory = new ClassicSelectionPolicyFactory<>(childrenInitializerTraversalPolicy, confidenceCalculator);
-        TraversalPolicy<TState, ClassicEdge, TEnvironment> selectionPolicy = selectionPolicyFactory.create();
+        ClassicSelectionPolicyFactory<TAction, TState> selectionPolicyFactory = new ClassicSelectionPolicyFactory<>(childrenInitializerTraversalPolicy, confidenceCalculator);
+        TraversalPolicy<TAction, ClassicEdge, TState> selectionPolicy = selectionPolicyFactory.create();
 
-        return new MonteCarloTreeSearch<>(searchPolicy, edgeFactory, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculatorFixed);
+        return new MonteCarloTreeSearch<>(searchPolicy, nodeCache, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculatorFixed);
     }
 
     @Builder(builderMethodName = "alphaZeroBuilder", builderClassName = "AlphaZeroBuilder")
-    public static <TState extends State, TEnvironment extends Environment<TState, TEnvironment>> MonteCarloTreeSearch<TState, AlphaZeroEdge, TEnvironment> createAlphaZero(final SearchPolicy searchPolicy, final AlphaZeroHeuristic<TState, TEnvironment> heuristic, final ConfidenceCalculator<AlphaZeroEdge> confidenceCalculator, final BackPropagationObserver<TState, AlphaZeroEdge, TEnvironment> backPropagationObserver, final StrategyCalculator<AlphaZeroEdge> strategyCalculator) {
+    public static <TAction extends Action, TState extends State<TAction, TState>> MonteCarloTreeSearch<TAction, AlphaZeroEdge, TState> createAlphaZero(final SearchPolicy searchPolicy, final SearchCacheSettings searchCacheSettings, final AlphaZeroHeuristic<TAction, TState> heuristic, final ConfidenceCalculator<AlphaZeroEdge> confidenceCalculator, final BackPropagationObserver<TAction, AlphaZeroEdge, TState> backPropagationObserver, final StrategyCalculator<AlphaZeroEdge> strategyCalculator) {
         EdgeFactory<AlphaZeroEdge> edgeFactory = AlphaZeroEdgeFactory.getInstance();
-        AlphaZeroChildrenInitializerTraversalPolicy<TState, TEnvironment> childrenInitializerTraversalPolicy = new AlphaZeroChildrenInitializerTraversalPolicy<>(edgeFactory, heuristic);
+        SearchNodeCache<TAction, AlphaZeroEdge, TState> nodeCache = createNodeCache(searchCacheSettings, edgeFactory);
+        AlphaZeroChildrenInitializerTraversalPolicy<TAction, TState> childrenInitializerTraversalPolicy = new AlphaZeroChildrenInitializerTraversalPolicy<>(edgeFactory, heuristic, nodeCache);
         ConfidenceCalculator<AlphaZeroEdge> confidenceCalculatorFixed = Objects.requireNonNullElse(confidenceCalculator, ALPHA_ZERO_CONFIDENCE_CALCULATOR);
-        AlphaZeroSelectionPolicyFactory<TState, TEnvironment> selectionPolicyFactory = new AlphaZeroSelectionPolicyFactory<>(childrenInitializerTraversalPolicy, confidenceCalculatorFixed);
-        TraversalPolicy<TState, AlphaZeroEdge, TEnvironment> selectionPolicy = selectionPolicyFactory.create();
-        BackPropagationPolicy<TState, AlphaZeroEdge, TEnvironment> backPropagationPolicy = new AlphaZeroBackPropagationPolicy<>(backPropagationObserver);
+        AlphaZeroSelectionPolicyFactory<TAction, TState> selectionPolicyFactory = new AlphaZeroSelectionPolicyFactory<>(childrenInitializerTraversalPolicy, confidenceCalculatorFixed);
+        TraversalPolicy<TAction, AlphaZeroEdge, TState> selectionPolicy = selectionPolicyFactory.create();
+        BackPropagationPolicy<TAction, AlphaZeroEdge, TState> backPropagationPolicy = new AlphaZeroBackPropagationPolicy<>(backPropagationObserver);
         StrategyCalculator<AlphaZeroEdge> strategyCalculatorFixed = Objects.requireNonNullElse(strategyCalculator, ALPHA_ZERO_MOST_VISITED_STRATEGY_CALCULATOR);
 
-        return new MonteCarloTreeSearch<>(searchPolicy, edgeFactory, selectionPolicy, selectionPolicy, backPropagationPolicy, strategyCalculatorFixed);
+        return new MonteCarloTreeSearch<>(searchPolicy, nodeCache, selectionPolicy, selectionPolicy, backPropagationPolicy, strategyCalculatorFixed);
     }
 
-    private SimulationResult<TState, TEdge, TEnvironment> simulateNodeRollout(final SearchNode<TState, TEdge, TEnvironment> selectedNode, final int simulations) {
+    private SimulationResult<TAction, TEdge, TState> simulateNodeRollout(final SearchNode<TAction, TEdge, TState> selectedNode, final int simulations) {
         int selectedDepth = selectedNode.getDepth();
         int currentStatusId;
 
-        for (SearchNode<TState, TEdge, TEnvironment> currentNode = selectedNode; true; ) {
+        for (SearchNode<TAction, TEdge, TState> currentNode = selectedNode; true; ) {
             int nextDepth = currentNode.getDepth() + 1;
             int simulatedNextDepth = nextDepth - selectedDepth;
 
@@ -89,14 +99,14 @@ public final class MonteCarloTreeSearch<TState extends State, TEdge extends Edge
                 return new SimulationResult<>(currentNode, IN_PROGRESS);
             }
 
-            SearchNode<TState, TEdge, TEnvironment> childNode = simulationRolloutPolicy.next(simulations, currentNode);
+            SearchNode<TAction, TEdge, TState> childNode = simulationRolloutPolicy.next(simulations, currentNode);
 
             if (childNode == null) {
                 return new SimulationResult<>(currentNode, IN_PROGRESS);
             }
 
             currentNode = childNode;
-            currentStatusId = currentNode.getEnvironment().getStatusId();
+            currentStatusId = currentNode.getState().getStatusId();
 
             if (currentStatusId != IN_PROGRESS) {
                 return new SimulationResult<>(currentNode, currentStatusId);
@@ -104,21 +114,21 @@ public final class MonteCarloTreeSearch<TState extends State, TEdge extends Edge
         }
     }
 
-    private SearchNode<TState, TEdge, TEnvironment> findBestNode(final TEnvironment environment) {
-        if (environment.getStatusId() != IN_PROGRESS) {
+    private SearchNode<TAction, TEdge, TState> findBestNode(final TState state) {
+        if (state.getStatusId() != IN_PROGRESS) {
             return null;
         }
 
-        int simulations = 1;
-        SearchNode<TState, TEdge, TEnvironment> rootNode = new SearchNode<>(environment, edgeFactory.create());
-        SearchNode<TState, TEdge, TEnvironment> promisingNode = selectionPolicy.next(simulations, rootNode);
+        SearchNode<TAction, TEdge, TState> rootNode = nodeCache.provide(state);
+        int simulations = rootNode.getEdge().getVisited() + 1;
+        SearchNode<TAction, TEdge, TState> promisingNode = selectionPolicy.next(simulations, rootNode);
 
         if (promisingNode == null) {
             return null;
         }
 
         do {
-            int statusId = promisingNode.getEnvironment().getStatusId();
+            int statusId = promisingNode.getState().getStatusId();
 
             switch (statusId) {
                 case IN_PROGRESS -> backPropagationPolicy.process(simulateNodeRollout(promisingNode, simulations));
@@ -133,11 +143,11 @@ public final class MonteCarloTreeSearch<TState extends State, TEdge extends Edge
             }
         } while (promisingNode != null);
 
-        EntryOptimizer<Float, SearchNode<TState, TEdge, TEnvironment>> childNodeOptimizer = new EntryOptimizer<>(FLOAT_COMPARATOR);
-        List<Iterator<SearchNode<TState, TEdge, TEnvironment>>> childNodeIterators = List.of(rootNode.getExplorableChildren().iterator(), rootNode.getFullyExploredChildren().iterator());
-        Iterable<SearchNode<TState, TEdge, TEnvironment>> childNodes = () -> FlatIterator.fromIterators(childNodeIterators);
+        EntryOptimizer<Float, SearchNode<TAction, TEdge, TState>> childNodeOptimizer = new EntryOptimizer<>(FLOAT_COMPARATOR);
+        List<Iterator<SearchNode<TAction, TEdge, TState>>> childNodeIterators = List.of(rootNode.getExplorableChildren().iterator(), rootNode.getFullyExploredChildren().iterator());
+        Iterable<SearchNode<TAction, TEdge, TState>> childNodes = () -> FlatIterator.fromIterators(childNodeIterators);
 
-        for (SearchNode<TState, TEdge, TEnvironment> childNode : childNodes) {
+        for (SearchNode<TAction, TEdge, TState> childNode : childNodes) {
             float efficiency = strategyCalculator.calculateEfficiency(childNode.getEdge());
 
             childNodeOptimizer.replaceValueIfMoreOptimum(efficiency, childNode);
@@ -146,21 +156,21 @@ public final class MonteCarloTreeSearch<TState extends State, TEdge extends Edge
         return childNodeOptimizer.getValue();
     }
 
-    private TState findBestState(final TEnvironment environment) {
-        SearchNode<TState, TEdge, TEnvironment> bestNode = findBestNode(environment);
+    private TAction findBestState(final TState state) {
+        SearchNode<TAction, TEdge, TState> bestNode = findBestNode(state);
 
         if (bestNode == null) {
             return null;
         }
 
-        return bestNode.getState();
+        return bestNode.getAction();
     }
 
-    public TState proposeNextState(final TEnvironment environment) {
+    public TAction proposeNextState(final TState state) {
         searchPolicy.begin();
 
         try {
-            return findBestState(environment);
+            return findBestState(state);
         } finally {
             searchPolicy.end();
         }

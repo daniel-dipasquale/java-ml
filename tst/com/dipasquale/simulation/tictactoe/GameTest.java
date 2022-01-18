@@ -7,6 +7,7 @@ import com.dipasquale.search.mcts.core.BackPropagationObserver;
 import com.dipasquale.search.mcts.core.ConfidenceCalculator;
 import com.dipasquale.search.mcts.core.DeterministicSearchPolicy;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.core.SearchCacheSettings;
 import com.dipasquale.search.mcts.core.SearchNode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,14 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 public final class GameTest {
-    private static MonteCarloTreeSearch<GameState, ClassicEdge, GameEnvironment> createMcts(final int maximumSimulations, final ConfidenceCalculator<ClassicEdge> confidenceCalculator, final BackPropagationObserver<GameState, ClassicEdge, GameEnvironment> backPropagationObserver) {
-        return MonteCarloTreeSearch.<GameState, GameEnvironment>classicBuilder()
+    private static MonteCarloTreeSearch<GameAction, ClassicEdge, GameState> createMcts(final int maximumSimulations, final ConfidenceCalculator<ClassicEdge> confidenceCalculator, final BackPropagationObserver<GameAction, ClassicEdge, GameState> backPropagationObserver) {
+        return MonteCarloTreeSearch.<GameAction, GameState>classicBuilder()
                 .searchPolicy(DeterministicSearchPolicy.builder()
                         .maximumSimulations(maximumSimulations)
                         .maximumDepth(9)
+                        .build())
+                .searchCacheSettings(SearchCacheSettings.builder()
+                        .participants(2)
                         .build())
                 .confidenceCalculator(confidenceCalculator)
                 .backPropagationObserver(backPropagationObserver)
@@ -48,9 +52,9 @@ public final class GameTest {
     @Test
     public void TEST_2() {
         StatisticsCollector statisticsCollector = new StatisticsCollector();
-        MonteCarloTreeSearch<GameState, ClassicEdge, GameEnvironment> mcts = createMcts(255_168, null, statisticsCollector);
+        MonteCarloTreeSearch<GameAction, ClassicEdge, GameState> mcts = createMcts(255_168, null, statisticsCollector);
 
-        Assertions.assertNotNull(mcts.proposeNextState(new GameEnvironment()));
+        Assertions.assertNotNull(mcts.proposeNextState(new GameState()));
         System.out.println(Arrays.deepToString(statisticsCollector.statistics));
     }
 
@@ -90,15 +94,15 @@ public final class GameTest {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class StatisticsCollector implements BackPropagationObserver<GameState, ClassicEdge, GameEnvironment> {
+    private static final class StatisticsCollector implements BackPropagationObserver<GameAction, ClassicEdge, GameState> {
         private final Entry[][] statistics = createStatistics();
 
         @Override
-        public void notify(final SearchNode<GameState, ClassicEdge, GameEnvironment> leafNode, final int simulationStatusId) {
-            int move = leafNode.getEnvironment().getMoves().size() - 1;
+        public void notify(final SearchNode<GameAction, ClassicEdge, GameState> leafNode, final int simulationStatusId) {
+            int move = leafNode.getState().getMoves().size() - 1;
 
-            for (SearchNode<GameState, ClassicEdge, GameEnvironment> currentNode = leafNode; move >= 0; currentNode = currentNode.getParent()) {
-                GameState currentState = currentNode.getState();
+            for (SearchNode<GameAction, ClassicEdge, GameState> currentNode = leafNode; move >= 0; currentNode = currentNode.getParent()) {
+                GameAction currentState = currentNode.getAction();
                 int location = currentState.getLocation();
                 Entry entry = statistics[move][location];
 

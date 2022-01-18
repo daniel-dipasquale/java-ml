@@ -66,39 +66,32 @@ final class InitializationContext {
         return createRandomSupport(random.getType());
     }
 
-    public int getIntegerSingleton(final IntegerNumber integerNumber) {
-        if (!singletons.containsKey(integerNumber)) {
-            int value = integerNumber.createFactory(this).create();
+    private <TValueProvider, TValue> TValue getSingletonValue(final TValueProvider valueProvider, final ValueFactory<TValue> valueFactory) {
+        if (!singletons.containsKey(valueProvider)) {
+            TValue value = valueFactory.create();
 
-            singletons.put(integerNumber, value);
+            singletons.put(valueProvider, value);
 
             return value;
         }
 
-        return (int) singletons.get(integerNumber);
+        return (TValue) singletons.get(valueProvider);
+    }
+
+    public int getIntegerSingleton(final IntegerNumber integerNumber) {
+        return getSingletonValue(integerNumber, () -> integerNumber.createFactory(this).create());
     }
 
     public float getFloatSingleton(final FloatNumber floatNumber) {
-        if (!singletons.containsKey(floatNumber)) {
-            float value = floatNumber.createFactory(this).create();
-
-            singletons.put(floatNumber, value);
-
-            return value;
-        }
-
-        return (float) singletons.get(floatNumber);
+        return getSingletonValue(floatNumber, () -> floatNumber.createFactory(this).create());
     }
 
     public <T extends Enum<T>> T getEnumSingleton(final EnumValue<T> enumValue) {
-        if (!singletons.containsKey(enumValue)) {
-            T value = enumValue.createFactory(this).create();
+        return getSingletonValue(enumValue, () -> enumValue.createFactory(this).create());
+    }
 
-            singletons.put(enumValue, value);
-
-            return value;
-        }
-
-        return (T) singletons.get(enumValue);
+    @FunctionalInterface
+    private interface ValueFactory<T> {
+        T create();
     }
 }

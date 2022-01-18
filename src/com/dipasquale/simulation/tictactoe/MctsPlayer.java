@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Builder
 public final class MctsPlayer implements Player {
-    private final MonteCarloTreeSearch<GameState, ?, GameEnvironment> mcts;
+    private final MonteCarloTreeSearch<GameAction, ?, GameState> mcts;
 
     @Override
-    public GameState createNextState(final GameEnvironment environment) {
+    public GameAction createNextState(final GameState environment) {
         return mcts.proposeNextState(environment);
     }
 }

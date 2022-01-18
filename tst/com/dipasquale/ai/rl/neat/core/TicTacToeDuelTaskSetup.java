@@ -14,12 +14,13 @@ import com.dipasquale.search.mcts.classic.ClassicConfidenceCalculator;
 import com.dipasquale.search.mcts.classic.ClassicPrevalentStrategyCalculator;
 import com.dipasquale.search.mcts.core.DeterministicSearchPolicy;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.core.SearchCacheSettings;
 import com.dipasquale.simulation.mcts.alphazero.MultiPerspectiveAlphaZeroNeatDecoder;
 import com.dipasquale.simulation.mcts.alphazero.NeatAlphaZeroHeuristic;
 import com.dipasquale.simulation.mcts.alphazero.NeatAlphaZeroHeuristicContext;
 import com.dipasquale.simulation.tictactoe.DoubleInputNeatEncoder;
 import com.dipasquale.simulation.tictactoe.Game;
-import com.dipasquale.simulation.tictactoe.GameEnvironment;
+import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameResult;
 import com.dipasquale.simulation.tictactoe.GameState;
 import com.dipasquale.simulation.tictactoe.MctsPlayer;
@@ -100,7 +101,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
 
     private static Player createPlayer(final NeuralNetwork neuralNetwork) {
         return MctsPlayer.builder()
-                .mcts(MonteCarloTreeSearch.<GameState, GameEnvironment>alphaZeroBuilder()
+                .mcts(MonteCarloTreeSearch.<GameAction, GameState>alphaZeroBuilder()
                         .searchPolicy(DeterministicSearchPolicy.builder()
                                 .maximumSimulations(81)
                                 .maximumDepth(9)
@@ -173,10 +174,13 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
 
     private static Player createClassicMctsPlayer() {
         return MctsPlayer.builder()
-                .mcts(MonteCarloTreeSearch.<GameState, GameEnvironment>classicBuilder()
+                .mcts(MonteCarloTreeSearch.<GameAction, GameState>classicBuilder()
                         .searchPolicy(DeterministicSearchPolicy.builder()
                                 .maximumSimulations(VALIDATION_MATCH_SIMULATIONS)
                                 .maximumDepth(VALIDATION_MATCH_DEPTH)
+                                .build())
+                        .searchCacheSettings(SearchCacheSettings.builder()
+                                .participants(2)
                                 .build())
                         .confidenceCalculator(new ClassicConfidenceCalculator())
                         .strategyCalculator(ClassicPrevalentStrategyCalculator.builder()
@@ -200,7 +204,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                 }
             } else {
                 switch (Game.play(player2, player1).getOutcomeId()) {
-                    case -1, 1 -> won++;
+                    case 1 -> won++;
                 }
             }
         }
@@ -346,7 +350,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                         .build());
 
         private final IntegerNumber inputs;
-        private final NeatEncoder<GameEnvironment> encoder;
+        private final NeatEncoder<GameState> encoder;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -357,7 +361,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                         .add(9, OutputActivationFunctionType.SIGMOID)
                         .build()),
                 IdentityNeuronLayerNormalizer.getInstance(),
-                MultiPerspectiveAlphaZeroNeatDecoder.<GameState, GameEnvironment>builder()
+                MultiPerspectiveAlphaZeroNeatDecoder.<GameAction, GameState>builder()
                         .perspectiveParticipantId(1)
                         .valueIndex(0)
                         .build()),
@@ -367,7 +371,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                         .add(18, OutputActivationFunctionType.SIGMOID)
                         .build()),
                 TwoSolutionNeuronLayerNormalizer.getInstance(),
-                MultiPerspectiveAlphaZeroNeatDecoder.<GameState, GameEnvironment>builder()
+                MultiPerspectiveAlphaZeroNeatDecoder.<GameAction, GameState>builder()
                         .perspectiveParticipantId(1)
                         .valueIndex(0)
                         .build()),
@@ -377,7 +381,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
                         .add(6, OutputActivationFunctionType.SIGMOID)
                         .build()),
                 TwoSolutionNeuronLayerNormalizer.getInstance(),
-                MultiPerspectiveAlphaZeroNeatDecoder.<GameState, GameEnvironment>builder()
+                MultiPerspectiveAlphaZeroNeatDecoder.<GameAction, GameState>builder()
                         .perspectiveParticipantId(1)
                         .valueIndex(0)
                         .build());
@@ -385,7 +389,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
         private final IntegerNumber outputs;
         private final EnumValue<OutputActivationFunctionType> outputActivationFunction;
         private final NeuronLayerNormalizer outputLayerNormalizer;
-        private final NeatDecoder<AlphaZeroPrediction, NeatAlphaZeroHeuristicContext<GameState, GameEnvironment>> decoder;
+        private final NeatDecoder<AlphaZeroPrediction, NeatAlphaZeroHeuristicContext<GameAction, GameState>> decoder;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

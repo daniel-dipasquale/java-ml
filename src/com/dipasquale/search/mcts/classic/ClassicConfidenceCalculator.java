@@ -13,10 +13,12 @@ public final class ClassicConfidenceCalculator implements ConfidenceCalculator<C
     }
 
     @Override
-    public float calculate(final int simulations, final ClassicEdge edge) {
+    public float calculate(final ClassicEdge edge) {
         double won = edge.getWon();
+        ClassicEdge parentEdge = edge.getParent();
+        double parentVisited = parentEdge.getVisited() - parentEdge.getUnfinished();
         double visited = edge.getVisited() - edge.getUnfinished();
-        double result = (won / visited) + constant * Math.sqrt(Math.log(simulations) / visited);
+        double result = (won / visited) + constant * Math.sqrt(Math.log(parentVisited) / visited);
 
         return (float) result;
     }

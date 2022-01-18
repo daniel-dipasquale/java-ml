@@ -6,26 +6,26 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UnexploredFirstTraversalPolicy<TState extends State, TEdge extends Edge, TEnvironment extends Environment<TState, TEnvironment>> implements TraversalPolicy<TState, TEdge, TEnvironment> {
+public final class UnexploredFirstTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, TEdge, TState> {
     private static final UnexploredFirstTraversalPolicy<?, ?, ?> INSTANCE = new UnexploredFirstTraversalPolicy<>();
 
-    public static <TState extends State, TEdge extends Edge, TEnvironment extends Environment<TState, TEnvironment>> UnexploredFirstTraversalPolicy<TState, TEdge, TEnvironment> getInstance() {
-        return (UnexploredFirstTraversalPolicy<TState, TEdge, TEnvironment>) INSTANCE;
+    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> UnexploredFirstTraversalPolicy<TAction, TEdge, TState> getInstance() {
+        return (UnexploredFirstTraversalPolicy<TAction, TEdge, TState>) INSTANCE;
     }
 
     @Override
-    public SearchNode<TState, TEdge, TEnvironment> next(final int simulations, final SearchNode<TState, TEdge, TEnvironment> node) {
-        List<SearchNode<TState, TEdge, TEnvironment>> childNodes = node.getUnexploredChildren();
+    public SearchNode<TAction, TEdge, TState> next(final int simulations, final SearchNode<TAction, TEdge, TState> node) {
+        List<SearchNode<TAction, TEdge, TState>> childNodes = node.getUnexploredChildren();
         int size = childNodes.size();
 
         if (size == 0) {
             return null;
         }
 
-        SearchNode<TState, TEdge, TEnvironment> childNode = childNodes.remove(size - 1);
+        SearchNode<TAction, TEdge, TState> childNode = childNodes.remove(size - 1);
 
         node.getExplorableChildren().add(childNode);
-        childNode.initializeEnvironment();
+        childNode.initializeState();
         node.setSelectedExplorableChildIndex(node.getExplorableChildren().size() - 1);
 
         return childNode;

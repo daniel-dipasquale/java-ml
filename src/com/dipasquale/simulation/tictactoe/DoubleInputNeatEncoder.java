@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Builder
-public final class DoubleInputNeatEncoder implements NeatEncoder<GameEnvironment> {
+public final class DoubleInputNeatEncoder implements NeatEncoder<GameState> {
     private static final BitManipulatorSupport BIT_MANIPULATOR_SUPPORT = BitManipulatorSupport.create(2);
     private final int perspectiveParticipantId;
     private final boolean vectorFormatEnabled;
@@ -21,7 +21,7 @@ public final class DoubleInputNeatEncoder implements NeatEncoder<GameEnvironment
     }
 
     @Override
-    public float[] encode(final GameEnvironment input) {
+    public float[] encode(final GameState input) {
         int[] board = input.getBoard();
         int result1 = 0;
         int result2 = 0;

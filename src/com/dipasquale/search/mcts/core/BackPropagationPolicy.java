@@ -1,10 +1,10 @@
 package com.dipasquale.search.mcts.core;
 
 @FunctionalInterface
-public interface BackPropagationPolicy<TState extends State, TEdge extends Edge, TEnvironment extends Environment<TState, TEnvironment>> {
-    void process(SearchNode<TState, TEdge, TEnvironment> leafNode, int simulationStatusId);
+public interface BackPropagationPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
+    void process(SearchNode<TAction, TEdge, TState> leafNode, int simulationStatusId);
 
-    default void process(final SimulationResult<TState, TEdge, TEnvironment> simulationResult) {
+    default void process(final SimulationResult<TAction, TEdge, TState> simulationResult) {
         process(simulationResult.getNode(), simulationResult.getStatusId());
     }
 }

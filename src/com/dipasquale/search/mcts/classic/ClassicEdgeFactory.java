@@ -13,7 +13,7 @@ public final class ClassicEdgeFactory implements EdgeFactory<ClassicEdge> {
     }
 
     @Override
-    public ClassicEdge create() {
-        return new ClassicEdge();
+    public ClassicEdge create(final ClassicEdge parent) {
+        return new ClassicEdge(parent);
     }
 }

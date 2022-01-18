@@ -13,7 +13,7 @@ public final class AlphaZeroEdgeFactory implements EdgeFactory<AlphaZeroEdge> {
     }
 
     @Override
-    public AlphaZeroEdge create() {
-        return new AlphaZeroEdge();
+    public AlphaZeroEdge create(final AlphaZeroEdge parent) {
+        return new AlphaZeroEdge(parent);
     }
 }

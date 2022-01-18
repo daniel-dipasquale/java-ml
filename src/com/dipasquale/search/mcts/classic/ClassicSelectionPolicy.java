@@ -1,7 +1,7 @@
 package com.dipasquale.search.mcts.classic;
 
+import com.dipasquale.search.mcts.core.Action;
 import com.dipasquale.search.mcts.core.ConfidenceCalculator;
-import com.dipasquale.search.mcts.core.Environment;
 import com.dipasquale.search.mcts.core.HighestConfidenceTraversalPolicy;
 import com.dipasquale.search.mcts.core.MultiTraversalPolicy;
 import com.dipasquale.search.mcts.core.SearchNode;
@@ -12,17 +12,17 @@ import com.dipasquale.search.mcts.core.UnexploredFirstTraversalPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-final class ClassicSelectionPolicy<TState extends State, TEnvironment extends Environment<TState, TEnvironment>> implements TraversalPolicy<TState, ClassicEdge, TEnvironment> {
-    private final TraversalPolicy<TState, ClassicEdge, TEnvironment> finalTraversalPolicy;
-    private final TraversalPolicy<TState, ClassicEdge, TEnvironment> partialTraversalPolicy;
+final class ClassicSelectionPolicy<TAction extends Action, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, ClassicEdge, TState> {
+    private final TraversalPolicy<TAction, ClassicEdge, TState> finalTraversalPolicy;
+    private final TraversalPolicy<TAction, ClassicEdge, TState> partialTraversalPolicy;
 
-    ClassicSelectionPolicy(final ClassicChildrenInitializerTraversalPolicy<TState, TEnvironment> childrenInitializerTraversalPolicy, final ConfidenceCalculator<ClassicEdge> confidenceCalculator) {
+    ClassicSelectionPolicy(final ClassicChildrenInitializerTraversalPolicy<TAction, TState> childrenInitializerTraversalPolicy, final ConfidenceCalculator<ClassicEdge> confidenceCalculator) {
         this.finalTraversalPolicy = createFinalTraversalPolicy(childrenInitializerTraversalPolicy);
         this.partialTraversalPolicy = new HighestConfidenceTraversalPolicy<>(confidenceCalculator);
     }
 
-    private static <TState extends State, TEnvironment extends Environment<TState, TEnvironment>> MultiTraversalPolicy<TState, ClassicEdge, TEnvironment> createFinalTraversalPolicy(final ClassicChildrenInitializerTraversalPolicy<TState, TEnvironment> childrenInitializerTraversalPolicy) {
-        List<TraversalPolicy<TState, ClassicEdge, TEnvironment>> traversalPolicies = new ArrayList<>();
+    private static <TAction extends Action, TState extends State<TAction, TState>> MultiTraversalPolicy<TAction, ClassicEdge, TState> createFinalTraversalPolicy(final ClassicChildrenInitializerTraversalPolicy<TAction, TState> childrenInitializerTraversalPolicy) {
+        List<TraversalPolicy<TAction, ClassicEdge, TState>> traversalPolicies = new ArrayList<>();
 
         traversalPolicies.add(childrenInitializerTraversalPolicy);
         traversalPolicies.add(UnexploredFirstTraversalPolicy.getInstance());
@@ -31,8 +31,8 @@ final class ClassicSelectionPolicy<TState extends State, TEnvironment extends En
     }
 
     @Override
-    public SearchNode<TState, ClassicEdge, TEnvironment> next(final int simulations, final SearchNode<TState, ClassicEdge, TEnvironment> node) {
-        for (SearchNode<TState, ClassicEdge, TEnvironment> nextNode = node, temporaryNode = finalTraversalPolicy.next(simulations, nextNode); true; temporaryNode = finalTraversalPolicy.next(simulations, nextNode)) {
+    public SearchNode<TAction, ClassicEdge, TState> next(final int simulations, final SearchNode<TAction, ClassicEdge, TState> node) {
+        for (SearchNode<TAction, ClassicEdge, TState> nextNode = node, temporaryNode = finalTraversalPolicy.next(simulations, nextNode); true; temporaryNode = finalTraversalPolicy.next(simulations, nextNode)) {
             if (temporaryNode != null) {
                 return temporaryNode;
             }
