@@ -38,6 +38,7 @@ public final class MonteCarloTreeSearch<TAction extends Action, TEdge extends Ed
     public static final int IN_PROGRESS = 0;
     public static final int DRAWN = -1;
     private final SearchPolicy searchPolicy;
+    private final EdgeFactory<TEdge> edgeFactory;
     private final SearchNodeCache<TAction, TEdge, TState> nodeCache;
     private final TraversalPolicy<TAction, TEdge, TState> selectionPolicy;
     private final TraversalPolicy<TAction, TEdge, TState> simulationRolloutPolicy;
@@ -64,13 +65,13 @@ public final class MonteCarloTreeSearch<TAction extends Action, TEdge extends Ed
         StrategyCalculator<ClassicEdge> strategyCalculatorFixed = Objects.requireNonNullElse(strategyCalculator, CLASSIC_PREVALENT_STRATEGY_CALCULATOR);
 
         if (confidenceCalculator == null) {
-            return new MonteCarloTreeSearch<>(searchPolicy, nodeCache, simulationRolloutPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculatorFixed);
+            return new MonteCarloTreeSearch<>(searchPolicy, edgeFactory, nodeCache, simulationRolloutPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculatorFixed);
         }
 
         ClassicSelectionPolicyFactory<TAction, TState> selectionPolicyFactory = new ClassicSelectionPolicyFactory<>(childrenInitializerTraversalPolicy, confidenceCalculator);
         TraversalPolicy<TAction, ClassicEdge, TState> selectionPolicy = selectionPolicyFactory.create();
 
-        return new MonteCarloTreeSearch<>(searchPolicy, nodeCache, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculatorFixed);
+        return new MonteCarloTreeSearch<>(searchPolicy, edgeFactory, nodeCache, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy, strategyCalculatorFixed);
     }
 
     @Builder(builderMethodName = "alphaZeroBuilder", builderClassName = "AlphaZeroBuilder")
@@ -84,7 +85,15 @@ public final class MonteCarloTreeSearch<TAction extends Action, TEdge extends Ed
         BackPropagationPolicy<TAction, AlphaZeroEdge, TState> backPropagationPolicy = new AlphaZeroBackPropagationPolicy<>(backPropagationObserver);
         StrategyCalculator<AlphaZeroEdge> strategyCalculatorFixed = Objects.requireNonNullElse(strategyCalculator, ALPHA_ZERO_MOST_VISITED_STRATEGY_CALCULATOR);
 
-        return new MonteCarloTreeSearch<>(searchPolicy, nodeCache, selectionPolicy, selectionPolicy, backPropagationPolicy, strategyCalculatorFixed);
+        return new MonteCarloTreeSearch<>(searchPolicy, edgeFactory, nodeCache, selectionPolicy, selectionPolicy, backPropagationPolicy, strategyCalculatorFixed);
+    }
+
+    private SearchNode<TAction, TEdge, TState> getRootNode(final TState state) {
+        if (nodeCache != null) {
+            return nodeCache.provide(state);
+        }
+
+        return SearchNodeCache.createRootNode(edgeFactory, state, 0);
     }
 
     private SimulationResult<TAction, TEdge, TState> simulateNodeRollout(final SearchNode<TAction, TEdge, TState> selectedNode, final int simulations) {
@@ -119,7 +128,7 @@ public final class MonteCarloTreeSearch<TAction extends Action, TEdge extends Ed
             return null;
         }
 
-        SearchNode<TAction, TEdge, TState> rootNode = nodeCache.provide(state);
+        SearchNode<TAction, TEdge, TState> rootNode = getRootNode(state);
         int simulations = rootNode.getEdge().getVisited() + 1;
         SearchNode<TAction, TEdge, TState> promisingNode = selectionPolicy.next(simulations, rootNode);
 

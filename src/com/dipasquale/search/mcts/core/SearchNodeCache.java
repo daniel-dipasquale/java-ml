@@ -13,6 +13,10 @@ public final class SearchNodeCache<TAction extends Action, TEdge extends Edge, T
     private final int participants;
     private final EdgeFactory<TEdge> edgeFactory;
 
+    static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> SearchNode<TAction, TEdge, TState> createRootNode(final EdgeFactory<TEdge> edgeFactory, final TState state, final int depth) {
+        return new SearchNode<>(edgeFactory.create(null), state, depth);
+    }
+
     public SearchNode<TAction, TEdge, TState> provide(final TState state) {
         SearchNode<TAction, TEdge, TState> node = futurePossibleNodes.get(state);
 
@@ -24,7 +28,7 @@ public final class SearchNodeCache<TAction extends Action, TEdge extends Edge, T
             return node;
         }
 
-        node = new SearchNode<>(edgeFactory.create(null), state, nextDepth);
+        node = createRootNode(edgeFactory, state, nextDepth);
         nextDepth += participants;
         futurePossibleNodes.clear();
 
