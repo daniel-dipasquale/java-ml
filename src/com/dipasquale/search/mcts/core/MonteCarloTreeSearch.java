@@ -165,7 +165,7 @@ public final class MonteCarloTreeSearch<TAction extends Action, TEdge extends Ed
         return childNodeOptimizer.getValue();
     }
 
-    private TAction findBestState(final TState state) {
+    private TAction findBestAction(final TState state) {
         SearchNode<TAction, TEdge, TState> bestNode = findBestNode(state);
 
         if (bestNode == null) {
@@ -175,11 +175,11 @@ public final class MonteCarloTreeSearch<TAction extends Action, TEdge extends Ed
         return bestNode.getAction();
     }
 
-    public TAction proposeNextState(final TState state) {
+    public TAction proposeNextAction(final TState state) {
         searchPolicy.begin();
 
         try {
-            return findBestState(state);
+            return findBestAction(state);
         } finally {
             searchPolicy.end();
         }

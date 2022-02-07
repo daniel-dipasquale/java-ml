@@ -10,7 +10,7 @@ public final class MctsPlayer implements Player {
     private final MonteCarloTreeSearch<GameAction, ?, GameState> mcts;
 
     @Override
-    public GameAction createNextState(final GameState environment) {
-        return mcts.proposeNextState(environment);
+    public GameAction createNextAction(final GameState state) {
+        return mcts.proposeNextAction(state);
     }
 }

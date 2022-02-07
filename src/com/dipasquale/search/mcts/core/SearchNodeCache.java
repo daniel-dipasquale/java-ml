@@ -8,8 +8,8 @@ import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class SearchNodeCache<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
-    private int nextDepth = 0;
     private final Map<State<TAction, TState>, SearchNode<TAction, TEdge, TState>> futurePossibleNodes = new IdentityHashMap<>();
+    private int nextDepth = 0;
     private final int participants;
     private final EdgeFactory<TEdge> edgeFactory;
 

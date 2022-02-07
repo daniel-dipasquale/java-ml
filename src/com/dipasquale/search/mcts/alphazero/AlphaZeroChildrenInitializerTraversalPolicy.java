@@ -21,10 +21,10 @@ public final class AlphaZeroChildrenInitializerTraversalPolicy<TAction extends A
     public SearchNode<TAction, AlphaZeroEdge, TState> next(final int simulations, final SearchNode<TAction, AlphaZeroEdge, TState> node) {
         if (!node.isExpanded()) {
             List<SearchNode<TAction, AlphaZeroEdge, TState>> childNodes = node.createAllPossibleChildNodes(edgeFactory);
-            int childNodesSize = childNodes.size();
-            AlphaZeroPrediction prediction = heuristic.predict(node, childNodesSize);
+            int size = childNodes.size();
+            AlphaZeroPrediction prediction = heuristic.predict(node, size);
 
-            for (int i = 0; i < childNodesSize; i++) {
+            for (int i = 0; i < size; i++) {
                 float priorProbability = prediction.getPolicy(i);
 
                 childNodes.get(i).getEdge().setExplorationProbability(priorProbability);

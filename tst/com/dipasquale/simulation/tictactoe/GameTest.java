@@ -5,7 +5,7 @@ import com.dipasquale.search.mcts.classic.ClassicEdge;
 import com.dipasquale.search.mcts.classic.ClassicPrevalentStrategyCalculator;
 import com.dipasquale.search.mcts.core.BackPropagationObserver;
 import com.dipasquale.search.mcts.core.ConfidenceCalculator;
-import com.dipasquale.search.mcts.core.DeterministicSearchPolicy;
+import com.dipasquale.search.mcts.core.MaximumSearchPolicy;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.core.SearchCacheSettings;
 import com.dipasquale.search.mcts.core.SearchNode;
@@ -19,7 +19,7 @@ import java.util.Arrays;
 public final class GameTest {
     private static MonteCarloTreeSearch<GameAction, ClassicEdge, GameState> createMcts(final int maximumSimulations, final ConfidenceCalculator<ClassicEdge> confidenceCalculator, final BackPropagationObserver<GameAction, ClassicEdge, GameState> backPropagationObserver) {
         return MonteCarloTreeSearch.<GameAction, GameState>classicBuilder()
-                .searchPolicy(DeterministicSearchPolicy.builder()
+                .searchPolicy(MaximumSearchPolicy.builder()
                         .maximumSimulations(maximumSimulations)
                         .maximumDepth(9)
                         .build())
@@ -54,7 +54,7 @@ public final class GameTest {
         StatisticsCollector statisticsCollector = new StatisticsCollector();
         MonteCarloTreeSearch<GameAction, ClassicEdge, GameState> mcts = createMcts(255_168, null, statisticsCollector);
 
-        Assertions.assertNotNull(mcts.proposeNextState(new GameState()));
+        Assertions.assertNotNull(mcts.proposeNextAction(new GameState()));
         System.out.println(Arrays.deepToString(statisticsCollector.statistics));
     }
 

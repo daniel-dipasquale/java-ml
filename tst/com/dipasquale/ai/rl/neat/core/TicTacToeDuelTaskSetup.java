@@ -12,7 +12,7 @@ import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
 import com.dipasquale.search.mcts.classic.ClassicConfidenceCalculator;
 import com.dipasquale.search.mcts.classic.ClassicPrevalentStrategyCalculator;
-import com.dipasquale.search.mcts.core.DeterministicSearchPolicy;
+import com.dipasquale.search.mcts.core.MaximumSearchPolicy;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.core.SearchCacheSettings;
 import com.dipasquale.simulation.mcts.alphazero.MultiPerspectiveAlphaZeroNeatDecoder;
@@ -102,7 +102,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
     private static Player createPlayer(final NeuralNetwork neuralNetwork) {
         return MctsPlayer.builder()
                 .mcts(MonteCarloTreeSearch.<GameAction, GameState>alphaZeroBuilder()
-                        .searchPolicy(DeterministicSearchPolicy.builder()
+                        .searchPolicy(MaximumSearchPolicy.builder()
                                 .maximumSimulations(81)
                                 .maximumDepth(9)
                                 .build())
@@ -175,7 +175,7 @@ final class TicTacToeDuelTaskSetup implements TaskSetup {
     private static Player createClassicMctsPlayer() {
         return MctsPlayer.builder()
                 .mcts(MonteCarloTreeSearch.<GameAction, GameState>classicBuilder()
-                        .searchPolicy(DeterministicSearchPolicy.builder()
+                        .searchPolicy(MaximumSearchPolicy.builder()
                                 .maximumSimulations(VALIDATION_MATCH_SIMULATIONS)
                                 .maximumDepth(VALIDATION_MATCH_DEPTH)
                                 .build())

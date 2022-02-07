@@ -39,10 +39,6 @@ final class ClassicSimulationRolloutPolicy<TAction extends Action, TState extend
         int index = randomSupport.next(0, explorableSize);
         SearchNode<TAction, ClassicEdge, TState> childNode = explorableChildNodes.get(index);
 
-        if (childNode.getState() == null) {
-            childNode.initializeState();
-        }
-
         node.setSelectedExplorableChildIndex(index);
 
         return childNode;

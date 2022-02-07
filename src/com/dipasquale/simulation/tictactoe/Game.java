@@ -9,7 +9,7 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Game {
-    private static GameResult create(final int outcomeId, final GameState state) {
+    private static GameResult createResult(final int outcomeId, final GameState state) {
         List<Integer> moves = Collections.unmodifiableList(state.getMoves());
 
         return new GameResult(outcomeId, moves);
@@ -21,16 +21,16 @@ public final class Game {
         int statusId = state.getStatusId();
 
         for (int i = 0; statusId == MonteCarloTreeSearch.IN_PROGRESS; i = (i + 1) % players.length) {
-            GameAction action = players[i].createNextState(state);
+            GameAction action = players[i].createNextAction(state);
 
             state = state.accept(action);
             statusId = state.getStatusId();
         }
 
         if (statusId == MonteCarloTreeSearch.DRAWN) {
-            return create(statusId, state);
+            return createResult(statusId, state);
         }
 
-        return create(statusId - 1, state);
+        return createResult(statusId - 1, state);
     }
 }

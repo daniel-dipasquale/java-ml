@@ -3,7 +3,7 @@ package com.dipasquale.search.mcts.core;
 import lombok.Builder;
 
 @Builder
-public final class DeterministicSearchPolicy implements SearchPolicy {
+public final class MaximumSearchPolicy implements SearchPolicy {
     private final int maximumSimulations;
     private final int maximumDepth;
 
