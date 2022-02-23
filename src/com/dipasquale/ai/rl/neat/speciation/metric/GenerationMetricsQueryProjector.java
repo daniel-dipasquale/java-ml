@@ -15,10 +15,6 @@ import java.util.Map;
 public final class GenerationMetricsQueryProjector {
     private final MetricsQueryProjector<GenerationMetrics> projector;
 
-    public GenerationMetricsQueryProjector(final String defaultKey, final MetricDatumFactory metricDatumFactory) {
-        this.projector = new MetricsQueryProjector<>(defaultKey, createSelectors(metricDatumFactory));
-    }
-
     private static Map<String, MetricDatumSelector<GenerationMetrics>> createSelectors(final MetricDatumFactory metricDatumFactory) {
         SpeciesTopologyMetricsAggregator speciesTopologyMetricsAggregator = new SpeciesTopologyMetricsAggregator(metricDatumFactory);
 
@@ -34,6 +30,10 @@ public final class GenerationMetricsQueryProjector {
                 Map.entry("organismsKilled", new CachedMetricsAggregator<>(new OrganismsKilledMetricsAggregator(metricDatumFactory))),
                 Map.entry("speciesExtinct", GenerationMetrics::getSpeciesExtinct)
         );
+    }
+
+    public GenerationMetricsQueryProjector(final String defaultKey, final MetricDatumFactory metricDatumFactory) {
+        this.projector = new MetricsQueryProjector<>(defaultKey, createSelectors(metricDatumFactory));
     }
 
     public MetricsResult query(final Iterable<Record<Float, GenerationMetrics>> records, final List<MetricDatumQueryProjection> projections) {

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
-import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.OutputActivationFunctionType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

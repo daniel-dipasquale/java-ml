@@ -26,6 +26,14 @@ public final class AtomicRecyclableReference<T> implements Serializable {
     private final RecyclableReference.Collector<T> recycledReferenceCollector;
     private volatile long recycledConfirmationDateTime;
 
+    private static <T> RecyclableReference.Collector<T> ensureRecycledReferenceCollector(final boolean collectRecycledReferences, final RecyclableReference.Collector<T> recycledReferenceCollector, final Queue<RecyclableReference<T>> recycledReferences) {
+        if (!collectRecycledReferences) {
+            return recycledReferenceCollector;
+        }
+
+        return (RecyclableReference.Collector<T> & Serializable) recycledReferences::add;
+    }
+
     private AtomicRecyclableReference(final RecyclableReference.Factory<T> referenceFactory, final ExpirationFactory expirationFactory, final boolean collectRecycledReferences, final RecyclableReference.Collector<T> recycledReferenceCollector) {
         Queue<RecyclableReference<T>> recycledReferences = new ConcurrentLinkedQueue<>();
 
@@ -60,14 +68,6 @@ public final class AtomicRecyclableReference<T> implements Serializable {
 
     public AtomicRecyclableReference(final ObjectFactory<T> referenceFactory, final ExpirationFactory expirationFactory) {
         this(new RecyclableReferenceFactory<>(referenceFactory), expirationFactory);
-    }
-
-    private static <T> RecyclableReference.Collector<T> ensureRecycledReferenceCollector(final boolean collectRecycledReferences, final RecyclableReference.Collector<T> recycledReferenceCollector, final Queue<RecyclableReference<T>> recycledReferences) {
-        if (!collectRecycledReferences) {
-            return recycledReferenceCollector;
-        }
-
-        return (RecyclableReference.Collector<T> & Serializable) recycledReferences::add;
     }
 
     private boolean tryReplaceRecycledDateTime(final ExpirationRecord expirationRecord) {

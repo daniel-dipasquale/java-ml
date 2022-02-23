@@ -13,19 +13,17 @@ public final class AlphaZeroBackPropagationPolicy<TAction extends Action, TState
     }
 
     private static <TAction extends Action, TState extends State<TAction, TState>> float getReward(final SearchNode<TAction, AlphaZeroEdge, TState> node, final int ownerParticipantId, final int simulationStatusId) {
+        float reward = node.getEdge().getProbableReward();
+
         if (ownerParticipantId == simulationStatusId) {
-            return 1f;
+            return 1f + reward;
         }
 
-        if (simulationStatusId == MonteCarloTreeSearch.DRAWN) {
-            return 0f;
+        if (simulationStatusId == MonteCarloTreeSearch.DRAWN || simulationStatusId == MonteCarloTreeSearch.IN_PROGRESS) {
+            return reward;
         }
 
-        if (simulationStatusId == MonteCarloTreeSearch.IN_PROGRESS) {
-            return node.getEdge().getProbableReward();
-        }
-
-        return -1f;
+        return -1f + reward;
     }
 
     private static void setExpectedReward(final AlphaZeroEdge edge, final float reward, final int visited) {

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

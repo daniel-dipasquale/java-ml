@@ -16,10 +16,6 @@ public final class DualModeNodeGeneIdFactory implements DualModeObject, Serializ
     private static final long serialVersionUID = -361628531407045333L;
     private final Map<NodeGeneType, DualModeIdFactory> nodeIdFactories;
 
-    public DualModeNodeGeneIdFactory(final int concurrencyLevel) {
-        this.nodeIdFactories = createNodeIdFactories(concurrencyLevel);
-    }
-
     private static Map<NodeGeneType, DualModeIdFactory> createNodeIdFactories(final int concurrencyLevel) {
         EnumMap<NodeGeneType, DualModeIdFactory> nodeIdFactories = new EnumMap<>(NodeGeneType.class);
 
@@ -29,6 +25,10 @@ public final class DualModeNodeGeneIdFactory implements DualModeObject, Serializ
         nodeIdFactories.put(NodeGeneType.HIDDEN, new DualModeIdFactory(concurrencyLevel, IdType.HIDDEN_NODE));
 
         return nodeIdFactories;
+    }
+
+    public DualModeNodeGeneIdFactory(final int concurrencyLevel) {
+        this.nodeIdFactories = createNodeIdFactories(concurrencyLevel);
     }
 
     public Id createNodeId(final NodeGeneType type) {

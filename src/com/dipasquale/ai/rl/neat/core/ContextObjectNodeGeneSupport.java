@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunction;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
-import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunction;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.OutputActivationFunctionType;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;

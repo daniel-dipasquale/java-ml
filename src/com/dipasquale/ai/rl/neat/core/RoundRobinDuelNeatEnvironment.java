@@ -1,8 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.synchronization.InterruptedRuntimeException;
-import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -113,15 +111,7 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
     }
 
     private void playMatches(final Context.ParallelismSupport parallelismSupport, final List<Match> matches, final SharedGenomeActivator sharedGenomeActivator, final int round) {
-        WaitHandle waitHandle = parallelismSupport.forEach(matches, match -> playMatch(sharedGenomeActivator, match, round));
-
-        try {
-            waitHandle.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-
-            throw new InterruptedRuntimeException("thread was interrupted while all genomes were dueling", e);
-        }
+        parallelismSupport.forEach(matches, match -> playMatch(sharedGenomeActivator, match, round));
     }
 
     @Override

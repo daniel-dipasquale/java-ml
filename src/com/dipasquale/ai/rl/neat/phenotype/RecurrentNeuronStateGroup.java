@@ -7,13 +7,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class RecurrentNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
     private static final String HIDDEN_DIMENSION = "VANILLA_H";
-    private final NeuronMemory memory;
+    private final NeuronMemory neuronMemory;
 
     @Override
     protected float calculateRecurrentValue(final Neuron neuron, final NeuronOutputConnection connection) {
         Id neuronId = neuron.getId();
         float[] weights = {connection.getRecurrentWeight(0), connection.getWeight()};
-        float[] values = {memory.getValueOrDefault(HIDDEN_DIMENSION, neuronId), getValue(neuronId)};
+        float[] values = {neuronMemory.getValueOrDefault(HIDDEN_DIMENSION, neuronId), getValue(neuronId)};
         float[] biases = {neuron.getRecurrentBias(0), neuron.getBias()};
 
         return Neuron.calculateValue(neuron.getActivationFunction(), weights, values, biases);
@@ -21,6 +21,6 @@ final class RecurrentNeuronStateGroup extends AbstractRecurrentNeuronStateGroup 
 
     @Override
     public void endCycle(final Id neuronId) {
-        memory.setValue(HIDDEN_DIMENSION, neuronId, getValue(neuronId));
+        neuronMemory.setValue(HIDDEN_DIMENSION, neuronId, getValue(neuronId));
     }
 }

@@ -25,7 +25,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     @Getter
     private float fitness = 0f;
 
-    public double calculateCompatibility(final Context.SpeciationSupport speciationSupport, final Species species) {
+    public float calculateCompatibility(final Context.SpeciationSupport speciationSupport, final Species species) {
         return speciationSupport.calculateCompatibility(genome, species.getRepresentative().genome);
     }
 

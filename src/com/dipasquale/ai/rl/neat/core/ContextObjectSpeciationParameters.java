@@ -27,8 +27,8 @@ final class ContextObjectSpeciationParameters implements Context.SpeciationParam
     }
 
     @Override
-    public double compatibilityThreshold(final int generation) {
-        return compatibilityThreshold * Math.pow(compatibilityThresholdModifier, generation);
+    public float compatibilityThreshold(final int generation) {
+        return compatibilityThreshold * (float) Math.pow(compatibilityThresholdModifier, generation);
     }
 
     @Override

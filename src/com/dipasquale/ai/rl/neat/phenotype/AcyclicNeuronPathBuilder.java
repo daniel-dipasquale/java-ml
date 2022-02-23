@@ -91,18 +91,13 @@ final class AcyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable 
         return orderedNeurons.iterator();
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class NeuronPath implements Serializable {
         @Serial
         private static final long serialVersionUID = -6397213033769512814L;
         private final Neuron neuron;
-        private boolean ordered;
+        private boolean ordered = false;
         private final boolean root;
-
-        private NeuronPath(final Neuron neuron, final boolean root) {
-            this.neuron = neuron;
-            this.ordered = false;
-            this.root = root;
-        }
 
         public NeuronPath flipOrdered() {
             ordered = !ordered;

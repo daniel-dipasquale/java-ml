@@ -3,8 +3,6 @@ package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 import com.dipasquale.ai.rl.neat.core.Context;
 import com.dipasquale.ai.rl.neat.speciation.core.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.synchronization.InterruptedRuntimeException;
-import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -29,15 +27,7 @@ public final class ConcurrentOrganismFitnessCalculationStrategy implements Fitne
                         .map(organism -> new OrganismHierarchy(organism, species)))
                 .collect(Collectors.toList());
 
-        WaitHandle waitHandle = context.getParent().parallelism().forEach(organismHierarchies, organismHierarchy -> updateFitness(organismHierarchy, context.getParent()));
-
-        try {
-            waitHandle.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-
-            throw new InterruptedRuntimeException("thread was interrupted while updating all organisms fitness", e);
-        }
+        context.getParent().parallelism().forEach(organismHierarchies, organismHierarchy -> updateFitness(organismHierarchy, context.getParent()));
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

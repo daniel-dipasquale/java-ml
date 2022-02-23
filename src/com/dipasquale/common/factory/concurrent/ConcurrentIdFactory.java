@@ -17,6 +17,10 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId<Long>> 
     private final AtomicRecyclableReference<MajorId> recyclableMajorId;
     private final IdFactory<Long> minorIdFactory;
 
+    private static RecyclableReference.Factory<MajorId> createMajorIdFactory(final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
+        return majorId -> new MajorId(majorId, minorIdContainerFactory.create());
+    }
+
     public ConcurrentIdFactory(final ExpirationFactory expirationFactory, final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory, final IdFactory<Long> minorIdFactory) {
         this.recyclableMajorId = new AtomicRecyclableReference<>(createMajorIdFactory(minorIdContainerFactory), expirationFactory);
         this.minorIdFactory = minorIdFactory;
@@ -24,10 +28,6 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId<Long>> 
 
     public ConcurrentIdFactory(final ExpirationFactory expirationFactory, final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
         this(expirationFactory, minorIdContainerFactory, () -> Thread.currentThread().getId());
-    }
-
-    private static RecyclableReference.Factory<MajorId> createMajorIdFactory(final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
-        return majorId -> new MajorId(majorId, minorIdContainerFactory.create());
     }
 
     @Override

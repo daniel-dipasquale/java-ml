@@ -7,6 +7,8 @@ public interface State<TAction extends Action, TState extends State<TAction, TSt
 
     int getStatusId();
 
+    boolean isValid(int actionId);
+
     Iterable<TAction> createAllPossibleActions();
 
     TState accept(TAction action);

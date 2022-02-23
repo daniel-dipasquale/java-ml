@@ -17,22 +17,6 @@ public final class QuadrupleSigmoidRandomSupport implements RandomSupport, Seria
     private final double minimumValue;
     private final double maximumValue;
 
-    public QuadrupleSigmoidRandomSupport(final RandomSupport randomSupport, final double plateauAreaRate, final double plateauRangeRate, final double steepenedRate) {
-        double plateauAreaRateFixed = plateauAreaRate * 0.5D;
-        double plateauBoundaryRate = SINGLE_SIGMOID_BOUNDARY * plateauRangeRate;
-        double plateauSteepenedRate = 0.25D * Math.pow(steepenedRate, 0.5D);
-        double exponentialGrowthBoundaryRate = SINGLE_SIGMOID_BOUNDARY * (1D - plateauRangeRate);
-
-        this.randomSupport = randomSupport;
-        this.plateauAreaRate = plateauAreaRateFixed;
-        this.plateauBoundaryRate = plateauBoundaryRate;
-        this.plateauSteepenedRate = plateauSteepenedRate;
-        this.exponentialGrowthBoundaryRate = exponentialGrowthBoundaryRate;
-        this.exponentialGrowthSteepenedRate = steepenedRate;
-        this.minimumValue = calculateQuadrupleSigmoid(0D, plateauAreaRateFixed, plateauBoundaryRate, plateauSteepenedRate, exponentialGrowthBoundaryRate, steepenedRate);
-        this.maximumValue = calculateQuadrupleSigmoid(1D, plateauAreaRateFixed, plateauBoundaryRate, plateauSteepenedRate, exponentialGrowthBoundaryRate, steepenedRate);
-    }
-
     private static double calculateSigmoid(final double boundary, final double value, final double steepenedRate) {
         return boundary / (1D + Math.exp(-steepenedRate * value + 0.5D * steepenedRate));
     }
@@ -49,6 +33,22 @@ public final class QuadrupleSigmoidRandomSupport implements RandomSupport, Seria
         double doubleSigmoid2 = calculateDoubleSigmoid(value + plateauAreaRate, plateauBoundaryRate, plateauSteepenedRate, exponentialGrowthBoundaryRate, exponentialGrowthSteepenedRate);
 
         return doubleSigmoid1 + doubleSigmoid2;
+    }
+
+    public QuadrupleSigmoidRandomSupport(final RandomSupport randomSupport, final double plateauAreaRate, final double plateauRangeRate, final double steepenedRate) {
+        double plateauAreaRateFixed = plateauAreaRate * 0.5D;
+        double plateauBoundaryRate = SINGLE_SIGMOID_BOUNDARY * plateauRangeRate;
+        double plateauSteepenedRate = 0.25D * Math.pow(steepenedRate, 0.5D);
+        double exponentialGrowthBoundaryRate = SINGLE_SIGMOID_BOUNDARY * (1D - plateauRangeRate);
+
+        this.randomSupport = randomSupport;
+        this.plateauAreaRate = plateauAreaRateFixed;
+        this.plateauBoundaryRate = plateauBoundaryRate;
+        this.plateauSteepenedRate = plateauSteepenedRate;
+        this.exponentialGrowthBoundaryRate = exponentialGrowthBoundaryRate;
+        this.exponentialGrowthSteepenedRate = steepenedRate;
+        this.minimumValue = calculateQuadrupleSigmoid(0D, plateauAreaRateFixed, plateauBoundaryRate, plateauSteepenedRate, exponentialGrowthBoundaryRate, steepenedRate);
+        this.maximumValue = calculateQuadrupleSigmoid(1D, plateauAreaRateFixed, plateauBoundaryRate, plateauSteepenedRate, exponentialGrowthBoundaryRate, steepenedRate);
     }
 
     private static double calculate(final double value, final double minimum, final double maximum) {

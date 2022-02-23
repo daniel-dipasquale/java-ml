@@ -21,6 +21,14 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
     private final Population population;
     private final ConcurrentNeatState state;
 
+    private static Population createPopulation(final Context context) {
+        Population population = new Population();
+
+        population.initialize(context);
+
+        return population;
+    }
+
     ConcurrentNeatEvaluator(final Context context, final ReadWriteLock lock) {
         this.lock = lock;
         this.context = context;
@@ -30,14 +38,6 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
 
     ConcurrentNeatEvaluator(final Context context) {
         this(context, new ReentrantReadWriteLock());
-    }
-
-    private static Population createPopulation(final Context context) {
-        Population population = new Population();
-
-        population.initialize(context);
-
-        return population;
     }
 
     @Override

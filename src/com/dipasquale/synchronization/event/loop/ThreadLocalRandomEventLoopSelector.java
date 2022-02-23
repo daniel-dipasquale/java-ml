@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.event.loop;
 
 import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.common.random.float1.ThreadLocalUniformRandomSupport;
+import com.dipasquale.common.random.float1.concurrent.ThreadLocalUniformRandomSupport;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

@@ -12,5 +12,5 @@ import java.util.List;
 @ToString
 public final class GameResult {
     private final int outcomeId;
-    private final List<Integer> moves;
+    private final List<Integer> actionIds;
 }

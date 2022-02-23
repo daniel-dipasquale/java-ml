@@ -10,9 +10,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Game {
     private static GameResult createResult(final int outcomeId, final GameState state) {
-        List<Integer> moves = Collections.unmodifiableList(state.getMoves());
+        List<Integer> actionIds = Collections.unmodifiableList(state.getActionIds());
 
-        return new GameResult(outcomeId, moves);
+        return new GameResult(outcomeId, actionIds);
     }
 
     public static GameResult play(final Player player1, final Player player2) {

@@ -15,6 +15,12 @@ public final class CyclicIntegerValue implements IntegerValue, Serializable {
     private int total;
     private int current;
 
+    private static int calculateModulus(final int offset, final int counter, final int delta, final int maximum) {
+        int remainder = (offset + counter + delta) % maximum;
+
+        return (remainder + maximum) % maximum;
+    }
+
     public CyclicIntegerValue(final int maximum, final int offset, final int value) {
         this.maximum = maximum;
         this.offset = offset;
@@ -28,12 +34,6 @@ public final class CyclicIntegerValue implements IntegerValue, Serializable {
 
     public CyclicIntegerValue(final int maximum) {
         this(maximum, -1);
-    }
-
-    private static int calculateModulus(final int offset, final int counter, final int delta, final int maximum) {
-        int remainder = (offset + counter + delta) % maximum;
-
-        return (remainder + maximum) % maximum;
     }
 
     @Override

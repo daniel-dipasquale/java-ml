@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.core;
 
+import com.dipasquale.synchronization.InterruptedRuntimeException;
 import com.dipasquale.synchronization.wait.handle.StrategyWaitHandle;
-import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -23,9 +23,7 @@ final class SingleThreadContextParallelismSupport implements Context.Parallelism
     }
 
     @Override
-    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        unhandledExceptions.clear();
-
+    public <T> void forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
         while (iterator.hasNext()) {
             try {
                 itemHandler.accept(iterator.next());
@@ -34,12 +32,18 @@ final class SingleThreadContextParallelismSupport implements Context.Parallelism
             }
         }
 
-        return new StrategyWaitHandle(unhandledExceptions);
+        try {
+            new StrategyWaitHandle(null, unhandledExceptions, true).await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+
+            throw new InterruptedRuntimeException("thread was interrupted", e);
+        }
     }
 
     @Override
-    public <T> WaitHandle forEach(final List<T> list, final Consumer<T> itemHandler) {
-        return forEach(list.iterator(), itemHandler);
+    public <T> void forEach(final List<T> list, final Consumer<T> itemHandler) {
+        forEach(list.iterator(), itemHandler);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

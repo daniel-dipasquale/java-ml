@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.core;
 
+import com.dipasquale.synchronization.InterruptedRuntimeException;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.synchronization.wait.handle.StrategyWaitHandle;
-import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -24,24 +24,27 @@ final class MultiThreadContextParallelismSupport implements Context.ParallelismS
         return params;
     }
 
-    private static Collection<Throwable> createUnhandledExceptionsContainer() {
-        return Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
+    private static void forEach(final InteractiveWaitHandleFactory interactiveWaitHandleFactory) {
+        Collection<Throwable> unhandledExceptions = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
+        InteractiveWaitHandle invokedWaitHandle = interactiveWaitHandleFactory.create(unhandledExceptions);
+
+        try {
+            new StrategyWaitHandle(invokedWaitHandle, unhandledExceptions, false).await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+
+            throw new InterruptedRuntimeException("thread was interrupted", e);
+        }
     }
 
     @Override
-    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        Collection<Throwable> unhandledExceptions = createUnhandledExceptionsContainer();
-        InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(iterator, itemHandler, unhandledExceptions::add);
-
-        return new StrategyWaitHandle(invokedWaitHandle, unhandledExceptions);
+    public <T> void forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
+        forEach(unhandledExceptions -> eventLoop.queue(iterator, itemHandler, unhandledExceptions::add));
     }
 
     @Override
-    public <T> WaitHandle forEach(final List<T> list, final Consumer<T> itemHandler) {
-        Collection<Throwable> unhandledExceptions = createUnhandledExceptionsContainer();
-        InteractiveWaitHandle invokedWaitHandle = eventLoop.queue(list, itemHandler, unhandledExceptions::add);
-
-        return new StrategyWaitHandle(invokedWaitHandle, unhandledExceptions);
+    public <T> void forEach(final List<T> list, final Consumer<T> itemHandler) {
+        forEach(unhandledExceptions -> eventLoop.queue(list, itemHandler, unhandledExceptions::add));
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -55,5 +58,10 @@ final class MultiThreadContextParallelismSupport implements Context.ParallelismS
         public int numberOfThreads() {
             return eventLoop.getConcurrencyLevel();
         }
+    }
+
+    @FunctionalInterface
+    private interface InteractiveWaitHandleFactory {
+        InteractiveWaitHandle create(Collection<Throwable> unhandledExceptions);
     }
 }

@@ -21,14 +21,6 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
     private final ObjectFactory<NeuronMemory> neuronMemoryFactory;
     private final NeuronStateGroupFactory neuronStateFactory;
 
-    ConcurrentNeuralNetwork(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final NeuronLayerNormalizer outputLayerNormalizer, final ObjectFactory<NeuronMemory> neuronMemoryFactory, final NeuronStateGroupFactory neuronStateFactory) {
-        this.genome = genome;
-        this.inputSize = genome.getNodes().size(NodeGeneType.INPUT);
-        this.neuronNavigatorProvider = new AtomicLazyReference<>((ObjectFactory<NeuronNavigator> & Serializable) () -> createNeuronNavigator(genome, neuronPathBuilder, outputLayerNormalizer));
-        this.neuronMemoryFactory = neuronMemoryFactory;
-        this.neuronStateFactory = neuronStateFactory;
-    }
-
     private static Neuron createNeuronIfValid(final Genome genome, final NodeGene node) {
         List<NeuronInputConnection> inputConnections = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
                 .map(connection -> new NeuronInputConnection(connection.getInnovationId().getSourceNodeId(), connection.getCyclesAllowed()))
@@ -49,8 +41,8 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
         return new Neuron(node, inputConnections, outputConnections);
     }
 
-    private static NeuronNavigator createNeuronNavigator(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final NeuronLayerNormalizer outputLayerNormalizer) {
-        NeuronNavigator neuronNavigator = new NeuronNavigator(neuronPathBuilder, outputLayerNormalizer);
+    private static NeuronNavigator createNeuronNavigator(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final NeuronLayerTopologyDefinition outputTopologyDefinition) {
+        NeuronNavigator neuronNavigator = new NeuronNavigator(neuronPathBuilder, outputTopologyDefinition);
 
         for (NodeGene node : genome.getNodes()) {
             Neuron neuron = createNeuronIfValid(genome, node);
@@ -63,6 +55,14 @@ final class ConcurrentNeuralNetwork implements NeuralNetwork, Serializable {
         neuronNavigator.build();
 
         return neuronNavigator;
+    }
+
+    ConcurrentNeuralNetwork(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final NeuronLayerTopologyDefinition outputTopologyDefinition, final ObjectFactory<NeuronMemory> neuronMemoryFactory, final NeuronStateGroupFactory neuronStateFactory) {
+        this.genome = genome;
+        this.inputSize = genome.getNodes().size(NodeGeneType.INPUT);
+        this.neuronNavigatorProvider = new AtomicLazyReference<>((ObjectFactory<NeuronNavigator> & Serializable) () -> createNeuronNavigator(genome, neuronPathBuilder, outputTopologyDefinition));
+        this.neuronMemoryFactory = neuronMemoryFactory;
+        this.neuronStateFactory = neuronStateFactory;
     }
 
     @Override

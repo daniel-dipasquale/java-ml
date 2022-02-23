@@ -1,17 +1,13 @@
 package com.dipasquale.common.random.float1;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-final class RandomSupportTestSupport {
-    public static boolean isNextFloatBounded(final RandomSupport randomSupport, final int count, final float minimum, final float maximum) {
+public interface RandomSupportTestSupport {
+    static boolean isNextFloatBounded(final RandomSupport randomSupport, final int count, final float minimum, final float maximum) {
         for (int i = 0; i < count; i++) {
             float result = randomSupport.next();
 
@@ -23,7 +19,7 @@ final class RandomSupportTestSupport {
         return true;
     }
 
-    public static boolean isNextIntegerEvenlyDistributed(final RandomSupport randomSupport, final int count, final int minimum, final int maximum, final List<Float> marginOfErrors) {
+    static boolean isNextIntegerEvenlyDistributed(final RandomSupport randomSupport, final int count, final int minimum, final int maximum, final List<Float> marginOfErrors) {
         Map<Integer, AtomicInteger> distribution = new HashMap<>();
 
         for (int i = 0; i < count; i++) {

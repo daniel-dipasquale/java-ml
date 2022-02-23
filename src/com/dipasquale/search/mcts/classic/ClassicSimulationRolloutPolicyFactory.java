@@ -3,7 +3,7 @@ package com.dipasquale.search.mcts.classic;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.search.mcts.core.Action;
-import com.dipasquale.search.mcts.core.MultiTraversalPolicy;
+import com.dipasquale.search.mcts.core.FirstNonNullTraversalPolicy;
 import com.dipasquale.search.mcts.core.State;
 import com.dipasquale.search.mcts.core.TraversalPolicy;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,6 @@ public final class ClassicSimulationRolloutPolicyFactory<TAction extends Action,
         simulationRolloutPolicies.add(childrenInitializerTraversalPolicy);
         simulationRolloutPolicies.add(new ClassicSimulationRolloutPolicy<>(randomSupport));
 
-        return new MultiTraversalPolicy<>(simulationRolloutPolicies);
+        return new FirstNonNullTraversalPolicy<>(simulationRolloutPolicies);
     }
 }

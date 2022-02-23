@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunction;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunction;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.internal.Id;

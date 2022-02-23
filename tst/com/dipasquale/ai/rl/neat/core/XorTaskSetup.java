@@ -1,13 +1,13 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
-import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.OutputActivationFunctionType;
+import com.dipasquale.ai.rl.neat.phenotype.DoubleSolutionNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
-import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
-import com.dipasquale.ai.rl.neat.phenotype.TwoSolutionNeuronLayerNormalizer;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -106,7 +106,7 @@ final class XorTaskSetup implements TaskSetup {
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .activation(ActivationSupport.builder()
-                        .outputLayerNormalizer(TOPOLOGY_SETTINGS_TYPE.outputLayerNormalizer)
+                        .outputTopologyDefinition(TOPOLOGY_SETTINGS_TYPE.outputTopologyDefinition)
                         .build())
                 .mutation(MutationSupport.builder()
                         .addNodeRate(FloatNumber.literal(0.03f))
@@ -156,10 +156,10 @@ final class XorTaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TopologySettingsType {
-        SINGLE_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerNormalizer.getInstance()),
-        DOUBLE_OUTPUT(IntegerNumber.literal(2), TwoSolutionNeuronLayerNormalizer.getInstance());
+        VANILLA_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerTopologyDefinition.getInstance()),
+        DOUBLE_OUTPUT(IntegerNumber.literal(2), DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
 
         private final IntegerNumber outputs;
-        private final NeuronLayerNormalizer outputLayerNormalizer;
+        private final NeuronLayerTopologyDefinition outputTopologyDefinition;
     }
 }

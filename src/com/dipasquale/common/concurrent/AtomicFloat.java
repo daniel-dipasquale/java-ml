@@ -8,12 +8,12 @@ public final class AtomicFloat extends Number {
     private static final long serialVersionUID = -8628202897803025853L;
     private final AtomicInteger bits;
 
-    public AtomicFloat(final float value) {
-        this.bits = new AtomicInteger(translateTo(value));
-    }
-
     private static int translateTo(final float value) {
         return Float.floatToRawIntBits(value);
+    }
+
+    public AtomicFloat(final float value) {
+        this.bits = new AtomicInteger(translateTo(value));
     }
 
     private static float translateFrom(final int bits) {

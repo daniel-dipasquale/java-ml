@@ -1,13 +1,13 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.phenotype.DoubleSolutionNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
-import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
-import com.dipasquale.ai.rl.neat.phenotype.TwoSolutionNeuronLayerNormalizer;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.openai.gym.client.GymClient;
 import com.dipasquale.simulation.openai.gym.client.StepResult;
@@ -26,9 +26,9 @@ import java.util.Set;
 @Getter
 public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     private static final TopologySettingsType TOPOLOGY_SETTINGS_TYPE = TopologySettingsType.DOUBLE_OUTPUT;
-    private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
+    private static final int VALIDATION_SCENARIO_COUNT = 2; // NOTE: the higher this number the more consistent the solution will be
     private static final double REWARD_GOAL = 195D;
-    private static final int FITNESS_TESTS = 5;
+    private static final int FITNESS_TEST_COUNT = 5;
     private final String name = "CartPole-v0";
     private final GymClient gymClient;
     @Builder.Default
@@ -70,7 +70,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     private boolean determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
 
-        for (int i = 0; success && i < SUCCESSFUL_SCENARIOS; i++) {
+        for (int i = 0; success && i < VALIDATION_SCENARIO_COUNT; i++) {
             float fitness = calculateFitness(activator, false);
 
             success = Double.compare(fitness, REWARD_GOAL) >= 0;
@@ -108,7 +108,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .activation(ActivationSupport.builder()
-                        .outputLayerNormalizer(TOPOLOGY_SETTINGS_TYPE.outputLayerNormalizer)
+                        .outputTopologyDefinition(TOPOLOGY_SETTINGS_TYPE.outputTopologyDefinition)
                         .build())
                 .metrics(MetricsSupport.builder()
                         .type(metricsEmissionEnabled
@@ -128,7 +128,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                 .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
                 .add(new DelegatedTrainingPolicy(this::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
-                        .fitnessTestCount(FITNESS_TESTS)
+                        .fitnessTestCount(FITNESS_TEST_COUNT)
                         .build())
                 .build();
     }
@@ -140,10 +140,10 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TopologySettingsType {
-        SINGLE_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerNormalizer.getInstance()),
-        DOUBLE_OUTPUT(IntegerNumber.literal(2), TwoSolutionNeuronLayerNormalizer.getInstance());
+        VANILLA_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerTopologyDefinition.getInstance()),
+        DOUBLE_OUTPUT(IntegerNumber.literal(2), DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
 
         private final IntegerNumber outputs;
-        private final NeuronLayerNormalizer outputLayerNormalizer;
+        private final NeuronLayerTopologyDefinition outputTopologyDefinition;
     }
 }

@@ -16,16 +16,16 @@ final class RecyclableCountMinSketch<T> implements CountMinSketch<T>, Serializab
     private static final long serialVersionUID = 7408778685481838033L;
     private final AtomicRecyclableReference<CountMinSketch<T>> recyclableCountMinSketch;
 
-    RecyclableCountMinSketch(final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirationFactory expirationFactory, final RecycledCountMinSketchCollector<T> recycledCollector) {
-        this.recyclableCountMinSketch = new AtomicRecyclableReference<>(countMinSketchFactory, expirationFactory, ensureProxy(recycledCollector));
-    }
-
     private static <T> RecyclableReference.Collector<CountMinSketch<T>> ensureProxy(final RecycledCountMinSketchCollector<T> recycledCollector) {
         if (recycledCollector == null) {
             return null;
         }
 
         return new RecyclableCountMinSketchCollector<>(recycledCollector);
+    }
+
+    RecyclableCountMinSketch(final ObjectFactory<CountMinSketch<T>> countMinSketchFactory, final ExpirationFactory expirationFactory, final RecycledCountMinSketchCollector<T> recycledCollector) {
+        this.recyclableCountMinSketch = new AtomicRecyclableReference<>(countMinSketchFactory, expirationFactory, ensureProxy(recycledCollector));
     }
 
     @Override

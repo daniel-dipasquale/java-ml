@@ -23,11 +23,19 @@ public final class ConcurrentSortedByValueHashMap<TKey, TValue> extends Abstract
     @Getter
     private volatile Storage<TKey, TValue> storage;
 
+    private static <TKey, TValue> EntryStrategyFactory<TKey, TValue> createEntryStrategyFactory() {
+        return (EntryStrategyFactory<TKey, TValue> & Serializable) InternalEntry::new;
+    }
+
     private ConcurrentSortedByValueHashMap(final ObjectFactory<DequeSet<Entry<TKey, TValue>>> entriesSetFactory, final MapFactory<TKey, TValue> mapFactory, final NavigableMapFactory<TKey, TValue> navigableMapFactory) {
         super(entriesSetFactory, createEntryStrategyFactory());
         this.mapFactory = mapFactory;
         this.navigableMapFactory = navigableMapFactory;
         this.storage = new Storage<>(mapFactory.create(), navigableMapFactory.create());
+    }
+
+    private static <TKey, TValue> ObjectFactory<DequeSet<Entry<TKey, TValue>>> createEntriesSetFactory() {
+        return (ObjectFactory<DequeSet<Entry<TKey, TValue>>> & Serializable) () -> DequeSet.createSynchronized(new DequeHashSet<>());
     }
 
     private ConcurrentSortedByValueHashMap(final MapFactory<TKey, TValue> mapFactory, final Comparator<TValue> comparator) {
@@ -45,14 +53,6 @@ public final class ConcurrentSortedByValueHashMap<TKey, TValue> extends Abstract
     @Override
     public void clear() {
         storage = new Storage<>(mapFactory.create(), navigableMapFactory.create());
-    }
-
-    private static <TKey, TValue> ObjectFactory<DequeSet<Entry<TKey, TValue>>> createEntriesSetFactory() {
-        return (ObjectFactory<DequeSet<Entry<TKey, TValue>>> & Serializable) () -> DequeSet.createSynchronized(new DequeHashSet<>());
-    }
-
-    private static <TKey, TValue> EntryStrategyFactory<TKey, TValue> createEntryStrategyFactory() {
-        return (EntryStrategyFactory<TKey, TValue> & Serializable) InternalEntry::new;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

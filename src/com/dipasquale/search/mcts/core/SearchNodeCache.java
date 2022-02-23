@@ -7,16 +7,13 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class SearchNodeCache<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
+public final class SearchNodeCache<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements SearchNodeProvider<TAction, TEdge, TState> {
     private final Map<State<TAction, TState>, SearchNode<TAction, TEdge, TState>> futurePossibleNodes = new IdentityHashMap<>();
     private int nextDepth = 0;
     private final int participants;
     private final EdgeFactory<TEdge> edgeFactory;
 
-    static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> SearchNode<TAction, TEdge, TState> createRootNode(final EdgeFactory<TEdge> edgeFactory, final TState state, final int depth) {
-        return new SearchNode<>(edgeFactory.create(null), state, depth);
-    }
-
+    @Override
     public SearchNode<TAction, TEdge, TState> provide(final TState state) {
         SearchNode<TAction, TEdge, TState> node = futurePossibleNodes.get(state);
 
@@ -28,14 +25,15 @@ public final class SearchNodeCache<TAction extends Action, TEdge extends Edge, T
             return node;
         }
 
-        node = createRootNode(edgeFactory, state, nextDepth);
+        node = SearchNodeProvider.createRootNode(edgeFactory, state, nextDepth);
         nextDepth += participants;
         futurePossibleNodes.clear();
 
         return node;
     }
 
-    public boolean addChildrenIfApplicable(final SearchNode<TAction, TEdge, TState> node) {
+    @Override
+    public boolean registerIfApplicable(final SearchNode<TAction, TEdge, TState> node) {
         if (node.getDepth() + 1 != nextDepth) {
             return false;
         }

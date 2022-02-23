@@ -185,7 +185,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
     }
 
     @Override
-    public double calculateCompatibility(final Genome genome1, final Genome genome2) {
+    public float calculateCompatibility(final Genome genome1, final Genome genome2) {
         return genomeCompatibilityCalculator.calculateCompatibility(genome1, genome2);
     }
 

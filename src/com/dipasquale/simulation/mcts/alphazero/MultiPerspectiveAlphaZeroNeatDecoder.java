@@ -10,12 +10,13 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class MultiPerspectiveAlphaZeroNeatDecoder<TAction extends Action, TEnvironment extends State<TAction, TEnvironment>> implements NeatDecoder<AlphaZeroPrediction, NeatAlphaZeroHeuristicContext<TAction, TEnvironment>> {
+public final class MultiPerspectiveAlphaZeroNeatDecoder<TAction extends Action, TState extends State<TAction, TState>> implements NeatDecoder<AlphaZeroPrediction<TAction, TState>, NeatAlphaZeroHeuristicContext<TAction, TState>> {
     private final int perspectiveParticipantId;
+    private final boolean inverseOutputForOpponent;
     private final int valueIndex;
 
     @Override
-    public AlphaZeroPrediction decode(final NeatAlphaZeroHeuristicContext<TAction, TEnvironment> context, final float[] output) {
-        return new MultiPerspectiveAlphaZeroPrediction<>(perspectiveParticipantId, valueIndex, context, output);
+    public AlphaZeroPrediction<TAction, TState> decode(final NeatAlphaZeroHeuristicContext<TAction, TState> context, final float[] output) {
+        return new MultiPerspectiveAlphaZeroPrediction<>(perspectiveParticipantId, inverseOutputForOpponent, valueIndex, context, output);
     }
 }

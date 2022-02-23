@@ -2,13 +2,13 @@ package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.classic.ClassicConfidenceCalculator;
 import com.dipasquale.search.mcts.classic.ClassicEdge;
-import com.dipasquale.search.mcts.classic.ClassicPrevalentStrategyCalculator;
+import com.dipasquale.search.mcts.classic.PrevalentProposalStrategy;
 import com.dipasquale.search.mcts.core.BackPropagationObserver;
 import com.dipasquale.search.mcts.core.ConfidenceCalculator;
 import com.dipasquale.search.mcts.core.MaximumSearchPolicy;
 import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
-import com.dipasquale.search.mcts.core.SearchCacheSettings;
 import com.dipasquale.search.mcts.core.SearchNode;
+import com.dipasquale.search.mcts.core.SearchNodeCacheSettings;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
@@ -23,12 +23,12 @@ public final class GameTest {
                         .maximumSimulations(maximumSimulations)
                         .maximumDepth(9)
                         .build())
-                .searchCacheSettings(SearchCacheSettings.builder()
+                .searchNodeCacheSettings(SearchNodeCacheSettings.builder()
                         .participants(2)
                         .build())
                 .confidenceCalculator(confidenceCalculator)
                 .backPropagationObserver(backPropagationObserver)
-                .strategyCalculator(ClassicPrevalentStrategyCalculator.builder()
+                .proposalStrategy(PrevalentProposalStrategy.builder()
                         .winningFactor(2f)
                         .notLosingFactor(0.5f)
                         .build())
@@ -99,14 +99,14 @@ public final class GameTest {
 
         @Override
         public void notify(final SearchNode<GameAction, ClassicEdge, GameState> leafNode, final int simulationStatusId) {
-            int move = leafNode.getState().getMoves().size() - 1;
+            int move = leafNode.getState().getActionIds().size() - 1;
 
             for (SearchNode<GameAction, ClassicEdge, GameState> currentNode = leafNode; move >= 0; currentNode = currentNode.getParent()) {
-                GameAction currentState = currentNode.getAction();
-                int location = currentState.getLocation();
-                Entry entry = statistics[move][location];
+                GameAction currentAction = currentNode.getAction();
+                int actionId = currentAction.getId();
+                Entry entry = statistics[move][actionId];
 
-                if (currentState.getParticipantId() == simulationStatusId) {
+                if (currentAction.getParticipantId() == simulationStatusId) {
                     entry.won++;
                 } else if (simulationStatusId == MonteCarloTreeSearch.DRAWN) {
                     entry.drawn++;

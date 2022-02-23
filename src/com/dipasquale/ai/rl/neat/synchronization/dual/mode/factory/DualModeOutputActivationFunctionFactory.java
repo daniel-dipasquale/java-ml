@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunction;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionFactory;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
-import com.dipasquale.ai.common.function.activation.OutputActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunction;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionFactory;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.OutputActivationFunctionType;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import lombok.RequiredArgsConstructor;

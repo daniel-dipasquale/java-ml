@@ -10,6 +10,6 @@ import lombok.RequiredArgsConstructor;
 public final class GameAction implements Action {
     @Getter(AccessLevel.PACKAGE)
     private final Object membership;
+    private final int id;
     private final int participantId;
-    private final int location;
 }

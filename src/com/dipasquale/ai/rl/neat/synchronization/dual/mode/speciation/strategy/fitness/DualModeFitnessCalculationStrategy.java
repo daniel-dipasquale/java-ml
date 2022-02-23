@@ -14,18 +14,18 @@ public final class DualModeFitnessCalculationStrategy implements FitnessCalculat
     private final FitnessCalculationStrategy defaultStrategy;
     private FitnessCalculationStrategy selectedStrategy;
 
-    public DualModeFitnessCalculationStrategy(final int concurrencyLevel, final FitnessCalculationStrategy concurrentStrategy, final FitnessCalculationStrategy defaultStrategy) {
-        this.concurrentStrategy = concurrentStrategy;
-        this.defaultStrategy = defaultStrategy;
-        this.selectedStrategy = select(concurrencyLevel, concurrentStrategy, defaultStrategy);
-    }
-
     private static FitnessCalculationStrategy select(final int concurrencyLevel, final FitnessCalculationStrategy concurrentStrategy, final FitnessCalculationStrategy defaultStrategy) {
         if (concurrencyLevel > 0) {
             return concurrentStrategy;
         }
 
         return defaultStrategy;
+    }
+
+    public DualModeFitnessCalculationStrategy(final int concurrencyLevel, final FitnessCalculationStrategy concurrentStrategy, final FitnessCalculationStrategy defaultStrategy) {
+        this.concurrentStrategy = concurrentStrategy;
+        this.defaultStrategy = defaultStrategy;
+        this.selectedStrategy = select(concurrencyLevel, concurrentStrategy, defaultStrategy);
     }
 
     @Override

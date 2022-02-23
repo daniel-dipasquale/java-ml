@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts.core;
 
-import com.dipasquale.common.EntryOptimizer;
+import com.dipasquale.common.PairOptimizer;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Comparator;
@@ -13,6 +13,10 @@ public final class HighestConfidenceTraversalPolicy<TAction extends Action, TEdg
 
     @Override
     public SearchNode<TAction, TEdge, TState> next(final int simulations, final SearchNode<TAction, TEdge, TState> node) {
+        if (!node.isExpanded()) {
+            return null;
+        }
+
         List<SearchNode<TAction, TEdge, TState>> childNodes = node.getExplorableChildren();
         int size = node.getExplorableChildren().size();
 
@@ -20,12 +24,12 @@ public final class HighestConfidenceTraversalPolicy<TAction extends Action, TEdg
             return null;
         }
 
-        EntryOptimizer<Float, Integer> childNodeOptimizer = new EntryOptimizer<>(FLOAT_COMPARATOR);
+        PairOptimizer<Float, Integer> childNodeOptimizer = new PairOptimizer<>(FLOAT_COMPARATOR);
 
         for (int i = 0; i < size; i++) {
             float confidence = confidenceCalculator.calculate(childNodes.get(i).getEdge());
 
-            childNodeOptimizer.replaceValueIfMoreOptimum(confidence, i);
+            childNodeOptimizer.replaceValueIfBetter(confidence, i);
         }
 
         int index = childNodeOptimizer.getValue();

@@ -4,10 +4,8 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.io.IORuntimeException;
-import com.dipasquale.synchronization.InterruptedRuntimeException;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
 import com.dipasquale.synchronization.lock.NoopReadWriteLock;
-import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -47,6 +45,12 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
         this.state = new ConcurrentNeatState();
     }
 
+    private static List<IndexedNeatTrainer> createTrainers(final List<Context> contexts, final MultiTrainingPolicy multiTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
+        return IntStream.range(0, contexts.size())
+                .mapToObj(index -> new IndexedNeatTrainer(index, createTrainer(contexts.get(index), multiTrainingPolicy, trainingPolicy)))
+                .collect(Collectors.toList());
+    }
+
     private ConcurrentNeatMultiTrainer(final ReadWriteLock lock, final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<Context> contexts, final MultiTrainingPolicy multiTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
         this(lock, parallelismSupport, solutionFound, createTrainers(contexts, multiTrainingPolicy, trainingPolicy));
     }
@@ -66,12 +70,6 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
                 .build();
 
         return new ConcurrentNeatTrainer(context, trainingPolicyFixed, NoopReadWriteLock.getInstance());
-    }
-
-    private static List<IndexedNeatTrainer> createTrainers(final List<Context> contexts, final MultiTrainingPolicy multiTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
-        return IntStream.range(0, contexts.size())
-                .mapToObj(index -> new IndexedNeatTrainer(index, createTrainer(contexts.get(index), multiTrainingPolicy, trainingPolicy)))
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -118,16 +116,11 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
 
         try {
             SynchronizingTrainingHandler trainingHandler = new SynchronizingTrainingHandler(solutionFound);
-            WaitHandle waitHandle = parallelismSupport.forEach(indexedTrainers, trainingHandler);
 
-            waitHandle.await();
+            parallelismSupport.forEach(indexedTrainers, trainingHandler);
             championTrainerIndex = getChampionTrainerIndex(trainingHandler, championTrainerIndex);
 
             return !trainingHandler.successfulIndexedTrainers.isEmpty();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-
-            throw new InterruptedRuntimeException("unable to train all neat evaluators", e);
         } finally {
             solutionFound.set(false);
             lock.writeLock().unlock();

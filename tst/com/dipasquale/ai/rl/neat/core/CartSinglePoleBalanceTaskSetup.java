@@ -1,16 +1,16 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
-import com.dipasquale.ai.common.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
+import com.dipasquale.ai.rl.neat.phenotype.DoubleSolutionNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuralNetwork;
-import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronMemory;
-import com.dipasquale.ai.rl.neat.phenotype.TwoSolutionNeuronLayerNormalizer;
 import com.dipasquale.common.random.float2.DeterministicRandomSupport;
 import com.dipasquale.common.random.float2.RandomSupport;
-import com.dipasquale.common.random.float2.ThreadLocalUniformRandomSupport;
+import com.dipasquale.common.random.float2.concurrent.ThreadLocalUniformRandomSupport;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
@@ -29,9 +29,9 @@ import java.util.Set;
 final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
     private static final TopologySettingsType TOPOLOGY_SETTINGS_TYPE = TopologySettingsType.DOUBLE_OUTPUT;
     private static final RandomSupport RANDOM_SUPPORT = ThreadLocalUniformRandomSupport.getInstance();
+    private static final int VALIDATION_SCENARIO_COUNT = 2; // NOTE: the higher this number the more consistent the solution will be
     private static final double TIME_SPENT_GOAL = 60D;
-    private static final int SUCCESSFUL_SCENARIOS = 2; // NOTE: the higher this number the more consistent the solution will be
-    private static final int FITNESS_TESTS = 5;
+    private static final int FITNESS_TEST_COUNT = 5;
     private final String name = "Single Pole Cart Balance";
     @Builder.Default
     private final int populationSize = 150;
@@ -68,9 +68,9 @@ final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
 
     private static boolean determineTrainingResult(final NeatActivator activator) {
         boolean success = true;
-        DeterministicRandomSupport randomSupport = new DeterministicRandomSupport((long) SUCCESSFUL_SCENARIOS * 4L);
+        DeterministicRandomSupport randomSupport = new DeterministicRandomSupport((long) VALIDATION_SCENARIO_COUNT * 4L);
 
-        for (int i = 0; success && i < SUCCESSFUL_SCENARIOS; i++) {
+        for (int i = 0; success && i < VALIDATION_SCENARIO_COUNT; i++) {
             CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);
 
             testFitness(activator, cartPole);
@@ -110,7 +110,7 @@ final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
                         .build())
                 .activation(ActivationSupport.builder()
-                        .outputLayerNormalizer(TOPOLOGY_SETTINGS_TYPE.outputLayerNormalizer)
+                        .outputTopologyDefinition(TOPOLOGY_SETTINGS_TYPE.outputTopologyDefinition)
                         .build())
                 .metrics(MetricsSupport.builder()
                         .type(metricsEmissionEnabled
@@ -130,17 +130,17 @@ final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
                 .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
                 .add(new DelegatedTrainingPolicy(CartSinglePoleBalanceTaskSetup::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
-                        .fitnessTestCount(FITNESS_TESTS)
+                        .fitnessTestCount(FITNESS_TEST_COUNT)
                         .build())
                 .build();
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TopologySettingsType {
-        SINGLE_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerNormalizer.getInstance()),
-        DOUBLE_OUTPUT(IntegerNumber.literal(2), TwoSolutionNeuronLayerNormalizer.getInstance());
+        VANILLA_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerTopologyDefinition.getInstance()),
+        DOUBLE_OUTPUT(IntegerNumber.literal(2), DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
 
         private final IntegerNumber outputs;
-        private final NeuronLayerNormalizer outputLayerNormalizer;
+        private final NeuronLayerTopologyDefinition outputTopologyDefinition;
     }
 }

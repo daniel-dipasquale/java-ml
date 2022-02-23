@@ -43,15 +43,15 @@ final class ContextObjectActivationSupport implements Context.ActivationSupport 
         float recurrentAllowanceRate = initializationContext.getFloatSingleton(connectionGeneSupport.getRecurrentAllowanceRate());
 
         if (Float.compare(recurrentAllowanceRate, 0f) <= 0) {
-            return new FeedForwardNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
+            return new FeedForwardNeuralNetworkFactory(activationSupport.getOutputTopologyDefinition());
         }
 
         return switch (connectionGeneSupport.getRecurrentStateType()) {
-            case DEFAULT -> new RecurrentNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
+            case DEFAULT -> new RecurrentNeuralNetworkFactory(activationSupport.getOutputTopologyDefinition());
 
-            case LSTM -> new LstmNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
+            case LSTM -> new LstmNeuralNetworkFactory(activationSupport.getOutputTopologyDefinition());
 
-            case GRU -> new GruNeuralNetworkFactory(activationSupport.getOutputLayerNormalizer());
+            case GRU -> new GruNeuralNetworkFactory(activationSupport.getOutputTopologyDefinition());
         };
     }
 

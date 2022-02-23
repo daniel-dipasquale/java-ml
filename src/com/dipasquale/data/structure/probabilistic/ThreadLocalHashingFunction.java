@@ -16,19 +16,19 @@ final class ThreadLocalHashingFunction implements HashingFunction, Serializable 
     private final byte[] salt;
     private transient ThreadLocal<MessageDigest> messageDigestThreadLocal;
 
-    ThreadLocalHashingFunction(final HashingFunctionAlgorithm algorithm, final long offset, final byte[] salt) {
-        this.algorithm = algorithm;
-        this.offset = offset;
-        this.salt = salt;
-        this.messageDigestThreadLocal = ThreadLocal.withInitial(() -> createMessageDigest(algorithm.getName()));
-    }
-
     private static MessageDigest createMessageDigest(final String algorithm) {
         try {
             return MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
             throw new NoSuchAlgorithmRuntimeException(e);
         }
+    }
+
+    ThreadLocalHashingFunction(final HashingFunctionAlgorithm algorithm, final long offset, final byte[] salt) {
+        this.algorithm = algorithm;
+        this.offset = offset;
+        this.salt = salt;
+        this.messageDigestThreadLocal = ThreadLocal.withInitial(() -> createMessageDigest(algorithm.getName()));
     }
 
     @Serial

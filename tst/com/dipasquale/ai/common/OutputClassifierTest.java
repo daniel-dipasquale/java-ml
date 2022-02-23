@@ -2,6 +2,8 @@ package com.dipasquale.ai.common;
 
 import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.common.error.ErrorComparator;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -62,6 +64,7 @@ public final class OutputClassifierTest {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum Classification {
         A,
         B,

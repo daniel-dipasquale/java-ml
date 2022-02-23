@@ -1,7 +1,6 @@
 package com.dipasquale.ai.rl.neat.core;
 
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
-import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
@@ -19,13 +18,13 @@ final class ContextObjectParallelismSupport implements Context.ParallelismSuppor
     }
 
     @Override
-    public <T> WaitHandle forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        return parallelism.forEach(iterator, itemHandler);
+    public <T> void forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
+        parallelism.forEach(iterator, itemHandler);
     }
 
     @Override
-    public <T> WaitHandle forEach(final List<T> list, final Consumer<T> itemHandler) {
-        return parallelism.forEach(list, itemHandler);
+    public <T> void forEach(final List<T> list, final Consumer<T> itemHandler) {
+        parallelism.forEach(list, itemHandler);
     }
 
     public void load(final IterableEventLoop eventLoop) {

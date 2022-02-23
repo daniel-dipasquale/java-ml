@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.common.function.activation.ActivationFunction;
-import com.dipasquale.ai.common.function.activation.SigmoidActivationFunction;
-import com.dipasquale.ai.common.function.activation.TanHActivationFunction;
+import com.dipasquale.ai.rl.neat.function.activation.ActivationFunction;
+import com.dipasquale.ai.rl.neat.function.activation.SigmoidActivationFunction;
+import com.dipasquale.ai.rl.neat.function.activation.TanHActivationFunction;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ final class LstmNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
     private static final String CELL_DIMENSION = "LSTM_C";
     private static final SigmoidActivationFunction SIGMOID_ACTIVATION_FUNCTION = SigmoidActivationFunction.getInstance();
     private static final TanHActivationFunction TAN_H_ACTIVATION_FUNCTION = TanHActivationFunction.getInstance();
-    private final NeuronMemory memory;
+    private final NeuronMemory neuronMemory;
     private final Map<Id, Float> cellValues = new HashMap<>();
 
     private static float calculateForgetGate(final Neuron neuron, final NeuronOutputConnection connection, final float previousValue, final float currentValue) {
@@ -55,8 +55,8 @@ final class LstmNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
     @Override
     protected float calculateRecurrentValue(final Neuron neuron, final NeuronOutputConnection connection) {
         Id neuronId = neuron.getId();
-        float previousCellValue = memory.getValueOrDefault(CELL_DIMENSION, neuronId);
-        float previousValue = memory.getValueOrDefault(HIDDEN_DIMENSION, neuronId);
+        float previousCellValue = neuronMemory.getValueOrDefault(CELL_DIMENSION, neuronId);
+        float previousValue = neuronMemory.getValueOrDefault(HIDDEN_DIMENSION, neuronId);
         float currentValue = getValue(neuronId);
         float forgetGate = calculateForgetGate(neuron, connection, previousValue, currentValue);
         float inputGate = calculateInputGate(neuron, connection, previousValue, currentValue);
@@ -75,7 +75,7 @@ final class LstmNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
 
     @Override
     public void endCycle(final Id neuronId) {
-        memory.setValue(HIDDEN_DIMENSION, neuronId, getValue(neuronId));
-        memory.setValue(CELL_DIMENSION, neuronId, Objects.requireNonNullElse(cellValues.remove(neuronId), 0f));
+        neuronMemory.setValue(HIDDEN_DIMENSION, neuronId, getValue(neuronId));
+        neuronMemory.setValue(CELL_DIMENSION, neuronId, Objects.requireNonNullElse(cellValues.remove(neuronId), 0f));
     }
 }

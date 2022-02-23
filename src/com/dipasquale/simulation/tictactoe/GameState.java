@@ -13,16 +13,16 @@ import java.util.stream.IntStream;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class GameState implements State<GameAction, GameState> {
-    private static final int MAXIMUM_MOVES = 9;
+    private static final int MAXIMUM_ACTIONS = 9;
+    private static final int NO_ID = -1;
     private static final int NO_PARTICIPANT_ID = -1;
-    private static final int NO_LOCATION = -1;
     private static final int NOT_PLAYED_VALUE = 0;
     private final Object membership;
     @Getter(AccessLevel.PACKAGE)
     private final int[] board;
     @Getter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Include
-    private final List<Integer> moves;
+    private final List<Integer> actionIds;
     @Getter
     private final GameAction lastAction;
     @Getter
@@ -30,39 +30,44 @@ public final class GameState implements State<GameAction, GameState> {
 
     GameState() {
         this.membership = new Object();
-        this.lastAction = new GameAction(null, NO_PARTICIPANT_ID, NO_LOCATION);
-        this.board = new int[MAXIMUM_MOVES];
-        this.moves = List.of();
+        this.lastAction = new GameAction(null, NO_ID, NO_PARTICIPANT_ID);
+        this.board = new int[MAXIMUM_ACTIONS];
+        this.actionIds = List.of();
         this.statusId = MonteCarloTreeSearch.IN_PROGRESS;
     }
 
-    private GameState(final GameAction lastAction, final int[] board, final List<Integer> moves, final int statusId) {
+    private GameState(final GameAction lastAction, final int[] board, final List<Integer> actionIds, final int statusId) {
         this.membership = new Object();
         this.lastAction = lastAction;
         this.board = board;
-        this.moves = moves;
+        this.actionIds = actionIds;
         this.statusId = statusId;
     }
 
     @Override
     public int getNextParticipantId() {
-        if (moves.isEmpty()) {
+        if (actionIds.isEmpty()) {
             return 1;
         }
 
         return 3 - lastAction.getParticipantId();
     }
 
-    public GameAction createValidAction(final int location) {
-        if (location < 0 || location >= MAXIMUM_MOVES || board[location] != NOT_PLAYED_VALUE) {
-            String message = String.format("game action is not valid due to location: %d", location);
+    @Override
+    public boolean isValid(final int actionId) {
+        return actionId >= 0 && actionId < MAXIMUM_ACTIONS && board[actionId] == NOT_PLAYED_VALUE;
+    }
+
+    public GameAction createAction(final int id) {
+        if (!isValid(id)) {
+            String message = String.format("game action is not valid due to id: %d", id);
 
             throw new IllegalArgumentException(message);
         }
 
         int participantId = getNextParticipantId();
 
-        return new GameAction(membership, participantId, location);
+        return new GameAction(membership, id, participantId);
     }
 
     @Override
@@ -71,14 +76,14 @@ public final class GameState implements State<GameAction, GameState> {
 
         return IntStream.range(0, board.length)
                 .filter(index -> board[index] == NOT_PLAYED_VALUE)
-                .mapToObj(index -> new GameAction(membership, participantId, index))
+                .mapToObj(index -> new GameAction(membership, index, participantId))
                 ::iterator;
     }
 
     private static int[] createBoard(final int[] board, final GameAction action) {
-        int[] boardFixed = Arrays.copyOf(board, 9);
+        int[] boardFixed = Arrays.copyOf(board, MAXIMUM_ACTIONS);
 
-        boardFixed[action.getLocation()] = action.getParticipantId();
+        boardFixed[action.getId()] = action.getParticipantId();
 
         return boardFixed;
     }
@@ -86,13 +91,13 @@ public final class GameState implements State<GameAction, GameState> {
     private static List<Integer> createMoves(final List<Integer> moves, final GameAction action) {
         List<Integer> movesFixed = new ArrayList<>(moves);
 
-        movesFixed.add(action.getLocation());
+        movesFixed.add(action.getId());
 
         return movesFixed;
     }
 
     private static boolean isRowTaken(final int[] board, final int participantId) {
-        for (int i1 = 0; i1 < 9; i1 += 3) {
+        for (int i1 = 0; i1 < MAXIMUM_ACTIONS; i1 += 3) {
             boolean taken = true;
 
             for (int i2 = 0; taken && i2 < 3; i2++) {
@@ -111,7 +116,7 @@ public final class GameState implements State<GameAction, GameState> {
         for (int i1 = 0; i1 < 3; i1++) {
             boolean taken = true;
 
-            for (int i2 = 0; taken && i2 < 9; i2 += 3) {
+            for (int i2 = 0; taken && i2 < MAXIMUM_ACTIONS; i2 += 3) {
                 taken = board[i2 + i1] == participantId;
             }
 
@@ -126,7 +131,7 @@ public final class GameState implements State<GameAction, GameState> {
     private static boolean isDiagonal1Taken(final int[] board, final int participantId) {
         boolean taken = true;
 
-        for (int i = 0; taken && i < 9; i += 4) {
+        for (int i = 0; taken && i < MAXIMUM_ACTIONS; i += 4) {
             taken = board[i] == participantId;
         }
 
@@ -152,7 +157,7 @@ public final class GameState implements State<GameAction, GameState> {
             return participantId;
         }
 
-        if (moves.size() == MAXIMUM_MOVES) {
+        if (moves.size() == MAXIMUM_ACTIONS) {
             return MonteCarloTreeSearch.DRAWN;
         }
 
@@ -166,7 +171,7 @@ public final class GameState implements State<GameAction, GameState> {
         }
 
         int[] boardFixed = createBoard(board, action);
-        List<Integer> movesFixed = createMoves(moves, action);
+        List<Integer> movesFixed = createMoves(actionIds, action);
         int statusIdFixed = getStatusId(boardFixed, movesFixed, action.getParticipantId());
 
         return new GameState(action, boardFixed, movesFixed, statusIdFixed);

@@ -26,7 +26,7 @@ public final class NeatTest {
     private static final boolean CART_SINGLE_POLE_BALANCE_TASK_ENABLED = true;
     private static final boolean OPEN_AI_TASKS_ENABLED = false;
     private static final boolean OPEN_AI_CART_POLE_TASK_ENABLED = true;
-    private static final boolean TIC_TAC_TOE_DUEL_TASK_ENABLED = false;
+    private static final boolean TIC_TAC_TOE_DUEL_TASK_ENABLED = true;
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());

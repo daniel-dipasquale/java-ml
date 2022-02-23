@@ -129,20 +129,14 @@ final class CyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class NeuronPath implements Serializable {
         @Serial
         private static final long serialVersionUID = -4219700326308862911L;
         private final NeuronPathId id;
         private final Neuron neuron;
-        private boolean ordered;
+        private boolean ordered = false;
         private final boolean root;
-
-        private NeuronPath(final NeuronPathId id, final Neuron neuron, final boolean root) {
-            this.id = id;
-            this.neuron = neuron;
-            this.ordered = false;
-            this.root = root;
-        }
 
         public NeuronPath flipOrdered() {
             ordered = !ordered;

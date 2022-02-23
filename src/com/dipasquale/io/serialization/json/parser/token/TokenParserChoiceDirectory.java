@@ -20,33 +20,6 @@ public final class TokenParserChoiceDirectory {
     private final TokenParserChoice string;
     private final TokenParserChoice anyValue;
 
-    private TokenParserChoiceDirectory() {
-        TokenParser whitespaceParser = new WhitespaceTokenParser();
-        TokenParser objectParser = new ObjectStartOrNextEntryTokenParser(this, true);
-        TokenParser objectAllEntriesParser = new ObjectAllEntriesTokenParser(this);
-        TokenParser arrayParser = new ArrayStartOrNextElementTokenParser(this, true);
-        TokenParser arrayAllElementsParser = new ArrayAllElementsTokenParser(this);
-        TokenParser stringParser = new StringTokenParser();
-        TokenParser objectOrArrayEndParser = new FinalizeObjectOrArrayTokenParser();
-
-        this.fileStart = createFileStart(whitespaceParser, objectParser, arrayParser);
-        this.whitespace = new SingleTokenParserChoice(Character::isWhitespace, whitespaceParser, true);
-        this.colon = new SingleTokenParserChoice(Set.of(':')::contains, new SingleCharacterTokenParser(), false);
-        this.comma = new SingleTokenParserChoice(Set.of(',')::contains, new SingleCharacterTokenParser(), false);
-        this.objectStart = new SingleTokenParserChoice(Set.of('{')::contains, new SingleCharacterTokenParser(), false);
-        this.objectEndOrAllEntries = createObjectEndOrAllEntries(objectOrArrayEndParser, objectAllEntriesParser);
-        this.objectEndOrNextEntry = createObjectEndOrNextEntry(objectOrArrayEndParser, new ObjectStartOrNextEntryTokenParser(this, false));
-        this.arrayStart = new SingleTokenParserChoice(Set.of('[')::contains, new SingleCharacterTokenParser(), false);
-        this.arrayEndOrAllElements = createArrayEndOrAllElements(objectOrArrayEndParser, arrayAllElementsParser);
-        this.arrayEndOrNextElement = createArrayEndOrNextElement(objectOrArrayEndParser, new ArrayStartOrNextElementTokenParser(this, false));
-        this.string = new SingleTokenParserChoice(Set.of('"')::contains, stringParser, false);
-        this.anyValue = createAnyValue(objectParser, arrayParser, stringParser, new NumberTokenParser(), new BooleanTokenParser(), new NullTokenParser());
-    }
-
-    public static TokenParserChoiceDirectory getInstance() {
-        return INSTANCE;
-    }
-
     private static TokenParserChoice createObjectEndOrAllEntries(final TokenParser objectEndParser, final TokenParser objectAllEntriesParser) {
         ConfigurableTokenParserChoice tokenParserChoices = new ConfigurableTokenParserChoice();
 
@@ -142,5 +115,32 @@ public final class TokenParserChoiceDirectory {
         registerNullParser(tokenParserChoices, nullParser);
 
         return tokenParserChoices;
+    }
+
+    private TokenParserChoiceDirectory() {
+        TokenParser whitespaceParser = new WhitespaceTokenParser();
+        TokenParser objectParser = new ObjectStartOrNextEntryTokenParser(this, true);
+        TokenParser objectAllEntriesParser = new ObjectAllEntriesTokenParser(this);
+        TokenParser arrayParser = new ArrayStartOrNextElementTokenParser(this, true);
+        TokenParser arrayAllElementsParser = new ArrayAllElementsTokenParser(this);
+        TokenParser stringParser = new StringTokenParser();
+        TokenParser objectOrArrayEndParser = new FinalizeObjectOrArrayTokenParser();
+
+        this.fileStart = createFileStart(whitespaceParser, objectParser, arrayParser);
+        this.whitespace = new SingleTokenParserChoice(Character::isWhitespace, whitespaceParser, true);
+        this.colon = new SingleTokenParserChoice(Set.of(':')::contains, new SingleCharacterTokenParser(), false);
+        this.comma = new SingleTokenParserChoice(Set.of(',')::contains, new SingleCharacterTokenParser(), false);
+        this.objectStart = new SingleTokenParserChoice(Set.of('{')::contains, new SingleCharacterTokenParser(), false);
+        this.objectEndOrAllEntries = createObjectEndOrAllEntries(objectOrArrayEndParser, objectAllEntriesParser);
+        this.objectEndOrNextEntry = createObjectEndOrNextEntry(objectOrArrayEndParser, new ObjectStartOrNextEntryTokenParser(this, false));
+        this.arrayStart = new SingleTokenParserChoice(Set.of('[')::contains, new SingleCharacterTokenParser(), false);
+        this.arrayEndOrAllElements = createArrayEndOrAllElements(objectOrArrayEndParser, arrayAllElementsParser);
+        this.arrayEndOrNextElement = createArrayEndOrNextElement(objectOrArrayEndParser, new ArrayStartOrNextElementTokenParser(this, false));
+        this.string = new SingleTokenParserChoice(Set.of('"')::contains, stringParser, false);
+        this.anyValue = createAnyValue(objectParser, arrayParser, stringParser, new NumberTokenParser(), new BooleanTokenParser(), new NullTokenParser());
+    }
+
+    public static TokenParserChoiceDirectory getInstance() {
+        return INSTANCE;
     }
 }

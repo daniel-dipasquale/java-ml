@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.core;
 
-import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerNormalizer;
-import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerNormalizer;
+import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
+import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public final class ActivationSupport {
     @Builder.Default
-    private final NeuronLayerNormalizer outputLayerNormalizer = IdentityNeuronLayerNormalizer.getInstance();
+    private final NeuronLayerTopologyDefinition outputTopologyDefinition = IdentityNeuronLayerTopologyDefinition.getInstance();
 
     ContextObjectActivationSupport create(final InitializationContext initializationContext, final GeneralSupport generalSupport, final ConnectionGeneSupport connectionGeneSupport) {
         return ContextObjectActivationSupport.create(initializationContext, generalSupport, connectionGeneSupport, this);

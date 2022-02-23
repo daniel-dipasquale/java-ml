@@ -9,14 +9,14 @@ import java.util.concurrent.TimeUnit;
 public final class StrategyWaitHandle implements WaitHandle {
     private final WaitHandle waitHandle;
     private final Collection<Throwable> unhandledExceptions;
-
-    public StrategyWaitHandle(final Collection<Throwable> unhandledExceptions) {
-        this(null, unhandledExceptions);
-    }
+    private final boolean reusable;
 
     private <T extends Exception> void fillUnhandledAsSuppressed(final T exception) {
         unhandledExceptions.forEach(exception::addSuppressed);
-        unhandledExceptions.clear();
+
+        if (reusable) {
+            unhandledExceptions.clear();
+        }
     }
 
     private void failIfAnyUnhandled() {

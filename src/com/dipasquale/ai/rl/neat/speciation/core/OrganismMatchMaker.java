@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class OrganismMatchMaker {
-    private static final double MINIMUM_COMPATIBILITY = Double.POSITIVE_INFINITY;
+    private static final float MINIMUM_COMPATIBILITY = Float.POSITIVE_INFINITY;
     private final Context.SpeciationSupport speciationSupport;
-    private double bestMatchCompatibility = MINIMUM_COMPATIBILITY;
+    private float bestMatchCompatibility = MINIMUM_COMPATIBILITY;
     private Species bestMatchSpecies = null;
 
     public Species getBestMatch() {
@@ -17,9 +17,9 @@ final class OrganismMatchMaker {
     }
 
     public boolean replaceIfBetterMatch(final Organism organism, final Species species) {
-        double compatibility = organism.calculateCompatibility(speciationSupport, species);
+        float compatibility = organism.calculateCompatibility(speciationSupport, species);
 
-        if (Double.compare(bestMatchCompatibility, compatibility) <= 0) {
+        if (Float.compare(bestMatchCompatibility, compatibility) <= 0) {
             return false;
         }
 
@@ -30,9 +30,9 @@ final class OrganismMatchMaker {
     }
 
     public boolean isBestMatchCompatible(final int generation) {
-        double compatibilityThreshold = speciationSupport.params().compatibilityThreshold(generation);
+        float compatibilityThreshold = speciationSupport.params().compatibilityThreshold(generation);
 
-        return Double.compare(bestMatchCompatibility, compatibilityThreshold) < 0;
+        return Float.compare(bestMatchCompatibility, compatibilityThreshold) < 0;
     }
 
     public void clear() {

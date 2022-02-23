@@ -15,12 +15,12 @@ public final class MetricDatumQueryProjection {
         this(displayText, key, statistic, displayText);
     }
 
-    public MetricDatumQueryProjection(final String key, final String statistic) {
-        this(key, statistic, createDisplayText(key, statistic));
-    }
-
     private static String createDisplayText(final String key, final String statistic) {
         return String.format("%s (%s)", key, statistic);
+    }
+
+    public MetricDatumQueryProjection(final String key, final String statistic) {
+        this(key, statistic, createDisplayText(key, statistic));
     }
 
     @Override

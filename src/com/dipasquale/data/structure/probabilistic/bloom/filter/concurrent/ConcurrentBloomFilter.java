@@ -44,6 +44,10 @@ public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializa
         this.bloomFilter = MULTI_PART_BLOOM_FILTER_FACTORY.createEstimated(estimatedSize, hashingFunctions, falsePositiveRatio);
     }
 
+    private static BloomFilterFactory createMultiPartRecyclableFactory(final ExpirationFactory expirationFactory) {
+        return new MultiPartRecyclableBloomFilterFactory(DEFAULT_BLOOM_FILTER_FACTORY, new LiteralExpirationFactoryProvider(expirationFactory));
+    }
+
     public ConcurrentBloomFilter(final int estimatedSize, final ExpirationFactory expirationFactory) {
         this.bloomFilter = createMultiPartRecyclableFactory(expirationFactory).createEstimated(estimatedSize);
     }
@@ -60,6 +64,13 @@ public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializa
         this.bloomFilter = createMultiPartRecyclableFactory(expirationFactory).createEstimated(estimatedSize, hashingFunctions, falsePositiveRatio);
     }
 
+    private static BloomFilterFactory createMultiPartStaggeringRecyclableFactory(final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
+        InternalExpirationFactoryCreator internalExpirationFactoryCreator = new InternalExpirationFactoryCreator(dateTimeSupport);
+        ExpirationFactoryProvider expirationFactoryProvider = new StaggeringExpirationFactoryProvider(internalExpirationFactoryCreator, expirationTime, partitions);
+
+        return new MultiPartRecyclableBloomFilterFactory(DEFAULT_BLOOM_FILTER_FACTORY, expirationFactoryProvider);
+    }
+
     public ConcurrentBloomFilter(final int estimatedSize, final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
         this.bloomFilter = createMultiPartStaggeringRecyclableFactory(dateTimeSupport, expirationTime, partitions).createEstimated(estimatedSize);
     }
@@ -74,17 +85,6 @@ public final class ConcurrentBloomFilter<T> implements BloomFilter<T>, Serializa
 
     public ConcurrentBloomFilter(final int estimatedSize, final int hashingFunctions, final double falsePositiveRatio, final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
         this.bloomFilter = createMultiPartStaggeringRecyclableFactory(dateTimeSupport, expirationTime, partitions).createEstimated(estimatedSize, hashingFunctions, falsePositiveRatio);
-    }
-
-    private static BloomFilterFactory createMultiPartRecyclableFactory(final ExpirationFactory expirationFactory) {
-        return new MultiPartRecyclableBloomFilterFactory(DEFAULT_BLOOM_FILTER_FACTORY, new LiteralExpirationFactoryProvider(expirationFactory));
-    }
-
-    private static BloomFilterFactory createMultiPartStaggeringRecyclableFactory(final DateTimeSupport dateTimeSupport, final long expirationTime, final int partitions) {
-        InternalExpirationFactoryCreator internalExpirationFactoryCreator = new InternalExpirationFactoryCreator(dateTimeSupport);
-        ExpirationFactoryProvider expirationFactoryProvider = new StaggeringExpirationFactoryProvider(internalExpirationFactoryCreator, expirationTime, partitions);
-
-        return new MultiPartRecyclableBloomFilterFactory(DEFAULT_BLOOM_FILTER_FACTORY, expirationFactoryProvider);
     }
 
     @Override

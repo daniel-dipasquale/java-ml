@@ -24,6 +24,22 @@ public final class JsonObject implements Iterable<Object>, Serializable {
     private final JsonObjectType type;
     private final Map<Object, Object> entries;
 
+    private static Map<Object, Object> createEntries(final JsonObjectType type, final Map<Object, Object> entries) {
+        Map<Object, Object> entriesFixed = switch (type) {
+            case ARRAY -> new TreeMap<>(InternalComparator.INSTANCE);
+
+            default -> new HashMap<>();
+        };
+
+        if (entries != null) {
+            for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+                put(type, entriesFixed, entry.getKey(), entry.getValue());
+            }
+        }
+
+        return entriesFixed;
+    }
+
     public JsonObject(final JsonObjectType type) {
         this(type, createEntries(type, null));
     }
@@ -100,22 +116,6 @@ public final class JsonObject implements Iterable<Object>, Serializable {
         }
 
         return entries.put(key.toString(), valueFixed);
-    }
-
-    private static Map<Object, Object> createEntries(final JsonObjectType type, final Map<Object, Object> entries) {
-        Map<Object, Object> entriesFixed = switch (type) {
-            case ARRAY -> new TreeMap<>(InternalComparator.INSTANCE);
-
-            default -> new HashMap<>();
-        };
-
-        if (entries != null) {
-            for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-                put(type, entriesFixed, entry.getKey(), entry.getValue());
-            }
-        }
-
-        return entriesFixed;
     }
 
     public JsonObjectType typeof() {

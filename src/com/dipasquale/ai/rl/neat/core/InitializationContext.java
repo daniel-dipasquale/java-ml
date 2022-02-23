@@ -22,6 +22,12 @@ final class InitializationContext {
     private final RandomSupport random;
     private final Map<Object, Object> singletons;
 
+    private static int getMaximumConcurrencyLevel(final int concurrencyLevel) {
+        int availableProcessors = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+
+        return Math.max(concurrencyLevel, availableProcessors);
+    }
+
     InitializationContext(final NeatEnvironmentType environmentType, final ParallelismSupport parallelism, final RandomSupport random) {
         int concurrencyLevel = parallelism.getConcurrencyLevel();
 
@@ -30,12 +36,6 @@ final class InitializationContext {
         this.maximumConcurrencyLevel = getMaximumConcurrencyLevel(concurrencyLevel);
         this.random = random;
         this.singletons = new IdentityHashMap<>();
-    }
-
-    private static int getMaximumConcurrencyLevel(final int concurrencyLevel) {
-        int availableProcessors = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-
-        return Math.max(concurrencyLevel, availableProcessors);
     }
 
     public DualModeMapFactory createMapFactory() {

@@ -16,7 +16,6 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionSt
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategyExecutor;
 import com.dipasquale.common.Pair;
 import com.dipasquale.synchronization.event.loop.IterableEventLoop;
-import com.dipasquale.synchronization.wait.handle.WaitHandle;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -69,9 +68,9 @@ public interface Context {
     interface ParallelismSupport {
         ParallelismParameters params();
 
-        <T> WaitHandle forEach(Iterator<T> iterator, Consumer<T> itemHandler);
+        <T> void forEach(Iterator<T> iterator, Consumer<T> itemHandler);
 
-        <T> WaitHandle forEach(List<T> list, Consumer<T> itemHandler);
+        <T> void forEach(List<T> list, Consumer<T> itemHandler);
     }
 
     interface RandomSupport {
@@ -211,7 +210,7 @@ public interface Context {
     interface SpeciationParameters {
         int maximumSpecies();
 
-        double compatibilityThreshold(int generation);
+        float compatibilityThreshold(int generation);
 
         float eugenicsThreshold();
 
@@ -237,7 +236,7 @@ public interface Context {
 
         Genome createGenesisGenome(Context context);
 
-        double calculateCompatibility(Genome genome1, Genome genome2);
+        float calculateCompatibility(Genome genome1, Genome genome2);
 
         default int calculateFitToReproduce(final int size) {
             int count1 = (int) Math.floor((double) params().eugenicsThreshold() * (double) size);

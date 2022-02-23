@@ -8,12 +8,12 @@ public final class AtomicDouble extends Number {
     private static final long serialVersionUID = -8430898427674005626L;
     private final AtomicLong bits;
 
-    public AtomicDouble(final double value) {
-        this.bits = new AtomicLong(translateTo(value));
-    }
-
     private static long translateTo(final double value) {
         return Double.doubleToRawLongBits(value);
+    }
+
+    public AtomicDouble(final double value) {
+        this.bits = new AtomicLong(translateTo(value));
     }
 
     private static double translateFrom(final long value) {

@@ -20,16 +20,6 @@ final class RouterEventLoop implements EventLoop {
     private final MultiWaitHandle eventLoops_handlingEventsWaitHandle;
     private final IterableErrorHandler<EventLoop> eventLoops_shutdownHandler;
 
-    RouterEventLoop(final String name, final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
-        List<EventLoop> eventLoops = createEventLoops(eventLoopFactoryProxy, count, this);
-
-        this.name = name;
-        this.eventLoops = eventLoops;
-        this.eventLoopSelector = eventLoopSelector;
-        this.eventLoops_handlingEventsWaitHandle = new MultiWaitHandle(eventLoops, dateTimeSupport, __ -> !isEmpty());
-        this.eventLoops_shutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
-    }
-
     private static List<EventLoop> createEventLoops(final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final RouterEventLoop entryPoint) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
@@ -40,6 +30,16 @@ final class RouterEventLoop implements EventLoop {
         }
 
         return Collections.unmodifiableList(eventLoops);
+    }
+
+    RouterEventLoop(final String name, final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
+        List<EventLoop> eventLoops = createEventLoops(eventLoopFactoryProxy, count, this);
+
+        this.name = name;
+        this.eventLoops = eventLoops;
+        this.eventLoopSelector = eventLoopSelector;
+        this.eventLoops_handlingEventsWaitHandle = new MultiWaitHandle(eventLoops, dateTimeSupport, __ -> !isEmpty());
+        this.eventLoops_shutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
     @Override

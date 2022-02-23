@@ -47,10 +47,10 @@ public final class GenomeCompatibilityCalculator implements Serializable {
         return lastConnection2;
     }
 
-    public double calculateCompatibility(final Genome genome1, final Genome genome2) {
+    public float calculateCompatibility(final Genome genome1, final Genome genome2) {
         ConnectionGene excessFromConnection = getExcessConnection(genome1, genome2);
         int matchingCount = 0;
-        double weightDifference = 0D;
+        float weightDifference = 0f;
         int disjointCount = 0;
         int excessCount = 0;
 
@@ -66,16 +66,16 @@ public final class GenomeCompatibilityCalculator implements Serializable {
         }
 
         int maximumNodes = Math.max(genome1.getNodes().size(), genome2.getNodes().size());
-        double n = maximumNodes >= 20 ? (double) maximumNodes : 1D;
-        double averageWeightDifference = weightDifference / (double) (1 + matchingCount);
-        double compatibility = excessCoefficient * (double) excessCount / n + disjointCoefficient * (double) disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
+        float n = Math.max(maximumNodes - 20, 1f);
+        float averageWeightDifference = weightDifference / (float) (1 + matchingCount);
+        float compatibility = excessCoefficient * (float) excessCount / n + disjointCoefficient * (float) disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
 
-        if (compatibility == Double.POSITIVE_INFINITY) {
-            return Double.MAX_VALUE;
+        if (compatibility == Float.POSITIVE_INFINITY) {
+            return Float.MAX_VALUE;
         }
 
-        if (compatibility == Double.NEGATIVE_INFINITY) {
-            return -Double.MAX_VALUE;
+        if (compatibility == Float.NEGATIVE_INFINITY) {
+            return -Float.MAX_VALUE;
         }
 
         return compatibility;
