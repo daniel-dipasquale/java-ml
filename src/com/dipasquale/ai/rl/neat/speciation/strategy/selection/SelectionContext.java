@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
-import com.dipasquale.ai.rl.neat.core.Context;
+import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.speciation.core.Population;
+import com.dipasquale.ai.rl.neat.speciation.Population;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

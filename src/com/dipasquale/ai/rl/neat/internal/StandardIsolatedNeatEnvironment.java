@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.internal;
 
 import com.dipasquale.ai.common.fitness.FitnessFunction;
-import com.dipasquale.ai.rl.neat.core.IsolatedNeatEnvironment;
+import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import lombok.Getter;
 import lombok.Setter;

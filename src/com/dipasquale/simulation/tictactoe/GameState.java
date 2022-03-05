@@ -1,26 +1,26 @@
 package com.dipasquale.simulation.tictactoe;
 
-import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
-import com.dipasquale.search.mcts.core.State;
-import lombok.AccessLevel;
+import com.dipasquale.common.bit.int1.BitManipulatorSupport;
+import com.dipasquale.search.mcts.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.State;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class GameState implements State<GameAction, GameState> {
-    private static final int MAXIMUM_ACTIONS = 9;
-    private static final int NO_ID = -1;
-    private static final int NO_PARTICIPANT_ID = -1;
-    private static final int NOT_PLAYED_VALUE = 0;
+    private static final int DIMENSION = 3;
+    static final int BOARD_LENGTH = DIMENSION * DIMENSION;
+    static final int NO_PARTICIPANT_ID = 0;
+    private static final int MAXIMUM_BITS_PER_TILE = 2;
+    private static final BitManipulatorSupport BIT_MANIPULATOR_SUPPORT = BitManipulatorSupport.create(MAXIMUM_BITS_PER_TILE);
     private final Object membership;
-    @Getter(AccessLevel.PACKAGE)
-    private final int[] board;
-    @Getter(AccessLevel.PACKAGE)
+    private final int board;
+    @Getter
     @EqualsAndHashCode.Include
     private final List<Integer> actionIds;
     @Getter
@@ -30,17 +30,17 @@ public final class GameState implements State<GameAction, GameState> {
 
     GameState() {
         this.membership = new Object();
-        this.lastAction = new GameAction(null, NO_ID, NO_PARTICIPANT_ID);
-        this.board = new int[MAXIMUM_ACTIONS];
+        this.board = 0;
         this.actionIds = List.of();
-        this.statusId = MonteCarloTreeSearch.IN_PROGRESS;
+        this.lastAction = new GameAction(null, MonteCarloTreeSearch.INITIAL_ACTION_ID, MonteCarloTreeSearch.INITIAL_PARTICIPANT_ID);
+        this.statusId = MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
     }
 
-    private GameState(final GameAction lastAction, final int[] board, final List<Integer> actionIds, final int statusId) {
+    private GameState(final int board, final List<Integer> actionIds, final GameAction lastAction, final int statusId) {
         this.membership = new Object();
-        this.lastAction = lastAction;
         this.board = board;
         this.actionIds = actionIds;
+        this.lastAction = lastAction;
         this.statusId = statusId;
     }
 
@@ -53,9 +53,17 @@ public final class GameState implements State<GameAction, GameState> {
         return 3 - lastAction.getParticipantId();
     }
 
+    private static int extractValueFromBoard(final int board, final int actionId) {
+        return BIT_MANIPULATOR_SUPPORT.extract(board, actionId);
+    }
+
+    int getParticipantIdForAction(final int actionId) {
+        return extractValueFromBoard(board, actionId);
+    }
+
     @Override
     public boolean isValid(final int actionId) {
-        return actionId >= 0 && actionId < MAXIMUM_ACTIONS && board[actionId] == NOT_PLAYED_VALUE;
+        return actionId >= 0 && actionId < BOARD_LENGTH && getParticipantIdForAction(actionId) == NO_PARTICIPANT_ID;
     }
 
     public GameAction createAction(final int id) {
@@ -74,37 +82,39 @@ public final class GameState implements State<GameAction, GameState> {
     public Iterable<GameAction> createAllPossibleActions() {
         int participantId = getNextParticipantId();
 
-        return IntStream.range(0, board.length)
-                .filter(index -> board[index] == NOT_PLAYED_VALUE)
-                .mapToObj(index -> new GameAction(membership, index, participantId))
+        return IntStream.range(0, BOARD_LENGTH)
+                .filter(actionId -> getParticipantIdForAction(actionId) == NO_PARTICIPANT_ID)
+                .mapToObj(actionId -> new GameAction(membership, actionId, participantId))
                 ::iterator;
     }
 
-    private static int[] createBoard(final int[] board, final GameAction action) {
-        int[] boardFixed = Arrays.copyOf(board, MAXIMUM_ACTIONS);
-
-        boardFixed[action.getId()] = action.getParticipantId();
-
-        return boardFixed;
+    private static int mergeValueToBoard(final int board, final int actionId, final int value) {
+        return BIT_MANIPULATOR_SUPPORT.merge(board, actionId, value);
     }
 
-    private static List<Integer> createMoves(final List<Integer> moves, final GameAction action) {
-        List<Integer> movesFixed = new ArrayList<>(moves);
+    private static List<Integer> createActionIds(final List<Integer> actionIds, final GameAction action) {
+        List<Integer> actionIdsFixed = new ArrayList<>(actionIds);
 
-        movesFixed.add(action.getId());
+        actionIdsFixed.add(action.getId());
 
-        return movesFixed;
+        return Collections.unmodifiableList(actionIdsFixed);
     }
 
-    private static boolean isRowTaken(final int[] board, final int participantId) {
-        for (int i1 = 0; i1 < MAXIMUM_ACTIONS; i1 += 3) {
-            boolean taken = true;
+    private static int createBoard(final int board, final GameAction action) {
+        return mergeValueToBoard(board, action.getId(), action.getParticipantId());
+    }
 
-            for (int i2 = 0; taken && i2 < 3; i2++) {
-                taken = board[i2 + i1] == participantId;
+    private static boolean isRowOrColumnTaken(final int board, final int participantId) {
+        for (int i1 = 0; i1 < DIMENSION; i1++) {
+            boolean taken1 = true;
+            boolean taken2 = true;
+
+            for (int i2 = 0; (taken1 || taken2) && i2 < DIMENSION; i2++) {
+                taken1 &= extractValueFromBoard(board, i1 * DIMENSION + i2) == participantId;
+                taken2 &= extractValueFromBoard(board, i2 * DIMENSION + i1) == participantId;
             }
 
-            if (taken) {
+            if (taken1 || taken2) {
                 return true;
             }
         }
@@ -112,68 +122,44 @@ public final class GameState implements State<GameAction, GameState> {
         return false;
     }
 
-    private static boolean isColumnTaken(final int[] board, final int participantId) {
-        for (int i1 = 0; i1 < 3; i1++) {
-            boolean taken = true;
+    private static boolean isDiagonalTaken(final int board, final int participantId) {
+        boolean taken1 = true;
+        boolean taken2 = true;
 
-            for (int i2 = 0; taken && i2 < MAXIMUM_ACTIONS; i2 += 3) {
-                taken = board[i2 + i1] == participantId;
-            }
-
-            if (taken) {
-                return true;
-            }
+        for (int i = 0; (taken1 || taken2) && i < DIMENSION; i++) {
+            taken1 &= extractValueFromBoard(board, i * DIMENSION + i) == participantId;
+            taken2 &= extractValueFromBoard(board, i * DIMENSION + (DIMENSION - i - 1)) == participantId;
         }
 
-        return false;
+        return taken1 || taken2;
     }
 
-    private static boolean isDiagonal1Taken(final int[] board, final int participantId) {
-        boolean taken = true;
-
-        for (int i = 0; taken && i < MAXIMUM_ACTIONS; i += 4) {
-            taken = board[i] == participantId;
-        }
-
-        return taken;
+    private static boolean isWon(final int board, final int participantId) {
+        return isRowOrColumnTaken(board, participantId) || isDiagonalTaken(board, participantId);
     }
 
-    private static boolean isDiagonal2Taken(final int[] board, final int participantId) {
-        boolean taken = true;
-
-        for (int i = 2; taken && i < 7; i += 2) {
-            taken = board[i] == participantId;
-        }
-
-        return taken;
-    }
-
-    private static boolean isWon(final int[] board, final int participantId) {
-        return isRowTaken(board, participantId) || isColumnTaken(board, participantId) || isDiagonal1Taken(board, participantId) || isDiagonal2Taken(board, participantId);
-    }
-
-    private static int getStatusId(final int[] board, final List<Integer> moves, final int participantId) {
+    private static int getStatusId(final int board, final List<Integer> actionIds, final int participantId) {
         if (isWon(board, participantId)) {
             return participantId;
         }
 
-        if (moves.size() == MAXIMUM_ACTIONS) {
-            return MonteCarloTreeSearch.DRAWN;
+        if (actionIds.size() == BOARD_LENGTH) {
+            return MonteCarloTreeSearch.DRAWN_STATUS_ID;
         }
 
-        return MonteCarloTreeSearch.IN_PROGRESS;
+        return MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
     }
 
     @Override
-    public GameState accept(final GameAction action) {
+    public GameState accept(final GameAction action, final boolean simulation) {
         if (action.getMembership() != membership) {
             throw new IllegalArgumentException("action does not belong to the game state");
         }
 
-        int[] boardFixed = createBoard(board, action);
-        List<Integer> movesFixed = createMoves(actionIds, action);
-        int statusIdFixed = getStatusId(boardFixed, movesFixed, action.getParticipantId());
+        int boardFixed = createBoard(board, action);
+        List<Integer> actionIdsFixed = createActionIds(actionIds, action);
+        int statusIdFixed = getStatusId(boardFixed, actionIdsFixed, action.getParticipantId());
 
-        return new GameState(action, boardFixed, movesFixed, statusIdFixed);
+        return new GameState(boardFixed, actionIdsFixed, action, statusIdFixed);
     }
 }

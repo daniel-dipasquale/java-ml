@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts.alphazero;
 
-import com.dipasquale.search.mcts.core.Edge;
+import com.dipasquale.search.mcts.Edge;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

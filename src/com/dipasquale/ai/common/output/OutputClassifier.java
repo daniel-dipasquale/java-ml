@@ -32,7 +32,7 @@ public final class OutputClassifier<T> implements Serializable {
         }
     }
 
-    public T resolve(final float value) {
+    public T classify(final float value) {
         try {
             return ranges.higherEntry(value).getValue();
         } catch (Exception e) {

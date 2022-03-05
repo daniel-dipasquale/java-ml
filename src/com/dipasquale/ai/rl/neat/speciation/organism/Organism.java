@@ -1,11 +1,11 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
-import com.dipasquale.ai.rl.neat.core.Context;
+import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
-import com.dipasquale.ai.rl.neat.speciation.core.Species;
+import com.dipasquale.ai.rl.neat.speciation.PopulationState;
+import com.dipasquale.ai.rl.neat.speciation.Species;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

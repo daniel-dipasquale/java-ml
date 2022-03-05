@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
+import com.dipasquale.ai.rl.neat.speciation.PopulationState;
 
 public interface GenomeActivatorPool {
     GenomeActivator provide(Genome genome, PopulationState populationState);

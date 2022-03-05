@@ -24,7 +24,7 @@ public enum ActivationFunctionType {
     private static Map<ActivationFunction, ActivationFunctionType> createActivationFunctionTypes() {
         Map<ActivationFunction, ActivationFunctionType> activationFunctionTypes = new IdentityHashMap<>();
 
-        Arrays.stream(ActivationFunctionType.values()).forEach(aft -> activationFunctionTypes.put(aft.reference, aft));
+        Arrays.stream(ActivationFunctionType.values()).forEach(activationFunctionType -> activationFunctionTypes.put(activationFunctionType.reference, activationFunctionType));
 
         return activationFunctionTypes;
     }

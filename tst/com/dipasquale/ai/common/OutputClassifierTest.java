@@ -18,16 +18,16 @@ public final class OutputClassifierTest {
         test.addRangeFor(0.5f, Classification.B);
         test.addRemainingRangeFor(Classification.C);
 
-        Assertions.assertEquals(Classification.A, test.resolve(-Float.MAX_VALUE));
-        Assertions.assertEquals(Classification.A, test.resolve(0f));
-        Assertions.assertEquals(Classification.A, test.resolve(0.249f));
-        Assertions.assertEquals(Classification.B, test.resolve(0.25f));
-        Assertions.assertEquals(Classification.B, test.resolve(0.749f));
-        Assertions.assertEquals(Classification.C, test.resolve(0.75f));
-        Assertions.assertEquals(Classification.C, test.resolve(0.99f));
+        Assertions.assertEquals(Classification.A, test.classify(-Float.MAX_VALUE));
+        Assertions.assertEquals(Classification.A, test.classify(0f));
+        Assertions.assertEquals(Classification.A, test.classify(0.249f));
+        Assertions.assertEquals(Classification.B, test.classify(0.25f));
+        Assertions.assertEquals(Classification.B, test.classify(0.749f));
+        Assertions.assertEquals(Classification.C, test.classify(0.75f));
+        Assertions.assertEquals(Classification.C, test.classify(0.99f));
 
         try {
-            test.resolve(1f);
+            test.classify(1f);
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ErrorComparator.builder()
@@ -45,16 +45,16 @@ public final class OutputClassifierTest {
         test.addRangeFor(0f, Classification.B);
         test.addRemainingRangeFor(Classification.C);
 
-        Assertions.assertEquals(Classification.C, test.resolve(-Float.MAX_VALUE));
-        Assertions.assertEquals(Classification.C, test.resolve(0f));
-        Assertions.assertEquals(Classification.C, test.resolve(0.249f));
-        Assertions.assertEquals(Classification.C, test.resolve(0.25f));
-        Assertions.assertEquals(Classification.C, test.resolve(0.749f));
-        Assertions.assertEquals(Classification.C, test.resolve(0.75f));
-        Assertions.assertEquals(Classification.C, test.resolve(0.99f));
+        Assertions.assertEquals(Classification.C, test.classify(-Float.MAX_VALUE));
+        Assertions.assertEquals(Classification.C, test.classify(0f));
+        Assertions.assertEquals(Classification.C, test.classify(0.249f));
+        Assertions.assertEquals(Classification.C, test.classify(0.25f));
+        Assertions.assertEquals(Classification.C, test.classify(0.749f));
+        Assertions.assertEquals(Classification.C, test.classify(0.75f));
+        Assertions.assertEquals(Classification.C, test.classify(0.99f));
 
         try {
-            test.resolve(1f);
+            test.classify(1f);
             Assertions.fail();
         } catch (Throwable e) {
             Assertions.assertEquals(ErrorComparator.builder()

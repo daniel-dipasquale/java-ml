@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory;
 
-import com.dipasquale.ai.rl.neat.core.RandomType;
+import com.dipasquale.ai.rl.neat.RandomType;
 import com.dipasquale.common.random.float1.BellCurveRandomSupport;
 import com.dipasquale.common.random.float1.QuadrupleSigmoidRandomSupport;
 import com.dipasquale.common.random.float1.RandomSupport;

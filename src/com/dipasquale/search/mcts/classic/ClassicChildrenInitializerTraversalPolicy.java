@@ -1,12 +1,12 @@
 package com.dipasquale.search.mcts.classic;
 
 import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.search.mcts.core.Action;
-import com.dipasquale.search.mcts.core.EdgeFactory;
-import com.dipasquale.search.mcts.core.SearchNode;
-import com.dipasquale.search.mcts.core.SearchNodeProvider;
-import com.dipasquale.search.mcts.core.State;
-import com.dipasquale.search.mcts.core.TraversalPolicy;
+import com.dipasquale.search.mcts.Action;
+import com.dipasquale.search.mcts.EdgeFactory;
+import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.SearchNodeProvider;
+import com.dipasquale.search.mcts.State;
+import com.dipasquale.search.mcts.TraversalPolicy;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;

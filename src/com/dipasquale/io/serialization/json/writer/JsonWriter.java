@@ -213,6 +213,7 @@ public final class JsonWriter {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum JsonValueType {
         NULL,
         BOOLEAN,

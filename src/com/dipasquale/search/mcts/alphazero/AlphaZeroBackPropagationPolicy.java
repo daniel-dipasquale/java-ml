@@ -1,51 +1,38 @@
 package com.dipasquale.search.mcts.alphazero;
 
-import com.dipasquale.search.mcts.core.AbstractBackPropagationPolicy;
-import com.dipasquale.search.mcts.core.Action;
-import com.dipasquale.search.mcts.core.BackPropagationObserver;
-import com.dipasquale.search.mcts.core.MonteCarloTreeSearch;
-import com.dipasquale.search.mcts.core.SearchNode;
-import com.dipasquale.search.mcts.core.State;
+import com.dipasquale.search.mcts.AbstractBackPropagationPolicy;
+import com.dipasquale.search.mcts.Action;
+import com.dipasquale.search.mcts.LeafNodeObserver;
+import com.dipasquale.search.mcts.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.State;
 
 public final class AlphaZeroBackPropagationPolicy<TAction extends Action, TState extends State<TAction, TState>> extends AbstractBackPropagationPolicy<TAction, AlphaZeroEdge, TState> {
-    public AlphaZeroBackPropagationPolicy(final BackPropagationObserver<TAction, AlphaZeroEdge, TState> observer) {
-        super(observer);
+    private static final ProbableRewardController PROBABLE_REWARD_CONTROLLER = ProbableRewardController.getInstance();
+
+    public AlphaZeroBackPropagationPolicy(final LeafNodeObserver<TAction, AlphaZeroEdge, TState> leafNodeObserver) {
+        super(leafNodeObserver);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> float getReward(final SearchNode<TAction, AlphaZeroEdge, TState> node, final int ownerParticipantId, final int simulationStatusId) {
-        float reward = node.getEdge().getProbableReward();
-
-        if (ownerParticipantId == simulationStatusId) {
-            return 1f + reward;
-        }
-
-        if (simulationStatusId == MonteCarloTreeSearch.DRAWN || simulationStatusId == MonteCarloTreeSearch.IN_PROGRESS) {
-            return reward;
-        }
-
-        return -1f + reward;
-    }
-
-    private static void setExpectedReward(final AlphaZeroEdge edge, final float reward, final int visited) {
+    private static void setExpectedReward(final AlphaZeroEdge edge, final float probableReward, final int visited) {
         float visitedFixed = (float) visited;
-        float expectedReward = visitedFixed * edge.getExpectedReward() + reward / (visitedFixed + 1f);
+        float expectedReward = (visitedFixed - 1f) * edge.getExpectedReward() + probableReward / visitedFixed;
 
         edge.setExpectedReward(expectedReward);
     }
 
     @Override
     protected void process(final SearchNode<TAction, AlphaZeroEdge, TState> leafNode, final int simulationStatusId, final SearchNode<TAction, AlphaZeroEdge, TState> currentNode) {
-        int ownerParticipantId = leafNode.getAction().getParticipantId();
-        float reward = getReward(leafNode, ownerParticipantId, simulationStatusId);
+        float probableReward = PROBABLE_REWARD_CONTROLLER.getProbableReward(leafNode, simulationStatusId);
         AlphaZeroEdge currentEdge = currentNode.getEdge();
-        int visited = currentEdge.getVisited();
+        int currentParticipantId = currentNode.getAction().getParticipantId();
 
         currentEdge.increaseVisited();
 
-        if (currentNode.getAction().getParticipantId() == ownerParticipantId) {
-            setExpectedReward(currentEdge, reward, visited);
+        if (currentParticipantId == MonteCarloTreeSearch.INITIAL_PARTICIPANT_ID || currentParticipantId == leafNode.getAction().getParticipantId()) {
+            setExpectedReward(currentEdge, probableReward, currentEdge.getVisited());
         } else {
-            setExpectedReward(currentEdge, -reward, visited);
+            setExpectedReward(currentEdge, -probableReward, currentEdge.getVisited());
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.dipasquale.simulation.tictactoe;
 
-import com.dipasquale.search.mcts.core.Action;
+import com.dipasquale.search.mcts.Action;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

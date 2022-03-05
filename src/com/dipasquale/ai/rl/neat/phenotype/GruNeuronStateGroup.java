@@ -11,7 +11,7 @@ final class GruNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
     private static final String HIDDEN_DIMENSION = "GRU_H";
     private static final SigmoidActivationFunction SIGMOID_ACTIVATION_FUNCTION = SigmoidActivationFunction.getInstance();
     private static final TanHActivationFunction TAN_H_ACTIVATION_FUNCTION = TanHActivationFunction.getInstance();
-    private final NeuronMemory neuronMemory;
+    private final NeatNeuronMemory neuronMemory;
 
     private static float calculateUpdateGate(final Neuron neuron, final NeuronOutputConnection connection, final float previousValue, final float currentValue) {
         float[] weights = {connection.getRecurrentWeight(0), connection.getWeight()};

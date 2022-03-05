@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
+import com.dipasquale.ai.rl.neat.speciation.PopulationState;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +10,13 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class GenomeActivator implements NeuralNetwork, Serializable {
+public final class GenomeActivator implements NeatNeuralNetwork, Serializable {
     @Serial
     private static final long serialVersionUID = 4096041177887342363L;
     @Getter
     private final Genome genome;
     private final PopulationState populationState;
-    private final NeuralNetwork neuralNetwork;
+    private final NeatNeuralNetwork neuralNetwork;
 
     public int getIteration() {
         return populationState.getIteration();
@@ -27,12 +27,12 @@ public final class GenomeActivator implements NeuralNetwork, Serializable {
     }
 
     @Override
-    public NeuronMemory createMemory() {
+    public NeatNeuronMemory createMemory() {
         return neuralNetwork.createMemory();
     }
 
     @Override
-    public float[] activate(final float[] input, final NeuronMemory neuronMemory) {
+    public float[] activate(final float[] input, final NeatNeuronMemory neuronMemory) {
         return neuralNetwork.activate(input, neuronMemory);
     }
 

@@ -1,10 +1,10 @@
 package com.dipasquale.search.mcts.classic;
 
 import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.search.mcts.core.Action;
-import com.dipasquale.search.mcts.core.SearchNode;
-import com.dipasquale.search.mcts.core.State;
-import com.dipasquale.search.mcts.core.TraversalPolicy;
+import com.dipasquale.search.mcts.Action;
+import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.State;
+import com.dipasquale.search.mcts.TraversalPolicy;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

@@ -3,9 +3,9 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.phenotype;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivatorPool;
-import com.dipasquale.ai.rl.neat.phenotype.NeuralNetworkFactory;
+import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetworkFactory;
 import com.dipasquale.ai.rl.neat.phenotype.StateStrategyGenomeActivatorPool;
-import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
+import com.dipasquale.ai.rl.neat.speciation.PopulationState;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
@@ -19,10 +19,10 @@ public final class DualModeGenomeActivatorPool implements GenomeActivatorPool, D
     @Serial
     private static final long serialVersionUID = -3956562667609505308L;
     private final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators;
-    private final NeuralNetworkFactory neuralNetworkFactory;
+    private final NeatNeuralNetworkFactory neuralNetworkFactory;
     private transient StateStrategyGenomeActivatorPool genomeActivatorPool;
 
-    public DualModeGenomeActivatorPool(final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators, final NeuralNetworkFactory neuralNetworkFactory) {
+    public DualModeGenomeActivatorPool(final DualModeMap<String, GenomeActivator, DualModeMapFactory> genomeActivators, final NeatNeuralNetworkFactory neuralNetworkFactory) {
         this.genomeActivators = genomeActivators;
         this.neuralNetworkFactory = neuralNetworkFactory;
         this.genomeActivatorPool = new StateStrategyGenomeActivatorPool(genomeActivators, neuralNetworkFactory);

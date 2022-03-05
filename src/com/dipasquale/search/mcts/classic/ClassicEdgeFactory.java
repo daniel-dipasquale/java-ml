@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts.classic;
 
-import com.dipasquale.search.mcts.core.EdgeFactory;
+import com.dipasquale.search.mcts.EdgeFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

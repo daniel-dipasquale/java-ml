@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.internal;
 
-import com.dipasquale.ai.rl.neat.core.RecurrentStateType;
+import com.dipasquale.ai.rl.neat.RecurrentStateType;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.data.structure.iterator.ZipIterator;
 

@@ -20,7 +20,7 @@ public final class DualModeOutputClassifierFactory<TFloatFactory extends FloatFa
     public TItem create() {
         float value = floatFactory.create();
 
-        return outputClassifier.resolve(value);
+        return outputClassifier.classify(value);
     }
 
     @Override

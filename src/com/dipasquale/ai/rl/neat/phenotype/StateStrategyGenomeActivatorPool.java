@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.speciation.core.PopulationState;
+import com.dipasquale.ai.rl.neat.speciation.PopulationState;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public final class StateStrategyGenomeActivatorPool implements GenomeActivatorPool {
     private final Map<String, GenomeActivator> genomeActivators;
-    private final NeuralNetworkFactory neuralNetworkFactory;
+    private final NeatNeuralNetworkFactory neuralNetworkFactory;
 
     private GenomeActivator createGenomeActivator(final Genome genome, final PopulationState populationState) {
         return new GenomeActivator(genome, populationState, neuralNetworkFactory.create(genome));

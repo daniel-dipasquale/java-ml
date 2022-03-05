@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class RecurrentNeuronStateGroup extends AbstractRecurrentNeuronStateGroup {
     private static final String HIDDEN_DIMENSION = "VANILLA_H";
-    private final NeuronMemory neuronMemory;
+    private final NeatNeuronMemory neuronMemory;
 
     @Override
     protected float calculateRecurrentValue(final Neuron neuron, final NeuronOutputConnection connection) {

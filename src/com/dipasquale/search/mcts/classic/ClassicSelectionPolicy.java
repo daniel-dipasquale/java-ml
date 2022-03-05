@@ -1,13 +1,13 @@
 package com.dipasquale.search.mcts.classic;
 
-import com.dipasquale.search.mcts.core.Action;
-import com.dipasquale.search.mcts.core.ConfidenceCalculator;
-import com.dipasquale.search.mcts.core.FirstNonNullTraversalPolicy;
-import com.dipasquale.search.mcts.core.HighestConfidenceTraversalPolicy;
-import com.dipasquale.search.mcts.core.SearchNode;
-import com.dipasquale.search.mcts.core.State;
-import com.dipasquale.search.mcts.core.TraversalPolicy;
-import com.dipasquale.search.mcts.core.UnexploredFirstTraversalPolicy;
+import com.dipasquale.search.mcts.Action;
+import com.dipasquale.search.mcts.FirstNonNullTraversalPolicy;
+import com.dipasquale.search.mcts.MaximumConfidenceTraversalPolicy;
+import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.SelectionConfidenceCalculator;
+import com.dipasquale.search.mcts.State;
+import com.dipasquale.search.mcts.TraversalPolicy;
+import com.dipasquale.search.mcts.UnexploredFirstTraversalPolicy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +25,9 @@ public final class ClassicSelectionPolicy<TAction extends Action, TState extends
         return new FirstNonNullTraversalPolicy<>(traversalPolicies);
     }
 
-    public ClassicSelectionPolicy(final ClassicChildrenInitializerTraversalPolicy<TAction, TState> childrenInitializerTraversalPolicy, final ConfidenceCalculator<ClassicEdge> confidenceCalculator) {
+    public ClassicSelectionPolicy(final ClassicChildrenInitializerTraversalPolicy<TAction, TState> childrenInitializerTraversalPolicy, final SelectionConfidenceCalculator<ClassicEdge> selectionConfidenceCalculator) {
         this.wantedTraversalPolicy = createWantedTraversalPolicy(childrenInitializerTraversalPolicy);
-        this.unwantedTraversalPolicy = new HighestConfidenceTraversalPolicy<>(confidenceCalculator);
+        this.unwantedTraversalPolicy = new MaximumConfidenceTraversalPolicy<>(selectionConfidenceCalculator);
     }
 
     @Override

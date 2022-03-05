@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
-import com.dipasquale.ai.rl.neat.core.Context;
-import com.dipasquale.ai.rl.neat.speciation.core.Species;
+import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import lombok.RequiredArgsConstructor;

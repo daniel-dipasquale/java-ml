@@ -3,6 +3,7 @@ package com.dipasquale.data.structure.probabilistic.bloom.filter.concurrent;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ExpirationFactoryProvider;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilter;
+import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterPartitionFactory;
 import com.dipasquale.data.structure.probabilistic.bloom.filter.MultiPartBloomFilterFactory;
 import lombok.AccessLevel;
@@ -12,7 +13,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @RequiredArgsConstructor
-public final class MultiPartRecyclableBloomFilterFactory implements com.dipasquale.data.structure.probabilistic.bloom.filter.BloomFilterFactory, Serializable {
+public final class MultiPartRecyclableBloomFilterFactory implements BloomFilterFactory, Serializable {
     @Serial
     private static final long serialVersionUID = -1081831773628695587L;
     private final AtomicLongArrayBloomFilterFactory atomicLongArrayBloomFilterFactory;

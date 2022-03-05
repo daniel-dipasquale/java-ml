@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.reproduction;
 
-import com.dipasquale.ai.rl.neat.speciation.core.Species;
+import com.dipasquale.ai.rl.neat.speciation.Species;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

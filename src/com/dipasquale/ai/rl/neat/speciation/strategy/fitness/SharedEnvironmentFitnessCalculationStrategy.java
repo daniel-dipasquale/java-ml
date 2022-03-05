@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
-import com.dipasquale.ai.rl.neat.core.Context;
+import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.ai.rl.neat.speciation.core.Species;
+import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.data.structure.deque.SimpleNode;
 import lombok.AccessLevel;

@@ -4,7 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Random;
 
-public final class GaussianDistributionSupport implements UnivariateDistributionSupport, Serializable { // TODO: copied from https://github.com/calaylin/privacy-detective/blob/2a826245d0c94e4e257d5b26cb3c8583fe67c35a/twitter-privacy-analytics/mallet-2.0.7/src/cc/mallet/util/Randoms.java
+public final class GaussianDistributionSupport implements UnivariateDistributionSupport, Serializable {
     @Serial
     private static final long serialVersionUID = 6939798706382359903L;
     private final Random random;
