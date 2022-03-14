@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.GenomeCompatibilityCalculator;
 import com.dipasquale.ai.rl.neat.speciation.ReproductionType;
@@ -23,7 +22,8 @@ import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGeno
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeFitnessCalculationStrategy;
-import com.dipasquale.common.factory.ObjectIndexer;
+import com.dipasquale.common.factory.ObjectIndexAccessor;
+import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
@@ -47,27 +47,27 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
     private SelectionStrategyExecutor selectionStrategy;
     private ReproductionStrategy reproductionStrategy;
 
-    private static OutputClassifier<ReproductionType> createGeneralReproductionTypeClassifier(final float mateOnlyRate, final float mutateOnlyRate) {
+    private static ProbabilityClassifier<ReproductionType> createGeneralReproductionTypeClassifier(final float mateOnlyRate, final float mutateOnlyRate) {
         float totalRate = mateOnlyRate * 2f + mutateOnlyRate * 2f;
-        OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
+        ProbabilityClassifier<ReproductionType> reproductionTypeClassifier = new ProbabilityClassifier<>();
 
         if (Float.compare(totalRate, 0f) > 0) {
-            reproductionTypeClassifier.addRangeFor(mateOnlyRate / totalRate, ReproductionType.MATE_ONLY);
-            reproductionTypeClassifier.addRangeFor(mutateOnlyRate / totalRate, ReproductionType.MUTATE_ONLY);
+            reproductionTypeClassifier.addProbabilityFor(mateOnlyRate / totalRate, ReproductionType.MATE_ONLY);
+            reproductionTypeClassifier.addProbabilityFor(mutateOnlyRate / totalRate, ReproductionType.MUTATE_ONLY);
         }
 
-        reproductionTypeClassifier.addRemainingRangeFor(ReproductionType.MATE_AND_MUTATE);
+        reproductionTypeClassifier.addRemainingProbabilityFor(ReproductionType.MATE_AND_MUTATE);
 
         return reproductionTypeClassifier;
     }
 
-    private static OutputClassifier<ReproductionType> createLessThan2ReproductionTypeClassifier(final float mutateOnlyRate) {
-        OutputClassifier<ReproductionType> reproductionTypeClassifier = new OutputClassifier<>();
+    private static ProbabilityClassifier<ReproductionType> createLessThan2ReproductionTypeClassifier(final float mutateOnlyRate) {
+        ProbabilityClassifier<ReproductionType> reproductionTypeClassifier = new ProbabilityClassifier<>();
 
         if (Float.compare(mutateOnlyRate, 0f) > 0) {
-            reproductionTypeClassifier.addRemainingRangeFor(ReproductionType.MUTATE_ONLY);
+            reproductionTypeClassifier.addRemainingProbabilityFor(ReproductionType.MUTATE_ONLY);
         } else {
-            reproductionTypeClassifier.addRemainingRangeFor(ReproductionType.CLONE);
+            reproductionTypeClassifier.addRemainingProbabilityFor(ReproductionType.CLONE);
         }
 
         return reproductionTypeClassifier;
@@ -76,8 +76,8 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
     private static DualModeReproductionTypeFactory createReproductionTypeFactory(final InitializationContext initializationContext, final FloatNumber mateOnlyRate, final FloatNumber mutateOnlyRate) {
         float _mateOnlyRate = initializationContext.getFloatSingleton(mateOnlyRate);
         float _mutateOnlyRate = initializationContext.getFloatSingleton(mutateOnlyRate);
-        OutputClassifier<ReproductionType> generalReproductionTypeClassifier = createGeneralReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
-        OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier = createLessThan2ReproductionTypeClassifier(_mutateOnlyRate);
+        ProbabilityClassifier<ReproductionType> generalReproductionTypeClassifier = createGeneralReproductionTypeClassifier(_mateOnlyRate, _mutateOnlyRate);
+        ProbabilityClassifier<ReproductionType> lessThan2ReproductionTypeClassifier = createLessThan2ReproductionTypeClassifier(_mutateOnlyRate);
 
         return new DualModeReproductionTypeFactory(initializationContext.createDefaultRandomSupport(), generalReproductionTypeClassifier, lessThan2ReproductionTypeClassifier);
     }
@@ -171,17 +171,17 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
 
     @Override
     public String createGenomeId() {
-        return genomePool.createId();
+        return genomePool.createGenomeId();
     }
 
     @Override
     public void clearGenomeIds() {
-        genomePool.clearIds();
+        genomePool.clearGenomeIds();
     }
 
     @Override
     public Genome createGenesisGenome(final Context context) {
-        return genomePool.createGenesis(context);
+        return genomePool.createGenesisGenome(context);
     }
 
     @Override
@@ -215,7 +215,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
 
     @Override
     public int getDisposedGenomeIdCount() {
-        return genomePool.getDisposedCount();
+        return genomePool.getDisposedGenomeIdCount();
     }
 
     public void save(final SerializableStateGroup stateGroup) {
@@ -245,22 +245,22 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DualModeReproductionTypeFactory implements ObjectIndexer<ReproductionType>, DualModeObject, Serializable {
+    private static final class DualModeReproductionTypeFactory implements ObjectIndexAccessor<ReproductionType>, DualModeObject, Serializable {
         @Serial
         private static final long serialVersionUID = 6788712949153539093L;
         private final DualModeRandomSupport randomSupport;
-        private final OutputClassifier<ReproductionType> generalReproductionTypeClassifier;
-        private final OutputClassifier<ReproductionType> lessThan2ReproductionTypeClassifier;
+        private final ProbabilityClassifier<ReproductionType> generalReproductionTypeClassifier;
+        private final ProbabilityClassifier<ReproductionType> lessThan2ReproductionTypeClassifier;
 
         @Override
         public ReproductionType get(final int organisms) {
             float value = randomSupport.next();
 
             if (organisms >= 2) {
-                return generalReproductionTypeClassifier.classify(value);
+                return generalReproductionTypeClassifier.get(value);
             }
 
-            return lessThan2ReproductionTypeClassifier.classify(value);
+            return lessThan2ReproductionTypeClassifier.get(value);
         }
 
         @Override

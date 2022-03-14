@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 public final class ClassicEdge implements Edge {
-    @Getter(AccessLevel.PACKAGE)
-    private final ClassicEdge parent;
     private int visited = 0;
     private int won = 0;
     private int drawn = 0;

@@ -13,9 +13,8 @@ public final class ClassicSelectionConfidenceCalculator implements SelectionConf
     }
 
     @Override
-    public float calculate(final ClassicEdge edge) {
+    public float calculate(final ClassicEdge edge, final ClassicEdge parentEdge) {
         double won = edge.getWon();
-        ClassicEdge parentEdge = edge.getParent();
         double parentVisited = parentEdge.getVisited() - parentEdge.getUnfinished();
         double visited = edge.getVisited() - edge.getUnfinished();
         double result = (won / visited) + constant * Math.sqrt(Math.log(parentVisited) / visited);

@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory;
 
-import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.common.factory.ObjectFactory;
+import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import lombok.RequiredArgsConstructor;
 
@@ -14,13 +14,13 @@ public final class DualModeOutputClassifierFactory<TFloatFactory extends FloatFa
     @Serial
     private static final long serialVersionUID = -5811185015657812759L;
     private final TFloatFactory floatFactory;
-    private final OutputClassifier<TItem> outputClassifier;
+    private final ProbabilityClassifier<TItem> probabilityClassifier;
 
     @Override
     public TItem create() {
         float value = floatFactory.create();
 
-        return outputClassifier.classify(value);
+        return probabilityClassifier.get(value);
     }
 
     @Override

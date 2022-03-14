@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
 import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.speciation.Species;
-import com.dipasquale.data.structure.deque.SimpleNode;
+import com.dipasquale.data.structure.deque.PlainNode;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,7 +15,7 @@ public final class SharedFitnessCalculationStrategy implements FitnessCalculatio
     public void calculate(final FitnessCalculationContext context) {
         Context.MetricsSupport metricsSupport = context.getParent().metrics();
 
-        for (SimpleNode<Species> speciesNode : context.getSpeciesNodes()) {
+        for (PlainNode<Species> speciesNode : context.getSpeciesNodes()) {
             Species species = context.getSpeciesNodes().getValue(speciesNode);
 
             species.updateSharedFitnessOnly(metricsSupport);

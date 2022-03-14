@@ -40,7 +40,7 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
 
     private static void echo(final String name, final int number, final MetricDatum timeMetricDatum, final float maximumFitness, final int species, final Genome genome) {
         String messageFormat = "%s: %d { time: (%s), average time: (%s), species: (%d), hidden nodes: (%d), expressed connections: (%d), total connections: (%d), maximum fitness: (%s) }%n";
-        float time = timeMetricDatum.getValues().get(timeMetricDatum.getValues().size() - 1);
+        float time = timeMetricDatum.getLastValue();
         float averageTime = timeMetricDatum.getAverage();
         int hiddenNodes = genome.getNodes().size(NodeGeneType.HIDDEN);
         int expressedConnections = genome.getConnections().getExpressed().size();

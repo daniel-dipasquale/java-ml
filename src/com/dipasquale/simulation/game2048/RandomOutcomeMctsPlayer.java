@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Builder
 public final class RandomOutcomeMctsPlayer implements Player {
-    private final MonteCarloTreeSearch<GameAction, ?, GameState> mcts;
+    private final MonteCarloTreeSearch<GameAction, GameState> mcts;
 
     @Override
     public void initializeState(final GameState state) {
@@ -17,5 +17,10 @@ public final class RandomOutcomeMctsPlayer implements Player {
     @Override
     public GameAction createNextAction(final GameState state) {
         return mcts.proposeNextAction(state);
+    }
+
+    @Override
+    public void accept(final GameResult result) {
+        mcts.reset();
     }
 }

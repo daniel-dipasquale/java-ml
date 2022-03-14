@@ -12,6 +12,7 @@ public abstract class AbstractMetricDatum implements MetricDatum, Serializable {
     protected Float sum = null;
     protected Float minimum = null;
     protected Float maximum = null;
+    protected Float lastValue = null;
 
     protected void appendStatistics(final int size, final float value) {
         if (size == 0) {
@@ -23,6 +24,8 @@ public abstract class AbstractMetricDatum implements MetricDatum, Serializable {
             minimum = Math.min(minimum, value);
             maximum = Math.max(maximum, value);
         }
+
+        lastValue = value;
     }
 
     protected void mergeStatistics(final int size, final MetricDatum other) {
@@ -30,10 +33,12 @@ public abstract class AbstractMetricDatum implements MetricDatum, Serializable {
             sum = other.getSum();
             minimum = other.getMinimum();
             maximum = other.getMaximum();
-        } else {
+            lastValue = other.getLastValue();
+        } else if (!other.getValues().isEmpty()) {
             sum += other.getSum();
             minimum = Math.min(minimum, other.getMinimum());
             maximum = Math.max(maximum, other.getMaximum());
+            lastValue = other.getLastValue();
         }
     }
 
@@ -42,5 +47,6 @@ public abstract class AbstractMetricDatum implements MetricDatum, Serializable {
         sum = null;
         minimum = null;
         maximum = null;
+        lastValue = null;
     }
 }

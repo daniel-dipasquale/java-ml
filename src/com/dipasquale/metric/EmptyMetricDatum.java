@@ -18,6 +18,7 @@ final class EmptyMetricDatum implements MetricDatum, Serializable {
     private final Float sum = null;
     private final Float minimum = null;
     private final Float maximum = null;
+    private final Float lastValue = null;
 
     public static EmptyMetricDatum getInstance() {
         return INSTANCE;

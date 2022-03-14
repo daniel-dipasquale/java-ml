@@ -1,11 +1,12 @@
 package com.dipasquale.search.mcts.classic;
 
 import com.dipasquale.search.mcts.EdgeFactory;
+import com.dipasquale.search.mcts.SearchNode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ClassicEdgeFactory implements EdgeFactory<ClassicEdge> {
+final class ClassicEdgeFactory implements EdgeFactory<ClassicEdge> {
     private static final ClassicEdgeFactory INSTANCE = new ClassicEdgeFactory();
 
     public static ClassicEdgeFactory getInstance() {
@@ -13,7 +14,7 @@ public final class ClassicEdgeFactory implements EdgeFactory<ClassicEdge> {
     }
 
     @Override
-    public ClassicEdge create(final ClassicEdge parent) {
-        return new ClassicEdge(parent);
+    public ClassicEdge create(final SearchNode<?, ClassicEdge, ?> node) {
+        return new ClassicEdge();
     }
 }

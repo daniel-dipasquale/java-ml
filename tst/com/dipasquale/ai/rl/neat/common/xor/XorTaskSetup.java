@@ -49,7 +49,7 @@ import java.util.Set;
 @Builder
 @Getter
 public final class XorTaskSetup implements TaskSetup {
-    private static final EnvironmentSettingsType ENVIRONMENT_SETTINGS_TYPE = EnvironmentSettingsType.DISTANCE_FROM_EXPECTED;
+    private static final FitnessFunctionSettingsType FITNESS_FUNCTION_SETTINGS_TYPE = FitnessFunctionSettingsType.DISTANCE_FROM_EXPECTED;
     private static final OutputTopologySettingsType OUTPUT_TOPOLOGY_SETTINGS_TYPE = OutputTopologySettingsType.DOUBLE;
     private final String name = "XOR";
     private final int populationSize = 150;
@@ -61,16 +61,17 @@ public final class XorTaskSetup implements TaskSetup {
                 .general(GeneralSupport.builder()
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
-                                .inputs(IntegerNumber.literal(2))
+                                .inputs(2)
                                 .outputs(OUTPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
-                                .biases(List.of(FloatNumber.literal(1f)))
-                                .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
+                                .biases(List.of(1f))
+                                .hiddenLayers(List.of())
+                                .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
                         .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
                             genomeIds.add(genomeActivator.getGenome().getId());
 
-                            return ENVIRONMENT_SETTINGS_TYPE.environment.test(genomeActivator);
+                            return FITNESS_FUNCTION_SETTINGS_TYPE.environment.test(genomeActivator);
                         })
                         .fitnessDeterminerFactory(LastValueFitnessDeterminerFactory.getInstance())
                         .build())
@@ -83,9 +84,9 @@ public final class XorTaskSetup implements TaskSetup {
                 .nodes(NodeGeneSupport.builder()
                         .inputBias(FloatNumber.literal(0f))
                         .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
-                        .outputBias(FloatNumber.random(RandomType.QUADRUPLE_SIGMOID, 15f))
+                        .outputBias(FloatNumber.random(RandomType.UNIFORM, 2f))
                         .outputActivationFunction(EnumValue.literal(OutputActivationFunctionType.SIGMOID))
-                        .hiddenBias(FloatNumber.random(RandomType.QUADRUPLE_STEEPENED_SIGMOID, 30f))
+                        .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 4f))
                         .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
                         .build())
                 .connections(ConnectionGeneSupport.builder()
@@ -140,15 +141,15 @@ public final class XorTaskSetup implements TaskSetup {
                         .maximumGeneration(200)
                         .maximumRestartCount(9)
                         .build())
-                .add(new DelegatedTrainingPolicy(ENVIRONMENT_SETTINGS_TYPE.trainingAssessor))
+                .add(new DelegatedTrainingPolicy(FITNESS_FUNCTION_SETTINGS_TYPE.trainingAssessor))
                 .add(new ContinuousTrainingPolicy())
                 .build();
     }
 
-    private enum EnvironmentSettingsType {
+    private enum FitnessFunctionSettingsType {
         DISTANCE_FROM_EXPECTED(new DistanceFromExpectedObjective());
 
-        EnvironmentSettingsType(final NeatObjective<IsolatedNeatEnvironment> objective) {
+        FitnessFunctionSettingsType(final NeatObjective<IsolatedNeatEnvironment> objective) {
             this.environment = objective.getEnvironment();
             this.trainingAssessor = objective.getTrainingAssessor();
         }
@@ -159,10 +160,10 @@ public final class XorTaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum OutputTopologySettingsType {
-        VANILLA(IntegerNumber.literal(1), IdentityNeuronLayerTopologyDefinition.getInstance()),
-        DOUBLE(IntegerNumber.literal(2), DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
+        VANILLA(1, IdentityNeuronLayerTopologyDefinition.getInstance()),
+        DOUBLE(2, DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
 
-        private final IntegerNumber nodeCount;
+        private final int nodeCount;
         private final NeuronLayerTopologyDefinition topologyDefinition;
     }
 }

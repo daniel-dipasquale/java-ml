@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.genotype.AllToAllOutputsGenesisGenomeConnector;
+import com.dipasquale.ai.rl.neat.genotype.FullyConnectedGenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -8,59 +8,41 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
-public final class GenesisGenomeTemplate {
-    private final IntegerNumber inputs;
-    private final IntegerNumber outputs;
+public final class GenesisGenomeTemplate { // TODO: allow experiments where the genesis genome allows hidden nodes (in the form of fully connected layers)
+    private final int inputs;
+    private final int outputs;
     @Builder.Default
-    private final List<FloatNumber> biases = List.of();
+    private final List<Float> biases = List.of();
     @Builder.Default
-    private final InitialConnectionType initialConnectionType = InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS;
+    private final List<Integer> hiddenLayers = List.of();
+    @Builder.Default
+    private final InitialConnectionType initialConnectionType = InitialConnectionType.FULLY_CONNECTED;
     @Builder.Default
     private final InitialWeightType initialWeightType = InitialWeightType.ALL_RANDOM;
 
-    public static GenesisGenomeTemplate createDefault(final int inputs, final int outputs, final float[] bias) {
-        return GenesisGenomeTemplate.builder()
-                .inputs(IntegerNumber.literal(inputs))
-                .outputs(IntegerNumber.literal(outputs))
-                .biases(IntStream.range(0, bias.length)
-                        .mapToObj(index -> FloatNumber.literal(bias[index]))
-                        .collect(Collectors.toList()))
-                .build();
-    }
-
-    public static GenesisGenomeTemplate createDefault(final int inputs, final int outputs) {
-        return createDefault(inputs, outputs, new float[0]);
-    }
-
     private FloatNumber.DualModeFactory createWeightFactory(final InitializationContext initializationContext, final FloatNumber.DualModeFactory weightFactory) {
-        if (initialWeightType == InitialWeightType.ALL_RANDOM) {
-            return weightFactory;
-        }
+        return switch (initialWeightType) {
+            case ALL_RANDOM -> weightFactory;
 
-        float weight = weightFactory.create();
+            case ONCE_RANDOM_REST_CARBON_COPY -> {
+                float weight = weightFactory.create();
 
-        return FloatNumber.literal(weight).createFactory(initializationContext);
+                yield FloatNumber.literal(weight).createFactory(initializationContext);
+            }
+        };
     }
 
     public GenesisGenomeConnector createConnector(final InitializationContext initializationContext, final FloatNumber.DualModeFactory weightFactory) {
         FloatNumber.DualModeFactory weightFactoryFixed = createWeightFactory(initializationContext, weightFactory);
 
         return switch (initialConnectionType) {
-            case ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS -> new AllToAllOutputsGenesisGenomeConnector(weightFactoryFixed, true);
+            case FULLY_CONNECTED -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, weightFactoryFixed, true);
 
-            case ALL_INPUTS_TO_ALL_OUTPUTS -> new AllToAllOutputsGenesisGenomeConnector(weightFactoryFixed, false);
-
-            default -> {
-                String message = String.format("%s needs to be implemented", initialConnectionType);
-
-                throw new UnsupportedOperationException(message);
-            }
+            case FULL_CONNECTED_EXCLUDING_BIAS -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, weightFactoryFixed, false);
         };
     }
 }

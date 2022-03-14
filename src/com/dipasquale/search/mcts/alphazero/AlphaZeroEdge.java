@@ -7,16 +7,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-@Getter
-@Setter(AccessLevel.PACKAGE)
 public final class AlphaZeroEdge implements Edge {
-    @Getter(AccessLevel.PACKAGE)
-    @Setter(AccessLevel.NONE)
-    private final AlphaZeroEdge parent;
-    @Setter(AccessLevel.NONE)
+    @Getter
     private int visited = 0;
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
     private float expectedReward = 0f;
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
     private float probableReward = 0f;
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
     private float explorationProbability = 0f;
 
     void increaseVisited() {

@@ -5,6 +5,7 @@ import com.dipasquale.search.mcts.FirstNonNullTraversalPolicy;
 import com.dipasquale.search.mcts.MaximumConfidenceTraversalPolicy;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SelectionConfidenceCalculator;
+import com.dipasquale.search.mcts.SelectionPolicy;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
 import com.dipasquale.search.mcts.UnexploredFirstTraversalPolicy;
@@ -12,7 +13,7 @@ import com.dipasquale.search.mcts.UnexploredFirstTraversalPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ClassicSelectionPolicy<TAction extends Action, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, ClassicEdge, TState> {
+final class ClassicSelectionPolicy<TAction extends Action, TState extends State<TAction, TState>> implements SelectionPolicy<TAction, ClassicEdge, TState> {
     private final TraversalPolicy<TAction, ClassicEdge, TState> wantedTraversalPolicy;
     private final TraversalPolicy<TAction, ClassicEdge, TState> unwantedTraversalPolicy;
 
@@ -25,14 +26,14 @@ public final class ClassicSelectionPolicy<TAction extends Action, TState extends
         return new FirstNonNullTraversalPolicy<>(traversalPolicies);
     }
 
-    public ClassicSelectionPolicy(final ClassicChildrenInitializerTraversalPolicy<TAction, TState> childrenInitializerTraversalPolicy, final SelectionConfidenceCalculator<ClassicEdge> selectionConfidenceCalculator) {
+    ClassicSelectionPolicy(final ClassicChildrenInitializerTraversalPolicy<TAction, TState> childrenInitializerTraversalPolicy, final SelectionConfidenceCalculator<ClassicEdge> selectionConfidenceCalculator) {
         this.wantedTraversalPolicy = createWantedTraversalPolicy(childrenInitializerTraversalPolicy);
         this.unwantedTraversalPolicy = new MaximumConfidenceTraversalPolicy<>(selectionConfidenceCalculator);
     }
 
     @Override
-    public SearchNode<TAction, ClassicEdge, TState> next(final int simulations, final SearchNode<TAction, ClassicEdge, TState> node) {
-        for (SearchNode<TAction, ClassicEdge, TState> nextNode = node, wantedNode = wantedTraversalPolicy.next(simulations, nextNode); true; wantedNode = wantedTraversalPolicy.next(simulations, nextNode)) {
+    public SearchNode<TAction, ClassicEdge, TState> select(final int simulations, final SearchNode<TAction, ClassicEdge, TState> rootNode) {
+        for (SearchNode<TAction, ClassicEdge, TState> nextNode = rootNode, wantedNode = wantedTraversalPolicy.next(simulations, nextNode); true; wantedNode = wantedTraversalPolicy.next(simulations, nextNode)) {
             if (wantedNode != null) {
                 return wantedNode;
             }

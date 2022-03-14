@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat.internal;
 
 import com.dipasquale.ai.common.fitness.FitnessDeterminer;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
+import com.dipasquale.common.LimitSupport;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -32,21 +33,9 @@ public final class FitnessBucket implements Serializable {
         return fitnessDeterminer.get();
     }
 
-    private static float normalize(final float fitness) {
-        if (fitness == Float.NEGATIVE_INFINITY) {
-            return 0f;
-        }
-
-        if (fitness == Float.POSITIVE_INFINITY) {
-            return Float.MAX_VALUE;
-        }
-
-        return Math.max(fitness, 0f);
-    }
-
     public float incorporate(final GenomeActivator genomeActivator, final float fitness) {
         ensureProperState(genomeActivator);
-        fitnessDeterminer.add(normalize(fitness));
+        fitnessDeterminer.add(LimitSupport.getPositiveFiniteValue(fitness));
 
         return fitnessDeterminer.get();
     }

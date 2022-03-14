@@ -6,5 +6,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum InitialWeightType {
     ALL_RANDOM,
-    FIRST_RANDOM
+    ONCE_RANDOM_REST_CARBON_COPY
 }

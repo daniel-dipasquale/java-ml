@@ -1,6 +1,8 @@
 package com.dipasquale.search.mcts;
 
 public interface State<TAction extends Action, TState extends State<TAction, TState>> {
+    int getDepth();
+
     TAction getLastAction();
 
     int getStatusId();
@@ -12,8 +14,4 @@ public interface State<TAction extends Action, TState extends State<TAction, TSt
     Iterable<TAction> createAllPossibleActions();
 
     TState accept(TAction action, boolean simulation);
-
-    int hashCode();
-
-    boolean equals(Object other);
 }

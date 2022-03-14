@@ -5,15 +5,18 @@ import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.rl.neat.common.OnePlayerGameSupport;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetwork;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.search.mcts.MaximumSearchPolicy;
-import com.dipasquale.search.mcts.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.NodeCacheSettings;
+import com.dipasquale.search.mcts.alphazero.AlphaZeroMaximumSearchPolicy;
+import com.dipasquale.search.mcts.alphazero.AlphaZeroMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPolicyDistributor;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
+import com.dipasquale.search.mcts.alphazero.AlphaZeroSelectionConfidenceCalculator;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroValueCalculator;
-import com.dipasquale.search.mcts.alphazero.MostVisitedActionEfficiencyCalculator;
-import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroHeuristic;
-import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroHeuristicContext;
-import com.dipasquale.search.mcts.alphazero.SearchNodeProviderSettings;
+import com.dipasquale.search.mcts.alphazero.BackPropagationType;
+import com.dipasquale.search.mcts.alphazero.CPuctCalculator;
+import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroModel;
+import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroModelContext;
+import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
 import com.dipasquale.search.mcts.alphazero.TemperatureController;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
@@ -27,36 +30,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PACKAGE)
 final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
-    private final int trainingMatchMaximumSimulations;
-    private final int trainingMatchMaximumDepth;
-    private final boolean trainingAllowRootExplorationNoise;
+    private final int maximumExpansions;
+    private final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise;
+    private final NodeCacheSettings nodeCache;
     private final NeuralNetworkEncoder<GameState> encoder;
-    private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroHeuristicContext<GameAction, GameState>> decoder;
+    private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroModelContext<GameAction, GameState>> decoder;
     private final AlphaZeroValueCalculator<GameAction, GameState> valueCalculator;
     private final AlphaZeroPolicyDistributor<GameAction, GameState> policyDistributor;
-    private final float trainingInitialTemperature;
-    private final float trainingFinalTemperature;
-    private final int trainingTemperatureDepthThreshold;
+    private final CPuctCalculator cpuctCalculator;
+    private final BackPropagationType backPropagationType;
+    private final int temperatureDepthThreshold;
     private final ObjectFactory<Game> gameFactory;
 
     @Override
     public Player createPlayer(final NeatNeuralNetwork neuralNetwork) {
         return RandomOutcomeMctsPlayer.builder()
-                .mcts(MonteCarloTreeSearch.<GameAction, GameState>alphaZeroBuilder()
-                        .searchPolicy(MaximumSearchPolicy.builder()
-                                .maximumSimulations(trainingMatchMaximumSimulations)
-                                .maximumDepth(trainingMatchMaximumDepth)
+                .mcts(AlphaZeroMonteCarloTreeSearch.<GameAction, GameState>builder()
+                        .searchPolicy(AlphaZeroMaximumSearchPolicy.builder()
+                                .maximumExpansions(maximumExpansions)
                                 .build())
-                        .nodeProviderSettings(SearchNodeProviderSettings.builder()
-                                .allowRootExplorationNoise(trainingAllowRootExplorationNoise)
-                                .build())
-                        .traversalHeuristic(new NeuralNetworkAlphaZeroHeuristic<>(encoder, decoder, neuralNetwork, valueCalculator, policyDistributor))
-                        .actionEfficiencyCalculator(MostVisitedActionEfficiencyCalculator.<GameAction>builder()
-                                .temperatureController(TemperatureController.builder()
-                                        .initialValue(trainingInitialTemperature)
-                                        .finalValue(trainingFinalTemperature)
-                                        .depthThreshold(trainingTemperatureDepthThreshold)
-                                        .build())
+                        .rootExplorationProbabilityNoise(rootExplorationProbabilityNoise)
+                        .nodeCache(nodeCache)
+                        .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, valueCalculator, policyDistributor))
+                        .selectionConfidenceCalculator(new AlphaZeroSelectionConfidenceCalculator(cpuctCalculator))
+                        .backPropagationType(backPropagationType)
+                        .temperatureController(TemperatureController.builder()
+                                .depthThreshold(temperatureDepthThreshold)
                                 .build())
                         .build())
                 .build();

@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.common.tictactoe;
 
 import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
+import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
@@ -21,7 +22,7 @@ import java.util.List;
 final class ActionScoreFitnessObjective {
     private static final float[][] ACTION_SCORE_TABLE = createActionScoreTable();
 
-    private static float calculateProportionateValue(final float value, final float minimum, final float maximum) {
+    private static float calculateProportionalValue(final float value, final float minimum, final float maximum) {
         return (value - minimum) / (maximum - minimum);
     }
 
@@ -57,23 +58,80 @@ final class ActionScoreFitnessObjective {
             }
 
             for (int i2 = 0; i2 < c2; i2++) {
-                actionScoresFixed[i1][i2] = calculateProportionateValue(actionScores[i1][i2], minimum, maximum);
+                actionScoresFixed[i1][i2] = calculateProportionalValue(actionScores[i1][i2], minimum, maximum);
             }
         }
 
         return actionScoresFixed;
     }
 
-    public static ContestNeatEnvironment createEnvironment(final GameSupport gameSupport) {
-        return new InternalEnvironment(gameSupport);
+    private static float[] play(final Player player1, final Player player2) {
+        GameResult result = Game.play(player1, player2);
+        int outcomeId = result.getOutcomeId();
+        int[] actionIds = result.getActionIds();
+        float player1ActionScore = 0f;
+        int player1ActionCount = 0;
+        float player2ActionScore = 0f;
+        int player2ActionCount = 0;
+
+        for (int i = 0; i < actionIds.length; i++) {
+            float actionScore = ACTION_SCORE_TABLE[i][actionIds[i]];
+
+            if (i % 2 == 0) {
+                player1ActionScore += actionScore;
+                player1ActionCount++;
+            } else {
+                player2ActionScore += actionScore;
+                player2ActionCount++;
+            }
+        }
+
+        float player1ActionCountFixed = (float) player1ActionCount;
+        float player2ActionCountFixed = (float) player2ActionCount;
+
+        player1ActionScore /= player1ActionCountFixed;
+        player2ActionScore /= player2ActionCountFixed;
+
+        return switch (outcomeId) {
+            case 0 -> new float[]{3f + player1ActionScore, player2ActionScore};
+
+            case 1 -> new float[]{player1ActionScore, 6f + player2ActionScore};
+
+            default -> new float[]{1f + player1ActionScore, 2f + player2ActionScore};
+        };
     }
 
-    public static AlphaZeroValueCalculator<GameAction, GameState> createValueCalculator() {
-        return new InternalValueCalculator();
+    public static IsolatedNeatEnvironment createIsolatedEnvironment(final GameSupport gameSupport) {
+        return new InternalIsolatedEnvironment(gameSupport);
+    }
+
+    public static ContestNeatEnvironment createContestedEnvironment(final GameSupport gameSupport) {
+        return new InternalContestedEnvironment(gameSupport);
+    }
+
+    public static AlphaZeroValueCalculator<GameAction, GameState> createValueCalculator(final boolean subtractNextParticipant) {
+        return new InternalValueCalculator(subtractNextParticipant);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalEnvironment implements ContestNeatEnvironment {
+    private static final class InternalIsolatedEnvironment implements IsolatedNeatEnvironment {
+        @Serial
+        private static final long serialVersionUID = -4235097951450531213L;
+        private final GameSupport gameSupport;
+
+        @Override
+        public float test(final GenomeActivator genomeActivator) {
+            Player aiPlayer = gameSupport.createPlayer(genomeActivator);
+            Player basicPlayer = gameSupport.createClassicPlayer();
+            float[] scores1 = play(aiPlayer, basicPlayer);
+            float[] scores2 = play(basicPlayer, aiPlayer);
+
+            return scores1[0] + scores2[1];
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class InternalContestedEnvironment implements ContestNeatEnvironment {
         @Serial
         private static final long serialVersionUID = 6796527022113256939L;
         private final GameSupport gameSupport;
@@ -82,65 +140,48 @@ final class ActionScoreFitnessObjective {
         public float[] test(final List<GenomeActivator> genomeActivators, final int round) {
             Player player1 = gameSupport.createPlayer(genomeActivators.get(0));
             Player player2 = gameSupport.createPlayer(genomeActivators.get(1));
-            GameResult result = Game.play(player1, player2);
-            int outcomeId = result.getOutcomeId();
-            List<Integer> actionIds = result.getActionIds();
-            float player1ActionScore = 0f;
-            int player1ActionCount = 0;
-            float player2ActionScore = 0f;
-            int player2ActionCount = 0;
 
-            for (int i = 0, c = actionIds.size(); i < c; i++) {
-                float actionScore = ACTION_SCORE_TABLE[i][actionIds.get(i)];
-
-                if (i % 2 == 0) {
-                    player1ActionScore += actionScore;
-                    player1ActionCount++;
-                } else {
-                    player2ActionScore += actionScore;
-                    player2ActionCount++;
-                }
-            }
-
-            float player1ActionCountFixed = (float) player1ActionCount;
-            float player2ActionCountFixed = (float) player2ActionCount;
-
-            player1ActionScore /= player1ActionCountFixed;
-            player2ActionScore /= player2ActionCountFixed;
-
-            if (outcomeId == 0) {
-                float player1Effectiveness = 1f - player1ActionCountFixed / 5f;
-
-                return new float[]{3f + player1ActionScore + player1Effectiveness, player2ActionScore};
-            }
-
-            if (outcomeId == 1) {
-                float player2Effectiveness = 1f - player2ActionCountFixed / 4f;
-
-                return new float[]{player1ActionScore, 3f + player2ActionScore + player2Effectiveness};
-            }
-
-            return new float[]{1f + player1ActionScore, 1f + player2ActionScore};
+            return play(player1, player2);
         }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class InternalValueCalculator implements AlphaZeroValueCalculator<GameAction, GameState> {
-        @Override
-        public float calculate(final SearchNode<GameAction, AlphaZeroEdge, GameState> node) {
-            List<Integer> actionIds = node.getState().getActionIds();
-            int participantId = node.getAction().getParticipantId();
+        private final boolean subtractNextParticipant;
+
+        private static float calculate(final int offset, final int[] actionIds) {
             float actionScore = 0f;
             int actionCount = 0;
 
-            for (int i = participantId - 1, c = actionIds.size(); i < c; i += 2) {
-                actionScore += ACTION_SCORE_TABLE[i][actionIds.get(i)];
+            for (int i = offset; i < actionIds.length; i += 2) {
+                int actionId = actionIds[i];
+
+                actionScore += ACTION_SCORE_TABLE[i][actionId];
                 actionCount++;
             }
 
-            float value = actionScore / (float) actionCount;
+            if (actionCount == 0) {
+                return 0f;
+            }
 
-            return value * 2f - 1;
+            return actionScore / (float) actionCount;
+        }
+
+        @Override
+        public float calculate(final SearchNode<GameAction, AlphaZeroEdge, GameState> node) {
+            GameState state = node.getState();
+            int[] actionIds = state.replicateActionIds();
+            int currentParticipantOffset = node.getAction().getParticipantId() - 1;
+            float currentParticipantValue = calculate(currentParticipantOffset, actionIds);
+
+            if (!subtractNextParticipant) {
+                return currentParticipantValue * 2f - 1f;
+            }
+
+            int nextParticipantOffset = state.getNextParticipantId() - 1;
+            float nextParticipantValue = calculate(nextParticipantOffset, actionIds);
+
+            return (currentParticipantValue - nextParticipantValue) * 2f - 1f;
         }
     }
 }

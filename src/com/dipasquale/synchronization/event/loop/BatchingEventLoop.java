@@ -58,8 +58,8 @@ public final class BatchingEventLoop {
         InteractiveWaitHandle invokedWaitHandle = new CountDownWaitHandle(size);
 
         for (int i = 0; i < size; i++) {
-            IteratorProducer<T> iteratorProducer = iteratorProducerFactory.create(i, size);
-            EventLoopHandler handler = new BatchingEventLoopHandler<>(iteratorProducer, itemHandler);
+            ItemProducer<T> itemProducer = iteratorProducerFactory.create(i, size);
+            EventLoopHandler handler = new BatchingEventLoopHandler<>(itemProducer, itemHandler);
 
             eventLoops.get(i).queue(handler, 0L, errorHandler, invokedWaitHandle);
         }
@@ -68,8 +68,8 @@ public final class BatchingEventLoop {
     }
 
     public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final Consumer<T> itemHandler, final ErrorHandler errorHandler) {
-        IteratorProducer<T> iteratorProducer = new SynchronizedIteratorProducer<>(iterator);
-        IteratorProducerFactory<T> iteratorProducerFactory = (__, ___) -> iteratorProducer;
+        ItemProducer<T> itemProducer = new ContendedItemProducer<>(iterator);
+        IteratorProducerFactory<T> iteratorProducerFactory = (__, ___) -> itemProducer;
 
         return queue(iteratorProducerFactory, itemHandler, errorHandler);
     }
@@ -79,7 +79,7 @@ public final class BatchingEventLoop {
     }
 
     public <T> InteractiveWaitHandle queue(final List<T> list, final Consumer<T> itemHandler, final ErrorHandler errorHandler) {
-        IteratorProducerFactory<T> iteratorProducerFactory = (offset, step) -> new IsolatedIteratorProducer<>(list, offset, step);
+        IteratorProducerFactory<T> iteratorProducerFactory = (offset, step) -> new IsolatedItemProducer<>(list, offset, step);
 
         return queue(iteratorProducerFactory, itemHandler, errorHandler);
     }
@@ -103,6 +103,6 @@ public final class BatchingEventLoop {
 
     @FunctionalInterface
     private interface IteratorProducerFactory<T> {
-        IteratorProducer<T> create(int offset, int step);
+        ItemProducer<T> create(int offset, int step);
     }
 }

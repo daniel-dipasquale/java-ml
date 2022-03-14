@@ -107,10 +107,10 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                 .general(GeneralSupport.builder()
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
-                                .inputs(IntegerNumber.literal(4))
-                                .outputs(TOPOLOGY_SETTINGS_TYPE.outputs)
+                                .inputs(4)
+                                .outputs(TOPOLOGY_SETTINGS_TYPE.nodeCount)
                                 .biases(List.of())
-                                .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
+                                .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
                         .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
@@ -162,10 +162,10 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TopologySettingsType {
-        VANILLA_OUTPUT(IntegerNumber.literal(1), IdentityNeuronLayerTopologyDefinition.getInstance()),
-        DOUBLE_OUTPUT(IntegerNumber.literal(2), DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
+        VANILLA_OUTPUT(1, IdentityNeuronLayerTopologyDefinition.getInstance()),
+        DOUBLE_OUTPUT(2, DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
 
-        private final IntegerNumber outputs;
+        private final int nodeCount;
         private final NeuronLayerTopologyDefinition outputTopologyDefinition;
     }
 }

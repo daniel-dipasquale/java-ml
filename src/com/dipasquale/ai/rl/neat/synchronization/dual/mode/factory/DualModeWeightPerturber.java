@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory;
 
 import com.dipasquale.ai.common.factory.WeightPerturber;
+import com.dipasquale.common.LimitSupport;
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import lombok.RequiredArgsConstructor;
@@ -18,15 +19,7 @@ public final class DualModeWeightPerturber<T extends FloatFactory & DualModeObje
     public float perturb(final float value) {
         float perturbed = floatFactory.create() * value;
 
-        if (perturbed == Float.POSITIVE_INFINITY) {
-            return Float.MAX_VALUE;
-        }
-
-        if (perturbed == Float.NEGATIVE_INFINITY) {
-            return -Float.MAX_VALUE;
-        }
-
-        return perturbed;
+        return LimitSupport.getFiniteValue(perturbed);
     }
 
     @Override

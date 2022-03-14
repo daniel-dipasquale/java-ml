@@ -2,5 +2,5 @@ package com.dipasquale.search.mcts;
 
 @FunctionalInterface
 public interface EdgeFactory<T extends Edge> {
-    T create(T parent);
+    T create(SearchNode<?, T, ?> node);
 }

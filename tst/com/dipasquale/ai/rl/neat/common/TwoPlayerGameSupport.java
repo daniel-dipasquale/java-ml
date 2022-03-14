@@ -5,7 +5,7 @@ import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetwork;
 public interface TwoPlayerGameSupport<T> {
     T createPlayer(NeatNeuralNetwork neuralNetwork);
 
-    T createBasicPlayer();
+    T createClassicPlayer();
 
     int play(T player1, T player2);
 }

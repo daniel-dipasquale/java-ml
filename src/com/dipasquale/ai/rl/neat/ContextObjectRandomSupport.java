@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.output.OutputClassifier;
+import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
@@ -37,8 +37,10 @@ final class ContextObjectRandomSupport implements Context.RandomSupport {
     }
 
     @Override
-    public <T> T generateItem(final OutputClassifier<T> outputClassifier) {
-        return outputClassifier.classify(generateIndexOrItemRandomSupport.next());
+    public <T> T generateItem(final ProbabilityClassifier<T> probabilityClassifier) {
+        float value = generateIndexOrItemRandomSupport.next();
+
+        return probabilityClassifier.get(value);
     }
 
     @Override

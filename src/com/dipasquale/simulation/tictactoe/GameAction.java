@@ -9,7 +9,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public final class GameAction implements Action {
     @Getter(AccessLevel.PACKAGE)
-    private final Object membership;
+    private final String parentCacheId;
+    private final String cacheId;
     private final int id;
     private final int participantId;
 }

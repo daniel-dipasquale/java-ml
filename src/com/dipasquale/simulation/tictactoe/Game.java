@@ -4,19 +4,15 @@ import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Game {
     private static final boolean IS_SIMULATION = false;
 
     private static GameResult createResult(final int outcomeId, final GameState state) {
-        List<Integer> actionIds = state.getActionIds();
-
-        return new GameResult(outcomeId, actionIds);
+        return new GameResult(outcomeId, state.replicateActionIds());
     }
 
-    public static GameResult play(final Player player1, final Player player2) {
+    private static GameResult playInternal(final Player player1, final Player player2) {
         Player[] players = new Player[]{player1, player2};
         GameState state = new GameState();
         int statusId = state.getStatusId();
@@ -29,9 +25,20 @@ public final class Game {
         }
 
         if (statusId == MonteCarloTreeSearch.DRAWN_STATUS_ID) {
-            return createResult(statusId, state);
+            return createResult(GameResult.DRAWN_OUTCOME_ID, state);
         }
 
-        return createResult(statusId - 1, state);
+        int outcomeId = statusId - 1;
+
+        return createResult(outcomeId, state);
+    }
+
+    public static GameResult play(final Player player1, final Player player2) {
+        GameResult result = playInternal(player1, player2);
+
+        player1.accept(result);
+        player2.accept(result);
+
+        return result;
     }
 }

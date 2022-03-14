@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutputClassifierFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomFloatFactory;
+import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.gate.DualModeIsLessThanRandomGate;
@@ -25,14 +25,14 @@ final class ContextObjectMutationSupport implements Context.MutationSupport {
         float perturbRate = initializationContext.getFloatSingleton(perturbWeightRate);
         float replaceRate = initializationContext.getFloatSingleton(replaceWeightRate);
         float totalRate = (float) Math.ceil(perturbRate + replaceRate);
-        OutputClassifier<WeightMutationType> weightMutationTypeClassifier = new OutputClassifier<>();
+        ProbabilityClassifier<WeightMutationType> weightMutationTypeClassifier = new ProbabilityClassifier<>();
 
         if (Float.compare(totalRate, 0f) > 0) {
-            weightMutationTypeClassifier.addRangeFor(perturbRate / totalRate, WeightMutationType.PERTURB);
-            weightMutationTypeClassifier.addRangeFor(replaceRate / totalRate, WeightMutationType.REPLACE);
+            weightMutationTypeClassifier.addProbabilityFor(perturbRate / totalRate, WeightMutationType.PERTURB);
+            weightMutationTypeClassifier.addProbabilityFor(replaceRate / totalRate, WeightMutationType.REPLACE);
         }
 
-        weightMutationTypeClassifier.addRemainingRangeFor(WeightMutationType.NONE);
+        weightMutationTypeClassifier.addRemainingProbabilityFor(WeightMutationType.NONE);
 
         return new DualModeOutputClassifierFactory<>(new DualModeRandomFloatFactory(initializationContext.createDefaultRandomSupport()), weightMutationTypeClassifier);
     }

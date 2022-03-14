@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
@@ -15,6 +14,7 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationS
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategyExecutor;
 import com.dipasquale.common.Pair;
+import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -129,7 +129,7 @@ public interface Context {
             return new Pair<>(items.get(index1), items.get(index2 + 1));
         }
 
-        <T> T generateItem(OutputClassifier<T> outputClassifier);
+        <T> T generateItem(ProbabilityClassifier<T> probabilityClassifier);
 
         <T> void shuffle(List<T> items);
     }

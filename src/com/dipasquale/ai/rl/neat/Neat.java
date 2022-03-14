@@ -11,7 +11,10 @@ import java.util.stream.IntStream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Neat {
-    private static final GenesisGenomeTemplate AVOID_NULL_POINTER_GENESIS_GENOME_TEMPLATE = GenesisGenomeTemplate.createDefault(1, 1);
+    private static final GenesisGenomeTemplate AVOID_NULL_POINTER_GENESIS_GENOME_TEMPLATE = GenesisGenomeTemplate.builder()
+            .inputs(1)
+            .outputs(1)
+            .build();
 
     static EvaluatorSettings createOverridableSettings() {
         return EvaluatorSettings.builder()

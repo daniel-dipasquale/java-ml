@@ -14,7 +14,7 @@ final class TwoPlayerGameFromOneSupport<T> implements TwoPlayerGameSupport<T> {
     }
 
     @Override
-    public T createBasicPlayer() {
+    public T createClassicPlayer() {
         return null;
     }
 

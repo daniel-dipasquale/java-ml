@@ -24,7 +24,7 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
         this(new DualModeIdFactory(concurrencyLevel, IdType.GENOME), disposedGenomeIds);
     }
 
-    public String createId() {
+    public String createGenomeId() {
         String id = disposedGenomeIds.pollFirst();
 
         if (id != null) {
@@ -34,13 +34,13 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
         return genomeIdFactory.create().toString();
     }
 
-    public void clearIds() {
+    public void clearGenomeIds() {
         disposedGenomeIds.clear();
         genomeIdFactory.reset();
     }
 
-    public Genome createGenesis(final Context context) {
-        Genome genome = new Genome(createId());
+    public Genome createGenesisGenome(final Context context) {
+        Genome genome = new Genome(createGenomeId());
 
         context.nodes().setupInitialNodes(genome);
         context.connections().setupInitialConnections(genome);
@@ -52,7 +52,7 @@ public final class DualModeGenomePool implements DualModeObject, Serializable {
         disposedGenomeIds.add(genome.getId());
     }
 
-    public int getDisposedCount() {
+    public int getDisposedGenomeIdCount() {
         return disposedGenomeIds.size();
     }
 

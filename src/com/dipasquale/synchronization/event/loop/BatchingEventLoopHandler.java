@@ -7,12 +7,12 @@ import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class BatchingEventLoopHandler<T> implements EventLoopHandler {
-    private final IteratorProducer<T> iteratorProducer;
+    private final ItemProducer<T> itemProducer;
     private final Consumer<T> itemHandler;
 
     @Override
     public void handle(final String name) {
-        for (IteratorProducer.Container<T> container = iteratorProducer.next(); container != null; container = iteratorProducer.next()) {
+        for (ItemProducer.Container<T> container = itemProducer.next(); container != null; container = itemProducer.next()) {
             itemHandler.accept(container.getItem());
         }
     }

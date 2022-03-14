@@ -25,9 +25,10 @@ public final class MaximumConfidenceTraversalPolicy<TAction extends Action, TEdg
         }
 
         OptimalPairSelector<Float, Integer> optimalChildNodeSelector = new OptimalPairSelector<>(FLOAT_ASCENDING_COMPARATOR);
+        TEdge parentEdge = node.getEdge();
 
         for (int i = 0; i < size; i++) {
-            float confidence = selectionConfidenceCalculator.calculate(childNodes.get(i).getEdge());
+            float confidence = selectionConfidenceCalculator.calculate(childNodes.get(i).getEdge(), parentEdge);
 
             optimalChildNodeSelector.replaceValueIfBetter(confidence, i);
         }

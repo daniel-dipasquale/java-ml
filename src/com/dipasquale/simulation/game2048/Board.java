@@ -167,7 +167,7 @@ final class Board {
         return valuedTileSupport.generateValue(PROBABILITY_OF_SPAWNING_2);
     }
 
-    public void initialize(final ValuedTileSupport valuedTileSupport) {
+    public ValuedTile initialize(final ValuedTileSupport valuedTileSupport) {
         int tileId1 = valuedTileSupport.generateId(0, LENGTH - 1);
         int tileId2 = valuedTileSupport.generateId(0, LENGTH);
         ValuedTile valuedTile1 = new ValuedTile(tileId1, generateValue(valuedTileSupport));
@@ -180,6 +180,8 @@ final class Board {
         }
 
         initialize(valuedTile1, valuedTile2);
+
+        return valuedTile1;
     }
 
     private static ValuedTile generateValuedTile(final ValuedTileSupport valuedTileSupport, final long state, final int valuedTileCount) {

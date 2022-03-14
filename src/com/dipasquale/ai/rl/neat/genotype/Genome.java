@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.output.OutputClassifier;
 import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.WeightMutationType;
 import com.dipasquale.common.Pair;
+import com.dipasquale.common.random.ProbabilityClassifier;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -86,29 +86,29 @@ public final class Genome implements Serializable {
 
     private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType... types) {
         int[] sizes = new int[types.length];
-        int totalSize = 0;
+        int total = 0;
 
         for (int i = 0; i < types.length; i++) {
             NodeGeneType type = types[i];
             int size = nodes.size(type);
 
             sizes[i] = size;
-            totalSize += size;
+            total += size;
         }
 
-        float totalSizeFixed = (float) totalSize;
-        OutputClassifier<NodeGeneType> typeOutputClassifier = new OutputClassifier<>();
+        ProbabilityClassifier<NodeGeneType> typeProbabilityClassifier = new ProbabilityClassifier<>();
+        float totalFixed = (float) total;
 
-        for (int i = 0, c = types.length - 1; i < c; i++) {
-            float size = (float) sizes[i];
+        for (int i = 1; i < types.length; i++) {
             NodeGeneType type = types[i];
+            float probability = (float) sizes[i] / totalFixed;
 
-            typeOutputClassifier.addRangeFor(size / totalSizeFixed, type);
+            typeProbabilityClassifier.addProbabilityFor(probability, type);
         }
 
-        typeOutputClassifier.addRemainingRangeFor(types[types.length - 1]);
+        typeProbabilityClassifier.addRemainingProbabilityFor(types[0]);
 
-        return nodes.getRandom(randomSupport, randomSupport.generateItem(typeOutputClassifier));
+        return nodes.getRandom(randomSupport, randomSupport.generateItem(typeProbabilityClassifier));
     }
 
     private NodeGene getRandomNodeToMatch(final Context.RandomSupport randomSupport, final NodeGeneType type) {

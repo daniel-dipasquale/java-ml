@@ -28,6 +28,6 @@ public final class GameResult {
     }
 
     public int getMoveCount() {
-        return state.getMoveCount();
+        return state.getDepth();
     }
 }

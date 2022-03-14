@@ -30,8 +30,4 @@ public interface DequeSet<T> extends Set<T>, Serializable {
     T removeLast();
 
     Iterator<T> descendingIterator();
-
-    static <T> DequeSet<T> createSynchronized(final DequeSet<T> dequeSet) {
-        return new SynchronizedDequeSet<>(dequeSet);
-    }
 }

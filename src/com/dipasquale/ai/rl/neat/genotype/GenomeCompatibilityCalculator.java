@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
+import com.dipasquale.common.LimitSupport;
 import com.dipasquale.common.Pair;
 import lombok.RequiredArgsConstructor;
 
@@ -70,14 +71,6 @@ public final class GenomeCompatibilityCalculator implements Serializable {
         float averageWeightDifference = weightDifference / (float) (1 + matchingCount);
         float compatibility = excessCoefficient * (float) excessCount / n + disjointCoefficient * (float) disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
 
-        if (compatibility == Float.POSITIVE_INFINITY) {
-            return Float.MAX_VALUE;
-        }
-
-        if (compatibility == Float.NEGATIVE_INFINITY) {
-            return -Float.MAX_VALUE;
-        }
-
-        return compatibility;
+        return LimitSupport.getFiniteValue(compatibility);
     }
 }

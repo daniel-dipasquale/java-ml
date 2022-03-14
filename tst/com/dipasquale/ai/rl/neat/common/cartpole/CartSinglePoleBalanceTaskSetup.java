@@ -59,10 +59,11 @@ public final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
                 .general(GeneralSupport.builder()
                         .populationSize(IntegerNumber.literal(populationSize))
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
-                                .inputs(IntegerNumber.literal(4))
+                                .inputs(4)
                                 .outputs(OUTPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
-                                .biases(List.of())
-                                .initialConnectionType(InitialConnectionType.ALL_INPUTS_AND_BIASES_TO_ALL_OUTPUTS)
+                                .biases(List.of(1f))
+                                .hiddenLayers(List.of())
+                                .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
                         .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
@@ -121,10 +122,10 @@ public final class CartSinglePoleBalanceTaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum OutputTopologySettingsType {
-        VANILLA(IntegerNumber.literal(1), IdentityNeuronLayerTopologyDefinition.getInstance()),
-        DOUBLE(IntegerNumber.literal(2), DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
+        VANILLA(1, IdentityNeuronLayerTopologyDefinition.getInstance()),
+        DOUBLE(2, DoubleSolutionNeuronLayerTopologyDefinition.getInstance());
 
-        private final IntegerNumber nodeCount;
+        private final int nodeCount;
         private final NeuronLayerTopologyDefinition topologyDefinition;
     }
 }

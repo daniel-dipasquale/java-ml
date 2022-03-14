@@ -23,10 +23,11 @@ public final class UnexploredFirstTraversalPolicy<TAction extends Action, TEdge 
         }
 
         SearchNode<TAction, TEdge, TState> childNode = childNodes.remove(size - 1);
+        List<SearchNode<TAction, TEdge, TState>> explorableChildren = node.getExplorableChildren();
 
-        node.getExplorableChildren().add(childNode);
+        explorableChildren.add(childNode);
         childNode.initializeState();
-        node.setSelectedExplorableChildIndex(node.getExplorableChildren().size() - 1);
+        node.setSelectedExplorableChildIndex(explorableChildren.size() - 1);
 
         return childNode;
     }

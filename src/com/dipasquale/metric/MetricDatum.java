@@ -21,6 +21,8 @@ public interface MetricDatum {
 
     Float getMaximum();
 
+    Float getLastValue();
+
     default Float getPercentile(final float percentage) {
         if (Float.compare(percentage, 0f) <= 0) {
             return getMinimum();

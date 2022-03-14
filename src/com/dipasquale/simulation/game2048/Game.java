@@ -9,12 +9,17 @@ public final class Game {
     private final ValuedTileSupport valuedTileSupport;
     private final int maximumValue;
 
-    public GameResult play(final Player player) {
+    private GameState createState(final Player player) {
         int victoryValue = (int) (Math.log(maximumValue) / Math.log(2D));
         GameState state = new GameState(valuedTileSupport, victoryValue);
 
         player.initializeState(state);
 
+        return state;
+    }
+
+    public GameResult play(final Player player) {
+        GameState state = createState(player);
         int statusId = state.getStatusId();
 
         while (statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
@@ -24,6 +29,10 @@ public final class Game {
             statusId = state.getStatusId();
         }
 
-        return new GameResult(state);
+        GameResult result = new GameResult(state);
+
+        player.accept(result);
+
+        return result;
     }
 }

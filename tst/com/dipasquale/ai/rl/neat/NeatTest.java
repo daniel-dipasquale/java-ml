@@ -3,10 +3,10 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.rl.neat.common.NeatTestSetup;
 import com.dipasquale.ai.rl.neat.common.TaskSetup;
 import com.dipasquale.ai.rl.neat.common.cartpole.CartSinglePoleBalanceTaskSetup;
-import com.dipasquale.ai.rl.neat.common.game2048.AlphaZeroGame2048TaskSetup;
+import com.dipasquale.ai.rl.neat.common.game2048.Game2048TaskSetup;
 import com.dipasquale.ai.rl.neat.common.openai.NeatTestSetupOpenAIGym;
 import com.dipasquale.ai.rl.neat.common.openai.cartpole.OpenAIGymCartPoleTaskSetup;
-import com.dipasquale.ai.rl.neat.common.tictactoe.AlphaZeroTicTacToeDuelTaskSetup;
+import com.dipasquale.ai.rl.neat.common.tictactoe.TicTacToeTaskSetup;
 import com.dipasquale.ai.rl.neat.common.xor.XorTaskSetup;
 import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
@@ -33,9 +33,9 @@ public final class NeatTest {
     private static final boolean XOR_TASK_ENABLED = true;
     private static final boolean CART_SINGLE_POLE_BALANCE_TASKS_ENABLED = true;
     private static final boolean OPEN_AI_TASKS_ENABLED = false;
-    private static final boolean OPEN_AI_CART_POLE_TASKS_ENABLED = true;
-    private static final boolean ALPHA_ZERO_TIC_TAC_TOE_DUEL_TASKS_ENABLED = false;
-    private static final boolean ALPHA_ZERO_GAME_2048_TASKS_ENABLED = false;
+    private static final boolean OPEN_AI_CART_POLE_TASKS_ENABLED = false;
+    private static final boolean TIC_TAC_TOE_TASKS_ENABLED = false;
+    private static final boolean GAME_2048_TASKS_ENABLED = false;
     private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
@@ -96,8 +96,8 @@ public final class NeatTest {
         return XOR_TASK_ENABLED && taskSetup instanceof XorTaskSetup
                 || CART_SINGLE_POLE_BALANCE_TASKS_ENABLED && taskSetup instanceof CartSinglePoleBalanceTaskSetup
                 || OPEN_AI_TASKS_ENABLED && OPEN_AI_CART_POLE_TASKS_ENABLED && taskSetup instanceof OpenAIGymCartPoleTaskSetup
-                || ALPHA_ZERO_TIC_TAC_TOE_DUEL_TASKS_ENABLED && taskSetup instanceof AlphaZeroTicTacToeDuelTaskSetup
-                || ALPHA_ZERO_GAME_2048_TASKS_ENABLED && taskSetup instanceof AlphaZeroGame2048TaskSetup;
+                || TIC_TAC_TOE_TASKS_ENABLED && taskSetup instanceof TicTacToeTaskSetup
+                || GAME_2048_TASKS_ENABLED && taskSetup instanceof Game2048TaskSetup;
     }
 
     private static void assertTaskSolution(final NeatTestSetup testSetup) {
@@ -121,7 +121,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 85_501, unit = TimeUnit.MILLISECONDS)
     public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_xor_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(XorTaskSetup.builder()
@@ -182,7 +182,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 300_500, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 200_500, unit = TimeUnit.MILLISECONDS)
     public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_open_ai_gym_cart_pole_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetupOpenAIGym.openAIGymBuilder()
                 .task(OpenAIGymCartPoleTaskSetup.builder()
@@ -196,10 +196,10 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 85_500, unit = TimeUnit.MILLISECONDS)
-    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_and_alpha_zero_WHEN_finding_the_solution_to_the_tic_tac_toe_problem_via_duels_among_peers_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    @Timeout(value = 185_500, unit = TimeUnit.MILLISECONDS)
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_tic_tac_toe_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(AlphaZeroTicTacToeDuelTaskSetup.builder()
+                .task(TicTacToeTaskSetup.builder()
                         .metricsEmissionEnabled(false)
                         .build())
                 .eventLoop(EVENT_LOOP)
@@ -209,9 +209,9 @@ public final class NeatTest {
 
     @Test
     @Timeout(value = 300_500, unit = TimeUnit.MILLISECONDS)
-    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_and_alpha_zero_WHEN_finding_the_solution_to_the_game_2048_problem_via_duels_among_peers_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
+    public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_game_2048_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
-                .task(AlphaZeroGame2048TaskSetup.builder()
+                .task(Game2048TaskSetup.builder()
                         .metricsEmissionEnabled(false)
                         .build())
                 .eventLoop(EVENT_LOOP)

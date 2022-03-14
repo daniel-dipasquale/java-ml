@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class RandomOutcomePlayer implements Player {
-    private final ActionIdHeuristic actionIdHeuristic;
+    private final ActionIdModel actionIdModel;
 
     @Override
     public void initializeState(final GameState state) {
@@ -13,8 +13,12 @@ public final class RandomOutcomePlayer implements Player {
 
     @Override
     public GameAction createNextAction(final GameState state) {
-        int actionId = actionIdHeuristic.getActionId(state);
+        int actionId = actionIdModel.getActionId(state);
 
         return state.createRandomOutcomeAction(actionId);
+    }
+
+    @Override
+    public void accept(final GameResult result) {
     }
 }
