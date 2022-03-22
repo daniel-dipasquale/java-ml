@@ -1,24 +1,36 @@
 package com.dipasquale.search.mcts.classic;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.ActionEfficiencyCalculator;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-@RequiredArgsConstructor
-@Builder
-public final class PrevalentActionEfficiencyCalculator<T extends Action> implements ActionEfficiencyCalculator<T, ClassicEdge> {
-    private final float winningFactor;
-    private final float notLosingFactor;
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+final class PrevalentActionEfficiencyCalculator implements ActionEfficiencyCalculator<ClassicEdge> {
+    private static final float WIN_FACTOR = 2f;
+    private static final float DRAW_FACTOR = 1f;
+    private static final float LOSE_FACTOR = -2f;
+    private static final PrevalentActionEfficiencyCalculator INSTANCE = new PrevalentActionEfficiencyCalculator();
+
+    public static PrevalentActionEfficiencyCalculator getInstance() {
+        return INSTANCE;
+    }
 
     @Override
-    public float calculate(final int depth, final T action, final ClassicEdge edge) {
-        float visited = (float) edge.getVisited();
+    public float calculate(final int depth, final ClassicEdge edge) {
+        int visited = edge.getVisited();
+
+        if (visited == 0) {
+            return 0f;
+        }
+
+        float visitedFixed = (float) visited;
         float won = (float) edge.getWon();
         float drawn = (float) edge.getDrawn();
-        float wonRate = won / visited;
-        float notLostRate = (won + drawn) / visited;
+        float lost = (float) visited - edge.getWon() - edge.getDrawn();
+        float wonRate = won / visitedFixed;
+        float drawRate = drawn / visitedFixed;
+        float lostRate = lost / visitedFixed;
 
-        return winningFactor * wonRate + notLosingFactor * notLostRate;
+        return WIN_FACTOR * wonRate + DRAW_FACTOR * drawRate + lostRate * LOSE_FACTOR;
     }
 }

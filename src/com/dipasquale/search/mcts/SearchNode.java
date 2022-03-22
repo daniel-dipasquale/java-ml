@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.lang.ref.SoftReference;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -11,10 +12,10 @@ import java.util.stream.StreamSupport;
 @Getter
 public final class SearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
     static final int NO_CHILD_SELECTED_INDEX = -1;
-    private static final boolean IS_SIMULATION = true;
-    private SearchNode<TAction, TEdge, TState> parent;
     @Getter(AccessLevel.NONE)
-    private SearchNode<TAction, TEdge, TState> owner;
+    private SoftReference<SearchNode<TAction, TEdge, TState>> parent;
+    @Getter(AccessLevel.NONE)
+    private SoftReference<SearchNode<TAction, TEdge, TState>> owner;
     private TAction action;
     private final TEdge edge;
     @Setter(AccessLevel.PRIVATE)
@@ -29,10 +30,10 @@ public final class SearchNode<TAction extends Action, TEdge extends Edge, TState
     private int selectedExplorableChildIndex;
 
     private SearchNode(final EdgeFactory<TEdge> edgeFactory, final TState state) {
-        this.parent = null;
-        this.owner = this;
+        this.parent = new SoftReference<>(null);
+        this.owner = new SoftReference<>(this);
         this.action = state.getLastAction();
-        this.edge = edgeFactory.create(this);
+        this.edge = edgeFactory.create();
         this.state = state;
         this.unexploredChildren = null;
         this.explorableChildren = null;
@@ -41,10 +42,10 @@ public final class SearchNode<TAction extends Action, TEdge extends Edge, TState
     }
 
     private SearchNode(final SearchNode<TAction, TEdge, TState> parent, final TAction action, final EdgeFactory<TEdge> edgeFactory) {
-        this.parent = parent;
-        this.owner = parent;
+        this.parent = new SoftReference<>(parent);
+        this.owner = new SoftReference<>(parent);
         this.action = action;
-        this.edge = edgeFactory.create(this);
+        this.edge = edgeFactory.create();
         this.state = null;
         this.unexploredChildren = null;
         this.explorableChildren = null;
@@ -56,9 +57,17 @@ public final class SearchNode<TAction extends Action, TEdge extends Edge, TState
         return new SearchNode<>(edgeFactory, state);
     }
 
+    public SearchNode<TAction, TEdge, TState> getParent() {
+        if (parent == null) {
+            return null;
+        }
+
+        return parent.get();
+    }
+
     public void reinitialize(final TState state) {
         parent = null;
-        owner = this;
+        owner = new SoftReference<>(this);
         action = state.getLastAction();
         setState(state);
     }
@@ -72,7 +81,7 @@ public final class SearchNode<TAction extends Action, TEdge extends Edge, TState
     }
 
     public void initializeState() {
-        TState state = owner.state.accept(action, IS_SIMULATION);
+        TState state = owner.get().state.accept(action);
 
         setState(state);
     }

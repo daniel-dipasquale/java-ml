@@ -15,6 +15,7 @@ import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeActiv
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutputActivationFunctionFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeStrategyActivationFunctionFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeNodeGeneIdFactory;
+import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.factory.IllegalStateFloatFactory;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
@@ -151,17 +152,60 @@ final class ContextObjectNodeGeneSupport implements Context.NodeGeneSupport {
         this.hiddenNodes = createHiddenNodes(hiddenCount, nodeIdFactory, biasFactories, recurrentBiasesFactories, activationFunctionFactories);
     }
 
+    private static int getInputCount(final GenesisGenomeTemplate genesisGenomeTemplate) {
+        int inputCount = genesisGenomeTemplate.getInputs();
+
+        ArgumentValidatorSupport.ensureGreaterThanZero(inputCount, "genesisGenomeTemplate.inputs");
+
+        return inputCount;
+    }
+
+    private static int getOutputCount(final GenesisGenomeTemplate genesisGenomeTemplate) {
+        int outputCount = genesisGenomeTemplate.getOutputs();
+
+        ArgumentValidatorSupport.ensureGreaterThanZero(outputCount, "genesisGenomeTemplate.outputs");
+
+        return outputCount;
+    }
+
+    private static int getBiasCount(final GenesisGenomeTemplate genesisGenomeTemplate) {
+        boolean isValid = genesisGenomeTemplate.getBiases().stream()
+                .allMatch(bias -> bias != null && !Float.isInfinite(bias));
+
+        if (!isValid) {
+            String message = "genesisGenomeTemplate.biases cannot be null or infinite";
+
+            throw new IllegalArgumentException(message);
+        }
+
+        return genesisGenomeTemplate.getBiases().size();
+    }
+
+    private static int getHiddenCount(final GenesisGenomeTemplate genesisGenomeTemplate) {
+        int hiddenCount = 0;
+
+        for (Integer hiddenLayer : genesisGenomeTemplate.getHiddenLayers()) {
+            if (hiddenLayer == null || hiddenLayer < 1) {
+                String message = "genesisGenomeTemplate.hiddenLayers cannot be null or less than 1";
+
+                throw new IllegalArgumentException(message);
+            }
+
+            hiddenCount += hiddenLayer;
+        }
+
+        return hiddenCount;
+    }
+
     static ContextObjectNodeGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final NodeGeneSupport nodeGeneSupport, final ConnectionGeneSupport connectionGeneSupport) {
         DualModeNodeGeneIdFactory nodeIdFactory = new DualModeNodeGeneIdFactory(initializationContext.getConcurrencyLevel());
         Map<NodeGeneType, FloatNumber.DualModeFactory> biasFactories = createBiasFactories(initializationContext, genesisGenomeTemplate, nodeGeneSupport);
         Map<NodeGeneType, RecurrentModifiersFactory> recurrentBiasesFactories = createRecurrentBiasesFactories(initializationContext, biasFactories, connectionGeneSupport);
         Map<NodeGeneType, DualModeStrategyActivationFunctionFactory<?>> activationFunctionFactories = createActivationFunctionFactories(initializationContext, nodeGeneSupport);
-        int inputCount = genesisGenomeTemplate.getInputs();
-        int outputCount = genesisGenomeTemplate.getOutputs();
-        int biasCount = genesisGenomeTemplate.getBiases().size();
-
-        int hiddenCount = genesisGenomeTemplate.getHiddenLayers().stream()
-                .reduce(0, Integer::sum);
+        int inputCount = getInputCount(genesisGenomeTemplate);
+        int outputCount = getOutputCount(genesisGenomeTemplate);
+        int biasCount = getBiasCount(genesisGenomeTemplate);
+        int hiddenCount = getHiddenCount(genesisGenomeTemplate);
 
         return new ContextObjectNodeGeneSupport(nodeIdFactory, biasFactories, recurrentBiasesFactories, activationFunctionFactories, inputCount, outputCount, biasCount, hiddenCount);
     }
@@ -236,6 +280,7 @@ final class ContextObjectNodeGeneSupport implements Context.NodeGeneSupport {
         inputCount = stateGroup.get("nodes.inputCount");
         outputCount = stateGroup.get("nodes.outputCount");
         biasCount = stateGroup.get("nodes.biasCount");
+        hiddenCount = stateGroup.get("nodes.hiddenCount");
         inputNodeIds = stateGroup.get("nodes.inputNodeIds");
         outputNodeIds = stateGroup.get("nodes.outputNodeIds");
         biasNodeIds = stateGroup.get("nodes.biasNodeIds");

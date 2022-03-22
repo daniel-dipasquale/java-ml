@@ -1,36 +1,43 @@
 package com.dipasquale.search.mcts;
 
+import com.dipasquale.data.structure.iterator.LinkedIterator;
 import lombok.RequiredArgsConstructor;
+
+import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
 public final class BackPropagationPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TContext> {
     private final BackPropagationStep<TAction, TEdge, TState, TContext> step;
-    private final SimulationResultObserver<TAction, TEdge, TState> observer;
+    private final BackPropagationObserver<TAction, TState> observer;
 
-    public void process(final SearchNode<TAction, TEdge, TState> leafNode) {
-        TContext context = step.createContext(leafNode);
-        boolean isFullyExplored = leafNode.isFullyExplored() || leafNode.getState().getStatusId() != MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
+    public void process(final SearchNode<TAction, TEdge, TState> leafSearchNode) {
+        TContext context = step.createContext(leafSearchNode);
+        boolean isFullyExplored = leafSearchNode.isFullyExplored() || leafSearchNode.getState().getStatusId() != MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
 
-        for (SearchNode<TAction, TEdge, TState> currentNode = leafNode; currentNode != null; ) {
-            SearchNode<TAction, TEdge, TState> parentNode = currentNode.getParent();
+        for (SearchNode<TAction, TEdge, TState> currentSearchNode = leafSearchNode; currentSearchNode != null; ) {
+            SearchNode<TAction, TEdge, TState> parentSearchNode = currentSearchNode.getParent();
 
-            step.process(context, currentNode);
+            step.process(context, currentSearchNode);
 
-            if (parentNode != null) {
+            if (parentSearchNode != null) {
                 if (isFullyExplored) {
-                    parentNode.getExplorableChildren().remove(parentNode.getSelectedExplorableChildIndex());
-                    parentNode.getFullyExploredChildren().add(currentNode);
-                    isFullyExplored = parentNode.isFullyExplored();
+                    parentSearchNode.getExplorableChildren().remove(parentSearchNode.getSelectedExplorableChildIndex());
+                    parentSearchNode.getFullyExploredChildren().add(currentSearchNode);
+                    isFullyExplored = parentSearchNode.isFullyExplored();
                 }
 
-                parentNode.setSelectedExplorableChildIndex(SearchNode.NO_CHILD_SELECTED_INDEX);
+                parentSearchNode.setSelectedExplorableChildIndex(SearchNode.NO_CHILD_SELECTED_INDEX);
             }
 
-            currentNode = parentNode;
+            currentSearchNode = parentSearchNode;
         }
 
         if (observer != null) {
-            observer.notify(leafNode);
+            Iterable<TState> states = StreamSupport.stream(LinkedIterator.createIterable(leafSearchNode, SearchNode::getParent).spliterator(), false)
+                    .map(SearchNode::getState)
+                    ::iterator;
+
+            observer.notify(leafSearchNode.getState().getStatusId(), states);
         }
     }
 }

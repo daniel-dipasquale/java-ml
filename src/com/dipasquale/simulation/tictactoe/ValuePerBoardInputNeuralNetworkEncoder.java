@@ -18,7 +18,7 @@ public final class ValuePerBoardInputNeuralNetworkEncoder implements NeuralNetwo
         int result = 0;
 
         for (int i = 0; i < GameState.BOARD_LENGTH; i++) {
-            int participantId = input.getActionOwnerParticipantId(i);
+            int participantId = input.getOwnerParticipantId(i);
 
             if (participantId == perspectiveParticipantId) {
                 result = BIT_MANIPULATOR_SUPPORT.merge(result, i, 1);

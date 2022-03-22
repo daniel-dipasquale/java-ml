@@ -3,9 +3,7 @@ package com.dipasquale.ai.rl.neat.common.tictactoe;
 import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
 import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.search.mcts.SearchNode;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroValueCalculator;
+import com.dipasquale.search.mcts.common.ValueHeuristic;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameResult;
@@ -28,15 +26,15 @@ final class ActionScoreFitnessObjective {
 
     private static float[][] createActionScoreTable() {
         float[][] actionScores = { // x: move, y: location
-                {0.24361748f, 0.13706407f, 0.24361748f, 0.13706407f, 0.3877551f, 0.13706407f, 0.24361748f, 0.13706407f, 0.24361748f},
-                {-0.16081564f, -0.3153153f, -0.16081564f, -0.3153153f, 0.012366035f, -0.3153153f, -0.16081564f, -0.3153153f, -0.16081564f},
-                {0.24361748f, 0.13706407f, 0.24361748f, 0.13706407f, 0.3877551f, 0.13706407f, 0.24361748f, 0.13706407f, 0.24361748f},
-                {-0.16081564f, -0.3153153f, -0.16081564f, -0.3153153f, 0.012366035f, -0.3153153f, -0.16081564f, -0.3153153f, -0.16081564f},
-                {0.24361748f, 0.13706407f, 0.24361748f, 0.13706407f, 0.3877551f, 0.13706407f, 0.24361748f, 0.13706407f, 0.24361748f},
-                {-0.15638208f, -0.31088084f, -0.15638208f, -0.31088084f, 0.01655629f, -0.31088084f, -0.15638208f, -0.31088084f, -0.15638208f},
-                {0.2736842f, 0.13846155f, 0.2736842f, 0.13846155f, 0.43783784f, 0.13846155f, 0.2736842f, 0.13846155f, 0.2736842f},
-                {0.024539877f, -0.22463769f, 0.024539877f, -0.22463769f, 0.23404256f, -0.22463769f, 0.024539877f, -0.22463769f, 0.024539877f},
-                {0.6785714f, 0.5f, 0.6785714f, 0.5f, 0.7894737f, 0.5f, 0.6785714f, 0.5f, 0.6785714f}
+                {0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f},
+                {-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f},
+                {0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f},
+                {-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f},
+                {0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f},
+                {-0.13524936f, -0.44041452f, -0.13524936f, -0.44041452f, 0.23178808f, -0.44041452f, -0.13524936f, -0.44041452f, -0.13524936f},
+                {0.7368421f, 0.46153846f, 0.7368421f, 0.46153846f, 1.0486486f, 0.46153846f, 0.7368421f, 0.46153846f, 0.7368421f},
+                {0.2638037f, -0.19565217f, 0.2638037f, -0.19565217f, 0.68085104f, -0.19565217f, 0.2638037f, -0.19565217f, 0.2638037f},
+                {1.6785715f, 1.5f, 1.6785715f, 1.5f, 1.7894737f, 1.5f, 1.6785715f, 1.5f, 1.6785715f}
         };
 
         float[][] actionScoresFixed = new float[actionScores.length][actionScores[0].length];
@@ -109,8 +107,8 @@ final class ActionScoreFitnessObjective {
         return new InternalContestedEnvironment(gameSupport);
     }
 
-    public static AlphaZeroValueCalculator<GameAction, GameState> createValueCalculator(final boolean subtractNextParticipant) {
-        return new InternalValueCalculator(subtractNextParticipant);
+    public static ValueHeuristic<GameAction, GameState> createValueHeuristic(final boolean subtractNextParticipant) {
+        return new InternalValueHeuristic(subtractNextParticipant);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -146,7 +144,7 @@ final class ActionScoreFitnessObjective {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalValueCalculator implements AlphaZeroValueCalculator<GameAction, GameState> {
+    private static final class InternalValueHeuristic implements ValueHeuristic<GameAction, GameState> {
         private final boolean subtractNextParticipant;
 
         private static float calculate(final int offset, final int[] actionIds) {
@@ -168,20 +166,19 @@ final class ActionScoreFitnessObjective {
         }
 
         @Override
-        public float calculate(final SearchNode<GameAction, AlphaZeroEdge, GameState> node) {
-            GameState state = node.getState();
+        public float estimate(final GameState state) {
             int[] actionIds = state.replicateActionIds();
-            int currentParticipantOffset = node.getAction().getParticipantId() - 1;
-            float currentParticipantValue = calculate(currentParticipantOffset, actionIds);
+            int participantOffset = state.getParticipantId() - 1;
+            float participantValue = calculate(participantOffset, actionIds);
 
             if (!subtractNextParticipant) {
-                return currentParticipantValue * 2f - 1f;
+                return ValueHeuristic.convertProbability(participantValue);
             }
 
             int nextParticipantOffset = state.getNextParticipantId() - 1;
             float nextParticipantValue = calculate(nextParticipantOffset, actionIds);
 
-            return (currentParticipantValue - nextParticipantValue) * 2f - 1f;
+            return ValueHeuristic.convertProbability(participantValue - nextParticipantValue);
         }
     }
 }

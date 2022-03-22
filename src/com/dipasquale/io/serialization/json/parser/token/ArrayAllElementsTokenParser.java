@@ -5,15 +5,12 @@ import com.dipasquale.io.serialization.json.JsonObjectBuilder;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ArrayAllElementsTokenParser implements TokenParser {
     private final TokenParserChoiceDirectory tokenParserChoiceDirectory;
 
     @Override
-    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader)
-            throws IOException {
+    public TokenParserChoice parse(final JsonObjectBuilder jsonObjectBuilder, final CharacterBufferedReader characterBufferedReader) {
         StackOnceTokenParserChoice tokenParserChoices = new StackOnceTokenParserChoice();
 
         tokenParserChoices.push(tokenParserChoiceDirectory.getWhitespace());

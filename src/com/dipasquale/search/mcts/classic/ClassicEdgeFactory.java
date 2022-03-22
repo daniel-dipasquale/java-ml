@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.classic;
 
 import com.dipasquale.search.mcts.EdgeFactory;
-import com.dipasquale.search.mcts.SearchNode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +13,7 @@ final class ClassicEdgeFactory implements EdgeFactory<ClassicEdge> {
     }
 
     @Override
-    public ClassicEdge create(final SearchNode<?, ClassicEdge, ?> node) {
+    public ClassicEdge create() {
         return new ClassicEdge();
     }
 }

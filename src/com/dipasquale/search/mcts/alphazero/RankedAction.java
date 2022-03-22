@@ -10,6 +10,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 final class RankedAction<TAction extends Action, TState extends State<TAction, TState>> {
-    private final SearchNode<TAction, AlphaZeroEdge, TState> node;
+    private final SearchNode<TAction, AlphaZeroEdge, TState> searchNode;
     private final float efficiency;
 }

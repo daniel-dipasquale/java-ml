@@ -16,8 +16,7 @@ public final class NoopCondition implements Condition {
     }
 
     @Override
-    public void await()
-            throws InterruptedException {
+    public void await() {
     }
 
     @Override
@@ -25,20 +24,17 @@ public final class NoopCondition implements Condition {
     }
 
     @Override
-    public long awaitNanos(final long nanosTimeout)
-            throws InterruptedException {
+    public long awaitNanos(final long nanosTimeout) {
         return nanosTimeout;
     }
 
     @Override
-    public boolean await(final long time, final TimeUnit unit)
-            throws InterruptedException {
+    public boolean await(final long time, final TimeUnit unit) {
         return true;
     }
 
     @Override
-    public boolean awaitUntil(final Date deadline)
-            throws InterruptedException {
+    public boolean awaitUntil(final Date deadline) {
         return true;
     }
 

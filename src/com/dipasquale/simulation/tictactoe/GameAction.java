@@ -12,5 +12,4 @@ public final class GameAction implements Action {
     private final String parentCacheId;
     private final String cacheId;
     private final int id;
-    private final int participantId;
 }

@@ -10,7 +10,7 @@ public final class ValuePerTileInputNeuralNetworkEncoder implements NeuralNetwor
         float[] results = new float[Board.LENGTH];
 
         for (int x = 0; x < Board.LENGTH; x++) {
-            results[x] = (float) input.getValueFromTile(x);
+            results[x] = (float) input.getValueInTile(x);
         }
 
         return results;

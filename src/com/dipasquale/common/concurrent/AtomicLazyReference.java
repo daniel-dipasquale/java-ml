@@ -16,23 +16,38 @@ public final class AtomicLazyReference<T> implements Serializable {
     private final ObjectFactory<T> referenceFactory;
     private volatile ReferenceContainer<T> referenceContainer = null;
 
-    public boolean initialized() {
+    public boolean isInitialized() {
         return referenceContainer != null;
     }
 
-    public T reference() {
+    public T getReference() {
         ReferenceContainer<T> referenceContainerFixed;
 
-        if (!initialized.compareAndSet(false, true)) {
+        if (initialized.compareAndSet(false, true)) {
+            try {
+                T reference = referenceFactory.create();
+
+                referenceContainerFixed = new ReferenceContainer<>(reference, null);
+            } catch (RuntimeException e) {
+                referenceContainerFixed = new ReferenceContainer<>(null, e);
+            } catch (Throwable e) {
+                RuntimeException exception = new RuntimeException(e.getMessage(), e);
+
+                referenceContainerFixed = new ReferenceContainer<>(null, exception);
+            }
+
+            referenceContainer = referenceContainerFixed;
+        } else {
             referenceContainerFixed = referenceContainer;
 
             while (referenceContainerFixed == null) {
                 Thread.onSpinWait();
                 referenceContainerFixed = referenceContainer;
             }
-        } else {
-            referenceContainerFixed = new ReferenceContainer<>(referenceFactory.create());
-            referenceContainer = referenceContainerFixed;
+        }
+
+        if (referenceContainerFixed.exception != null) {
+            throw referenceContainerFixed.exception;
         }
 
         return referenceContainerFixed.reference;
@@ -43,5 +58,6 @@ public final class AtomicLazyReference<T> implements Serializable {
         @Serial
         private static final long serialVersionUID = 4228056105516874549L;
         private final T reference;
+        private final RuntimeException exception;
     }
 }

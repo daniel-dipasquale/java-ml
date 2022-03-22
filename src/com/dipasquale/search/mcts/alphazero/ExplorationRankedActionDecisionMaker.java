@@ -16,23 +16,12 @@ final class ExplorationRankedActionDecisionMaker<TAction extends Action, TState 
 
     @Override
     public SearchNode<TAction, AlphaZeroEdge, TState> decide(final int simulations, final int depth, final List<RankedAction<TAction, TState>> rankedActions) {
-        float total = 0f;
+        ProbabilityClassifier<SearchNode<TAction, AlphaZeroEdge, TState>> rankedNodeClassifier = new ProbabilityClassifier<>();
 
         for (RankedAction<TAction, TState> rankedAction : rankedActions) {
-            total += rankedAction.getEfficiency();
+            rankedNodeClassifier.add(rankedAction.getEfficiency(), rankedAction.getSearchNode());
         }
 
-        ProbabilityClassifier<SearchNode<TAction, AlphaZeroEdge, TState>> probabilityClassifier = new ProbabilityClassifier<>();
-
-        for (int i = 1, c = rankedActions.size(); i < c; i++) {
-            RankedAction<TAction, TState> rankedAction = rankedActions.get(i);
-            float probability = rankedAction.getEfficiency() / total;
-
-            probabilityClassifier.addProbabilityFor(probability, rankedAction.getNode());
-        }
-
-        probabilityClassifier.addRemainingProbabilityFor(rankedActions.get(0).getNode());
-
-        return probabilityClassifier.get(randomSupport.next());
+        return rankedNodeClassifier.get(randomSupport.next());
     }
 }

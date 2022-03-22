@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.common.tictactoe;
 
 import com.dipasquale.ai.common.NeuralNetworkDecoder;
 import com.dipasquale.ai.common.NeuralNetworkEncoder;
-import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
@@ -43,16 +43,16 @@ import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
-import com.dipasquale.search.mcts.NodeCacheSettings;
+import com.dipasquale.search.mcts.CacheAvailability;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroNeuralNetworkDecoder;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroValueCalculator;
 import com.dipasquale.search.mcts.alphazero.BackPropagationType;
-import com.dipasquale.search.mcts.alphazero.CPuctCalculator;
-import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroModelContext;
+import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroContext;
 import com.dipasquale.search.mcts.alphazero.PredictionBehaviorType;
 import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
-import com.dipasquale.search.mcts.alphazero.RosinCPuctCalculator;
+import com.dipasquale.search.mcts.common.CPuctCalculator;
+import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
+import com.dipasquale.search.mcts.common.ValueHeuristic;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameState;
 import com.dipasquale.simulation.tictactoe.Player;
@@ -74,50 +74,50 @@ import java.util.Set;
 @Builder
 @Getter
 public final class TicTacToeTaskSetup implements TaskSetup {
-    private static final int MAXIMUM_EXPANSIONS = 9;
-    private static final float EXPLORATION_PROBABILITY_NOISE_SHAPE = 0.03f;
-    private static final float EXPLORATION_PROBABILITY_NOISE_EPSILON = 0.25f;
-    private static final RootExplorationProbabilityNoiseType ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE = RootExplorationProbabilityNoiseType.NONE;
-    private static final NodeCacheType NODE_CACHE_TYPE = NodeCacheType.ENABLED;
+    private static final int MAXIMUM_EXPANSIONS = 15;
+    private static final float ROOT_EXPLORATION_PROBABILITY_NOISE_SHAPE = 0.03f;
+    private static final float ROOT_EXPLORATION_PROBABILITY_NOISE_EPSILON = 0.25f;
+    private static final RootExplorationProbabilityNoiseType ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE = RootExplorationProbabilityNoiseType.ENABLED;
+    private static final CacheAvailability CACHE_AVAILABILITY = CacheAvailability.ENABLED;
     private static final PopulationSettingsType POPULATION_SETTINGS_TYPE = PopulationSettingsType.VANILLA;
     private static final VectorEncodingType VECTOR_ENCODING_TYPE = VectorEncodingType.INTEGER;
     private static final InputTopologySettingsType INPUT_TOPOLOGY_SETTINGS_TYPE = InputTopologySettingsType.VALUE_PER_PLAYER;
-    private static final EnumSet<PredictionBehaviorType> PREDICTION_BEHAVIOR_TYPE = EnumSet.of(PredictionBehaviorType.VALUE_REVERSED_ON_OPPONENT, PredictionBehaviorType.POLICY_REVERSED_ON_OPPONENT);
+    private static final EnumSet<PredictionBehaviorType> PREDICTION_BEHAVIOR_TYPES = EnumSet.of(PredictionBehaviorType.VALUE_HEURISTIC_ALLOWED_ON_INTENTIONAL_STATES, PredictionBehaviorType.VALUE_REVERSED_ON_OPPONENT, PredictionBehaviorType.POLICY_REVERSED_ON_OPPONENT);
     private static final OutputTopologySettingsType OUTPUT_TOPOLOGY_SETTINGS_TYPE = OutputTopologySettingsType.DOUBLE;
-    private static final ValueCalculatorSettingsType VALUE_CALCULATOR_SETTINGS_TYPE = ValueCalculatorSettingsType.NONE;
+    private static final ValueHeuristicSettingsType VALUE_HEURISTIC_SETTINGS_TYPE = ValueHeuristicSettingsType.NONE;
     private static final float C_PUCT_CONSTANT = 1f;
-    private static final CPuctCalculatorType C_PUCT_CALCULATOR_TYPE = CPuctCalculatorType.ROSIN;
-    private static final BackPropagationType BACK_PROPAGATION_TYPE = BackPropagationType.REVERSED_ON_BACKTRACK;
+    private static final CPuctCalculatorType C_PUCT_CALCULATOR_TYPE = CPuctCalculatorType.CONSTANT;
+    private static final BackPropagationType BACK_PROPAGATION_TYPE = BackPropagationType.REVERSED_ON_OPPONENT;
     private static final int TEMPERATURE_DEPTH_THRESHOLD = 3;
-    private static final int CLASSIC_MAXIMUM_SELECTIONS = 50;
+    private static final int CLASSIC_MAXIMUM_SELECTIONS = 30;
     private static final int CLASSIC_MAXIMUM_SIMULATION_ROLLOUT_DEPTH = 9;
-    private static final NodeCacheType CLASSIC_NODE_CACHE_TYPE = NodeCacheType.ENABLED;
+    private static final CacheAvailability CLASSIC_CACHE_AVAILABILITY = CacheAvailability.ENABLED;
 
     private static final GameSupport GAME_SUPPORT = GameSupport.builder()
             .maximumExpansions(MAXIMUM_EXPANSIONS)
             .rootExplorationProbabilityNoise(ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE.reference)
-            .nodeCache(NODE_CACHE_TYPE.reference)
+            .cacheAvailability(CACHE_AVAILABILITY)
             .encoder(INPUT_TOPOLOGY_SETTINGS_TYPE.encoder)
             .decoder(OUTPUT_TOPOLOGY_SETTINGS_TYPE.decoder)
-            .valueCalculator(VALUE_CALCULATOR_SETTINGS_TYPE.reference)
-            .policyDistributor(null)
+            .valueHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
+            .policyCalculator(null)
             .cpuctCalculator(C_PUCT_CALCULATOR_TYPE.reference)
             .backPropagationType(BACK_PROPAGATION_TYPE)
             .temperatureDepthThreshold(TEMPERATURE_DEPTH_THRESHOLD)
             .classicMaximumSelections(CLASSIC_MAXIMUM_SELECTIONS)
             .classicMaximumSimulationRolloutDepth(CLASSIC_MAXIMUM_SIMULATION_ROLLOUT_DEPTH)
-            .classicNodeCache(CLASSIC_NODE_CACHE_TYPE.reference)
+            .classicCacheAvailability(CLASSIC_CACHE_AVAILABILITY)
             .build();
 
     private static final FitnessFunctionSettingsType FITNESS_FUNCTION_SETTINGS_TYPE = FitnessFunctionSettingsType.ACTION_SCORE;
-    private static final int VALIDATION_MATCHES = 100;
-    private static final double VALIDATION_WIN_RATE = 0.55D;
-    private static final TwoPlayerWinRateTrainingAssessor<Player> WIN_RATE_TRAINING_ASSESSOR = new TwoPlayerWinRateTrainingAssessor<>(GAME_SUPPORT, VALIDATION_MATCHES, VALIDATION_WIN_RATE);
+    private static final int TRAINING_ASSESSOR_MATCHES = 100;
+    private static final double TRAINING_ASSESSOR_WIN_RATE = 0.55D;
+    private static final TwoPlayerWinRateTrainingAssessor<Player> WIN_RATE_TRAINING_ASSESSOR = new TwoPlayerWinRateTrainingAssessor<>(GAME_SUPPORT, TRAINING_ASSESSOR_MATCHES, TRAINING_ASSESSOR_WIN_RATE);
     private static final MutationSettingsType MUTATION_SETTINGS_TYPE = MutationSettingsType.RECOMMENDED_MARKOV;
     private static final SpeciationSettingsType SPECIATION_SETTINGS_TYPE = SpeciationSettingsType.RECOMMENDED_MARKOV;
     private static final EnvironmentSettingsType ENVIRONMENT_SETTINGS_TYPE = EnvironmentSettingsType.ISOLATED;
     private static final int MAXIMUM_GENERATIONS = 1_000;
-    private static final int FITNESS_TEST_COUNT = 3;
+    private static final int FITNESS_TEST_COUNT = 6;
     private final String name = "Tic-Tac-Toe";
 
     private final int populationSize = switch (ENVIRONMENT_SETTINGS_TYPE) {
@@ -132,16 +132,17 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     public EvaluatorSettings createSettings(final Set<String> genomeIds, final BatchingEventLoop eventLoop) {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
-                        .populationSize(IntegerNumber.literal(populationSize))
+                        .populationSize(populationSize)
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(INPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
                                 .outputs(OUTPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
                                 .biases(List.of())
+                                .hiddenLayers(List.of(5, 5))
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
                         .fitnessFunction(ENVIRONMENT_SETTINGS_TYPE.factory.create(genomeIds))
-                        .fitnessDeterminerFactory(AverageFitnessDeterminerFactory.getInstance())
+                        .fitnessControllerFactory(AverageFitnessControllerFactory.getInstance())
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -195,7 +196,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
                 .metrics(MetricsSupport.builder()
-                        .type(metricsEmissionEnabled
+                        .types(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))
                         .build())
@@ -221,21 +222,11 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     private enum RootExplorationProbabilityNoiseType {
         NONE(null),
         ENABLED(RootExplorationProbabilityNoiseSettings.builder()
-                .shape(EXPLORATION_PROBABILITY_NOISE_SHAPE)
-                .epsilon(EXPLORATION_PROBABILITY_NOISE_EPSILON)
+                .shape(ROOT_EXPLORATION_PROBABILITY_NOISE_SHAPE)
+                .epsilon(ROOT_EXPLORATION_PROBABILITY_NOISE_EPSILON)
                 .build());
 
         private final RootExplorationProbabilityNoiseSettings reference;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private enum NodeCacheType {
-        NONE(null),
-        ENABLED(NodeCacheSettings.builder()
-                .participants(2)
-                .build());
-
-        private final NodeCacheSettings reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -280,7 +271,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                 IdentityNeuronLayerTopologyDefinition.getInstance(),
                 AlphaZeroNeuralNetworkDecoder.<GameAction, GameState>builder()
                         .perspectiveParticipantId(1)
-                        .behaviorType(PREDICTION_BEHAVIOR_TYPE)
+                        .behaviorTypes(PREDICTION_BEHAVIOR_TYPES)
                         .valueIndex(0)
                         .build()),
         VANILLA_WITHOUT_VALUE(9,
@@ -288,7 +279,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                 IdentityNeuronLayerTopologyDefinition.getInstance(),
                 AlphaZeroNeuralNetworkDecoder.<GameAction, GameState>builder()
                         .perspectiveParticipantId(1)
-                        .behaviorType(PREDICTION_BEHAVIOR_TYPE)
+                        .behaviorTypes(PREDICTION_BEHAVIOR_TYPES)
                         .valueIndex(-1)
                         .build()),
         DOUBLE(20,
@@ -299,7 +290,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                 DoubleSolutionNeuronLayerTopologyDefinition.getInstance(),
                 AlphaZeroNeuralNetworkDecoder.<GameAction, GameState>builder()
                         .perspectiveParticipantId(1)
-                        .behaviorType(PREDICTION_BEHAVIOR_TYPE)
+                        .behaviorTypes(PREDICTION_BEHAVIOR_TYPES)
                         .valueIndex(0)
                         .build()),
         DOUBLE_WITHOUT_VALUE(18,
@@ -307,23 +298,23 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                 DoubleSolutionNeuronLayerTopologyDefinition.getInstance(),
                 AlphaZeroNeuralNetworkDecoder.<GameAction, GameState>builder()
                         .perspectiveParticipantId(1)
-                        .behaviorType(PREDICTION_BEHAVIOR_TYPE)
+                        .behaviorTypes(PREDICTION_BEHAVIOR_TYPES)
                         .valueIndex(-1)
                         .build());
 
         private final int nodeCount;
         private final EnumValue<OutputActivationFunctionType> activationFunction;
         private final NeuronLayerTopologyDefinition topologyDefinition;
-        private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroModelContext<GameAction, GameState>> decoder;
+        private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroContext<GameAction, GameState>> decoder;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private enum ValueCalculatorSettingsType {
+    private enum ValueHeuristicSettingsType {
         NONE(null),
-        INDIVIDUAL_ACTION_SCORE(ActionScoreFitnessObjective.createValueCalculator(false)),
-        ACTION_SCORE_VS_OPPONENT(ActionScoreFitnessObjective.createValueCalculator(true));
+        INDIVIDUAL_ACTION_SCORE(ActionScoreFitnessObjective.createValueHeuristic(false)),
+        ACTION_SCORE_VS_OPPONENT(ActionScoreFitnessObjective.createValueHeuristic(true));
 
-        private final AlphaZeroValueCalculator<GameAction, GameState> reference;
+        private final ValueHeuristic<GameAction, GameState> reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

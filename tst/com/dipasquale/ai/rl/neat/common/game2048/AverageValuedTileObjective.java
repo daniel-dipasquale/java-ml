@@ -2,9 +2,7 @@ package com.dipasquale.ai.rl.neat.common.game2048;
 
 import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.search.mcts.SearchNode;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroValueCalculator;
+import com.dipasquale.search.mcts.common.ValueHeuristic;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameResult;
@@ -25,8 +23,8 @@ final class AverageValuedTileObjective {
         return new InternalEnvironment(gameSupport);
     }
 
-    public static <T extends GameAction> AlphaZeroValueCalculator<GameAction, GameState> createValueCalculator() {
-        return new InternalValueCalculator();
+    public static ValueHeuristic<GameAction, GameState> createValueHeuristic() {
+        return new InternalValueHeuristic();
     }
 
     private static float calculateRate(final double total, final double valuedTileCount) {
@@ -47,7 +45,7 @@ final class AverageValuedTileObjective {
             double total = 0D;
 
             for (int tileId = 0; tileId < LENGTH; tileId++) {
-                int value = result.getValueFromTile(tileId);
+                int value = result.getValueInTile(tileId);
 
                 if (value > 0) {
                     total += Math.pow(2D, value);
@@ -59,23 +57,22 @@ final class AverageValuedTileObjective {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalValueCalculator implements AlphaZeroValueCalculator<GameAction, GameState> {
+    private static final class InternalValueHeuristic implements ValueHeuristic<GameAction, GameState> {
         @Override
-        public float calculate(final SearchNode<GameAction, AlphaZeroEdge, GameState> node) {
-            GameState state = node.getState();
+        public float estimate(final GameState state) {
             double total = 0D;
 
             for (int tileId = 0; tileId < LENGTH; tileId++) {
-                int value = state.getValueFromTile(tileId);
+                int value = state.getValueInTile(tileId);
 
                 if (value > 0) {
                     total += Math.pow(2D, value);
                 }
             }
 
-            float value = calculateRate(total, state.getValuedTileCount());
+            float rate = calculateRate(total, state.getValuedTileCount());
 
-            return (value - 2f) / value;
+            return ValueHeuristic.calculateUnbounded(rate);
         }
     }
 }

@@ -18,17 +18,17 @@ final class ClassicBackPropagationStep<TAction extends Action, TState extends St
     }
 
     @Override
-    public Context createContext(final SearchNode<TAction, ClassicEdge, TState> leafNode) {
-        return new Context(leafNode.getState().getStatusId());
+    public Context createContext(final SearchNode<TAction, ClassicEdge, TState> leafSearchNode) {
+        return new Context(leafSearchNode.getState().getStatusId());
     }
 
     @Override
-    public void process(final Context context, final SearchNode<TAction, ClassicEdge, TState> currentNode) {
-        ClassicEdge currentEdge = currentNode.getEdge();
+    public void process(final Context context, final SearchNode<TAction, ClassicEdge, TState> currentSearchNode) {
+        ClassicEdge currentEdge = currentSearchNode.getEdge();
 
         currentEdge.increaseVisited();
 
-        if (context.statusId == currentNode.getAction().getParticipantId()) {
+        if (context.statusId == currentSearchNode.getState().getParticipantId()) {
             currentEdge.increaseWon();
         } else if (context.statusId == MonteCarloTreeSearch.DRAWN_STATUS_ID) {
             currentEdge.increaseDrawn();

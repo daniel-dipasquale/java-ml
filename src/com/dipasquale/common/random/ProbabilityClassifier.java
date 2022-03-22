@@ -7,42 +7,40 @@ import java.io.Serializable;
 import java.util.TreeMap;
 
 @RequiredArgsConstructor
-public final class ProbabilityClassifier<T> implements Serializable {
+public final class ProbabilityClassifier<T> implements Serializable { // TODO: provide a better API for transient probability classifiers
     @Serial
     private static final long serialVersionUID = -2492693513349102434L;
-    private static final float MAXIMUM_TOTAL_PROBABILITY = 1f;
-    private final TreeMap<Float, T> probabilities = new TreeMap<>();
-    private float totalProbability = 0f;
+    private final TreeMap<Float, T> distribution = new TreeMap<>();
+    private float totalWeight = 0f;
 
-    public boolean addProbabilityFor(final float probability, final T value) {
-        if (Float.compare(totalProbability, MAXIMUM_TOTAL_PROBABILITY) >= 0 || Float.compare(probability, 0f) <= 0) {
-            return false;
-        }
-
-        float probabilityIndex = Math.min(totalProbability + probability, MAXIMUM_TOTAL_PROBABILITY);
-
-        probabilities.put(probabilityIndex, value);
-        totalProbability = probabilityIndex;
-
-        return true;
+    public int size() {
+        return distribution.size();
     }
 
-    public boolean addRemainingProbabilityFor(final T value) {
-        if (Float.compare(totalProbability, MAXIMUM_TOTAL_PROBABILITY) >= 0) {
+    public boolean add(final float weight, final T value) {
+        if (Float.compare(weight, 0f) <= 0) {
             return false;
         }
 
-        probabilities.put(MAXIMUM_TOTAL_PROBABILITY, value);
-        totalProbability = MAXIMUM_TOTAL_PROBABILITY;
+        float nextTotalWeight = totalWeight + weight;
+
+        distribution.put(nextTotalWeight, value);
+        totalWeight = nextTotalWeight;
 
         return true;
     }
 
     public T get(final float probability) {
-        if (Float.compare(probability, 0f) < 0 || Float.compare(probability, MAXIMUM_TOTAL_PROBABILITY) >= 0) {
+        if (Float.compare(probability, 0f) < 0) {
             return null;
         }
 
-        return probabilities.higherEntry(probability).getValue();
+        try {
+            float index = probability * totalWeight;
+
+            return distribution.higherEntry(index).getValue();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

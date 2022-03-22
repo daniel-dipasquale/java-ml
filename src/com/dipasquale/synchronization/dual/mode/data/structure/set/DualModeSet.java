@@ -127,6 +127,14 @@ public final class DualModeSet<TItem, TSetFactory extends SetFactory & DualModeO
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof DualModeSet<?, ?>) {
+            return set.equals(((DualModeSet<TItem, TSetFactory>) obj).set);
+        }
+
         return set.equals(obj);
     }
 

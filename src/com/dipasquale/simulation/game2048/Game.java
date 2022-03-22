@@ -5,32 +5,30 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class Game {
-    private static final boolean IS_SIMULATION = false;
+    private static final boolean DEBUG = false;
     private final ValuedTileSupport valuedTileSupport;
-    private final int maximumValue;
-
-    private GameState createState(final Player player) {
-        int victoryValue = (int) (Math.log(maximumValue) / Math.log(2D));
-        GameState state = new GameState(valuedTileSupport, victoryValue);
-
-        player.initializeState(state);
-
-        return state;
-    }
+    private final int victoryValue;
+    private final Player valuedTileAdder;
 
     public GameResult play(final Player player) {
-        GameState state = createState(player);
+        Player[] players = new Player[]{valuedTileAdder, player};
+        GameState state = new GameState(valuedTileSupport, victoryValue);
         int statusId = state.getStatusId();
 
-        while (statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
-            GameAction action = player.createNextAction(state);
+        for (int index = 0; statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; index = state.getNextParticipantId() - 1) {
+            GameAction action = players[index].createNextAction(state);
 
-            state = state.accept(action, IS_SIMULATION);
+            state = state.accept(action);
             statusId = state.getStatusId();
+
+            if (DEBUG) {
+                state.print(System.out);
+            }
         }
 
         GameResult result = new GameResult(state);
 
+        valuedTileAdder.accept(result);
         player.accept(result);
 
         return result;

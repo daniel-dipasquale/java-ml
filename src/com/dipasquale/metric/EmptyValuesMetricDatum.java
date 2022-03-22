@@ -254,7 +254,7 @@ final class EmptyValuesMetricDatum extends AbstractMetricDatum {
         @Override
         public <TArray> TArray[] toArray(final TArray[] array) {
             return createStream(0, size())
-                    .collect(Collectors.toList())
+                    .toList()
                     .toArray(array);
         }
 

@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public abstract class AbstractCollection<T> implements Collection<T>, Serializable {
     @Serial
@@ -53,7 +52,7 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
     public boolean removeIf(final Predicate<? super T> filter) {
         List<T> itemsToRemove = stream()
                 .filter(filter)
-                .collect(Collectors.toList());
+                .toList();
 
         itemsToRemove.forEach(this::remove);
 

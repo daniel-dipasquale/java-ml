@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
-public final class GenesisGenomeTemplate { // TODO: allow experiments where the genesis genome allows hidden nodes (in the form of fully connected layers)
+public final class GenesisGenomeTemplate {
     private final int inputs;
     private final int outputs;
     @Builder.Default

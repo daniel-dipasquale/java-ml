@@ -5,24 +5,23 @@ import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.rl.neat.common.OnePlayerGameSupport;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetwork;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.search.mcts.NodeCacheSettings;
+import com.dipasquale.search.mcts.CacheAvailability;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroMaximumSearchPolicy;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroMonteCarloTreeSearch;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroPolicyDistributor;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroSelectionConfidenceCalculator;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroValueCalculator;
 import com.dipasquale.search.mcts.alphazero.BackPropagationType;
-import com.dipasquale.search.mcts.alphazero.CPuctCalculator;
+import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroContext;
 import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroModel;
-import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroModelContext;
 import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
 import com.dipasquale.search.mcts.alphazero.TemperatureController;
+import com.dipasquale.search.mcts.common.CPuctCalculator;
+import com.dipasquale.search.mcts.common.ExplorationProbabilityCalculator;
+import com.dipasquale.search.mcts.common.ValueHeuristic;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;
+import com.dipasquale.simulation.game2048.MctsPlayer;
 import com.dipasquale.simulation.game2048.Player;
-import com.dipasquale.simulation.game2048.RandomOutcomeMctsPlayer;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +31,11 @@ import lombok.RequiredArgsConstructor;
 final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
     private final int maximumExpansions;
     private final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise;
-    private final NodeCacheSettings nodeCache;
+    private final CacheAvailability cacheAvailability;
     private final NeuralNetworkEncoder<GameState> encoder;
-    private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroModelContext<GameAction, GameState>> decoder;
-    private final AlphaZeroValueCalculator<GameAction, GameState> valueCalculator;
-    private final AlphaZeroPolicyDistributor<GameAction, GameState> policyDistributor;
+    private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroContext<GameAction, GameState>> decoder;
+    private final ValueHeuristic<GameAction, GameState> valueHeuristic;
+    private final ExplorationProbabilityCalculator<GameAction> policyCalculator;
     private final CPuctCalculator cpuctCalculator;
     private final BackPropagationType backPropagationType;
     private final int temperatureDepthThreshold;
@@ -44,15 +43,15 @@ final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
 
     @Override
     public Player createPlayer(final NeatNeuralNetwork neuralNetwork) {
-        return RandomOutcomeMctsPlayer.builder()
+        return MctsPlayer.builder()
                 .mcts(AlphaZeroMonteCarloTreeSearch.<GameAction, GameState>builder()
                         .searchPolicy(AlphaZeroMaximumSearchPolicy.builder()
                                 .maximumExpansions(maximumExpansions)
                                 .build())
                         .rootExplorationProbabilityNoise(rootExplorationProbabilityNoise)
-                        .nodeCache(nodeCache)
-                        .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, valueCalculator, policyDistributor))
-                        .selectionConfidenceCalculator(new AlphaZeroSelectionConfidenceCalculator(cpuctCalculator))
+                        .cacheAvailability(cacheAvailability)
+                        .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, valueHeuristic, policyCalculator))
+                        .cpuctCalculator(cpuctCalculator)
                         .backPropagationType(backPropagationType)
                         .temperatureController(TemperatureController.builder()
                                 .depthThreshold(temperatureDepthThreshold)
@@ -69,6 +68,6 @@ final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
     public boolean play(final Player player) {
         Game game = createGame();
 
-        return game.play(player).isSuccess();
+        return game.play(player).isSuccessful();
     }
 }

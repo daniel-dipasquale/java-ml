@@ -11,12 +11,12 @@ import lombok.ToString;
 public final class GameResult {
     private final GameState state;
 
-    public boolean isSuccess() {
-        return state.getStatusId() == GameState.PARTICIPANT_ID;
+    public boolean isSuccessful() {
+        return state.getStatusId() == GameState.PLAYER_PARTICIPANT_ID;
     }
 
-    public int getValueFromTile(final int tileId) {
-        return state.getValueFromTile(tileId);
+    public int getValueInTile(final int tileId) {
+        return state.getValueInTile(tileId);
     }
 
     public int getValuedTileCount() {
@@ -28,6 +28,6 @@ public final class GameResult {
     }
 
     public int getMoveCount() {
-        return state.getDepth();
+        return state.getDepth() / 2;
     }
 }

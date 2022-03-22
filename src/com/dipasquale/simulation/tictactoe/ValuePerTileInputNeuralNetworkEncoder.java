@@ -15,7 +15,7 @@ public final class ValuePerTileInputNeuralNetworkEncoder implements NeuralNetwor
         float[] encodedInput = new float[GameState.BOARD_LENGTH];
 
         for (int i = 0; i < GameState.BOARD_LENGTH; i++) {
-            int participantId = input.getActionOwnerParticipantId(i);
+            int participantId = input.getOwnerParticipantId(i);
 
             if (participantId == perspectiveParticipantId) {
                 encodedInput[i] = 1f;

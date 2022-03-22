@@ -29,7 +29,7 @@ final class MultiThreadContextParallelismSupport implements Context.ParallelismS
         InteractiveWaitHandle invokedWaitHandle = interactiveWaitHandleFactory.create(unhandledExceptions);
 
         try {
-            new StrategyWaitHandle(invokedWaitHandle, unhandledExceptions, false).await();
+            new StrategyWaitHandle(invokedWaitHandle, unhandledExceptions).await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 

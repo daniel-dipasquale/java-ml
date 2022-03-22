@@ -14,13 +14,11 @@ final class EmptyWaitHandle implements WaitHandle {
     }
 
     @Override
-    public void await()
-            throws InterruptedException {
+    public void await() {
     }
 
     @Override
-    public boolean await(final long timeout, final TimeUnit unit)
-            throws InterruptedException {
+    public boolean await(final long timeout, final TimeUnit unit) {
         return false;
     }
 }

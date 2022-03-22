@@ -6,9 +6,9 @@ import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
 
 public interface AlphaZeroModel<TAction extends Action, TState extends State<TAction, TState>> {
-    boolean isEveryOutcomeDeterministic();
+    boolean isEveryStateIntentional();
 
-    AlphaZeroPrediction<TAction, TState> predict(SearchNode<TAction, AlphaZeroEdge, TState> node, EdgeFactory<AlphaZeroEdge> edgeFactory);
+    AlphaZeroPrediction<TAction, TState> predict(SearchNode<TAction, AlphaZeroEdge, TState> searchNode, EdgeFactory<AlphaZeroEdge> edgeFactory);
 
     void reset();
 }

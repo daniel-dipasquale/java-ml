@@ -146,12 +146,12 @@ public final class JsonWriter {
     private void write(final Writer writer, final Stack<IterationTracker> iterationTrackers)
             throws IOException {
         while (!iterationTrackers.isEmpty()) {
-            int startingSize = iterationTrackers.size();
+            int initialSize = iterationTrackers.size();
             IterationTracker iterationTracker = iterationTrackers.peek();
 
             writeStartIfUniterated(writer, iterationTracker);
 
-            while (iterationTracker.keys.hasNext() && startingSize == iterationTrackers.size()) {
+            while (iterationTracker.keys.hasNext() && initialSize == iterationTrackers.size()) {
                 Object key = iterationTracker.keys.next();
                 Object value = iterationTracker.jsonObject.get(key);
                 JsonValueType valueType = getType(value);
@@ -178,7 +178,7 @@ public final class JsonWriter {
                 }
             }
 
-            if (startingSize == iterationTrackers.size()) {
+            if (initialSize == iterationTrackers.size()) {
                 iterationTrackers.pop();
                 writeEnd(writer, iterationTracker.jsonObject.typeof());
             }

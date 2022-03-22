@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.alphazero;
 
 import com.dipasquale.search.mcts.EdgeFactory;
-import com.dipasquale.search.mcts.SearchNode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +13,7 @@ final class AlphaZeroEdgeFactory implements EdgeFactory<AlphaZeroEdge> {
     }
 
     @Override
-    public AlphaZeroEdge create(final SearchNode<?, AlphaZeroEdge, ?> node) {
+    public AlphaZeroEdge create() {
         return new AlphaZeroEdge();
     }
 }

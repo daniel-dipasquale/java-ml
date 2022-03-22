@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Game {
-    private static final boolean IS_SIMULATION = false;
-
     private static GameResult createResult(final int outcomeId, final GameState state) {
         return new GameResult(outcomeId, state.replicateActionIds());
     }
@@ -20,7 +18,7 @@ public final class Game {
         for (int i = 0; statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; i = (i + 1) % players.length) {
             GameAction action = players[i].createNextAction(state);
 
-            state = state.accept(action, IS_SIMULATION);
+            state = state.accept(action);
             statusId = state.getStatusId();
         }
 

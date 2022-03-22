@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.FitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.internal.FitnessBucket;
 import com.dipasquale.ai.rl.neat.internal.StandardIsolatedNeatEnvironment;
@@ -56,14 +56,14 @@ final class ContextObjectActivationSupport implements Context.ActivationSupport 
     }
 
     private static Map<String, FitnessBucket> createFitnessBuckets(final InitializationContext initializationContext, final GeneralSupport generalSupport) {
-        int populationSize = initializationContext.getIntegerSingleton(generalSupport.getPopulationSize());
+        int populationSize = generalSupport.getPopulationSize();
         DualModeIdFactory genomeIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), IdType.GENOME);
-        FitnessDeterminerFactory fitnessDeterminerFactory = generalSupport.getFitnessDeterminerFactory();
+        FitnessControllerFactory fitnessControllerFactory = generalSupport.getFitnessControllerFactory();
         Map<String, FitnessBucket> fitnessBuckets = new HashMap<>();
 
         for (int i = 0; i < populationSize; i++) {
             String genomeId = genomeIdFactory.create().toString();
-            FitnessBucket fitnessBucket = new FitnessBucket(fitnessDeterminerFactory.create());
+            FitnessBucket fitnessBucket = new FitnessBucket(fitnessControllerFactory.create());
 
             fitnessBuckets.put(genomeId, fitnessBucket);
         }

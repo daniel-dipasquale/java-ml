@@ -1,26 +1,24 @@
 package com.dipasquale.search.mcts.alphazero;
 
-import com.dipasquale.search.mcts.Edge;
+import com.dipasquale.search.mcts.common.TechniqueEdge;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class AlphaZeroEdge implements Edge {
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@Getter
+@Setter
+public final class AlphaZeroEdge implements TechniqueEdge {
     @Getter
+    @Setter(AccessLevel.NONE)
     private int visited = 0;
-    @Getter
-    @Setter(AccessLevel.PACKAGE)
     private float expectedReward = 0f;
-    @Getter
-    @Setter(AccessLevel.PACKAGE)
     private float probableReward = 0f;
-    @Getter
-    @Setter(AccessLevel.PACKAGE)
     private float explorationProbability = 0f;
 
-    void increaseVisited() {
+    @Override
+    public void increaseVisited() {
         visited++;
     }
 }

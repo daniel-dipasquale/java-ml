@@ -11,7 +11,10 @@ import java.util.stream.IntStream;
 
 @Getter
 public final class GameState implements State<GameAction, GameState> {
+    private static final int INITIAL_BOARD = 0;
     private static final String INITIAL_CACHE_ID = "";
+    private static final int FIRST_PARTICIPANT_ID = 1;
+    static final boolean IS_STATE_INTENTIONAL = true;
     private static final int DIMENSION = 3;
     static final int BOARD_LENGTH = DIMENSION * DIMENSION;
     static final int NO_PARTICIPANT_ID = 0;
@@ -20,51 +23,55 @@ public final class GameState implements State<GameAction, GameState> {
     @Getter(AccessLevel.NONE)
     private final int board;
     private final int depth;
-    private final GameAction lastAction;
     private final int statusId;
+    private final int participantId;
+    private final GameAction lastAction;
 
     GameState() {
-        this.board = 0;
-        this.depth = 0;
-        this.lastAction = new GameAction(null, INITIAL_CACHE_ID, MonteCarloTreeSearch.INITIAL_ACTION_ID, MonteCarloTreeSearch.INITIAL_PARTICIPANT_ID);
+        this.board = INITIAL_BOARD;
+        this.depth = INITIAL_CACHE_ID.length();
         this.statusId = MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
+        this.participantId = FIRST_PARTICIPANT_ID + 1;
+        this.lastAction = new GameAction(null, INITIAL_CACHE_ID, MonteCarloTreeSearch.INITIAL_ACTION_ID);
     }
 
-    private GameState(final int board, final GameAction lastAction, final int statusId) {
+    private GameState(final int board, final int statusId, final int participantId, final GameAction lastAction) {
         this.board = board;
         this.depth = lastAction.getCacheId().length();
-        this.lastAction = lastAction;
         this.statusId = statusId;
+        this.participantId = participantId;
+        this.lastAction = lastAction;
     }
 
     @Override
     public int getNextParticipantId() {
-        if (lastAction.getCacheId().isEmpty()) {
-            return 1;
-        }
+        return 3 - participantId;
+    }
 
-        return 3 - lastAction.getParticipantId();
+    @Override
+    public boolean isIntentional() {
+        return IS_STATE_INTENTIONAL;
+    }
+
+    @Override
+    public boolean isNextIntentional() {
+        return IS_STATE_INTENTIONAL;
     }
 
     private static int extractValueFromBoard(final int board, final int actionId) {
         return BIT_MANIPULATOR_SUPPORT.extract(board, actionId);
     }
 
-    public int getActionOwnerParticipantId(final int actionId) {
+    public int getOwnerParticipantId(final int actionId) {
         return extractValueFromBoard(board, actionId);
     }
 
-    @Override
-    public boolean isValid(final int actionId) {
-        return actionId >= 0 && actionId < BOARD_LENGTH && getActionOwnerParticipantId(actionId) == NO_PARTICIPANT_ID;
+    private boolean isValid(final int actionId) {
+        return actionId >= 0 && actionId < BOARD_LENGTH && getOwnerParticipantId(actionId) == NO_PARTICIPANT_ID;
     }
 
-    private String getParentCacheId() {
-        return lastAction.getCacheId();
-    }
-
-    private String createNextCacheId(final int actionId) {
-        return String.format("%s%d", getParentCacheId(), actionId);
+    private String createCacheId(final int actionId) {
+        return String.format("%s%d", lastAction.getCacheId(), actionId);
     }
 
     public GameAction createAction(final int id) {
@@ -74,21 +81,19 @@ public final class GameState implements State<GameAction, GameState> {
             throw new IllegalArgumentException(message);
         }
 
-        String parentCacheId = getParentCacheId();
-        String cacheId = createNextCacheId(id);
-        int participantId = getNextParticipantId();
+        String parentCacheId = lastAction.getCacheId();
+        String cacheId = createCacheId(id);
 
-        return new GameAction(parentCacheId, cacheId, id, participantId);
+        return new GameAction(parentCacheId, cacheId, id);
     }
 
     @Override
     public Iterable<GameAction> createAllPossibleActions() {
-        String parentCacheId = getParentCacheId();
-        int participantId = getNextParticipantId();
+        String parentCacheId = lastAction.getCacheId();
 
         return IntStream.range(0, BOARD_LENGTH)
-                .filter(actionId -> getActionOwnerParticipantId(actionId) == NO_PARTICIPANT_ID)
-                .mapToObj(actionId -> new GameAction(parentCacheId, createNextCacheId(actionId), actionId, participantId))
+                .filter(actionId -> getOwnerParticipantId(actionId) == NO_PARTICIPANT_ID)
+                .mapToObj(actionId -> new GameAction(parentCacheId, createCacheId(actionId), actionId))
                 ::iterator;
     }
 
@@ -105,8 +110,8 @@ public final class GameState implements State<GameAction, GameState> {
         return BIT_MANIPULATOR_SUPPORT.merge(board, actionId, value);
     }
 
-    private static int createBoard(final int board, final GameAction action) {
-        return mergeValueToBoard(board, action.getId(), action.getParticipantId());
+    private static int createBoard(final int board, final GameAction action, final int participantId) {
+        return mergeValueToBoard(board, action.getId(), participantId);
     }
 
     private static boolean isRowOrColumnTaken(final int board, final int participantId) {
@@ -143,15 +148,14 @@ public final class GameState implements State<GameAction, GameState> {
         return isRowOrColumnTaken(board, participantId) || isDiagonalTaken(board, participantId);
     }
 
-    private static int getStatusId(final int board, final GameAction action) {
-        int participantId = action.getParticipantId();
-        int actions = action.getCacheId().length();
+    private static int getStatusId(final int board, final GameAction action, final int participantId) {
+        int actionCount = action.getCacheId().length();
 
-        if (actions >= 5 && isWon(board, participantId)) {
+        if (actionCount >= 5 && isWon(board, participantId)) {
             return participantId;
         }
 
-        if (actions == BOARD_LENGTH) {
+        if (actionCount == BOARD_LENGTH) {
             return MonteCarloTreeSearch.DRAWN_STATUS_ID;
         }
 
@@ -159,14 +163,15 @@ public final class GameState implements State<GameAction, GameState> {
     }
 
     @Override
-    public GameState accept(final GameAction action, final boolean simulation) {
-        if (!Objects.equals(getParentCacheId(), action.getParentCacheId())) {
+    public GameState accept(final GameAction action) {
+        if (!Objects.equals(lastAction.getCacheId(), action.getParentCacheId())) {
             throw new IllegalArgumentException("action does not belong to the game state");
         }
 
-        int nextBoard = createBoard(board, action);
-        int nextStatusId = getStatusId(nextBoard, action);
+        int nextParticipantId = getNextParticipantId();
+        int nextBoard = createBoard(board, action, nextParticipantId);
+        int nextStatusId = getStatusId(nextBoard, action, nextParticipantId);
 
-        return new GameState(nextBoard, action, nextStatusId);
+        return new GameState(nextBoard, nextStatusId, nextParticipantId, action);
     }
 }

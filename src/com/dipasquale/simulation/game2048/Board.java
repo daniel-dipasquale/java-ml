@@ -4,43 +4,42 @@ package com.dipasquale.simulation.game2048;
 import com.dipasquale.common.bit.int2.BitManipulatorSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.PrintStream;
+import java.util.List;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 final class Board {
     static final int DIMENSION = 4;
     static final int LENGTH = DIMENSION * DIMENSION;
-    private static final long STARTING_STATE = 0L;
-    private static final int STARTING_VALUED_TILE_COUNT = 0;
-    private static final int STARTING_ACTION_IDS_ALLOWED = 0;
-    private static final int STARTING_MAXIMUM_VALUE = 0;
-    private static final int STARTING_SCORE = 0;
     static final int MAXIMUM_EXPONENT_PER_TILE = 16;
-    private static final float PROBABILITY_OF_SPAWNING_2 = 0.9f;
     private static final int MAXIMUM_BITS_PER_TILE = (int) (Math.log(MAXIMUM_EXPONENT_PER_TILE) / Math.log(2D));
     private static final BitManipulatorSupport STATE_MANIPULATOR_SUPPORT = BitManipulatorSupport.create(MAXIMUM_BITS_PER_TILE);
     private static final int MAXIMUM_BITS_PER_ACTION_ID = 2;
     private static final com.dipasquale.common.bit.int1.BitManipulatorSupport ACTION_IDS_ALLOWED_BIT_MANIPULATOR_SUPPORT = com.dipasquale.common.bit.int1.BitManipulatorSupport.create(MAXIMUM_BITS_PER_ACTION_ID);
+    static final List<ValuedTile> NO_VALUED_TILES = List.of();
+    static final long INITIAL_STATE = 0L;
+    private static final int INITIAL_VALUED_TILE_COUNT = 0;
+    private static final int INITIAL_ACTION_IDS_ALLOWED = 0;
+    private static final int INITIAL_HIGHEST_VALUE = 0;
+    private static final int INITIAL_SCORE = 0;
     static final int EMPTY_TILE_VALUE = 0;
-    private ValuedTile lastValuedTile;
+    private List<ValuedTile> valuedTilesAdded;
     @Getter(AccessLevel.NONE)
-    @EqualsAndHashCode.Include
     private long state;
     private int valuedTileCount;
     private int actionIdsAllowed;
-    private int maximumValue;
+    private int highestValue;
     private int score;
 
     Board() {
-        this(null, STARTING_STATE, STARTING_VALUED_TILE_COUNT, STARTING_ACTION_IDS_ALLOWED, STARTING_MAXIMUM_VALUE, STARTING_SCORE);
+        this(NO_VALUED_TILES, INITIAL_STATE, INITIAL_VALUED_TILE_COUNT, INITIAL_ACTION_IDS_ALLOWED, INITIAL_HIGHEST_VALUE, INITIAL_SCORE);
     }
 
-    public boolean isTemplate() {
-        return lastValuedTile == null;
+    public boolean isPartiallyInitialized() {
+        return valuedTilesAdded.isEmpty();
     }
 
     private static int extractValueFromState(final long state, final int tileId) {
@@ -139,7 +138,7 @@ final class Board {
         return false;
     }
 
-    private static int determineFromStateActionIdsAllowed(final long state) {
+    private static int determineFromStateAllActionIdsAllowed(final long state) {
         int actionIdsAllowed = 0;
 
         for (ActionIdType actionIdType : ActionIdType.values()) {
@@ -151,61 +150,11 @@ final class Board {
         return actionIdsAllowed;
     }
 
-    public void initialize(final ValuedTile valuedTile1, final ValuedTile valuedTile2) {
-        long initialState = mergeValueToState(STARTING_STATE, valuedTile1);
-
-        initialState = mergeValueToState(initialState, valuedTile2);
-        state = initialState;
-        lastValuedTile = valuedTile2;
-        valuedTileCount = GameState.STARTING_VALUED_TILE_COUNT;
-        actionIdsAllowed = determineFromStateActionIdsAllowed(initialState);
-        maximumValue = Math.max(valuedTile1.getValue(), valuedTile2.getValue());
-        score = 0;
-    }
-
-    private static int generateValue(final ValuedTileSupport valuedTileSupport) {
-        return valuedTileSupport.generateValue(PROBABILITY_OF_SPAWNING_2);
-    }
-
-    public ValuedTile initialize(final ValuedTileSupport valuedTileSupport) {
-        int tileId1 = valuedTileSupport.generateId(0, LENGTH - 1);
-        int tileId2 = valuedTileSupport.generateId(0, LENGTH);
-        ValuedTile valuedTile1 = new ValuedTile(tileId1, generateValue(valuedTileSupport));
-        ValuedTile valuedTile2;
-
-        if (tileId1 == tileId2) {
-            valuedTile2 = new ValuedTile(tileId2 + 1, generateValue(valuedTileSupport));
-        } else {
-            valuedTile2 = new ValuedTile(tileId2, generateValue(valuedTileSupport));
-        }
-
-        initialize(valuedTile1, valuedTile2);
-
-        return valuedTile1;
-    }
-
-    private static ValuedTile generateValuedTile(final ValuedTileSupport valuedTileSupport, final long state, final int valuedTileCount) {
-        int tileIdLogical = valuedTileSupport.generateId(0, LENGTH - valuedTileCount);
-        int tileId = -1;
-
-        for (int i1 = 0, i2 = 0; tileId == -1; i1++) {
-            if (extractValueFromState(state, i1) == EMPTY_TILE_VALUE) {
-                if (i2++ == tileIdLogical) {
-                    tileId = i1;
-                }
-            }
-        }
-
-        int value = generateValue(valuedTileSupport);
-
-        return new ValuedTile(tileId, value);
-    }
-
-    private Board createNext(final ActionIdType actionIdType, final ValuedTileGenerator valuedTileGenerator) {
+    public Board createNextPartiallyInitialized(final ActionIdType actionIdType) {
         long originalState = state;
-        long nextState = STARTING_STATE;
+        long nextState = INITIAL_STATE;
         int nextValuedTileCount = 0;
-        int nextMaximumValue = maximumValue;
+        int nextHighestValue = highestValue;
         int nextScore = score;
 
         for (int dimension = 0; dimension < DIMENSION; dimension++) {
@@ -227,7 +176,7 @@ final class Board {
                         int newValue = value1 + 1;
 
                         nextState = mergeValueToState(nextState, dimension, writeIndex, newValue, actionIdType);
-                        nextMaximumValue = Math.max(nextMaximumValue, newValue);
+                        nextHighestValue = Math.max(nextHighestValue, newValue);
                         nextScore += (int) Math.pow(2D, newValue);
                         readIndex = value2ReadIndex - 1;
                     } else {
@@ -246,61 +195,23 @@ final class Board {
             }
         }
 
-        ValuedTile nextLastValuedTile = null;
-        int nextActionIdsAllowed = 0;
+        return new Board(NO_VALUED_TILES, nextState, nextValuedTileCount, INITIAL_ACTION_IDS_ALLOWED, nextHighestValue, nextScore);
+    }
 
-        if (valuedTileGenerator != null) {
-            nextLastValuedTile = valuedTileGenerator.generate(nextState, nextValuedTileCount);
-            nextState = mergeValueToState(nextState, nextLastValuedTile);
+    public Board createNext(final List<ValuedTile> valuedTiles) {
+        long nextState = state;
+        int nextValuedTileCount = valuedTileCount;
+        int nextHighestValue = highestValue;
+
+        for (ValuedTile valuedTile : valuedTiles) {
+            nextState = mergeValueToState(nextState, valuedTile);
             nextValuedTileCount++;
-            nextActionIdsAllowed = determineFromStateActionIdsAllowed(nextState);
-            nextMaximumValue = Math.max(nextMaximumValue, nextLastValuedTile.getValue());
+            nextHighestValue = Math.max(nextHighestValue, valuedTile.getValue());
         }
 
-        return new Board(nextLastValuedTile, nextState, nextValuedTileCount, nextActionIdsAllowed, nextMaximumValue, nextScore);
-    }
+        int nextActionIdsAllowed = determineFromStateAllActionIdsAllowed(nextState);
 
-    public Board generateNext(final ActionIdType actionIdType, final ValuedTileSupport valuedTileSupport) {
-        ValuedTileGenerator valuedTileGenerator = (nextState, nextValuedTileCount) -> generateValuedTile(valuedTileSupport, nextState, nextValuedTileCount);
-
-        return createNext(actionIdType, valuedTileGenerator);
-    }
-
-    public Board createNext(final ActionIdType actionIdType, final ValuedTile valuedTile) {
-        ValuedTileGenerator valuedTileGenerator = (nextState, nextValuedTileCount) -> valuedTile;
-
-        return createNext(actionIdType, valuedTileGenerator);
-    }
-
-    public Board createNextIfTileIsFree(final ActionIdType actionIdType, final ValuedTile valuedTile) {
-        ValuedTileGenerator valuedTileGenerator = (nextState, nextValuedTileCount) -> {
-            if (extractValueFromState(state, valuedTile.getId()) == EMPTY_TILE_VALUE) {
-                return valuedTile;
-            }
-
-            throw new TileInitializedException(valuedTile.getValue());
-        };
-
-        return createNext(actionIdType, valuedTileGenerator);
-    }
-
-    public Board createNextTemplate(final ActionIdType actionIdType) {
-        return createNext(actionIdType, (ValuedTileGenerator) null);
-    }
-
-    public Board createFromTemplate(final ValuedTile valuedTile) {
-        long nextState = mergeValueToState(state, valuedTile);
-        int nextValuedTileCount = valuedTileCount + 1;
-        int nextActionIdsAllowed = determineFromStateActionIdsAllowed(nextState);
-        int nextMaximumValue = Math.max(maximumValue, valuedTile.getValue());
-
-        return new Board(valuedTile, nextState, nextValuedTileCount, nextActionIdsAllowed, nextMaximumValue, score);
-    }
-
-    public Board generateFromTemplate(final ValuedTileSupport valuedTileSupport) {
-        ValuedTile valuedTile = generateValuedTile(valuedTileSupport, state, valuedTileCount);
-
-        return createFromTemplate(valuedTile);
+        return new Board(valuedTiles, nextState, nextValuedTileCount, nextActionIdsAllowed, nextHighestValue, score);
     }
 
     private static String createActionIdsAllowedText(final int actionIdsAllowed) {
@@ -333,11 +244,18 @@ final class Board {
         return actionIdsAllowedStringBuilder.toString();
     }
 
-    public void print(final PrintStream stream) {
+    public void print(final PrintStream stream, final int depth, final ActionIdType actionIdType) {
         stream.println("=============================");
+        stream.printf("depth: %d%n", depth);
         stream.printf("actions allowed: %s%n", createActionIdsAllowedText(actionIdsAllowed));
-        stream.printf("maximum value: %s%n", (int) Math.pow(2D, maximumValue));
+        stream.printf("highest value: %s%n", (int) Math.pow(2D, highestValue));
         stream.printf("score: %s%n", score);
+
+        if (actionIdType != null) {
+            stream.printf("last action: %s%n", actionIdType);
+        } else {
+            stream.printf("last action: added tile%n");
+        }
 
         for (int x = 0; x < Board.DIMENSION; x++) {
             stream.print("|");
@@ -357,10 +275,5 @@ final class Board {
         }
 
         stream.println("=============================");
-    }
-
-    @FunctionalInterface
-    interface ValuedTileGenerator {
-        ValuedTile generate(long nextState, int nextValuedTileCount);
     }
 }

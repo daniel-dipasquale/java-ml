@@ -33,11 +33,13 @@ final class SingleThreadContextParallelismSupport implements Context.Parallelism
         }
 
         try {
-            new StrategyWaitHandle(null, unhandledExceptions, true).await();
+            new StrategyWaitHandle(null, unhandledExceptions).await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 
             throw new InterruptedRuntimeException("thread was interrupted", e);
+        } finally {
+            unhandledExceptions.clear();
         }
     }
 

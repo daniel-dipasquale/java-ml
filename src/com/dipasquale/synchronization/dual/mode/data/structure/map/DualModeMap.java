@@ -145,6 +145,14 @@ public final class DualModeMap<TKey, TValue, TMapFactory extends MapFactory & Du
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof DualModeMap<?, ?, ?>) {
+            return map.equals(((DualModeMap<TKey, TValue, TMapFactory>) obj).map);
+        }
+
         return map.equals(obj);
     }
 

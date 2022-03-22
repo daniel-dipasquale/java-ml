@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.fitness.FitnessDeterminerFactory;
-import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.FitnessControllerFactory;
+import com.dipasquale.ai.common.fitness.LastValueFitnessControllerFactory;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,22 +13,20 @@ import lombok.Getter;
 @Getter
 public final class GeneralSupport {
     @Builder.Default
-    private final IntegerNumber populationSize = IntegerNumber.literal(150);
+    private final int populationSize = 150;
     @Builder.Default
     private final GenesisGenomeTemplate genesisGenomeTemplate = null;
     @Builder.Default
     private final NeatEnvironment fitnessFunction = null;
     @Builder.Default
-    private final FitnessDeterminerFactory fitnessDeterminerFactory = LastValueFitnessDeterminerFactory.getInstance();
+    private final FitnessControllerFactory fitnessControllerFactory = LastValueFitnessControllerFactory.getInstance();
 
     ContextObjectGeneralSupport create(final InitializationContext initializationContext) {
-        int populationSizeFixed = initializationContext.getIntegerSingleton(populationSize);
-
-        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSizeFixed, 20, "populationSize");
+        ArgumentValidatorSupport.ensureGreaterThanOrEqualTo(populationSize, 20, "populationSize");
         ArgumentValidatorSupport.ensureNotNull(genesisGenomeTemplate, "genesisGenomeTemplate");
         ArgumentValidatorSupport.ensureNotNull(fitnessFunction, "fitnessFunction");
-        ArgumentValidatorSupport.ensureNotNull(fitnessDeterminerFactory, "fitnessDeterminerFactory");
+        ArgumentValidatorSupport.ensureNotNull(fitnessControllerFactory, "fitnessControllerFactory");
 
-        return ContextObjectGeneralSupport.create(populationSizeFixed);
+        return ContextObjectGeneralSupport.create(populationSize);
     }
 }

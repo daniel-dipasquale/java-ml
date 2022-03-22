@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.common.openai.cartpole;
 
 import com.dipasquale.ai.common.NeuralNetwork;
-import com.dipasquale.ai.common.fitness.AverageFitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
@@ -13,7 +13,6 @@ import com.dipasquale.ai.rl.neat.GeneralSupport;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
-import com.dipasquale.ai.rl.neat.IntegerNumber;
 import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
@@ -105,11 +104,12 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     public EvaluatorSettings createSettings(final Set<String> genomeIds, final BatchingEventLoop eventLoop) {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
-                        .populationSize(IntegerNumber.literal(populationSize))
+                        .populationSize(populationSize)
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(4)
                                 .outputs(TOPOLOGY_SETTINGS_TYPE.nodeCount)
-                                .biases(List.of())
+                                .biases(List.of(1f))
+                                .hiddenLayers(List.of())
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
@@ -118,7 +118,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
 
                             return calculateFitness(genomeActivator);
                         })
-                        .fitnessDeterminerFactory(AverageFitnessDeterminerFactory.getInstance())
+                        .fitnessControllerFactory(AverageFitnessControllerFactory.getInstance())
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -133,7 +133,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                         .outputTopologyDefinition(TOPOLOGY_SETTINGS_TYPE.outputTopologyDefinition)
                         .build())
                 .metrics(MetricsSupport.builder()
-                        .type(metricsEmissionEnabled
+                        .types(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))
                         .build())

@@ -9,14 +9,9 @@ import java.util.concurrent.TimeUnit;
 public final class StrategyWaitHandle implements WaitHandle {
     private final WaitHandle waitHandle;
     private final Collection<Throwable> unhandledExceptions;
-    private final boolean reusable;
 
     private <T extends Exception> void fillUnhandledAsSuppressed(final T exception) {
         unhandledExceptions.forEach(exception::addSuppressed);
-
-        if (reusable) {
-            unhandledExceptions.clear();
-        }
     }
 
     private void failIfAnyUnhandled() {
@@ -24,7 +19,7 @@ public final class StrategyWaitHandle implements WaitHandle {
             return;
         }
 
-        RuntimeException exception = new IllegalStateException("exceptions were encountered in parallelism");
+        IllegalStateException exception = new IllegalStateException("exceptions were encountered in parallelism");
 
         fillUnhandledAsSuppressed(exception);
 
@@ -35,11 +30,11 @@ public final class StrategyWaitHandle implements WaitHandle {
     public void await()
             throws InterruptedException {
         try {
-            if (waitHandle == null) {
-                if (Thread.interrupted()) {
-                    throw new InterruptedException("thread was interrupted");
-                }
-            } else {
+            if (waitHandle == null && Thread.interrupted()) {
+                throw new InterruptedException("thread was interrupted");
+            }
+
+            if (waitHandle != null) {
                 waitHandle.await();
             }
         } catch (InterruptedException e) {

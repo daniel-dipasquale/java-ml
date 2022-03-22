@@ -10,39 +10,35 @@ import java.util.List;
 public final class Mcts<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
     private final SearchPolicy searchPolicy;
     private final EdgeFactory<TEdge> edgeFactory;
-    private final SearchNodeCache<TAction, TEdge, TState> nodeCache;
+    private final Cache<TAction, TEdge, TState> cache;
     private final SelectionPolicy<TAction, TEdge, TState> selectionPolicy;
     private final SimulationRolloutPolicy<TAction, TEdge, TState> simulationRolloutPolicy;
     private final BackPropagationPolicy<TAction, TEdge, TState, ?> backPropagationPolicy;
-    private final SearchNodeProposalStrategy<TAction, TEdge, TState> nodeProposalStrategy;
+    private final ProposalStrategy<TAction, TEdge, TState> proposalStrategy;
     private final List<ResetHandler> resetHandlers;
 
-    private SearchNode<TAction, TEdge, TState> getRootNode(final TState state) {
-        if (nodeCache != null) {
-            return nodeCache.retrieve(state);
+    private SearchNode<TAction, TEdge, TState> getRootSearchNode(final TState state) {
+        if (cache != null) {
+            return cache.retrieve(state);
         }
 
         return SearchNode.createRoot(edgeFactory, state);
     }
 
     private TAction findBestAction(final TState state) {
-        if (state.getStatusId() != MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
-            return null;
-        }
-
-        SearchNode<TAction, TEdge, TState> rootNode = getRootNode(state);
-        int rootDepth = rootNode.getState().getDepth();
+        SearchNode<TAction, TEdge, TState> rootSearchNode = getRootSearchNode(state);
+        int rootDepth = rootSearchNode.getState().getDepth();
 
         for (int simulations = 0, simulationsPlusOne = simulations + 1; simulationsPlusOne - simulations == 1 && searchPolicy.allowSelection(simulationsPlusOne, rootDepth); simulationsPlusOne++) {
-            SearchNode<TAction, TEdge, TState> selectedNode = selectionPolicy.select(simulationsPlusOne, rootNode);
+            SearchNode<TAction, TEdge, TState> selectedSearchNode = selectionPolicy.select(simulationsPlusOne, rootSearchNode);
 
-            if (selectedNode != null) {
-                if (simulationRolloutPolicy != null && selectedNode.getState().getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
-                    SearchNode<TAction, TEdge, TState> leafNode = simulationRolloutPolicy.simulate(simulations, selectedNode);
+            if (selectedSearchNode != null) {
+                if (simulationRolloutPolicy != null && selectedSearchNode.getState().getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
+                    SearchNode<TAction, TEdge, TState> leafSearchNode = simulationRolloutPolicy.simulate(simulations, selectedSearchNode);
 
-                    backPropagationPolicy.process(leafNode);
+                    backPropagationPolicy.process(leafSearchNode);
                 } else {
-                    backPropagationPolicy.process(selectedNode);
+                    backPropagationPolicy.process(selectedSearchNode);
                 }
 
                 simulations = simulationsPlusOne;
@@ -50,15 +46,15 @@ public final class Mcts<TAction extends Action, TEdge extends Edge, TState exten
         }
 
         int nextDepth = rootDepth + 1;
-        List<Iterator<SearchNode<TAction, TEdge, TState>>> childNodeIterators = List.of(rootNode.getExplorableChildren().iterator(), rootNode.getFullyExploredChildren().iterator());
-        Iterable<SearchNode<TAction, TEdge, TState>> childNodes = () -> FlatIterator.fromIterators(childNodeIterators);
-        SearchNode<TAction, TEdge, TState> bestNode = nodeProposalStrategy.proposeBestNode(rootNode.getEdge().getVisited(), nextDepth, childNodes);
+        List<Iterator<SearchNode<TAction, TEdge, TState>>> childSearchNodeIterators = List.of(rootSearchNode.getExplorableChildren().iterator(), rootSearchNode.getFullyExploredChildren().iterator());
+        Iterable<SearchNode<TAction, TEdge, TState>> childSearchNodes = () -> FlatIterator.fromIterators(childSearchNodeIterators);
+        SearchNode<TAction, TEdge, TState> bestSearchNode = proposalStrategy.proposeBestNode(rootSearchNode.getEdge().getVisited(), nextDepth, childSearchNodes);
 
-        if (bestNode == null) {
-            return null;
+        if (bestSearchNode != null) {
+            return bestSearchNode.getAction();
         }
 
-        return bestNode.getAction();
+        throw new UnableToProposeNextActionException();
     }
 
     public TAction proposeNextAction(final TState state) {

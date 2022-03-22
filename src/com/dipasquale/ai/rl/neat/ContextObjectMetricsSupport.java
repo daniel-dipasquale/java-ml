@@ -38,34 +38,34 @@ final class ContextObjectMetricsSupport implements Context.MetricsSupport {
     private DualModeIntegerValue generation;
     private DualModeMap<Integer, IterationMetrics, DualModeMapFactory> metrics;
 
-    private static MetricDatumFactory createMetricDatumFactory(final EnumSet<MetricCollectionType> type) {
-        if (!type.contains(MetricCollectionType.ENABLED) || type.contains(MetricCollectionType.SKIP_NORMAL_DISTRIBUTION_METRICS)) {
+    private static MetricDatumFactory createMetricDatumFactory(final EnumSet<MetricCollectionType> types) {
+        if (!types.contains(MetricCollectionType.ENABLED) || types.contains(MetricCollectionType.SKIP_NORMAL_DISTRIBUTION_METRICS)) {
             return EmptyValuesMetricDatumFactory.getInstance();
         }
 
         return LazyValuesMetricDatumFactory.getInstance();
     }
 
-    private static MetricsCollector createMetricsCollector(final MetricDatumFactory metricDatumFactory, final EnumSet<MetricCollectionType> type) {
-        if (!type.contains(MetricCollectionType.ENABLED)) {
+    private static MetricsCollector createMetricsCollector(final MetricDatumFactory metricDatumFactory, final EnumSet<MetricCollectionType> types) {
+        if (!types.contains(MetricCollectionType.ENABLED)) {
             return NoopMetricsCollector.getInstance();
         }
 
-        boolean clearFitnessOnAdd = type.contains(MetricCollectionType.ONLY_KEEP_LAST_FITNESS_EVALUATION);
-        boolean clearGenerationsOnAdd = type.contains(MetricCollectionType.ONLY_KEEP_LAST_GENERATION);
-        boolean clearIterationsOnAdd = type.contains(MetricCollectionType.ONLY_KEEP_LAST_ITERATION);
+        boolean clearFitnessOnAdd = types.contains(MetricCollectionType.ONLY_KEEP_LAST_FITNESS_EVALUATION);
+        boolean clearGenerationsOnAdd = types.contains(MetricCollectionType.ONLY_KEEP_LAST_GENERATION);
+        boolean clearIterationsOnAdd = types.contains(MetricCollectionType.ONLY_KEEP_LAST_ITERATION);
 
         return new ConfigurableMetricsCollector(metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd);
     }
 
     static ContextObjectMetricsSupport create(final InitializationContext initializationContext, final MetricsSupport metricsSupport, final SpeciationSupport speciationSupport) {
         ContextObjectMetricsParameters params = ContextObjectMetricsParameters.builder()
-                .enabled(metricsSupport.getType().contains(MetricCollectionType.ENABLED))
+                .enabled(metricsSupport.getTypes().contains(MetricCollectionType.ENABLED))
                 .build();
 
-        MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricsSupport.getType());
+        MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricsSupport.getTypes());
         DualModeMetricsContainer metricsContainer = new DualModeMetricsContainer(initializationContext.createMapFactory(), metricDatumFactory);
-        MetricsCollector metricsCollector = createMetricsCollector(metricDatumFactory, metricsSupport.getType());
+        MetricsCollector metricsCollector = createMetricsCollector(metricDatumFactory, metricsSupport.getTypes());
         int stagnationDropOffAge = initializationContext.getIntegerSingleton(speciationSupport.getStagnationDropOffAge());
         DualModeIntegerValue iteration = new DualModeIntegerValue(initializationContext.getConcurrencyLevel(), 1);
         DualModeIntegerValue generation = new DualModeIntegerValue(initializationContext.getConcurrencyLevel(), 1);

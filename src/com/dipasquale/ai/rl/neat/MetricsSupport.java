@@ -12,7 +12,7 @@ import java.util.EnumSet;
 @Getter
 public final class MetricsSupport {
     @Builder.Default
-    private final EnumSet<MetricCollectionType> type = EnumSet.noneOf(MetricCollectionType.class);
+    private final EnumSet<MetricCollectionType> types = EnumSet.noneOf(MetricCollectionType.class);
 
     ContextObjectMetricsSupport create(final InitializationContext initializationContext, final SpeciationSupport speciationSupport) {
         return ContextObjectMetricsSupport.create(initializationContext, this, speciationSupport);

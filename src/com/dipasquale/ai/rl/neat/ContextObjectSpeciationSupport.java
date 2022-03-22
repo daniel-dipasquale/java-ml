@@ -52,11 +52,12 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
         ProbabilityClassifier<ReproductionType> reproductionTypeClassifier = new ProbabilityClassifier<>();
 
         if (Float.compare(totalRate, 0f) > 0) {
-            reproductionTypeClassifier.addProbabilityFor(mateOnlyRate / totalRate, ReproductionType.MATE_ONLY);
-            reproductionTypeClassifier.addProbabilityFor(mutateOnlyRate / totalRate, ReproductionType.MUTATE_ONLY);
+            reproductionTypeClassifier.add(mateOnlyRate / totalRate, ReproductionType.MATE_ONLY);
+            reproductionTypeClassifier.add(mutateOnlyRate / totalRate, ReproductionType.MUTATE_ONLY);
+            reproductionTypeClassifier.add(1f - (mateOnlyRate + mutateOnlyRate) / totalRate, ReproductionType.MATE_AND_MUTATE);
+        } else {
+            reproductionTypeClassifier.add(1f, ReproductionType.MATE_AND_MUTATE);
         }
-
-        reproductionTypeClassifier.addRemainingProbabilityFor(ReproductionType.MATE_AND_MUTATE);
 
         return reproductionTypeClassifier;
     }
@@ -65,9 +66,9 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
         ProbabilityClassifier<ReproductionType> reproductionTypeClassifier = new ProbabilityClassifier<>();
 
         if (Float.compare(mutateOnlyRate, 0f) > 0) {
-            reproductionTypeClassifier.addRemainingProbabilityFor(ReproductionType.MUTATE_ONLY);
+            reproductionTypeClassifier.add(1f, ReproductionType.MUTATE_ONLY);
         } else {
-            reproductionTypeClassifier.addRemainingProbabilityFor(ReproductionType.CLONE);
+            reproductionTypeClassifier.add(1f, ReproductionType.CLONE);
         }
 
         return reproductionTypeClassifier;
@@ -130,7 +131,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
 
     static ContextObjectSpeciationSupport create(final InitializationContext initializationContext, final SpeciationSupport speciationSupport, final GeneralSupport generalSupport) {
         ContextObjectSpeciationParameters params = ContextObjectSpeciationParameters.builder()
-                .maximumSpecies(Math.min(initializationContext.getIntegerSingleton(speciationSupport.getMaximumSpecies()), initializationContext.getIntegerSingleton(generalSupport.getPopulationSize())))
+                .maximumSpecies(Math.min(initializationContext.getIntegerSingleton(speciationSupport.getMaximumSpecies()), generalSupport.getPopulationSize()))
                 .compatibilityThreshold(initializationContext.getFloatSingleton(speciationSupport.getCompatibilityThreshold()))
                 .compatibilityThresholdModifier(initializationContext.getFloatSingleton(speciationSupport.getCompatibilityThresholdModifier()))
                 .eugenicsThreshold(initializationContext.getFloatSingleton(speciationSupport.getEugenicsThreshold()))

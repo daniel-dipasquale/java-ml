@@ -4,13 +4,13 @@ import com.dipasquale.ai.rl.neat.common.NeatTestSetup;
 import com.dipasquale.ai.rl.neat.common.TaskSetup;
 import com.dipasquale.ai.rl.neat.common.cartpole.CartSinglePoleBalanceTaskSetup;
 import com.dipasquale.ai.rl.neat.common.game2048.Game2048TaskSetup;
+import com.dipasquale.ai.rl.neat.common.openai.GymClientProvider;
 import com.dipasquale.ai.rl.neat.common.openai.NeatTestSetupOpenAIGym;
 import com.dipasquale.ai.rl.neat.common.openai.cartpole.OpenAIGymCartPoleTaskSetup;
 import com.dipasquale.ai.rl.neat.common.tictactoe.TicTacToeTaskSetup;
 import com.dipasquale.ai.rl.neat.common.xor.XorTaskSetup;
 import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
-import com.dipasquale.simulation.openai.gym.client.GymClient;
 import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
 import com.dipasquale.synchronization.event.loop.BatchingEventLoopSettings;
 import org.junit.jupiter.api.AfterAll;
@@ -19,9 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,38 +45,16 @@ public final class NeatTest {
             .build();
 
     private static final BatchingEventLoop EVENT_LOOP = new BatchingEventLoop(EVENT_LOOP_SETTINGS);
-    private static GymClient GYM_CLIENT = null;
-
-    private static void startOpenAIGymServer()
-            throws IOException {
-        ProcessBuilder processBuilder = new ProcessBuilder("python", "gym_http_server.py");
-        String currentDirectory = System.getProperty("user.dir");
-        String gymHttpApiDirectory = Path.of(new File(currentDirectory).getParent(), "gym-http-api").toString();
-
-        processBuilder.directory(new File(gymHttpApiDirectory));
-        processBuilder.start();
-    }
 
     @BeforeAll
     public static void beforeAll() {
-        if (OPEN_AI_TASKS_ENABLED) { // TODO: move this away
-            try {
-                System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
-                System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-                startOpenAIGymServer();
-                GYM_CLIENT = new GymClient();
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-            }
-        }
-
         JvmWarmup.start(100_000);
     }
 
     @AfterAll
     public static void afterAll() {
-        if (GYM_CLIENT != null) {
-            GYM_CLIENT.shutdown();
+        if (OPEN_AI_TASKS_ENABLED) {
+            GymClientProvider.getGymClient().shutdown();
         }
 
         EVENT_LOOP.shutdown();
@@ -186,7 +161,9 @@ public final class NeatTest {
     public void GIVEN_a_single_instance_single_threaded_neat_trainer_WHEN_finding_the_solution_to_the_open_ai_gym_cart_pole_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetupOpenAIGym.openAIGymBuilder()
                 .task(OpenAIGymCartPoleTaskSetup.builder()
-                        .gymClient(GYM_CLIENT)
+                        .gymClient(OPEN_AI_TASKS_ENABLED
+                                ? GymClientProvider.getGymClient()
+                                : null)
                         .metricsEmissionEnabled(false)
                         .build())
                 .eventLoop(null)
@@ -196,7 +173,7 @@ public final class NeatTest {
     }
 
     @Test
-    @Timeout(value = 185_500, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 255_500, unit = TimeUnit.MILLISECONDS)
     public void GIVEN_a_single_instance_multi_threaded_neat_trainer_WHEN_finding_the_solution_to_the_tic_tac_toe_problem_THEN_evaluate_fitness_and_evolve_until_finding_the_solution() {
         assertTaskSolution(NeatTestSetup.builder()
                 .task(TicTacToeTaskSetup.builder()

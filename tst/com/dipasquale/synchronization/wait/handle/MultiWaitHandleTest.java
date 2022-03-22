@@ -75,8 +75,7 @@ public final class MultiWaitHandleTest {
     }
 
     @Test
-    public void TEST_3()
-            throws InterruptedException {
+    public void TEST_3() {
         List<WaitHandleMock> waitHandles = List.of(
                 WaitHandleMock.builder()
                         .interruptedExceptionMessage("throw interrupted exception 1")
@@ -110,8 +109,7 @@ public final class MultiWaitHandleTest {
     }
 
     @Test
-    public void TEST_4()
-            throws InterruptedException {
+    public void TEST_4() {
         List<WaitHandleMock> waitHandles = List.of(
                 WaitHandleMock.builder()
                         .build(),

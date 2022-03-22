@@ -11,13 +11,13 @@ import java.util.EnumSet;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public final class AlphaZeroNeuralNetworkDecoder<TAction extends Action, TState extends State<TAction, TState>> implements NeuralNetworkDecoder<AlphaZeroPrediction<TAction, TState>, NeuralNetworkAlphaZeroModelContext<TAction, TState>> {
+public final class AlphaZeroNeuralNetworkDecoder<TAction extends Action, TState extends State<TAction, TState>> implements NeuralNetworkDecoder<AlphaZeroPrediction<TAction, TState>, NeuralNetworkAlphaZeroContext<TAction, TState>> {
     private final int perspectiveParticipantId;
-    private final EnumSet<PredictionBehaviorType> behaviorType;
+    private final EnumSet<PredictionBehaviorType> behaviorTypes;
     private final int valueIndex;
 
     @Override
-    public AlphaZeroPrediction<TAction, TState> decode(final NeuralNetworkAlphaZeroModelContext<TAction, TState> context, final float[] output) {
-        return new NeuralNetworkAlphaZeroPrediction<>(perspectiveParticipantId, behaviorType, valueIndex, context, output);
+    public AlphaZeroPrediction<TAction, TState> decode(final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
+        return new NeuralNetworkAlphaZeroPrediction<>(perspectiveParticipantId, behaviorTypes, valueIndex, context);
     }
 }

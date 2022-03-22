@@ -20,7 +20,7 @@ public final class ValuePerRowNeuralNetworkEncoder implements NeuralNetworkEncod
 
             for (int y = 0; y < Board.DIMENSION; y++) {
                 int tileId = x * Board.DIMENSION + y;
-                int value = input.getValueFromTile(tileId);
+                int value = input.getValueInTile(tileId);
 
                 row = BIT_MANIPULATOR_SUPPORT.merge(row, y, value);
             }

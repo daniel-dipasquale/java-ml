@@ -28,11 +28,12 @@ final class ContextObjectMutationSupport implements Context.MutationSupport {
         ProbabilityClassifier<WeightMutationType> weightMutationTypeClassifier = new ProbabilityClassifier<>();
 
         if (Float.compare(totalRate, 0f) > 0) {
-            weightMutationTypeClassifier.addProbabilityFor(perturbRate / totalRate, WeightMutationType.PERTURB);
-            weightMutationTypeClassifier.addProbabilityFor(replaceRate / totalRate, WeightMutationType.REPLACE);
+            weightMutationTypeClassifier.add(perturbRate / totalRate, WeightMutationType.PERTURB);
+            weightMutationTypeClassifier.add(replaceRate / totalRate, WeightMutationType.REPLACE);
+            weightMutationTypeClassifier.add(1f - (perturbRate + replaceRate) / totalRate, WeightMutationType.NONE);
+        } else {
+            weightMutationTypeClassifier.add(1f, WeightMutationType.NONE);
         }
-
-        weightMutationTypeClassifier.addRemainingProbabilityFor(WeightMutationType.NONE);
 
         return new DualModeOutputClassifierFactory<>(new DualModeRandomFloatFactory(initializationContext.createDefaultRandomSupport()), weightMutationTypeClassifier);
     }

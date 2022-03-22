@@ -21,9 +21,9 @@ public final class ValuePerTileLineInputNeuralNetworkEncoder implements NeuralNe
 
             for (int y = 0; y < Board.DIMENSION; y++) {
                 int rowTileId = x * Board.DIMENSION + y;
-                int rowValue = input.getValueFromTile(rowTileId);
+                int rowValue = input.getValueInTile(rowTileId);
                 int columnTileId = y * Board.DIMENSION + x;
-                int columnValue = input.getValueFromTile(columnTileId);
+                int columnValue = input.getValueInTile(columnTileId);
 
                 row = BIT_MANIPULATOR_SUPPORT.merge(row, y, rowValue);
                 column = BIT_MANIPULATOR_SUPPORT.merge(column, y, columnValue);

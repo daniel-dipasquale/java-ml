@@ -9,7 +9,7 @@ import java.util.List;
 public interface AlphaZeroPrediction<TAction extends Action, TState extends State<TAction, TState>> {
     float getValue();
 
-    List<SearchNode<TAction, AlphaZeroEdge, TState>> getNodes();
+    List<SearchNode<TAction, AlphaZeroEdge, TState>> getExplorableChildren();
 
     float[] getPolicies();
 }

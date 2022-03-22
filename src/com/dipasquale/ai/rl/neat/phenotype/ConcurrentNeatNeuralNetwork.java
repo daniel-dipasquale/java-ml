@@ -94,7 +94,7 @@ final class ConcurrentNeatNeuralNetwork implements NeatNeuralNetwork, Serializab
     }
 
     private float[] activate(final NeatNeuronMemory neuronMemory, final float[] input) {
-        NeuronNavigator neuronNavigator = neuronNavigatorProvider.reference();
+        NeuronNavigator neuronNavigator = neuronNavigatorProvider.getReference();
         NeuronStateGroup neuronState = neuronStateFactory.create(neuronMemory);
 
         initializeNeurons(neuronState, input);

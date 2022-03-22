@@ -9,7 +9,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public final class FullyConnectedGenesisGenomeConnector implements GenesisGenome
         return () -> genome.getNodes().iterator(type);
     }
 
-    private static NodeLayer createNodeLayer(final Iterator<NodeGene> nodes, final int count) {
+    private static NodeLayer createNodeLayer(final int count, final Iterator<NodeGene> nodes) {
         List<NodeGene> nodesCopied = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
@@ -35,17 +34,17 @@ public final class FullyConnectedGenesisGenomeConnector implements GenesisGenome
         return new NodeLayer(nodesCopied);
     }
 
-    private LinkedList<NodeLayer> createNodeLayers(final Genome genome) {
-        LinkedList<NodeLayer> nodeLayers = new LinkedList<>();
+    private List<NodeLayer> createNodeLayers(final Genome genome) {
+        List<NodeLayer> nodeLayers = new ArrayList<>();
         Iterable<NodeGene> inputNodes = getNodes(genome, NodeGeneType.INPUT);
 
-        nodeLayers.addFirst(new NodeLayer(inputNodes));
+        nodeLayers.add(new NodeLayer(inputNodes));
 
         if (!hiddenLayers.isEmpty()) {
             Iterator<NodeGene> hiddenNodes = getNodes(genome, NodeGeneType.HIDDEN).iterator();
 
             for (int nodeCount : hiddenLayers) {
-                nodeLayers.add(createNodeLayer(hiddenNodes, nodeCount));
+                nodeLayers.add(createNodeLayer(nodeCount, hiddenNodes));
             }
         }
 
@@ -65,7 +64,7 @@ public final class FullyConnectedGenesisGenomeConnector implements GenesisGenome
     @Override
     public void setupConnections(final Genome genome, final Context.ConnectionGeneSupport connectionGeneSupport) {
         ConnectionGeneGroup connections = genome.getConnections();
-        LinkedList<NodeLayer> nodeLayers = createNodeLayers(genome);
+        List<NodeLayer> nodeLayers = createNodeLayers(genome);
 
         for (int i = 1, c = nodeLayers.size(); i < c; i++) {
             NodeLayer inputLayer = nodeLayers.get(i - 1);
@@ -81,9 +80,7 @@ public final class FullyConnectedGenesisGenomeConnector implements GenesisGenome
         }
 
         if (shouldConnectBiasNodes) {
-            nodeLayers.removeFirst();
-
-            NodeLayer outputLayer = nodeLayers.getFirst();
+            NodeLayer outputLayer = nodeLayers.get(1);
 
             for (NodeGene biasNode : getNodes(genome, NodeGeneType.BIAS)) {
                 for (NodeGene outputNode : outputLayer.nodes) {

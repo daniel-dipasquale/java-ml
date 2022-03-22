@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.common.xor;
 
-import com.dipasquale.ai.common.fitness.LastValueFitnessDeterminerFactory;
+import com.dipasquale.ai.common.fitness.LastValueFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
@@ -59,7 +59,7 @@ public final class XorTaskSetup implements TaskSetup {
     public EvaluatorSettings createSettings(final Set<String> genomeIds, final BatchingEventLoop eventLoop) {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
-                        .populationSize(IntegerNumber.literal(populationSize))
+                        .populationSize(populationSize)
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(2)
                                 .outputs(OUTPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
@@ -73,7 +73,7 @@ public final class XorTaskSetup implements TaskSetup {
 
                             return FITNESS_FUNCTION_SETTINGS_TYPE.environment.test(genomeActivator);
                         })
-                        .fitnessDeterminerFactory(LastValueFitnessDeterminerFactory.getInstance())
+                        .fitnessControllerFactory(LastValueFitnessControllerFactory.getInstance())
                         .build())
                 .parallelism(ParallelismSupport.builder()
                         .eventLoop(eventLoop)
@@ -127,7 +127,7 @@ public final class XorTaskSetup implements TaskSetup {
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
                 .metrics(MetricsSupport.builder()
-                        .type(metricsEmissionEnabled
+                        .types(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))
                         .build())

@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class TwoPlayerGameFromOneSupport<T> implements TwoPlayerGameSupport<T> {
-    private final OnePlayerGameSupport<T> support;
+    private final OnePlayerGameSupport<T> gameSupport;
 
     @Override
     public T createPlayer(final NeatNeuralNetwork neuralNetwork) {
-        return support.createPlayer(neuralNetwork);
+        return gameSupport.createPlayer(neuralNetwork);
     }
 
     @Override
@@ -21,9 +21,9 @@ final class TwoPlayerGameFromOneSupport<T> implements TwoPlayerGameSupport<T> {
     @Override
     public int play(final T player1, final T player2) {
         if (player1 != null) {
-            return support.play(player1) ? 0 : 1;
+            return gameSupport.play(player1) ? 0 : 1;
         }
 
-        return support.play(player2) ? 1 : 0;
+        return gameSupport.play(player2) ? 1 : 0;
     }
 }

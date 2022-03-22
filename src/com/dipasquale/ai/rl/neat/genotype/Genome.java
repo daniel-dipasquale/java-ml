@@ -85,30 +85,15 @@ public final class Genome implements Serializable {
     }
 
     private NodeGene getRandomNode(final Context.RandomSupport randomSupport, final NodeGeneType... types) {
-        int[] sizes = new int[types.length];
-        int total = 0;
+        ProbabilityClassifier<NodeGeneType> nodeTypeClassifier = new ProbabilityClassifier<>();
 
-        for (int i = 0; i < types.length; i++) {
-            NodeGeneType type = types[i];
+        for (NodeGeneType type : types) {
             int size = nodes.size(type);
 
-            sizes[i] = size;
-            total += size;
+            nodeTypeClassifier.add((float) size, type);
         }
 
-        ProbabilityClassifier<NodeGeneType> typeProbabilityClassifier = new ProbabilityClassifier<>();
-        float totalFixed = (float) total;
-
-        for (int i = 1; i < types.length; i++) {
-            NodeGeneType type = types[i];
-            float probability = (float) sizes[i] / totalFixed;
-
-            typeProbabilityClassifier.addProbabilityFor(probability, type);
-        }
-
-        typeProbabilityClassifier.addRemainingProbabilityFor(types[0]);
-
-        return nodes.getRandom(randomSupport, randomSupport.generateItem(typeProbabilityClassifier));
+        return nodes.getRandom(randomSupport, randomSupport.generateItem(nodeTypeClassifier));
     }
 
     private NodeGene getRandomNodeToMatch(final Context.RandomSupport randomSupport, final NodeGeneType type) {

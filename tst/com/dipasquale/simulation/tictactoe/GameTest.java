@@ -1,15 +1,10 @@
 package com.dipasquale.simulation.tictactoe;
 
+import com.dipasquale.search.mcts.BackPropagationObserver;
+import com.dipasquale.search.mcts.CacheAvailability;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
-import com.dipasquale.search.mcts.NodeCacheSettings;
-import com.dipasquale.search.mcts.SearchNode;
-import com.dipasquale.search.mcts.SelectionConfidenceCalculator;
-import com.dipasquale.search.mcts.SimulationResultObserver;
-import com.dipasquale.search.mcts.classic.ClassicEdge;
-import com.dipasquale.search.mcts.classic.ClassicMaximumSearchPolicy;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
-import com.dipasquale.search.mcts.classic.ClassicSelectionConfidenceCalculator;
-import com.dipasquale.search.mcts.classic.PrevalentActionEfficiencyCalculator;
+import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.management.ManagementFactory;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public final class GameTest {
@@ -26,37 +20,30 @@ public final class GameTest {
     private static final boolean MANUAL_TESTING_ENABLED = false;
     private static final boolean HUMAN_PLAYER_SHOULD_BE_FIRST = true;
 
-    private static MonteCarloTreeSearch<GameAction, GameState> createMcts(final int maximumSimulations, final SelectionConfidenceCalculator<ClassicEdge> selectionConfidenceCalculator, final SimulationResultObserver<GameAction, ClassicEdge, GameState> simulationResultObserver) {
+    private static MonteCarloTreeSearch<GameAction, GameState> createMcts(final int maximumSimulations, final BackPropagationObserver<GameAction, GameState> backPropagationObserver) {
         return ClassicMonteCarloTreeSearch.<GameAction, GameState>builder()
-                .searchPolicy(ClassicMaximumSearchPolicy.builder()
+                .searchPolicy(ExtendedMaximumSearchPolicy.builder()
                         .maximumSelections(maximumSimulations)
                         .maximumSimulationRolloutDepth(9)
                         .build())
-                .nodeCache(NodeCacheSettings.builder()
-                        .participants(2)
-                        .build())
-                .selectionConfidenceCalculator(selectionConfidenceCalculator)
-                .simulationResultObserver(simulationResultObserver)
-                .actionEfficiencyCalculator(PrevalentActionEfficiencyCalculator.<GameAction>builder()
-                        .winningFactor(2f)
-                        .notLosingFactor(0.5f)
-                        .build())
+                .cacheAvailability(CacheAvailability.ENABLED)
+                .backPropagationObserver(backPropagationObserver)
                 .build();
     }
 
     @Test
     public void TEST_1() {
-        StatisticsObserver statisticsObserver = new StatisticsObserver();
-        MonteCarloTreeSearch<GameAction, GameState> mcts = createMcts(255_168, null, statisticsObserver);
+        GameOutcomeStatisticsObserver gameOutcomeStatisticsObserver = new GameOutcomeStatisticsObserver();
+        MonteCarloTreeSearch<GameAction, GameState> mcts = createMcts(255_168, gameOutcomeStatisticsObserver);
 
         Assertions.assertNotNull(mcts.proposeNextAction(new GameState()));
-        Assertions.assertEquals("[[0.24361748f, 0.13706407f, 0.24361748f, 0.13706407f, 0.3877551f, 0.13706407f, 0.24361748f, 0.13706407f, 0.24361748f], [-0.16081564f, -0.3153153f, -0.16081564f, -0.3153153f, 0.012366035f, -0.3153153f, -0.16081564f, -0.3153153f, -0.16081564f], [0.24361748f, 0.13706407f, 0.24361748f, 0.13706407f, 0.3877551f, 0.13706407f, 0.24361748f, 0.13706407f, 0.24361748f], [-0.16081564f, -0.3153153f, -0.16081564f, -0.3153153f, 0.012366035f, -0.3153153f, -0.16081564f, -0.3153153f, -0.16081564f], [0.24361748f, 0.13706407f, 0.24361748f, 0.13706407f, 0.3877551f, 0.13706407f, 0.24361748f, 0.13706407f, 0.24361748f], [-0.15638208f, -0.31088084f, -0.15638208f, -0.31088084f, 0.01655629f, -0.31088084f, -0.15638208f, -0.31088084f, -0.15638208f], [0.2736842f, 0.13846155f, 0.2736842f, 0.13846155f, 0.43783784f, 0.13846155f, 0.2736842f, 0.13846155f, 0.2736842f], [0.024539877f, -0.22463769f, 0.024539877f, -0.22463769f, 0.23404256f, -0.22463769f, 0.024539877f, -0.22463769f, 0.024539877f], [0.6785714f, 0.5f, 0.6785714f, 0.5f, 0.7894737f, 0.5f, 0.6785714f, 0.5f, 0.6785714f]]", Arrays.deepToString(statisticsObserver.dataSets));
+        Assertions.assertEquals("[[0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f], [0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f], [0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.13524936f, -0.44041452f, -0.13524936f, -0.44041452f, 0.23178808f, -0.44041452f, -0.13524936f, -0.44041452f, -0.13524936f], [0.7368421f, 0.46153846f, 0.7368421f, 0.46153846f, 1.0486486f, 0.46153846f, 0.7368421f, 0.46153846f, 0.7368421f], [0.2638037f, -0.19565217f, 0.2638037f, -0.19565217f, 0.68085104f, -0.19565217f, 0.2638037f, -0.19565217f, 0.2638037f], [1.6785715f, 1.5f, 1.6785715f, 1.5f, 1.7894737f, 1.5f, 1.6785715f, 1.5f, 1.6785715f]]", Arrays.deepToString(gameOutcomeStatisticsObserver.dataSets));
     }
 
     @Test
     public void TEST_2() {
-        MctsPlayer player1 = new MctsPlayer(createMcts(50, new ClassicSelectionConfidenceCalculator(), null));
-        MctsPlayer player2 = new MctsPlayer(createMcts(1_600, new ClassicSelectionConfidenceCalculator(), null));
+        MctsPlayer player1 = new MctsPlayer(createMcts(200, null));
+        MctsPlayer player2 = new MctsPlayer(createMcts(1_600, null));
 
         for (int i = 0; i < 20; i++) {
             GameResult result = Game.play(player1, player2);
@@ -65,12 +52,6 @@ public final class GameTest {
             System.out.printf("game outcome was: %s%n", result);
             Assertions.assertTrue(outcomeId >= -1 && outcomeId <= 1);
         }
-    }
-
-    private static ActionIdModel createModel(final List<Integer> actionIds) {
-        Iterator<Integer> actionIdsIterator = actionIds.iterator();
-
-        return state -> actionIdsIterator.next();
     }
 
     @Test
@@ -109,8 +90,8 @@ public final class GameTest {
         );
 
         for (GameSetup gameSetup : gameSetups) {
-            ActionIdModelPlayer player1 = new ActionIdModelPlayer(createModel(gameSetup.player1ActionIds));
-            ActionIdModelPlayer player2 = new ActionIdModelPlayer(createModel(gameSetup.player2ActionIds));
+            ActionIdModelPlayer player1 = new ActionIdModelPlayer(new ListActionIdModel(gameSetup.player1ActionIds));
+            ActionIdModelPlayer player2 = new ActionIdModelPlayer(new ListActionIdModel(gameSetup.player2ActionIds));
             GameResult result = Game.play(player1, player2);
 
             Assertions.assertEquals(gameSetup.outcomeId, result.getOutcomeId(), String.format("actionIds: %s", Arrays.toString(result.getActionIds())));
@@ -123,8 +104,8 @@ public final class GameTest {
             return;
         }
 
-        ActionIdModelPlayer player1 = new ActionIdModelPlayer(createModel(List.of(0, 1, 2, 3, 4, 5, 7, 8)));
-        MctsPlayer player2 = new MctsPlayer(createMcts(1_600, new ClassicSelectionConfidenceCalculator(), null));
+        ActionIdModelPlayer player1 = new ActionIdModelPlayer(new ListActionIdModel(List.of(0, 1, 2, 3, 4, 5, 7, 8)));
+        MctsPlayer player2 = new MctsPlayer(createMcts(1_600, null));
 
         GameResult result = HUMAN_PLAYER_SHOULD_BE_FIRST
                 ? Game.play(player1, player2)
@@ -143,11 +124,11 @@ public final class GameTest {
         @Override
         public String toString() {
             float wonFixed = won;
-            float wonWeight = 1f;
+            float wonWeight = 2f;
             float drawnFixed = drawn;
-            float drawnWeight = 0f;
-            float lostFixed = visited - won - drawn - unfinished;
-            float lostWeight = -1f;
+            float drawnWeight = 1f;
+            float lostFixed = visited - unfinished - won - drawn;
+            float lostWeight = -2f;
             float visitedFixed = visited - unfinished;
             float result = (wonFixed * wonWeight + drawnFixed * drawnWeight + lostFixed * lostWeight) / visitedFixed;
 
@@ -156,7 +137,7 @@ public final class GameTest {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class StatisticsObserver implements SimulationResultObserver<GameAction, ClassicEdge, GameState> {
+    private static final class GameOutcomeStatisticsObserver implements BackPropagationObserver<GameAction, GameState> {
         private final DataSet[][] dataSets = createStatistics();
 
         private static DataSet[][] createStatistics() {
@@ -173,25 +154,24 @@ public final class GameTest {
         }
 
         @Override
-        public void notify(final SearchNode<GameAction, ClassicEdge, GameState> leafNode) {
-            GameState leafState = leafNode.getState();
-            int statusId = leafState.getStatusId();
-            int sequence = leafState.getDepth() - 1;
+        public void notify(final int statusId, final Iterable<GameState> states) {
+            for (GameState state : states) {
+                int sequence = state.getDepth() - 1;
 
-            for (SearchNode<GameAction, ClassicEdge, GameState> node = leafNode; sequence >= 0; node = node.getParent()) {
-                GameAction action = node.getAction();
-                DataSet dataSet = dataSets[sequence][action.getId()];
+                if (sequence >= 0) {
+                    int actionId = state.getLastAction().getId();
+                    DataSet dataSet = dataSets[sequence][actionId];
 
-                if (statusId == action.getParticipantId()) {
-                    dataSet.won++;
-                } else if (statusId == MonteCarloTreeSearch.DRAWN_STATUS_ID) {
-                    dataSet.drawn++;
-                } else if (statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
-                    dataSet.unfinished++;
+                    if (statusId == state.getParticipantId()) {
+                        dataSet.won++;
+                    } else if (statusId == MonteCarloTreeSearch.DRAWN_STATUS_ID) {
+                        dataSet.drawn++;
+                    } else if (statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
+                        dataSet.unfinished++;
+                    }
+
+                    dataSet.visited++;
                 }
-
-                dataSet.visited++;
-                sequence--;
             }
         }
     }

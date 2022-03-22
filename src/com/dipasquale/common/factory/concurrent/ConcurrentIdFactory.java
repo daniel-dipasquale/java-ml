@@ -2,7 +2,7 @@ package com.dipasquale.common.factory.concurrent;
 
 import com.dipasquale.common.concurrent.AtomicRecyclableReference;
 import com.dipasquale.common.concurrent.ConcurrentId;
-import com.dipasquale.common.concurrent.RecyclableReference;
+import com.dipasquale.common.concurrent.RecyclableReferenceFactory;
 import com.dipasquale.common.factory.IdFactory;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.ExpirationFactory;
@@ -17,7 +17,7 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId<Long>> 
     private final AtomicRecyclableReference<MajorId> recyclableMajorId;
     private final IdFactory<Long> minorIdFactory;
 
-    private static RecyclableReference.Factory<MajorId> createMajorIdFactory(final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
+    private static RecyclableReferenceFactory<MajorId> createMajorIdFactory(final ObjectFactory<ConcurrentHashMap<Long, MinorId>> minorIdContainerFactory) {
         return majorId -> new MajorId(majorId, minorIdContainerFactory.create());
     }
 
@@ -32,7 +32,7 @@ public final class ConcurrentIdFactory implements IdFactory<ConcurrentId<Long>> 
 
     @Override
     public ConcurrentId<Long> createId() {
-        MajorId majorId = recyclableMajorId.reference();
+        MajorId majorId = recyclableMajorId.getReference();
         MinorId minorId = majorId.minorIds.computeIfAbsent(minorIdFactory.createId(), MinorId::new);
 
         return new ConcurrentId<>(majorId.majorId, minorId.minorId, minorId.revisionId.getAndIncrement());

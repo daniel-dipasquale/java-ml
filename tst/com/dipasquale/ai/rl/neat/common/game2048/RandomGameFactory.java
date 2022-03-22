@@ -3,13 +3,17 @@ package com.dipasquale.ai.rl.neat.common.game2048;
 import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.random.float1.UniformRandomSupport;
 import com.dipasquale.simulation.game2048.Game;
+import com.dipasquale.simulation.game2048.Player;
 import com.dipasquale.simulation.game2048.ValuedTileSupport;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class RandomGameFactory implements ObjectFactory<Game> {
-    private final int maximumValue;
+    private final int victoryValue;
+    private final Player valuedTileAdder;
+
+    RandomGameFactory(final int maximumValue, final Player valuedTileAdder) {
+        this.victoryValue = (int) (Math.log(maximumValue) / Math.log(2D));
+        this.valuedTileAdder = valuedTileAdder;
+    }
 
     @Override
     public Game create() {
@@ -17,6 +21,6 @@ final class RandomGameFactory implements ObjectFactory<Game> {
         UniformRandomSupport valueRandomSupport = new UniformRandomSupport();
         ValuedTileSupport valuedTileSupport = new ValuedTileSupport(locationRandomSupport, valueRandomSupport);
 
-        return new Game(valuedTileSupport, maximumValue);
+        return new Game(valuedTileSupport, victoryValue, valuedTileAdder);
     }
 }
