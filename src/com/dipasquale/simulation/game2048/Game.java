@@ -1,36 +1,29 @@
 package com.dipasquale.simulation.game2048;
 
-import com.dipasquale.search.mcts.MonteCarloTreeSearch;
-import lombok.RequiredArgsConstructor;
+import com.dipasquale.common.factory.ObjectFactory;
+import com.dipasquale.search.mcts.Environment;
 
-@RequiredArgsConstructor
 public final class Game {
-    private static final boolean DEBUG = false;
-    private final ValuedTileSupport valuedTileSupport;
-    private final int victoryValue;
+    public static final float PROBABILITY_OF_SPAWNING_2 = GameState.PROBABILITY_OF_SPAWNING_2;
+    public static final int BOARD_ONE_DIMENSION_LENGTH = Board.ONE_DIMENSION_LENGTH;
+    public static final int BOARD_SQUARE_LENGTH = Board.SQUARE_LENGTH;
+    private final ObjectFactory<GameState> initialGameFactory;
     private final Player valuedTileAdder;
+
+    public Game(final ValuedTileSupport valuedTileSupport, final int victoryValue, final Player valuedTileAdder) {
+        this.initialGameFactory = () -> new GameState(valuedTileSupport, victoryValue);
+        this.valuedTileAdder = valuedTileAdder;
+    }
+
+    public static int getDisplayValue(final int value) {
+        return Board.getDisplayValue(value);
+    }
 
     public GameResult play(final Player player) {
         Player[] players = new Player[]{valuedTileAdder, player};
-        GameState state = new GameState(valuedTileSupport, victoryValue);
-        int statusId = state.getStatusId();
+        Environment<GameAction, GameState, Player> environment = new Environment<>(initialGameFactory, players);
+        GameState state = environment.interact();
 
-        for (int index = 0; statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; index = state.getNextParticipantId() - 1) {
-            GameAction action = players[index].createNextAction(state);
-
-            state = state.accept(action);
-            statusId = state.getStatusId();
-
-            if (DEBUG) {
-                state.print(System.out);
-            }
-        }
-
-        GameResult result = new GameResult(state);
-
-        valuedTileAdder.accept(result);
-        player.accept(result);
-
-        return result;
+        return new GameResult(state);
     }
 }

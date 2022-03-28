@@ -9,38 +9,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public final class Mcts<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
     private final SearchPolicy searchPolicy;
-    private final EdgeFactory<TEdge> edgeFactory;
-    private final Cache<TAction, TEdge, TState> cache;
+    private final Provider<TAction, TEdge, TState> provider;
     private final SelectionPolicy<TAction, TEdge, TState> selectionPolicy;
     private final SimulationRolloutPolicy<TAction, TEdge, TState> simulationRolloutPolicy;
     private final BackPropagationPolicy<TAction, TEdge, TState, ?> backPropagationPolicy;
     private final ProposalStrategy<TAction, TEdge, TState> proposalStrategy;
     private final List<ResetHandler> resetHandlers;
 
-    private SearchNode<TAction, TEdge, TState> getRootSearchNode(final TState state) {
-        if (cache != null) {
-            return cache.retrieve(state);
-        }
-
-        return SearchNode.createRoot(edgeFactory, state);
-    }
-
     private TAction findBestAction(final TState state) {
-        SearchNode<TAction, TEdge, TState> rootSearchNode = getRootSearchNode(state);
+        SearchNode<TAction, TEdge, TState> rootSearchNode = provider.recallOrCreate(state);
         int rootDepth = rootSearchNode.getState().getDepth();
 
         for (int simulations = 0, simulationsPlusOne = simulations + 1; simulationsPlusOne - simulations == 1 && searchPolicy.allowSelection(simulationsPlusOne, rootDepth); simulationsPlusOne++) {
             SearchNode<TAction, TEdge, TState> selectedSearchNode = selectionPolicy.select(simulationsPlusOne, rootSearchNode);
 
             if (selectedSearchNode != null) {
-                if (simulationRolloutPolicy != null && selectedSearchNode.getState().getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
-                    SearchNode<TAction, TEdge, TState> leafSearchNode = simulationRolloutPolicy.simulate(simulations, selectedSearchNode);
+                SearchNode<TAction, TEdge, TState> leafSearchNode = simulationRolloutPolicy.simulate(simulations, selectedSearchNode);
 
-                    backPropagationPolicy.process(leafSearchNode);
-                } else {
-                    backPropagationPolicy.process(selectedSearchNode);
-                }
-
+                backPropagationPolicy.process(leafSearchNode);
                 simulations = simulationsPlusOne;
             }
         }

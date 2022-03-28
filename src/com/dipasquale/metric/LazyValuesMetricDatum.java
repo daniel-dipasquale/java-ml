@@ -8,14 +8,14 @@ import java.util.List;
 final class LazyValuesMetricDatum extends AbstractMetricDatum {
     @Serial
     private static final long serialVersionUID = 6618085287572626284L;
-    private boolean valuesSorted;
+    private boolean sortedValues;
     private final List<Float> values;
-    private final List<Float> valuesReadOnly;
+    private final List<Float> readOnlyValues;
 
     private LazyValuesMetricDatum(final List<Float> values) {
-        this.valuesSorted = true;
+        this.sortedValues = true;
         this.values = values;
-        this.valuesReadOnly = Collections.unmodifiableList(values);
+        this.readOnlyValues = Collections.unmodifiableList(values);
     }
 
     LazyValuesMetricDatum() {
@@ -23,12 +23,12 @@ final class LazyValuesMetricDatum extends AbstractMetricDatum {
     }
 
     private List<Float> ensureValuesIsSorted() {
-        if (!valuesSorted) {
-            valuesSorted = true;
+        if (!sortedValues) {
+            sortedValues = true;
             Collections.sort(values);
         }
 
-        return valuesReadOnly;
+        return readOnlyValues;
     }
 
     @Override
@@ -40,7 +40,7 @@ final class LazyValuesMetricDatum extends AbstractMetricDatum {
     public void add(final float value) {
         int size = values.size();
 
-        valuesSorted = size == 0;
+        sortedValues = size == 0;
         values.add(value);
         appendStatistics(size, value);
     }
@@ -53,7 +53,7 @@ final class LazyValuesMetricDatum extends AbstractMetricDatum {
 
         int size = values.size();
 
-        valuesSorted = false;
+        sortedValues = false;
         values.addAll(other.getValues());
         mergeStatistics(size, other);
     }
@@ -62,7 +62,7 @@ final class LazyValuesMetricDatum extends AbstractMetricDatum {
     public MetricDatum createCopy() {
         LazyValuesMetricDatum metricDatum = new LazyValuesMetricDatum();
 
-        metricDatum.valuesSorted = valuesSorted;
+        metricDatum.sortedValues = sortedValues;
         metricDatum.values.addAll(values);
         metricDatum.sum = sum;
         metricDatum.minimum = minimum;
@@ -87,7 +87,7 @@ final class LazyValuesMetricDatum extends AbstractMetricDatum {
 
     @Override
     public void clear() {
-        valuesSorted = true;
+        sortedValues = true;
         values.clear();
         super.clear();
     }

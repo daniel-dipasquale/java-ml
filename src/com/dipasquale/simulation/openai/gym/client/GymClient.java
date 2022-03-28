@@ -49,12 +49,12 @@ public final class GymClient implements Closeable {
 
     private String getOrCreateInternalInstanceId(final String environmentId, final String instanceId) {
         Map<String, String> internalInstances = getOrCreateInternalInstances(environmentId);
-        String instanceIdFixed = getValidInstanceId(instanceId);
-        String internalInstanceId = internalInstances.get(instanceIdFixed);
+        String fixedInstanceId = getValidInstanceId(instanceId);
+        String internalInstanceId = internalInstances.get(fixedInstanceId);
 
         if (internalInstanceId == null) {
             internalInstanceId = client.createEnvironment(environmentId);
-            internalInstances.put(instanceIdFixed, internalInstanceId);
+            internalInstances.put(fixedInstanceId, internalInstanceId);
         }
 
         return internalInstanceId;

@@ -24,16 +24,16 @@ public final class NeatTestSetupOpenAIGym extends NeatTestSetup {
     }
 
     @Builder(access = AccessLevel.PUBLIC, builderMethodName = "openAIGymBuilder")
-    private static NeatTestSetupOpenAIGym create(final OpenAIGymTaskSetup task, final BatchingEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
+    private static NeatTestSetupOpenAIGym create(final OpenAIGymTaskSetup task, final BatchingEventLoop eventLoop, final NeatTrainerFactory trainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
         Set<String> genomeIds = eventLoop != null
                 ? Collections.newSetFromMap(new ConcurrentHashMap<>())
                 : new HashSet<>();
 
-        NeatTrainerFactory neatTrainerFactoryFixed = neatTrainerFactory == null
+        NeatTrainerFactory fixedTrainerFactory = trainerFactory == null
                 ? Neat::createTrainer
-                : neatTrainerFactory;
+                : trainerFactory;
 
-        return new NeatTestSetupOpenAIGym(task, genomeIds, eventLoop, neatTrainerFactoryFixed, shouldTestPersistence, shouldVisualizeSolution);
+        return new NeatTestSetupOpenAIGym(task, genomeIds, eventLoop, fixedTrainerFactory, shouldTestPersistence, shouldVisualizeSolution);
     }
 
     @Override

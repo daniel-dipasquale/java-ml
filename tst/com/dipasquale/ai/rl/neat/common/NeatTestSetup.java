@@ -32,16 +32,16 @@ public class NeatTestSetup {
     private final boolean shouldTestPersistence;
 
     @Builder(access = AccessLevel.PUBLIC)
-    private static NeatTestSetup create(final TaskSetup task, final BatchingEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence) {
+    private static NeatTestSetup create(final TaskSetup task, final BatchingEventLoop eventLoop, final NeatTrainerFactory trainerFactory, final boolean shouldTestPersistence) {
         Set<String> genomeIds = eventLoop == null
                 ? new HashSet<>()
                 : Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-        NeatTrainerFactory neatTrainerFactoryFixed = neatTrainerFactory == null
+        NeatTrainerFactory fixedTrainerFactory = trainerFactory == null
                 ? Neat::createTrainer
-                : neatTrainerFactory;
+                : trainerFactory;
 
-        return new NeatTestSetup(task, genomeIds, eventLoop, neatTrainerFactoryFixed, shouldTestPersistence);
+        return new NeatTestSetup(task, genomeIds, eventLoop, fixedTrainerFactory, shouldTestPersistence);
     }
 
     private static byte[] getBytes(final NeatTrainer trainer)

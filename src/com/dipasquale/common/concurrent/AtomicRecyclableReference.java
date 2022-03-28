@@ -93,14 +93,14 @@ public final class AtomicRecyclableReference<T> implements Serializable {
         }
 
         if (!tryReplaceRecycledDateTime(expirationRecord)) {
-            AtomicReferenceContainer<T> referenceContainerFixed = referenceContainer.get();
+            AtomicReferenceContainer<T> fixedReferenceContainer = referenceContainer.get();
 
-            while (referenceContainerFixed == oldReferenceContainer) {
+            while (fixedReferenceContainer == oldReferenceContainer) {
                 Thread.onSpinWait();
-                referenceContainerFixed = referenceContainer.get();
+                fixedReferenceContainer = referenceContainer.get();
             }
 
-            return referenceContainerFixed;
+            return fixedReferenceContainer;
         }
 
         if (oldReferenceContainer != null && recycledReferenceCollector != null) {

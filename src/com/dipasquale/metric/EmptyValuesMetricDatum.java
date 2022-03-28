@@ -102,17 +102,17 @@ final class EmptyValuesMetricDatum extends AbstractMetricDatum {
             int size = size();
 
             if (size > 0) {
-                float valueFixed = (float) value;
+                float fixedValue = (float) value;
 
-                if (Float.compare(metricDatum.minimum, valueFixed) == 0) {
+                if (Float.compare(metricDatum.minimum, fixedValue) == 0) {
                     return 0;
                 }
 
-                if (Float.compare(metricDatum.average, valueFixed) == 0) {
+                if (Float.compare(metricDatum.average, fixedValue) == 0) {
                     return 1;
                 }
 
-                if (Float.compare(metricDatum.maximum, valueFixed) == 0) {
+                if (Float.compare(metricDatum.maximum, fixedValue) == 0) {
                     return size - 1;
                 }
             }
@@ -125,17 +125,17 @@ final class EmptyValuesMetricDatum extends AbstractMetricDatum {
             int size = size();
 
             if (size > 0) {
-                float valueFixed = (float) value;
+                float fixedValue = (float) value;
 
-                if (Float.compare(metricDatum.maximum, valueFixed) == 0) {
+                if (Float.compare(metricDatum.maximum, fixedValue) == 0) {
                     return size - 1;
                 }
 
-                if (Float.compare(metricDatum.average, valueFixed) == 0) {
+                if (Float.compare(metricDatum.average, fixedValue) == 0) {
                     return 1;
                 }
 
-                if (Float.compare(metricDatum.minimum, valueFixed) == 0) {
+                if (Float.compare(metricDatum.minimum, fixedValue) == 0) {
                     return 0;
                 }
             }
@@ -196,7 +196,7 @@ final class EmptyValuesMetricDatum extends AbstractMetricDatum {
 
         @Override
         public boolean containsAll(final Collection<?> values) {
-            return false;
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -236,9 +236,7 @@ final class EmptyValuesMetricDatum extends AbstractMetricDatum {
 
         @Override
         public ListIterator<Float> listIterator(final int index) {
-            return createStream(0, size())
-                    .collect(Collectors.toList())
-                    .listIterator(index);
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -253,9 +251,7 @@ final class EmptyValuesMetricDatum extends AbstractMetricDatum {
 
         @Override
         public <TArray> TArray[] toArray(final TArray[] array) {
-            return createStream(0, size())
-                    .toList()
-                    .toArray(array);
+            throw new UnsupportedOperationException();
         }
 
         @Override

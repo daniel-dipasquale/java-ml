@@ -59,34 +59,34 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
             long dateTime = dateTimeSupport.now();
             float maximumFitness = state.getMaximumFitness();
 
-            float maximumFitnessFixed = generation > 1
+            float fixedMaximumFitness = generation > 1
                     ? maximumFitness
                     : lastMaximumFitness;
 
             int speciesCount = state.getSpeciesCount();
 
-            int speciesCountFixed = generation > 1
+            int fixedSpeciesCount = generation > 1
                     ? speciesCount
                     : lastSpeciesCount;
 
             Genome championGenome = state.getChampionGenome();
 
-            Genome championGenomeFixed = generation > 1
+            Genome fixedChampionGenome = generation > 1
                     ? championGenome
                     : lastChampionGenome;
 
             if (generation > 1 || iteration > 1 && lastIterationTested < iteration) {
-                int generationFixed = generation > 1
+                int fixedGeneration = generation > 1
                         ? generation - 1
                         : lastGenerationTested;
 
-                int iterationFixed = generation > 1
+                int fixedIteration = generation > 1
                         ? iteration
                         : iteration - 1;
 
                 generationTimeMetricDatum.add(dateTime - lastGenerationDateTime);
-                System.out.printf("iteration: %d, ", iterationFixed);
-                echo("generation", generationFixed, generationTimeMetricDatum, maximumFitnessFixed, speciesCountFixed, championGenomeFixed);
+                System.out.printf("iteration: %d, ", fixedIteration);
+                echo("generation", fixedGeneration, generationTimeMetricDatum, fixedMaximumFitness, fixedSpeciesCount, fixedChampionGenome);
             }
 
             lastGenerationDateTime = dateTime;
@@ -97,7 +97,7 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
                     generationTimeMetricData.add(generationTimeMetricDatum.createCopy());
                     generationTimeMetricDatum.clear();
                     iterationTimeMetricDatum.add(dateTime - lastIterationDateTime);
-                    echo("iteration", iteration - 1, iterationTimeMetricDatum, maximumFitnessFixed, speciesCountFixed, championGenomeFixed);
+                    echo("iteration", iteration - 1, iterationTimeMetricDatum, fixedMaximumFitness, fixedSpeciesCount, fixedChampionGenome);
                     System.out.printf("=========================================%n");
                 }
 

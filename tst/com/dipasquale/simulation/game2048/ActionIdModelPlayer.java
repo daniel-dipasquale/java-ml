@@ -15,7 +15,7 @@ public final class ActionIdModelPlayer implements Player {
     }
 
     @Override
-    public void accept(final GameResult result) {
-        actionIdModel.reset(result);
+    public void accept(final GameState state) {
+        actionIdModel.reset(state);
     }
 }

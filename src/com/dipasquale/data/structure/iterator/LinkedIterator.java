@@ -1,59 +1,66 @@
 package com.dipasquale.data.structure.iterator;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public final class LinkedIterator<T> implements Iterator<T> {
-    private final Navigator<T> nextItemNavigator;
-    private final Predicate<T> hasNextItemPredicate;
-    private Supplier<T> currentItemSupplier;
+    private final ItemContainer<T> currentItemContainer;
+    private final NextProducer<T> nextProducer;
+    private final Predicate<T> hasNextPredicate;
 
-    private LinkedIterator(final T rootItem, final Navigator<T> nextItemNavigator, final Predicate<T> hasNextItemPredicate) {
-        this.currentItemSupplier = () -> rootItem;
-        this.nextItemNavigator = nextItemNavigator;
-        this.hasNextItemPredicate = hasNextItemPredicate;
-    }
-
-    public static <T> Iterable<T> createIterable(final T root, final Navigator<T> nextItemGetter, final Predicate<T> hasNextItemPredicate) {
-        return () -> new LinkedIterator<>(root, nextItemGetter, hasNextItemPredicate);
-    }
-
-    public static <T> Iterable<T> createIterable(final T root, final Navigator<T> nextItemGetter) {
-        return createIterable(root, nextItemGetter, Objects::nonNull);
-    }
-
-    public static <T> Stream<T> createStream(final T root, final Navigator<T> nextItemGetter, final Predicate<T> hasNextItemPredicate) {
-        return StreamSupport.stream(createIterable(root, nextItemGetter, hasNextItemPredicate).spliterator(), false);
-    }
-
-    public static <T> Stream<T> createStream(final T root, final Navigator<T> nextItemGetter) {
-        return StreamSupport.stream(createIterable(root, nextItemGetter).spliterator(), false);
+    private LinkedIterator(final T root, final NextProducer<T> nextProducer, final Predicate<T> hasNextPredicate) {
+        this.currentItemContainer = new ItemContainer<>(root);
+        this.nextProducer = nextProducer;
+        this.hasNextPredicate = hasNextPredicate;
     }
 
     @Override
     public boolean hasNext() {
-        return hasNextItemPredicate.hasMore(currentItemSupplier.get());
+        return hasNextPredicate.hasMore(currentItemContainer.item);
     }
 
     @Override
     public T next() {
-        T currentItem = currentItemSupplier.get();
+        T currentItem = currentItemContainer.item;
 
-        currentItemSupplier = () -> nextItemNavigator.next(currentItem);
+        currentItemContainer.item = nextProducer.next(currentItem);
 
         return currentItem;
     }
 
+    public static <T> Iterable<T> createIterable(final T root, final NextProducer<T> nextProducer, final Predicate<T> hasNextItemPredicate) {
+        return () -> new LinkedIterator<>(root, nextProducer, hasNextItemPredicate);
+    }
+
+    public static <T> Iterable<T> createIterable(final T root, final NextProducer<T> nextProducer) {
+        return createIterable(root, nextProducer, Objects::nonNull);
+    }
+
+    public static <T> Stream<T> createStream(final T root, final NextProducer<T> nextProducer, final Predicate<T> hasNextItemPredicate) {
+        return StreamSupport.stream(createIterable(root, nextProducer, hasNextItemPredicate).spliterator(), false);
+    }
+
+    public static <T> Stream<T> createStream(final T root, final NextProducer<T> nextProducer) {
+        return StreamSupport.stream(createIterable(root, nextProducer).spliterator(), false);
+    }
+
     @FunctionalInterface
-    public interface Navigator<T> {
+    public interface NextProducer<T> {
         T next(T current);
     }
 
     @FunctionalInterface
     public interface Predicate<T> {
         boolean hasMore(T item);
+    }
+
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class ItemContainer<T> {
+        private T item;
     }
 }

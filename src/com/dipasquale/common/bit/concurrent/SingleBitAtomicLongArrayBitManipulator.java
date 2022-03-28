@@ -69,11 +69,11 @@ public final class SingleBitAtomicLongArrayBitManipulator implements BitManipula
     private AccumulatorAudit compareAndSwap(final long offset, final long value, final Accumulator accumulator) {
         AccumulatorAudit accumulatorAudit = new AccumulatorAudit();
         int arrayIndex = getArrayIndex(offset);
-        long valueFixed = value % 2;
+        long fixedValue = value % 2;
 
         array.accumulateAndGet(arrayIndex, createBitMask(offset), (oldMask, newMask) -> {
             accumulatorAudit.oldValue = extract(oldMask, offset);
-            accumulatorAudit.newValue = accumulator.accumulate(accumulatorAudit.oldValue, valueFixed) % 2;
+            accumulatorAudit.newValue = accumulator.accumulate(accumulatorAudit.oldValue, fixedValue) % 2;
 
             return merge(accumulatorAudit.newValue, oldMask, newMask);
         });

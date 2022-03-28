@@ -21,10 +21,10 @@ public final class TopologyMetrics implements Serializable {
     }
 
     public TopologyMetrics createCopy() {
-        MetricDatum hiddenNodesCopied = hiddenNodes.createCopy();
-        MetricDatum connectionsCopied = connections.createCopy();
+        MetricDatum copiedHiddenNodes = hiddenNodes.createCopy();
+        MetricDatum copiedConnections = connections.createCopy();
 
-        return new TopologyMetrics(hiddenNodesCopied, connectionsCopied);
+        return new TopologyMetrics(copiedHiddenNodes, copiedConnections);
     }
 
     public void clear() {

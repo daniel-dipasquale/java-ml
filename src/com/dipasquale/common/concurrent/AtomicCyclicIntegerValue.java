@@ -49,11 +49,11 @@ public final class AtomicCyclicIntegerValue implements IntegerValue, Serializabl
 
     @Override
     public int current(final int value) {
-        Pair pairFixed = createPair(offset, value, 0, maximum);
+        Pair fixedPair = createPair(offset, value, 0, maximum);
 
-        pair.set(pairFixed);
+        pair.set(fixedPair);
 
-        return pairFixed.total;
+        return fixedPair.total;
     }
 
     @Override

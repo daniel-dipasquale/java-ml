@@ -25,14 +25,14 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
 
     @Builder
     private static RoundRobinDuelNeatEnvironment create(final ContestNeatEnvironment environment, final int approximateMatchesPerGenome, final int rematches, final int eliminationRounds) {
-        int approximateMatchesPerGenomeFixed = approximateMatchesPerGenome <= 0
+        int fixedApproximateMatchesPerGenome = approximateMatchesPerGenome <= 0
                 ? Integer.MAX_VALUE
                 : approximateMatchesPerGenome;
 
-        int rematchesFixed = Math.max(rematches, 0);
-        int eliminationRoundsFixed = Math.max(eliminationRounds, 0);
+        int fixedRematches = Math.max(rematches, 0);
+        int fixedEliminationRounds = Math.max(eliminationRounds, 0);
 
-        return new RoundRobinDuelNeatEnvironment(environment, approximateMatchesPerGenomeFixed, rematchesFixed, eliminationRoundsFixed);
+        return new RoundRobinDuelNeatEnvironment(environment, fixedApproximateMatchesPerGenome, fixedRematches, fixedEliminationRounds);
     }
 
     private static void addLeagueSizeIfCompatible(final NavigableMap<Double, Integer> possibleLeagueSizes, final double leagueSizeExponent, final int populationSize) {

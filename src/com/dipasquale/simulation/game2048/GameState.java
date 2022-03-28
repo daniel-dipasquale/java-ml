@@ -3,32 +3,30 @@ package com.dipasquale.simulation.game2048;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.State;
+import com.dipasquale.search.mcts.TreeId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class GameState implements State<GameAction, GameState> {
-    private static final String INITIAL_CACHE_ID = "";
     private static final int DEFAULT_VICTORY_VALUE = 11;
     private static final int VALUED_TILE_ADDER_PARTICIPANT_ID = 1;
     static final int PLAYER_PARTICIPANT_ID = 2;
-    public static final float PROBABILITY_OF_SPAWNING_2 = 0.9f;
+    static final float PROBABILITY_OF_SPAWNING_2 = 0.9f;
+    private static final int BOARD_SQUARE_LENGTH = Board.SQUARE_LENGTH;
     private static final int MAXIMUM_ACTIONS = 4;
     private static final int MINIMUM_SPAWNING_VALUE = 1;
     private static final int MAXIMUM_SPAWNING_VALUE = 2;
-    static final int INITIAL_VALUED_TILE_COUNT = 2;
+    private static final int INITIAL_VALUED_TILE_COUNT = 2;
     private final ValuedTileSupport valuedTileSupport;
     private final int victoryValue;
     private final Board board;
-    @Getter
-    private final int depth;
     @Getter
     private final int statusId;
     @Getter
@@ -42,24 +40,27 @@ public final class GameState implements State<GameAction, GameState> {
         this.valuedTileSupport = valuedTileSupport;
         this.victoryValue = victoryValue;
         this.board = new Board();
-        this.depth = 0;
         this.statusId = MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
         this.participantId = PLAYER_PARTICIPANT_ID;
-        this.lastAction = new GameAction(null, INITIAL_CACHE_ID, MonteCarloTreeSearch.INITIAL_ACTION_ID, Board.NO_VALUED_TILES);
+        this.lastAction = new GameAction(new TreeId(), MonteCarloTreeSearch.INITIAL_ACTION_ID, Board.NO_VALUED_TILES);
     }
 
     GameState(final ValuedTileSupport valuedTileSupport) {
         this(valuedTileSupport, DEFAULT_VICTORY_VALUE);
     }
 
-    private GameState(final ValuedTileSupport valuedTileSupport, final int victoryValue, final Board board, final int depth, final int statusId, final int participantId, final GameAction lastAction) {
+    private GameState(final ValuedTileSupport valuedTileSupport, final int victoryValue, final Board board, final int statusId, final int participantId, final GameAction lastAction) {
         this.valuedTileSupport = valuedTileSupport;
         this.victoryValue = victoryValue;
         this.board = board;
-        this.depth = depth;
         this.statusId = statusId;
         this.participantId = participantId;
         this.lastAction = lastAction;
+    }
+
+    @Override
+    public int getDepth() {
+        return lastAction.getTreeId().getDepth();
     }
 
     @Override
@@ -100,17 +101,20 @@ public final class GameState implements State<GameAction, GameState> {
         return valuedTilesJoiner;
     }
 
-    private static String createInitialCacheId(final List<ValuedTile> valuedTiles) {
+    private static String createInitialTreeIdKey(final List<ValuedTile> valuedTiles) {
         StringJoiner valuedTilesJoiner = createValuedTilesJoiner(valuedTiles);
 
         return String.format("[%s]", valuedTilesJoiner);
     }
 
-    private static GameAction createInitialAction(final List<ValuedTile> valuedTiles) {
-        return new GameAction(INITIAL_CACHE_ID, createInitialCacheId(valuedTiles), MonteCarloTreeSearch.INITIAL_ACTION_ID, valuedTiles);
+    private GameAction createInitialAction(final List<ValuedTile> valuedTiles) {
+        String treeIdKey = createInitialTreeIdKey(valuedTiles);
+        TreeId treeId = lastAction.getTreeId().createChild(treeIdKey);
+
+        return new GameAction(treeId, MonteCarloTreeSearch.INITIAL_ACTION_ID, valuedTiles);
     }
 
-    public static GameAction createInitialAction(final ValuedTile valuedTile1, final ValuedTile valuedTile2) {
+    public GameAction createInitialAction(final ValuedTile valuedTile1, final ValuedTile valuedTile2) {
         if (valuedTile1.getId() < valuedTile2.getId()) {
             List<ValuedTile> valuedTiles = List.of(valuedTile1, valuedTile2);
 
@@ -123,12 +127,12 @@ public final class GameState implements State<GameAction, GameState> {
     }
 
     public GameAction generateInitialAction() {
-        int tileId1 = valuedTileSupport.generateId(0, Board.LENGTH);
-        int tileId2 = valuedTileSupport.generateId(0, Board.LENGTH - 1);
+        int tileId1 = valuedTileSupport.generateId(0, BOARD_SQUARE_LENGTH);
+        int tileId2 = valuedTileSupport.generateId(0, BOARD_SQUARE_LENGTH - 1);
         ValuedTile valuedTile1 = new ValuedTile(tileId1, generateValue(valuedTileSupport));
         ValuedTile valuedTile2;
 
-        if (tileId1 >= tileId2) {
+        if (tileId2 >= tileId1) {
             valuedTile2 = new ValuedTile(tileId2 + 1, generateValue(valuedTileSupport));
         } else {
             valuedTile2 = new ValuedTile(tileId2, generateValue(valuedTileSupport));
@@ -137,25 +141,24 @@ public final class GameState implements State<GameAction, GameState> {
         return createInitialAction(valuedTile1, valuedTile2);
     }
 
-    private static String createCacheId(final int depth, final int actionId, final List<ValuedTile> valuedTiles) {
+    private static String createTreeIdKey(final int actionId, final List<ValuedTile> valuedTiles) {
         StringJoiner valuedTilesJoiner = createValuedTilesJoiner(valuedTiles);
 
-        return String.format("%d,%d[%s]", depth, actionId, valuedTilesJoiner);
+        return String.format("%d[%s]", actionId, valuedTilesJoiner);
     }
 
-    private static GameAction createAction(final String parentCacheId, final int depth, final int actionId, List<ValuedTile> valuedTiles) {
-        String cacheId = createCacheId(depth, actionId, valuedTiles);
+    private GameAction createNextAction(final int actionId, List<ValuedTile> valuedTiles) {
+        String treeIdKey = createTreeIdKey(actionId, valuedTiles);
+        TreeId treeId = lastAction.getTreeId().createChild(treeIdKey);
 
-        return new GameAction(parentCacheId, cacheId, actionId, valuedTiles);
+        return new GameAction(treeId, actionId, valuedTiles);
     }
 
-    private GameAction createAction(final ValuedTile valuedTile) {
-        String parentCacheId = lastAction.getCacheId();
-        int nextDepth = depth + 1;
+    private GameAction createNextAction(final ValuedTile valuedTile) {
         int actionId = lastAction.getId();
         List<ValuedTile> valuedTiles = List.of(valuedTile);
 
-        return createAction(parentCacheId, nextDepth, actionId, valuedTiles);
+        return createNextAction(actionId, valuedTiles);
     }
 
     public GameAction createActionToAddValuedTile(final ValuedTile valuedTile) {
@@ -165,7 +168,7 @@ public final class GameState implements State<GameAction, GameState> {
             throw new IllegalArgumentException(message);
         }
 
-        return createAction(valuedTile);
+        return createNextAction(valuedTile);
     }
 
     private static int generateValue(final ValuedTileSupport valuedTileSupport) {
@@ -179,7 +182,7 @@ public final class GameState implements State<GameAction, GameState> {
             throw new IllegalArgumentException(message);
         }
 
-        int tileIdLogical = valuedTileSupport.generateId(0, Board.LENGTH - board.getValuedTileCount());
+        int tileIdLogical = valuedTileSupport.generateId(0, BOARD_SQUARE_LENGTH - board.getValuedTileCount());
         int tileId = -1;
 
         for (int i1 = 0, i2 = 0; tileId == -1; i1++) {
@@ -192,7 +195,7 @@ public final class GameState implements State<GameAction, GameState> {
 
         int value = generateValue(valuedTileSupport);
 
-        return createAction(new ValuedTile(tileId, value));
+        return createNextAction(new ValuedTile(tileId, value));
     }
 
     private boolean isValid(final int actionId) {
@@ -214,15 +217,12 @@ public final class GameState implements State<GameAction, GameState> {
             throw new IllegalArgumentException(message);
         }
 
-        String parentCacheId = lastAction.getCacheId();
-        int nextDepth = depth + 1;
-
-        return createAction(parentCacheId, nextDepth, actionId, Board.NO_VALUED_TILES);
+        return createNextAction(actionId, Board.NO_VALUED_TILES);
     }
 
-    private static Stream<GameAction> createAllInitialPossibleActions() {
-        return IntStream.range(0, Board.LENGTH - 1)
-                .mapToObj(tileId1 -> IntStream.range(tileId1 + 1, Board.LENGTH)
+    private Stream<GameAction> createAllInitialPossibleActions() {
+        return IntStream.range(0, BOARD_SQUARE_LENGTH - 1)
+                .mapToObj(tileId1 -> IntStream.range(tileId1 + 1, BOARD_SQUARE_LENGTH)
                         .mapToObj(tileId2 -> new InitialTileIdSet(new int[]{tileId1, tileId2})))
                 .flatMap(stream -> stream)
                 .flatMap(initialTileIdSet -> {
@@ -234,42 +234,39 @@ public final class GameState implements State<GameAction, GameState> {
 
                     return IntStream.range(0, valuedTiles.size())
                             .mapToObj(index -> {
-                                int indexFixed = index / INITIAL_VALUED_TILE_COUNT;
+                                int fixedIndex = index / INITIAL_VALUED_TILE_COUNT;
 
-                                return new InitialValuedTileSet(List.of(valuedTiles.get(indexFixed), valuedTiles.get(indexFixed + INITIAL_VALUED_TILE_COUNT)));
+                                return new InitialValuedTileSet(List.of(valuedTiles.get(fixedIndex), valuedTiles.get(fixedIndex + INITIAL_VALUED_TILE_COUNT)));
                             });
                 })
                 .map(valuedTileSet -> createInitialAction(valuedTileSet.valuedTiles));
     }
 
-    private static Stream<GameAction> createAllPossibleValuedTileAdditionActions(final String parentCacheId, final int depth, final int actionId, final Board board) {
-        return IntStream.range(0, Board.LENGTH)
+    private Stream<GameAction> createAllPossibleValuedTileAdditionActions(final int actionId, final Board board) {
+        return IntStream.range(0, BOARD_SQUARE_LENGTH)
                 .filter(tileId -> board.getValue(tileId) == Board.EMPTY_TILE_VALUE)
                 .mapToObj(tileId -> IntStream.range(MINIMUM_SPAWNING_VALUE, MAXIMUM_SPAWNING_VALUE + 1)
                         .mapToObj(value -> new ValuedTile(tileId, value))
-                        .map(valuedTile -> createAction(parentCacheId, depth, actionId, List.of(valuedTile))))
+                        .map(valuedTile -> createNextAction(actionId, List.of(valuedTile))))
                 .flatMap(stream -> stream);
     }
 
     @Override
     public Iterable<GameAction> createAllPossibleActions() {
-        if (depth == 0) {
+        if (getDepth() == 0) {
             return createAllInitialPossibleActions()::iterator;
         }
-
-        String nextParentCacheId = lastAction.getCacheId();
-        int nextDepth = depth + 1;
 
         if (isNextIntentional()) {
             return IntStream.range(0, MAXIMUM_ACTIONS)
                     .filter(board::isActionIdValid)
-                    .mapToObj(actionId -> createAction(nextParentCacheId, nextDepth, actionId, Board.NO_VALUED_TILES))
+                    .mapToObj(actionId -> createNextAction(actionId, Board.NO_VALUED_TILES))
                     ::iterator;
         }
 
         int actionId = lastAction.getId();
 
-        return createAllPossibleValuedTileAdditionActions(nextParentCacheId, nextDepth, actionId, board)::iterator;
+        return createAllPossibleValuedTileAdditionActions(actionId, board)::iterator;
     }
 
     private Board createNextBoard(final GameAction action) {
@@ -298,23 +295,22 @@ public final class GameState implements State<GameAction, GameState> {
 
     @Override
     public GameState accept(final GameAction action) {
-        if (!Objects.equals(lastAction.getCacheId(), action.getParentCacheId())) {
+        if (!action.getTreeId().isChildOf(lastAction.getTreeId())) {
             throw new IllegalArgumentException("action does not belong to the game state");
         }
 
         Board nextBoard = createNextBoard(action);
-        int nextDepth = depth + 1;
         int nextParticipantId = getNextParticipantId();
         int nextStatusId = getNextStatusId(nextBoard, nextParticipantId, victoryValue);
 
-        return new GameState(valuedTileSupport, victoryValue, nextBoard, nextDepth, nextStatusId, nextParticipantId, action);
+        return new GameState(valuedTileSupport, victoryValue, nextBoard, nextStatusId, nextParticipantId, action);
     }
 
     void print(final PrintStream stream) {
         if (lastAction.getValuedTilesAdded().isEmpty()) {
-            board.print(stream, depth, ActionIdType.from(lastAction.getId()));
+            board.print(stream, lastAction.getTreeId().getDepth(), ActionIdType.from(lastAction.getId()));
         } else {
-            board.print(stream, depth, null);
+            board.print(stream, lastAction.getTreeId().getDepth(), null);
         }
     }
 

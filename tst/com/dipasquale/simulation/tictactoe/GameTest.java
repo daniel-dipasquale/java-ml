@@ -1,7 +1,7 @@
 package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.BackPropagationObserver;
-import com.dipasquale.search.mcts.CacheAvailability;
+import com.dipasquale.search.mcts.CacheType;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
@@ -24,9 +24,10 @@ public final class GameTest {
         return ClassicMonteCarloTreeSearch.<GameAction, GameState>builder()
                 .searchPolicy(ExtendedMaximumSearchPolicy.builder()
                         .maximumSelections(maximumSimulations)
-                        .maximumSimulationRolloutDepth(9)
+                        .maximumSimulationRolloutDepth(8)
+                        .perspectiveParticipantId(null)
                         .build())
-                .cacheAvailability(CacheAvailability.ENABLED)
+                .cacheType(CacheType.AUTO_CLEAR)
                 .backPropagationObserver(backPropagationObserver)
                 .build();
     }
@@ -45,7 +46,7 @@ public final class GameTest {
         MctsPlayer player1 = new MctsPlayer(createMcts(200, null));
         MctsPlayer player2 = new MctsPlayer(createMcts(1_600, null));
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
             GameResult result = Game.play(player1, player2);
             int outcomeId = result.getOutcomeId();
 
@@ -123,14 +124,14 @@ public final class GameTest {
 
         @Override
         public String toString() {
-            float wonFixed = won;
+            float fixedWon = won;
             float wonWeight = 2f;
-            float drawnFixed = drawn;
+            float fixedDrawn = drawn;
             float drawnWeight = 1f;
-            float lostFixed = visited - unfinished - won - drawn;
+            float fixedLost = visited - unfinished - won - drawn;
             float lostWeight = -2f;
-            float visitedFixed = visited - unfinished;
-            float result = (wonFixed * wonWeight + drawnFixed * drawnWeight + lostFixed * lostWeight) / visitedFixed;
+            float fixedVisited = visited - unfinished;
+            float result = (fixedWon * wonWeight + fixedDrawn * drawnWeight + fixedLost * lostWeight) / fixedVisited;
 
             return String.format("%sf", result);
         }

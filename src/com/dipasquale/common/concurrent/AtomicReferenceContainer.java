@@ -19,31 +19,31 @@ final class AtomicReferenceContainer<T> implements Serializable {
     private final long expirationDateTime;
 
     public ReferenceContainer<T> getReferenceContainer() {
-        ReferenceContainer<T> referenceContainerFixed;
+        ReferenceContainer<T> fixedReferenceContainer;
 
         if (initialized.compareAndSet(false, true)) {
             try {
                 T reference = recyclableReferenceFactory.create(expirationDateTime);
 
-                referenceContainerFixed = new ReferenceContainer<>(reference, null, expirationDateTime);
+                fixedReferenceContainer = new ReferenceContainer<>(reference, null, expirationDateTime);
             } catch (RuntimeException e) {
-                referenceContainerFixed = new ReferenceContainer<>(null, e, expirationDateTime);
+                fixedReferenceContainer = new ReferenceContainer<>(null, e, expirationDateTime);
             } catch (Throwable e) {
                 RuntimeException exception = new RuntimeException(e.getMessage(), e);
 
-                referenceContainerFixed = new ReferenceContainer<>(null, exception, expirationDateTime);
+                fixedReferenceContainer = new ReferenceContainer<>(null, exception, expirationDateTime);
             }
 
-            referenceContainer = referenceContainerFixed;
+            referenceContainer = fixedReferenceContainer;
         } else {
-            referenceContainerFixed = referenceContainer;
+            fixedReferenceContainer = referenceContainer;
 
-            while (referenceContainerFixed == null) {
+            while (fixedReferenceContainer == null) {
                 Thread.onSpinWait();
-                referenceContainerFixed = referenceContainer;
+                fixedReferenceContainer = referenceContainer;
             }
         }
 
-        return referenceContainerFixed;
+        return fixedReferenceContainer;
     }
 }

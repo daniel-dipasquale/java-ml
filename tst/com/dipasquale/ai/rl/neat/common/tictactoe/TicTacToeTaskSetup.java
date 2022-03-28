@@ -43,7 +43,7 @@ import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
-import com.dipasquale.search.mcts.CacheAvailability;
+import com.dipasquale.search.mcts.CacheType;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroNeuralNetworkDecoder;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
 import com.dipasquale.search.mcts.alphazero.BackPropagationType;
@@ -78,7 +78,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     private static final float ROOT_EXPLORATION_PROBABILITY_NOISE_SHAPE = 0.03f;
     private static final float ROOT_EXPLORATION_PROBABILITY_NOISE_EPSILON = 0.25f;
     private static final RootExplorationProbabilityNoiseType ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE = RootExplorationProbabilityNoiseType.ENABLED;
-    private static final CacheAvailability CACHE_AVAILABILITY = CacheAvailability.ENABLED;
+    private static final CacheType CACHE_TYPE = CacheType.AUTO_CLEAR;
     private static final PopulationSettingsType POPULATION_SETTINGS_TYPE = PopulationSettingsType.VANILLA;
     private static final VectorEncodingType VECTOR_ENCODING_TYPE = VectorEncodingType.INTEGER;
     private static final InputTopologySettingsType INPUT_TOPOLOGY_SETTINGS_TYPE = InputTopologySettingsType.VALUE_PER_PLAYER;
@@ -91,12 +91,12 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     private static final int TEMPERATURE_DEPTH_THRESHOLD = 3;
     private static final int CLASSIC_MAXIMUM_SELECTIONS = 30;
     private static final int CLASSIC_MAXIMUM_SIMULATION_ROLLOUT_DEPTH = 9;
-    private static final CacheAvailability CLASSIC_CACHE_AVAILABILITY = CacheAvailability.ENABLED;
+    private static final CacheType CLASSIC_CACHE_TYPE = CacheType.AUTO_CLEAR;
 
     private static final GameSupport GAME_SUPPORT = GameSupport.builder()
             .maximumExpansions(MAXIMUM_EXPANSIONS)
             .rootExplorationProbabilityNoise(ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE.reference)
-            .cacheAvailability(CACHE_AVAILABILITY)
+            .cacheType(CACHE_TYPE)
             .encoder(INPUT_TOPOLOGY_SETTINGS_TYPE.encoder)
             .decoder(OUTPUT_TOPOLOGY_SETTINGS_TYPE.decoder)
             .valueHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
@@ -106,7 +106,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
             .temperatureDepthThreshold(TEMPERATURE_DEPTH_THRESHOLD)
             .classicMaximumSelections(CLASSIC_MAXIMUM_SELECTIONS)
             .classicMaximumSimulationRolloutDepth(CLASSIC_MAXIMUM_SIMULATION_ROLLOUT_DEPTH)
-            .classicCacheAvailability(CLASSIC_CACHE_AVAILABILITY)
+            .classicCacheType(CLASSIC_CACHE_TYPE)
             .build();
 
     private static final FitnessFunctionSettingsType FITNESS_FUNCTION_SETTINGS_TYPE = FitnessFunctionSettingsType.ACTION_SCORE;

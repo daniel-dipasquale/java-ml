@@ -14,6 +14,6 @@ public final class RandomValuedTileAdderPlayer implements Player {
     }
 
     @Override
-    public void accept(final GameResult result) {
+    public void accept(final GameState state) {
     }
 }

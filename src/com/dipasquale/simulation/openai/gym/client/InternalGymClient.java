@@ -64,15 +64,15 @@ final class InternalGymClient implements Closeable {
     }
 
     private static Map<String, String> flattenHeaders(final Map<String, List<String>> headers) {
-        Map<String, String> headersFixed = new HashMap<>();
+        Map<String, String> fixedHeaders = new HashMap<>();
 
         for (String key : headers.keySet()) {
             String value = extractHeader(headers, key);
 
-            headersFixed.put(key, value);
+            fixedHeaders.put(key, value);
         }
 
-        return headersFixed;
+        return fixedHeaders;
     }
 
     private JsonObject parseBody(final HttpResponse<InputStream> response)
@@ -125,17 +125,17 @@ final class InternalGymClient implements Closeable {
                 return responseHandler.handle(response);
             }
 
-            Map<String, String> headersFixed = Collections.unmodifiableMap(flattenHeaders(headers));
+            Map<String, String> fixedHeaders = Collections.unmodifiableMap(flattenHeaders(headers));
 
             if (success) {
-                throw new GymRequestException("the request succeeded but the body for the response was not in JSON format", statusCode, headersFixed, readBody(response));
+                throw new GymRequestException("the request succeeded but the body for the response was not in JSON format", statusCode, fixedHeaders, readBody(response));
             }
 
             if (compliant) {
-                throw new GymRequestException("the request failed", statusCode, headersFixed, readBody(response));
+                throw new GymRequestException("the request failed", statusCode, fixedHeaders, readBody(response));
             }
 
-            throw new GymRequestException("the request failed and the body for the response was not in JSON format", statusCode, headersFixed, readBody(response));
+            throw new GymRequestException("the request failed and the body for the response was not in JSON format", statusCode, fixedHeaders, readBody(response));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 

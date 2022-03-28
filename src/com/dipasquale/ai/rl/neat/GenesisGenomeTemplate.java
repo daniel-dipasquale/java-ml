@@ -37,12 +37,12 @@ public final class GenesisGenomeTemplate {
     }
 
     public GenesisGenomeConnector createConnector(final InitializationContext initializationContext, final FloatNumber.DualModeFactory weightFactory) {
-        FloatNumber.DualModeFactory weightFactoryFixed = createWeightFactory(initializationContext, weightFactory);
+        FloatNumber.DualModeFactory fixedWeightFactory = createWeightFactory(initializationContext, weightFactory);
 
         return switch (initialConnectionType) {
-            case FULLY_CONNECTED -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, weightFactoryFixed, true);
+            case FULLY_CONNECTED -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, fixedWeightFactory, true);
 
-            case FULL_CONNECTED_EXCLUDING_BIAS -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, weightFactoryFixed, false);
+            case FULL_CONNECTED_EXCLUDING_BIAS -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, fixedWeightFactory, false);
         };
     }
 }

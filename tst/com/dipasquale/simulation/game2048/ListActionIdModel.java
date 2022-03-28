@@ -18,7 +18,7 @@ public final class ListActionIdModel implements ActionIdModel {
     }
 
     @Override
-    public void reset(final GameResult result) {
+    public void reset(final GameState state) {
         actionIdsIterator = actionIds.iterator();
     }
 }

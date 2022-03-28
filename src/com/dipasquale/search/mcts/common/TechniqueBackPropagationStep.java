@@ -14,19 +14,19 @@ import lombok.RequiredArgsConstructor;
 public final class TechniqueBackPropagationStep<TAction extends Action, TEdge extends TechniqueEdge, TState extends State<TAction, TState>> implements BackPropagationStep<TAction, TEdge, TState, TechniqueBackPropagationStep.Context> {
     private final BackPropagationType type;
 
-    private static <TEdge extends TechniqueEdge> float getProbableReward(final SearchNode<?, TEdge, ?> node) {
-        int statusId = node.getState().getStatusId();
+    private float getProbableReward(final SearchNode<?, TEdge, ?> searchNode) {
+        int statusId = searchNode.getState().getStatusId();
 
-        if (statusId == node.getState().getParticipantId()) {
-            return 1f;
+        if (statusId == searchNode.getState().getParticipantId()) {
+            return TechniqueEdge.MAXIMUM_PROBABLE_REWARD;
         }
 
         return switch (statusId) {
-            case MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID -> node.getEdge().getProbableReward();
+            case MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID -> searchNode.getEdge().getProbableReward();
 
             case MonteCarloTreeSearch.DRAWN_STATUS_ID -> 0f;
 
-            default -> -1f;
+            default -> -TechniqueEdge.MAXIMUM_PROBABLE_REWARD;
         };
     }
 

@@ -2,6 +2,7 @@ package com.dipasquale.search.mcts.common;
 
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
+import com.dipasquale.search.mcts.ExpansionPolicy;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SimulationRolloutPolicy;
@@ -14,29 +15,35 @@ import lombok.RequiredArgsConstructor;
 public final class CommonSimulationRolloutPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements SimulationRolloutPolicy<TAction, TEdge, TState> {
     private final ExtendedSearchPolicy searchPolicy;
     private final TraversalPolicy<TAction, TEdge, TState> traversalPolicy;
+    private final ExpansionPolicy<TAction, TEdge, TState> expansionPolicy;
 
     @Override
     public SearchNode<TAction, TEdge, TState> simulate(final int simulations, final SearchNode<TAction, TEdge, TState> selectedSearchNode) {
-        int initialDepth = selectedSearchNode.getState().getDepth();
+        SearchNode<TAction, TEdge, TState> currentSearchNode = selectedSearchNode;
+        TState currentState = currentSearchNode.getState();
+        int initialDepth = currentState.getDepth();
 
-        for (SearchNode<TAction, TEdge, TState> currentSearchNode = selectedSearchNode; true; ) {
-            int nextDepth = currentSearchNode.getState().getDepth() + 1;
+        while (currentState.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
+            int nextDepth = currentState.getDepth() + 1;
 
-            if (!searchPolicy.allowSimulationRollout(simulations, initialDepth, nextDepth)) {
+            if (!searchPolicy.allowSimulationRollout(simulations, initialDepth, nextDepth, currentState.getParticipantId())) {
                 return currentSearchNode;
             }
 
-            SearchNode<TAction, TEdge, TState> childSearchNode = traversalPolicy.next(simulations, currentSearchNode);
+            SearchNode<TAction, TEdge, TState> childSearchNode = traversalPolicy.next(simulations, currentSearchNode); // TODO: separate the expansion policy from traversal policy
 
             if (childSearchNode == null) {
                 return currentSearchNode;
             }
 
-            currentSearchNode = childSearchNode;
-
-            if (currentSearchNode.getState().getStatusId() != MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
-                return currentSearchNode;
+            if (!childSearchNode.isExpanded()) {
+                expansionPolicy.expand(childSearchNode);
             }
+
+            currentSearchNode = childSearchNode;
+            currentState = currentSearchNode.getState();
         }
+
+        return currentSearchNode;
     }
 }

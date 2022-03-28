@@ -25,23 +25,23 @@ public final class GenerationMetrics implements Serializable {
     private final MetricDatum speciesExtinct;
 
     public GenerationMetrics createCopy(final MapFactory mapFactory) {
-        Map<String, TopologyMetrics> organismsTopologyCopied = organismsTopology.entrySet().stream()
+        Map<String, TopologyMetrics> copiedOrganismsTopology = organismsTopology.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy()));
 
-        List<FitnessMetrics> fitnessCalculationsCopied = fitnessCalculations.stream()
+        List<FitnessMetrics> copiedFitnessCalculations = fitnessCalculations.stream()
                 .map(fitnessMetrics -> fitnessMetrics.createCopy(mapFactory))
                 .collect(Collectors.toList());
 
-        MetricDatum speciesAgeCopied = speciesAge.createCopy();
-        MetricDatum speciesStagnationPeriodCopied = speciesStagnationPeriod.createCopy();
-        MetricDatum speciesStagnantCopied = speciesStagnant.createCopy();
+        MetricDatum copiedSpeciesAge = speciesAge.createCopy();
+        MetricDatum copiedSpeciesStagnationPeriod = speciesStagnationPeriod.createCopy();
+        MetricDatum copiedSpeciesStagnant = speciesStagnant.createCopy();
 
-        Map<String, MetricDatum> organismsKilledCopied = organismsKilled.entrySet().stream()
+        Map<String, MetricDatum> copiedOrganismsKilled = organismsKilled.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy()));
 
-        MetricDatum speciesExtinctCopied = speciesExtinct.createCopy();
+        MetricDatum copiedSpeciesExtinct = speciesExtinct.createCopy();
 
-        return new GenerationMetrics(organismsTopologyCopied, fitnessCalculationsCopied, speciesAgeCopied, speciesStagnationPeriodCopied, speciesStagnantCopied, organismsKilledCopied, speciesExtinctCopied);
+        return new GenerationMetrics(copiedOrganismsTopology, copiedFitnessCalculations, copiedSpeciesAge, copiedSpeciesStagnationPeriod, copiedSpeciesStagnant, copiedOrganismsKilled, copiedSpeciesExtinct);
     }
 
     public void clear() {

@@ -13,13 +13,13 @@ public final class ValuePerRowNeuralNetworkEncoder implements NeuralNetworkEncod
 
     @Override
     public float[] encode(final GameState input) {
-        int[] results = new int[Board.DIMENSION];
+        int[] results = new int[Board.ONE_DIMENSION_LENGTH];
 
-        for (int x = 0; x < Board.DIMENSION; x++) {
+        for (int x = 0; x < Board.ONE_DIMENSION_LENGTH; x++) {
             int row = 0;
 
-            for (int y = 0; y < Board.DIMENSION; y++) {
-                int tileId = x * Board.DIMENSION + y;
+            for (int y = 0; y < Board.ONE_DIMENSION_LENGTH; y++) {
+                int tileId = x * Board.ONE_DIMENSION_LENGTH + y;
                 int value = input.getValueInTile(tileId);
 
                 row = BIT_MANIPULATOR_SUPPORT.merge(row, y, value);

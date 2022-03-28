@@ -3,8 +3,6 @@ package com.dipasquale.search.mcts;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 import lombok.RequiredArgsConstructor;
 
-import java.util.stream.StreamSupport;
-
 @RequiredArgsConstructor
 public final class BackPropagationPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TContext> {
     private final BackPropagationStep<TAction, TEdge, TState, TContext> step;
@@ -33,7 +31,7 @@ public final class BackPropagationPolicy<TAction extends Action, TEdge extends E
         }
 
         if (observer != null) {
-            Iterable<TState> states = StreamSupport.stream(LinkedIterator.createIterable(leafSearchNode, SearchNode::getParent).spliterator(), false)
+            Iterable<TState> states = LinkedIterator.createStream(leafSearchNode, SearchNode::getParent)
                     .map(SearchNode::getState)
                     ::iterator;
 

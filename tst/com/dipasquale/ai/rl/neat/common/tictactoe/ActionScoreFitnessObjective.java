@@ -37,7 +37,7 @@ final class ActionScoreFitnessObjective {
                 {1.6785715f, 1.5f, 1.6785715f, 1.5f, 1.7894737f, 1.5f, 1.6785715f, 1.5f, 1.6785715f}
         };
 
-        float[][] actionScoresFixed = new float[actionScores.length][actionScores[0].length];
+        float[][] fixedActionScores = new float[actionScores.length][actionScores[0].length];
 
         for (int i1 = 0, c1 = actionScores.length, c2 = actionScores[0].length; i1 < c1; i1++) {
             float minimum = Float.MAX_VALUE;
@@ -56,11 +56,11 @@ final class ActionScoreFitnessObjective {
             }
 
             for (int i2 = 0; i2 < c2; i2++) {
-                actionScoresFixed[i1][i2] = calculateProportionalValue(actionScores[i1][i2], minimum, maximum);
+                fixedActionScores[i1][i2] = calculateProportionalValue(actionScores[i1][i2], minimum, maximum);
             }
         }
 
-        return actionScoresFixed;
+        return fixedActionScores;
     }
 
     private static float[] play(final Player player1, final Player player2) {
@@ -84,11 +84,11 @@ final class ActionScoreFitnessObjective {
             }
         }
 
-        float player1ActionCountFixed = (float) player1ActionCount;
-        float player2ActionCountFixed = (float) player2ActionCount;
+        float fixedPlayer1ActionCount = (float) player1ActionCount;
+        float fixedPlayer2ActionCount = (float) player2ActionCount;
 
-        player1ActionScore /= player1ActionCountFixed;
-        player2ActionScore /= player2ActionCountFixed;
+        player1ActionScore /= fixedPlayer1ActionCount;
+        player2ActionScore /= fixedPlayer2ActionCount;
 
         return switch (outcomeId) {
             case 0 -> new float[]{3f + player1ActionScore, player2ActionScore};

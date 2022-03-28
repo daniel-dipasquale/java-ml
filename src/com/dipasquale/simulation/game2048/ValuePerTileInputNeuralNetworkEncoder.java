@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 public final class ValuePerTileInputNeuralNetworkEncoder implements NeuralNetworkEncoder<GameState> {
     @Override
     public float[] encode(final GameState input) {
-        float[] results = new float[Board.LENGTH];
+        float[] results = new float[Board.SQUARE_LENGTH];
 
-        for (int x = 0; x < Board.LENGTH; x++) {
+        for (int x = 0; x < Board.SQUARE_LENGTH; x++) {
             results[x] = (float) input.getValueInTile(x);
         }
 

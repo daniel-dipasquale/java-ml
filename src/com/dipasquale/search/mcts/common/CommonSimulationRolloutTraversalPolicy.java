@@ -40,6 +40,10 @@ final class CommonSimulationRolloutTraversalPolicy<TAction extends Action, TEdge
         int index = randomSupport.next(0, explorableSize);
         SearchNode<TAction, TEdge, TState> explorableChild = explorableChildren.get(index);
 
+        if (explorableChild.getState() == null) {
+            explorableChild.initializeState();
+        }
+
         searchNode.setSelectedExplorableChildIndex(index);
 
         return explorableChild;

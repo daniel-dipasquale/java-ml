@@ -25,13 +25,13 @@ public final class FullyConnectedGenesisGenomeConnector implements GenesisGenome
     }
 
     private static NodeLayer createNodeLayer(final int count, final Iterator<NodeGene> nodes) {
-        List<NodeGene> nodesCopied = new ArrayList<>();
+        List<NodeGene> copiedNodes = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
-            nodesCopied.add(nodes.next());
+            copiedNodes.add(nodes.next());
         }
 
-        return new NodeLayer(nodesCopied);
+        return new NodeLayer(copiedNodes);
     }
 
     private List<NodeLayer> createNodeLayers(final Genome genome) {

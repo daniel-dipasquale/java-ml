@@ -35,7 +35,7 @@ import com.dipasquale.ai.rl.neat.phenotype.DoubleSolutionNeuronLayerTopologyDefi
 import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
-import com.dipasquale.search.mcts.CacheAvailability;
+import com.dipasquale.search.mcts.CacheType;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroNeuralNetworkDecoder;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
 import com.dipasquale.search.mcts.alphazero.BackPropagationType;
@@ -45,14 +45,22 @@ import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSetti
 import com.dipasquale.search.mcts.common.CPuctCalculator;
 import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
 import com.dipasquale.search.mcts.common.ValueHeuristic;
+import com.dipasquale.simulation.game2048.AverageValuedTileValueHeuristic;
+import com.dipasquale.simulation.game2048.FreeTileValueHeuristic;
 import com.dipasquale.simulation.game2048.GameAction;
+import com.dipasquale.simulation.game2048.GameExplorationProbabilityCalculator;
 import com.dipasquale.simulation.game2048.GameState;
+import com.dipasquale.simulation.game2048.MonotonicityValueHeuristic;
 import com.dipasquale.simulation.game2048.Player;
 import com.dipasquale.simulation.game2048.RandomValuedTileAdderPlayer;
+import com.dipasquale.simulation.game2048.TwinValuedTileValueHeuristic;
+import com.dipasquale.simulation.game2048.UniformityValueHeuristic;
 import com.dipasquale.simulation.game2048.ValuePerRowNeuralNetworkEncoder;
 import com.dipasquale.simulation.game2048.ValuePerTileInputNeuralNetworkEncoder;
 import com.dipasquale.simulation.game2048.ValuePerTileLineInputNeuralNetworkEncoder;
 import com.dipasquale.simulation.game2048.VectorEncodingType;
+import com.dipasquale.simulation.game2048.WeightedBoardType;
+import com.dipasquale.simulation.game2048.WeightedBoardValueHeuristic;
 import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -71,24 +79,25 @@ public final class Game2048TaskSetup implements TaskSetup {
     private static final float ROOT_EXPLORATION_PROBABILITY_NOISE_SHAPE = 0.03f;
     private static final float ROOT_EXPLORATION_PROBABILITY_NOISE_EPSILON = 0.25f;
     private static final RootExplorationProbabilityNoiseType ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE = RootExplorationProbabilityNoiseType.NONE;
-    private static final CacheAvailability CACHE_AVAILABILITY = CacheAvailability.ENABLED;
+    private static final CacheType CACHE_TYPE = CacheType.AUTO_CLEAR;
     private static final PopulationSettingsType POPULATION_SETTINGS_TYPE = PopulationSettingsType.VANILLA;
     private static final VectorEncodingType VECTOR_ENCODING_TYPE = VectorEncodingType.INTEGER;
     private static final InputTopologySettingsType INPUT_TOPOLOGY_SETTINGS_TYPE = InputTopologySettingsType.VALUE_PER_ROW;
     private static final EnumSet<PredictionBehaviorType> PREDICTION_BEHAVIOR_TYPES = EnumSet.noneOf(PredictionBehaviorType.class);
     private static final OutputTopologySettingsType OUTPUT_TOPOLOGY_SETTINGS_TYPE = OutputTopologySettingsType.DOUBLE;
-    private static final ValueHeuristicSettingsType VALUE_HEURISTIC_SETTINGS_TYPE = ValueHeuristicSettingsType.HIGHEST_VALUED_TILE_ON_CORNER;
+    private static final ValueHeuristicSettingsType VALUE_HEURISTIC_SETTINGS_TYPE = ValueHeuristicSettingsType.AVERAGE_VALUED_TILE;
     private static final float C_PUCT_CONSTANT = 1f;
     private static final CPuctCalculatorType C_PUCT_CALCULATOR_TYPE = CPuctCalculatorType.CONSTANT;
     private static final BackPropagationType BACK_PROPAGATION_TYPE = BackPropagationType.IDENTITY;
     private static final int TEMPERATURE_DEPTH_THRESHOLD = 90;
-    private static final int MAXIMUM_VALUE = 512;
-    private static final RandomGameFactory GAME_FACTORY = new RandomGameFactory(MAXIMUM_VALUE, new RandomValuedTileAdderPlayer());
+    private static final int VICTORY_VALUE = 11;
+    private static final WeightedBoardType WEIGHTED_BOARD_TYPE = WeightedBoardType.SNAKE_SHAPE;
+    private static final RandomGameFactory GAME_FACTORY = new RandomGameFactory(VICTORY_VALUE, new RandomValuedTileAdderPlayer());
 
     private static final RandomOutcomeGameSupport GAME_SUPPORT = RandomOutcomeGameSupport.builder()
             .maximumExpansions(MAXIMUM_EXPANSIONS)
             .rootExplorationProbabilityNoise(ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE.reference)
-            .cacheAvailability(CACHE_AVAILABILITY)
+            .cacheType(CACHE_TYPE)
             .encoder(INPUT_TOPOLOGY_SETTINGS_TYPE.encoder)
             .decoder(OUTPUT_TOPOLOGY_SETTINGS_TYPE.decoder)
             .valueHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
@@ -266,9 +275,12 @@ public final class Game2048TaskSetup implements TaskSetup {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum ValueHeuristicSettingsType {
         NONE(null),
-        TWIN_VALUED_TILE(new TwinValuedTileValueHeuristic()),
-        AVERAGE_VALUED_TILE(AverageValuedTileObjective.createValueHeuristic()),
-        HIGHEST_VALUED_TILE_ON_CORNER(new HighestValuedTileOnCornerValueHeuristic());
+        WEIGHTED_BOARD(new WeightedBoardValueHeuristic(WEIGHTED_BOARD_TYPE)),
+        FREE_TILE(FreeTileValueHeuristic.getInstance()),
+        MONOTONICITY(MonotonicityValueHeuristic.getInstance()),
+        TWIN_VALUED_TILE(TwinValuedTileValueHeuristic.getInstance()),
+        UNIFORMITY(UniformityValueHeuristic.getInstance()),
+        AVERAGE_VALUED_TILE(AverageValuedTileValueHeuristic.getInstance());
 
         private final ValueHeuristic<GameAction, GameState> reference;
     }
@@ -284,7 +296,7 @@ public final class Game2048TaskSetup implements TaskSetup {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum EnvironmentSettingsType {
         SCORE_BY_VALUED_TILE_COUNT(new ScoreByValuedTileCountEnvironment(GAME_SUPPORT)),
-        AVERAGE_VALUED_TILE(AverageValuedTileObjective.createEnvironment(GAME_SUPPORT));
+        AVERAGE_VALUED_TILE(new AverageValuedTileEnvironment(GAME_SUPPORT));
 
         private final IsolatedNeatEnvironment reference;
     }

@@ -4,7 +4,7 @@ import com.dipasquale.ai.common.NeuralNetworkDecoder;
 import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.rl.neat.common.TwoPlayerGameSupport;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetwork;
-import com.dipasquale.search.mcts.CacheAvailability;
+import com.dipasquale.search.mcts.CacheType;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroMaximumSearchPolicy;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 final class GameSupport implements TwoPlayerGameSupport<Player> {
     private final int maximumExpansions;
     private final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise;
-    private final CacheAvailability cacheAvailability;
+    private final CacheType cacheType;
     private final NeuralNetworkEncoder<GameState> encoder;
     private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroContext<GameAction, GameState>> decoder;
     private final ValueHeuristic<GameAction, GameState> valueHeuristic;
@@ -43,7 +43,7 @@ final class GameSupport implements TwoPlayerGameSupport<Player> {
     private final int temperatureDepthThreshold;
     private final int classicMaximumSelections;
     private final int classicMaximumSimulationRolloutDepth;
-    private final CacheAvailability classicCacheAvailability;
+    private final CacheType classicCacheType;
 
     @Override
     public Player createPlayer(final NeatNeuralNetwork neuralNetwork) {
@@ -53,7 +53,7 @@ final class GameSupport implements TwoPlayerGameSupport<Player> {
                                 .maximumExpansions(maximumExpansions)
                                 .build())
                         .rootExplorationProbabilityNoise(rootExplorationProbabilityNoise)
-                        .cacheAvailability(cacheAvailability)
+                        .cacheType(cacheType)
                         .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, valueHeuristic, policyCalculator))
                         .cpuctCalculator(cpuctCalculator)
                         .backPropagationType(backPropagationType)
@@ -72,7 +72,7 @@ final class GameSupport implements TwoPlayerGameSupport<Player> {
                                 .maximumSelections(classicMaximumSelections)
                                 .maximumSimulationRolloutDepth(classicMaximumSimulationRolloutDepth)
                                 .build())
-                        .cacheAvailability(classicCacheAvailability)
+                        .cacheType(classicCacheType)
                         .build())
                 .build();
     }

@@ -6,11 +6,11 @@ import java.util.List;
 public interface ResetHandler {
     void reset();
 
-    static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> List<ResetHandler> create(final Cache<TAction, TEdge, TState> cache) {
-        if (cache == null) {
+    static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> List<ResetHandler> create(final Provider<TAction, TEdge, TState> provider) {
+        if (!provider.isAllowedToCollect()) {
             return List.of();
         }
 
-        return List.of(cache::clear);
+        return List.of(provider::clear);
     }
 }

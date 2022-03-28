@@ -1,17 +1,14 @@
-package com.dipasquale.ai.rl.neat.common.game2048;
+package com.dipasquale.simulation.game2048;
 
 import com.dipasquale.search.mcts.common.ExplorationProbabilityCalculator;
-import com.dipasquale.simulation.game2048.GameAction;
-import com.dipasquale.simulation.game2048.GameState;
-import com.dipasquale.simulation.game2048.ValuedTile;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-final class GameExplorationProbabilityCalculator implements ExplorationProbabilityCalculator<GameAction> {
-    private static final float[] EXPLORATION_PROBABILITIES = {GameState.PROBABILITY_OF_SPAWNING_2, 1f - GameState.PROBABILITY_OF_SPAWNING_2};
+public final class GameExplorationProbabilityCalculator implements ExplorationProbabilityCalculator<GameAction> {
+    private static final float[] EXPLORATION_PROBABILITIES = {Game.PROBABILITY_OF_SPAWNING_2, 1f - Game.PROBABILITY_OF_SPAWNING_2};
     private static final GameExplorationProbabilityCalculator INSTANCE = new GameExplorationProbabilityCalculator();
 
     public static GameExplorationProbabilityCalculator getInstance() {

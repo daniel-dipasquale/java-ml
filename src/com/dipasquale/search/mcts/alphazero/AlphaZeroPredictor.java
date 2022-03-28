@@ -6,5 +6,5 @@ import com.dipasquale.search.mcts.State;
 
 @FunctionalInterface
 public interface AlphaZeroPredictor<TAction extends Action, TState extends State<TAction, TState>> {
-    float[] predict(SearchNode<TAction, AlphaZeroEdge, TState> node);
+    float[] predict(SearchNode<TAction, AlphaZeroEdge, TState> searchNode);
 }

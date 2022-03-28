@@ -8,13 +8,13 @@ final class ExplicitDelayEventLoopFactory implements EventLoopFactory {
 
     @Override
     public EventLoop create(final String name, final EventLoopParams params, final EventLoop entryPoint) {
-        ExplicitDelayEventLoopParams paramsFixed = ExplicitDelayEventLoopParams.builder()
+        ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
                 .eventLoopRecords(new PriorityQueue<>(COMPARATOR))
                 .executorService(params.getExecutorService())
                 .dateTimeSupport(params.getDateTimeSupport())
                 .errorHandler(params.getErrorHandler())
                 .build();
 
-        return new ExplicitDelayEventLoop(name, paramsFixed, entryPoint);
+        return new ExplicitDelayEventLoop(name, fixedParams, entryPoint);
     }
 }

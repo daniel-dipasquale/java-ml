@@ -4,26 +4,21 @@ import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
+import com.dipasquale.search.mcts.ExpansionPolicy;
 import com.dipasquale.search.mcts.State;
-import com.dipasquale.search.mcts.TraversalPolicy;
 import lombok.RequiredArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 public final class CommonSimulationRolloutPolicyFactory<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements ObjectFactory<CommonSimulationRolloutPolicy<TAction, TEdge, TState>> {
     private final ExtendedSearchPolicy searchPolicy;
-    private final ExpanderTraversalPolicy<TAction, TEdge, TState> expanderTraversalPolicy;
     private final RandomSupport randomSupport;
+    private final SelectionType selectionType;
+    private final ExpansionPolicy<TAction, TEdge, TState> expansionPolicy;
 
     @Override
     public CommonSimulationRolloutPolicy<TAction, TEdge, TState> create() {
-        List<TraversalPolicy<TAction, TEdge, TState>> simulationRolloutPolicies = new ArrayList<>();
+        CommonSimulationRolloutTraversalPolicy<TAction, TEdge, TState> intentionalTraversalPolicy = new CommonSimulationRolloutTraversalPolicy<>(randomSupport);
 
-        simulationRolloutPolicies.add(expanderTraversalPolicy);
-        simulationRolloutPolicies.add(new CommonSimulationRolloutTraversalPolicy<>(randomSupport));
-
-        return new CommonSimulationRolloutPolicy<>(searchPolicy, new FirstFoundTraversalPolicy<>(simulationRolloutPolicies));
+        return new CommonSimulationRolloutPolicy<>(searchPolicy, selectionType.createTraversalPolicy(intentionalTraversalPolicy), expansionPolicy);
     }
 }

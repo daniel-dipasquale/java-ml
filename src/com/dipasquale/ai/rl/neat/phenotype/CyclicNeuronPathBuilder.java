@@ -84,13 +84,13 @@ final class CyclicNeuronPathBuilder implements NeuronPathBuilder, Serializable {
                         NeuronPath sourceNeuronPath = orderingNeuronPaths.get(sourceNeuronPathId);
 
                         if ((sourceNeuronPath == null || !sourceNeuronPath.ordered) && !orderedNeuronIds.contains(sourceNeuronPathId)) {
-                            NeuronPath sourceNeuronPathFixed = getOrCreatePath(sourceNeuronPath, sourceNeuronPathId);
+                            NeuronPath fixedSourceNeuronPath = getOrCreatePath(sourceNeuronPath, sourceNeuronPathId);
 
-                            orderingNeuronPaths.putLast(sourceNeuronPathId, sourceNeuronPathFixed);
+                            orderingNeuronPaths.putLast(sourceNeuronPathId, fixedSourceNeuronPath);
                         } else if (sourceNeuronPath != null && sourceNeuronPath.ordered) {
-                            NeuronPath sourceNeuronPathFixed = createNextPath(sourceNeuronPathId);
+                            NeuronPath fixedSourceNeuronPath = createNextPath(sourceNeuronPathId);
 
-                            orderingNeuronPaths.putLast(sourceNeuronPathFixed.id, sourceNeuronPathFixed);
+                            orderingNeuronPaths.putLast(fixedSourceNeuronPath.id, fixedSourceNeuronPath);
                         }
                     }
                 }

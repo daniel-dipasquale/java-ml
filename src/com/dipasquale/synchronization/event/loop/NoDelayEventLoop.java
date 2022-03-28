@@ -14,14 +14,14 @@ final class NoDelayEventLoop implements EventLoop {
     private final ExplicitDelayEventLoop eventLoop;
 
     NoDelayEventLoop(final String name, final EventLoopParams params, final EventLoop entryPoint) {
-        ExplicitDelayEventLoopParams paramsFixed = ExplicitDelayEventLoopParams.builder()
+        ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
                 .eventLoopRecords(new LinkedList<>())
                 .executorService(params.getExecutorService())
                 .dateTimeSupport(ZERO_DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().timeUnit()))
                 .errorHandler(params.getErrorHandler())
                 .build();
 
-        this.eventLoop = new ExplicitDelayEventLoop(name, paramsFixed, entryPoint);
+        this.eventLoop = new ExplicitDelayEventLoop(name, fixedParams, entryPoint);
     }
 
     private static Map<TimeUnit, ZeroDateTimeSupport> createZeroDateTimeSupports() {

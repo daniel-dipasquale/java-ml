@@ -30,8 +30,8 @@ public final class Species implements Serializable {
     private Organism representativeOrganism;
     @EqualsAndHashCode.Include
     private List<Organism> organisms;
-    private List<Organism> organismsReadOnly;
-    private boolean organismsSorted;
+    private List<Organism> readOnlyOrganisms;
+    private boolean areOrganismsSorted;
     @EqualsAndHashCode.Include
     private final PopulationState populationState;
     @Getter
@@ -55,23 +55,23 @@ public final class Species implements Serializable {
     }
 
     public List<Organism> getOrganisms() {
-        return organismsReadOnly;
+        return readOnlyOrganisms;
     }
 
     private void setOrganisms(final List<Organism> value) {
         organisms = value;
-        organismsReadOnly = Collections.unmodifiableList(value);
+        readOnlyOrganisms = Collections.unmodifiableList(value);
     }
 
     private void initializeOrganisms(final Organism organism) {
         representativeOrganism = organism;
         setOrganisms(Lists.create(organism));
-        organismsSorted = true;
+        areOrganismsSorted = true;
     }
 
     public void add(final Organism organism) {
         organisms.add(organism);
-        organismsSorted = false;
+        areOrganismsSorted = false;
     }
 
     public int getAge() {
@@ -79,16 +79,16 @@ public final class Species implements Serializable {
     }
 
     private float updateAllFitness(final OrganismFitness organismFitness) {
-        float fitnessTotal = organisms.stream()
+        float totalFitness = organisms.stream()
                 .map(organismFitness::getOrUpdate)
                 .reduce(0f, Float::sum);
 
-        float sharedFitnessFixed = fitnessTotal / organisms.size();
+        float fixedSharedFitness = totalFitness / organisms.size();
 
-        sharedFitness = sharedFitnessFixed;
+        sharedFitness = fixedSharedFitness;
 
-        if (Float.compare(sharedFitnessFixed, maximumSharedFitness) > 0) {
-            maximumSharedFitness = sharedFitnessFixed;
+        if (Float.compare(fixedSharedFitness, maximumSharedFitness) > 0) {
+            maximumSharedFitness = fixedSharedFitness;
             improvedAtAge = getAge();
         }
 
@@ -110,8 +110,8 @@ public final class Species implements Serializable {
     }
 
     private List<Organism> ensureOrganismsIsSorted() {
-        if (!organismsSorted) {
-            organismsSorted = true;
+        if (!areOrganismsSorted) {
+            areOrganismsSorted = true;
             Collections.sort(organisms);
         }
 
@@ -215,17 +215,17 @@ public final class Species implements Serializable {
     }
 
     public List<Organism> restart(final Context.RandomSupport randomSupport, final DequeSet<Organism> organismsTaken) {
-        List<Organism> organismsFixed = organisms.stream()
+        List<Organism> fixedOrganisms = organisms.stream()
                 .filter(organism -> !organismsTaken.contains(organism))
                 .collect(Collectors.toList());
 
-        int index = randomSupport.generateIndex(organismsFixed.size());
-        Organism representativeOrganismFixed = organismsFixed.remove(index);
+        int index = randomSupport.generateIndex(fixedOrganisms.size());
+        Organism fixedRepresentativeOrganism = fixedOrganisms.remove(index);
 
-        initializeOrganisms(representativeOrganismFixed);
+        initializeOrganisms(fixedRepresentativeOrganism);
         sharedFitness = 0f;
 
-        return organismsFixed;
+        return fixedOrganisms;
     }
 
     @FunctionalInterface

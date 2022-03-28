@@ -113,17 +113,17 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
     public <TArray> TArray[] toArray(final TArray[] array) {
         int size = size();
 
-        TArray[] arrayFixed = array.length < size
+        TArray[] fixedArray = array.length < size
                 ? (TArray[]) Array.newInstance(array.getClass().getComponentType(), size)
                 : array;
 
         int i = 0;
 
         for (T item : this) {
-            arrayFixed[i++] = (TArray) item;
+            fixedArray[i++] = (TArray) item;
         }
 
-        return arrayFixed;
+        return fixedArray;
     }
 
     @Override

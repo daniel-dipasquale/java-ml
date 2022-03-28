@@ -148,9 +148,9 @@ final class ContextObjectMetricsSupport implements Context.MetricsSupport {
     @Override
     public MetricsViewer createMetricsViewer() {
         Map<Integer, IterationMetrics> currentIterations = createMap(iteration.current(), mergeIterationsMetrics());
-        Map<Integer, IterationMetrics> metricsFixed = new UnionMap<>(currentIterations, metrics);
+        Map<Integer, IterationMetrics> fixedMetrics = new UnionMap<>(currentIterations, metrics);
 
-        return new MetricsViewer(metricsFixed, metricDatumFactory);
+        return new MetricsViewer(fixedMetrics, metricDatumFactory);
     }
 
     public void save(final SerializableStateGroup stateGroup) {

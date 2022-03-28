@@ -35,11 +35,11 @@ public final class NeatTrainingPolicies implements NeatTrainingPolicy, Serializa
 
     @Override
     public NeatTrainingPolicy createClone() {
-        List<NeatTrainingPolicy> trainingPoliciesFixed = trainingPolicies.stream()
+        List<NeatTrainingPolicy> fixedTrainingPolicies = trainingPolicies.stream()
                 .map(NeatTrainingPolicy::createClone)
                 .collect(Collectors.toList());
 
-        return new NeatTrainingPolicies(trainingPoliciesFixed);
+        return new NeatTrainingPolicies(fixedTrainingPolicies);
     }
 
     public static NeatTrainingPolicies.Builder builder() {

@@ -141,12 +141,12 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
                 .interSpeciesMatingRate(initializationContext.getFloatSingleton(speciationSupport.getInterSpeciesMatingRate()))
                 .build();
 
-        float weightDifferenceCoefficientFixed = initializationContext.getFloatSingleton(speciationSupport.getWeightDifferenceCoefficient());
-        float disjointCoefficientFixed = initializationContext.getFloatSingleton(speciationSupport.getDisjointCoefficient());
-        float excessCoefficientFixed = initializationContext.getFloatSingleton(speciationSupport.getExcessCoefficient());
+        float fixedWeightDifferenceCoefficient = initializationContext.getFloatSingleton(speciationSupport.getWeightDifferenceCoefficient());
+        float fixedDisjointCoefficient = initializationContext.getFloatSingleton(speciationSupport.getDisjointCoefficient());
+        float fixedExcessCoefficient = initializationContext.getFloatSingleton(speciationSupport.getExcessCoefficient());
         DualModeIdFactory speciesIdFactory = new DualModeIdFactory(initializationContext.getConcurrencyLevel(), IdType.SPECIES);
         DualModeGenomePool genomePool = new DualModeGenomePool(initializationContext.getConcurrencyLevel(), initializationContext.createDeque());
-        GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(excessCoefficientFixed, disjointCoefficientFixed, weightDifferenceCoefficientFixed);
+        GenomeCompatibilityCalculator genomeCompatibilityCalculator = new GenomeCompatibilityCalculator(fixedExcessCoefficient, fixedDisjointCoefficient, fixedWeightDifferenceCoefficient);
         DualModeReproductionTypeFactory reproductionTypeFactory = createReproductionTypeFactory(initializationContext, speciationSupport.getMateOnlyRate(), speciationSupport.getMutateOnlyRate());
         DualModeFitnessCalculationStrategy fitnessCalculationStrategy = createFitnessCalculationStrategy(initializationContext);
         SelectionStrategyExecutor selectionStrategy = createSelectionStrategy();

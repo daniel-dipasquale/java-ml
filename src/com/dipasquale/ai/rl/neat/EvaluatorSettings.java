@@ -51,17 +51,17 @@ public final class EvaluatorSettings {
 
     Context createContext() {
         InitializationContext initializationContext = new InitializationContext(NeatEnvironmentType.from(general.getFitnessFunction()), parallelism, random);
-        ContextObjectGeneralSupport generalFixed = general.create(initializationContext);
-        ContextObjectParallelismSupport parallelismFixed = parallelism.create();
-        ContextObjectRandomSupport randomFixed = random.create(initializationContext);
-        ContextObjectNodeGeneSupport nodesFixed = nodes.create(initializationContext, general.getGenesisGenomeTemplate(), connections);
-        ContextObjectConnectionGeneSupport connectionsFixed = connections.create(initializationContext, general.getGenesisGenomeTemplate());
-        ContextObjectActivationSupport activationFixed = activation.create(initializationContext, general, connections);
-        ContextObjectMutationSupport mutationFixed = mutation.create(initializationContext);
-        ContextObjectCrossOverSupport crossOverFixed = crossOver.create(initializationContext);
-        ContextObjectSpeciationSupport speciationFixed = speciation.create(initializationContext, general);
-        ContextObjectMetricsSupport metricsFixed = metrics.create(initializationContext, speciation);
+        ContextObjectGeneralSupport fixedGeneral = general.create(initializationContext);
+        ContextObjectParallelismSupport fixedParallelism = parallelism.create();
+        ContextObjectRandomSupport fixedRandom = random.create(initializationContext);
+        ContextObjectNodeGeneSupport fixedNodes = nodes.create(initializationContext, general.getGenesisGenomeTemplate(), connections);
+        ContextObjectConnectionGeneSupport fixedConnections = connections.create(initializationContext, general.getGenesisGenomeTemplate());
+        ContextObjectActivationSupport fixedActivation = activation.create(initializationContext, general, connections);
+        ContextObjectMutationSupport fixedMutation = mutation.create(initializationContext);
+        ContextObjectCrossOverSupport fixedCrossOver = crossOver.create(initializationContext);
+        ContextObjectSpeciationSupport fixedSpeciation = speciation.create(initializationContext, general);
+        ContextObjectMetricsSupport fixedMetrics = metrics.create(initializationContext, speciation);
 
-        return new ContextObject(generalFixed, parallelismFixed, randomFixed, nodesFixed, connectionsFixed, activationFixed, mutationFixed, crossOverFixed, speciationFixed, metricsFixed);
+        return new ContextObject(fixedGeneral, fixedParallelism, fixedRandom, fixedNodes, fixedConnections, fixedActivation, fixedMutation, fixedCrossOver, fixedSpeciation, fixedMetrics);
     }
 }

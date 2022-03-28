@@ -1,7 +1,6 @@
 package com.dipasquale.simulation.tictactoe;
 
-public interface Player {
-    GameAction createNextAction(GameState state);
+import com.dipasquale.search.mcts.Participant;
 
-    void accept(GameResult result);
+public interface Player extends Participant<GameAction, GameState> {
 }

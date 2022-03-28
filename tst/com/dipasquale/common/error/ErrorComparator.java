@@ -47,17 +47,17 @@ public final class ErrorComparator {
                                                                 final ErrorComparator cause,
                                                                 final List<ErrorComparator> suppressed,
                                                                 final List<FieldComparator<T>> fields) {
-        MessageComparator messageFixed = createMessagePattern(message)
+        MessageComparator fixedMessage = createMessagePattern(message)
                 .orElseGet(() -> createMessageLiteral(message).orElse(null));
 
-        List<ErrorComparator> suppressedFixed = Optional.ofNullable(suppressed)
+        List<ErrorComparator> fixedSuppressed = Optional.ofNullable(suppressed)
                 .orElseGet(List::of);
 
-        FieldComparatorGroup<T> fieldsFixed = Optional.ofNullable(fields)
+        FieldComparatorGroup<T> fixedFields = Optional.ofNullable(fields)
                 .map(fieldComparators -> new FieldComparatorGroup<>(null, fieldComparators))
                 .orElseGet(() -> new FieldComparatorGroup<>(null, new ArrayList<>()));
 
-        return new ErrorComparator(type, messageFixed, cause, suppressedFixed, fieldsFixed);
+        return new ErrorComparator(type, fixedMessage, cause, fixedSuppressed, fixedFields);
     }
 
     public static <T extends Throwable> ErrorComparator create(final T error) {

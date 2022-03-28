@@ -22,9 +22,9 @@ final class ThreadSleeperWaitHandle implements WaitHandle {
     @Override
     public boolean await(final long timeout, final TimeUnit timeUnit)
             throws InterruptedException {
-        long timeoutFixed = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
+        long fixedTimeout = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
 
-        Thread.sleep(timeoutFixed);
+        Thread.sleep(fixedTimeout);
 
         return true;
     }

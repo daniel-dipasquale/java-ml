@@ -23,13 +23,13 @@ final class PrevalentActionEfficiencyCalculator implements ActionEfficiencyCalcu
             return 0f;
         }
 
-        float visitedFixed = (float) visited;
+        float fixedVisited = (float) visited;
         float won = (float) edge.getWon();
         float drawn = (float) edge.getDrawn();
         float lost = (float) visited - edge.getWon() - edge.getDrawn();
-        float wonRate = won / visitedFixed;
-        float drawRate = drawn / visitedFixed;
-        float lostRate = lost / visitedFixed;
+        float wonRate = won / fixedVisited;
+        float drawRate = drawn / fixedVisited;
+        float lostRate = lost / fixedVisited;
 
         return WIN_FACTOR * wonRate + DRAW_FACTOR * drawRate + lostRate * LOSE_FACTOR;
     }

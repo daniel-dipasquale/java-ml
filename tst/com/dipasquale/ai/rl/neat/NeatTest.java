@@ -139,7 +139,7 @@ public final class NeatTest {
                         .metricsEmissionEnabled(false)
                         .build())
                 .eventLoop(EVENT_LOOP)
-                .neatTrainerFactory(Neat::createMultiTrainer)
+                .trainerFactory(Neat::createMultiTrainer)
                 .shouldTestPersistence(false)
                 .build());
     }

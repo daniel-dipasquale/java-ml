@@ -17,15 +17,15 @@ public enum ActionIdType {
 
     private static ActionIdType[] createActionIds() {
         ActionIdType[] actionIdTypes = ActionIdType.values();
-        ActionIdType[] actionIdTypesFixed = new ActionIdType[actionIdTypes.length];
+        ActionIdType[] fixedActionIdTypes = new ActionIdType[actionIdTypes.length];
 
         for (int i = 0; i < actionIdTypes.length; i++) {
             ActionIdType actionIdType = actionIdTypes[i];
 
-            actionIdTypesFixed[actionIdType.value] = actionIdType;
+            fixedActionIdTypes[actionIdType.value] = actionIdType;
         }
 
-        return actionIdTypesFixed;
+        return fixedActionIdTypes;
     }
 
     public static ActionIdType from(final int id) {

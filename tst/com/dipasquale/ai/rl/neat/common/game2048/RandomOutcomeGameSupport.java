@@ -5,7 +5,7 @@ import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.rl.neat.common.OnePlayerGameSupport;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetwork;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.search.mcts.CacheAvailability;
+import com.dipasquale.search.mcts.CacheType;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroMaximumSearchPolicy;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
     private final int maximumExpansions;
     private final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise;
-    private final CacheAvailability cacheAvailability;
+    private final CacheType cacheType;
     private final NeuralNetworkEncoder<GameState> encoder;
     private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroContext<GameAction, GameState>> decoder;
     private final ValueHeuristic<GameAction, GameState> valueHeuristic;
@@ -49,7 +49,7 @@ final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
                                 .maximumExpansions(maximumExpansions)
                                 .build())
                         .rootExplorationProbabilityNoise(rootExplorationProbabilityNoise)
-                        .cacheAvailability(cacheAvailability)
+                        .cacheType(cacheType)
                         .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, valueHeuristic, policyCalculator))
                         .cpuctCalculator(cpuctCalculator)
                         .backPropagationType(backPropagationType)

@@ -13,16 +13,16 @@ public final class ValuePerTileLineInputNeuralNetworkEncoder implements NeuralNe
 
     @Override
     public float[] encode(final GameState input) {
-        int[] results = new int[Board.DIMENSION * 2];
+        int[] results = new int[Board.ONE_DIMENSION_LENGTH * 2];
 
-        for (int x = 0; x < Board.DIMENSION; x++) {
+        for (int x = 0; x < Board.ONE_DIMENSION_LENGTH; x++) {
             int row = 0;
             int column = 0;
 
-            for (int y = 0; y < Board.DIMENSION; y++) {
-                int rowTileId = x * Board.DIMENSION + y;
+            for (int y = 0; y < Board.ONE_DIMENSION_LENGTH; y++) {
+                int rowTileId = x * Board.ONE_DIMENSION_LENGTH + y;
                 int rowValue = input.getValueInTile(rowTileId);
-                int columnTileId = y * Board.DIMENSION + x;
+                int columnTileId = y * Board.ONE_DIMENSION_LENGTH + x;
                 int columnValue = input.getValueInTile(columnTileId);
 
                 row = BIT_MANIPULATOR_SUPPORT.merge(row, y, rowValue);
@@ -30,7 +30,7 @@ public final class ValuePerTileLineInputNeuralNetworkEncoder implements NeuralNe
             }
 
             results[x] = row;
-            results[x + Board.DIMENSION] = column;
+            results[x + Board.ONE_DIMENSION_LENGTH] = column;
         }
 
         return vectorEncodingType.encode(results);

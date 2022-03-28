@@ -1,7 +1,7 @@
 package com.dipasquale.search.mcts;
 
 public interface Action {
-    String getCacheId();
+    TreeId getTreeId();
 
     int getId();
 }

@@ -6,9 +6,11 @@ import com.dipasquale.search.mcts.State;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
+@ToString
 final class RankedAction<TAction extends Action, TState extends State<TAction, TState>> {
     private final SearchNode<TAction, AlphaZeroEdge, TState> searchNode;
     private final float efficiency;

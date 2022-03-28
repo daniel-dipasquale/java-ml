@@ -6,6 +6,7 @@ import lombok.Builder;
 public final class ExtendedMaximumSearchPolicy implements ExtendedSearchPolicy {
     private final int maximumSelections;
     private final int maximumSimulationRolloutDepth;
+    private final Integer perspectiveParticipantId;
 
     @Override
     public void begin() {
@@ -17,8 +18,8 @@ public final class ExtendedMaximumSearchPolicy implements ExtendedSearchPolicy {
     }
 
     @Override
-    public boolean allowSimulationRollout(final int simulations, final int initialDepth, final int currentDepth) {
-        return currentDepth - initialDepth <= maximumSimulationRolloutDepth;
+    public boolean allowSimulationRollout(final int simulations, final int initialDepth, final int currentDepth, final int participantId) {
+        return currentDepth - initialDepth <= maximumSimulationRolloutDepth || perspectiveParticipantId != null && perspectiveParticipantId != participantId;
     }
 
     @Override

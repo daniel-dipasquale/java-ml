@@ -55,9 +55,9 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     @Override
     public boolean contains(final Object node) {
         if (node instanceof PlainNode<?>) {
-            PlainNode<T> nodeFixed = (PlainNode<T>) node;
+            PlainNode<T> fixedNode = (PlainNode<T>) node;
 
-            return hasMembership(nodeFixed) && !canBeAdded(nodeFixed);
+            return hasMembership(fixedNode) && !canBeAdded(fixedNode);
         }
 
         return false;
@@ -231,10 +231,10 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     @Override
     public boolean remove(final Object node) {
         if (node instanceof PlainNode<?>) {
-            PlainNode<T> nodeFixed = (PlainNode<T>) node;
+            PlainNode<T> fixedNode = (PlainNode<T>) node;
 
-            if (hasMembership(nodeFixed) && canBeRemoved(nodeFixed)) {
-                removeInternal(nodeFixed);
+            if (hasMembership(fixedNode) && canBeRemoved(fixedNode)) {
+                removeInternal(fixedNode);
 
                 return true;
             }

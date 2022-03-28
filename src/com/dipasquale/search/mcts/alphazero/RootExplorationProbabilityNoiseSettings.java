@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public final class RootExplorationProbabilityNoiseSettings {
     @Builder.Default
-    private final float shape = ExplorationProbabilityNoiseRootExpander.DEFAULT_SHAPE;
+    private final float shape = ExplorationProbabilityNoiseRootExpansionPolicy.DEFAULT_SHAPE;
     @Builder.Default
-    private final float epsilon = ExplorationProbabilityNoiseRootExpander.DEFAULT_EPSILON;
+    private final float epsilon = ExplorationProbabilityNoiseRootExpansionPolicy.DEFAULT_EPSILON;
 }

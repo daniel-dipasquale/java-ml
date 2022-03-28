@@ -3,5 +3,5 @@ package com.dipasquale.simulation.tictactoe;
 public interface ActionIdModel {
     int getActionId(GameState state);
 
-    void reset(GameResult result);
+    void reset(GameState state);
 }

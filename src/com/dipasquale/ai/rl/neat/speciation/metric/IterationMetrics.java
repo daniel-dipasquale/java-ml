@@ -17,10 +17,10 @@ public final class IterationMetrics implements Serializable {
     private final Map<Integer, GenerationMetrics> generations;
 
     public IterationMetrics createCopy(final MapFactory mapFactory) {
-        Map<Integer, GenerationMetrics> generationsCopied = generations.entrySet().stream()
+        Map<Integer, GenerationMetrics> copiedGenerations = generations.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy(mapFactory)));
 
-        return new IterationMetrics(mapFactory.create(generationsCopied));
+        return new IterationMetrics(mapFactory.create(copiedGenerations));
     }
 
     public void clear() {

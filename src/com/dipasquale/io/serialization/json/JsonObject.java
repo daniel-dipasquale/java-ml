@@ -25,7 +25,7 @@ public final class JsonObject implements Iterable<Object>, Serializable {
     private final Map<Object, Object> entries;
 
     private static Map<Object, Object> createEntries(final JsonObjectType type, final Map<Object, Object> entries) {
-        Map<Object, Object> entriesFixed = switch (type) {
+        Map<Object, Object> fixedEntries = switch (type) {
             case ARRAY -> new TreeMap<>(InternalComparator.INSTANCE);
 
             default -> new HashMap<>();
@@ -33,11 +33,11 @@ public final class JsonObject implements Iterable<Object>, Serializable {
 
         if (entries != null) {
             for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-                put(type, entriesFixed, entry.getKey(), entry.getValue());
+                put(type, fixedEntries, entry.getKey(), entry.getValue());
             }
         }
 
-        return entriesFixed;
+        return fixedEntries;
     }
 
     public JsonObject(final JsonObjectType type) {
@@ -94,7 +94,7 @@ public final class JsonObject implements Iterable<Object>, Serializable {
     }
 
     private static Object put(final JsonObjectType type, final Map<Object, Object> entries, final Object key, final Object value) {
-        Object valueFixed = sanitizeValue(value);
+        Object fixedValue = sanitizeValue(value);
 
         if (type == JsonObjectType.ARRAY && key instanceof Integer) {
             long oldLength = getLength(entries);
@@ -108,14 +108,14 @@ public final class JsonObject implements Iterable<Object>, Serializable {
                 entries.put("length", newLength);
             }
 
-            return entries.put(key, valueFixed);
+            return entries.put(key, fixedValue);
         }
 
         if (key == null) {
-            return entries.put("null", valueFixed);
+            return entries.put("null", fixedValue);
         }
 
-        return entries.put(key.toString(), valueFixed);
+        return entries.put(key.toString(), fixedValue);
     }
 
     public JsonObjectType typeof() {
@@ -135,9 +135,9 @@ public final class JsonObject implements Iterable<Object>, Serializable {
     }
 
     public Object get(final Object key) {
-        Object keyFixed = sanitizeKey(key);
+        Object sanitizedKey = sanitizeKey(key);
 
-        return entries.get(keyFixed);
+        return entries.get(sanitizedKey);
     }
 
     public Object put(final Object key, final Object value) {

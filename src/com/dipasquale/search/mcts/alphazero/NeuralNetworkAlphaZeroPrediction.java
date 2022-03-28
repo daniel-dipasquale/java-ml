@@ -61,10 +61,6 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
     }
 
     private static <TAction extends Action, TState extends State<TAction, TState>> float getValue(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
-        if (arguments.depth == 0) {
-            return 0f;
-        }
-
         return calculateValue(arguments, context);
     }
 
@@ -85,14 +81,14 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
     }
 
     private static float getPolicy(final Arguments arguments, final float[] output, final int index) {
-        int indexFixed = getPolicyIndex(arguments, index);
+        int fixedIndex = getPolicyIndex(arguments, index);
 
-        return getPolicy(arguments, output[indexFixed]);
+        return getPolicy(arguments, output[fixedIndex]);
     }
 
     private static <TAction extends Action, TState extends State<TAction, TState>> float[] createPolicies(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState> context, final List<SearchNode<TAction, AlphaZeroEdge, TState>> explorableChildren) {
         float[] policies = new float[explorableChildren.size()];
-        float policyTotal = 0f;
+        float totalPolicy = 0f;
 
         if (!arguments.policyIgnored) {
             float[] output = arguments.getOutput(context);
@@ -102,7 +98,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
                 float policy = getPolicy(arguments, output, explorableChild.getAction().getId());
 
                 policies[i] = policy;
-                policyTotal += policy;
+                totalPolicy += policy;
             }
         } else {
             ExplorationProbabilityCalculator<TAction> policyCalculator = context.getPolicyCalculator();
@@ -112,19 +108,19 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
                 float policy = getPolicy(arguments, policyCalculator.calculate(explorableChild.getAction()));
 
                 policies[i] = policy;
-                policyTotal += policy;
+                totalPolicy += policy;
             }
         }
 
-        if (Float.compare(policyTotal, 0f) == 0) {
+        if (Float.compare(totalPolicy, 0f) == 0) {
             Arrays.fill(policies, 1f / (float) policies.length);
 
             return policies;
         }
 
-        if (Float.compare(policyTotal, 1f) != 0) {
+        if (Float.compare(totalPolicy, 1f) != 0) {
             for (int i = 0; i < policies.length; i++) {
-                policies[i] /= policyTotal;
+                policies[i] /= totalPolicy;
             }
         }
 

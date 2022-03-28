@@ -37,12 +37,12 @@ public final class Neat {
             throws IOException {
         NeatTrainer trainer = Neat.createTrainer(createOverridableSettings(), InvalidTrainingPolicy.getInstance());
 
-        EvaluatorLoadSettings settingsFixed = EvaluatorLoadSettings.builder()
+        EvaluatorLoadSettings fixedSettings = EvaluatorLoadSettings.builder()
                 .fitnessFunction(settings.getFitnessFunction())
                 .eventLoop(settings.getEventLoop())
                 .build();
 
-        trainer.load(inputStream, settingsFixed);
+        trainer.load(inputStream, fixedSettings);
 
         return trainer;
     }
@@ -50,7 +50,7 @@ public final class Neat {
     public static MultiNeatTrainer createMultiTrainer(final EvaluatorSettings settings, final NeatTrainingPolicy trainingPolicy) {
         Context.ParallelismSupport parallelismSupport = settings.getParallelism().create();
 
-        EvaluatorSettings settingsFixed = EvaluatorSettings.builder()
+        EvaluatorSettings fixedSettings = EvaluatorSettings.builder()
                 .general(settings.getGeneral())
                 .parallelism(ParallelismSupport.builder()
                         .build())
@@ -65,7 +65,7 @@ public final class Neat {
                 .build();
 
         List<Context> contexts = IntStream.range(0, settings.getParallelism().getConcurrencyLevel())
-                .mapToObj(__ -> settingsFixed.createContext())
+                .mapToObj(__ -> fixedSettings.createContext())
                 .collect(Collectors.toList());
 
         return new ConcurrentNeatMultiTrainer(parallelismSupport, contexts, trainingPolicy);

@@ -1,5 +1,6 @@
 package com.dipasquale.simulation.tictactoe;
 
+import com.dipasquale.search.mcts.Environment;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -10,17 +11,11 @@ public final class Game {
         return new GameResult(outcomeId, state.replicateActionIds());
     }
 
-    private static GameResult playInternal(final Player player1, final Player player2) {
+    public static GameResult play(final Player player1, final Player player2) {
         Player[] players = new Player[]{player1, player2};
-        GameState state = new GameState();
+        Environment<GameAction, GameState, Player> environment = new Environment<>(GameState::new, players);
+        GameState state = environment.interact();
         int statusId = state.getStatusId();
-
-        for (int i = 0; statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; i = (i + 1) % players.length) {
-            GameAction action = players[i].createNextAction(state);
-
-            state = state.accept(action);
-            statusId = state.getStatusId();
-        }
 
         if (statusId == MonteCarloTreeSearch.DRAWN_STATUS_ID) {
             return createResult(GameResult.DRAWN_OUTCOME_ID, state);
@@ -29,14 +24,5 @@ public final class Game {
         int outcomeId = statusId - 1;
 
         return createResult(outcomeId, state);
-    }
-
-    public static GameResult play(final Player player1, final Player player2) {
-        GameResult result = playInternal(player1, player2);
-
-        player1.accept(result);
-        player2.accept(result);
-
-        return result;
     }
 }

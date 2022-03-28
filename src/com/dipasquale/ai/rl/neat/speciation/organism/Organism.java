@@ -85,18 +85,18 @@ public final class Organism implements Comparable<Organism>, Serializable {
     }
 
     public Organism createCopy(final Context context) {
-        Genome genomeCopied = genome.createCopy(context);
+        Genome copiedGenome = genome.createCopy(context);
 
-        return new Organism(genomeCopied, populationState);
+        return new Organism(copiedGenome, populationState);
     }
 
     public Organism createClone(final Context.ConnectionGeneSupport connectionGeneSupport) {
-        Genome genomeCloned = genome.createClone(connectionGeneSupport);
-        Organism organismCloned = new Organism(genomeCloned, populationState);
+        Genome clonedGenome = genome.createClone(connectionGeneSupport);
+        Organism clonedOrganism = new Organism(clonedGenome, populationState);
 
-        organismCloned.fitness = fitness;
+        clonedOrganism.fitness = fitness;
 
-        return organismCloned;
+        return clonedOrganism;
     }
 
     public void kill(final Context.SpeciationSupport speciationSupport) {

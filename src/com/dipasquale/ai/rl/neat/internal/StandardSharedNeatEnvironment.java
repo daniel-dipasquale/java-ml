@@ -47,15 +47,15 @@ public final class StandardSharedNeatEnvironment implements DualModeObject, Seri
     }
 
     public List<Float> test(final Context context, final List<GenomeActivator> genomeActivators) {
-        List<GenomeActivator> genomeActivatorsFixed = new ArrayList<>();
+        List<GenomeActivator> fixedGenomeActivators = new ArrayList<>();
         Map<GenomeActivator, DualModeFloatValue> fitnessValues = new IdentityHashMap<>();
 
         for (GenomeActivator genomeActivator : genomeActivators) {
-            genomeActivatorsFixed.add(genomeActivator);
+            fixedGenomeActivators.add(genomeActivator);
             fitnessValues.put(genomeActivator, new DualModeFloatValue(concurrencyLevel));
         }
 
-        SharedGenomeActivator sharedGenomeActivator = new SharedGenomeActivator(context, genomeActivatorsFixed, fitnessValues);
+        SharedGenomeActivator sharedGenomeActivator = new SharedGenomeActivator(context, fixedGenomeActivators, fitnessValues);
 
         environment.test(sharedGenomeActivator);
 

@@ -147,16 +147,16 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
     @Override
     public void queue(final EventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
-        EventLoopHandler handlerFixed = new StandardEventLoopHandler(handler, errorHandler, invokedWaitHandle);
+        EventLoopHandler fixedHandler = new StandardEventLoopHandler(handler, errorHandler, invokedWaitHandle);
 
-        queue(new EventLoopRecord(handlerFixed, dateTimeSupport.now() + delayTime));
+        queue(new EventLoopRecord(fixedHandler, dateTimeSupport.now() + delayTime));
     }
 
     @Override
     public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
-        EventLoopHandler handlerFixed = new StandardIntervalEventLoopHandler(handler, delayTime, errorHandler, invokedWaitHandle, entryPoint);
+        EventLoopHandler fixedHandler = new StandardIntervalEventLoopHandler(handler, delayTime, errorHandler, invokedWaitHandle, entryPoint);
 
-        queue(new EventLoopRecord(handlerFixed, dateTimeSupport.now() + delayTime));
+        queue(new EventLoopRecord(fixedHandler, dateTimeSupport.now() + delayTime));
     }
 
     @Override

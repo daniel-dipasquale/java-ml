@@ -27,10 +27,18 @@ public final class ZipIterator<T> implements Iterator<List<T>> {
                 .anyMatch(Iterator::hasNext);
     }
 
+    private static <T> T getNext(final Iterator<T> iterator) {
+        if (!iterator.hasNext()) {
+            return null;
+        }
+
+        return iterator.next();
+    }
+
     @Override
     public List<T> next() {
         return iterators.stream()
-                .map(iterator -> iterator.hasNext() ? iterator.next() : null)
+                .map(ZipIterator::getNext)
                 .collect(Collectors.toList());
     }
 }

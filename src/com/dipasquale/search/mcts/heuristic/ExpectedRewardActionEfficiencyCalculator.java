@@ -14,6 +14,6 @@ final class ExpectedRewardActionEfficiencyCalculator implements ActionEfficiency
 
     @Override
     public float calculate(final int depth, final HeuristicEdge edge) {
-        return edge.getExpectedReward();
+        return edge.calculateExpectedReward();
     }
 }

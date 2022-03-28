@@ -19,12 +19,12 @@ public final class FitnessMetrics implements Serializable {
     private final MetricDatum shared;
 
     public FitnessMetrics createCopy(final MapFactory mapFactory) {
-        Map<String, MetricDatum> organismsCopied = organisms.entrySet().stream()
+        Map<String, MetricDatum> copiedOrganisms = organisms.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy()));
 
-        MetricDatum sharedCopied = shared.createCopy();
+        MetricDatum copiedShared = shared.createCopy();
 
-        return new FitnessMetrics(mapFactory.create(organismsCopied), sharedCopied);
+        return new FitnessMetrics(mapFactory.create(copiedOrganisms), copiedShared);
     }
 
     public void clear() {

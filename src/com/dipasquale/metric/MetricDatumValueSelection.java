@@ -46,9 +46,9 @@ public final class MetricDatumValueSelection {
             return new MetricDatumValueSelection(metricDatum, metricDatumValueSelector);
         }
 
-        float percentageFixed = Float.parseFloat(String.format("0.%s", percentage));
+        float fixedPercentage = Float.parseFloat(String.format("0.%s", percentage));
 
-        return new MetricDatumValueSelection(metricDatum, __metricDatum -> __metricDatum.getPercentile(percentageFixed));
+        return new MetricDatumValueSelection(metricDatum, __metricDatum -> __metricDatum.getPercentile(fixedPercentage));
     }
 
     public Float getValue() {

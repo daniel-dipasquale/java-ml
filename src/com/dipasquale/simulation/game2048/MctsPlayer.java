@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public final class MctsPlayer implements Player {
     private final MonteCarloTreeSearch<GameAction, GameState> mcts;
+    private final boolean debug;
 
     @Override
     public GameAction createNextAction(final GameState state) {
@@ -15,7 +16,11 @@ public final class MctsPlayer implements Player {
     }
 
     @Override
-    public void accept(final GameResult result) {
+    public void accept(final GameState state) {
         mcts.reset();
+
+        if (debug) {
+            state.print(System.out);
+        }
     }
 }

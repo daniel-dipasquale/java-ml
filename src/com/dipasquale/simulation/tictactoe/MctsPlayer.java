@@ -15,7 +15,7 @@ public final class MctsPlayer implements Player {
     }
 
     @Override
-    public void accept(final GameResult result) {
+    public void accept(final GameState state) {
         mcts.reset();
     }
 }

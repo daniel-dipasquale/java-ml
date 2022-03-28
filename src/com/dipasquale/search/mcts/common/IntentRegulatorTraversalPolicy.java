@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class IntentRegulatorTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, TEdge, TState> {
-    private final IntentionalTraversalPolicy<TAction, TEdge, TState> intentionalTraversalPolicy;
-    private final UnintentionalTraversalPolicy<TAction, TEdge, TState> unintentionalTraversalPolicy;
+    private final TraversalPolicy<TAction, TEdge, TState> intentionalTraversalPolicy;
+    private final TraversalPolicy<TAction, TEdge, TState> unintentionalTraversalPolicy;
 
     @Override
     public SearchNode<TAction, TEdge, TState> next(final int simulations, final SearchNode<TAction, TEdge, TState> searchNode) {

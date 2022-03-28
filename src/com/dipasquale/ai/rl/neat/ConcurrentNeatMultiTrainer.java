@@ -64,12 +64,12 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
     }
 
     private static NeatTrainer createTrainer(final Context context, final MultiTrainingPolicy multiTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
-        NeatTrainingPolicy trainingPolicyFixed = NeatTrainingPolicies.builder()
+        NeatTrainingPolicy fixedTrainingPolicy = NeatTrainingPolicies.builder()
                 .add(multiTrainingPolicy)
                 .add(trainingPolicy.createClone())
                 .build();
 
-        return new ConcurrentNeatTrainer(context, trainingPolicyFixed, NoopReadWriteLock.getInstance());
+        return new ConcurrentNeatTrainer(context, fixedTrainingPolicy, NoopReadWriteLock.getInstance());
     }
 
     @Override
@@ -172,7 +172,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
         }
 
         try {
-            EvaluatorLoadSettings settingsFixed = EvaluatorLoadSettings.builder()
+            EvaluatorLoadSettings fixedSettings = EvaluatorLoadSettings.builder()
                     .fitnessFunction(settings.getFitnessFunction())
                     .build();
 
@@ -184,7 +184,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
             }
 
             for (IndexedNeatTrainer indexedTrainer : indexedTrainers) {
-                indexedTrainer.trainer.load(inputStream, settingsFixed);
+                indexedTrainer.trainer.load(inputStream, fixedSettings);
             }
 
             parallelismSupport = ParallelismSupport.builder()

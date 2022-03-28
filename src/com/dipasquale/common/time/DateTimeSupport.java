@@ -30,8 +30,8 @@ public interface DateTimeSupport {
     TimeUnit timeUnit();
 
     static String format(final DateTimeFormatter dateTimeFormatter, final long dateTime, final TimeUnit timeUnit) {
-        long dateTimeFixed = TimeUnit.MILLISECONDS.convert(dateTime, timeUnit);
-        Instant dateTimeInstant = new Date(dateTimeFixed).toInstant();
+        long fixedDateTime = TimeUnit.MILLISECONDS.convert(dateTime, timeUnit);
+        Instant dateTimeInstant = new Date(fixedDateTime).toInstant();
 
         return dateTimeFormatter.format(dateTimeInstant);
     }
@@ -43,10 +43,10 @@ public interface DateTimeSupport {
     }
 
     static long parse(final DateTimeFormatter dateTimeParser, final String dateTime, final TimeUnit timeUnit) {
-        TemporalAccessor dateTimeParsed = dateTimeParser.parse(dateTime);
-        long dateTimeFixed = ZonedDateTime.from(dateTimeParsed).toInstant().toEpochMilli();
+        TemporalAccessor parsedDateTime = dateTimeParser.parse(dateTime);
+        long fixedDateTime = ZonedDateTime.from(parsedDateTime).toInstant().toEpochMilli();
 
-        return timeUnit.convert(dateTimeFixed, TimeUnit.MILLISECONDS);
+        return timeUnit.convert(fixedDateTime, TimeUnit.MILLISECONDS);
     }
 
     long parse(String dateTime);

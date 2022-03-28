@@ -21,36 +21,36 @@ public final class AtomicLazyReference<T> implements Serializable {
     }
 
     public T getReference() {
-        ReferenceContainer<T> referenceContainerFixed;
+        ReferenceContainer<T> fixedReferenceContainer;
 
         if (initialized.compareAndSet(false, true)) {
             try {
                 T reference = referenceFactory.create();
 
-                referenceContainerFixed = new ReferenceContainer<>(reference, null);
+                fixedReferenceContainer = new ReferenceContainer<>(reference, null);
             } catch (RuntimeException e) {
-                referenceContainerFixed = new ReferenceContainer<>(null, e);
+                fixedReferenceContainer = new ReferenceContainer<>(null, e);
             } catch (Throwable e) {
                 RuntimeException exception = new RuntimeException(e.getMessage(), e);
 
-                referenceContainerFixed = new ReferenceContainer<>(null, exception);
+                fixedReferenceContainer = new ReferenceContainer<>(null, exception);
             }
 
-            referenceContainer = referenceContainerFixed;
+            referenceContainer = fixedReferenceContainer;
         } else {
-            referenceContainerFixed = referenceContainer;
+            fixedReferenceContainer = referenceContainer;
 
-            while (referenceContainerFixed == null) {
+            while (fixedReferenceContainer == null) {
                 Thread.onSpinWait();
-                referenceContainerFixed = referenceContainer;
+                fixedReferenceContainer = referenceContainer;
             }
         }
 
-        if (referenceContainerFixed.exception != null) {
-            throw referenceContainerFixed.exception;
+        if (fixedReferenceContainer.exception != null) {
+            throw fixedReferenceContainer.exception;
         }
 
-        return referenceContainerFixed.reference;
+        return fixedReferenceContainer.reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

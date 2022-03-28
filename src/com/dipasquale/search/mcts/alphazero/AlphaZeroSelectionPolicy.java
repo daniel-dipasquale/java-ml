@@ -1,6 +1,7 @@
 package com.dipasquale.search.mcts.alphazero;
 
 import com.dipasquale.search.mcts.Action;
+import com.dipasquale.search.mcts.ExpansionPolicy;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SelectionPolicy;
 import com.dipasquale.search.mcts.State;
@@ -10,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class AlphaZeroSelectionPolicy<TAction extends Action, TState extends State<TAction, TState>> implements SelectionPolicy<TAction, AlphaZeroEdge, TState> {
-    private final AlphaZeroExpander<TAction, TState> expander;
     private final TraversalPolicy<TAction, AlphaZeroEdge, TState> traversalPolicy;
+    private final ExpansionPolicy<TAction, AlphaZeroEdge, TState> expansionPolicy;
 
     @Override
     public SearchNode<TAction, AlphaZeroEdge, TState> select(final int simulations, final SearchNode<TAction, AlphaZeroEdge, TState> rootSearchNode) {
@@ -21,9 +22,9 @@ final class AlphaZeroSelectionPolicy<TAction extends Action, TState extends Stat
                     return null;
                 }
 
-                if (!nextSearchNode.isExpanded()) {
-                    expander.expand(nextSearchNode);
-                }
+                assert !nextSearchNode.isExpanded();
+
+                expansionPolicy.expand(nextSearchNode);
 
                 return nextSearchNode;
             }

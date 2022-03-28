@@ -55,8 +55,8 @@ public final class NeuralNetworkAlphaZeroModel<TAction extends Action, TState ex
         private final TNeuronMemory neuronMemory;
 
         @Override
-        public float[] predict(final SearchNode<TAction, AlphaZeroEdge, TState> node) {
-            float[] input = encoder.encode(node.getState());
+        public float[] predict(final SearchNode<TAction, AlphaZeroEdge, TState> searchNode) {
+            float[] input = encoder.encode(searchNode.getState());
 
             return neuralNetwork.activate(input, neuronMemory);
         }
