@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.common.tictactoe;
 import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
 import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.search.mcts.common.ValueHeuristic;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameResult;
@@ -107,8 +107,8 @@ final class ActionScoreFitnessObjective {
         return new InternalContestedEnvironment(gameSupport);
     }
 
-    public static ValueHeuristic<GameAction, GameState> createValueHeuristic(final boolean subtractNextParticipant) {
-        return new InternalValueHeuristic(subtractNextParticipant);
+    public static RewardHeuristic<GameAction, GameState> createValueHeuristic(final boolean subtractNextParticipant) {
+        return new InternalRewardHeuristic(subtractNextParticipant);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -144,7 +144,7 @@ final class ActionScoreFitnessObjective {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalValueHeuristic implements ValueHeuristic<GameAction, GameState> {
+    private static final class InternalRewardHeuristic implements RewardHeuristic<GameAction, GameState> {
         private final boolean subtractNextParticipant;
 
         private static float calculate(final int offset, final int[] actionIds) {
@@ -172,13 +172,13 @@ final class ActionScoreFitnessObjective {
             float participantValue = calculate(participantOffset, actionIds);
 
             if (!subtractNextParticipant) {
-                return ValueHeuristic.convertProbability(participantValue);
+                return RewardHeuristic.convertProbability(participantValue);
             }
 
             int nextParticipantOffset = state.getNextParticipantId() - 1;
             float nextParticipantValue = calculate(nextParticipantOffset, actionIds);
 
-            return ValueHeuristic.convertProbability(participantValue - nextParticipantValue);
+            return RewardHeuristic.convertProbability(participantValue - nextParticipantValue);
         }
     }
 }

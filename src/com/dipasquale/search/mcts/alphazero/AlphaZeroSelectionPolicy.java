@@ -26,7 +26,9 @@ final class AlphaZeroSelectionPolicy<TAction extends Action, TState extends Stat
 
                 expansionPolicy.expand(nextSearchNode);
 
-                return nextSearchNode;
+                if (nextSearchNode.getState().isIntentional()) {
+                    return nextSearchNode;
+                }
             }
 
             nextSearchNode = temporarySearchNode;

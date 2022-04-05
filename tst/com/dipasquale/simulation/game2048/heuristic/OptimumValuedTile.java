@@ -1,4 +1,4 @@
-package com.dipasquale.simulation.game2048;
+package com.dipasquale.simulation.game2048.heuristic;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

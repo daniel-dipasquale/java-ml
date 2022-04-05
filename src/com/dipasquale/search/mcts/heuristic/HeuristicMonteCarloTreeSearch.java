@@ -19,17 +19,17 @@ import com.dipasquale.search.mcts.common.CommonSelectionPolicy;
 import com.dipasquale.search.mcts.common.CommonSelectionPolicyFactory;
 import com.dipasquale.search.mcts.common.CommonSimulationRolloutPolicy;
 import com.dipasquale.search.mcts.common.CommonSimulationRolloutPolicyFactory;
-import com.dipasquale.search.mcts.common.ExplorationProbabilityCalculator;
+import com.dipasquale.search.mcts.common.ExplorationHeuristic;
 import com.dipasquale.search.mcts.common.ExtendedSearchPolicy;
 import com.dipasquale.search.mcts.common.IntentRegulatorExpansionPolicy;
 import com.dipasquale.search.mcts.common.IntentionalExpansionPolicy;
 import com.dipasquale.search.mcts.common.MaximumEfficiencyProposalStrategy;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
 import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
 import com.dipasquale.search.mcts.common.SelectionType;
 import com.dipasquale.search.mcts.common.TechniqueBackPropagationStep;
 import com.dipasquale.search.mcts.common.TechniqueSelectionConfidenceCalculator;
 import com.dipasquale.search.mcts.common.UnintentionalExpansionPolicy;
-import com.dipasquale.search.mcts.common.ValueHeuristic;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -46,27 +46,27 @@ public final class HeuristicMonteCarloTreeSearch<TAction extends Action, TState 
     private static final ExpectedRewardActionEfficiencyCalculator EXPECTED_REWARD_ACTION_EFFICIENCY_CALCULATOR = ExpectedRewardActionEfficiencyCalculator.getInstance();
     private final Mcts<TAction, HeuristicEdge, TState> mcts;
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, HeuristicEdge, TState> createIntentionalExpansionPolicy(final ValueExpansionPolicy<TAction, TState> valueExpansionPolicy, final RandomSupport randomSupport) {
+    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, HeuristicEdge, TState> createIntentionalExpansionPolicy(final ProbableRewardExpansionPolicy<TAction, TState> probableRewardExpansionPolicy, final RandomSupport randomSupport) {
         IntentionalExpansionPolicy<TAction, HeuristicEdge, TState> intentionalExpansionPolicy = new IntentionalExpansionPolicy<>(EDGE_FACTORY, randomSupport);
-        List<ExpansionPolicy<TAction, HeuristicEdge, TState>> expansionPolicies = List.of(valueExpansionPolicy, intentionalExpansionPolicy);
+        List<ExpansionPolicy<TAction, HeuristicEdge, TState>> expansionPolicies = List.of(probableRewardExpansionPolicy, intentionalExpansionPolicy);
 
         return ExpansionPolicyController.provide(expansionPolicies);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, HeuristicEdge, TState> createUnintentionalExpansionPolicy(final ValueExpansionPolicy<TAction, TState> valueExpansionPolicy, final ExplorationProbabilityCalculator<TAction> explorationProbabilityCalculator) {
-        UnintentionalExpansionPolicy<TAction, HeuristicEdge, TState> unintentionalExpansionPolicy = new UnintentionalExpansionPolicy<>(EDGE_FACTORY, explorationProbabilityCalculator);
-        List<ExpansionPolicy<TAction, HeuristicEdge, TState>> expansionPolicies = List.of(valueExpansionPolicy, unintentionalExpansionPolicy);
+    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, HeuristicEdge, TState> createUnintentionalExpansionPolicy(final ProbableRewardExpansionPolicy<TAction, TState> probableRewardExpansionPolicy, final ExplorationHeuristic<TAction> explorationHeuristic) {
+        UnintentionalExpansionPolicy<TAction, HeuristicEdge, TState> unintentionalExpansionPolicy = new UnintentionalExpansionPolicy<>(EDGE_FACTORY, explorationHeuristic);
+        List<ExpansionPolicy<TAction, HeuristicEdge, TState>> expansionPolicies = List.of(probableRewardExpansionPolicy, unintentionalExpansionPolicy);
 
         return ExpansionPolicyController.provide(expansionPolicies);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, HeuristicEdge, TState> createExpansionPolicy(final RandomSupport randomSupport, final ValueHeuristic<TAction, TState> valueHeuristic, final ExplorationProbabilityCalculator<TAction> explorationProbabilityCalculator, final Provider<TAction, HeuristicEdge, TState> provider) {
+    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, HeuristicEdge, TState> createExpansionPolicy(final RandomSupport randomSupport, final RewardHeuristic<TAction, TState> rewardHeuristic, final ExplorationHeuristic<TAction> explorationHeuristic, final Provider<TAction, HeuristicEdge, TState> provider) {
         List<ExpansionPolicy<TAction, HeuristicEdge, TState>> expansionPolicies = new ArrayList<>();
-        ValueExpansionPolicy<TAction, TState> valueExpansionPolicy = new ValueExpansionPolicy<>(valueHeuristic);
-        ExpansionPolicy<TAction, HeuristicEdge, TState> intentionalExpansionPolicy = createIntentionalExpansionPolicy(valueExpansionPolicy, randomSupport);
+        ProbableRewardExpansionPolicy<TAction, TState> probableRewardExpansionPolicy = new ProbableRewardExpansionPolicy<>(rewardHeuristic);
+        ExpansionPolicy<TAction, HeuristicEdge, TState> intentionalExpansionPolicy = createIntentionalExpansionPolicy(probableRewardExpansionPolicy, randomSupport);
 
-        if (explorationProbabilityCalculator != null) {
-            ExpansionPolicy<TAction, HeuristicEdge, TState> unintentionalExpansionPolicy = createUnintentionalExpansionPolicy(valueExpansionPolicy, explorationProbabilityCalculator);
+        if (explorationHeuristic != null) {
+            ExpansionPolicy<TAction, HeuristicEdge, TState> unintentionalExpansionPolicy = createUnintentionalExpansionPolicy(probableRewardExpansionPolicy, explorationHeuristic);
             IntentRegulatorExpansionPolicy<TAction, HeuristicEdge, TState> intentRegulatorExpansionPolicy = new IntentRegulatorExpansionPolicy<>(intentionalExpansionPolicy, unintentionalExpansionPolicy);
 
             expansionPolicies.add(intentRegulatorExpansionPolicy);
@@ -89,15 +89,15 @@ public final class HeuristicMonteCarloTreeSearch<TAction extends Action, TState 
         return new TechniqueSelectionConfidenceCalculator<>(cpuctCalculator);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> CommonSelectionPolicy<TAction, HeuristicEdge, TState> createSelectionPolicy(final CPuctCalculator cpuctCalculator, final ExplorationProbabilityCalculator<TAction> explorationProbabilityCalculator, final ExpansionPolicy<TAction, HeuristicEdge, TState> expansionPolicy) {
+    private static <TAction extends Action, TState extends State<TAction, TState>> CommonSelectionPolicy<TAction, HeuristicEdge, TState> createSelectionPolicy(final CPuctCalculator cpuctCalculator, final ExplorationHeuristic<TAction> explorationHeuristic, final ExpansionPolicy<TAction, HeuristicEdge, TState> expansionPolicy) {
         TechniqueSelectionConfidenceCalculator<HeuristicEdge> selectionConfidenceCalculator = createSelectionConfidenceCalculator(cpuctCalculator);
-        SelectionType selectionType = SelectionType.determine(explorationProbabilityCalculator);
+        SelectionType selectionType = SelectionType.determine(explorationHeuristic);
 
         return new CommonSelectionPolicyFactory<>(selectionConfidenceCalculator, selectionType, expansionPolicy).create();
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> CommonSimulationRolloutPolicy<TAction, HeuristicEdge, TState> createSimulationRolloutPolicy(final ExtendedSearchPolicy searchPolicy, final RandomSupport randomSupport, final ExplorationProbabilityCalculator<TAction> explorationProbabilityCalculator, final ExpansionPolicy<TAction, HeuristicEdge, TState> expansionPolicy) {
-        SelectionType selectionType = SelectionType.determine(explorationProbabilityCalculator);
+    private static <TAction extends Action, TState extends State<TAction, TState>> CommonSimulationRolloutPolicy<TAction, HeuristicEdge, TState> createSimulationRolloutPolicy(final ExtendedSearchPolicy searchPolicy, final RandomSupport randomSupport, final ExplorationHeuristic<TAction> explorationHeuristic, final ExpansionPolicy<TAction, HeuristicEdge, TState> expansionPolicy) {
+        SelectionType selectionType = SelectionType.determine(explorationHeuristic);
 
         return new CommonSimulationRolloutPolicyFactory<>(searchPolicy, randomSupport, selectionType, expansionPolicy).create();
     }
@@ -110,13 +110,13 @@ public final class HeuristicMonteCarloTreeSearch<TAction extends Action, TState 
     }
 
     @Builder
-    public static <TAction extends Action, TState extends State<TAction, TState>> HeuristicMonteCarloTreeSearch<TAction, TState> create(final ExtendedSearchPolicy searchPolicy, final CacheType cacheType, final ValueHeuristic<TAction, TState> valueHeuristic, final ExplorationProbabilityCalculator<TAction> explorationProbabilityCalculator, final CPuctCalculator cpuctCalculator, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
+    public static <TAction extends Action, TState extends State<TAction, TState>> HeuristicMonteCarloTreeSearch<TAction, TState> create(final ExtendedSearchPolicy searchPolicy, final CacheType cacheType, final RewardHeuristic<TAction, TState> rewardHeuristic, final ExplorationHeuristic<TAction> explorationHeuristic, final CPuctCalculator cpuctCalculator, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
         UniformRandomSupport randomSupport = new UniformRandomSupport();
         CacheType fixedCacheType = Objects.requireNonNullElse(cacheType, CacheType.NONE);
         Provider<TAction, HeuristicEdge, TState> provider = fixedCacheType.create(EDGE_FACTORY);
-        ExpansionPolicy<TAction, HeuristicEdge, TState> expansionPolicy = createExpansionPolicy(randomSupport, valueHeuristic, explorationProbabilityCalculator, provider);
-        CommonSelectionPolicy<TAction, HeuristicEdge, TState> selectionPolicy = createSelectionPolicy(cpuctCalculator, explorationProbabilityCalculator, expansionPolicy);
-        CommonSimulationRolloutPolicy<TAction, HeuristicEdge, TState> simulationRolloutPolicy = createSimulationRolloutPolicy(searchPolicy, randomSupport, explorationProbabilityCalculator, expansionPolicy);
+        ExpansionPolicy<TAction, HeuristicEdge, TState> expansionPolicy = createExpansionPolicy(randomSupport, rewardHeuristic, explorationHeuristic, provider);
+        CommonSelectionPolicy<TAction, HeuristicEdge, TState> selectionPolicy = createSelectionPolicy(cpuctCalculator, explorationHeuristic, expansionPolicy);
+        CommonSimulationRolloutPolicy<TAction, HeuristicEdge, TState> simulationRolloutPolicy = createSimulationRolloutPolicy(searchPolicy, randomSupport, explorationHeuristic, expansionPolicy);
         BackPropagationPolicy<TAction, HeuristicEdge, TState, ?> backPropagationPolicy = createBackPropagationPolicy(backPropagationType, backPropagationObserver);
         MaximumEfficiencyProposalStrategy<TAction, HeuristicEdge, TState> proposalStrategy = new MaximumEfficiencyProposalStrategy<>(EXPECTED_REWARD_ACTION_EFFICIENCY_CALCULATOR);
         List<ResetHandler> resetHandlers = ResetHandler.create(provider);

@@ -1,5 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-public interface MultiNeatTrainer extends NeatTrainer {
+public interface ParallelNeatTrainer extends NeatTrainer {
     NeatTrainer cloneMostEfficientTrainer(EvaluatorOverrideSettings settings);
 }

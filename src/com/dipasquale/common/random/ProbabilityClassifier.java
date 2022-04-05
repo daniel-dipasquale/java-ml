@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.TreeMap;
 
 @RequiredArgsConstructor
-public final class ProbabilityClassifier<T> implements Serializable { // TODO: provide a better API for transient probability classifiers
+public final class ProbabilityClassifier<T> implements Serializable {
     @Serial
     private static final long serialVersionUID = -2492693513349102434L;
     private final TreeMap<Float, T> distribution = new TreeMap<>();

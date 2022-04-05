@@ -15,9 +15,9 @@ import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSetti
 import com.dipasquale.search.mcts.alphazero.TemperatureController;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.common.CPuctCalculator;
-import com.dipasquale.search.mcts.common.ExplorationProbabilityCalculator;
+import com.dipasquale.search.mcts.common.ExplorationHeuristic;
 import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
-import com.dipasquale.search.mcts.common.ValueHeuristic;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameResult;
@@ -36,8 +36,8 @@ final class GameSupport implements TwoPlayerGameSupport<Player> {
     private final CacheType cacheType;
     private final NeuralNetworkEncoder<GameState> encoder;
     private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroContext<GameAction, GameState>> decoder;
-    private final ValueHeuristic<GameAction, GameState> valueHeuristic;
-    private final ExplorationProbabilityCalculator<GameAction> policyCalculator;
+    private final RewardHeuristic<GameAction, GameState> rewardHeuristic;
+    private final ExplorationHeuristic<GameAction> explorationHeuristic;
     private final CPuctCalculator cpuctCalculator;
     private final BackPropagationType backPropagationType;
     private final int temperatureDepthThreshold;
@@ -54,7 +54,7 @@ final class GameSupport implements TwoPlayerGameSupport<Player> {
                                 .build())
                         .rootExplorationProbabilityNoise(rootExplorationProbabilityNoise)
                         .cacheType(cacheType)
-                        .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, valueHeuristic, policyCalculator))
+                        .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, rewardHeuristic, explorationHeuristic))
                         .cpuctCalculator(cpuctCalculator)
                         .backPropagationType(backPropagationType)
                         .temperatureController(TemperatureController.builder()

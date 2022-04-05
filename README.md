@@ -441,4 +441,54 @@ maximum fitness: 2.234746</pre>
    </tbody>
 </table>
 
-- [ ] [2048 test](tst/com/dipasquale/ai/rl/neat/common/game2048/Game2048TaskSetup.java) :-1: (outstanding)
+- [x] [2048 test](tst/com/dipasquale/simulation/game2048/GameTest.java)
+
+<table>
+   <thead>
+      <tr>
+         <th>experiment #1</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td colspan="1">
+            <img src="https://user-images.githubusercontent.com/51057424/162639244-bbc2c09b-c73c-49e1-afb9-d2d6cfe88afd.gif" alt="monte carlo solving 2048"/>
+         </td>
+      </tr>
+      <tr>
+         <td colspan="1">
+            <strong>monte carlo tree search:</strong>
+         </td>
+      </tr>
+      <tr>
+         <td colspan="1">
+            <em>heuristics:</em>
+         </td>
+      </tr>
+      <tr>
+         <td colspan="1">
+            <kbd>snake shape board: 25%, higher free tile count: 25%, monotonicity: 50%</kbd>
+         </td>
+      </tr>
+      <tr>
+         <td colspan="1">
+            <em>maximum selections:</em>
+         </td>
+      </tr>
+      <tr>
+         <td colspan="1">
+            <kbd>200</kbd>
+         </td>
+      </tr>
+      <tr>
+         <td colspan="1">
+            <em>maximum simulation rollouts depth:</em>
+         </td>
+      </tr>
+      <tr>
+         <td colspan="1">
+            <kbd>8</kbd>
+         </td>
+      </tr>
+   </tbody>
+</table>

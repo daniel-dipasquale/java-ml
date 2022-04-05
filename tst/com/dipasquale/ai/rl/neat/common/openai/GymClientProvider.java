@@ -16,10 +16,10 @@ public final class GymClientProvider {
     private static void startOpenAIGymServer()
             throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder("python", "gym_http_server.py");
-        String currentDirectory = System.getProperty("user.dir");
-        String gymHttpApiDirectory = Path.of(new File(currentDirectory).getParent(), "gym-http-api").toString();
+        String currentDirectoryName = System.getProperty("user.dir");
+        String gymHttpApiDirectoryName = Path.of(new File(currentDirectoryName).getParent(), "gym-http-api").toString();
 
-        processBuilder.directory(new File(gymHttpApiDirectory));
+        processBuilder.directory(new File(gymHttpApiDirectoryName));
         processBuilder.start();
     }
 

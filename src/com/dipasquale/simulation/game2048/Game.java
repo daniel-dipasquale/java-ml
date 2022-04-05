@@ -10,13 +10,17 @@ public final class Game {
     private final ObjectFactory<GameState> initialGameFactory;
     private final Player valuedTileAdder;
 
-    public Game(final ValuedTileSupport valuedTileSupport, final int victoryValue, final Player valuedTileAdder) {
-        this.initialGameFactory = () -> new GameState(valuedTileSupport, victoryValue);
+    public Game(final int victoryValue, final Player valuedTileAdder) {
+        this.initialGameFactory = () -> new GameState(victoryValue);
         this.valuedTileAdder = valuedTileAdder;
     }
 
-    public static int getDisplayValue(final int value) {
-        return Board.getDisplayValue(value);
+    public static int toDisplayValue(final int value) {
+        return Board.toDisplayValue(value);
+    }
+
+    public static int fromDisplayValue(final int displayValue) {
+        return Board.fromDisplayValue(displayValue);
     }
 
     public GameResult play(final Player player) {

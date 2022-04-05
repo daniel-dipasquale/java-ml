@@ -3,8 +3,8 @@ package com.dipasquale.search.mcts.alphazero;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
-import com.dipasquale.search.mcts.common.ExplorationProbabilityCalculator;
-import com.dipasquale.search.mcts.common.ValueHeuristic;
+import com.dipasquale.search.mcts.common.ExplorationHeuristic;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,14 +21,14 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
     private final float[] policies;
 
     private static <TAction extends Action, TState extends State<TAction, TState>> Float calculateValueViaHeuristic(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
-        ValueHeuristic<TAction, TState> valueHeuristic = context.getValueHeuristic();
+        RewardHeuristic<TAction, TState> rewardHeuristic = context.getRewardHeuristic();
         SearchNode<TAction, AlphaZeroEdge, TState> searchNode = context.getSearchNode();
 
-        if (valueHeuristic == null || arguments.valueIndex >= 0 && !arguments.behaviorTypes.contains(PredictionBehaviorType.VALUE_HEURISTIC_ALLOWED_ON_INTENTIONAL_STATES) && searchNode.getState().isIntentional()) {
+        if (rewardHeuristic == null || arguments.valueIndex >= 0 && !arguments.behaviorTypes.contains(PredictionBehaviorType.VALUE_HEURISTIC_ALLOWED_ON_INTENTIONAL_STATES) && searchNode.getState().isIntentional()) {
             return null;
         }
 
-        return valueHeuristic.estimate(searchNode.getState());
+        return rewardHeuristic.estimate(searchNode.getState());
     }
 
     private static <TAction extends Action, TState extends State<TAction, TState>> Float calculateValue(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
@@ -101,11 +101,11 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
                 totalPolicy += policy;
             }
         } else {
-            ExplorationProbabilityCalculator<TAction> policyCalculator = context.getPolicyCalculator();
+            ExplorationHeuristic<TAction> explorationHeuristic = context.getExplorationHeuristic();
 
             for (int i = 0; i < policies.length; i++) {
                 SearchNode<TAction, AlphaZeroEdge, TState> explorableChild = explorableChildren.get(i);
-                float policy = getPolicy(arguments, policyCalculator.calculate(explorableChild.getAction()));
+                float policy = getPolicy(arguments, explorationHeuristic.estimate(explorableChild.getAction()));
 
                 policies[i] = policy;
                 totalPolicy += policy;

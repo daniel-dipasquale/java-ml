@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
+final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
     private static final Comparator<IndexedNeatTrainer> MAXIMUM_FITNESS_COMPARATOR = Comparator.comparing(indexedTrainer -> indexedTrainer.trainer.getState().getMaximumFitness());
     private final ReadWriteLock lock;
     private volatile Context.ParallelismSupport parallelismSupport;
@@ -36,7 +36,7 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
     private volatile int championTrainerIndex;
     private final ConcurrentNeatState state;
 
-    private ConcurrentNeatMultiTrainer(final ReadWriteLock lock, final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<IndexedNeatTrainer> indexedTrainers) {
+    private ConcurrentParallelNeatTrainer(final ReadWriteLock lock, final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<IndexedNeatTrainer> indexedTrainers) {
         this.lock = lock;
         this.parallelismSupport = parallelismSupport;
         this.solutionFound = solutionFound;
@@ -45,27 +45,27 @@ final class ConcurrentNeatMultiTrainer implements MultiNeatTrainer {
         this.state = new ConcurrentNeatState();
     }
 
-    private static List<IndexedNeatTrainer> createTrainers(final List<Context> contexts, final MultiTrainingPolicy multiTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
+    private static List<IndexedNeatTrainer> createTrainers(final List<Context> contexts, final ParallelTrainingPolicy parallelTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
         return IntStream.range(0, contexts.size())
-                .mapToObj(index -> new IndexedNeatTrainer(index, createTrainer(contexts.get(index), multiTrainingPolicy, trainingPolicy)))
+                .mapToObj(index -> new IndexedNeatTrainer(index, createTrainer(contexts.get(index), parallelTrainingPolicy, trainingPolicy)))
                 .collect(Collectors.toList());
     }
 
-    private ConcurrentNeatMultiTrainer(final ReadWriteLock lock, final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<Context> contexts, final MultiTrainingPolicy multiTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
-        this(lock, parallelismSupport, solutionFound, createTrainers(contexts, multiTrainingPolicy, trainingPolicy));
+    private ConcurrentParallelNeatTrainer(final ReadWriteLock lock, final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<Context> contexts, final ParallelTrainingPolicy parallelTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
+        this(lock, parallelismSupport, solutionFound, createTrainers(contexts, parallelTrainingPolicy, trainingPolicy));
     }
 
-    private ConcurrentNeatMultiTrainer(final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<Context> contexts, final NeatTrainingPolicy trainingPolicy) {
-        this(new ReentrantReadWriteLock(), parallelismSupport, solutionFound, contexts, new MultiTrainingPolicy(solutionFound), trainingPolicy);
+    private ConcurrentParallelNeatTrainer(final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<Context> contexts, final NeatTrainingPolicy trainingPolicy) {
+        this(new ReentrantReadWriteLock(), parallelismSupport, solutionFound, contexts, new ParallelTrainingPolicy(solutionFound), trainingPolicy);
     }
 
-    ConcurrentNeatMultiTrainer(final Context.ParallelismSupport parallelismSupport, final List<Context> contexts, final NeatTrainingPolicy trainingPolicy) {
+    ConcurrentParallelNeatTrainer(final Context.ParallelismSupport parallelismSupport, final List<Context> contexts, final NeatTrainingPolicy trainingPolicy) {
         this(parallelismSupport, new AtomicBoolean(), contexts, trainingPolicy);
     }
 
-    private static NeatTrainer createTrainer(final Context context, final MultiTrainingPolicy multiTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
+    private static NeatTrainer createTrainer(final Context context, final ParallelTrainingPolicy parallelTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
         NeatTrainingPolicy fixedTrainingPolicy = NeatTrainingPolicies.builder()
-                .add(multiTrainingPolicy)
+                .add(parallelTrainingPolicy)
                 .add(trainingPolicy.createClone())
                 .build();
 

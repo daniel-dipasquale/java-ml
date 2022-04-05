@@ -1,11 +1,14 @@
-package com.dipasquale.simulation.game2048;
+package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.ValueHeuristic;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.simulation.game2048.Game;
+import com.dipasquale.simulation.game2048.GameAction;
+import com.dipasquale.simulation.game2048.GameState;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class TwinValuedTileValueHeuristic implements ValueHeuristic<GameAction, GameState> {
+public final class TwinValuedTileRewardHeuristic implements RewardHeuristic<GameAction, GameState> {
     private static final int[] POSSIBLE_TWIN_COUNT = {
             2, 3, 3, 2,
             3, 4, 4, 3,
@@ -14,9 +17,9 @@ public final class TwinValuedTileValueHeuristic implements ValueHeuristic<GameAc
     };
 
     private static final OptimumValuedTile OPTIMUM_VALUED_TILE = OptimumValuedTile.getInstance();
-    private static final TwinValuedTileValueHeuristic INSTANCE = new TwinValuedTileValueHeuristic();
+    private static final TwinValuedTileRewardHeuristic INSTANCE = new TwinValuedTileRewardHeuristic();
 
-    public static TwinValuedTileValueHeuristic getInstance() {
+    public static TwinValuedTileRewardHeuristic getInstance() {
         return INSTANCE;
     }
 
@@ -113,7 +116,7 @@ public final class TwinValuedTileValueHeuristic implements ValueHeuristic<GameAc
         int maximumScore = 0;
 
         for (int i = maximumValue - 1; i >= 0; i--) {
-            int translatedValue = Game.getDisplayValue(i + 1);
+            int translatedValue = Game.toDisplayValue(i + 1);
 
             score += twinTileCounters[i] * translatedValue;
             maximumScore += maximumTwinTileCounters[i] * translatedValue;
@@ -121,6 +124,6 @@ public final class TwinValuedTileValueHeuristic implements ValueHeuristic<GameAc
 
         float twinTileRate = (float) (score + maximumScore) / (float) (maximumScore * 2);
 
-        return ValueHeuristic.convertProbability(twinTileRate);
+        return RewardHeuristic.convertProbability(twinTileRate);
     }
 }

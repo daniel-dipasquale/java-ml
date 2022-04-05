@@ -14,14 +14,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public final class UnintentionalExpansionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements ExpansionPolicy<TAction, TEdge, TState> {
     private final EdgeFactory<TEdge> edgeFactory;
-    private final ExplorationProbabilityCalculator<TAction> explorationProbabilityCalculator;
+    private final ExplorationHeuristic<TAction> explorationHeuristic;
 
     @Override
     public void expand(final SearchNode<TAction, TEdge, TState> searchNode) {
         List<SearchNode<TAction, TEdge, TState>> explorableChildren = searchNode.createAllPossibleChildNodes(edgeFactory);
 
         for (SearchNode<TAction, TEdge, TState> explorableChild : explorableChildren) {
-            float explorationProbability = explorationProbabilityCalculator.calculate(explorableChild.getAction());
+            float explorationProbability = explorationHeuristic.estimate(explorableChild.getAction());
 
             explorableChild.getEdge().setExplorationProbability(explorationProbability);
         }

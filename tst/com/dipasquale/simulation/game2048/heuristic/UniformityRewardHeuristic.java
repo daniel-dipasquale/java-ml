@@ -1,16 +1,19 @@
-package com.dipasquale.simulation.game2048;
+package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.ValueHeuristic;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.simulation.game2048.Game;
+import com.dipasquale.simulation.game2048.GameAction;
+import com.dipasquale.simulation.game2048.GameState;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UniformityValueHeuristic implements ValueHeuristic<GameAction, GameState> {
+public final class UniformityRewardHeuristic implements RewardHeuristic<GameAction, GameState> {
     private static final float MAXIMUM_SCORE = (float) Math.pow(Game.BOARD_SQUARE_LENGTH, 3D);
     private static final OptimumValuedTile OPTIMUM_VALUED_TILE = OptimumValuedTile.getInstance();
-    private static final UniformityValueHeuristic INSTANCE = new UniformityValueHeuristic();
+    private static final UniformityRewardHeuristic INSTANCE = new UniformityRewardHeuristic();
 
-    public static UniformityValueHeuristic getInstance() {
+    public static UniformityRewardHeuristic getInstance() {
         return INSTANCE;
     }
 
@@ -37,6 +40,6 @@ public final class UniformityValueHeuristic implements ValueHeuristic<GameAction
 
         float rate = (float) score / MAXIMUM_SCORE;
 
-        return ValueHeuristic.convertProbability(rate);
+        return RewardHeuristic.convertProbability(rate);
     }
 }

@@ -43,24 +43,23 @@ import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroContext;
 import com.dipasquale.search.mcts.alphazero.PredictionBehaviorType;
 import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
 import com.dipasquale.search.mcts.common.CPuctCalculator;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
 import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
-import com.dipasquale.search.mcts.common.ValueHeuristic;
-import com.dipasquale.simulation.game2048.AverageValuedTileValueHeuristic;
-import com.dipasquale.simulation.game2048.FreeTileValueHeuristic;
 import com.dipasquale.simulation.game2048.GameAction;
-import com.dipasquale.simulation.game2048.GameExplorationProbabilityCalculator;
 import com.dipasquale.simulation.game2048.GameState;
-import com.dipasquale.simulation.game2048.MonotonicityValueHeuristic;
 import com.dipasquale.simulation.game2048.Player;
-import com.dipasquale.simulation.game2048.RandomValuedTileAdderPlayer;
-import com.dipasquale.simulation.game2048.TwinValuedTileValueHeuristic;
-import com.dipasquale.simulation.game2048.UniformityValueHeuristic;
 import com.dipasquale.simulation.game2048.ValuePerRowNeuralNetworkEncoder;
 import com.dipasquale.simulation.game2048.ValuePerTileInputNeuralNetworkEncoder;
 import com.dipasquale.simulation.game2048.ValuePerTileLineInputNeuralNetworkEncoder;
 import com.dipasquale.simulation.game2048.VectorEncodingType;
-import com.dipasquale.simulation.game2048.WeightedBoardType;
-import com.dipasquale.simulation.game2048.WeightedBoardValueHeuristic;
+import com.dipasquale.simulation.game2048.heuristic.AverageValuedTileRewardHeuristic;
+import com.dipasquale.simulation.game2048.heuristic.FreeTileRewardHeuristic;
+import com.dipasquale.simulation.game2048.heuristic.GameExplorationHeuristic;
+import com.dipasquale.simulation.game2048.heuristic.MonotonicityRewardHeuristic;
+import com.dipasquale.simulation.game2048.heuristic.TwinValuedTileRewardHeuristic;
+import com.dipasquale.simulation.game2048.heuristic.UniformityRewardHeuristic;
+import com.dipasquale.simulation.game2048.heuristic.WeightedBoardRewardHeuristic;
+import com.dipasquale.simulation.game2048.heuristic.WeightedBoardType;
 import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -92,7 +91,7 @@ public final class Game2048TaskSetup implements TaskSetup {
     private static final int TEMPERATURE_DEPTH_THRESHOLD = 90;
     private static final int VICTORY_VALUE = 11;
     private static final WeightedBoardType WEIGHTED_BOARD_TYPE = WeightedBoardType.SNAKE_SHAPE;
-    private static final RandomGameFactory GAME_FACTORY = new RandomGameFactory(VICTORY_VALUE, new RandomValuedTileAdderPlayer());
+    private static final RandomGameFactory GAME_FACTORY = new RandomGameFactory(VICTORY_VALUE);
 
     private static final RandomOutcomeGameSupport GAME_SUPPORT = RandomOutcomeGameSupport.builder()
             .maximumExpansions(MAXIMUM_EXPANSIONS)
@@ -100,8 +99,8 @@ public final class Game2048TaskSetup implements TaskSetup {
             .cacheType(CACHE_TYPE)
             .encoder(INPUT_TOPOLOGY_SETTINGS_TYPE.encoder)
             .decoder(OUTPUT_TOPOLOGY_SETTINGS_TYPE.decoder)
-            .valueHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
-            .policyCalculator(GameExplorationProbabilityCalculator.getInstance())
+            .rewardHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
+            .explorationHeuristic(GameExplorationHeuristic.getInstance())
             .cpuctCalculator(C_PUCT_CALCULATOR_TYPE.reference)
             .backPropagationType(BACK_PROPAGATION_TYPE)
             .temperatureDepthThreshold(TEMPERATURE_DEPTH_THRESHOLD)
@@ -275,14 +274,14 @@ public final class Game2048TaskSetup implements TaskSetup {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum ValueHeuristicSettingsType {
         NONE(null),
-        WEIGHTED_BOARD(new WeightedBoardValueHeuristic(WEIGHTED_BOARD_TYPE)),
-        FREE_TILE(FreeTileValueHeuristic.getInstance()),
-        MONOTONICITY(MonotonicityValueHeuristic.getInstance()),
-        TWIN_VALUED_TILE(TwinValuedTileValueHeuristic.getInstance()),
-        UNIFORMITY(UniformityValueHeuristic.getInstance()),
-        AVERAGE_VALUED_TILE(AverageValuedTileValueHeuristic.getInstance());
+        WEIGHTED_BOARD(new WeightedBoardRewardHeuristic(WEIGHTED_BOARD_TYPE)),
+        FREE_TILE(FreeTileRewardHeuristic.getInstance()),
+        MONOTONICITY(MonotonicityRewardHeuristic.getInstance()),
+        TWIN_VALUED_TILE(TwinValuedTileRewardHeuristic.getInstance()),
+        UNIFORMITY(UniformityRewardHeuristic.getInstance()),
+        AVERAGE_VALUED_TILE(AverageValuedTileRewardHeuristic.getInstance());
 
-        private final ValueHeuristic<GameAction, GameState> reference;
+        private final RewardHeuristic<GameAction, GameState> reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

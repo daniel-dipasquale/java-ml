@@ -26,7 +26,7 @@ public final class AverageValuedTileEnvironment implements IsolatedNeatEnvironme
             int value = result.getValueInTile(tileId);
 
             if (value > 0) {
-                total += Game.getDisplayValue(value);
+                total += Game.toDisplayValue(value);
             }
         }
 

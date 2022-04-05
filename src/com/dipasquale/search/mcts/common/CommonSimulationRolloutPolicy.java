@@ -17,6 +17,10 @@ public final class CommonSimulationRolloutPolicy<TAction extends Action, TEdge e
     private final TraversalPolicy<TAction, TEdge, TState> traversalPolicy;
     private final ExpansionPolicy<TAction, TEdge, TState> expansionPolicy;
 
+    private boolean allowSimulationRollout(final int simulations, final int initialDepth, final int nextDepth, final TState state) {
+        return searchPolicy.allowSimulationRollout(simulations, initialDepth, nextDepth, state.getParticipantId()) || !state.isIntentional();
+    }
+
     @Override
     public SearchNode<TAction, TEdge, TState> simulate(final int simulations, final SearchNode<TAction, TEdge, TState> selectedSearchNode) {
         SearchNode<TAction, TEdge, TState> currentSearchNode = selectedSearchNode;
@@ -26,11 +30,11 @@ public final class CommonSimulationRolloutPolicy<TAction extends Action, TEdge e
         while (currentState.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
             int nextDepth = currentState.getDepth() + 1;
 
-            if (!searchPolicy.allowSimulationRollout(simulations, initialDepth, nextDepth, currentState.getParticipantId())) {
+            if (!allowSimulationRollout(simulations, initialDepth, nextDepth, currentState)) {
                 return currentSearchNode;
             }
 
-            SearchNode<TAction, TEdge, TState> childSearchNode = traversalPolicy.next(simulations, currentSearchNode); // TODO: separate the expansion policy from traversal policy
+            SearchNode<TAction, TEdge, TState> childSearchNode = traversalPolicy.next(simulations, currentSearchNode);
 
             if (childSearchNode == null) {
                 return currentSearchNode;

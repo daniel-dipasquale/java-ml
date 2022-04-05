@@ -25,7 +25,6 @@ public final class GameTest {
                 .searchPolicy(ExtendedMaximumSearchPolicy.builder()
                         .maximumSelections(maximumSimulations)
                         .maximumSimulationRolloutDepth(8)
-                        .perspectiveParticipantId(null)
                         .build())
                 .cacheType(CacheType.AUTO_CLEAR)
                 .backPropagationObserver(backPropagationObserver)

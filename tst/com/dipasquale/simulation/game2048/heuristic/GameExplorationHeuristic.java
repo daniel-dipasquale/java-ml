@@ -1,22 +1,25 @@
-package com.dipasquale.simulation.game2048;
+package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.ExplorationProbabilityCalculator;
+import com.dipasquale.search.mcts.common.ExplorationHeuristic;
+import com.dipasquale.simulation.game2048.Game;
+import com.dipasquale.simulation.game2048.GameAction;
+import com.dipasquale.simulation.game2048.ValuedTile;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class GameExplorationProbabilityCalculator implements ExplorationProbabilityCalculator<GameAction> {
+public final class GameExplorationHeuristic implements ExplorationHeuristic<GameAction> {
     private static final float[] EXPLORATION_PROBABILITIES = {Game.PROBABILITY_OF_SPAWNING_2, 1f - Game.PROBABILITY_OF_SPAWNING_2};
-    private static final GameExplorationProbabilityCalculator INSTANCE = new GameExplorationProbabilityCalculator();
+    private static final GameExplorationHeuristic INSTANCE = new GameExplorationHeuristic();
 
-    public static GameExplorationProbabilityCalculator getInstance() {
+    public static GameExplorationHeuristic getInstance() {
         return INSTANCE;
     }
 
     @Override
-    public float calculate(final GameAction action) {
+    public float estimate(final GameAction action) {
         List<ValuedTile> valuedTiles = action.getValuedTilesAdded();
         int size = valuedTiles.size();
         int value = valuedTiles.get(0).getValue();

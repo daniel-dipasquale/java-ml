@@ -8,6 +8,8 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,9 +19,13 @@ final class Board {
     public static final int SQUARE_LENGTH = ONE_DIMENSION_LENGTH * ONE_DIMENSION_LENGTH;
     public static final int MAXIMUM_EXPONENT_PER_TILE = 16;
 
-    private static final int[] DISPLAY_VALUES = IntStream.range(1, Board.MAXIMUM_EXPONENT_PER_TILE + 1)
+    private static final int[] DISPLAY_VALUES = IntStream.range(1, MAXIMUM_EXPONENT_PER_TILE + 1)
             .map(index -> (int) Math.pow(2D, index))
             .toArray();
+
+    private static final Map<Integer, Integer> ACTUAL_VALUES = IntStream.range(0, DISPLAY_VALUES.length)
+            .boxed()
+            .collect(Collectors.toMap(index -> DISPLAY_VALUES[index], index -> index + 1));
 
     private static final int MAXIMUM_BITS_PER_TILE = (int) (Math.log(MAXIMUM_EXPONENT_PER_TILE) / Math.log(2D));
     private static final BitManipulatorSupport STATE_MANIPULATOR_SUPPORT = BitManipulatorSupport.create(MAXIMUM_BITS_PER_TILE);
@@ -44,16 +50,26 @@ final class Board {
         this(NO_VALUED_TILES, INITIAL_STATE, INITIAL_VALUED_TILE_COUNT, INITIAL_ACTION_IDS_ALLOWED, INITIAL_HIGHEST_VALUE, INITIAL_SCORE);
     }
 
-    public static int getDisplayValue(final int value) {
+    public static int toDisplayValue(final int value) {
         if (value <= 0) {
             return 0;
         }
 
-        if (value <= Board.MAXIMUM_EXPONENT_PER_TILE) {
+        if (value <= MAXIMUM_EXPONENT_PER_TILE) {
             return DISPLAY_VALUES[value - 1];
         }
 
         return (int) Math.pow(2D, value);
+    }
+
+    public static int fromDisplayValue(final int displayValue) {
+        if (displayValue <= DISPLAY_VALUES[MAXIMUM_EXPONENT_PER_TILE - 1]) {
+            return ACTUAL_VALUES.get(displayValue);
+        }
+
+        double result = Math.log(displayValue) / Math.log(2D);
+
+        return (int) result;
     }
 
     public boolean isPartiallyInitialized() {
@@ -195,7 +211,7 @@ final class Board {
 
                         nextState = mergeValueToState(nextState, dimension, writeIndex, newValue, actionIdType);
                         nextHighestValue = Math.max(nextHighestValue, newValue);
-                        nextScore += getDisplayValue(newValue);
+                        nextScore += toDisplayValue(newValue);
                         readIndex = value2ReadIndex - 1;
                     } else {
                         nextState = mergeValueToState(nextState, dimension, writeIndex, value1, actionIdType);
@@ -266,7 +282,7 @@ final class Board {
         stream.println("=============================");
         stream.printf("depth: %d%n", depth);
         stream.printf("actions allowed: %s%n", createActionIdsAllowedText(actionIdsAllowed));
-        stream.printf("highest value: %s%n", getDisplayValue(highestValue));
+        stream.printf("highest value: %s%n", toDisplayValue(highestValue));
         stream.printf("score: %s%n", score);
 
         if (actionIdType != null) {
@@ -275,12 +291,12 @@ final class Board {
             stream.printf("last action: added tile%n");
         }
 
-        for (int x = 0; x < Board.ONE_DIMENSION_LENGTH; x++) {
+        for (int x = 0; x < ONE_DIMENSION_LENGTH; x++) {
             stream.print("|");
 
-            for (int y = 0; y < Board.ONE_DIMENSION_LENGTH; y++) {
+            for (int y = 0; y < ONE_DIMENSION_LENGTH; y++) {
                 int tileId = getTileId(ActionIdType.LEFT, x, y);
-                int value = getDisplayValue(extractValueFromState(state, tileId));
+                int value = toDisplayValue(extractValueFromState(state, tileId));
 
                 if (value >= 2) {
                     stream.printf("%1$5s |", value);

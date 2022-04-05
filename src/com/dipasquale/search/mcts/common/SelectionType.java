@@ -13,8 +13,8 @@ public enum SelectionType {
     INTENTIONAL_ONLY,
     MIXED;
 
-    public static <T extends Action> SelectionType determine(final ExplorationProbabilityCalculator<T> explorationProbabilityCalculator) {
-        if (explorationProbabilityCalculator == null) {
+    public static <T extends Action> SelectionType determine(final ExplorationHeuristic<T> explorationHeuristic) {
+        if (explorationHeuristic == null) {
             return INTENTIONAL_ONLY;
         }
 

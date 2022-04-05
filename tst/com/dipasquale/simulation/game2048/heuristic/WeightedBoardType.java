@@ -1,4 +1,4 @@
-package com.dipasquale.simulation.game2048;
+package com.dipasquale.simulation.game2048.heuristic;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,9 +14,9 @@ public enum WeightedBoardType {
     private static double[] createSnakeShapeWeights() {
         return new double[]{
                 Math.pow(5D, 6D), Math.pow(5D, 5D), Math.pow(5D, 4D), Math.pow(5D, 3D),
-                Math.pow(5D, 2.25D), Math.pow(5D, 1.5D), Math.pow(5D, 0.75D), Math.pow(5D, 0D),
-                1D, 0.75D, 0.5D, 0.25D,
-                0.1D, 0.01D, 0.001D, 0.0001D
+                Math.pow(5D, 1D), Math.pow(5D, 1.5D), Math.pow(5D, 2D), Math.pow(5D, 2.5D),
+                Math.pow(5D, -1D), Math.pow(5D, -1.5D), Math.pow(5D, -2D), Math.pow(5D, -2.5D),
+                Math.pow(5D, -6D), Math.pow(5D, -5D), Math.pow(5D, -4D), Math.pow(5D, -3D)
         };
     }
 

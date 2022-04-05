@@ -18,7 +18,7 @@ import com.dipasquale.search.mcts.common.CommonSelectionPolicy;
 import com.dipasquale.search.mcts.common.CommonSelectionPolicyFactory;
 import com.dipasquale.search.mcts.common.CommonSimulationRolloutPolicy;
 import com.dipasquale.search.mcts.common.CommonSimulationRolloutPolicyFactory;
-import com.dipasquale.search.mcts.common.ExplorationProbabilityCalculator;
+import com.dipasquale.search.mcts.common.ExplorationHeuristic;
 import com.dipasquale.search.mcts.common.ExtendedSearchPolicy;
 import com.dipasquale.search.mcts.common.IntentRegulatorExpansionPolicy;
 import com.dipasquale.search.mcts.common.IntentionalExpansionPolicy;
@@ -40,12 +40,12 @@ public final class ClassicMonteCarloTreeSearch<TAction extends Action, TState ex
     private static final PrevalentActionEfficiencyCalculator PREVALENT_ACTION_EFFICIENCY_CALCULATOR = PrevalentActionEfficiencyCalculator.getInstance();
     private final Mcts<TAction, ClassicEdge, TState> mcts;
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, ClassicEdge, TState> createExpansionPolicy(final RandomSupport randomSupport, final ExplorationProbabilityCalculator<TAction> explorationProbabilityCalculator, final Provider<TAction, ClassicEdge, TState> provider) {
+    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, ClassicEdge, TState> createExpansionPolicy(final RandomSupport randomSupport, final ExplorationHeuristic<TAction> explorationHeuristic, final Provider<TAction, ClassicEdge, TState> provider) {
         List<ExpansionPolicy<TAction, ClassicEdge, TState>> expansionPolicies = new ArrayList<>();
         IntentionalExpansionPolicy<TAction, ClassicEdge, TState> intentionalExpansionPolicy = new IntentionalExpansionPolicy<>(EDGE_FACTORY, randomSupport);
 
-        if (explorationProbabilityCalculator != null) {
-            UnintentionalExpansionPolicy<TAction, ClassicEdge, TState> unintentionalExpansionPolicy = new UnintentionalExpansionPolicy<>(EDGE_FACTORY, explorationProbabilityCalculator);
+        if (explorationHeuristic != null) {
+            UnintentionalExpansionPolicy<TAction, ClassicEdge, TState> unintentionalExpansionPolicy = new UnintentionalExpansionPolicy<>(EDGE_FACTORY, explorationHeuristic);
             IntentRegulatorExpansionPolicy<TAction, ClassicEdge, TState> intentRegulatorExpansionPolicy = new IntentRegulatorExpansionPolicy<>(intentionalExpansionPolicy, unintentionalExpansionPolicy);
 
             expansionPolicies.add(intentRegulatorExpansionPolicy);
@@ -61,13 +61,13 @@ public final class ClassicMonteCarloTreeSearch<TAction extends Action, TState ex
     }
 
     @Builder
-    public static <TAction extends Action, TState extends State<TAction, TState>> ClassicMonteCarloTreeSearch<TAction, TState> create(final ExtendedSearchPolicy searchPolicy, final CacheType cacheType, final ExplorationProbabilityCalculator<TAction> explorationProbabilityCalculator, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
+    public static <TAction extends Action, TState extends State<TAction, TState>> ClassicMonteCarloTreeSearch<TAction, TState> create(final ExtendedSearchPolicy searchPolicy, final CacheType cacheType, final ExplorationHeuristic<TAction> explorationHeuristic, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
         UniformRandomSupport randomSupport = new UniformRandomSupport();
         CacheType fixedCacheType = Objects.requireNonNullElse(cacheType, CacheType.NONE);
         Provider<TAction, ClassicEdge, TState> provider = fixedCacheType.create(EDGE_FACTORY);
-        ExpansionPolicy<TAction, ClassicEdge, TState> expansionPolicy = createExpansionPolicy(randomSupport, explorationProbabilityCalculator, provider);
-        CommonSelectionPolicy<TAction, ClassicEdge, TState> selectionPolicy = new CommonSelectionPolicyFactory<>(SELECTION_CONFIDENCE_CALCULATOR, SelectionType.determine(explorationProbabilityCalculator), expansionPolicy).create();
-        CommonSimulationRolloutPolicy<TAction, ClassicEdge, TState> simulationRolloutPolicy = new CommonSimulationRolloutPolicyFactory<>(searchPolicy, randomSupport, SelectionType.determine(explorationProbabilityCalculator), expansionPolicy).create();
+        ExpansionPolicy<TAction, ClassicEdge, TState> expansionPolicy = createExpansionPolicy(randomSupport, explorationHeuristic, provider);
+        CommonSelectionPolicy<TAction, ClassicEdge, TState> selectionPolicy = new CommonSelectionPolicyFactory<>(SELECTION_CONFIDENCE_CALCULATOR, SelectionType.determine(explorationHeuristic), expansionPolicy).create();
+        CommonSimulationRolloutPolicy<TAction, ClassicEdge, TState> simulationRolloutPolicy = new CommonSimulationRolloutPolicyFactory<>(searchPolicy, randomSupport, SelectionType.determine(explorationHeuristic), expansionPolicy).create();
         BackPropagationPolicy<TAction, ClassicEdge, TState, ?> backPropagationPolicy = new BackPropagationPolicy<>(ClassicBackPropagationStep.getInstance(), backPropagationObserver);
         MaximumEfficiencyProposalStrategy<TAction, ClassicEdge, TState> proposalStrategy = new MaximumEfficiencyProposalStrategy<>(PREVALENT_ACTION_EFFICIENCY_CALCULATOR);
         List<ResetHandler> resetHandlers = ResetHandler.create(provider);

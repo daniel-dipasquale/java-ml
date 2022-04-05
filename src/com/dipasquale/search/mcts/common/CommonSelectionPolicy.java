@@ -39,10 +39,14 @@ public final class CommonSelectionPolicy<TAction extends Action, TEdge extends E
 
                 expansionPolicy.expand(desiredSearchNode);
 
-                return desiredSearchNode;
-            }
+                if (desiredSearchNode.getState().isIntentional()) {
+                    return desiredSearchNode;
+                }
 
-            nextSearchNode = undesiredTraversalPolicy.next(simulations, nextSearchNode);
+                nextSearchNode = undesiredTraversalPolicy.next(simulations, desiredSearchNode);
+            } else {
+                nextSearchNode = undesiredTraversalPolicy.next(simulations, nextSearchNode);
+            }
 
             if (nextSearchNode == null) {
                 return null;

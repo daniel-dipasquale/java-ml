@@ -51,8 +51,8 @@ import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroContext;
 import com.dipasquale.search.mcts.alphazero.PredictionBehaviorType;
 import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
 import com.dipasquale.search.mcts.common.CPuctCalculator;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
 import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
-import com.dipasquale.search.mcts.common.ValueHeuristic;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameState;
 import com.dipasquale.simulation.tictactoe.Player;
@@ -99,8 +99,8 @@ public final class TicTacToeTaskSetup implements TaskSetup {
             .cacheType(CACHE_TYPE)
             .encoder(INPUT_TOPOLOGY_SETTINGS_TYPE.encoder)
             .decoder(OUTPUT_TOPOLOGY_SETTINGS_TYPE.decoder)
-            .valueHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
-            .policyCalculator(null)
+            .rewardHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
+            .explorationHeuristic(null)
             .cpuctCalculator(C_PUCT_CALCULATOR_TYPE.reference)
             .backPropagationType(BACK_PROPAGATION_TYPE)
             .temperatureDepthThreshold(TEMPERATURE_DEPTH_THRESHOLD)
@@ -314,7 +314,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
         INDIVIDUAL_ACTION_SCORE(ActionScoreFitnessObjective.createValueHeuristic(false)),
         ACTION_SCORE_VS_OPPONENT(ActionScoreFitnessObjective.createValueHeuristic(true));
 
-        private final ValueHeuristic<GameAction, GameState> reference;
+        private final RewardHeuristic<GameAction, GameState> reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

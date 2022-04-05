@@ -1,15 +1,18 @@
-package com.dipasquale.simulation.game2048;
+package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.ValueHeuristic;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.simulation.game2048.Game;
+import com.dipasquale.simulation.game2048.GameAction;
+import com.dipasquale.simulation.game2048.GameState;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class MonotonicityValueHeuristic implements ValueHeuristic<GameAction, GameState> {
+public final class MonotonicityRewardHeuristic implements RewardHeuristic<GameAction, GameState> {
     private static final float MAXIMUM = (float) (Game.BOARD_ONE_DIMENSION_LENGTH * 2);
-    private static final MonotonicityValueHeuristic INSTANCE = new MonotonicityValueHeuristic();
+    private static final MonotonicityRewardHeuristic INSTANCE = new MonotonicityRewardHeuristic();
 
-    public static MonotonicityValueHeuristic getInstance() {
+    public static MonotonicityRewardHeuristic getInstance() {
         return INSTANCE;
     }
 
@@ -81,6 +84,6 @@ public final class MonotonicityValueHeuristic implements ValueHeuristic<GameActi
 
         float rate = (float) count / MAXIMUM;
 
-        return ValueHeuristic.convertProbability(rate);
+        return RewardHeuristic.convertProbability(rate);
     }
 }

@@ -1,4 +1,4 @@
-package com.dipasquale.simulation.game2048;
+package com.dipasquale.simulation.game2048.heuristic;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

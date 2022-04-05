@@ -15,8 +15,8 @@ import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroModel;
 import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
 import com.dipasquale.search.mcts.alphazero.TemperatureController;
 import com.dipasquale.search.mcts.common.CPuctCalculator;
-import com.dipasquale.search.mcts.common.ExplorationProbabilityCalculator;
-import com.dipasquale.search.mcts.common.ValueHeuristic;
+import com.dipasquale.search.mcts.common.ExplorationHeuristic;
+import com.dipasquale.search.mcts.common.RewardHeuristic;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;
@@ -34,8 +34,8 @@ final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
     private final CacheType cacheType;
     private final NeuralNetworkEncoder<GameState> encoder;
     private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroContext<GameAction, GameState>> decoder;
-    private final ValueHeuristic<GameAction, GameState> valueHeuristic;
-    private final ExplorationProbabilityCalculator<GameAction> policyCalculator;
+    private final RewardHeuristic<GameAction, GameState> rewardHeuristic;
+    private final ExplorationHeuristic<GameAction> explorationHeuristic;
     private final CPuctCalculator cpuctCalculator;
     private final BackPropagationType backPropagationType;
     private final int temperatureDepthThreshold;
@@ -50,7 +50,7 @@ final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
                                 .build())
                         .rootExplorationProbabilityNoise(rootExplorationProbabilityNoise)
                         .cacheType(cacheType)
-                        .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, valueHeuristic, policyCalculator))
+                        .traversalModel(new NeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, rewardHeuristic, explorationHeuristic))
                         .cpuctCalculator(cpuctCalculator)
                         .backPropagationType(backPropagationType)
                         .temperatureController(TemperatureController.builder()

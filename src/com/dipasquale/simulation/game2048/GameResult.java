@@ -15,6 +15,10 @@ public final class GameResult {
         return state.getStatusId() == GameState.PLAYER_PARTICIPANT_ID;
     }
 
+    public int getHighestValue() {
+        return state.getHighestValue();
+    }
+
     public int getValueInTile(final int tileId) {
         return state.getValueInTile(tileId);
     }

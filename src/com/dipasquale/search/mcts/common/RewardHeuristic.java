@@ -4,7 +4,7 @@ import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.State;
 
 @FunctionalInterface
-public interface ValueHeuristic<TAction extends Action, TState extends State<TAction, TState>> {
+public interface RewardHeuristic<TAction extends Action, TState extends State<TAction, TState>> {
     float estimate(TState state);
 
     private static float calculateUnboundedInternal(final float value, final float control) {

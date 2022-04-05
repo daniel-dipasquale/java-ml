@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class MultiTrainingPolicy implements NeatTrainingPolicy, Serializable {
+final class ParallelTrainingPolicy implements NeatTrainingPolicy, Serializable {
     @Serial
     private static final long serialVersionUID = 188585934977792857L;
     private final AtomicBoolean solutionFound;
