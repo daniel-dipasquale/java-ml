@@ -2,9 +2,9 @@ package com.dipasquale.search.mcts.alphazero;
 
 import com.dipasquale.search.mcts.ActionEfficiencyCalculator;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class VisitedActionEfficiencyCalculator implements ActionEfficiencyCalculator<AlphaZeroEdge> {
     private static final VisitedActionEfficiencyCalculator INSTANCE = new VisitedActionEfficiencyCalculator();
 

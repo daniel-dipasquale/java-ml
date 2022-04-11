@@ -12,10 +12,10 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-public final class NeuralNetworkAlphaZeroContext<TAction extends Action, TState extends State<TAction, TState>> {
-    private final SearchNode<TAction, AlphaZeroEdge, TState> searchNode;
+public final class NeuralNetworkAlphaZeroContext<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> {
+    private final TSearchNode searchNode;
     private final EdgeFactory<AlphaZeroEdge> edgeFactory;
-    private final AlphaZeroPredictor<TAction, TState> predictor;
+    private final AlphaZeroPredictor<TAction, TState, TSearchNode> predictor;
     private final RewardHeuristic<TAction, TState> rewardHeuristic;
     private final ExplorationHeuristic<TAction> explorationHeuristic;
 }

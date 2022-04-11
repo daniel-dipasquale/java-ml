@@ -6,29 +6,29 @@ import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UnexploredPrimerTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, TEdge, TState> {
-    private static final UnexploredPrimerTraversalPolicy<?, ?, ?> INSTANCE = new UnexploredPrimerTraversalPolicy<>();
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class UnexploredPrimerTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements TraversalPolicy<TAction, TEdge, TState, TSearchNode> {
+    private static final UnexploredPrimerTraversalPolicy<?, ?, ?, ?> INSTANCE = new UnexploredPrimerTraversalPolicy<>();
 
-    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> UnexploredPrimerTraversalPolicy<TAction, TEdge, TState> getInstance() {
-        return (UnexploredPrimerTraversalPolicy<TAction, TEdge, TState>) INSTANCE;
+    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> UnexploredPrimerTraversalPolicy<TAction, TEdge, TState, TSearchNode> getInstance() {
+        return (UnexploredPrimerTraversalPolicy<TAction, TEdge, TState, TSearchNode>) INSTANCE;
     }
 
     @Override
-    public SearchNode<TAction, TEdge, TState> next(final int simulations, final SearchNode<TAction, TEdge, TState> searchNode) {
-        List<SearchNode<TAction, TEdge, TState>> unexploredChildren = searchNode.getUnexploredChildren();
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
+        List<TSearchNode> unexploredChildren = searchNode.getUnexploredChildren();
         int size = unexploredChildren.size();
 
         if (size == 0) {
             return null;
         }
 
-        SearchNode<TAction, TEdge, TState> childSearchNode = unexploredChildren.remove(size - 1);
-        List<SearchNode<TAction, TEdge, TState>> explorableChildren = searchNode.getExplorableChildren();
+        TSearchNode childSearchNode = unexploredChildren.remove(size - 1);
+        List<TSearchNode> explorableChildren = searchNode.getExplorableChildren();
 
         explorableChildren.add(childSearchNode);
         childSearchNode.initializeState();

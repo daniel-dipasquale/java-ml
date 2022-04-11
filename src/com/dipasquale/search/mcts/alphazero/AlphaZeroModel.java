@@ -5,10 +5,10 @@ import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
 
-public interface AlphaZeroModel<TAction extends Action, TState extends State<TAction, TState>> {
+public interface AlphaZeroModel<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> {
     boolean isEveryStateIntentional();
 
-    AlphaZeroPrediction<TAction, TState> predict(SearchNode<TAction, AlphaZeroEdge, TState> searchNode, EdgeFactory<AlphaZeroEdge> edgeFactory);
+    AlphaZeroPrediction<TAction, TState, TSearchNode> predict(TSearchNode searchNode, EdgeFactory<AlphaZeroEdge> edgeFactory);
 
     void reset();
 }

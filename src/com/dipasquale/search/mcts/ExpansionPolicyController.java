@@ -6,17 +6,17 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ExpansionPolicyController<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements ExpansionPolicy<TAction, TEdge, TState> {
-    private final List<ExpansionPolicy<TAction, TEdge, TState>> expansionPolicies;
+public final class ExpansionPolicyController<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, TEdge, TState, TSearchNode> {
+    private final List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies;
 
     @Override
-    public void expand(final SearchNode<TAction, TEdge, TState> searchNode) {
-        for (ExpansionPolicy<TAction, TEdge, TState> expansionPolicy : expansionPolicies) {
+    public void expand(final TSearchNode searchNode) {
+        for (ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy : expansionPolicies) {
             expansionPolicy.expand(searchNode);
         }
     }
 
-    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> ExpansionPolicy<TAction, TEdge, TState> provide(final List<ExpansionPolicy<TAction, TEdge, TState>> expansionPolicies) {
+    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> provide(final List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies) {
         return switch (expansionPolicies.size()) {
             case 0 -> null;
 

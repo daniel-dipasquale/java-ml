@@ -9,61 +9,61 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public final class DualModeCyclicIntegerValueTest {
-    private static final CyclicIntegerValueTestHarness PLAIN_HARNESS = new CyclicIntegerValueTestHarness(new DualModeCyclicIntegerValueFactory(0));
-    private static final CyclicIntegerValueTestHarness ATOMIC_HARNESS = new CyclicIntegerValueTestHarness(new DualModeCyclicIntegerValueFactory(1));
+    private static final CyclicIntegerValueTestHarness STANDARD_HARNESS = new CyclicIntegerValueTestHarness(new DualModeCyclicIntegerValueFactory(0));
+    private static final CyclicIntegerValueTestHarness CONCURRENT_HARNESS = new CyclicIntegerValueTestHarness(new DualModeCyclicIntegerValueFactory(1));
 
     @Test
     public void TEST_1() {
-        PLAIN_HARNESS.assertInitialState();
-        ATOMIC_HARNESS.assertInitialState();
+        STANDARD_HARNESS.assertInitialState();
+        CONCURRENT_HARNESS.assertInitialState();
     }
 
     @Test
     public void TEST_2() {
-        PLAIN_HARNESS.assertMultiCycleIncrement();
-        ATOMIC_HARNESS.assertMultiCycleIncrement();
+        STANDARD_HARNESS.assertMultiCycleIncrement();
+        CONCURRENT_HARNESS.assertMultiCycleIncrement();
     }
 
     @Test
     public void TEST_3() {
-        PLAIN_HARNESS.assertMultiCycleDecrement();
-        ATOMIC_HARNESS.assertMultiCycleDecrement();
+        STANDARD_HARNESS.assertMultiCycleDecrement();
+        CONCURRENT_HARNESS.assertMultiCycleDecrement();
     }
 
     @Test
     public void TEST_4() {
-        PLAIN_HARNESS.assertMultiCycleIncrementDecrement();
-        ATOMIC_HARNESS.assertMultiCycleIncrementDecrement();
+        STANDARD_HARNESS.assertMultiCycleIncrementDecrement();
+        CONCURRENT_HARNESS.assertMultiCycleIncrementDecrement();
     }
 
     @Test
     public void TEST_5() {
-        PLAIN_HARNESS.assertMultiCycleReadWrite();
-        ATOMIC_HARNESS.assertMultiCycleReadWrite();
+        STANDARD_HARNESS.assertMultiCycleReadWrite();
+        CONCURRENT_HARNESS.assertMultiCycleReadWrite();
     }
 
     @Test
     public void TEST_6() {
-        PLAIN_HARNESS.assertCompareTo();
-        ATOMIC_HARNESS.assertCompareTo();
+        STANDARD_HARNESS.assertCompareTo();
+        CONCURRENT_HARNESS.assertCompareTo();
     }
 
     @Test
     public void TEST_7() {
-        PLAIN_HARNESS.assertEqualsAndHashCode();
-        ATOMIC_HARNESS.assertEqualsAndHashCode();
+        STANDARD_HARNESS.assertEqualsAndHashCode();
+        CONCURRENT_HARNESS.assertEqualsAndHashCode();
     }
 
     @Test
     public void TEST_8() {
-        PLAIN_HARNESS.assertToString();
-        ATOMIC_HARNESS.assertToString();
+        STANDARD_HARNESS.assertToString();
+        CONCURRENT_HARNESS.assertToString();
     }
 
     @Test
     public void TEST_9() {
-        PLAIN_HARNESS.assertSerialization();
-        ATOMIC_HARNESS.assertSerialization();
+        STANDARD_HARNESS.assertSerialization();
+        CONCURRENT_HARNESS.assertSerialization();
     }
 
     private void assertActivateMode(final DualModeCyclicIntegerValue integerValue, int current) {

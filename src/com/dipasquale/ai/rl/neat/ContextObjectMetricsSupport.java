@@ -18,7 +18,7 @@ import com.dipasquale.synchronization.dual.mode.DualModeIntegerValue;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
@@ -175,7 +175,7 @@ final class ContextObjectMetricsSupport implements Context.MetricsSupport {
         metrics = DualModeObject.activateMode(stateGroup.get("metrics.metrics"), concurrencyLevel);
     }
 
-    public void load(final SerializableStateGroup stateGroup, final BatchingEventLoop eventLoop) {
+    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
         load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

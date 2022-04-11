@@ -15,7 +15,7 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionSt
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategyExecutor;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.random.ProbabilityClassifier;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -302,6 +302,6 @@ public interface Context {
     interface StateOverrideSupport {
         NeatEnvironment fitnessFunction();
 
-        BatchingEventLoop eventLoop();
+        ParallelEventLoop eventLoop();
     }
 }

@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.dual.mode;
 
 import com.dipasquale.common.FloatValue;
-import com.dipasquale.common.PlainFloatValue;
+import com.dipasquale.common.StandardFloatValue;
 import com.dipasquale.common.concurrent.AtomicFloatValue;
 import lombok.EqualsAndHashCode;
 
@@ -28,7 +28,7 @@ public final class DualModeFloatValue implements FloatValue, DualModeObject, Ser
             return new AtomicFloatValue(value);
         }
 
-        return new PlainFloatValue(value);
+        return new StandardFloatValue(value);
     }
 
     @Override

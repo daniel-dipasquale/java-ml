@@ -2,7 +2,7 @@ package com.dipasquale.simulation.game2048;
 
 import com.dipasquale.common.random.float1.DeterministicRandomSupport;
 import com.dipasquale.common.random.float1.UniformRandomSupport;
-import com.dipasquale.search.mcts.CacheType;
+import com.dipasquale.search.mcts.BufferType;
 import com.dipasquale.search.mcts.alphazero.BackPropagationType;
 import com.dipasquale.search.mcts.common.CPuctCalculator;
 import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
@@ -34,7 +34,7 @@ public final class GameTest {
     private static final double C_PUCT_ROSIN_INIT = 2.5D;
     private static final float C_PUCT_CONSTANT = 1f;
     private static final boolean PRINT_FINAL_STATE = true;
-    private static final TestOption TEST_OPTION = TestOption.DISPLAYED_ON_BROWSER_ONLY;
+    private static final TestOption TEST_OPTION = TestOption.INVISIBLE_ONLY;
 
     @Test
     public void TEST_1() {
@@ -65,10 +65,10 @@ public final class GameTest {
         MctsPlayer player = MctsPlayer.builder()
                 .mcts(HeuristicMonteCarloTreeSearch.<GameAction, GameState>builder()
                         .searchPolicy(ExtendedMaximumSearchPolicy.builder()
-                                .maximumSelections(200)
+                                .maximumSelectionCount(200)
                                 .maximumSimulationRolloutDepth(16)
                                 .build())
-                        .cacheType(CacheType.AUTO_CLEAR)
+                        .bufferType(BufferType.AUTO_CLEAR)
                         .rewardHeuristic(RewardHeuristicController.<GameAction, GameState>builder()
                                 .permissionTypes(HeuristicPermissionType.INTENTIONAL_ONLY.reference)
                                 .addHeuristic(HeuristicType.WEIGHTED_BOARD.reference, 1f)

@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuronMemory;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.io.IORuntimeException;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import com.dipasquale.synchronization.lock.NoopReadWriteLock;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +64,7 @@ final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
     }
 
     private static NeatTrainer createTrainer(final Context context, final ParallelTrainingPolicy parallelTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
-        NeatTrainingPolicy fixedTrainingPolicy = NeatTrainingPolicies.builder()
+        NeatTrainingPolicy fixedTrainingPolicy = NeatTrainingPolicyController.builder()
                 .add(parallelTrainingPolicy)
                 .add(trainingPolicy.createClone())
                 .build();
@@ -157,7 +157,7 @@ final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
         }
     }
 
-    private static boolean isEquivalent(final Context.ParallelismSupport parallelismSupport, final BatchingEventLoop eventLoop) {
+    private static boolean isEquivalent(final Context.ParallelismSupport parallelismSupport, final ParallelEventLoop eventLoop) {
         return !parallelismSupport.params().enabled() && eventLoop == null
                 || parallelismSupport.params().enabled() && eventLoop != null && parallelismSupport.params().numberOfThreads() == eventLoop.getConcurrencyLevel();
     }

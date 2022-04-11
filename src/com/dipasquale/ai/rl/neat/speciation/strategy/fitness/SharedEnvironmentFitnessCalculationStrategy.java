@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.data.structure.deque.PlainNode;
+import com.dipasquale.data.structure.deque.StandardNode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,7 @@ public final class SharedEnvironmentFitnessCalculationStrategy implements Fitnes
         List<GenomeActivator> genomeActivators = new ArrayList<>();
         Context.ActivationSupport activationSupport = context.getParent().activation();
 
-        for (PlainNode<Species> speciesNode : context.getSpeciesNodes()) {
+        for (StandardNode<Species> speciesNode : context.getSpeciesNodes()) {
             Species species = context.getSpeciesNodes().getValue(speciesNode);
 
             for (Organism organism : species.getOrganisms()) {

@@ -1,8 +1,9 @@
 package com.dipasquale.search.mcts.common;
 
-import com.dipasquale.common.random.float1.UniformRandomSupport;
+import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
+import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
 import lombok.AccessLevel;
@@ -21,11 +22,10 @@ public enum SelectionType {
         return MIXED;
     }
 
-    public <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> TraversalPolicy<TAction, TEdge, TState> createTraversalPolicy(final TraversalPolicy<TAction, TEdge, TState> intentionalTraversalPolicy) {
+    public <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> TraversalPolicy<TAction, TEdge, TState, TSearchNode> createTraversalPolicy(final RandomSupport randomSupport, final TraversalPolicy<TAction, TEdge, TState, TSearchNode> intentionalTraversalPolicy) {
         return switch (this) {
             case MIXED -> {
-                UniformRandomSupport randomSupport = new UniformRandomSupport();
-                UnintentionalTraversalPolicy<TAction, TEdge, TState> unintentionalTraversalPolicy = new UnintentionalTraversalPolicy<>(randomSupport);
+                UnintentionalTraversalPolicy<TAction, TEdge, TState, TSearchNode> unintentionalTraversalPolicy = new UnintentionalTraversalPolicy<>(randomSupport);
 
                 yield new IntentRegulatorTraversalPolicy<>(intentionalTraversalPolicy, unintentionalTraversalPolicy);
             }

@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class IntentionalExpansionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements ExpansionPolicy<TAction, TEdge, TState> {
+public final class IntentionalExpansionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, TEdge, TState, TSearchNode> {
     private final EdgeFactory<TEdge> edgeFactory;
     private final RandomSupport randomSupport;
 
     @Override
-    public void expand(final SearchNode<TAction, TEdge, TState> searchNode) {
-        List<SearchNode<TAction, TEdge, TState>> unexploredChildren = searchNode.createAllPossibleChildNodes(edgeFactory);
+    public void expand(final TSearchNode searchNode) {
+        List<TSearchNode> unexploredChildren = searchNode.createAllPossibleChildNodes(edgeFactory);
 
         randomSupport.shuffle(unexploredChildren);
         searchNode.setUnexploredChildren(unexploredChildren);

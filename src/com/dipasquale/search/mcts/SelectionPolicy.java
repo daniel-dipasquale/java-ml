@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts;
 
 @FunctionalInterface
-public interface SelectionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
-    SearchNode<TAction, TEdge, TState> select(int simulations, SearchNode<TAction, TEdge, TState> rootSearchNode);
+public interface SelectionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+    TSearchNode select(int simulations, TSearchNode rootSearchNode);
 }

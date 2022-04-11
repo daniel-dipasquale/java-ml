@@ -2,15 +2,15 @@ package com.dipasquale.common;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-@NoArgsConstructor
+@RequiredArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public final class PlainFloatValue implements FloatValue, Serializable {
+public final class StandardFloatValue implements FloatValue, Serializable {
     @Serial
     private static final long serialVersionUID = 4407313574791902479L;
     private float raw = 0f;

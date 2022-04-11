@@ -12,17 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class AlphaZeroProposalStrategy<TAction extends Action, TState extends State<TAction, TState>> implements ProposalStrategy<TAction, AlphaZeroEdge, TState> {
+final class AlphaZeroProposalStrategy<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ProposalStrategy<TAction, AlphaZeroEdge, TState, TSearchNode> {
     private final ActionEfficiencyCalculator<AlphaZeroEdge> actionEfficiencyCalculator;
     private final TemperatureController temperatureController;
-    private final RankedActionDecisionMaker<TAction, TState> explorationRankedActionDecisionMaker;
-    private final RankedActionDecisionMaker<TAction, TState> exploitationRankedActionDecisionMaker;
+    private final RankedActionDecisionMaker<TAction, TState, TSearchNode> explorationRankedActionDecisionMaker;
+    private final RankedActionDecisionMaker<TAction, TState, TSearchNode> exploitationRankedActionDecisionMaker;
 
     @Override
-    public SearchNode<TAction, AlphaZeroEdge, TState> proposeBestNode(final int simulations, final int depth, final Iterable<SearchNode<TAction, AlphaZeroEdge, TState>> searchNodes) {
-        List<RankedAction<TAction, TState>> rankedActions = new ArrayList<>();
+    public TSearchNode proposeBestNode(final int simulations, final int depth, final Iterable<TSearchNode> searchNodes) {
+        List<RankedAction<TAction, TState, TSearchNode>> rankedActions = new ArrayList<>();
 
-        for (SearchNode<TAction, AlphaZeroEdge, TState> searchNode : searchNodes) {
+        for (TSearchNode searchNode : searchNodes) {
             float efficiency = actionEfficiencyCalculator.calculate(depth, searchNode.getEdge());
 
             rankedActions.add(new RankedAction<>(searchNode, efficiency));

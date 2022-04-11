@@ -12,16 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class AlphaZeroExpansionPolicy<TAction extends Action, TState extends State<TAction, TState>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState> {
+final class AlphaZeroExpansionPolicy<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> {
     private final EdgeFactory<AlphaZeroEdge> edgeFactory;
-    private final AlphaZeroModel<TAction, TState> traversalModel;
+    private final AlphaZeroModel<TAction, TState, TSearchNode> traversalModel;
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> void initializeProbableReward(final SearchNode<TAction, AlphaZeroEdge, TState> searchNode, final AlphaZeroPrediction<TAction, TState> prediction) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> void initializeProbableReward(final TSearchNode searchNode, final AlphaZeroPrediction<TAction, TState, TSearchNode> prediction) {
         searchNode.getEdge().setProbableReward(prediction.getValue());
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> void initializeExplorationProbabilities(final AlphaZeroPrediction<TAction, TState> prediction) {
-        List<SearchNode<TAction, AlphaZeroEdge, TState>> explorableChildren = prediction.getExplorableChildren();
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> void initializeExplorationProbabilities(final AlphaZeroPrediction<TAction, TState, TSearchNode> prediction) {
+        List<TSearchNode> explorableChildren = prediction.getExplorableChildren();
         float[] policies = prediction.getPolicies();
 
         for (int i = 0, c = explorableChildren.size(); i < c; i++) {
@@ -30,8 +30,8 @@ final class AlphaZeroExpansionPolicy<TAction extends Action, TState extends Stat
     }
 
     @Override
-    public void expand(final SearchNode<TAction, AlphaZeroEdge, TState> searchNode) {
-        AlphaZeroPrediction<TAction, TState> prediction = traversalModel.predict(searchNode, edgeFactory);
+    public void expand(final TSearchNode searchNode) {
+        AlphaZeroPrediction<TAction, TState, TSearchNode> prediction = traversalModel.predict(searchNode, edgeFactory);
 
         initializeProbableReward(searchNode, prediction);
         initializeExplorationProbabilities(prediction);

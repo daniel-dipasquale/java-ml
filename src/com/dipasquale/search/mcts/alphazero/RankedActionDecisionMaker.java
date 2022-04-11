@@ -7,6 +7,6 @@ import com.dipasquale.search.mcts.State;
 import java.util.List;
 
 @FunctionalInterface
-interface RankedActionDecisionMaker<TAction extends Action, TState extends State<TAction, TState>> {
-    SearchNode<TAction, AlphaZeroEdge, TState> decide(int simulations, int depth, List<RankedAction<TAction, TState>> rankedActions);
+interface RankedActionDecisionMaker<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> {
+    TSearchNode decide(int simulations, int depth, List<RankedAction<TAction, TState, TSearchNode>> rankedActions);
 }

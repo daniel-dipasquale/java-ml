@@ -1,11 +1,11 @@
 package com.dipasquale.synchronization.wait.handle;
 
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.TimeUnit;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ThreadSleeperWaitHandle implements WaitHandle {
     private static final ThreadSleeperWaitHandle INSTANCE = new ThreadSleeperWaitHandle();
 

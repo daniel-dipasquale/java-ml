@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class TogglingWaitHandle implements InteractiveWaitHandle {
     private final AtomicBoolean locked = new AtomicBoolean();
-    private final ReusableCountingWaitHandle waitHandle = new ReusableCountingWaitHandle(0);
+    private final ReusableCountDownWaitHandle waitHandle = new ReusableCountDownWaitHandle(0, WaitCondition.ON_NOT_ZERO);
 
     public boolean isOn() {
         return locked.get();

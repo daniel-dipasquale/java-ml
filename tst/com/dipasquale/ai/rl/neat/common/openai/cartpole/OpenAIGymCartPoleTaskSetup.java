@@ -3,6 +3,7 @@ package com.dipasquale.ai.rl.neat.common.openai.cartpole;
 import com.dipasquale.ai.common.NeuralNetwork;
 import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
+import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
@@ -13,13 +14,12 @@ import com.dipasquale.ai.rl.neat.GeneralSupport;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.MetricsSupport;
 import com.dipasquale.ai.rl.neat.NeatActivator;
-import com.dipasquale.ai.rl.neat.NeatTrainingPolicies;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
+import com.dipasquale.ai.rl.neat.NeatTrainingPolicyController;
 import com.dipasquale.ai.rl.neat.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.SupervisorTrainingPolicy;
@@ -33,7 +33,7 @@ import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
 import com.dipasquale.simulation.openai.gym.client.GymClient;
 import com.dipasquale.simulation.openai.gym.client.StepResult;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -101,7 +101,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     }
 
     @Override
-    public EvaluatorSettings createSettings(final Set<String> genomeIds, final BatchingEventLoop eventLoop) {
+    public EvaluatorSettings createSettings(final Set<String> genomeIds, final ParallelEventLoop eventLoop) {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
                         .populationSize(populationSize)
@@ -113,7 +113,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
+                        .fitnessFunction((ConfinedNeatEnvironment) genomeActivator -> {
                             genomeIds.add(genomeActivator.getGenome().getId());
 
                             return calculateFitness(genomeActivator);
@@ -142,7 +142,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
 
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
-        return NeatTrainingPolicies.builder()
+        return NeatTrainingPolicyController.builder()
                 .add(SupervisorTrainingPolicy.builder()
                         .maximumGeneration(500)
                         .maximumRestartCount(4)

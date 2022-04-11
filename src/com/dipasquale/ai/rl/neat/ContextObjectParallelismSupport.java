@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
@@ -27,7 +27,7 @@ final class ContextObjectParallelismSupport implements Context.ParallelismSuppor
         parallelism.forEach(list, itemHandler);
     }
 
-    public void load(final BatchingEventLoop eventLoop) {
+    public void load(final ParallelEventLoop eventLoop) {
         if (eventLoop != null) {
             parallelism = new MultiThreadContextParallelismSupport(eventLoop);
         } else {

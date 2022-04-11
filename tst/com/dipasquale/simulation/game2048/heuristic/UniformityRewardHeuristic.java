@@ -5,9 +5,9 @@ import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UniformityRewardHeuristic implements RewardHeuristic<GameAction, GameState> {
     private static final float MAXIMUM_SCORE = (float) Math.pow(Game.BOARD_SQUARE_LENGTH, 3D);
     private static final OptimumValuedTile OPTIMUM_VALUED_TILE = OptimumValuedTile.getInstance();

@@ -11,8 +11,8 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesState;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionOrganismMissingException;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionContext;
 import com.dipasquale.data.structure.deque.NodeDeque;
-import com.dipasquale.data.structure.deque.PlainNode;
-import com.dipasquale.data.structure.deque.PlainNodeDeque;
+import com.dipasquale.data.structure.deque.StandardNode;
+import com.dipasquale.data.structure.deque.StandardNodeDeque;
 import com.dipasquale.data.structure.iterable.Iterables;
 import com.dipasquale.data.structure.set.DequeIdentitySet;
 import com.dipasquale.data.structure.set.DequeSet;
@@ -36,7 +36,7 @@ public final class Population {
     private PopulationState populationState = new PopulationState();
     private DequeSet<Organism> organismsWithoutSpecies = new DequeIdentitySet<>();
     private Queue<OrganismFactory> organismsToBirth = new LinkedList<>();
-    private NodeDeque<Species, PlainNode<Species>> speciesNodes = new PlainNodeDeque<>();
+    private NodeDeque<Species, StandardNode<Species>> speciesNodes = new StandardNodeDeque<>();
     @Getter
     private OrganismActivator championOrganismActivator = new OrganismActivator();
 
@@ -80,8 +80,8 @@ public final class Population {
         return new Species(speciationSupport.createSpeciesId(), organism, populationState);
     }
 
-    private PlainNode<Species> addSpecies(final Species species) {
-        PlainNode<Species> speciesNode = speciesNodes.createUnbound(species);
+    private StandardNode<Species> addSpecies(final Species species) {
+        StandardNode<Species> speciesNode = speciesNodes.createUnbound(species);
 
         speciesNodes.add(speciesNode);
 
@@ -98,7 +98,7 @@ public final class Population {
         int maximumSpecies = speciationSupport.params().maximumSpecies();
 
         for (Organism organism : Iterables.concatenate(organismsWithoutSpecies, organismsBirthed)) {
-            for (PlainNode<Species> speciesNode : speciesNodes) {
+            for (StandardNode<Species> speciesNode : speciesNodes) {
                 matchMaker.replaceIfBetterMatch(organism, speciesNodes.getValue(speciesNode));
             }
 

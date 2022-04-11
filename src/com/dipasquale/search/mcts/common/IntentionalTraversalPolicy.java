@@ -12,20 +12,21 @@ import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class IntentionalTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractExplorableChildrenTraversalPolicy<TAction, TEdge, TState> {
+public final class IntentionalTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> extends AbstractExplorableChildrenTraversalPolicy<TAction, TEdge, TState, TSearchNode> {
     private static final Comparator<Float> FLOAT_ASCENDING_COMPARATOR = Float::compare;
     private final SelectionConfidenceCalculator<TEdge> selectionConfidenceCalculator;
 
     @Override
-    protected int nextIndex(final int simulations, final List<SearchNode<TAction, TEdge, TState>> childSearchNodes, final TEdge parentEdge) {
-        OptimalPairSelector<Float, Integer> optimalChildSearchNodeIndexSelector = new OptimalPairSelector<>(FLOAT_ASCENDING_COMPARATOR);
+    protected int nextIndex(final int simulations, final List<TSearchNode> childSearchNodes, final TEdge parentEdge) {
+        OptimalPairSelector<Float, Integer> optimalChildIndexSelector = new OptimalPairSelector<>(FLOAT_ASCENDING_COMPARATOR);
 
         for (int i = 0, c = childSearchNodes.size(); i < c; i++) {
-            float confidence = selectionConfidenceCalculator.calculate(childSearchNodes.get(i).getEdge(), parentEdge);
+            SearchNode<TAction, TEdge, TState, TSearchNode> childSearchNode = childSearchNodes.get(i);
+            float confidence = selectionConfidenceCalculator.calculate(childSearchNode.getEdge(), parentEdge);
 
-            optimalChildSearchNodeIndexSelector.replaceValueIfBetter(confidence, i);
+            optimalChildIndexSelector.replaceValueIfBetter(confidence, i);
         }
 
-        return optimalChildSearchNodeIndexSelector.getValue();
+        return optimalChildIndexSelector.getValue();
     }
 }

@@ -4,7 +4,6 @@ import com.dipasquale.common.factory.ObjectFactory;
 import com.dipasquale.common.time.ExpirationFactory;
 import com.dipasquale.common.time.ExpirationRecord;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -164,7 +163,7 @@ public final class AtomicRecyclableReference<T> implements Serializable {
         }
     }
 
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class AtomicReferenceContainerAudit<T> {
         private AtomicReferenceContainer<T> previous = null;
         private AtomicReferenceContainer<T> next = null;

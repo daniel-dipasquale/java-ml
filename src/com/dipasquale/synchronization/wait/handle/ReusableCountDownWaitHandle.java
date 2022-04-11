@@ -4,11 +4,11 @@ import java.io.Serial;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-public final class ReusableCountingWaitHandle implements InteractiveWaitHandle {
+public final class ReusableCountDownWaitHandle implements InteractiveWaitHandle {
     private final Synchronizer synchronizer;
 
-    public ReusableCountingWaitHandle(final int initialValue) { // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
-        this.synchronizer = new Synchronizer(initialValue);
+    public ReusableCountDownWaitHandle(final int initialValue, final WaitCondition waitCondition) { // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
+        this.synchronizer = new Synchronizer(initialValue, waitCondition);
     }
 
     @Override
@@ -36,17 +36,17 @@ public final class ReusableCountingWaitHandle implements InteractiveWaitHandle {
     private static class Synchronizer extends AbstractQueuedSynchronizer {
         @Serial
         private static final long serialVersionUID = 4435118903758077543L;
+        private final WaitCondition waitCondition;
 
-        private Synchronizer(final int count) {
-            setState(count);
-        }
-
-        public int getCount() {
-            return getState();
+        private Synchronizer(final int state, final WaitCondition waitCondition) {
+            setState(state);
+            this.waitCondition = waitCondition;
         }
 
         public void increment() {
-            for (int state = getState(); !compareAndSetState(state, state + 1); ) {
+            int state = getState();
+
+            while (!compareAndSetState(state, state + 1)) {
                 state = getState();
             }
         }
@@ -57,7 +57,13 @@ public final class ReusableCountingWaitHandle implements InteractiveWaitHandle {
 
         @Override
         protected int tryAcquireShared(final int acquires) {
-            return getState() == 0 ? 1 : -1;
+            int state = getState();
+
+            return switch (waitCondition) {
+                case ON_NOT_ZERO -> state == 0 ? 1 : -1;
+
+                case ON_ZERO -> state != 0 ? 1 : -1;
+            };
         }
 
         @Override
@@ -65,14 +71,18 @@ public final class ReusableCountingWaitHandle implements InteractiveWaitHandle {
             while (true) {
                 int state = getState();
 
-                if (state == 0) {
+                if (state == 0 && waitCondition == WaitCondition.ON_NOT_ZERO || state != 0 && waitCondition == WaitCondition.ON_ZERO) {
                     return false;
                 }
 
-                int stateNew = state - 1;
+                int fixedState = state - 1;
 
-                if (compareAndSetState(state, stateNew)) {
-                    return stateNew == 0;
+                if (compareAndSetState(state, fixedState)) {
+                    return switch (waitCondition) {
+                        case ON_NOT_ZERO -> fixedState == 0;
+
+                        case ON_ZERO -> true;
+                    };
                 }
             }
         }

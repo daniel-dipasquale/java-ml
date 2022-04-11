@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public final class PlainNodeDequeTest { // TODO: redo these test cases
-    private static final PlainNodeDeque<String> TEST = new PlainNodeDeque<>();
+public final class StandardNodeDequeTest { // TODO: redo these test cases
+    private static final StandardNodeDeque<String> TEST = new StandardNodeDeque<>();
 
     @BeforeEach
     public void beforeEach() {
@@ -61,7 +61,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
         assertEmptyState();
     }
 
-    private static void assertEmptyState(final PlainNode<String> node, final String value) {
+    private static void assertEmptyState(final StandardNode<String> node, final String value) {
         assertEmptyState();
         Assertions.assertFalse(TEST.contains(value));
         Assertions.assertFalse(TEST.contains(node));
@@ -72,7 +72,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_2() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertNotNull(node);
         assertEmptyState(node, "item-1");
@@ -80,7 +80,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_3() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertTrue(TEST.add(node));
         Assertions.assertEquals(1, TEST.size());
@@ -99,7 +99,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_4() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertTrue(TEST.add(node));
         Assertions.assertTrue(TEST.add(node));
@@ -108,7 +108,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_5() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertTrue(TEST.offer(node));
         Assertions.assertTrue(TEST.offer(node));
@@ -117,7 +117,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_6() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertFalse(TEST.remove(node));
         Assertions.assertTrue(TEST.add(node));
@@ -128,7 +128,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_7() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertNull(TEST.poll());
         Assertions.assertTrue(TEST.add(node));
@@ -138,9 +138,9 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_8() {
-        PlainNode<String> node1 = TEST.createUnbound("item-1");
-        PlainNode<String> node2 = TEST.createUnbound("item-2");
-        PlainNode<String> node3 = TEST.createUnbound("item-3");
+        StandardNode<String> node1 = TEST.createUnbound("item-1");
+        StandardNode<String> node2 = TEST.createUnbound("item-2");
+        StandardNode<String> node3 = TEST.createUnbound("item-3");
 
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
@@ -162,15 +162,15 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_9() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertTrue(TEST.offerLast(node));
     }
 
     @Test
     public void TEST_10() {
-        PlainNode<String> node1 = TEST.createUnbound("item-1");
-        PlainNode<String> node2 = TEST.createUnbound("item-2");
+        StandardNode<String> node1 = TEST.createUnbound("item-1");
+        StandardNode<String> node2 = TEST.createUnbound("item-2");
 
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
@@ -187,8 +187,8 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_11() {
-        PlainNode<String> node1 = TEST.createUnbound("item-1");
-        PlainNode<String> node2 = TEST.createUnbound("item-2");
+        StandardNode<String> node1 = TEST.createUnbound("item-1");
+        StandardNode<String> node2 = TEST.createUnbound("item-2");
 
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
@@ -205,8 +205,8 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_12() {
-        PlainNode<String> node1 = TEST.createUnbound("item-1");
-        PlainNode<String> node2 = TEST.createUnbound("item-2");
+        StandardNode<String> node1 = TEST.createUnbound("item-1");
+        StandardNode<String> node2 = TEST.createUnbound("item-2");
 
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
@@ -221,7 +221,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
         Assertions.assertNull(TEST.peekNext(node1));
     }
 
-    private static void assertClearedState(final PlainNode<String> node) {
+    private static void assertClearedState(final StandardNode<String> node) {
         assertEmptyState();
         Assertions.assertFalse(TEST.contains(node));
         Assertions.assertNull(TEST.peekPrevious(node));
@@ -231,8 +231,8 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_13() {
-        PlainNode<String> node1 = TEST.createUnbound("item-1");
-        PlainNode<String> node2 = TEST.createUnbound("item-2");
+        StandardNode<String> node1 = TEST.createUnbound("item-1");
+        StandardNode<String> node2 = TEST.createUnbound("item-2");
 
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
@@ -243,7 +243,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_14() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertTrue(TEST.add(node));
         TEST.clear();
@@ -263,7 +263,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_15() {
-        PlainNode<String> node = TEST.createUnbound("item-1");
+        StandardNode<String> node = TEST.createUnbound("item-1");
 
         Assertions.assertTrue(TEST.add(node));
         TEST.clear();
@@ -273,9 +273,9 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_16() {
-        PlainNode<String> node1 = TEST.createUnbound("item-1");
-        PlainNode<String> node2 = TEST.createUnbound("item-2");
-        PlainNode<String> node3 = TEST.createUnbound("item-3");
+        StandardNode<String> node1 = TEST.createUnbound("item-1");
+        StandardNode<String> node2 = TEST.createUnbound("item-2");
+        StandardNode<String> node3 = TEST.createUnbound("item-3");
 
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
@@ -285,9 +285,9 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_17() {
-        PlainNode<String> node1 = TEST.createUnbound("item-1");
-        PlainNode<String> node2 = TEST.createUnbound("item-2");
-        PlainNode<String> node3 = TEST.createUnbound("item-3");
+        StandardNode<String> node1 = TEST.createUnbound("item-1");
+        StandardNode<String> node2 = TEST.createUnbound("item-2");
+        StandardNode<String> node3 = TEST.createUnbound("item-3");
 
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
@@ -297,7 +297,7 @@ public final class PlainNodeDequeTest { // TODO: redo these test cases
 
     @Test
     public void TEST_18() {
-        CollectionAsserter<PlainNode<String>> collectionAsserter = new CollectionAsserter<>(TEST, index -> TEST.createUnbound(String.format("item-%d", index)), PlainNode.class, Assertions::assertEquals);
+        CollectionAsserter<StandardNode<String>> collectionAsserter = new CollectionAsserter<>(TEST, index -> TEST.createUnbound(String.format("item-%d", index)), StandardNode.class, Assertions::assertEquals);
 
         collectionAsserter.assertToArray();
         collectionAsserter.assertContainsAll();

@@ -6,12 +6,12 @@ import com.dipasquale.ai.rl.neat.speciation.metric.MetricsResult;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.metric.MetricDatumQueryProjection;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.StringJoiner;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class NeatMetricsReporter {
     private static String getCsvHeader(final List<MetricDatumQueryProjection> queryProjections, final MetricsResult result) {
         StringJoiner headerNamesJoiner = new StringJoiner(",");

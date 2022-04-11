@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat.common.xor;
 
 import com.dipasquale.ai.common.fitness.LastValueFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
+import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.CrossOverSupport;
@@ -14,13 +15,12 @@ import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
 import com.dipasquale.ai.rl.neat.IntegerNumber;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricsSupport;
 import com.dipasquale.ai.rl.neat.MutationSupport;
 import com.dipasquale.ai.rl.neat.NeatTrainingAssessor;
-import com.dipasquale.ai.rl.neat.NeatTrainingPolicies;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
+import com.dipasquale.ai.rl.neat.NeatTrainingPolicyController;
 import com.dipasquale.ai.rl.neat.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.RandomSupport;
@@ -35,7 +35,7 @@ import com.dipasquale.ai.rl.neat.function.activation.OutputActivationFunctionTyp
 import com.dipasquale.ai.rl.neat.phenotype.DoubleSolutionNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,7 +56,7 @@ public final class XorTaskSetup implements TaskSetup {
     private final boolean metricsEmissionEnabled;
 
     @Override
-    public EvaluatorSettings createSettings(final Set<String> genomeIds, final BatchingEventLoop eventLoop) {
+    public EvaluatorSettings createSettings(final Set<String> genomeIds, final ParallelEventLoop eventLoop) {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
                         .populationSize(populationSize)
@@ -68,7 +68,7 @@ public final class XorTaskSetup implements TaskSetup {
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
+                        .fitnessFunction((ConfinedNeatEnvironment) genomeActivator -> {
                             genomeIds.add(genomeActivator.getGenome().getId());
 
                             return FITNESS_FUNCTION_SETTINGS_TYPE.environment.test(genomeActivator);
@@ -136,7 +136,7 @@ public final class XorTaskSetup implements TaskSetup {
 
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
-        return NeatTrainingPolicies.builder()
+        return NeatTrainingPolicyController.builder()
                 .add(SupervisorTrainingPolicy.builder()
                         .maximumGeneration(200)
                         .maximumRestartCount(9)
@@ -149,12 +149,12 @@ public final class XorTaskSetup implements TaskSetup {
     private enum FitnessFunctionSettingsType {
         DISTANCE_FROM_EXPECTED(new DistanceFromExpectedObjective());
 
-        FitnessFunctionSettingsType(final NeatObjective<IsolatedNeatEnvironment> objective) {
+        FitnessFunctionSettingsType(final NeatObjective<ConfinedNeatEnvironment> objective) {
             this.environment = objective.getEnvironment();
             this.trainingAssessor = objective.getTrainingAssessor();
         }
 
-        private final IsolatedNeatEnvironment environment;
+        private final ConfinedNeatEnvironment environment;
         private final NeatTrainingAssessor trainingAssessor;
     }
 

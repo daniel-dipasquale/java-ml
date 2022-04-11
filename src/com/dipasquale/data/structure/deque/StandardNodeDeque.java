@@ -3,28 +3,28 @@ package com.dipasquale.data.structure.deque;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
 
-public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> implements NodeDeque<T, PlainNode<T>>, Serializable {
+public final class StandardNodeDeque<T> extends AbstractDeque<StandardNode<T>> implements NodeDeque<T, StandardNode<T>>, Serializable {
     @Serial
     private static final long serialVersionUID = -6511910907907223574L;
     private Object membership;
-    private PlainNode<T> start;
-    private PlainNode<T> end;
+    private StandardNode<T> start;
+    private StandardNode<T> end;
     private int size;
 
-    public PlainNodeDeque() {
+    public StandardNodeDeque() {
         this.initialize();
     }
 
     private void initialize() {
         Object membership = new Membership();
-        PlainNode<T> start = new PlainNode<>(membership, null);
-        PlainNode<T> end = new PlainNode<>(membership, null);
+        StandardNode<T> start = new StandardNode<>(membership, null);
+        StandardNode<T> end = new StandardNode<>(membership, null);
 
         start.next = end;
         end.previous = start;
@@ -40,22 +40,22 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public PlainNode<T> createUnbound(final T value) {
-        return new PlainNode<>(membership, value);
+    public StandardNode<T> createUnbound(final T value) {
+        return new StandardNode<>(membership, value);
     }
 
-    private boolean hasMembership(final PlainNode<T> node) {
+    private boolean hasMembership(final StandardNode<T> node) {
         return node != null && node.membership == membership;
     }
 
-    private static <T> boolean canBeAdded(final PlainNode<T> node) {
+    private static <T> boolean canBeAdded(final StandardNode<T> node) {
         return node.previous == null;
     }
 
     @Override
     public boolean contains(final Object node) {
-        if (node instanceof PlainNode<?>) {
-            PlainNode<T> fixedNode = (PlainNode<T>) node;
+        if (node instanceof StandardNode<?>) {
+            StandardNode<T> fixedNode = (StandardNode<T>) node;
 
             return hasMembership(fixedNode) && !canBeAdded(fixedNode);
         }
@@ -64,7 +64,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public T getValue(final PlainNode<T> node) {
+    public T getValue(final StandardNode<T> node) {
         if (!hasMembership(node)) {
             return null;
         }
@@ -72,7 +72,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
         return node.value;
     }
 
-    private PlainNode<T> peekPreviousInternal(final PlainNode<T> node) {
+    private StandardNode<T> peekPreviousInternal(final StandardNode<T> node) {
         if (node.previous == start) {
             return null;
         }
@@ -81,7 +81,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public PlainNode<T> peekPrevious(final PlainNode<T> node) {
+    public StandardNode<T> peekPrevious(final StandardNode<T> node) {
         if (!hasMembership(node)) {
             return null;
         }
@@ -89,7 +89,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
         return peekPreviousInternal(node);
     }
 
-    private PlainNode<T> peekNextInternal(final PlainNode<T> node) {
+    private StandardNode<T> peekNextInternal(final StandardNode<T> node) {
         if (node.next == end) {
             return null;
         }
@@ -98,7 +98,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public PlainNode<T> peekNext(final PlainNode<T> node) {
+    public StandardNode<T> peekNext(final StandardNode<T> node) {
         if (!hasMembership(node)) {
             return null;
         }
@@ -107,20 +107,20 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public PlainNode<T> peekFirst() {
+    public StandardNode<T> peekFirst() {
         return peekNextInternal(start);
     }
 
     @Override
-    public PlainNode<T> peekLast() {
+    public StandardNode<T> peekLast() {
         return peekPreviousInternal(end);
     }
 
-    private static <T> boolean canBeRemoved(final PlainNode<T> node) {
+    private static <T> boolean canBeRemoved(final StandardNode<T> node) {
         return !canBeAdded(node);
     }
 
-    private PlainNode<T> removeInternal(final PlainNode<T> node) {
+    private StandardNode<T> removeInternal(final StandardNode<T> node) {
         node.next.previous = node.previous;
         node.previous.next = node.next;
         node.previous = null;
@@ -130,7 +130,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
         return node;
     }
 
-    private void offerBeforeInternal(final PlainNode<T> node, final PlainNode<T> previousToNode) {
+    private void offerBeforeInternal(final StandardNode<T> node, final StandardNode<T> previousToNode) {
         if (canBeRemoved(node)) {
             removeInternal(node);
         }
@@ -143,7 +143,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public boolean offerBefore(final PlainNode<T> node, final PlainNode<T> previousToNode) {
+    public boolean offerBefore(final StandardNode<T> node, final StandardNode<T> previousToNode) {
         if (!hasMembership(node) || !hasMembership(previousToNode)) {
             return false;
         }
@@ -153,7 +153,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
         return true;
     }
 
-    private void offerAfterInternal(final PlainNode<T> node, final PlainNode<T> nextToNode) {
+    private void offerAfterInternal(final StandardNode<T> node, final StandardNode<T> nextToNode) {
         if (canBeRemoved(node)) {
             removeInternal(node);
         }
@@ -166,7 +166,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public boolean offerAfter(final PlainNode<T> node, final PlainNode<T> nextToNode) {
+    public boolean offerAfter(final StandardNode<T> node, final StandardNode<T> nextToNode) {
         if (!hasMembership(node) || !hasMembership(nextToNode)) {
             return false;
         }
@@ -177,7 +177,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public boolean offerFirst(final PlainNode<T> node) {
+    public boolean offerFirst(final StandardNode<T> node) {
         if (!hasMembership(node)) {
             return false;
         }
@@ -188,7 +188,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public boolean offerLast(final PlainNode<T> node) {
+    public boolean offerLast(final StandardNode<T> node) {
         if (!hasMembership(node)) {
             return false;
         }
@@ -198,40 +198,40 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
         return true;
     }
 
-    private void ensureHasMembership(final PlainNode<T> node) {
+    private void ensureHasMembership(final StandardNode<T> node) {
         ArgumentValidatorSupport.ensureTrue(hasMembership(node), "node", "was not created by this deque");
     }
 
     @Override
-    public void addBefore(final PlainNode<T> node, final PlainNode<T> previousToNode) {
+    public void addBefore(final StandardNode<T> node, final StandardNode<T> previousToNode) {
         ensureHasMembership(node);
         ensureHasMembership(previousToNode);
         offerBefore(node, previousToNode);
     }
 
     @Override
-    public void addAfter(final PlainNode<T> node, final PlainNode<T> nextToNode) {
+    public void addAfter(final StandardNode<T> node, final StandardNode<T> nextToNode) {
         ensureHasMembership(node);
         ensureHasMembership(nextToNode);
         offerAfter(node, nextToNode);
     }
 
     @Override
-    public void addFirst(final PlainNode<T> node) {
+    public void addFirst(final StandardNode<T> node) {
         ensureHasMembership(node);
         offerFirst(node);
     }
 
     @Override
-    public void addLast(final PlainNode<T> node) {
+    public void addLast(final StandardNode<T> node) {
         ensureHasMembership(node);
         offerLast(node);
     }
 
     @Override
     public boolean remove(final Object node) {
-        if (node instanceof PlainNode<?>) {
-            PlainNode<T> fixedNode = (PlainNode<T>) node;
+        if (node instanceof StandardNode<?>) {
+            StandardNode<T> fixedNode = (StandardNode<T>) node;
 
             if (hasMembership(fixedNode) && canBeRemoved(fixedNode)) {
                 removeInternal(fixedNode);
@@ -244,7 +244,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public PlainNode<T> removeFirst() {
+    public StandardNode<T> removeFirst() {
         if (start.next == end) {
             return null;
         }
@@ -253,7 +253,7 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public PlainNode<T> removeLast() {
+    public StandardNode<T> removeLast() {
         if (end.previous == start) {
             return null;
         }
@@ -267,18 +267,18 @@ public final class PlainNodeDeque<T> extends AbstractDeque<PlainNode<T>> impleme
     }
 
     @Override
-    public Iterator<PlainNode<T>> iterator() {
+    public Iterator<StandardNode<T>> iterator() {
         return LinkedIterator.createStream(start.next, node -> node.next, node -> node != end)
                 .iterator();
     }
 
     @Override
-    public Iterator<PlainNode<T>> descendingIterator() {
+    public Iterator<StandardNode<T>> descendingIterator() {
         return LinkedIterator.createStream(end.previous, node -> node.previous, node -> node != start)
                 .iterator();
     }
 
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Membership implements Serializable {
         @Serial
         private static final long serialVersionUID = 5707462379223536762L;

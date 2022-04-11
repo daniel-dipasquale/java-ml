@@ -10,13 +10,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class AlphaZeroSelectionPolicy<TAction extends Action, TState extends State<TAction, TState>> implements SelectionPolicy<TAction, AlphaZeroEdge, TState> {
-    private final TraversalPolicy<TAction, AlphaZeroEdge, TState> traversalPolicy;
-    private final ExpansionPolicy<TAction, AlphaZeroEdge, TState> expansionPolicy;
+final class AlphaZeroSelectionPolicy<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements SelectionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> {
+    private final TraversalPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> traversalPolicy;
+    private final ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> expansionPolicy;
 
     @Override
-    public SearchNode<TAction, AlphaZeroEdge, TState> select(final int simulations, final SearchNode<TAction, AlphaZeroEdge, TState> rootSearchNode) {
-        for (SearchNode<TAction, AlphaZeroEdge, TState> nextSearchNode = rootSearchNode, temporarySearchNode = traversalPolicy.next(simulations, nextSearchNode); true; temporarySearchNode = traversalPolicy.next(simulations, nextSearchNode)) {
+    public TSearchNode select(final int simulations, final TSearchNode rootSearchNode) {
+        for (TSearchNode nextSearchNode = rootSearchNode, temporarySearchNode = traversalPolicy.next(simulations, nextSearchNode); true; temporarySearchNode = traversalPolicy.next(simulations, nextSearchNode)) {
             if (temporarySearchNode == null) {
                 if (nextSearchNode == rootSearchNode && nextSearchNode.getEdge().getVisited() > 0) {
                     return null;

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import sys
 
 sys.path.insert(1, "../../python")
@@ -12,6 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+
 
 class ValuedTile:
     def __init__(self: ValuedTile, value: int, column: int, row: int) -> None:

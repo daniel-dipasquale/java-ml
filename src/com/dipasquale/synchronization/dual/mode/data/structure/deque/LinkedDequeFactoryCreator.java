@@ -4,7 +4,6 @@ import com.dipasquale.common.factory.data.structure.deque.DequeFactory;
 import com.dipasquale.synchronization.dual.mode.ConcurrencyLevelState;
 import com.dipasquale.synchronization.dual.mode.DualModeFactory;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -13,7 +12,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LinkedDequeFactoryCreator implements DualModeFactory<DequeFactory>, Serializable {
     @Serial
     private static final long serialVersionUID = 1655780460540539395L;

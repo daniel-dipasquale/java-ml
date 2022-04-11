@@ -2,9 +2,9 @@ package com.dipasquale.search.mcts.heuristic;
 
 import com.dipasquale.search.mcts.ActionEfficiencyCalculator;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ExpectedRewardActionEfficiencyCalculator implements ActionEfficiencyCalculator<HeuristicEdge> {
     private static final ExpectedRewardActionEfficiencyCalculator INSTANCE = new ExpectedRewardActionEfficiencyCalculator();
 

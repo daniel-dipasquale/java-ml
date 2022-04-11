@@ -8,12 +8,12 @@ import com.dipasquale.common.random.float1.UniformRandomSupport;
 import com.dipasquale.common.random.float1.concurrent.ThreadLocalUniformRandomSupport;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DualModeRandomSupportFactory implements Serializable {
     @Serial
     private static final long serialVersionUID = 4271619355783535783L;

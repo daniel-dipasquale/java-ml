@@ -10,13 +10,13 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class FirstFoundTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, TEdge, TState> {
-    private final List<TraversalPolicy<TAction, TEdge, TState>> traversalPolicies;
+public final class FirstFoundTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements TraversalPolicy<TAction, TEdge, TState, TSearchNode> {
+    private final List<TraversalPolicy<TAction, TEdge, TState, TSearchNode>> traversalPolicies;
 
     @Override
-    public SearchNode<TAction, TEdge, TState> next(final int simulations, final SearchNode<TAction, TEdge, TState> searchNode) {
-        for (TraversalPolicy<TAction, TEdge, TState> traversalPolicy : traversalPolicies) {
-            SearchNode<TAction, TEdge, TState> nextSearchNode = traversalPolicy.next(simulations, searchNode);
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
+        for (TraversalPolicy<TAction, TEdge, TState, TSearchNode> traversalPolicy : traversalPolicies) {
+            TSearchNode nextSearchNode = traversalPolicy.next(simulations, searchNode);
 
             if (nextSearchNode != null) {
                 return nextSearchNode;

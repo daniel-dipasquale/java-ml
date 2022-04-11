@@ -11,10 +11,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class TechniqueBackPropagationStep<TAction extends Action, TEdge extends TechniqueEdge, TState extends State<TAction, TState>> implements BackPropagationStep<TAction, TEdge, TState, TechniqueBackPropagationStep.Context> {
+public final class TechniqueBackPropagationStep<TAction extends Action, TEdge extends TechniqueEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements BackPropagationStep<TAction, TEdge, TState, TSearchNode, TechniqueBackPropagationStep.Context> {
     private final BackPropagationType type;
 
-    private float getProbableReward(final SearchNode<?, TEdge, ?> searchNode) {
+    private float getProbableReward(final TSearchNode searchNode) {
         int statusId = searchNode.getState().getStatusId();
 
         if (statusId == searchNode.getState().getParticipantId()) {
@@ -31,7 +31,7 @@ public final class TechniqueBackPropagationStep<TAction extends Action, TEdge ex
     }
 
     @Override
-    public Context createContext(final SearchNode<TAction, TEdge, TState> leafSearchNode) {
+    public Context createContext(final TSearchNode leafSearchNode) {
         float probableReward = getProbableReward(leafSearchNode);
         TState state = leafSearchNode.getState();
         int leafDepth = state.getDepth();
@@ -47,7 +47,7 @@ public final class TechniqueBackPropagationStep<TAction extends Action, TEdge ex
     }
 
     @Override
-    public void process(final Context context, final SearchNode<TAction, TEdge, TState> currentSearchNode) {
+    public void process(final Context context, final TSearchNode currentSearchNode) {
         TState state = currentSearchNode.getState();
         int participantId = state.getParticipantId();
         TEdge currentEdge = currentSearchNode.getEdge();

@@ -12,18 +12,18 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class CommonSimulationRolloutPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements SimulationRolloutPolicy<TAction, TEdge, TState> {
+public final class CommonSimulationRolloutPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SimulationRolloutPolicy<TAction, TEdge, TState, TSearchNode> {
     private final ExtendedSearchPolicy searchPolicy;
-    private final TraversalPolicy<TAction, TEdge, TState> traversalPolicy;
-    private final ExpansionPolicy<TAction, TEdge, TState> expansionPolicy;
+    private final TraversalPolicy<TAction, TEdge, TState, TSearchNode> traversalPolicy;
+    private final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy;
 
     private boolean allowSimulationRollout(final int simulations, final int initialDepth, final int nextDepth, final TState state) {
         return searchPolicy.allowSimulationRollout(simulations, initialDepth, nextDepth, state.getParticipantId()) || !state.isIntentional();
     }
 
     @Override
-    public SearchNode<TAction, TEdge, TState> simulate(final int simulations, final SearchNode<TAction, TEdge, TState> selectedSearchNode) {
-        SearchNode<TAction, TEdge, TState> currentSearchNode = selectedSearchNode;
+    public TSearchNode simulate(final int simulations, final TSearchNode selectedSearchNode) {
+        TSearchNode currentSearchNode = selectedSearchNode;
         TState currentState = currentSearchNode.getState();
         int initialDepth = currentState.getDepth();
 
@@ -34,7 +34,7 @@ public final class CommonSimulationRolloutPolicy<TAction extends Action, TEdge e
                 return currentSearchNode;
             }
 
-            SearchNode<TAction, TEdge, TState> childSearchNode = traversalPolicy.next(simulations, currentSearchNode);
+            TSearchNode childSearchNode = traversalPolicy.next(simulations, currentSearchNode);
 
             if (childSearchNode == null) {
                 return currentSearchNode;

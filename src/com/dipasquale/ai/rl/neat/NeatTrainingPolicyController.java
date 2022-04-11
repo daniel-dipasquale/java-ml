@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class NeatTrainingPolicies implements NeatTrainingPolicy, Serializable {
+public final class NeatTrainingPolicyController implements NeatTrainingPolicy, Serializable {
     @Serial
     private static final long serialVersionUID = 2375384538230484687L;
     private final List<NeatTrainingPolicy> trainingPolicies;
@@ -39,10 +39,10 @@ public final class NeatTrainingPolicies implements NeatTrainingPolicy, Serializa
                 .map(NeatTrainingPolicy::createClone)
                 .collect(Collectors.toList());
 
-        return new NeatTrainingPolicies(fixedTrainingPolicies);
+        return new NeatTrainingPolicyController(fixedTrainingPolicies);
     }
 
-    public static NeatTrainingPolicies.Builder builder() {
+    public static NeatTrainingPolicyController.Builder builder() {
         return new Builder();
     }
 
@@ -55,8 +55,8 @@ public final class NeatTrainingPolicies implements NeatTrainingPolicy, Serializa
             return this;
         }
 
-        public NeatTrainingPolicies build() {
-            return new NeatTrainingPolicies(List.copyOf(trainingPolicies));
+        public NeatTrainingPolicyController build() {
+            return new NeatTrainingPolicyController(List.copyOf(trainingPolicies));
         }
     }
 }

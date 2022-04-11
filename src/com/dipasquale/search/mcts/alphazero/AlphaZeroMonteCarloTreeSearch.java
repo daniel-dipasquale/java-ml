@@ -1,21 +1,29 @@
 package com.dipasquale.search.mcts.alphazero;
 
-import com.dipasquale.common.random.float1.UniformRandomSupport;
+import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.common.random.float2.DirichletDistributionSupport;
 import com.dipasquale.common.random.float2.GammaDistributionSupport;
 import com.dipasquale.common.random.float2.GaussianDistributionSupport;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.BackPropagationObserver;
 import com.dipasquale.search.mcts.BackPropagationPolicy;
-import com.dipasquale.search.mcts.CacheType;
+import com.dipasquale.search.mcts.Buffer;
+import com.dipasquale.search.mcts.BufferType;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.ExpansionPolicy;
 import com.dipasquale.search.mcts.ExpansionPolicyController;
 import com.dipasquale.search.mcts.Mcts;
+import com.dipasquale.search.mcts.MctsInitializationContext;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
-import com.dipasquale.search.mcts.Provider;
+import com.dipasquale.search.mcts.ProposalStrategy;
 import com.dipasquale.search.mcts.ResetHandler;
+import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchPolicy;
+import com.dipasquale.search.mcts.SearchStrategy;
+import com.dipasquale.search.mcts.SelectionPolicy;
+import com.dipasquale.search.mcts.SimulationRolloutPolicy;
+import com.dipasquale.search.mcts.StandardMctsInitializationContext;
+import com.dipasquale.search.mcts.StandardSearchNode;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.common.CPuctCalculator;
 import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
@@ -31,13 +39,13 @@ import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState extends State<TAction, TState>> implements MonteCarloTreeSearch<TAction, TState> {
-    private static final EdgeFactory<AlphaZeroEdge> EDGE_FACTORY = AlphaZeroEdgeFactory.getInstance();
+    private static final AlphaZeroEdgeFactory EDGE_FACTORY = AlphaZeroEdgeFactory.getInstance();
     private static final RosinCPuctCalculator ROSIN_C_PUCT_ALGORITHM = new RosinCPuctCalculator();
     private static final TechniqueSelectionConfidenceCalculator<AlphaZeroEdge> SELECTION_CONFIDENCE_CALCULATOR = new TechniqueSelectionConfidenceCalculator<>(ROSIN_C_PUCT_ALGORITHM);
     private static final VisitedActionEfficiencyCalculator VISITED_ACTION_EFFICIENCY_CALCULATOR = VisitedActionEfficiencyCalculator.getInstance();
-    private final Mcts<TAction, AlphaZeroEdge, TState> mcts;
+    private final Mcts<TAction, AlphaZeroEdge, TState, ?> mcts;
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> void addRootExplorationProbabilityNoiseToIfApplicable(final List<ExpansionPolicy<TAction, AlphaZeroEdge, TState>> expansionPolicies, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> void addRootExplorationProbabilityNoiseToIfApplicable(final List<ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode>> expansionPolicies, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise) {
         if (rootExplorationProbabilityNoise == null) {
             return;
         }
@@ -57,15 +65,12 @@ public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState 
         expansionPolicies.add(new ExplorationProbabilityNoiseRootExpansionPolicy<>(shape, dirichletDistributionSupport, epsilon));
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, AlphaZeroEdge, TState> createExpansionPolicy(final AlphaZeroModel<TAction, TState> traversalModel, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final Provider<TAction, AlphaZeroEdge, TState> provider) {
-        List<ExpansionPolicy<TAction, AlphaZeroEdge, TState>> expansionPolicies = new ArrayList<>();
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> createExpansionPolicy(final EdgeFactory<AlphaZeroEdge> edgeFactory, final AlphaZeroModel<TAction, TState, TSearchNode> traversalModel, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> buffer) {
+        List<ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode>> expansionPolicies = new ArrayList<>();
 
-        expansionPolicies.add(new AlphaZeroExpansionPolicy<>(EDGE_FACTORY, traversalModel));
+        expansionPolicies.add(new AlphaZeroExpansionPolicy<>(edgeFactory, traversalModel));
         addRootExplorationProbabilityNoiseToIfApplicable(expansionPolicies, rootExplorationProbabilityNoise);
-
-        if (provider.isAllowedToCollect()) {
-            expansionPolicies.add(provider::collect);
-        }
+        expansionPolicies.add(buffer::store);
 
         return ExpansionPolicyController.provide(expansionPolicies);
     }
@@ -78,47 +83,54 @@ public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState 
         return new TechniqueSelectionConfidenceCalculator<>(cpuctCalculator);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> AlphaZeroSelectionPolicy<TAction, TState> createSelectionPolicy(final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final Provider<TAction, AlphaZeroEdge, TState> provider, final AlphaZeroModel<TAction, TState> traversalModel, final CPuctCalculator cpuctCalculator) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> SelectionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> createSelectionPolicy(final EdgeFactory<AlphaZeroEdge> edgeFactory, final AlphaZeroModel<TAction, TState, TSearchNode> traversalModel, final RandomSupport randomSupport, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> buffer, final CPuctCalculator cpuctCalculator) {
         TechniqueSelectionConfidenceCalculator<AlphaZeroEdge> selectionConfidenceCalculator = createSelectionConfidenceCalculator(cpuctCalculator);
-        ExpansionPolicy<TAction, AlphaZeroEdge, TState> expansionPolicy = createExpansionPolicy(traversalModel, rootExplorationProbabilityNoise, provider);
+        ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> expansionPolicy = createExpansionPolicy(edgeFactory, traversalModel, rootExplorationProbabilityNoise, buffer);
+        AlphaZeroSelectionPolicyFactory<TAction, TState, TSearchNode> selectionPolicyFactory = new AlphaZeroSelectionPolicyFactory<>(selectionConfidenceCalculator, traversalModel, randomSupport, expansionPolicy);
 
-        return new AlphaZeroSelectionPolicyFactory<>(selectionConfidenceCalculator, traversalModel, expansionPolicy).create();
+        return selectionPolicyFactory.create();
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> BackPropagationPolicy<TAction, AlphaZeroEdge, TState, ?> createBackPropagationPolicy(final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> BackPropagationPolicy<TAction, AlphaZeroEdge, TState, TSearchNode, TechniqueBackPropagationStep.Context> createBackPropagationPolicy(final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
         BackPropagationType fixedBackPropagationType = Objects.requireNonNullElse(backPropagationType, BackPropagationType.REVERSED_ON_BACKTRACK);
-        TechniqueBackPropagationStep<TAction, AlphaZeroEdge, TState> backPropagationStep = new TechniqueBackPropagationStep<>(fixedBackPropagationType);
+        TechniqueBackPropagationStep<TAction, AlphaZeroEdge, TState, TSearchNode> backPropagationStep = new TechniqueBackPropagationStep<>(fixedBackPropagationType);
 
         return new BackPropagationPolicy<>(backPropagationStep, backPropagationObserver);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> AlphaZeroProposalStrategy<TAction, TState> createProposalStrategy(final TemperatureController temperatureController) {
-        UniformRandomSupport randomSupport = new UniformRandomSupport();
-        ExplorationRankedActionDecisionMaker<TAction, TState> explorationRankedActionDecisionMaker = new ExplorationRankedActionDecisionMaker<>(randomSupport);
-        ExploitationRankedActionDecisionMaker<TAction, TState> exploitationRankedActionDecisionMaker = ExploitationRankedActionDecisionMaker.getInstance();
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> AlphaZeroProposalStrategy<TAction, TState, TSearchNode> createProposalStrategy(final TemperatureController temperatureController, final RandomSupport randomSupport) {
+        ExplorationRankedActionDecisionMaker<TAction, TState, TSearchNode> explorationRankedActionDecisionMaker = new ExplorationRankedActionDecisionMaker<>(randomSupport);
+        ExploitationRankedActionDecisionMaker<TAction, TState, TSearchNode> exploitationRankedActionDecisionMaker = ExploitationRankedActionDecisionMaker.getInstance();
 
         return new AlphaZeroProposalStrategy<>(VISITED_ACTION_EFFICIENCY_CALCULATOR, temperatureController, explorationRankedActionDecisionMaker, exploitationRankedActionDecisionMaker);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> List<ResetHandler> createResetHandlers(final AlphaZeroModel<TAction, TState> traversalModel, final Provider<TAction, AlphaZeroEdge, TState> provider) {
+    private static List<ResetHandler> createResetHandlers(final AlphaZeroModel<?, ?, ?> traversalModel, final Buffer<?, AlphaZeroEdge, ?, ?> buffer) {
         List<ResetHandler> resetHandlers = new ArrayList<>();
 
         resetHandlers.add(traversalModel::reset);
-        resetHandlers.add(provider::clear);
+        resetHandlers.add(buffer::clear);
 
         return resetHandlers;
     }
 
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> Mcts<TAction, AlphaZeroEdge, TState, TSearchNode> createMcts(final MctsInitializationContext<TAction, AlphaZeroEdge, TState, TSearchNode, TechniqueBackPropagationStep.Context> initializationContext, final SearchPolicy searchPolicy, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final BufferType bufferType, final AlphaZeroModel<TAction, TState, TSearchNode> traversalModel, final CPuctCalculator cpuctCalculator, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final TemperatureController temperatureController) {
+        BufferType fixedBufferType = Objects.requireNonNullElse(bufferType, BufferType.DISABLED);
+        Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> buffer = fixedBufferType.create(initializationContext);
+        SelectionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> selectionPolicy = createSelectionPolicy(initializationContext.getEdgeFactory(), traversalModel, initializationContext.createRandomSupport(), rootExplorationProbabilityNoise, buffer, cpuctCalculator);
+        SimulationRolloutPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> simulationRolloutPolicy = AlphaZeroSimulationRolloutPolicy.getInstance();
+        BackPropagationPolicy<TAction, AlphaZeroEdge, TState, TSearchNode, TechniqueBackPropagationStep.Context> backPropagationPolicy = createBackPropagationPolicy(backPropagationType, backPropagationObserver);
+        SearchStrategy<TAction, AlphaZeroEdge, TState, TSearchNode> searchStrategy = initializationContext.createSearchStrategy(searchPolicy, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy);
+        ProposalStrategy<TAction, AlphaZeroEdge, TState, TSearchNode> proposalStrategy = createProposalStrategy(temperatureController, initializationContext.createRandomSupport());
+        List<ResetHandler> resetHandlers = createResetHandlers(traversalModel, buffer);
+
+        return new Mcts<>(buffer, searchStrategy, proposalStrategy, resetHandlers);
+    }
+
     @Builder
-    private static <TAction extends Action, TState extends State<TAction, TState>> AlphaZeroMonteCarloTreeSearch<TAction, TState> create(final SearchPolicy searchPolicy, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final CacheType cacheType, final AlphaZeroModel<TAction, TState> traversalModel, final CPuctCalculator cpuctCalculator, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final TemperatureController temperatureController) {
-        CacheType fixedCacheType = Objects.requireNonNullElse(cacheType, CacheType.NONE);
-        Provider<TAction, AlphaZeroEdge, TState> provider = fixedCacheType.create(EDGE_FACTORY);
-        AlphaZeroSelectionPolicy<TAction, TState> selectionPolicy = createSelectionPolicy(rootExplorationProbabilityNoise, provider, traversalModel, cpuctCalculator);
-        AlphaZeroSimulationRolloutPolicy<TAction, TState> simulationRolloutPolicy = AlphaZeroSimulationRolloutPolicy.getInstance();
-        BackPropagationPolicy<TAction, AlphaZeroEdge, TState, ?> backPropagationPolicy = createBackPropagationPolicy(backPropagationType, backPropagationObserver);
-        AlphaZeroProposalStrategy<TAction, TState> proposalStrategy = createProposalStrategy(temperatureController);
-        List<ResetHandler> resetHandlers = createResetHandlers(traversalModel, provider);
-        Mcts<TAction, AlphaZeroEdge, TState> mcts = new Mcts<>(searchPolicy, provider, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy, proposalStrategy, resetHandlers);
+    private static <TAction extends Action, TState extends State<TAction, TState>> AlphaZeroMonteCarloTreeSearch<TAction, TState> create(final SearchPolicy searchPolicy, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final BufferType bufferType, final AlphaZeroModel<TAction, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> traversalModel, final CPuctCalculator cpuctCalculator, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final TemperatureController temperatureController) {
+        MctsInitializationContext<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>, TechniqueBackPropagationStep.Context> initializationContext = new StandardMctsInitializationContext<>(EDGE_FACTORY);
+        Mcts<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> mcts = createMcts(initializationContext, searchPolicy, rootExplorationProbabilityNoise, bufferType, traversalModel, cpuctCalculator, backPropagationType, backPropagationObserver, temperatureController);
 
         return new AlphaZeroMonteCarloTreeSearch<>(mcts);
     }

@@ -15,14 +15,14 @@ import java.util.EnumSet;
 import java.util.List;
 
 @Getter
-final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState extends State<TAction, TState>> implements AlphaZeroPrediction<TAction, TState> {
+final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements AlphaZeroPrediction<TAction, TState, TSearchNode> {
     private final float value;
-    private final List<SearchNode<TAction, AlphaZeroEdge, TState>> explorableChildren;
+    private final List<TSearchNode> explorableChildren;
     private final float[] policies;
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> Float calculateValueViaHeuristic(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> Float calculateValueViaHeuristic(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context) {
         RewardHeuristic<TAction, TState> rewardHeuristic = context.getRewardHeuristic();
-        SearchNode<TAction, AlphaZeroEdge, TState> searchNode = context.getSearchNode();
+        TSearchNode searchNode = context.getSearchNode();
 
         if (rewardHeuristic == null || arguments.valueIndex >= 0 && !arguments.behaviorTypes.contains(PredictionBehaviorType.VALUE_HEURISTIC_ALLOWED_ON_INTENTIONAL_STATES) && searchNode.getState().isIntentional()) {
             return null;
@@ -31,7 +31,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
         return rewardHeuristic.estimate(searchNode.getState());
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> Float calculateValue(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> Float calculateValue(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context) {
         if (!arguments.valueIgnored) {
             float value1 = arguments.getOutput(context)[arguments.valueIndex];
             Float value2 = calculateValueViaHeuristic(arguments, context);
@@ -60,7 +60,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
         return value;
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> float getValue(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> float getValue(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context) {
         return calculateValue(arguments, context);
     }
 
@@ -86,7 +86,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
         return getPolicy(arguments, output[fixedIndex]);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> float[] createPolicies(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState> context, final List<SearchNode<TAction, AlphaZeroEdge, TState>> explorableChildren) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> float[] createPolicies(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context, final List<TSearchNode> explorableChildren) {
         float[] policies = new float[explorableChildren.size()];
         float totalPolicy = 0f;
 
@@ -94,7 +94,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
             float[] output = arguments.getOutput(context);
 
             for (int i = 0; i < policies.length; i++) {
-                SearchNode<TAction, AlphaZeroEdge, TState> explorableChild = explorableChildren.get(i);
+                TSearchNode explorableChild = explorableChildren.get(i);
                 float policy = getPolicy(arguments, output, explorableChild.getAction().getId());
 
                 policies[i] = policy;
@@ -104,7 +104,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
             ExplorationHeuristic<TAction> explorationHeuristic = context.getExplorationHeuristic();
 
             for (int i = 0; i < policies.length; i++) {
-                SearchNode<TAction, AlphaZeroEdge, TState> explorableChild = explorableChildren.get(i);
+                TSearchNode explorableChild = explorableChildren.get(i);
                 float policy = getPolicy(arguments, explorationHeuristic.estimate(explorableChild.getAction()));
 
                 policies[i] = policy;
@@ -127,10 +127,10 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
         return policies;
     }
 
-    NeuralNetworkAlphaZeroPrediction(final int perspectiveParticipantId, final EnumSet<PredictionBehaviorType> behaviorTypes, final int valueIndex, final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
-        SearchNode<TAction, AlphaZeroEdge, TState> searchNode = context.getSearchNode();
+    NeuralNetworkAlphaZeroPrediction(final int perspectiveParticipantId, final EnumSet<PredictionBehaviorType> behaviorTypes, final int valueIndex, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context) {
+        TSearchNode searchNode = context.getSearchNode();
         TState state = searchNode.getState();
-        List<SearchNode<TAction, AlphaZeroEdge, TState>> explorableChildren = searchNode.createAllPossibleChildNodes(context.getEdgeFactory());
+        List<TSearchNode> explorableChildren = searchNode.createAllPossibleChildNodes(context.getEdgeFactory());
 
         Arguments arguments = Arguments.builder()
                 .perspectiveParticipantId(perspectiveParticipantId)
@@ -162,7 +162,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
         @Builder.Default
         private float[] output = null;
 
-        <TAction extends Action, TState extends State<TAction, TState>> float[] getOutput(final NeuralNetworkAlphaZeroContext<TAction, TState> context) {
+        <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> float[] getOutput(final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context) {
             if (output == null) {
                 output = context.getPredictor().predict(context.getSearchNode());
             }

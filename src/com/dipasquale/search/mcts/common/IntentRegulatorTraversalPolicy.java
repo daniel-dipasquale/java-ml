@@ -8,12 +8,12 @@ import com.dipasquale.search.mcts.TraversalPolicy;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class IntentRegulatorTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, TEdge, TState> {
-    private final TraversalPolicy<TAction, TEdge, TState> intentionalTraversalPolicy;
-    private final TraversalPolicy<TAction, TEdge, TState> unintentionalTraversalPolicy;
+public final class IntentRegulatorTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements TraversalPolicy<TAction, TEdge, TState, TSearchNode> {
+    private final TraversalPolicy<TAction, TEdge, TState, TSearchNode> intentionalTraversalPolicy;
+    private final TraversalPolicy<TAction, TEdge, TState, TSearchNode> unintentionalTraversalPolicy;
 
     @Override
-    public SearchNode<TAction, TEdge, TState> next(final int simulations, final SearchNode<TAction, TEdge, TState> searchNode) {
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
         if (searchNode.getState().isNextIntentional()) {
             return intentionalTraversalPolicy.next(simulations, searchNode);
         }

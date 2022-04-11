@@ -2,9 +2,9 @@ package com.dipasquale.search.mcts.classic;
 
 import com.dipasquale.search.mcts.ActionEfficiencyCalculator;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class PrevalentActionEfficiencyCalculator implements ActionEfficiencyCalculator<ClassicEdge> {
     private static final float WIN_FACTOR = 2f;
     private static final float DRAW_FACTOR = 1f;

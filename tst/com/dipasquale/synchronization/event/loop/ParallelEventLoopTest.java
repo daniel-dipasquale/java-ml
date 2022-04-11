@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
-public final class BatchingEventLoopTest {
+public final class ParallelEventLoopTest {
     private static final int NUMBER_OF_THREADS = 4;
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
@@ -27,7 +28,7 @@ public final class BatchingEventLoopTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::get, TimeUnit.MILLISECONDS);
 
-    private static final BatchingEventLoopSettings SETTINGS = BatchingEventLoopSettings.builder()
+    private static final ParallelEventLoopSettings SETTINGS = ParallelEventLoopSettings.builder()
             .executorService(EXECUTOR_SERVICE)
             .numberOfThreads(NUMBER_OF_THREADS)
             .errorHandler(EXCEPTION_LOGGER)
@@ -46,7 +47,7 @@ public final class BatchingEventLoopTest {
 
     @Test
     public void TEST_1() {
-        BatchingEventLoop test = new BatchingEventLoop(SETTINGS);
+        ParallelEventLoop test = new ParallelEventLoop(SETTINGS);
         ItemCollector collector = new ItemCollector();
 
         List<Item> items = IntStream.range(0, 256)
@@ -54,7 +55,7 @@ public final class BatchingEventLoopTest {
                 .toList();
 
         try {
-            test.queue(items.iterator(), item -> collector.value.addAndGet(item.value));
+            test.queue(items.iterator(), ItemHandler.proxy(item -> collector.value.addAndGet(item.value)));
             test.awaitUntilDone();
             Assertions.assertEquals(32_896L, collector.value.get());
         } catch (InterruptedException e) {
@@ -66,15 +67,20 @@ public final class BatchingEventLoopTest {
 
     @Test
     public void TEST_2() {
-        BatchingEventLoop test = new BatchingEventLoop(SETTINGS);
+        ParallelEventLoop test = new ParallelEventLoop(SETTINGS);
         ItemCollector collector = new ItemCollector();
 
         List<Item> items = IntStream.range(0, 256)
                 .mapToObj(index -> new Item((long) index + 1L))
                 .toList();
 
+        Iterator<Item> itemIterator = items.stream()
+                .peek(item -> item.value++)
+                .iterator();
+
         try {
-            test.queue(items.stream().peek(item -> item.value++).iterator(), item -> collector.value.addAndGet(item.value));
+
+            test.queue(itemIterator, ItemHandler.proxy(item -> collector.value.addAndGet(item.value)));
             test.awaitUntilDone();
             Assertions.assertEquals(33_152L, collector.value.get());
         } catch (InterruptedException e) {

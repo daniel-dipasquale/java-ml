@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction extends Action, TState extends State<TAction, TState>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState> {
+public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> {
     static final float DEFAULT_SHAPE = 0.5f;
     static final float DEFAULT_EPSILON = 0.25f;
     private final double shape;
@@ -22,7 +22,7 @@ public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction extend
     }
 
     @Override
-    public void expand(final SearchNode<TAction, AlphaZeroEdge, TState> searchNode) {
+    public void expand(final TSearchNode searchNode) {
         if (searchNode.getParent() != null) {
             return;
         }
@@ -32,12 +32,12 @@ public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction extend
                 .toArray();
 
         double[] noises = multivariateDistributionSupport.nextRandom(shapes);
-        List<SearchNode<TAction, AlphaZeroEdge, TState>> childSearchNodes = searchNode.getExplorableChildren();
+        List<TSearchNode> childSearchNodes = searchNode.getExplorableChildren();
         int size = childSearchNodes.size();
         float totalExplorationProbability = 0f;
 
         for (int i = 0; i < size; i++) {
-            SearchNode<TAction, AlphaZeroEdge, TState> childSearchNode = childSearchNodes.get(i);
+            TSearchNode childSearchNode = childSearchNodes.get(i);
             AlphaZeroEdge childEdge = childSearchNode.getEdge();
             float explorationProbability = childEdge.getExplorationProbability();
             float fixedExplorationProbability = (1f - epsilon) * explorationProbability + epsilon * (float) noises[i];
@@ -47,7 +47,7 @@ public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction extend
         }
 
         if (Float.compare(totalExplorationProbability, 1f) != 0) { // NOTE: this should always be false, unless floating point arithmetic problems are found
-            for (SearchNode<TAction, AlphaZeroEdge, TState> childSearchNode : childSearchNodes) {
+            for (TSearchNode childSearchNode : childSearchNodes) {
                 AlphaZeroEdge childEdge = childSearchNode.getEdge();
                 float explorationProbability = childEdge.getExplorationProbability();
 

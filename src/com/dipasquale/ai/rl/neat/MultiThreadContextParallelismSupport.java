@@ -1,7 +1,8 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.synchronization.InterruptedRuntimeException;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ItemHandler;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.synchronization.wait.handle.StrategyWaitHandle;
 import lombok.AccessLevel;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class MultiThreadContextParallelismSupport implements Context.ParallelismSupport {
     private final InternalParameters params = new InternalParameters();
-    private final BatchingEventLoop eventLoop;
+    private final ParallelEventLoop eventLoop;
 
     @Override
     public Context.ParallelismParameters params() {
@@ -39,12 +40,12 @@ final class MultiThreadContextParallelismSupport implements Context.ParallelismS
 
     @Override
     public <T> void forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        forEach(unhandledExceptions -> eventLoop.queue(iterator, itemHandler, unhandledExceptions::add));
+        forEach(unhandledExceptions -> eventLoop.queue(iterator, ItemHandler.proxy(itemHandler), unhandledExceptions::add));
     }
 
     @Override
     public <T> void forEach(final List<T> list, final Consumer<T> itemHandler) {
-        forEach(unhandledExceptions -> eventLoop.queue(list, itemHandler, unhandledExceptions::add));
+        forEach(unhandledExceptions -> eventLoop.queue(list, ItemHandler.proxy(itemHandler), unhandledExceptions::add));
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

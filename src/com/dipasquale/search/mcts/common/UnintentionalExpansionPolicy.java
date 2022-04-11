@@ -12,15 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class UnintentionalExpansionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements ExpansionPolicy<TAction, TEdge, TState> {
+public final class UnintentionalExpansionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, TEdge, TState, TSearchNode> {
     private final EdgeFactory<TEdge> edgeFactory;
     private final ExplorationHeuristic<TAction> explorationHeuristic;
 
     @Override
-    public void expand(final SearchNode<TAction, TEdge, TState> searchNode) {
-        List<SearchNode<TAction, TEdge, TState>> explorableChildren = searchNode.createAllPossibleChildNodes(edgeFactory);
+    public void expand(final TSearchNode searchNode) {
+        List<TSearchNode> explorableChildren = searchNode.createAllPossibleChildNodes(edgeFactory);
 
-        for (SearchNode<TAction, TEdge, TState> explorableChild : explorableChildren) {
+        for (TSearchNode explorableChild : explorableChildren) {
             float explorationProbability = explorationHeuristic.estimate(explorableChild.getAction());
 
             explorableChild.getEdge().setExplorationProbability(explorationProbability);

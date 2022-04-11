@@ -1,19 +1,16 @@
 package com.dipasquale.search.mcts.common;
 
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 public final class ExtendedMaximumSearchPolicy implements ExtendedSearchPolicy {
-    private final int maximumSelections;
+    @Getter
+    private final int maximumSelectionCount;
     private final int maximumSimulationRolloutDepth;
 
     @Override
     public void begin() {
-    }
-
-    @Override
-    public boolean allowSelection(final int simulations, final int initialDepth) {
-        return simulations <= maximumSelections;
     }
 
     @Override

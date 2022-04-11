@@ -1,7 +1,7 @@
 package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.BackPropagationObserver;
-import com.dipasquale.search.mcts.CacheType;
+import com.dipasquale.search.mcts.BufferType;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
@@ -20,13 +20,13 @@ public final class GameTest {
     private static final boolean MANUAL_TESTING_ENABLED = false;
     private static final boolean HUMAN_PLAYER_SHOULD_BE_FIRST = true;
 
-    private static MonteCarloTreeSearch<GameAction, GameState> createMcts(final int maximumSimulations, final BackPropagationObserver<GameAction, GameState> backPropagationObserver) {
+    private static MonteCarloTreeSearch<GameAction, GameState> createMcts(final int maximumSimulationCount, final BackPropagationObserver<GameAction, GameState> backPropagationObserver) {
         return ClassicMonteCarloTreeSearch.<GameAction, GameState>builder()
                 .searchPolicy(ExtendedMaximumSearchPolicy.builder()
-                        .maximumSelections(maximumSimulations)
+                        .maximumSelectionCount(maximumSimulationCount)
                         .maximumSimulationRolloutDepth(8)
                         .build())
-                .cacheType(CacheType.AUTO_CLEAR)
+                .bufferType(BufferType.AUTO_CLEAR)
                 .backPropagationObserver(backPropagationObserver)
                 .build();
     }

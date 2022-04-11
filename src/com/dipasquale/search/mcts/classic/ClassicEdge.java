@@ -3,10 +3,10 @@ package com.dipasquale.search.mcts.classic;
 import com.dipasquale.search.mcts.Edge;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ClassicEdge implements Edge {
     private int visited = 0;
     @Getter

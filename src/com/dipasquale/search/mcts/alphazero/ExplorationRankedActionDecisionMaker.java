@@ -11,14 +11,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ExplorationRankedActionDecisionMaker<TAction extends Action, TState extends State<TAction, TState>> implements RankedActionDecisionMaker<TAction, TState> {
+final class ExplorationRankedActionDecisionMaker<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements RankedActionDecisionMaker<TAction, TState, TSearchNode> {
     private final RandomSupport randomSupport;
 
     @Override
-    public SearchNode<TAction, AlphaZeroEdge, TState> decide(final int simulations, final int depth, final List<RankedAction<TAction, TState>> rankedActions) {
-        ProbabilityClassifier<SearchNode<TAction, AlphaZeroEdge, TState>> rankedNodeClassifier = new ProbabilityClassifier<>();
+    public TSearchNode decide(final int simulations, final int depth, final List<RankedAction<TAction, TState, TSearchNode>> rankedActions) {
+        ProbabilityClassifier<TSearchNode> rankedNodeClassifier = new ProbabilityClassifier<>();
 
-        for (RankedAction<TAction, TState> rankedAction : rankedActions) {
+        for (RankedAction<TAction, TState, TSearchNode> rankedAction : rankedActions) {
             rankedNodeClassifier.add(rankedAction.getEfficiency(), rankedAction.getSearchNode());
         }
 

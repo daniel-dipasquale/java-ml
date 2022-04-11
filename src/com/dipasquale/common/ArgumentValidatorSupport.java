@@ -1,11 +1,11 @@
 package com.dipasquale.common;
 
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ArgumentValidatorSupport {
     private static boolean isBlank(final String value) {
         return value == null || value.isEmpty();

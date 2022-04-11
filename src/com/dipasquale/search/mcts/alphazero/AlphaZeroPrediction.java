@@ -6,10 +6,10 @@ import com.dipasquale.search.mcts.State;
 
 import java.util.List;
 
-public interface AlphaZeroPrediction<TAction extends Action, TState extends State<TAction, TState>> {
+public interface AlphaZeroPrediction<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> {
     float getValue();
 
-    List<SearchNode<TAction, AlphaZeroEdge, TState>> getExplorableChildren();
+    List<TSearchNode> getExplorableChildren();
 
     float[] getPolicies();
 }

@@ -12,8 +12,8 @@ public final class AlphaZeroMaximumSearchPolicy implements SearchPolicy {
     }
 
     @Override
-    public boolean allowSelection(final int simulations, final int initialDepth) {
-        return simulations <= maximumExpansions;
+    public int getMaximumSelectionCount() {
+        return maximumExpansions;
     }
 
     @Override

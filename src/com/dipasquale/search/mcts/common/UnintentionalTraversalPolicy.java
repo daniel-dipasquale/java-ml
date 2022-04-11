@@ -11,15 +11,15 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class UnintentionalTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractExplorableChildrenTraversalPolicy<TAction, TEdge, TState> {
+public final class UnintentionalTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> extends AbstractExplorableChildrenTraversalPolicy<TAction, TEdge, TState, TSearchNode> {
     private final RandomSupport randomSupport;
 
     @Override
-    protected int nextIndex(final int simulations, final List<SearchNode<TAction, TEdge, TState>> childSearchNodes, final TEdge parentEdge) {
+    protected int nextIndex(final int simulations, final List<TSearchNode> childSearchNodes, final TEdge parentEdge) {
         ProbabilityClassifier<Integer> childSearchNodeIndexClassifier = new ProbabilityClassifier<>();
 
         for (int i = 0, c = childSearchNodes.size(); i < c; i++) {
-            SearchNode<TAction, TEdge, TState> childSearchNode = childSearchNodes.get(i);
+            TSearchNode childSearchNode = childSearchNodes.get(i);
 
             childSearchNodeIndexClassifier.add(childSearchNode.getEdge().getExplorationProbability(), i);
         }

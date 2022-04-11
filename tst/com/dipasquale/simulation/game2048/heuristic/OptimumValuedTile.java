@@ -1,7 +1,6 @@
 package com.dipasquale.simulation.game2048.heuristic;
 
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class OptimumValuedTile { // TODO: make these untranslated values
     private static final OptimumValuedTile INSTANCE = new OptimumValuedTile();
     private final List<OptimumMetricDatum> optimumMetricData = createOptimumMetrics();

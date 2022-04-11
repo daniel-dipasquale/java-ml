@@ -12,14 +12,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class CommonSimulationRolloutTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, TEdge, TState> {
+final class CommonSimulationRolloutTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements TraversalPolicy<TAction, TEdge, TState, TSearchNode> {
     private final RandomSupport randomSupport;
 
     @Override
-    public SearchNode<TAction, TEdge, TState> next(final int simulations, final SearchNode<TAction, TEdge, TState> searchNode) {
-        List<SearchNode<TAction, TEdge, TState>> unexploredChildren = searchNode.getUnexploredChildren();
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
+        List<TSearchNode> unexploredChildren = searchNode.getUnexploredChildren();
         int unexploredSize = unexploredChildren.size();
-        List<SearchNode<TAction, TEdge, TState>> explorableChildren = searchNode.getExplorableChildren();
+        List<TSearchNode> explorableChildren = searchNode.getExplorableChildren();
         int explorableSize = explorableChildren.size();
         int totalSize = unexploredSize + explorableSize;
 
@@ -28,7 +28,7 @@ final class CommonSimulationRolloutTraversalPolicy<TAction extends Action, TEdge
         }
 
         if (randomSupport.isLessThan((float) unexploredSize / (float) totalSize)) {
-            SearchNode<TAction, TEdge, TState> unexploredChild = unexploredChildren.remove(unexploredSize - 1);
+            TSearchNode unexploredChild = unexploredChildren.remove(unexploredSize - 1);
 
             explorableChildren.add(unexploredChild);
             unexploredChild.initializeState();
@@ -38,7 +38,7 @@ final class CommonSimulationRolloutTraversalPolicy<TAction extends Action, TEdge
         }
 
         int index = randomSupport.next(0, explorableSize);
-        SearchNode<TAction, TEdge, TState> explorableChild = explorableChildren.get(index);
+        TSearchNode explorableChild = explorableChildren.get(index);
 
         if (explorableChild.getState() == null) {
             explorableChild.initializeState();

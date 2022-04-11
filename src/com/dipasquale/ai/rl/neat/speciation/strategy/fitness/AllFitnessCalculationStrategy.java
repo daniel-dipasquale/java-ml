@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
 import com.dipasquale.ai.rl.neat.speciation.Species;
-import com.dipasquale.data.structure.deque.PlainNode;
+import com.dipasquale.data.structure.deque.StandardNode;
 import com.dipasquale.synchronization.InterruptedRuntimeException;
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +15,7 @@ public final class AllFitnessCalculationStrategy implements FitnessCalculationSt
 
     @Override
     public void calculate(final FitnessCalculationContext context) {
-        for (PlainNode<Species> speciesNode : context.getSpeciesNodes()) {
+        for (StandardNode<Species> speciesNode : context.getSpeciesNodes()) {
             Species species = context.getSpeciesNodes().getValue(speciesNode);
 
             species.updateAllFitness(context.getParent());

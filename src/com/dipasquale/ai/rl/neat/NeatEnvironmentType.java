@@ -5,19 +5,19 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum NeatEnvironmentType {
-    ISOLATED,
+    CONFINED,
     SHARED;
 
-    static NeatEnvironmentType from(final NeatEnvironment neatEnvironment) {
-        if (neatEnvironment instanceof IsolatedNeatEnvironment) {
-            return NeatEnvironmentType.ISOLATED;
+    static NeatEnvironmentType from(final NeatEnvironment environment) {
+        if (environment instanceof ConfinedNeatEnvironment) {
+            return NeatEnvironmentType.CONFINED;
         }
 
-        if (neatEnvironment instanceof SharedNeatEnvironment) {
+        if (environment instanceof SharedNeatEnvironment) {
             return NeatEnvironmentType.SHARED;
         }
 
-        String message = String.format("The neatEnvironment provided is not supported: %s", neatEnvironment);
+        String message = String.format("The environment provided is not supported: %s", environment);
 
         throw new IllegalArgumentException(message);
     }

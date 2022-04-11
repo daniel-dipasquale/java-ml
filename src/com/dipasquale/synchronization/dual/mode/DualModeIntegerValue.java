@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.dual.mode;
 
 import com.dipasquale.common.IntegerValue;
-import com.dipasquale.common.PlainIntegerValue;
+import com.dipasquale.common.StandardIntegerValue;
 import com.dipasquale.common.concurrent.AtomicIntegerValue;
 import lombok.EqualsAndHashCode;
 
@@ -28,7 +28,7 @@ public final class DualModeIntegerValue implements IntegerValue, DualModeObject,
             return new AtomicIntegerValue(value);
         }
 
-        return new PlainIntegerValue(value);
+        return new StandardIntegerValue(value);
     }
 
     @Override

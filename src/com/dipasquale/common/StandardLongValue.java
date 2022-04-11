@@ -2,15 +2,15 @@ package com.dipasquale.common;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-@NoArgsConstructor
+@RequiredArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public final class PlainLongValue implements LongValue, Serializable {
+public final class StandardLongValue implements LongValue, Serializable {
     @Serial
     private static final long serialVersionUID = 8880985247921190483L;
     private long raw = -1L;

@@ -9,11 +9,11 @@ import com.dipasquale.search.mcts.TraversalPolicy;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class ExpansionTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements TraversalPolicy<TAction, TEdge, TState> {
-    private final ExpansionPolicy<TAction, TEdge, TState> expansionPolicy;
+public final class ExpansionTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements TraversalPolicy<TAction, TEdge, TState, TSearchNode> {
+    private final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy;
 
     @Override
-    public SearchNode<TAction, TEdge, TState> next(final int simulations, final SearchNode<TAction, TEdge, TState> searchNode) {
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
         if (!searchNode.isExpanded()) {
             expansionPolicy.expand(searchNode);
         }

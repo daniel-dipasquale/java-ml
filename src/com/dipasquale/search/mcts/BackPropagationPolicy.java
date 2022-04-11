@@ -4,16 +4,16 @@ import com.dipasquale.data.structure.iterator.LinkedIterator;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class BackPropagationPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TContext> {
-    private final BackPropagationStep<TAction, TEdge, TState, TContext> step;
+public final class BackPropagationPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TContext> {
+    private final BackPropagationStep<TAction, TEdge, TState, TSearchNode, TContext> step;
     private final BackPropagationObserver<TAction, TState> observer;
 
-    public void process(final SearchNode<TAction, TEdge, TState> leafSearchNode) {
+    public void process(final TSearchNode leafSearchNode) {
         TContext context = step.createContext(leafSearchNode);
         boolean isFullyExplored = leafSearchNode.isFullyExplored() || leafSearchNode.getState().getStatusId() != MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
 
-        for (SearchNode<TAction, TEdge, TState> currentSearchNode = leafSearchNode; currentSearchNode != null; ) {
-            SearchNode<TAction, TEdge, TState> parentSearchNode = currentSearchNode.getParent();
+        for (TSearchNode currentSearchNode = leafSearchNode; currentSearchNode != null; ) {
+            TSearchNode parentSearchNode = currentSearchNode.getParent();
 
             step.process(context, currentSearchNode);
 
@@ -24,7 +24,7 @@ public final class BackPropagationPolicy<TAction extends Action, TEdge extends E
                     isFullyExplored = parentSearchNode.isFullyExplored();
                 }
 
-                parentSearchNode.setSelectedExplorableChildIndex(SearchNode.NO_CHILD_SELECTED_INDEX);
+                parentSearchNode.setSelectedExplorableChildIndex(StandardSearchNode.NO_CHILD_SELECTED_INDEX);
             }
 
             currentSearchNode = parentSearchNode;

@@ -3,10 +3,10 @@ package com.dipasquale.search.mcts.heuristic;
 import com.dipasquale.search.mcts.common.TechniqueEdge;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 @Setter
 public final class HeuristicEdge implements TechniqueEdge {
