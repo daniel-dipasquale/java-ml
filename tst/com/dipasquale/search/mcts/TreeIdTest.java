@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts;
 
-import com.dipasquale.data.structure.collection.Lists;
+import com.dipasquale.data.structure.collection.ListSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -45,9 +45,9 @@ public final class TreeIdTest {
         TreeId test2 = test1.createChild("a");
         TreeId test3 = test2.createChild("b");
 
-        Assertions.assertEquals(List.of(), Lists.createCopyOf(test1.tokenizeFrom(test1)));
-        Assertions.assertEquals(List.of(test2), Lists.createCopyOf(test2.tokenizeFrom(test1)));
-        Assertions.assertEquals(List.of(test2, test3), Lists.createCopyOf(test3.tokenizeFrom(test1)));
+        Assertions.assertEquals(List.of(), ListSupport.copyOf(test1.tokenizeFrom(test1)));
+        Assertions.assertEquals(List.of(test2), ListSupport.copyOf(test2.tokenizeFrom(test1)));
+        Assertions.assertEquals(List.of(test2, test3), ListSupport.copyOf(test3.tokenizeFrom(test1)));
     }
 
     @Test
@@ -57,8 +57,8 @@ public final class TreeIdTest {
         TreeId test3 = test2.createChild("b");
 
         Assertions.assertNull(test1.tokenizeFrom(test2));
-        Assertions.assertEquals(List.of(), Lists.createCopyOf(test2.tokenizeFrom(test2)));
-        Assertions.assertEquals(List.of(test3), Lists.createCopyOf(test3.tokenizeFrom(test2)));
+        Assertions.assertEquals(List.of(), ListSupport.copyOf(test2.tokenizeFrom(test2)));
+        Assertions.assertEquals(List.of(test3), ListSupport.copyOf(test3.tokenizeFrom(test2)));
     }
 
     @Test
@@ -69,7 +69,7 @@ public final class TreeIdTest {
 
         Assertions.assertNull(test1.tokenizeFrom(test3));
         Assertions.assertNull(test2.tokenizeFrom(test3));
-        Assertions.assertEquals(List.of(), Lists.createCopyOf(test3.tokenizeFrom(test3)));
+        Assertions.assertEquals(List.of(), ListSupport.copyOf(test3.tokenizeFrom(test3)));
     }
 
     @Test
@@ -79,8 +79,8 @@ public final class TreeIdTest {
         TreeId test3 = test2.createChild("b");
         TreeId test4 = new TreeId();
 
-        Assertions.assertEquals(List.of(), Lists.createCopyOf(test1.tokenizeFrom(test4)));
-        Assertions.assertEquals(List.of(test2), Lists.createCopyOf(test2.tokenizeFrom(test4)));
-        Assertions.assertEquals(List.of(test2, test3), Lists.createCopyOf(test3.tokenizeFrom(test4)));
+        Assertions.assertEquals(List.of(), ListSupport.copyOf(test1.tokenizeFrom(test4)));
+        Assertions.assertEquals(List.of(test2), ListSupport.copyOf(test2.tokenizeFrom(test4)));
+        Assertions.assertEquals(List.of(test2, test3), ListSupport.copyOf(test3.tokenizeFrom(test4)));
     }
 }

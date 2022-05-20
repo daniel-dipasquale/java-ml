@@ -22,11 +22,11 @@ final class ToArrayAsserter<T> extends AsserterBase<T> {
 
     private void assertEmptyItems(final List<T> items) {
         items.clear();
-        equalsAsserter.assertEquals(Lists.create(items.toArray()), Lists.create(collection.toArray()));
+        equalsAsserter.assertEquals(ListSupport.create(items.toArray()), ListSupport.create(collection.toArray()));
     }
 
     private void assertAllItems(final List<T> items) {
-        equalsAsserter.assertEquals(Lists.create(items.toArray()), Lists.create(collection.toArray()));
+        equalsAsserter.assertEquals(ListSupport.create(items.toArray()), ListSupport.create(collection.toArray()));
     }
 
     private T[] createArray(final int count) {
@@ -35,29 +35,29 @@ final class ToArrayAsserter<T> extends AsserterBase<T> {
 
     private void assertEmptyItemsUsingArrayFactory(final List<T> items) {
         items.clear();
-        equalsAsserter.assertEquals(Lists.create(items.toArray(this::createArray)), Lists.create(collection.toArray(this::createArray)));
+        equalsAsserter.assertEquals(ListSupport.create(items.toArray(this::createArray)), ListSupport.create(collection.toArray(this::createArray)));
     }
 
     private void assertAllItemsUsingArrayFactory(final List<T> items) {
-        equalsAsserter.assertEquals(Lists.create(items.toArray(this::createArray)), Lists.create(collection.toArray(this::createArray)));
+        equalsAsserter.assertEquals(ListSupport.create(items.toArray(this::createArray)), ListSupport.create(collection.toArray(this::createArray)));
     }
 
     private void assertEmptyItemsUsingEmptyArray(final List<T> items) {
         items.clear();
-        equalsAsserter.assertEquals(Lists.create(items.toArray(createArray(0))), Lists.create(collection.toArray(createArray(0))));
+        equalsAsserter.assertEquals(ListSupport.create(items.toArray(createArray(0))), ListSupport.create(collection.toArray(createArray(0))));
     }
 
     private void assertAllItemsUsingEmptyArray(final List<T> items) {
-        equalsAsserter.assertEquals(Lists.create(items.toArray(createArray(0))), Lists.create(collection.toArray(createArray(0))));
+        equalsAsserter.assertEquals(ListSupport.create(items.toArray(createArray(0))), ListSupport.create(collection.toArray(createArray(0))));
     }
 
     private void assertEmptyItemsUsingArray(final List<T> items) {
         items.clear();
-        equalsAsserter.assertEquals(Lists.create(items.toArray(createArray(ITEM_COUNT))), Lists.create(collection.toArray(createArray(ITEM_COUNT))));
+        equalsAsserter.assertEquals(ListSupport.create(items.toArray(createArray(ITEM_COUNT))), ListSupport.create(collection.toArray(createArray(ITEM_COUNT))));
     }
 
     private void assertAllItemsUsingArray(final List<T> items) {
-        equalsAsserter.assertEquals(Lists.create(items.toArray(createArray(ITEM_COUNT))), Lists.create(collection.toArray(createArray(ITEM_COUNT))));
+        equalsAsserter.assertEquals(ListSupport.create(items.toArray(createArray(ITEM_COUNT))), ListSupport.create(collection.toArray(createArray(ITEM_COUNT))));
     }
 
     @Override

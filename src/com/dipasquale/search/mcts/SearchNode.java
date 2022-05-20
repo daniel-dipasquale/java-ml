@@ -1,19 +1,9 @@
 package com.dipasquale.search.mcts;
 
-import java.util.List;
-
 public interface SearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+    int NO_SELECTED_EXPLORABLE_CHILD_KEY = -1;
+
     TSearchNode getParent();
-
-    void reinitialize(TState state);
-
-    List<TSearchNode> createAllPossibleChildNodes(EdgeFactory<TEdge> edgeFactory);
-
-    void initializeState();
-
-    boolean isExpanded();
-
-    boolean isFullyExplored();
 
     TAction getAction();
 
@@ -21,21 +11,29 @@ public interface SearchNode<TAction extends Action, TEdge extends Edge, TState e
 
     TState getState();
 
-    List<TSearchNode> getUnexploredChildren();
+    void reinitialize(TState state);
 
-    List<TSearchNode> getExplorableChildren();
+    Iterable<TSearchNode> createAllPossibleChildNodes(EdgeFactory<TEdge> edgeFactory);
 
-    List<TSearchNode> getFullyExploredChildren();
+    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getUnexploredChildren();
 
-    int getSelectedExplorableChildIndex();
+    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getExplorableChildren();
 
-    void setUnexploredChildren(List<TSearchNode> unexploredChildren);
+    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getFullyExploredChildren();
 
-    void setExplorableChildren(List<TSearchNode> explorableChildren);
+    void setUnexploredChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren);
 
-    void setFullyExploredChildren(List<TSearchNode> fullyExploredChildren);
+    void setExplorableChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren);
 
-    void setSelectedExplorableChildIndex(int selectedExplorableChildIndex);
+    void setFullyExploredChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> fullyExploredChildren);
+
+    int getSelectedExplorableChildKey();
+
+    void setSelectedExplorableChildKey(int key);
+
+    boolean isExpanded();
+
+    boolean isFullyExplored();
 
     @Override
     String toString();

@@ -19,12 +19,14 @@ public final class BackPropagationPolicy<TAction extends Action, TEdge extends E
 
             if (parentSearchNode != null) {
                 if (isFullyExplored) {
-                    parentSearchNode.getExplorableChildren().remove(parentSearchNode.getSelectedExplorableChildIndex());
-                    parentSearchNode.getFullyExploredChildren().add(currentSearchNode);
+                    if (parentSearchNode.getExplorableChildren().removeByKey(parentSearchNode.getSelectedExplorableChildKey()) != null) {
+                        parentSearchNode.getFullyExploredChildren().add(currentSearchNode);
+                    }
+
                     isFullyExplored = parentSearchNode.isFullyExplored();
                 }
 
-                parentSearchNode.setSelectedExplorableChildIndex(StandardSearchNode.NO_CHILD_SELECTED_INDEX);
+                parentSearchNode.setSelectedExplorableChildKey(SearchNode.NO_SELECTED_EXPLORABLE_CHILD_KEY);
             }
 
             currentSearchNode = parentSearchNode;

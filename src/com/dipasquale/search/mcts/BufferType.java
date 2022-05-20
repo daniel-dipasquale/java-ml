@@ -8,7 +8,7 @@ public enum BufferType {
     DISABLED,
     AUTO_CLEAR;
 
-    public <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TBackPropagationContext> Buffer<TAction, TEdge, TState, TSearchNode> create(final MctsInitializationContext<TAction, TEdge, TState, TSearchNode, TBackPropagationContext> initializationContext) {
+    public <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TBackPropagationContext> Buffer<TAction, TEdge, TState, TSearchNode> create(final InitializationContext<TAction, TEdge, TState, TSearchNode, TBackPropagationContext> initializationContext) {
         return switch (this) {
             case DISABLED -> new DisabledBuffer<>(initializationContext.getEdgeFactory(), initializationContext.getSearchNodeFactory());
 

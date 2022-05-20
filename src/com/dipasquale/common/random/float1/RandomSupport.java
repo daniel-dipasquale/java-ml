@@ -1,5 +1,7 @@
 package com.dipasquale.common.random.float1;
 
+import com.dipasquale.data.structure.group.ListSetGroup;
+
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
@@ -38,9 +40,18 @@ public interface RandomSupport {
         for (int i = items.size(); i > 1; i--) {
             int fromIndex = i - 1;
             int toIndex = next(0, i);
-            T item = items.set(toIndex, items.get(fromIndex));
+            T replacedItem = items.set(toIndex, items.get(fromIndex));
 
-            items.set(fromIndex, item);
+            items.set(fromIndex, replacedItem);
+        }
+    }
+
+    default <T> void shuffle(final ListSetGroup<?, T> items) {
+        for (int i = items.size(); i > 1; i--) {
+            int fromIndex = i - 1;
+            int toIndex = next(0, i);
+
+            items.swap(fromIndex, toIndex);
         }
     }
 

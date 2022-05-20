@@ -2,7 +2,7 @@ package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.error.ErrorComparator;
 import com.dipasquale.data.structure.collection.CollectionAsserter;
-import com.dipasquale.data.structure.collection.Lists;
+import com.dipasquale.data.structure.collection.ListSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -292,7 +292,7 @@ public final class StandardNodeDequeTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add(node1));
         Assertions.assertTrue(TEST.add(node2));
         Assertions.assertTrue(TEST.add(node3));
-        Assertions.assertEquals(List.of(node3, node2, node1), Lists.createCopyOf(TEST.descendingIterator()));
+        Assertions.assertEquals(List.of(node3, node2, node1), ListSupport.copyOf(TEST.descendingIterator()));
     }
 
     @Test

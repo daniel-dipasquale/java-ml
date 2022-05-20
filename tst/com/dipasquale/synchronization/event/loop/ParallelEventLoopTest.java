@@ -96,6 +96,6 @@ public final class ParallelEventLoopTest {
     }
 
     private static final class ItemCollector {
-        private final AtomicLong value = new AtomicLong(0L);
+        private final AtomicLong value = new AtomicLong();
     }
 }

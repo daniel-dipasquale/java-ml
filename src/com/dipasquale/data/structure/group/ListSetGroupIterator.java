@@ -1,4 +1,4 @@
-package com.dipasquale.ai.common.sequence;
+package com.dipasquale.data.structure.group;
 
 import com.dipasquale.common.Pair;
 import lombok.AccessLevel;
@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.NavigableMap;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class OrderedGroupIterator<TId extends Comparable<TId>, TItem> implements Iterator<Pair<TItem>> {
+final class ListSetGroupIterator<TId extends Comparable<TId>, TItem> implements Iterator<Pair<TItem>> {
     private final AscendingByIdIterator iterator1;
     private final AscendingByIdIterator iterator2;
 
-    OrderedGroupIterator(final NavigableMap<TId, TItem> navigableMap1, final NavigableMap<TId, TItem> navigableMap2) {
+    ListSetGroupIterator(final NavigableMap<TId, TItem> navigableMap1, final NavigableMap<TId, TItem> navigableMap2) {
         this.iterator1 = new AscendingByIdIterator(navigableMap1.entrySet().iterator());
         this.iterator2 = new AscendingByIdIterator(navigableMap2.entrySet().iterator());
     }

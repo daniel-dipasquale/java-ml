@@ -2,6 +2,7 @@ package com.dipasquale.search.mcts.alphazero;
 
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.SearchNodeGroup;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.common.ExplorationHeuristic;
 import com.dipasquale.search.mcts.common.RewardHeuristic;
@@ -12,12 +13,11 @@ import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 
 @Getter
 final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements AlphaZeroPrediction<TAction, TState, TSearchNode> {
     private final float value;
-    private final List<TSearchNode> explorableChildren;
+    private final SearchNodeGroup<TAction, AlphaZeroEdge, TState, TSearchNode> explorableChildren;
     private final float[] policies;
 
     private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> Float calculateValueViaHeuristic(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context) {
@@ -86,7 +86,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
         return getPolicy(arguments, output[fixedIndex]);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> float[] createPolicies(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context, final List<TSearchNode> explorableChildren) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> float[] createPolicies(final Arguments arguments, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context, final SearchNodeGroup<TAction, AlphaZeroEdge, TState, TSearchNode> explorableChildren) {
         float[] policies = new float[explorableChildren.size()];
         float totalPolicy = 0f;
 
@@ -94,7 +94,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
             float[] output = arguments.getOutput(context);
 
             for (int i = 0; i < policies.length; i++) {
-                TSearchNode explorableChild = explorableChildren.get(i);
+                TSearchNode explorableChild = explorableChildren.getByIndex(i);
                 float policy = getPolicy(arguments, output, explorableChild.getAction().getId());
 
                 policies[i] = policy;
@@ -104,7 +104,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
             ExplorationHeuristic<TAction> explorationHeuristic = context.getExplorationHeuristic();
 
             for (int i = 0; i < policies.length; i++) {
-                TSearchNode explorableChild = explorableChildren.get(i);
+                TSearchNode explorableChild = explorableChildren.getByIndex(i);
                 float policy = getPolicy(arguments, explorationHeuristic.estimate(explorableChild.getAction()));
 
                 policies[i] = policy;
@@ -130,7 +130,8 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
     NeuralNetworkAlphaZeroPrediction(final int perspectiveParticipantId, final EnumSet<PredictionBehaviorType> behaviorTypes, final int valueIndex, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context) {
         TSearchNode searchNode = context.getSearchNode();
         TState state = searchNode.getState();
-        List<TSearchNode> explorableChildren = searchNode.createAllPossibleChildNodes(context.getEdgeFactory());
+        Iterable<TSearchNode> explorableChildrenIterable = searchNode.createAllPossibleChildNodes(context.getEdgeFactory());
+        SearchNodeGroup<TAction, AlphaZeroEdge, TState, TSearchNode> explorableChildren = context.getSearchNodeGroupProvider().create(explorableChildrenIterable);
 
         Arguments arguments = Arguments.builder()
                 .perspectiveParticipantId(perspectiveParticipantId)

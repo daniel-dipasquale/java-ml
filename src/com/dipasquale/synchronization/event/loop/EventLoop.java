@@ -45,7 +45,7 @@ public interface EventLoop extends WaitHandle {
     }
 
     private static EventLoopSelector createSelector(final EventLoopSettings settings) {
-        return Objects.requireNonNullElseGet(settings.getEventLoopSelector(), ThreadLocalRandomEventLoopSelector::getInstance);
+        return Objects.requireNonNullElseGet(settings.getEventLoopSelector(), RandomEventLoopSelector::getInstance);
     }
 
     static EventLoop create(final EventLoopSettings settings) {

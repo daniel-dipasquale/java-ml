@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class Lists {
-    public static <T> List<T> createCopyOf(final Iterator<T> iterator) {
+public final class ListSupport {
+    public static <T> List<T> copyOf(final Iterator<T> iterator) {
         List<T> list = new ArrayList<>();
 
         while (iterator.hasNext()) {
@@ -20,8 +20,8 @@ public final class Lists {
         return list;
     }
 
-    public static <T> List<T> createCopyOf(final Iterable<T> iterable) {
-        return createCopyOf(iterable.iterator());
+    public static <T> List<T> copyOf(final Iterable<T> iterable) {
+        return copyOf(iterable.iterator());
     }
 
     @SafeVarargs

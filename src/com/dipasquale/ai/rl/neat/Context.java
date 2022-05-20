@@ -1,6 +1,5 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
@@ -15,6 +14,7 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionSt
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategyExecutor;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.random.ProbabilityClassifier;
+import com.dipasquale.data.structure.group.ListSetGroup;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -94,7 +94,7 @@ public interface Context {
             return items.get(index);
         }
 
-        default <T> T generateItem(final OrderedGroup<? extends Comparable<?>, T> items) {
+        default <T> T generateItem(final ListSetGroup<? extends Comparable<?>, T> items) {
             int size = items.size();
 
             if (size == 0) {

@@ -6,6 +6,7 @@ import com.dipasquale.ai.common.NeuronMemory;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.SearchNodeGroupProvider;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.common.ExplorationHeuristic;
 import com.dipasquale.search.mcts.common.RewardHeuristic;
@@ -33,9 +34,9 @@ public abstract class AbstractNeuralNetworkAlphaZeroModel<TAction extends Action
     protected abstract AlphaZeroPredictor<TAction, TState, TSearchNode> createPredictor(TNeuronMemory neuronMemory);
 
     @Override
-    public AlphaZeroPrediction<TAction, TState, TSearchNode> predict(final TSearchNode searchNode, final EdgeFactory<AlphaZeroEdge> edgeFactory) {
+    public AlphaZeroPrediction<TAction, TState, TSearchNode> predict(final TSearchNode searchNode, final EdgeFactory<AlphaZeroEdge> edgeFactory, final SearchNodeGroupProvider<TAction, AlphaZeroEdge, TState, TSearchNode> searchNodeGroupProvider) {
         AlphaZeroPredictor<TAction, TState, TSearchNode> predictor = createPredictor(neuronMemory);
-        NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context = new NeuralNetworkAlphaZeroContext<>(searchNode, edgeFactory, predictor, rewardHeuristic, explorationHeuristic);
+        NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context = new NeuralNetworkAlphaZeroContext<>(searchNode, edgeFactory, searchNodeGroupProvider, predictor, rewardHeuristic, explorationHeuristic);
 
         return decoder.decode(context);
     }

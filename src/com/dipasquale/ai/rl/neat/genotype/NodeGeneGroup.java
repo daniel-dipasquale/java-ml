@@ -1,9 +1,10 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.common.Pair;
+import com.dipasquale.data.structure.group.ItemKeyAccessor;
+import com.dipasquale.data.structure.group.ListSetGroup;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +21,20 @@ public final class NodeGeneGroup implements Iterable<NodeGene>, Serializable {
     @Serial
     private static final long serialVersionUID = -414060625780283286L;
     @EqualsAndHashCode.Include
-    private final OrderedGroup<Id, NodeGene> nodes = new OrderedGroup<>();
-    private final Map<NodeGeneType, OrderedGroup<Id, NodeGene>> nodesByType = createNodesByType();
+    private final ListSetGroup<Id, NodeGene> nodes = createNodes();
+    private final Map<NodeGeneType, ListSetGroup<Id, NodeGene>> nodesByType = createNodesByType();
 
-    private static Map<NodeGeneType, OrderedGroup<Id, NodeGene>> createNodesByType() {
-        EnumMap<NodeGeneType, OrderedGroup<Id, NodeGene>> nodesByType = new EnumMap<>(NodeGeneType.class);
+    private static ListSetGroup<Id, NodeGene> createNodes() {
+        return new ListSetGroup<>((ItemKeyAccessor<Id, NodeGene> & Serializable) NodeGene::getId);
+    }
 
-        nodesByType.put(NodeGeneType.INPUT, new OrderedGroup<>());
-        nodesByType.put(NodeGeneType.OUTPUT, new OrderedGroup<>());
-        nodesByType.put(NodeGeneType.BIAS, new OrderedGroup<>());
-        nodesByType.put(NodeGeneType.HIDDEN, new OrderedGroup<>());
+    private static Map<NodeGeneType, ListSetGroup<Id, NodeGene>> createNodesByType() {
+        EnumMap<NodeGeneType, ListSetGroup<Id, NodeGene>> nodesByType = new EnumMap<>(NodeGeneType.class);
+
+        nodesByType.put(NodeGeneType.INPUT, createNodes());
+        nodesByType.put(NodeGeneType.OUTPUT, createNodes());
+        nodesByType.put(NodeGeneType.BIAS, createNodes());
+        nodesByType.put(NodeGeneType.HIDDEN, createNodes());
 
         return nodesByType;
     }
@@ -59,8 +64,8 @@ public final class NodeGeneGroup implements Iterable<NodeGene>, Serializable {
     }
 
     public void put(final NodeGene node) {
-        nodes.put(node.getId(), node);
-        nodesByType.get(node.getType()).put(node.getId(), node);
+        nodes.put(node);
+        nodesByType.get(node.getType()).put(node);
     }
 
     @Override

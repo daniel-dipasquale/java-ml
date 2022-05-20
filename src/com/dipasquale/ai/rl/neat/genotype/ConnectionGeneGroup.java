@@ -1,8 +1,9 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.common.sequence.OrderedGroup;
 import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.common.Pair;
+import com.dipasquale.data.structure.group.ItemKeyAccessor;
+import com.dipasquale.data.structure.group.ListSetGroup;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public final class ConnectionGeneGroup implements Serializable {
     private final Expressed expressed = new Expressed();
 
     boolean put(final ConnectionGene connection) {
-        all.connections.put(connection.getInnovationId(), connection);
+        all.connections.put(connection);
 
         if (connection.isExpressed()) {
             expressed.add(connection);
@@ -37,12 +38,16 @@ public final class ConnectionGeneGroup implements Serializable {
         return false;
     }
 
+    private static ListSetGroup<InnovationId, ConnectionGene> createConnections() {
+        return new ListSetGroup<>((ItemKeyAccessor<InnovationId, ConnectionGene> & Serializable) ConnectionGene::getInnovationId);
+    }
+
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode
     public static final class All implements Iterable<ConnectionGene>, Serializable {
         @Serial
         private static final long serialVersionUID = -2991129194086625584L;
-        private final OrderedGroup<InnovationId, ConnectionGene> connections = new OrderedGroup<>();
+        private final ListSetGroup<InnovationId, ConnectionGene> connections = createConnections();
 
         public int size() {
             return connections.size();
@@ -70,7 +75,7 @@ public final class ConnectionGeneGroup implements Serializable {
     public static final class Expressed implements Serializable {
         @Serial
         private static final long serialVersionUID = -9128761857546984189L;
-        private final OrderedGroup<InnovationId, ConnectionGene> connections = new OrderedGroup<>();
+        private final ListSetGroup<InnovationId, ConnectionGene> connections = createConnections();
         private final Map<Id, Map<DirectedEdge, ConnectionGene>> incomingToNodeId = new HashMap<>();
         private final Map<Id, Map<DirectedEdge, ConnectionGene>> outgoingFromNodeId = new HashMap<>();
 
@@ -125,7 +130,7 @@ public final class ConnectionGeneGroup implements Serializable {
             Id sourceNodeId = connection.getInnovationId().getSourceNodeId();
             DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
 
-            connections.put(connection.getInnovationId(), connection);
+            connections.put(connection);
             incomingToNodeId.computeIfAbsent(targetNodeId, __ -> new LinkedHashMap<>()).put(directedEdge, connection);
             outgoingFromNodeId.computeIfAbsent(sourceNodeId, __ -> new LinkedHashMap<>()).put(directedEdge, connection);
         }
@@ -135,7 +140,7 @@ public final class ConnectionGeneGroup implements Serializable {
             Id sourceNodeId = connection.getInnovationId().getSourceNodeId();
             DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
 
-            connections.removeById(connection.getInnovationId());
+            connections.removeByKey(connection.getInnovationId());
             incomingToNodeId.computeIfPresent(targetNodeId, (__, connections) -> removeIfEmpty(connections, directedEdge));
             outgoingFromNodeId.computeIfPresent(sourceNodeId, (__, connections) -> removeIfEmpty(connections, directedEdge));
         }

@@ -61,7 +61,7 @@ final class SearchNodeTree<TAction extends Action, TEdge extends Edge, TState ex
         if (nextGeneration != null) {
             replace(nextGeneration, searchNode);
 
-            if (searchNode.isExpanded()) {
+            if (searchNode.isExpanded()) { // TODO: need lock
                 for (TSearchNode childSearchNode : searchNode.getUnexploredChildren()) {
                     replace(getOrCreate(nextGeneration, childSearchNode.getAction().getTreeId()), childSearchNode);
                 }

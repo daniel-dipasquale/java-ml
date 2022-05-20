@@ -4,10 +4,9 @@ import com.dipasquale.common.random.float2.MultivariateDistributionSupport;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.ExpansionPolicy;
 import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.SearchNodeGroup;
 import com.dipasquale.search.mcts.State;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> {
@@ -32,12 +31,12 @@ public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction extend
                 .toArray();
 
         double[] noises = multivariateDistributionSupport.nextRandom(shapes);
-        List<TSearchNode> childSearchNodes = searchNode.getExplorableChildren();
+        SearchNodeGroup<TAction, AlphaZeroEdge, TState, TSearchNode> childSearchNodes = searchNode.getExplorableChildren();
         int size = childSearchNodes.size();
         float totalExplorationProbability = 0f;
 
         for (int i = 0; i < size; i++) {
-            TSearchNode childSearchNode = childSearchNodes.get(i);
+            TSearchNode childSearchNode = childSearchNodes.getByIndex(i);
             AlphaZeroEdge childEdge = childSearchNode.getEdge();
             float explorationProbability = childEdge.getExplorationProbability();
             float fixedExplorationProbability = (1f - epsilon) * explorationProbability + epsilon * (float) noises[i];

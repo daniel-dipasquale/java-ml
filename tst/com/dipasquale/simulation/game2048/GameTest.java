@@ -34,7 +34,7 @@ public final class GameTest {
     private static final double C_PUCT_ROSIN_INIT = 2.5D;
     private static final float C_PUCT_CONSTANT = 1f;
     private static final boolean PRINT_FINAL_STATE = true;
-    private static final TestOption TEST_OPTION = TestOption.INVISIBLE_ONLY;
+    private static final TestOption TEST_OPTION = TestOption.BACKGROUND_ONLY;
 
     @Test
     public void TEST_1() {
@@ -90,7 +90,7 @@ public final class GameTest {
 
     @Test
     public void TEST_2() {
-        if (!TEST_OPTION.reference.contains(TestType.INVISIBLE)) {
+        if (!TEST_OPTION.testTypes.contains(TestType.BACKGROUND)) {
             return;
         }
 
@@ -106,7 +106,7 @@ public final class GameTest {
 
     @Test
     public void TEST_3() {
-        if (!TEST_OPTION.reference.contains(TestType.DISPLAYED_ON_BROWSER)) {
+        if (!TEST_OPTION.testTypes.contains(TestType.DISPLAYED_ON_BROWSER)) {
             return;
         }
 
@@ -148,15 +148,15 @@ public final class GameTest {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TestType {
-        INVISIBLE,
+        BACKGROUND,
         DISPLAYED_ON_BROWSER
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TestOption {
-        INVISIBLE_ONLY(EnumSet.of(TestType.INVISIBLE)),
+        BACKGROUND_ONLY(EnumSet.of(TestType.BACKGROUND)),
         DISPLAYED_ON_BROWSER_ONLY(EnumSet.of(TestType.DISPLAYED_ON_BROWSER)),
-        ALL(EnumSet.of(TestType.INVISIBLE, TestType.DISPLAYED_ON_BROWSER));
-        private final EnumSet<TestType> reference;
+        ALL(EnumSet.of(TestType.BACKGROUND, TestType.DISPLAYED_ON_BROWSER));
+        private final EnumSet<TestType> testTypes;
     }
 }
