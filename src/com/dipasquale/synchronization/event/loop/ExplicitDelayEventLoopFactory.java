@@ -7,7 +7,7 @@ final class ExplicitDelayEventLoopFactory implements EventLoopFactory {
     private static final Comparator<EventLoopRecord> COMPARATOR = Comparator.comparing(EventLoopRecord::getExecutionDateTime);
 
     @Override
-    public EventLoop create(final String name, final EventLoopParams params, final EventLoop entryPoint) {
+    public EventLoop create(final EventLoopId id, final EventLoopParams params, final EventLoop entryPoint) {
         ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
                 .eventLoopRecords(new PriorityQueue<>(COMPARATOR))
                 .executorService(params.getExecutorService())
@@ -15,6 +15,6 @@ final class ExplicitDelayEventLoopFactory implements EventLoopFactory {
                 .errorHandler(params.getErrorHandler())
                 .build();
 
-        return new ExplicitDelayEventLoop(name, fixedParams, entryPoint);
+        return new ExplicitDelayEventLoop(id, fixedParams, entryPoint);
     }
 }

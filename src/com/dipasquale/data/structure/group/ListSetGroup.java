@@ -38,8 +38,8 @@ public final class ListSetGroup<TKey extends Comparable<TKey>, TItem> implements
         return list.get(index).getValue();
     }
 
-    public TItem getById(final TKey id) {
-        return navigableMap.get(id);
+    public TItem getById(final TKey key) {
+        return navigableMap.get(key);
     }
 
     public TItem getLast() {
@@ -60,12 +60,17 @@ public final class ListSetGroup<TKey extends Comparable<TKey>, TItem> implements
         TKey oldKey = oldRecord.getKey();
         TItem oldItem = oldRecord.getValue();
 
-        if (key == oldKey) {
-            return null;
+        if (key != oldKey) {
+            navigableMap.remove(oldKey);
         }
 
-        navigableMap.remove(oldKey);
-        navigableMap.put(key, item);
+        if (key != oldKey || item != oldItem) {
+            navigableMap.put(key, item);
+        }
+
+        if (item == oldItem) {
+            return null;
+        }
 
         return oldItem;
     }
@@ -98,8 +103,8 @@ public final class ListSetGroup<TKey extends Comparable<TKey>, TItem> implements
         return navigableMap.remove(record.getKey());
     }
 
-    public TItem removeByKey(final TKey id) {
-        TItem item = navigableMap.remove(id);
+    public TItem removeByKey(final TKey key) {
+        TItem item = navigableMap.remove(key);
 
         if (item != null) {
             list.removeIf(entry -> entry.getValue() == item); // TODO: think of a better way of handling this
@@ -108,14 +113,14 @@ public final class ListSetGroup<TKey extends Comparable<TKey>, TItem> implements
         return item;
     }
 
+    public Iterator<Pair<TItem>> fullJoin(final ListSetGroup<TKey, TItem> other) {
+        return new ListSetGroupIterator<>(navigableMap, other.navigableMap);
+    }
+
     @Override
     public Iterator<TItem> iterator() {
         return list.stream()
                 .map(Record::getValue)
                 .iterator();
-    }
-
-    public Iterator<Pair<TItem>> fullJoin(final ListSetGroup<TKey, TItem> other) {
-        return new ListSetGroupIterator<>(navigableMap, other.navigableMap);
     }
 }

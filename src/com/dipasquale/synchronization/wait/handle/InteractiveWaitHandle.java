@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.wait.handle;
 
 public interface InteractiveWaitHandle extends WaitHandle {
-    void countUp();
+    boolean countUp();
 
-    void countDown();
+    boolean countDown();
 }

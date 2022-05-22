@@ -21,36 +21,36 @@ import java.util.concurrent.locks.ReentrantLock;
 final class ExplicitDelayEventLoop implements EventLoop {
     private static final int CONCURRENCY_LEVEL = 1;
     @Getter
-    private final String name;
+    private final EventLoopId id;
     private final Queue<EventLoopRecord> queue;
     private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
     private final Lock addToOrRemoveFromQueueLock;
     private final Lock handleQueuedEventsLock;
-    private final Condition handleQueuedEventsLock_emptyQueueCondition;
-    private final TogglingWaitHandle handlingEventsWaitHandle;
+    private final Condition handleQueuedEventsLock_emptyQueue_condition;
+    private final TogglingWaitHandle handlingQueuedEvent_waitHandle;
     private final ErrorHandler errorHandler;
     private final EventLoop entryPoint;
     private boolean started;
     private final AtomicBoolean shutdown;
 
-    private ExplicitDelayEventLoop(final String name, final ExplicitDelayEventLoopParams params, final Lock handleQueuedEventsLock, final EventLoop entryPoint) {
-        this.name = name;
+    private ExplicitDelayEventLoop(final EventLoopId id, final ExplicitDelayEventLoopParams params, final Lock handleQueuedEventsLock, final EventLoop entryPoint) {
+        this.id = id;
         this.queue = params.getEventLoopRecords();
         this.executorService = params.getExecutorService();
         this.dateTimeSupport = params.getDateTimeSupport();
         this.addToOrRemoveFromQueueLock = new ReentrantLock();
         this.handleQueuedEventsLock = handleQueuedEventsLock;
-        this.handleQueuedEventsLock_emptyQueueCondition = handleQueuedEventsLock.newCondition();
-        this.handlingEventsWaitHandle = new TogglingWaitHandle();
+        this.handleQueuedEventsLock_emptyQueue_condition = handleQueuedEventsLock.newCondition();
+        this.handlingQueuedEvent_waitHandle = new TogglingWaitHandle();
         this.errorHandler = params.getErrorHandler();
         this.entryPoint = Objects.requireNonNullElse(entryPoint, this);
         this.started = false;
         this.shutdown = new AtomicBoolean(true);
     }
 
-    ExplicitDelayEventLoop(final String name, final ExplicitDelayEventLoopParams params, final EventLoop entryPoint) {
-        this(name, params, new ReentrantLock(), entryPoint);
+    ExplicitDelayEventLoop(final EventLoopId id, final ExplicitDelayEventLoopParams params, final EventLoop entryPoint) {
+        this(id, params, new ReentrantLock(), entryPoint);
     }
 
     @Override
@@ -58,24 +58,24 @@ final class ExplicitDelayEventLoop implements EventLoop {
         return CONCURRENCY_LEVEL;
     }
 
-    private EventRecordAudit pollNextEventIfAvailable() {
+    private EventLoopRecordCandidate retrieveNextRecordCandidate() {
         EventLoopRecord record = queue.peek();
 
         if (record == null || dateTimeSupport.now() < record.getExecutionDateTime()) {
-            return new EventRecordAudit(record, null);
+            return new EventLoopRecordCandidate(record, null);
         }
 
-        return new EventRecordAudit(record, queue.poll());
+        return new EventLoopRecordCandidate(record, queue.poll());
     }
 
     private void notifyNotBusyIfApplicable() {
         if (queue.isEmpty()) {
-            handlingEventsWaitHandle.countDown();
+            handlingQueuedEvent_waitHandle.countDown();
         }
     }
 
-    private long getDelayTime(final EventLoopRecord eventLoopRecord) {
-        return Math.max(eventLoopRecord.getExecutionDateTime() - dateTimeSupport.now(), 0L);
+    private long getDelayTime(final EventLoopRecord record) {
+        return Math.max(record.getExecutionDateTime() - dateTimeSupport.now(), 0L);
     }
 
     private void handleQueuedEvents() {
@@ -83,7 +83,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
         try {
             while (!shutdown.get()) {
-                EventRecordAudit audit = pollNextEventIfAvailable();
+                EventLoopRecordCandidate audit = retrieveNextRecordCandidate();
 
                 if (audit.polled == null) {
                     try {
@@ -91,11 +91,10 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
                         if (audit.peeked != null) {
                             long timeout = getDelayTime(audit.peeked);
-                            TimeUnit unit = dateTimeSupport.timeUnit();
 
-                            handleQueuedEventsLock_emptyQueueCondition.await(timeout, unit);
+                            handleQueuedEventsLock_emptyQueue_condition.await(timeout, dateTimeSupport.timeUnit());
                         } else {
-                            handleQueuedEventsLock_emptyQueueCondition.await();
+                            handleQueuedEventsLock_emptyQueue_condition.await();
                         }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
@@ -104,7 +103,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
                     }
                 } else {
                     try {
-                        audit.polled.getHandler().handle(name);
+                        audit.polled.getHandler().handle(id);
                     } catch (Throwable e) {
                         if (errorHandler != null) {
                             errorHandler.handle(e);
@@ -119,24 +118,24 @@ final class ExplicitDelayEventLoop implements EventLoop {
         }
     }
 
-    private void queue(final EventLoopRecord eventLoopRecord) {
+    private void queue(final EventLoopRecord record) {
         addToOrRemoveFromQueueLock.lock();
 
         try {
             handleQueuedEventsLock.lock();
 
             try {
-                queue.add(eventLoopRecord);
+                queue.add(record);
 
                 if (!started) {
                     started = true;
                     shutdown.set(false);
                     executorService.submit(this::handleQueuedEvents);
                 } else {
-                    handleQueuedEventsLock_emptyQueueCondition.signal();
+                    handleQueuedEventsLock_emptyQueue_condition.signal();
                 }
 
-                handlingEventsWaitHandle.countUp();
+                handlingQueuedEvent_waitHandle.countUp();
             } finally {
                 handleQueuedEventsLock.unlock();
             }
@@ -148,15 +147,17 @@ final class ExplicitDelayEventLoop implements EventLoop {
     @Override
     public void queue(final EventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
         EventLoopHandler fixedHandler = new StandardEventLoopHandler(handler, errorHandler, invokedWaitHandle);
+        long executionDateTime = dateTimeSupport.now() + delayTime;
 
-        queue(new EventLoopRecord(fixedHandler, dateTimeSupport.now() + delayTime));
+        queue(new EventLoopRecord(fixedHandler, executionDateTime));
     }
 
     @Override
     public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
         EventLoopHandler fixedHandler = new StandardIntervalEventLoopHandler(handler, delayTime, errorHandler, invokedWaitHandle, entryPoint);
+        long executionDateTime = dateTimeSupport.now() + delayTime;
 
-        queue(new EventLoopRecord(fixedHandler, dateTimeSupport.now() + delayTime));
+        queue(new EventLoopRecord(fixedHandler, executionDateTime));
     }
 
     @Override
@@ -179,13 +180,13 @@ final class ExplicitDelayEventLoop implements EventLoop {
     @Override
     public void await()
             throws InterruptedException {
-        handlingEventsWaitHandle.await();
+        handlingQueuedEvent_waitHandle.await();
     }
 
     @Override
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return handlingEventsWaitHandle.await(timeout, unit);
+        return handlingQueuedEvent_waitHandle.await(timeout, unit);
     }
 
     @Override
@@ -194,7 +195,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
         try {
             queue.clear();
-            handlingEventsWaitHandle.countDown();
+            handlingQueuedEvent_waitHandle.countDown();
         } finally {
             handleQueuedEventsLock.unlock();
         }
@@ -207,8 +208,8 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
             try {
                 queue.clear();
-                handlingEventsWaitHandle.countDown();
-                handleQueuedEventsLock_emptyQueueCondition.signal();
+                handlingQueuedEvent_waitHandle.countDown();
+                handleQueuedEventsLock_emptyQueue_condition.signal();
             } finally {
                 handleQueuedEventsLock.unlock();
             }
@@ -217,11 +218,11 @@ final class ExplicitDelayEventLoop implements EventLoop {
 
     @Override
     public String toString() {
-        return name;
+        return id.toString();
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class EventRecordAudit {
+    private static final class EventLoopRecordCandidate {
         private final EventLoopRecord peeked;
         private final EventLoopRecord polled;
     }

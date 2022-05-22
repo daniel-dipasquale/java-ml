@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Builder
-public final class ExtendedMaximumSearchPolicy implements ExtendedSearchPolicy {
+public final class MaximumFullSearchPolicy implements FullSearchPolicy {
     @Getter
     private final int maximumSelectionCount;
     private final int maximumSimulationRolloutDepth;

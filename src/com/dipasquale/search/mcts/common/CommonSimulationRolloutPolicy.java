@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class CommonSimulationRolloutPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SimulationRolloutPolicy<TAction, TEdge, TState, TSearchNode> {
-    private final ExtendedSearchPolicy searchPolicy;
+    private final FullSearchPolicy searchPolicy;
     private final TraversalPolicy<TAction, TEdge, TState, TSearchNode> traversalPolicy;
     private final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy;
 

@@ -11,12 +11,23 @@ import com.dipasquale.search.mcts.TraversalPolicy;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class CommonSimulationRolloutTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements TraversalPolicy<TAction, TEdge, TState, TSearchNode> {
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+public abstract class AbstractIntentionalSimulationRolloutTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements TraversalPolicy<TAction, TEdge, TState, TSearchNode> {
     private final RandomSupport randomSupport;
 
+    protected TSearchNode selectUnexplored(final TSearchNode searchNode) {
+        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren = searchNode.getUnexploredChildren();
+        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = searchNode.getExplorableChildren();
+        TSearchNode unexploredChild = unexploredChildren.removeByIndex(unexploredChildren.size() - 1);
+        int explorableChildKey = explorableChildren.add(unexploredChild);
+
+        searchNode.setSelectedExplorableChildKey(explorableChildKey);
+
+        return unexploredChild;
+    }
+
     @Override
-    public TSearchNode next(final int simulations, final TSearchNode searchNode) { // TODO: lock here
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
         SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren = searchNode.getUnexploredChildren();
         int unexploredSize = unexploredChildren.size();
         SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = searchNode.getExplorableChildren();
@@ -28,12 +39,7 @@ final class CommonSimulationRolloutTraversalPolicy<TAction extends Action, TEdge
         }
 
         if (randomSupport.isLessThan((float) unexploredSize / (float) totalSize)) {
-            TSearchNode unexploredChild = unexploredChildren.removeByIndex(unexploredSize - 1);
-            int explorableChildKey = explorableChildren.add(unexploredChild);
-
-            searchNode.setSelectedExplorableChildKey(explorableChildKey);
-
-            return unexploredChild;
+            return selectUnexplored(searchNode);
         }
 
         int index = randomSupport.next(0, explorableSize);

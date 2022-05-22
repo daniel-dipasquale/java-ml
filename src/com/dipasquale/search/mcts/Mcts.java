@@ -16,7 +16,7 @@ public final class Mcts<TAction extends Action, TEdge extends Edge, TState exten
     public TAction proposeNextAction(final TState state) {
         TSearchNode rootSearchNode = buffer.recallOrCreate(state);
 
-        searchStrategy.expand(rootSearchNode);
+        searchStrategy.process(rootSearchNode);
 
         int nextDepth = state.getDepth() + 1;
         List<Iterator<TSearchNode>> childSearchNodeIterators = List.of(rootSearchNode.getExplorableChildren().iterator(), rootSearchNode.getFullyExploredChildren().iterator());

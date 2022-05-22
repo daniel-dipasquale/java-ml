@@ -15,11 +15,11 @@ public enum SelectionType {
     MIXED;
 
     public static <T extends Action> SelectionType determine(final ExplorationHeuristic<T> explorationHeuristic) {
-        if (explorationHeuristic == null) {
-            return INTENTIONAL_ONLY;
+        if (explorationHeuristic != null) {
+            return MIXED;
         }
 
-        return MIXED;
+        return INTENTIONAL_ONLY;
     }
 
     public <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> TraversalPolicy<TAction, TEdge, TState, TSearchNode> createTraversalPolicy(final RandomSupport randomSupport, final TraversalPolicy<TAction, TEdge, TState, TSearchNode> intentionalTraversalPolicy) {

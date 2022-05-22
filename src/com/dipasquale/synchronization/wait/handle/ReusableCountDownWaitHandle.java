@@ -1,10 +1,13 @@
 package com.dipasquale.synchronization.wait.handle;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-public final class ReusableCountDownWaitHandle implements InteractiveWaitHandle {
+public final class ReusableCountDownWaitHandle implements InteractiveWaitHandle, Serializable {
+    @Serial
+    private static final long serialVersionUID = 4359959667013992563L;
     private final Synchronizer synchronizer;
 
     public ReusableCountDownWaitHandle(final int initialValue, final WaitCondition waitCondition) { // NOTE: based on: https://github.com/MatejTymes/JavaFixes/blob/master/src/main/java/javafixes/concurrency/ReusableCountLatch.java
@@ -24,13 +27,17 @@ public final class ReusableCountDownWaitHandle implements InteractiveWaitHandle 
     }
 
     @Override
-    public void countUp() {
+    public boolean countUp() {
         synchronizer.increment();
+
+        return true;
     }
 
     @Override
-    public void countDown() {
+    public boolean countDown() {
         synchronizer.decrement();
+
+        return true;
     }
 
     private static class Synchronizer extends AbstractQueuedSynchronizer {

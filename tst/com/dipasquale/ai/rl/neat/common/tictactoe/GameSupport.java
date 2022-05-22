@@ -16,7 +16,7 @@ import com.dipasquale.search.mcts.alphazero.TemperatureController;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.common.CPuctCalculator;
 import com.dipasquale.search.mcts.common.ExplorationHeuristic;
-import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
+import com.dipasquale.search.mcts.common.MaximumFullSearchPolicy;
 import com.dipasquale.search.mcts.common.RewardHeuristic;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameAction;
@@ -68,7 +68,7 @@ final class GameSupport implements TwoPlayerGameSupport<Player> {
     public Player createClassicPlayer() {
         return MctsPlayer.builder()
                 .mcts(ClassicMonteCarloTreeSearch.<GameAction, GameState>builder()
-                        .searchPolicy(ExtendedMaximumSearchPolicy.builder()
+                        .searchPolicy(MaximumFullSearchPolicy.builder()
                                 .maximumSelectionCount(classicMaximumSelectionCount)
                                 .maximumSimulationRolloutDepth(classicMaximumSimulationRolloutDepth)
                                 .build())

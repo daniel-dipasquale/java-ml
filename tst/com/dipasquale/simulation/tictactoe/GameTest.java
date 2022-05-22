@@ -4,7 +4,7 @@ import com.dipasquale.search.mcts.BackPropagationObserver;
 import com.dipasquale.search.mcts.BufferType;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
-import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
+import com.dipasquale.search.mcts.common.MaximumFullSearchPolicy;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public final class GameTest {
 
     private static MonteCarloTreeSearch<GameAction, GameState> createMcts(final int maximumSimulationCount, final BackPropagationObserver<GameAction, GameState> backPropagationObserver) {
         return ClassicMonteCarloTreeSearch.<GameAction, GameState>builder()
-                .searchPolicy(ExtendedMaximumSearchPolicy.builder()
+                .searchPolicy(MaximumFullSearchPolicy.builder()
                         .maximumSelectionCount(maximumSimulationCount)
                         .maximumSimulationRolloutDepth(8)
                         .build())

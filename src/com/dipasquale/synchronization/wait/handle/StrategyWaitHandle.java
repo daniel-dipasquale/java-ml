@@ -10,7 +10,7 @@ public final class StrategyWaitHandle implements WaitHandle {
     private final WaitHandle waitHandle;
     private final Collection<Throwable> unhandledExceptions;
 
-    private <T extends Exception> void fillUnhandledAsSuppressed(final T exception) {
+    private <T extends Throwable> void fillUnhandledAsSuppressed(final T exception) {
         unhandledExceptions.forEach(exception::addSuppressed);
     }
 

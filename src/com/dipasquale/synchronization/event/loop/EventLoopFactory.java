@@ -2,7 +2,7 @@ package com.dipasquale.synchronization.event.loop;
 
 @FunctionalInterface
 interface EventLoopFactory {
-    EventLoop create(String name, EventLoopParams params, EventLoop entryPoint);
+    EventLoop create(EventLoopId id, EventLoopParams params, EventLoop entryPoint);
 
     @FunctionalInterface
     interface Proxy {

@@ -5,20 +5,20 @@ import java.util.List;
 
 public final class ListActionIdModel implements ActionIdModel {
     private final List<Integer> actionIds;
-    private Iterator<Integer> actionIdsIterator;
+    private Iterator<Integer> actionIdIterator;
 
     ListActionIdModel(final List<Integer> actionIds) {
         this.actionIds = actionIds;
-        this.actionIdsIterator = actionIds.iterator();
+        this.actionIdIterator = actionIds.iterator();
     }
 
     @Override
     public int getActionId(final GameState state) {
-        return actionIdsIterator.next();
+        return actionIdIterator.next();
     }
 
     @Override
     public void reset(final GameState state) {
-        actionIdsIterator = actionIds.iterator();
+        actionIdIterator = actionIds.iterator();
     }
 }

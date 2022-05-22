@@ -21,9 +21,10 @@ public abstract class AbstractInitializationContext<TAction extends Action, TEdg
         return new UniformRandomSupport();
     }
 
-    protected IntentionalExpansionPolicy<TAction, TEdge, TState, TSearchNode> createIntentionalExpansionPolicy(final RandomSupport randomSupport) {
+    protected IntentionalExpansionPolicy<TAction, TEdge, TState, TSearchNode> createIntentionalExpansionPolicy() {
         EdgeFactory<TEdge> edgeFactory = getEdgeFactory();
         SearchNodeGroupProvider<TAction, TEdge, TState, TSearchNode> searchNodeGroupProvider = getSearchNodeGroupProvider();
+        RandomSupport randomSupport = createRandomSupport();
 
         return new IntentionalExpansionPolicy<>(edgeFactory, searchNodeGroupProvider, randomSupport);
     }

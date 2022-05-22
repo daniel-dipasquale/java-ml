@@ -22,10 +22,7 @@ public final class IntentionalExpansionPolicy<TAction extends Action, TEdge exte
         Iterable<TSearchNode> unexploredChildrenIterable = searchNode.createAllPossibleChildNodes(edgeFactory);
         SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren = searchNodeGroupProvider.create(unexploredChildrenIterable);
 
-        if (randomSupport != null) {
-            unexploredChildren.shuffle(randomSupport);
-        }
-
+        unexploredChildren.shuffle(randomSupport);
         searchNode.setUnexploredChildren(unexploredChildren);
         searchNode.setExplorableChildren(searchNodeGroupProvider.create(null));
         searchNode.setFullyExploredChildren(searchNodeGroupProvider.create(null));

@@ -8,7 +8,7 @@ import com.dipasquale.synchronization.wait.handle.WaitHandle;
 import java.util.Objects;
 
 public interface EventLoop extends WaitHandle {
-    String getName();
+    EventLoopId getId();
 
     int getConcurrencyLevel();
 
@@ -41,11 +41,17 @@ public interface EventLoop extends WaitHandle {
     private static EventLoopFactory.Proxy createFactoryProxy(final EventLoopSettings settings, final EventLoopParams params) {
         int[] index = new int[]{0};
 
-        return entryPoint -> settings.getFactory().create(String.format("%s-%d", settings.getName(), ++index[0]), params, entryPoint);
+        return entryPoint -> {
+            int frozenIndex = ++index[0];
+            String name = String.format("%s-%d", settings.getName(), frozenIndex);
+            EventLoopId id = new EventLoopId(frozenIndex, name);
+
+            return settings.getFactory().create(id, params, entryPoint);
+        };
     }
 
     private static EventLoopSelector createSelector(final EventLoopSettings settings) {
-        return Objects.requireNonNullElseGet(settings.getEventLoopSelector(), RandomEventLoopSelector::getInstance);
+        return Objects.requireNonNullElseGet(settings.getSelector(), RandomEventLoopSelector::getInstance);
     }
 
     static EventLoop create(final EventLoopSettings settings) {
@@ -58,13 +64,16 @@ public interface EventLoop extends WaitHandle {
                 .build();
 
         if (settings.getConcurrencyLevel() == 1) {
-            return settings.getFactory().create(settings.getName(), params, null);
+            EventLoopId id = new EventLoopId(0, settings.getName());
+
+            return settings.getFactory().create(id, params, null);
         }
 
         String name = String.format("%s-router", settings.getName());
+        EventLoopId id = new EventLoopId(0, name);
         EventLoopFactory.Proxy eventLoopFactoryProxy = createFactoryProxy(settings, params);
-        EventLoopSelector eventLoopSelector = createSelector(settings);
+        EventLoopSelector selector = createSelector(settings);
 
-        return new RouterEventLoop(name, eventLoopFactoryProxy, settings.getConcurrencyLevel(), eventLoopSelector, settings.getDateTimeSupport());
+        return new RouterEventLoop(id, eventLoopFactoryProxy, settings.getConcurrencyLevel(), selector, settings.getDateTimeSupport());
     }
 }

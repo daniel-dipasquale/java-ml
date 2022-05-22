@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Comparator;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractIntentionalTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TContext> extends AbstractExplorableChildrenTraversalPolicy<TAction, TEdge, TState, TSearchNode> {
+public abstract class AbstractIntentionalSelectionTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TContext> extends AbstractExplorableChildrenTraversalPolicy<TAction, TEdge, TState, TSearchNode> {
     private static final Comparator<Float> FLOAT_ASCENDING_COMPARATOR = Float::compare;
     private final SelectionConfidenceCalculator<TEdge> selectionConfidenceCalculator;
 

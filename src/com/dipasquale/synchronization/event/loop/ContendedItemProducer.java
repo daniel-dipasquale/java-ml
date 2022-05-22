@@ -13,7 +13,7 @@ final class ContendedItemProducer<T> implements ItemProducer<T> {
     private final Iterator<T> iterator;
 
     @Override
-    public Container<T> next() {
+    public ItemContainer<T> next() {
         lock.lock();
 
         try {
@@ -21,7 +21,7 @@ final class ContendedItemProducer<T> implements ItemProducer<T> {
                 return null;
             }
 
-            return new Container<>(iterator.next());
+            return new ItemContainer<>(iterator.next());
         } finally {
             lock.unlock();
         }

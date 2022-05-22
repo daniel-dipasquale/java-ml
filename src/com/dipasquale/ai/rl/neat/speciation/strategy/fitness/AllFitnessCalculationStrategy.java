@@ -27,6 +27,8 @@ public final class AllFitnessCalculationStrategy implements FitnessCalculationSt
             try {
                 throw new InterruptedException(message);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+
                 throw new InterruptedRuntimeException(message, e);
             }
         }

@@ -9,11 +9,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-final class NoDelayEventLoop implements EventLoop {
+final class ZeroDelayEventLoop implements EventLoop {
     private static final Map<TimeUnit, ZeroDateTimeSupport> ZERO_DATE_TIME_SUPPORTS = createZeroDateTimeSupports();
+    private static final int DELAY_TIME = 0;
     private final ExplicitDelayEventLoop eventLoop;
 
-    NoDelayEventLoop(final String name, final EventLoopParams params, final EventLoop entryPoint) {
+    ZeroDelayEventLoop(final EventLoopId id, final EventLoopParams params, final EventLoop entryPoint) {
         ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
                 .eventLoopRecords(new LinkedList<>())
                 .executorService(params.getExecutorService())
@@ -21,7 +22,7 @@ final class NoDelayEventLoop implements EventLoop {
                 .errorHandler(params.getErrorHandler())
                 .build();
 
-        this.eventLoop = new ExplicitDelayEventLoop(name, fixedParams, entryPoint);
+        this.eventLoop = new ExplicitDelayEventLoop(id, fixedParams, entryPoint);
     }
 
     private static Map<TimeUnit, ZeroDateTimeSupport> createZeroDateTimeSupports() {
@@ -39,8 +40,8 @@ final class NoDelayEventLoop implements EventLoop {
     }
 
     @Override
-    public String getName() {
-        return eventLoop.getName();
+    public EventLoopId getId() {
+        return eventLoop.getId();
     }
 
     @Override
@@ -50,12 +51,12 @@ final class NoDelayEventLoop implements EventLoop {
 
     @Override
     public void queue(final EventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
-        eventLoop.queue(handler, 0L, errorHandler, invokedWaitHandle);
+        eventLoop.queue(handler, DELAY_TIME, errorHandler, invokedWaitHandle);
     }
 
     @Override
     public void queue(final IntervalEventLoopHandler handler, final long delayTime, final ErrorHandler errorHandler, final InteractiveWaitHandle invokedWaitHandle) {
-        eventLoop.queue(handler, 0L, errorHandler, invokedWaitHandle);
+        eventLoop.queue(handler, DELAY_TIME, errorHandler, invokedWaitHandle);
     }
 
     @Override

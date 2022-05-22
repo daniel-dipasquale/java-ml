@@ -55,7 +55,7 @@ public final class ParallelEventLoopTest {
                 .toList();
 
         try {
-            test.queue(items.iterator(), ItemHandler.proxy(item -> collector.value.addAndGet(item.value)));
+            test.queue(items.iterator(), ItemHandler.createProxy(item -> collector.value.addAndGet(item.value)));
             test.awaitUntilDone();
             Assertions.assertEquals(32_896L, collector.value.get());
         } catch (InterruptedException e) {
@@ -80,7 +80,7 @@ public final class ParallelEventLoopTest {
 
         try {
 
-            test.queue(itemIterator, ItemHandler.proxy(item -> collector.value.addAndGet(item.value)));
+            test.queue(itemIterator, ItemHandler.createProxy(item -> collector.value.addAndGet(item.value)));
             test.awaitUntilDone();
             Assertions.assertEquals(33_152L, collector.value.get());
         } catch (InterruptedException e) {

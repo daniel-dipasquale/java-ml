@@ -7,6 +7,7 @@ import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.synchronization.lock.LockRing;
+import com.dipasquale.synchronization.lock.PromotableReadWriteLock;
 import lombok.Getter;
 
 import java.util.Map;
@@ -33,7 +34,7 @@ public final class ConcurrentSearchNode<TAction extends Action, TEdge extends Ed
         this.state = new AtomicCoalescingReference<>(FAIR, state, this::createState);
         this.numberOfThreads = numberOfThreads;
         this.selectedExplorableChildIndexes = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, numberOfThreads);
-        this.expandingLock = new ReentrantReadWriteLock(FAIR);
+        this.expandingLock = new PromotableReadWriteLock(FAIR);
         this.backPropagatingLockRing = LockRing.createInsertionOrder(FAIR, numberOfThreads);
         this.backPropagatingLock = new ReentrantReadWriteLock();
     }
@@ -43,7 +44,7 @@ public final class ConcurrentSearchNode<TAction extends Action, TEdge extends Ed
         this.state = new AtomicCoalescingReference<>(FAIR, null, this::createState);
         this.numberOfThreads = numberOfThreads;
         this.selectedExplorableChildIndexes = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, numberOfThreads);
-        this.expandingLock = new ReentrantReadWriteLock(FAIR);
+        this.expandingLock = new PromotableReadWriteLock(FAIR);
         this.backPropagatingLockRing = LockRing.createInsertionOrder(FAIR, numberOfThreads);
         this.backPropagatingLock = parent.backPropagatingLockRing.createLock(this);
     }

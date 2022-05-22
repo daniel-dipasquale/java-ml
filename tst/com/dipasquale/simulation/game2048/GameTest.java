@@ -5,7 +5,7 @@ import com.dipasquale.common.random.float1.UniformRandomSupport;
 import com.dipasquale.search.mcts.BufferType;
 import com.dipasquale.search.mcts.alphazero.BackPropagationType;
 import com.dipasquale.search.mcts.common.CPuctCalculator;
-import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
+import com.dipasquale.search.mcts.common.MaximumFullSearchPolicy;
 import com.dipasquale.search.mcts.common.RewardHeuristic;
 import com.dipasquale.search.mcts.common.RewardHeuristicController;
 import com.dipasquale.search.mcts.common.RewardHeuristicPermissionType;
@@ -64,7 +64,7 @@ public final class GameTest {
 
         MctsPlayer player = MctsPlayer.builder()
                 .mcts(HeuristicMonteCarloTreeSearch.<GameAction, GameState>builder()
-                        .searchPolicy(ExtendedMaximumSearchPolicy.builder()
+                        .searchPolicy(MaximumFullSearchPolicy.builder()
                                 .maximumSelectionCount(200)
                                 .maximumSimulationRolloutDepth(16)
                                 .build())
