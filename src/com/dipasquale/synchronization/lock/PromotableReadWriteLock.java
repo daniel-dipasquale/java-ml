@@ -50,65 +50,57 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
         @Serial
         private static final long serialVersionUID = 2373320992415917573L;
         private final ReentrantReadWriteLock readWriteLock;
-        private final Lock readLock;
-        private final Lock writeLock;
+        private final Lock underlyingLock;
 
         private ReadLock(final ReentrantReadWriteLock readWriteLock) {
             this.readWriteLock = readWriteLock;
-            this.readLock = readWriteLock.readLock();
-            this.writeLock = readWriteLock.writeLock();
+            this.underlyingLock = readWriteLock.readLock();
         }
 
         @Override
         public void lock() {
-            if (readWriteLock.isWriteLockedByCurrentThread()) {
-                writeLock.lock();
-            } else {
-                readLock.lock();
+            if (!readWriteLock.isWriteLockedByCurrentThread()) {
+                underlyingLock.lock();
             }
         }
 
         @Override
         public void lockInterruptibly()
                 throws InterruptedException {
-            if (readWriteLock.isWriteLockedByCurrentThread()) {
-                writeLock.lockInterruptibly();
-            } else {
-                readLock.lockInterruptibly();
+            if (!readWriteLock.isWriteLockedByCurrentThread()) {
+                underlyingLock.lockInterruptibly();
             }
         }
 
         @Override
         public boolean tryLock() {
             if (readWriteLock.isWriteLockedByCurrentThread()) {
-                return writeLock.tryLock();
+                return true;
             }
 
-            return readLock.tryLock();
+            return underlyingLock.tryLock();
         }
 
         @Override
         public boolean tryLock(final long time, final TimeUnit unit)
                 throws InterruptedException {
             if (readWriteLock.isWriteLockedByCurrentThread()) {
-                return writeLock.tryLock(time, unit);
+                return true;
             }
 
-            return readLock.tryLock(time, unit);
+            return underlyingLock.tryLock(time, unit);
         }
 
         @Override
         public void unlock() {
-            if (readWriteLock.isWriteLockedByCurrentThread()) {
-                writeLock.unlock();
-            } else {
-                readLock.unlock();
+            if (!readWriteLock.isWriteLockedByCurrentThread()) { // TODO: consider keeping track of the number of locks to build an illegalMonitorException condition if the count does not match
+                underlyingLock.unlock();
             }
         }
 
         @Override
         public Condition newCondition() {
-            return readLock.newCondition();
+            return underlyingLock.newCondition();
         }
     }
 
@@ -123,6 +115,7 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
         @Serial
         private static final long serialVersionUID = 3279758705121405761L;
         private final Lock promoteLock;
+        private final ReusableCountDownWaitHandle promoteLock_waitHandle;
         private final ReentrantReadWriteLock readWriteLock;
         private final ReentrantReadWriteLock.ReadLock readLock;
         private transient ThreadLocal<WriteLockContext> context;
@@ -131,6 +124,7 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
 
         private WriteLock(final Lock promoteLock, final ReentrantReadWriteLock readWriteLock) {
             this.promoteLock = promoteLock;
+            this.promoteLock_waitHandle = new ReusableCountDownWaitHandle(0, WaitCondition.ON_NOT_ZERO);
             this.readWriteLock = readWriteLock;
             this.readLock = readWriteLock.readLock();
             this.context = ThreadLocal.withInitial(WriteLockContext::new);
@@ -145,7 +139,7 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
             context = ThreadLocal.withInitial(WriteLockContext::new);
         }
 
-        private void unlockReadLockIfHeld() {
+        private void unlockReadIfHeld() {
             int holdCount = readWriteLock.getReadHoldCount();
 
             if (holdCount > 0) {
@@ -157,30 +151,45 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
             context.get().readHoldCount = holdCount;
         }
 
-        private boolean tryLocking() {
+        private boolean tryLocking(final boolean forced) {
             boolean locked = promoteLock.tryLock();
 
             try {
-                unlockReadLockIfHeld();
-
                 if (!locked) {
+                    if (!forced) {
+                        return false;
+                    }
+
+                    unlockReadIfHeld(); // NOTE: this means that in order to avoid a deadlock when promoting, the state of the write-lock once cleared is not guaranteed to be the same as it was when it was read for the waiting threads
+
                     do {
-                        Thread.onSpinWait();
+                        try {
+                            promoteLock_waitHandle.await();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+
                         locked = promoteLock.tryLock();
                     } while (!locked);
+                } else {
+                    unlockReadIfHeld();
                 }
+
+                promoteLock_waitHandle.countUp();
 
                 return underlyingLock.tryLock();
             } finally {
                 if (locked) {
-                    promoteLock.unlock();
+                    LockMimicSupport.unlock(promoteLock_waitHandle, promoteLock);
                 }
             }
         }
 
         private void lockInternal()
                 throws InterruptedException {
-            LockMimicSupport.lock(tryLocking(), underlyingLock_waitHandle, underlyingLock);
+            boolean locked = tryLocking(true);
+
+            LockMimicSupport.lock(locked, underlyingLock_waitHandle, underlyingLock, promoteLock_waitHandle);
         }
 
         @Override
@@ -206,32 +215,38 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
 
         @Override
         public boolean tryLock() {
-            return LockMimicSupport.tryLock(tryLocking(), underlyingLock_waitHandle);
+            boolean locked = tryLocking(false);
+
+            return LockMimicSupport.tryLock(locked, underlyingLock_waitHandle);
         }
 
         @Override
         public boolean tryLock(final long time, final TimeUnit unit)
                 throws InterruptedException {
-            return LockMimicSupport.tryLock(tryLocking(), time, unit, underlyingLock_waitHandle, underlyingLock);
+            boolean locked = tryLocking(false);
+
+            return LockMimicSupport.tryLock(locked, time, unit, underlyingLock_waitHandle, underlyingLock, promoteLock_waitHandle);
         }
 
         @Override
         public void unlock() {
             promoteLock.lock();
+            promoteLock_waitHandle.countUp();
 
             try {
                 int readHoldCount = context.get().readHoldCount;
 
-                underlyingLock_waitHandle.countDown();
-                underlyingLock.unlock();
+                LockMimicSupport.unlock(underlyingLock_waitHandle, underlyingLock);
 
                 for (int i = 0; i < readHoldCount; i++) {
-                    readLock.tryLock();
+                    boolean locked = readLock.tryLock();
+
+                    assert locked;
                 }
 
                 context.remove();
             } finally {
-                promoteLock.unlock();
+                LockMimicSupport.unlock(promoteLock_waitHandle, promoteLock);
             }
         }
 

@@ -3,50 +3,50 @@ package com.dipasquale.search.mcts.concurrent;
 import com.dipasquale.common.concurrent.AtomicCoalescingReference;
 import com.dipasquale.search.mcts.AbstractSearchNode;
 import com.dipasquale.search.mcts.Action;
-import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.State;
-import com.dipasquale.synchronization.lock.LockRing;
 import com.dipasquale.synchronization.lock.PromotableReadWriteLock;
 import lombok.Getter;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public final class ConcurrentSearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractSearchNode<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
+public final class ConcurrentSearchNode<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSearchNode<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
     private static final int INITIAL_CAPACITY = 16;
     private static final float LOAD_FACTOR = 0.75f;
-    private static final boolean FAIR = false;
+    static final boolean FAIR_READ_WRITE_LOCK = false;
     private final AtomicCoalescingReference<TState> state;
     private final int numberOfThreads;
-    private final Map<Long, Integer> selectedExplorableChildIndexes;
+    private final Map<Long, Integer> selectedExplorableChildKeys;
     @Getter
-    private final ReadWriteLock expandingLock;
+    private final ReadWriteLock edgeLock;
     @Getter
-    private final LockRing<ConcurrentSearchNode<TAction, TEdge, TState>, ReadWriteLock> backPropagatingLockRing;
+    private final ReadWriteLock expansionLock;
     @Getter
-    private final ReadWriteLock backPropagatingLock;
+    private final Lock leafLock;
 
     ConcurrentSearchNode(final TEdge edge, final TState state, final int numberOfThreads) {
         super(edge, state.getLastAction());
-        this.state = new AtomicCoalescingReference<>(FAIR, state, this::createState);
+        this.state = new AtomicCoalescingReference<>(FAIR_READ_WRITE_LOCK, state, this::createState);
         this.numberOfThreads = numberOfThreads;
-        this.selectedExplorableChildIndexes = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, numberOfThreads);
-        this.expandingLock = new PromotableReadWriteLock(FAIR);
-        this.backPropagatingLockRing = LockRing.createInsertionOrder(FAIR, numberOfThreads);
-        this.backPropagatingLock = new ReentrantReadWriteLock();
+        this.selectedExplorableChildKeys = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, numberOfThreads);
+        this.edgeLock = new ReentrantReadWriteLock(FAIR_READ_WRITE_LOCK);
+        this.expansionLock = new PromotableReadWriteLock(FAIR_READ_WRITE_LOCK);
+        this.leafLock = new ReentrantLock();
     }
 
     private ConcurrentSearchNode(final ConcurrentSearchNode<TAction, TEdge, TState> parent, final TAction action, final TEdge edge, final int numberOfThreads) {
         super(parent, action, edge);
-        this.state = new AtomicCoalescingReference<>(FAIR, null, this::createState);
+        this.state = new AtomicCoalescingReference<>(FAIR_READ_WRITE_LOCK, null, this::createState);
         this.numberOfThreads = numberOfThreads;
-        this.selectedExplorableChildIndexes = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, numberOfThreads);
-        this.expandingLock = new PromotableReadWriteLock(FAIR);
-        this.backPropagatingLockRing = LockRing.createInsertionOrder(FAIR, numberOfThreads);
-        this.backPropagatingLock = parent.backPropagatingLockRing.createLock(this);
+        this.selectedExplorableChildKeys = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, numberOfThreads);
+        this.edgeLock = new ReentrantReadWriteLock(FAIR_READ_WRITE_LOCK);
+        this.expansionLock = new PromotableReadWriteLock(FAIR_READ_WRITE_LOCK);
+        this.leafLock = new ReentrantLock();
     }
 
     @Override
@@ -67,10 +67,10 @@ public final class ConcurrentSearchNode<TAction extends Action, TEdge extends Ed
     @Override
     public int getSelectedExplorableChildKey() {
         long threadId = Thread.currentThread().getId();
-        Integer index = selectedExplorableChildIndexes.get(threadId);
+        Integer key = selectedExplorableChildKeys.get(threadId);
 
-        if (index != null) {
-            return index;
+        if (key != null) {
+            return key;
         }
 
         return NO_SELECTED_EXPLORABLE_CHILD_KEY;
@@ -81,9 +81,9 @@ public final class ConcurrentSearchNode<TAction extends Action, TEdge extends Ed
         long threadId = Thread.currentThread().getId();
 
         if (key != NO_SELECTED_EXPLORABLE_CHILD_KEY) {
-            selectedExplorableChildIndexes.put(threadId, key);
+            selectedExplorableChildKeys.put(threadId, key);
         } else {
-            selectedExplorableChildIndexes.remove(threadId);
+            selectedExplorableChildKeys.remove(threadId);
         }
     }
 }

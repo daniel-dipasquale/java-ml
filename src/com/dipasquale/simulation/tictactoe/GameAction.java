@@ -1,7 +1,7 @@
 package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.Action;
-import com.dipasquale.search.mcts.TreeId;
+import com.dipasquale.search.mcts.buffer.TreeId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

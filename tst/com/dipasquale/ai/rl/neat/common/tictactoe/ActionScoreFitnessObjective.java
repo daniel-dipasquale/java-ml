@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.common.tictactoe;
 import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameResult;

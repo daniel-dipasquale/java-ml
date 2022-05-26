@@ -22,11 +22,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-abstract class AbstractLockRing<TKey extends Comparable<TKey>, TLock> implements Serializable {
+abstract class AbstractLockRing<TKey extends Comparable<TKey>, TLock> implements Serializable { // TODO: remove
     @Serial
     private static final long serialVersionUID = 6679248328057781835L;
     private static final DateTimeSupport DATE_TIME_SUPPORT = new NanosecondsDateTimeSupport();
-    private final NavigableMap<TKey, RegisteredLock<TKey, TLock>> unlockedLocks = new ConcurrentSkipListMap<>(Comparator.naturalOrder()); // TODO: consider randomizing the comparator, to avoid biased selection
+    private final NavigableMap<TKey, RegisteredLock<TKey, TLock>> unlockedLocks = new ConcurrentSkipListMap<>(Comparator.naturalOrder());
     private final ReusableCountDownWaitHandle unlockedLocks_waitHandle = new ReusableCountDownWaitHandle(0, WaitCondition.ON_ZERO);
 
     protected RegisteredLock<TKey, TLock> createLock(final TKey key, final Lock underlyingLock, final TLock actualLock) {

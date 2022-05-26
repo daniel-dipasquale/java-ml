@@ -1,41 +1,17 @@
 package com.dipasquale.search.mcts.classic;
 
 import com.dipasquale.search.mcts.Edge;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ClassicEdge implements Edge {
-    private int visited = 0;
-    @Getter
-    private int won = 0;
-    @Getter
-    private int drawn = 0;
-    private int unfinished = 0;
-    @Getter
-    @Setter
-    private float explorationProbability = 1f;
+public interface ClassicEdge extends Edge {
+    void increaseVisited();
 
-    @Override
-    public int getVisited() {
-        return visited - unfinished;
-    }
+    void increaseUnfinished();
 
-    public void increaseVisited() {
-        visited++;
-    }
+    int getWon();
 
-    public void increaseWon() {
-        won++;
-    }
+    void increaseWon();
 
-    public void increaseDrawn() {
-        drawn++;
-    }
+    int getDrawn();
 
-    public void increaseUnfinished() {
-        unfinished++;
-    }
+    void increaseDrawn();
 }

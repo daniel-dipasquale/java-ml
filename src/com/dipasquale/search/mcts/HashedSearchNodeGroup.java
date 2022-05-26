@@ -89,6 +89,6 @@ public final class HashedSearchNodeGroup<TAction extends Action, TEdge extends E
 
     @Override
     public Iterator<TSearchNode> iterator() {
-        return searchNodes.iterator();
+        return searchNodes.sortedIterator();
     }
 }

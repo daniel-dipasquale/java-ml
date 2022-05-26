@@ -2,15 +2,15 @@ package com.dipasquale.simulation.game2048;
 
 import com.dipasquale.common.random.float1.DeterministicRandomSupport;
 import com.dipasquale.common.random.float1.UniformRandomSupport;
-import com.dipasquale.search.mcts.BufferType;
-import com.dipasquale.search.mcts.alphazero.BackPropagationType;
-import com.dipasquale.search.mcts.common.CPuctCalculator;
-import com.dipasquale.search.mcts.common.MaximumFullSearchPolicy;
-import com.dipasquale.search.mcts.common.RewardHeuristic;
-import com.dipasquale.search.mcts.common.RewardHeuristicController;
-import com.dipasquale.search.mcts.common.RewardHeuristicPermissionType;
-import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
+import com.dipasquale.search.mcts.buffer.BufferType;
 import com.dipasquale.search.mcts.heuristic.HeuristicMonteCarloTreeSearch;
+import com.dipasquale.search.mcts.heuristic.selection.CPuctAlgorithm;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristicController;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristicPermissionType;
+import com.dipasquale.search.mcts.heuristic.selection.RosinCPuctAlgorithm;
+import com.dipasquale.search.mcts.propagation.BackPropagationType;
+import com.dipasquale.search.mcts.seek.MaximumFullSeekPolicy;
 import com.dipasquale.simulation.game2048.heuristic.AverageValuedTileRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.FreeTileRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.GameExplorationHeuristic;
@@ -64,7 +64,7 @@ public final class GameTest {
 
         MctsPlayer player = MctsPlayer.builder()
                 .mcts(HeuristicMonteCarloTreeSearch.<GameAction, GameState>builder()
-                        .searchPolicy(MaximumFullSearchPolicy.builder()
+                        .searchPolicy(MaximumFullSeekPolicy.builder()
                                 .maximumSelectionCount(200)
                                 .maximumSimulationRolloutDepth(16)
                                 .build())
@@ -79,7 +79,7 @@ public final class GameTest {
                                 .addHeuristic(HeuristicType.AVERAGE_VALUED_TILE.reference, 0.0001f)
                                 .build())
                         .explorationHeuristic(GameExplorationHeuristic.getInstance())
-                        .cpuctCalculator(CPuctCalculatorType.ROSIN.reference)
+                        .cpuctAlgorithm(CPuctAlgorithmType.ROSIN.reference)
                         .backPropagationType(BackPropagationType.REVERSED_ON_OPPONENT)
                         .build())
                 .debug(PRINT_FINAL_STATE)
@@ -139,11 +139,11 @@ public final class GameTest {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private enum CPuctCalculatorType {
+    private enum CPuctAlgorithmType {
         CONSTANT((simulations, visited) -> C_PUCT_CONSTANT),
-        ROSIN(new RosinCPuctCalculator(C_PUCT_ROSIN_BASE, C_PUCT_ROSIN_INIT));
+        ROSIN(new RosinCPuctAlgorithm(C_PUCT_ROSIN_BASE, C_PUCT_ROSIN_INIT));
 
-        private final CPuctCalculator reference;
+        private final CPuctAlgorithm reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

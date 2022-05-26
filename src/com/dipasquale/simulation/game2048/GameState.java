@@ -3,7 +3,7 @@ package com.dipasquale.simulation.game2048;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.State;
-import com.dipasquale.search.mcts.TreeId;
+import com.dipasquale.search.mcts.buffer.TreeId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

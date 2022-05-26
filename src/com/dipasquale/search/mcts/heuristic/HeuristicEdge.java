@@ -1,24 +1,31 @@
 package com.dipasquale.search.mcts.heuristic;
 
-import com.dipasquale.search.mcts.common.TechniqueEdge;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import com.dipasquale.search.mcts.Edge;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-@Getter
-@Setter
-public final class HeuristicEdge implements TechniqueEdge {
-    @Getter
-    @Setter(AccessLevel.NONE)
-    private int visited = 0;
-    private float expectedReward = 0f;
-    private float probableReward = 0f;
-    private float explorationProbability = 1f;
+public interface HeuristicEdge extends Edge {
+    float MAXIMUM_PROBABLE_REWARD = 1f;
 
-    @Override
-    public void increaseVisited() {
-        visited++;
+    void increaseVisited();
+
+    float getExpectedReward();
+
+    void setExpectedReward(float value);
+
+    default float calculateExpectedReward(final int additionalVisits, final float additionalReward) {
+        int visited = getVisited() + additionalVisits;
+
+        if (visited == 0) {
+            return -MAXIMUM_PROBABLE_REWARD;
+        }
+
+        return (getExpectedReward() + additionalReward) / (float) visited;
     }
+
+    default float calculateExpectedReward() {
+        return calculateExpectedReward(0, 0f);
+    }
+
+    float getProbableReward();
+
+    void setProbableReward(float value);
 }

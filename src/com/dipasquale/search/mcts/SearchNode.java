@@ -17,13 +17,13 @@ public interface SearchNode<TAction extends Action, TEdge extends Edge, TState e
 
     SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getUnexploredChildren();
 
-    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getExplorableChildren();
-
-    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getFullyExploredChildren();
-
     void setUnexploredChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren);
 
+    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getExplorableChildren();
+
     void setExplorableChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren);
+
+    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getFullyExploredChildren();
 
     void setFullyExploredChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> fullyExploredChildren);
 

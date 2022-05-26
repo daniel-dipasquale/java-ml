@@ -1,6 +1,6 @@
 package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.ExplorationHeuristic;
+import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.ValuedTile;

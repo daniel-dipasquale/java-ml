@@ -1,6 +1,6 @@
 package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;

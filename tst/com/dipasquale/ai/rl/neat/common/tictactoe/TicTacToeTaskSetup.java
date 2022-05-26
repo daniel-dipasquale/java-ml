@@ -42,16 +42,16 @@ import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
-import com.dipasquale.search.mcts.BufferType;
 import com.dipasquale.search.mcts.StandardSearchNode;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroNeuralNetworkDecoder;
-import com.dipasquale.search.mcts.alphazero.BackPropagationType;
-import com.dipasquale.search.mcts.alphazero.PredictionBehaviorType;
-import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
-import com.dipasquale.search.mcts.common.CPuctCalculator;
-import com.dipasquale.search.mcts.common.RewardHeuristic;
-import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
+import com.dipasquale.search.mcts.alphazero.expansion.RootExplorationProbabilityNoiseSettings;
+import com.dipasquale.search.mcts.alphazero.selection.AlphaZeroNeuralNetworkDecoder;
+import com.dipasquale.search.mcts.alphazero.selection.PredictionBehaviorType;
+import com.dipasquale.search.mcts.buffer.BufferType;
+import com.dipasquale.search.mcts.heuristic.selection.CPuctAlgorithm;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RosinCPuctAlgorithm;
+import com.dipasquale.search.mcts.propagation.BackPropagationType;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameState;
 import com.dipasquale.simulation.tictactoe.Player;
@@ -85,7 +85,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     private static final OutputTopologySettingsType OUTPUT_TOPOLOGY_SETTINGS_TYPE = OutputTopologySettingsType.DOUBLE;
     private static final ValueHeuristicSettingsType VALUE_HEURISTIC_SETTINGS_TYPE = ValueHeuristicSettingsType.NONE;
     private static final float C_PUCT_CONSTANT = 1f;
-    private static final CPuctCalculatorType C_PUCT_CALCULATOR_TYPE = CPuctCalculatorType.CONSTANT;
+    private static final CPuctAlgorithmType C_PUCT_ALGORITHM_TYPE = CPuctAlgorithmType.CONSTANT;
     private static final BackPropagationType BACK_PROPAGATION_TYPE = BackPropagationType.REVERSED_ON_OPPONENT;
     private static final int TEMPERATURE_DEPTH_THRESHOLD = 3;
     private static final int CLASSIC_MAXIMUM_SELECTIONS = 30;
@@ -100,7 +100,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
             .decoder(OUTPUT_TOPOLOGY_SETTINGS_TYPE.decoder)
             .rewardHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
             .explorationHeuristic(null)
-            .cpuctCalculator(C_PUCT_CALCULATOR_TYPE.reference)
+            .cpuctAlgorithm(C_PUCT_ALGORITHM_TYPE.reference)
             .backPropagationType(BACK_PROPAGATION_TYPE)
             .temperatureDepthThreshold(TEMPERATURE_DEPTH_THRESHOLD)
             .classicMaximumSelectionCount(CLASSIC_MAXIMUM_SELECTIONS)
@@ -317,11 +317,11 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private enum CPuctCalculatorType {
+    private enum CPuctAlgorithmType {
         CONSTANT((simulations, visited) -> C_PUCT_CONSTANT),
-        ROSIN(new RosinCPuctCalculator());
+        ROSIN(new RosinCPuctAlgorithm());
 
-        private final CPuctCalculator reference;
+        private final CPuctAlgorithm reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

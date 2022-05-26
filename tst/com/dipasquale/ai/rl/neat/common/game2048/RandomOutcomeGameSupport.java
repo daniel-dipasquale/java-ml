@@ -4,19 +4,19 @@ import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.rl.neat.common.OnePlayerGameSupport;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetwork;
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.search.mcts.BufferType;
 import com.dipasquale.search.mcts.StandardSearchNode;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroMaximumSearchPolicy;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroMonteCarloTreeSearch;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroNeuralNetworkDecoder;
-import com.dipasquale.search.mcts.alphazero.BackPropagationType;
-import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
-import com.dipasquale.search.mcts.alphazero.StandardNeuralNetworkAlphaZeroModel;
-import com.dipasquale.search.mcts.alphazero.TemperatureController;
-import com.dipasquale.search.mcts.common.CPuctCalculator;
-import com.dipasquale.search.mcts.common.ExplorationHeuristic;
-import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.search.mcts.alphazero.expansion.RootExplorationProbabilityNoiseSettings;
+import com.dipasquale.search.mcts.alphazero.proposal.TemperatureController;
+import com.dipasquale.search.mcts.alphazero.seek.AlphaZeroMaximumSeekPolicy;
+import com.dipasquale.search.mcts.alphazero.selection.AlphaZeroNeuralNetworkDecoder;
+import com.dipasquale.search.mcts.alphazero.selection.StandardNeuralNetworkAlphaZeroModel;
+import com.dipasquale.search.mcts.buffer.BufferType;
+import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.CPuctAlgorithm;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
+import com.dipasquale.search.mcts.propagation.BackPropagationType;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;
@@ -36,7 +36,7 @@ final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
     private final AlphaZeroNeuralNetworkDecoder<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>> decoder;
     private final RewardHeuristic<GameAction, GameState> rewardHeuristic;
     private final ExplorationHeuristic<GameAction> explorationHeuristic;
-    private final CPuctCalculator cpuctCalculator;
+    private final CPuctAlgorithm cpuctAlgorithm;
     private final BackPropagationType backPropagationType;
     private final int temperatureDepthThreshold;
     private final ObjectFactory<Game> gameFactory;
@@ -45,13 +45,13 @@ final class RandomOutcomeGameSupport implements OnePlayerGameSupport<Player> {
     public Player createPlayer(final NeatNeuralNetwork neuralNetwork) {
         return MctsPlayer.builder()
                 .mcts(AlphaZeroMonteCarloTreeSearch.<GameAction, GameState>builder()
-                        .searchPolicy(AlphaZeroMaximumSearchPolicy.builder()
+                        .seekPolicy(AlphaZeroMaximumSeekPolicy.builder()
                                 .maximumExpansions(maximumExpansions)
                                 .build())
                         .rootExplorationProbabilityNoise(rootExplorationProbabilityNoise)
                         .bufferType(bufferType)
                         .traversalModel(new StandardNeuralNetworkAlphaZeroModel<>(encoder, decoder, neuralNetwork, rewardHeuristic, explorationHeuristic))
-                        .cpuctCalculator(cpuctCalculator)
+                        .cpuctAlgorithm(cpuctAlgorithm)
                         .backPropagationType(backPropagationType)
                         .temperatureController(TemperatureController.builder()
                                 .depthThreshold(temperatureDepthThreshold)

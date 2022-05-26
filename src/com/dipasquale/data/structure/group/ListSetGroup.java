@@ -123,4 +123,8 @@ public final class ListSetGroup<TKey extends Comparable<TKey>, TItem> implements
                 .map(Record::getValue)
                 .iterator();
     }
+
+    public Iterator<TItem> sortedIterator() {
+        return navigableMap.values().iterator();
+    }
 }
