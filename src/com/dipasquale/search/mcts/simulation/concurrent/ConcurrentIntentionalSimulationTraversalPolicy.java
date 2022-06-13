@@ -14,31 +14,31 @@ public final class ConcurrentIntentionalSimulationTraversalPolicy<TAction extend
         super(randomSupport);
     }
 
-    private ConcurrentSearchNode<TAction, TEdge, TState> selectUnexplored(final Lock lock, final ConcurrentSearchNode<TAction, TEdge, TState> currentSearchNode) {
+    private ConcurrentSearchNode<TAction, TEdge, TState> selectUnexplored(final Lock lock, final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
         lock.lock();
 
         try {
-            if (!currentSearchNode.getUnexploredChildren().isEmpty()) {
-                return super.selectUnexplored(currentSearchNode);
+            if (!searchNode.getUnexploredChildren().isEmpty()) {
+                return super.selectUnexplored(searchNode);
             }
         } finally {
             lock.unlock();
         }
 
-        if (currentSearchNode.getExplorableChildren().isEmpty()) {
+        if (searchNode.getExplorableChildren().isEmpty()) {
             return null;
         }
 
-        return super.selectExplorable(currentSearchNode);
+        return super.selectExplorable(searchNode);
     }
 
     @Override
-    protected ConcurrentSearchNode<TAction, TEdge, TState> selectUnexplored(final ConcurrentSearchNode<TAction, TEdge, TState> currentSearchNode) {
-        return selectUnexplored(currentSearchNode.getExpansionLock().writeLock(), currentSearchNode);
+    protected ConcurrentSearchNode<TAction, TEdge, TState> selectUnexplored(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        return selectUnexplored(searchNode.getExpansionLock().writeLock(), searchNode);
     }
 
     @Override
-    public ConcurrentSearchNode<TAction, TEdge, TState> next(final int simulations, final ConcurrentSearchNode<TAction, TEdge, TState> currentSearchNode) {
-        return super.next(simulations, currentSearchNode);
+    public ConcurrentSearchNode<TAction, TEdge, TState> next(final int simulations, final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        return super.next(simulations, searchNode);
     }
 }

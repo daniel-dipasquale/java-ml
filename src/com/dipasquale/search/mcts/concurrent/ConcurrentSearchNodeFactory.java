@@ -3,6 +3,7 @@ package com.dipasquale.search.mcts.concurrent;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNodeFactory;
+import com.dipasquale.search.mcts.SearchNodeResult;
 import com.dipasquale.search.mcts.State;
 import lombok.RequiredArgsConstructor;
 
@@ -11,7 +12,7 @@ public final class ConcurrentSearchNodeFactory<TAction extends Action, TEdge ext
     private final int numberOfThreads;
 
     @Override
-    public ConcurrentSearchNode<TAction, TEdge, TState> createRoot(final EdgeFactory<TEdge> edgeFactory, final TState state) {
-        return new ConcurrentSearchNode<>(edgeFactory.create(), state, numberOfThreads);
+    public ConcurrentSearchNode<TAction, TEdge, TState> createRoot(final SearchNodeResult<TAction, TState> result, final EdgeFactory<TEdge> edgeFactory) {
+        return new ConcurrentSearchNode<>(result, edgeFactory.create(), numberOfThreads);
     }
 }

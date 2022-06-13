@@ -1,5 +1,6 @@
 package com.dipasquale.simulation.game2048;
 
+import com.dipasquale.search.mcts.SearchNodeResult;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -15,22 +16,26 @@ public final class StandardIOValuedTileAdderPlayer implements Player {
     }
 
     @Override
-    public GameAction createNextAction(final GameState state) {
+    public SearchNodeResult<GameAction, GameState> produceNext(final SearchNodeResult<GameAction, GameState> searchNodeResult) {
+        GameState state = searchNodeResult.getState();
+
         if (state.getDepth() == 0) {
             List<ValuedTile> valuedTiles = client.start();
+            GameAction action = state.createInitialAction(valuedTiles.get(0), valuedTiles.get(1));
 
-            return state.createInitialAction(valuedTiles.get(0), valuedTiles.get(1));
+            return searchNodeResult.createChild(action);
         }
 
-        ValuedTile valuedTile = replicatePlayerAction(state.getLastAction());
+        ValuedTile valuedTile = replicatePlayerAction(searchNodeResult.getAction());
+        GameAction action = state.createActionToAddValuedTile(valuedTile);
 
-        return state.createActionToAddValuedTile(valuedTile);
+        return searchNodeResult.createChild(action);
     }
 
     @Override
-    public void accept(final GameState state) {
-        if (state.getParticipantId() == 2) {
-            replicatePlayerAction(state.getLastAction());
+    public void accept(final SearchNodeResult<GameAction, GameState> searchNodeResult) {
+        if (searchNodeResult.getState().getParticipantId() == 2) {
+            replicatePlayerAction(searchNodeResult.getAction());
         }
 
         try {

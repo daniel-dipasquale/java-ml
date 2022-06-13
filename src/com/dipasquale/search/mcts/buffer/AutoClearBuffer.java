@@ -5,6 +5,7 @@ import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeFactory;
+import com.dipasquale.search.mcts.SearchNodeResult;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.initialization.InitializationContext;
 
@@ -16,39 +17,44 @@ final class AutoClearBuffer<TAction extends Action, TEdge extends Edge, TState e
 
     AutoClearBuffer(final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext) {
         this.ownerParticipantId = Integer.MIN_VALUE;
-        this.generationTree = initializationContext.createGenerationTree();
+        this.generationTree = new GenerationTree<>();
         this.searchNodeFactory = initializationContext.getSearchNodeFactory();
         this.edgeFactory = initializationContext.getEdgeFactory();
     }
 
-    private TSearchNode getOrCreateRoot(final TState state) {
-        if (state.getNextParticipantId() == ownerParticipantId) {
-            TSearchNode searchNode = generationTree.get(state);
+    private TSearchNode getOrCreateRoot(final SearchNodeResult<TAction, TState> searchNodeResult) {
+        if (searchNodeResult.getState().getNextParticipantId() == ownerParticipantId) {
+            TSearchNode searchNode = generationTree.reseed(searchNodeResult.getStateId());
 
-            if (searchNode != null) {
-                searchNode.reinitialize(state);
-
-                return searchNode;
+            if (searchNode == null) {
+                searchNode = searchNodeFactory.createRoot(searchNodeResult, edgeFactory);
+                generationTree.seed(searchNode);
+            } else {
+                searchNode.reinitialize(searchNodeResult);
             }
+
+            return searchNode;
         }
 
-        generationTree.clear();
+        TSearchNode searchNode = searchNodeFactory.createRoot(searchNodeResult, edgeFactory);
 
-        return searchNodeFactory.createRoot(edgeFactory, state);
+        generationTree.seed(searchNode);
+
+        return searchNode;
     }
 
     @Override
-    public TSearchNode provide(final TState state) {
-        TSearchNode searchNode = getOrCreateRoot(state);
+    public TSearchNode provide(final SearchNodeResult<TAction, TState> searchNodeResult) {
+        TSearchNode searchNode = getOrCreateRoot(searchNodeResult);
 
-        ownerParticipantId = state.getNextParticipantId();
+        ownerParticipantId = searchNodeResult.getState().getNextParticipantId();
 
         return searchNode;
     }
 
     @Override
     public void put(final TSearchNode searchNode) {
-        generationTree.put(searchNode);
+        generationTree.branchOut(searchNode);
     }
 
     @Override

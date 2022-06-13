@@ -13,11 +13,11 @@ public final class IntentRegulatorTraversalPolicy<TAction extends Action, TEdge 
     private final TraversalPolicy<TAction, TEdge, TState, TSearchNode> unintentionalTraversalPolicy;
 
     @Override
-    public TSearchNode next(final int simulations, final TSearchNode currentSearchNode) {
-        if (currentSearchNode.getState().isNextIntentional()) {
-            return intentionalTraversalPolicy.next(simulations, currentSearchNode);
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
+        if (searchNode.getState().isNextIntentional()) {
+            return intentionalTraversalPolicy.next(simulations, searchNode);
         }
 
-        return unintentionalTraversalPolicy.next(simulations, currentSearchNode);
+        return unintentionalTraversalPolicy.next(simulations, searchNode);
     }
 }

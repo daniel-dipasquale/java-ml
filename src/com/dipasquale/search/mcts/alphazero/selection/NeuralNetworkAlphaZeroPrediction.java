@@ -131,7 +131,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
     NeuralNetworkAlphaZeroPrediction(final int perspectiveParticipantId, final EnumSet<PredictionBehaviorType> behaviorTypes, final int valueIndex, final NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode> context) {
         TSearchNode searchNode = context.getSearchNode();
         TState state = searchNode.getState();
-        Iterable<TSearchNode> explorableChildrenIterable = searchNode.createAllPossibleChildNodes(context.getEdgeFactory());
+        Iterable<TSearchNode> explorableChildrenIterable = searchNode.createAllPossibleChildren(context.getEdgeFactory());
         SearchNodeGroup<TAction, AlphaZeroEdge, TState, TSearchNode> explorableChildren = context.getSearchNodeGroupProvider().create(explorableChildrenIterable);
 
         Arguments arguments = Arguments.builder()
@@ -139,7 +139,7 @@ final class NeuralNetworkAlphaZeroPrediction<TAction extends Action, TState exte
                 .behaviorTypes(behaviorTypes)
                 .participantId(state.getParticipantId())
                 .nextParticipantId(state.getNextParticipantId())
-                .depth(state.getDepth())
+                .depth(searchNode.getStateId().getDepth())
                 .valueIgnored(valueIndex < 0 || !state.isIntentional())
                 .valueIndex(valueIndex)
                 .policyIgnored(!state.isNextIntentional())

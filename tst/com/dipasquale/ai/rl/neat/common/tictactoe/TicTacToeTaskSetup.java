@@ -104,7 +104,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
             .backPropagationType(BACK_PROPAGATION_TYPE)
             .temperatureDepthThreshold(TEMPERATURE_DEPTH_THRESHOLD)
             .classicMaximumSelectionCount(CLASSIC_MAXIMUM_SELECTIONS)
-            .classicMaximumSimulationRolloutDepth(CLASSIC_MAXIMUM_SIMULATION_ROLLOUT_DEPTH)
+            .classicMaximumSimulationDepth(CLASSIC_MAXIMUM_SIMULATION_ROLLOUT_DEPTH)
             .classicBufferType(CLASSIC_CACHE_TYPE)
             .build();
 

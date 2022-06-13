@@ -15,39 +15,39 @@ import lombok.RequiredArgsConstructor;
 public abstract class AbstractIntentionalSimulationTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements TraversalPolicy<TAction, TEdge, TState, TSearchNode> {
     private final RandomSupport randomSupport;
 
-    protected TSearchNode selectUnexplored(final TSearchNode currentSearchNode) {
-        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren = currentSearchNode.getUnexploredChildren();
-        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = currentSearchNode.getExplorableChildren();
+    protected TSearchNode selectUnexplored(final TSearchNode searchNode) {
+        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren = searchNode.getUnexploredChildren();
+        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = searchNode.getExplorableChildren();
         TSearchNode unexploredChild = unexploredChildren.removeByIndex(unexploredChildren.size() - 1);
         int explorableChildKey = explorableChildren.add(unexploredChild);
 
-        currentSearchNode.setSelectedExplorableChildKey(explorableChildKey);
+        searchNode.setSelectedExplorableChildKey(explorableChildKey);
 
         return unexploredChild;
     }
 
-    protected TSearchNode selectExplorable(final TSearchNode currentSearchNode) {
-        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = currentSearchNode.getExplorableChildren();
+    protected TSearchNode selectExplorable(final TSearchNode searchNode) {
+        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = searchNode.getExplorableChildren();
         int explorableSize = explorableChildren.size();
         int index = randomSupport.next(0, explorableSize);
         Record<Integer, TSearchNode> explorableChildRecord = explorableChildren.getRecordByIndex(index);
 
-        currentSearchNode.setSelectedExplorableChildKey(explorableChildRecord.getKey());
+        searchNode.setSelectedExplorableChildKey(explorableChildRecord.getKey());
 
         return explorableChildRecord.getValue();
     }
 
     @Override
-    public TSearchNode next(final int simulations, final TSearchNode currentSearchNode) {
-        int unexploredSize = currentSearchNode.getUnexploredChildren().size();
-        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = currentSearchNode.getExplorableChildren();
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
+        int unexploredSize = searchNode.getUnexploredChildren().size();
+        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = searchNode.getExplorableChildren();
         int explorableSize = explorableChildren.size();
         int totalSize = unexploredSize + explorableSize;
 
         if (randomSupport.isLessThan((float) unexploredSize / (float) totalSize)) {
-            return selectUnexplored(currentSearchNode);
+            return selectUnexplored(searchNode);
         }
 
-        return selectExplorable(currentSearchNode);
+        return selectExplorable(searchNode);
     }
 }

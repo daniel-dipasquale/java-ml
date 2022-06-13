@@ -1,43 +1,51 @@
 package com.dipasquale.search.mcts;
 
 import com.dipasquale.common.factory.ObjectFactory;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public final class Environment<TAction extends Action, TState extends State<TAction, TState>, TParticipant extends Participant<TAction, TState>> {
-    private static final Consumer<?> DEFAULT_INSPECTOR = state -> {
-    };
-
+    private static final Inspector<?, ?> DEFAULT_INSPECTOR = new Inspector<>();
     private static final boolean DEBUG = false;
     private final ObjectFactory<TState> initialStateFactory;
+    private final Consumer<SearchNodeResult<TAction, TState>> inspector;
     private final TParticipant[] participants;
-    private final Consumer<TState> inspector;
 
     public Environment(final ObjectFactory<TState> initialStateFactory, final TParticipant[] participants) {
-        this(initialStateFactory, participants, (Consumer<TState>) DEFAULT_INSPECTOR);
+        this(initialStateFactory, (Consumer<SearchNodeResult<TAction, TState>>) (Object) DEFAULT_INSPECTOR, participants);
     }
 
     public TState interact() {
         TState state = initialStateFactory.create();
-        int statusId = state.getStatusId();
+        SearchNodeResult<TAction, TState> searchNodeResult = SearchNodeResult.createRoot(state);
 
-        for (int i = 0; statusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; i = state.getNextParticipantId() - 1) {
-            TAction action = participants[i].createNextAction(state);
+        if (DEBUG) {
+            inspector.accept(searchNodeResult);
+        }
 
-            state = state.accept(action);
-            statusId = state.getStatusId();
+        for (int i = 0; state.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; i = state.getNextParticipantId() - 1) {
+            searchNodeResult = participants[i].produceNext(searchNodeResult);
+            state = searchNodeResult.getState();
 
             if (DEBUG) {
-                inspector.accept(state);
+                inspector.accept(searchNodeResult);
             }
         }
 
         for (TParticipant participant : participants) {
-            participant.accept(state);
+            participant.accept(searchNodeResult);
         }
 
         return state;
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class Inspector<TAction extends Action, TState extends State<TAction, TState>> implements Consumer<SearchNodeResult<TAction, TState>> {
+        @Override
+        public void accept(final SearchNodeResult<TAction, TState> searchNodeResult) {
+        }
     }
 }

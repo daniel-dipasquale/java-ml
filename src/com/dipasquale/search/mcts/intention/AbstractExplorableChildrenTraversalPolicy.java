@@ -12,22 +12,22 @@ public abstract class AbstractExplorableChildrenTraversalPolicy<TAction extends 
     protected abstract int nextIndex(int simulations, TSearchNode parentSearchNode, SearchNodeGroup<TAction, TEdge, TState, TSearchNode> childSearchNodes);
 
     @Override
-    public TSearchNode next(final int simulations, final TSearchNode currentSearchNode) {
-        if (!currentSearchNode.isExpanded()) {
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
+        if (!searchNode.isExpanded()) {
             return null;
         }
 
-        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> childSearchNodes = currentSearchNode.getExplorableChildren();
+        SearchNodeGroup<TAction, TEdge, TState, TSearchNode> childSearchNodes = searchNode.getExplorableChildren();
         int size = childSearchNodes.size();
 
         if (size == 0) {
             return null;
         }
 
-        int index = nextIndex(simulations, currentSearchNode, childSearchNodes);
+        int index = nextIndex(simulations, searchNode, childSearchNodes);
         Record<Integer, TSearchNode> childSearchNodeRecord = childSearchNodes.getRecordByIndex(index);
 
-        currentSearchNode.setSelectedExplorableChildKey(childSearchNodeRecord.getKey());
+        searchNode.setSelectedExplorableChildKey(childSearchNodeRecord.getKey());
 
         return childSearchNodeRecord.getValue();
     }

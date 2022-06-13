@@ -18,11 +18,7 @@ public final class StandardSelectionPolicy<TAction extends Action, TEdge extends
     }
 
     @Override
-    protected void visit(final Object context, final StandardSearchNode<TAction, TEdge, TState> currentSearchNode) {
-    }
-
-    @Override
-    protected void selected(final Object context, final StandardSearchNode<TAction, TEdge, TState> currentSearchNode) {
+    protected void visit(final Object context, final StandardSearchNode<TAction, TEdge, TState> searchNode) {
     }
 
     @Override

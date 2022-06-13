@@ -18,22 +18,22 @@ public final class ConcurrentUnexploredPrimerTraversalPolicy<TAction extends Act
         return (ConcurrentUnexploredPrimerTraversalPolicy<TAction, TEdge, TState>) INSTANCE;
     }
 
-    private ConcurrentSearchNode<TAction, TEdge, TState> selectUnexplored(final Lock lock, final ConcurrentSearchNode<TAction, TEdge, TState> currentSearchNode) {
+    private ConcurrentSearchNode<TAction, TEdge, TState> selectUnexplored(final Lock lock, final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
         lock.lock();
 
         try {
-            if (currentSearchNode.getUnexploredChildren().isEmpty()) {
+            if (searchNode.getUnexploredChildren().isEmpty()) {
                 return null;
             }
 
-            return super.selectUnexplored(currentSearchNode);
+            return super.selectUnexplored(searchNode);
         } finally {
             lock.unlock();
         }
     }
 
     @Override
-    protected ConcurrentSearchNode<TAction, TEdge, TState> selectUnexplored(final ConcurrentSearchNode<TAction, TEdge, TState> currentSearchNode) {
-        return selectUnexplored(currentSearchNode.getExpansionLock().writeLock(), currentSearchNode);
+    protected ConcurrentSearchNode<TAction, TEdge, TState> selectUnexplored(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        return selectUnexplored(searchNode.getExpansionLock().writeLock(), searchNode);
     }
 }

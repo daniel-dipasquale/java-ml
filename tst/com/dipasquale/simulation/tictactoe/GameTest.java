@@ -1,10 +1,11 @@
 package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.SearchNodeResult;
 import com.dipasquale.search.mcts.buffer.BufferType;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.propagation.BackPropagationObserver;
-import com.dipasquale.search.mcts.seek.MaximumFullSeekPolicy;
+import com.dipasquale.search.mcts.seek.MaximumComprehensiveSeekPolicy;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,9 @@ public final class GameTest {
 
     private static MonteCarloTreeSearch<GameAction, GameState> createMcts(final int maximumSimulationCount, final BackPropagationObserver<GameAction, GameState> backPropagationObserver) {
         return ClassicMonteCarloTreeSearch.<GameAction, GameState>builder()
-                .searchPolicy(MaximumFullSeekPolicy.builder()
+                .comprehensiveSeekPolicy(MaximumComprehensiveSeekPolicy.builder()
                         .maximumSelectionCount(maximumSimulationCount)
-                        .maximumSimulationRolloutDepth(8)
+                        .maximumSimulationDepth(8)
                         .build())
                 .bufferType(BufferType.AUTO_CLEAR)
                 .backPropagationObserver(backPropagationObserver)
@@ -36,7 +37,7 @@ public final class GameTest {
         GameOutcomeStatisticsObserver gameOutcomeStatisticsObserver = new GameOutcomeStatisticsObserver();
         MonteCarloTreeSearch<GameAction, GameState> mcts = createMcts(255_168, gameOutcomeStatisticsObserver);
 
-        Assertions.assertNotNull(mcts.proposeNextAction(new GameState()));
+        Assertions.assertNotNull(mcts.proposeFirst(new GameState()));
         Assertions.assertEquals("[[0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f], [0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f], [0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.13524936f, -0.44041452f, -0.13524936f, -0.44041452f, 0.23178808f, -0.44041452f, -0.13524936f, -0.44041452f, -0.13524936f], [0.7368421f, 0.46153846f, 0.7368421f, 0.46153846f, 1.0486486f, 0.46153846f, 0.7368421f, 0.46153846f, 0.7368421f], [0.2638037f, -0.19565217f, 0.2638037f, -0.19565217f, 0.68085104f, -0.19565217f, 0.2638037f, -0.19565217f, 0.2638037f], [1.6785715f, 1.5f, 1.6785715f, 1.5f, 1.7894737f, 1.5f, 1.6785715f, 1.5f, 1.6785715f]]", Arrays.deepToString(gameOutcomeStatisticsObserver.dataSets));
     }
 
@@ -154,15 +155,15 @@ public final class GameTest {
         }
 
         @Override
-        public void notify(final int statusId, final Iterable<GameState> states) {
-            for (GameState state : states) {
-                int sequence = state.getDepth() - 1;
+        public void notify(final int statusId, final Iterable<SearchNodeResult<GameAction, GameState>> results) {
+            for (SearchNodeResult<GameAction, GameState> result : results) {
+                int sequence = result.getStateId().getDepth() - 1;
 
                 if (sequence >= 0) {
-                    int actionId = state.getLastAction().getId();
+                    int actionId = result.getAction().getId();
                     DataSet dataSet = dataSets[sequence][actionId];
 
-                    if (statusId == state.getParticipantId()) {
+                    if (statusId == result.getState().getParticipantId()) {
                         dataSet.won++;
                     } else if (statusId == MonteCarloTreeSearch.DRAWN_STATUS_ID) {
                         dataSet.drawn++;

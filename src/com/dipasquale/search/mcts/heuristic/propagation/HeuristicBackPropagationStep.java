@@ -34,9 +34,8 @@ public final class HeuristicBackPropagationStep<TAction extends Action, TEdge ex
     @Override
     public InternalContext createContext(final TSearchNode leafSearchNode) {
         float probableReward = getProbableReward(leafSearchNode);
-        TState state = leafSearchNode.getState();
-        int leafDepth = state.getDepth();
-        int leafParticipantId = state.getParticipantId();
+        int leafDepth = leafSearchNode.getStateId().getDepth();
+        int leafParticipantId = leafSearchNode.getState().getParticipantId();
 
         return new InternalContext(probableReward, leafDepth, leafParticipantId);
     }
@@ -48,10 +47,8 @@ public final class HeuristicBackPropagationStep<TAction extends Action, TEdge ex
     }
 
     @Override
-    public void process(final InternalContext context, final TSearchNode currentSearchNode) {
-        TState state = currentSearchNode.getState();
-        int participantId = state.getParticipantId();
-        TEdge currentEdge = currentSearchNode.getEdge();
+    public void process(final InternalContext context, final TSearchNode searchNode) {
+        TEdge currentEdge = searchNode.getEdge();
 
         currentEdge.increaseVisited();
 
@@ -59,7 +56,7 @@ public final class HeuristicBackPropagationStep<TAction extends Action, TEdge ex
             case IDENTITY -> setExpectedReward(currentEdge, context.probableReward);
 
             case REVERSED_ON_BACKTRACK -> {
-                if ((context.leafDepth - state.getDepth()) % 2 != 0) {
+                if ((context.leafDepth - searchNode.getStateId().getDepth()) % 2 != 0) {
                     setExpectedReward(currentEdge, context.probableReward);
                 } else {
                     setExpectedReward(currentEdge, -context.probableReward);
@@ -67,7 +64,7 @@ public final class HeuristicBackPropagationStep<TAction extends Action, TEdge ex
             }
 
             case REVERSED_ON_OPPONENT -> {
-                if (participantId == context.leafParticipantId) {
+                if (searchNode.getState().getParticipantId() == context.leafParticipantId) {
                     setExpectedReward(currentEdge, context.probableReward);
                 } else {
                     setExpectedReward(currentEdge, -context.probableReward);

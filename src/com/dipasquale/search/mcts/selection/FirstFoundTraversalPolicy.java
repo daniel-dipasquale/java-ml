@@ -14,9 +14,9 @@ public final class FirstFoundTraversalPolicy<TAction extends Action, TEdge exten
     private final List<TraversalPolicy<TAction, TEdge, TState, TSearchNode>> traversalPolicies;
 
     @Override
-    public TSearchNode next(final int simulations, final TSearchNode currentSearchNode) {
+    public TSearchNode next(final int simulations, final TSearchNode searchNode) {
         for (TraversalPolicy<TAction, TEdge, TState, TSearchNode> traversalPolicy : traversalPolicies) {
-            TSearchNode nextSearchNode = traversalPolicy.next(simulations, currentSearchNode);
+            TSearchNode nextSearchNode = traversalPolicy.next(simulations, searchNode);
 
             if (nextSearchNode != null) {
                 return nextSearchNode;

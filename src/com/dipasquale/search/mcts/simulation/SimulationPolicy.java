@@ -6,6 +6,6 @@ import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
 
 @FunctionalInterface
-public interface SimulationRolloutPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+public interface SimulationPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
     TSearchNode simulate(int simulations, TSearchNode selectedSearchNode);
 }

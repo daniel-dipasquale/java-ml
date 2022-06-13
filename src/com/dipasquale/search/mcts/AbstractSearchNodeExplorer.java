@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractSearchNodeManager<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNodeManager<TAction, TEdge, TState, TSearchNode> {
+public abstract class AbstractSearchNodeExplorer<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNodeExplorer<TAction, TEdge, TState, TSearchNode> {
     @Override
     public boolean isFullyExplored(final TSearchNode searchNode) {
         return searchNode.isFullyExplored();

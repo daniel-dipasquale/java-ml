@@ -3,11 +3,11 @@ package com.dipasquale.search.mcts.seek;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.SearchNode;
-import com.dipasquale.search.mcts.SearchNodeManager;
+import com.dipasquale.search.mcts.SearchNodeExplorer;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.propagation.BackPropagationPolicy;
 import com.dipasquale.search.mcts.selection.SelectionPolicy;
-import com.dipasquale.search.mcts.simulation.SimulationRolloutPolicy;
+import com.dipasquale.search.mcts.simulation.SimulationPolicy;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -15,16 +15,16 @@ import lombok.RequiredArgsConstructor;
 public abstract class AbstractSeekStrategy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SeekStrategy<TAction, TEdge, TState, TSearchNode> {
     private final SeekPolicy seekPolicy;
     private final SelectionPolicy<TAction, TEdge, TState, TSearchNode> selectionPolicy;
-    private final SimulationRolloutPolicy<TAction, TEdge, TState, TSearchNode> simulationRolloutPolicy;
+    private final SimulationPolicy<TAction, TEdge, TState, TSearchNode> simulationPolicy;
     private final BackPropagationPolicy<TAction, TEdge, TState, TSearchNode> backPropagationPolicy;
-    private final SearchNodeManager<TAction, TEdge, TState, TSearchNode> searchNodeManager;
+    private final SearchNodeExplorer<TAction, TEdge, TState, TSearchNode> searchNodeExplorer;
 
     private TSearchNode simulate(final int simulations, final TSearchNode selectedSearchNode) {
         if (selectedSearchNode == null) {
             return null;
         }
 
-        return simulationRolloutPolicy.simulate(simulations, selectedSearchNode);
+        return simulationPolicy.simulate(simulations, selectedSearchNode);
     }
 
     @Override
@@ -41,7 +41,7 @@ public abstract class AbstractSeekStrategy<TAction extends Action, TEdge extends
                 if (leafSearchNode != null) {
                     backPropagationPolicy.process(rootSearchNode, selectedSearchNode, leafSearchNode);
                 } else {
-                    continueSearching = !searchNodeManager.isFullyExplored(rootSearchNode);
+                    continueSearching = !searchNodeExplorer.isFullyExplored(rootSearchNode);
                 }
             }
         } finally {

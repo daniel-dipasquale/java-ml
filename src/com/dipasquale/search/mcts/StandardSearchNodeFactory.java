@@ -12,7 +12,7 @@ public final class StandardSearchNodeFactory<TAction extends Action, TEdge exten
     }
 
     @Override
-    public StandardSearchNode<TAction, TEdge, TState> createRoot(final EdgeFactory<TEdge> edgeFactory, final TState state) {
-        return new StandardSearchNode<>(edgeFactory.create(), state);
+    public StandardSearchNode<TAction, TEdge, TState> createRoot(final SearchNodeResult<TAction, TState> result, final EdgeFactory<TEdge> edgeFactory) {
+        return new StandardSearchNode<>(result, edgeFactory.create());
     }
 }

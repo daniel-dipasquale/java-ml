@@ -3,18 +3,19 @@ package com.dipasquale.simulation.tictactoe;
 import com.dipasquale.common.bit.int1.BitManipulatorSupport;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.State;
-import com.dipasquale.search.mcts.buffer.TreeId;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.stream.IntStream;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class GameState implements State<GameAction, GameState> {
     private static final int INITIAL_BOARD = 0;
     private static final String INITIAL_ACTION_IDS = "";
-    private static final int FIRST_PARTICIPANT_ID = 1;
-    static final boolean IS_STATE_INTENTIONAL = true;
+    private static final int FIRST_PARTICIPANT_ID = 2;
+    static final boolean IS_INTENTIONAL = true;
     private static final int DIMENSION = 3;
     static final int BOARD_LENGTH = DIMENSION * DIMENSION;
     static final int NO_PARTICIPANT_ID = 0;
@@ -26,27 +27,9 @@ public final class GameState implements State<GameAction, GameState> {
     private final String actionIds;
     private final int statusId;
     private final int participantId;
-    private final GameAction lastAction;
 
     GameState() {
-        this.board = INITIAL_BOARD;
-        this.actionIds = INITIAL_ACTION_IDS;
-        this.statusId = MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
-        this.participantId = FIRST_PARTICIPANT_ID + 1;
-        this.lastAction = new GameAction(new TreeId(), MonteCarloTreeSearch.INITIAL_ACTION_ID);
-    }
-
-    private GameState(final int board, final String actionIds, final int statusId, final int participantId, final GameAction lastAction) {
-        this.board = board;
-        this.actionIds = actionIds;
-        this.statusId = statusId;
-        this.participantId = participantId;
-        this.lastAction = lastAction;
-    }
-
-    @Override
-    public int getDepth() {
-        return lastAction.getTreeId().getDepth();
+        this(INITIAL_BOARD, INITIAL_ACTION_IDS, MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID, FIRST_PARTICIPANT_ID);
     }
 
     @Override
@@ -56,12 +39,17 @@ public final class GameState implements State<GameAction, GameState> {
 
     @Override
     public boolean isIntentional() {
-        return IS_STATE_INTENTIONAL;
+        return IS_INTENTIONAL;
     }
 
     @Override
     public boolean isNextIntentional() {
-        return IS_STATE_INTENTIONAL;
+        return IS_INTENTIONAL;
+    }
+
+    @Override
+    public GameAction createRootAction() {
+        return new GameAction(MonteCarloTreeSearch.ROOT_ACTION_ID);
     }
 
     private static int extractValueFromBoard(final int board, final int actionId) {
@@ -77,20 +65,17 @@ public final class GameState implements State<GameAction, GameState> {
     }
 
     private GameAction createNextAction(final int id) {
-        String treeIdKey = Integer.toString(id);
-        TreeId treeId = lastAction.getTreeId().createChild(treeIdKey);
-
-        return new GameAction(treeId, id);
+        return new GameAction(id);
     }
 
     public GameAction createAction(final int id) {
-        if (!isValid(id)) {
-            String message = String.format("game action is not valid due to id: %d", id);
-
-            throw new IllegalArgumentException(message);
+        if (isValid(id)) {
+            return createNextAction(id);
         }
 
-        return createNextAction(id);
+        String message = String.format("game action is not valid due to id: %d", id);
+
+        throw new IllegalArgumentException(message);
     }
 
     @Override
@@ -170,15 +155,11 @@ public final class GameState implements State<GameAction, GameState> {
 
     @Override
     public GameState accept(final GameAction action) {
-        if (!action.getTreeId().isChildOf(lastAction.getTreeId())) {
-            throw new IllegalArgumentException("action does not belong to the game state");
-        }
-
         int nextParticipantId = getNextParticipantId();
         int nextBoard = createBoard(board, action, nextParticipantId);
         String nextActionIds = createActionIds(actionIds, action.getId());
         int nextStatusId = getStatusId(nextBoard, nextActionIds, nextParticipantId);
 
-        return new GameState(nextBoard, nextActionIds, nextStatusId, nextParticipantId, action);
+        return new GameState(nextBoard, nextActionIds, nextStatusId, nextParticipantId);
     }
 }

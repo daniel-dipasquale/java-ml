@@ -16,18 +16,24 @@ public final class Mcts<TAction extends Action, TEdge extends Edge, TState exten
     private final ProposalStrategy<TAction, TEdge, TState, TSearchNode> proposalStrategy;
     private final List<ResetHandler> resetHandlers;
 
-    public TAction proposeNextAction(final TState state) {
-        TSearchNode rootSearchNode = buffer.provide(state);
+    private TSearchNode proposeBestNode(final TSearchNode rootSearchNode) {
+        int simulations = rootSearchNode.getEdge().getVisited();
+        int nextDepth = rootSearchNode.getStateId().getDepth() + 1;
+        List<Iterator<TSearchNode>> childSearchNodeIterators = List.of(rootSearchNode.getExplorableChildren().iterator(), rootSearchNode.getFullyExploredChildren().iterator());
+        Iterable<TSearchNode> childSearchNodes = () -> FlatIterator.fromIterators(childSearchNodeIterators);
+
+        return proposalStrategy.proposeBestNode(simulations, nextDepth, childSearchNodes);
+    }
+
+    public SearchNodeResult<TAction, TState> proposeNext(final SearchNodeResult<TAction, TState> searchNodeResult) {
+        TSearchNode rootSearchNode = buffer.provide(searchNodeResult);
 
         seekStrategy.process(rootSearchNode);
 
-        int nextDepth = state.getDepth() + 1;
-        List<Iterator<TSearchNode>> childSearchNodeIterators = List.of(rootSearchNode.getExplorableChildren().iterator(), rootSearchNode.getFullyExploredChildren().iterator());
-        Iterable<TSearchNode> childSearchNodes = () -> FlatIterator.fromIterators(childSearchNodeIterators);
-        TSearchNode bestSearchNode = proposalStrategy.proposeBestNode(rootSearchNode.getEdge().getVisited(), nextDepth, childSearchNodes);
+        TSearchNode bestSearchNode = proposeBestNode(rootSearchNode);
 
         if (bestSearchNode != null) {
-            return bestSearchNode.getAction();
+            return bestSearchNode.getResult();
         }
 
         throw new UnableToProposeNextActionException();

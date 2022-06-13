@@ -4,47 +4,62 @@ import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
+import com.dipasquale.search.mcts.StateId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.Map;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class Generation<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TGeneration extends Generation<TAction, TEdge, TState, TSearchNode, TGeneration>> {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+public final class Generation<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PRIVATE)
     private TSearchNode searchNode;
-    private TreeId parentTreeId; // NOTE: avoids garbage collection
-    private final Map<TreeId, TGeneration> descendents;
+    private StateId parentStateId; // NOTE: avoids garbage collection
+    private final Map<StateId, Generation<TAction, TEdge, TState, TSearchNode>> descendents = new HashMap<>();
 
-    public boolean isInitialized() {
+    boolean isInitialized() {
         return searchNode != null;
     }
 
-    public TreeId getTreeId() {
-        return searchNode.getAction().getTreeId();
+    Generation<TAction, TEdge, TState, TSearchNode> getDescendant(final StateId stateId) {
+        return descendents.get(stateId);
     }
 
-    public void replace(final TSearchNode searchNode) {
+    void replace(final TSearchNode searchNode) {
         setSearchNode(searchNode);
-        parentTreeId = searchNode.getAction().getTreeId().getParent();
+        parentStateId = searchNode.getStateId().getParent();
+        descendents.clear();
     }
 
-    protected abstract TGeneration createNext();
+    private void allocateDescendant(final TSearchNode childSearchNode) {
+        StateId stateId = childSearchNode.getStateId();
+        Generation<TAction, TEdge, TState, TSearchNode> descendantGeneration = new Generation<>();
 
-    public TGeneration getOrCreateNext(final TreeId treeId) {
-        return descendents.computeIfAbsent(treeId, __ -> createNext());
+        descendents.put(stateId, descendantGeneration);
+        descendantGeneration.replace(childSearchNode);
     }
 
-    public TGeneration getNext(final TreeId treeId) {
-        return descendents.get(treeId);
+    void allocateDescendants(final TSearchNode searchNode) {
+        for (TSearchNode childSearchNode : searchNode.getUnexploredChildren()) {
+            allocateDescendant(childSearchNode);
+        }
+
+        for (TSearchNode childSearchNode : searchNode.getExplorableChildren()) {
+            allocateDescendant(childSearchNode);
+        }
+
+        for (TSearchNode childSearchNode : searchNode.getFullyExploredChildren()) {
+            allocateDescendant(childSearchNode);
+        }
     }
 
     public void clear() {
         searchNode = null;
-        parentTreeId = null;
+        parentStateId = null;
         descendents.clear();
     }
 }

@@ -17,7 +17,7 @@ import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import com.dipasquale.search.mcts.heuristic.selection.CPuctAlgorithm;
 import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 import com.dipasquale.search.mcts.propagation.BackPropagationType;
-import com.dipasquale.search.mcts.seek.MaximumFullSeekPolicy;
+import com.dipasquale.search.mcts.seek.MaximumComprehensiveSeekPolicy;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameResult;
@@ -42,7 +42,7 @@ final class GameSupport implements TwoPlayerGameSupport<Player> {
     private final BackPropagationType backPropagationType;
     private final int temperatureDepthThreshold;
     private final int classicMaximumSelectionCount;
-    private final int classicMaximumSimulationRolloutDepth;
+    private final int classicMaximumSimulationDepth;
     private final BufferType classicBufferType;
 
     @Override
@@ -68,9 +68,9 @@ final class GameSupport implements TwoPlayerGameSupport<Player> {
     public Player createClassicPlayer() {
         return MctsPlayer.builder()
                 .mcts(ClassicMonteCarloTreeSearch.<GameAction, GameState>builder()
-                        .searchPolicy(MaximumFullSeekPolicy.builder()
+                        .comprehensiveSeekPolicy(MaximumComprehensiveSeekPolicy.builder()
                                 .maximumSelectionCount(classicMaximumSelectionCount)
-                                .maximumSimulationRolloutDepth(classicMaximumSimulationRolloutDepth)
+                                .maximumSimulationDepth(classicMaximumSimulationDepth)
                                 .build())
                         .bufferType(classicBufferType)
                         .build())

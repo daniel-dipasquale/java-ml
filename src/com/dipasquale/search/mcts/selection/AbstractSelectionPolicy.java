@@ -17,9 +17,15 @@ public abstract class AbstractSelectionPolicy<TAction extends Action, TEdge exte
 
     protected abstract TContext createContext();
 
-    protected abstract void visit(TContext context, TSearchNode currentSearchNode);
+    protected abstract void visit(TContext context, TSearchNode searchNode);
 
-    protected abstract void selected(TContext context, TSearchNode currentSearchNode);
+    protected boolean expand(final TSearchNode searchNode) {
+        assert !searchNode.isExpanded();
+
+        expansionPolicy.expand(searchNode);
+
+        return searchNode.getState().isIntentional();
+    }
 
     protected abstract void exit(TContext context);
 
@@ -38,13 +44,7 @@ public abstract class AbstractSelectionPolicy<TAction extends Action, TEdge exte
                 if (candidateSearchNode != null) {
                     visit(context, candidateSearchNode);
 
-                    assert !candidateSearchNode.isExpanded();
-
-                    expansionPolicy.expand(candidateSearchNode);
-
-                    if (candidateSearchNode.getState().isIntentional()) {
-                        selected(context, candidateSearchNode);
-
+                    if (expand(candidateSearchNode)) {
                         return candidateSearchNode;
                     }
 

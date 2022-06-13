@@ -6,6 +6,7 @@ import com.dipasquale.synchronization.wait.handle.CountDownWaitHandle;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.synchronization.wait.handle.MultiWaitHandle;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ public final class ParallelEventLoop {
         return eventLoops;
     }
 
+    @Builder
     public ParallelEventLoop(final ParallelEventLoopSettings settings) {
         this(settings, createEventLoops(settings));
     }

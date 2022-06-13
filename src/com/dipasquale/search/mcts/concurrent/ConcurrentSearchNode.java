@@ -1,9 +1,9 @@
 package com.dipasquale.search.mcts.concurrent;
 
-import com.dipasquale.common.concurrent.AtomicCoalescingReference;
 import com.dipasquale.search.mcts.AbstractSearchNode;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.EdgeFactory;
+import com.dipasquale.search.mcts.SearchNodeResult;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.synchronization.lock.PromotableReadWriteLock;
 import lombok.Getter;
@@ -13,55 +13,41 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public final class ConcurrentSearchNode<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSearchNode<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
     private static final int INITIAL_CAPACITY = 16;
     private static final float LOAD_FACTOR = 0.75f;
     static final boolean FAIR_READ_WRITE_LOCK = false;
-    private final AtomicCoalescingReference<TState> state;
     private final int numberOfThreads;
     private final Map<Long, Integer> selectedExplorableChildKeys;
     @Getter
-    private final ReadWriteLock edgeLock;
+    private final Lock selectionResultLock;
     @Getter
     private final ReadWriteLock expansionLock;
     @Getter
-    private final Lock leafLock;
+    private final Lock simulationResultLock;
 
-    ConcurrentSearchNode(final TEdge edge, final TState state, final int numberOfThreads) {
-        super(edge, state.getLastAction());
-        this.state = new AtomicCoalescingReference<>(FAIR_READ_WRITE_LOCK, state, this::createState);
+    ConcurrentSearchNode(final SearchNodeResult<TAction, TState> result, final TEdge edge, final int numberOfThreads) {
+        super(result, edge);
         this.numberOfThreads = numberOfThreads;
         this.selectedExplorableChildKeys = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, numberOfThreads);
-        this.edgeLock = new ReentrantReadWriteLock(FAIR_READ_WRITE_LOCK);
+        this.selectionResultLock = new ReentrantLock();
         this.expansionLock = new PromotableReadWriteLock(FAIR_READ_WRITE_LOCK);
-        this.leafLock = new ReentrantLock();
+        this.simulationResultLock = new ReentrantLock();
     }
 
-    private ConcurrentSearchNode(final ConcurrentSearchNode<TAction, TEdge, TState> parent, final TAction action, final TEdge edge, final int numberOfThreads) {
-        super(parent, action, edge);
-        this.state = new AtomicCoalescingReference<>(FAIR_READ_WRITE_LOCK, null, this::createState);
+    private ConcurrentSearchNode(final ConcurrentSearchNode<TAction, TEdge, TState> parent, final SearchNodeResult<TAction, TState> result, final TEdge edge, final int numberOfThreads) {
+        super(parent, result, edge);
         this.numberOfThreads = numberOfThreads;
         this.selectedExplorableChildKeys = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, numberOfThreads);
-        this.edgeLock = new ReentrantReadWriteLock(FAIR_READ_WRITE_LOCK);
+        this.selectionResultLock = new ReentrantLock();
         this.expansionLock = new PromotableReadWriteLock(FAIR_READ_WRITE_LOCK);
-        this.leafLock = new ReentrantLock();
+        this.simulationResultLock = new ReentrantLock();
     }
 
     @Override
-    public TState getState() {
-        return state.get();
-    }
-
-    @Override
-    protected void setState(final TState newState) {
-        state.set(newState);
-    }
-
-    @Override
-    protected ConcurrentSearchNode<TAction, TEdge, TState> createChildNode(final TAction action, final EdgeFactory<TEdge> edgeFactory) {
-        return new ConcurrentSearchNode<>(this, action, edgeFactory.create(), numberOfThreads);
+    protected ConcurrentSearchNode<TAction, TEdge, TState> createChild(final SearchNodeResult<TAction, TState> result, final EdgeFactory<TEdge> edgeFactory) {
+        return new ConcurrentSearchNode<>(this, result, edgeFactory.create(), numberOfThreads);
     }
 
     @Override

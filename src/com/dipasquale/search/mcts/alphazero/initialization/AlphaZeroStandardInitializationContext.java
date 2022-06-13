@@ -6,14 +6,13 @@ import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNodeFactory;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
 import com.dipasquale.search.mcts.StandardSearchNode;
-import com.dipasquale.search.mcts.StandardSearchNodeManager;
+import com.dipasquale.search.mcts.StandardSearchNodeExplorer;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
 import com.dipasquale.search.mcts.alphazero.selection.AlphaZeroModel;
 import com.dipasquale.search.mcts.alphazero.selection.AlphaZeroSelectionPolicyFactory;
-import com.dipasquale.search.mcts.alphazero.simulation.AlphaZeroSimulationRolloutPolicy;
-import com.dipasquale.search.mcts.buffer.GenerationTree;
+import com.dipasquale.search.mcts.alphazero.simulation.AlphaZeroSimulationPolicy;
 import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 import com.dipasquale.search.mcts.heuristic.selection.UctAlgorithm;
 import com.dipasquale.search.mcts.initialization.InitializationContext;
@@ -26,7 +25,7 @@ import com.dipasquale.search.mcts.seek.SeekPolicy;
 import com.dipasquale.search.mcts.seek.SeekStrategy;
 import com.dipasquale.search.mcts.seek.StandardSeekStrategy;
 import com.dipasquale.search.mcts.selection.SelectionPolicy;
-import com.dipasquale.search.mcts.simulation.SimulationRolloutPolicy;
+import com.dipasquale.search.mcts.simulation.SimulationPolicy;
 
 public final class AlphaZeroStandardInitializationContext<TAction extends Action, TState extends State<TAction, TState>> implements InitializationContext<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> {
     private final StandardInitializationContext<TAction, AlphaZeroEdge, TState> standardInitializationContext;
@@ -47,11 +46,6 @@ public final class AlphaZeroStandardInitializationContext<TAction extends Action
     @Override
     public EdgeFactory<AlphaZeroEdge> getEdgeFactory() {
         return standardInitializationContext.getEdgeFactory();
-    }
-
-    @Override
-    public GenerationTree<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> createGenerationTree() {
-        return standardInitializationContext.createGenerationTree();
     }
 
     @Override
@@ -84,8 +78,8 @@ public final class AlphaZeroStandardInitializationContext<TAction extends Action
     }
 
     @Override
-    public SimulationRolloutPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> createSimulationRolloutPolicy(final ExpansionPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> expansionPolicy) {
-        return AlphaZeroSimulationRolloutPolicy.getInstance();
+    public SimulationPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> createSimulationPolicy(final ExpansionPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> expansionPolicy) {
+        return AlphaZeroSimulationPolicy.getInstance();
     }
 
     @Override
@@ -94,7 +88,7 @@ public final class AlphaZeroStandardInitializationContext<TAction extends Action
     }
 
     @Override
-    public SeekStrategy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> createSearchStrategy(final SelectionPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> selectionPolicy, final SimulationRolloutPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> simulationRolloutPolicy, final BackPropagationPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> backPropagationPolicy) {
-        return new StandardSeekStrategy<>(seekPolicy, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy, StandardSearchNodeManager.getInstance());
+    public SeekStrategy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> createSearchStrategy(final SelectionPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> selectionPolicy, final SimulationPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> simulationPolicy, final BackPropagationPolicy<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> backPropagationPolicy) {
+        return new StandardSeekStrategy<>(seekPolicy, selectionPolicy, simulationPolicy, backPropagationPolicy, StandardSearchNodeExplorer.getInstance());
     }
 }

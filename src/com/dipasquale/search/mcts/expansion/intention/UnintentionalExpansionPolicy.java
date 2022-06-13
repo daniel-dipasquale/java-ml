@@ -1,4 +1,4 @@
-package com.dipasquale.search.mcts.expansion;
+package com.dipasquale.search.mcts.expansion.intention;
 
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
@@ -7,6 +7,7 @@ import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeGroup;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
 import com.dipasquale.search.mcts.State;
+import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +19,7 @@ public final class UnintentionalExpansionPolicy<TAction extends Action, TEdge ex
 
     @Override
     public void expand(final TSearchNode searchNode) {
-        Iterable<TSearchNode> explorableChildrenIterable = searchNode.createAllPossibleChildNodes(edgeFactory);
+        Iterable<TSearchNode> explorableChildrenIterable = searchNode.createAllPossibleChildren(edgeFactory);
         SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren = searchNodeGroupProvider.create(explorableChildrenIterable);
 
         for (TSearchNode explorableChild : explorableChildren) {

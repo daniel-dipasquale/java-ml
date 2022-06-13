@@ -37,14 +37,14 @@ public final class NeatTest {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
-    private static final ParallelEventLoopSettings EVENT_LOOP_SETTINGS = ParallelEventLoopSettings.builder()
-            .executorService(EXECUTOR_SERVICE)
-            .numberOfThreads(NUMBER_OF_THREADS)
-            .errorHandler(UNHANDLED_EXCEPTIONS::add)
-            .dateTimeSupport(new MillisecondsDateTimeSupport())
+    private static final ParallelEventLoop EVENT_LOOP = ParallelEventLoop.builder()
+            .settings(ParallelEventLoopSettings.builder()
+                    .executorService(EXECUTOR_SERVICE)
+                    .numberOfThreads(NUMBER_OF_THREADS)
+                    .errorHandler(UNHANDLED_EXCEPTIONS::add)
+                    .dateTimeSupport(new MillisecondsDateTimeSupport())
+                    .build())
             .build();
-
-    private static final ParallelEventLoop EVENT_LOOP = new ParallelEventLoop(EVENT_LOOP_SETTINGS);
 
     @BeforeAll
     public static void beforeAll() {

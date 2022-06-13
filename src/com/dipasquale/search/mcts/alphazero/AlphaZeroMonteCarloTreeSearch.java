@@ -11,6 +11,7 @@ import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.ResetHandler;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
+import com.dipasquale.search.mcts.SearchNodeResult;
 import com.dipasquale.search.mcts.StandardSearchNode;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.alphazero.expansion.AlphaZeroExpansionPolicy;
@@ -39,7 +40,7 @@ import com.dipasquale.search.mcts.proposal.ProposalStrategy;
 import com.dipasquale.search.mcts.seek.SeekPolicy;
 import com.dipasquale.search.mcts.seek.SeekStrategy;
 import com.dipasquale.search.mcts.selection.SelectionPolicy;
-import com.dipasquale.search.mcts.simulation.SimulationRolloutPolicy;
+import com.dipasquale.search.mcts.simulation.SimulationPolicy;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -127,10 +128,10 @@ public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState 
         Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> buffer = createBuffer(bufferType, initializationContext);
         ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> expansionPolicy = createExpansionPolicy(traversalModel, initializationContext, rootExplorationProbabilityNoise, buffer);
         SelectionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> selectionPolicy = initializationContext.createSelectionPolicy(selectionConfidenceCalculator, expansionPolicy);
-        SimulationRolloutPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> simulationRolloutPolicy = initializationContext.createSimulationRolloutPolicy(expansionPolicy);
+        SimulationPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> simulationPolicy = initializationContext.createSimulationPolicy(expansionPolicy);
         HeuristicBackPropagationStep<TAction, AlphaZeroEdge, TState, TSearchNode> backPropagationStep = createBackPropagationStep(backPropagationType);
         BackPropagationPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> backPropagationPolicy = initializationContext.createBackPropagationPolicy(backPropagationStep, backPropagationObserver);
-        SeekStrategy<TAction, AlphaZeroEdge, TState, TSearchNode> seekStrategy = initializationContext.createSearchStrategy(selectionPolicy, simulationRolloutPolicy, backPropagationPolicy);
+        SeekStrategy<TAction, AlphaZeroEdge, TState, TSearchNode> seekStrategy = initializationContext.createSearchStrategy(selectionPolicy, simulationPolicy, backPropagationPolicy);
         ProposalStrategy<TAction, AlphaZeroEdge, TState, TSearchNode> proposalStrategy = createProposalStrategy(temperatureController, initializationContext.createRandomSupport());
         List<ResetHandler> resetHandlers = createResetHandlers(traversalModel, buffer);
 
@@ -147,8 +148,8 @@ public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState 
     }
 
     @Override
-    public TAction proposeNextAction(final TState state) {
-        return mcts.proposeNextAction(state);
+    public SearchNodeResult<TAction, TState> proposeNext(final SearchNodeResult<TAction, TState> searchNodeResult) {
+        return mcts.proposeNext(searchNodeResult);
     }
 
     @Override

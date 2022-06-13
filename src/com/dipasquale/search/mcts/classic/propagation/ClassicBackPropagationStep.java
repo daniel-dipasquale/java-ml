@@ -23,12 +23,12 @@ public final class ClassicBackPropagationStep<TAction extends Action, TEdge exte
     }
 
     @Override
-    public void process(final InternalContext context, final TSearchNode currentSearchNode) {
-        ClassicEdge currentEdge = currentSearchNode.getEdge();
+    public void process(final InternalContext context, final TSearchNode searchNode) {
+        ClassicEdge currentEdge = searchNode.getEdge();
 
         currentEdge.increaseVisited();
 
-        if (context.statusId == currentSearchNode.getState().getParticipantId()) {
+        if (context.statusId == searchNode.getState().getParticipantId()) {
             currentEdge.increaseWon();
         } else if (context.statusId == MonteCarloTreeSearch.DRAWN_STATUS_ID) {
             currentEdge.increaseDrawn();

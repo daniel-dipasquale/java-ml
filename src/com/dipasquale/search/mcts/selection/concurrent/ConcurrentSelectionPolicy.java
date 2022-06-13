@@ -22,18 +22,26 @@ public final class ConcurrentSelectionPolicy<TAction extends Action, TEdge exten
     }
 
     @Override
-    protected void visit(final ExpansionLockContext<TAction, TEdge, TState> context, final ConcurrentSearchNode<TAction, TEdge, TState> currentSearchNode) {
-        context.visit(currentSearchNode);
+    protected void visit(final ExpansionLockContext<TAction, TEdge, TState> context, final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        context.handOver(searchNode);
     }
 
     @Override
-    protected void selected(final ExpansionLockContext<TAction, TEdge, TState> context, final ConcurrentSearchNode<TAction, TEdge, TState> currentSearchNode) {
-        currentSearchNode.getEdge().acquireSelection();
+    protected boolean expand(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        if (searchNode.getSelectionResultLock().tryLock()) {
+            if (!searchNode.isExpanded()) {
+                return super.expand(searchNode);
+            }
+
+            searchNode.getSelectionResultLock().unlock();
+        }
+
+        return false;
     }
 
     @Override
     protected void exit(final ExpansionLockContext<TAction, TEdge, TState> context) {
-        context.exit();
+        context.release();
     }
 
     private ConcurrentSearchNode<TAction, TEdge, TState> select(final Lock lock, final int simulations, final ConcurrentSearchNode<TAction, TEdge, TState> rootSearchNode) {
@@ -48,6 +56,6 @@ public final class ConcurrentSelectionPolicy<TAction extends Action, TEdge exten
 
     @Override
     public ConcurrentSearchNode<TAction, TEdge, TState> select(final int simulations, final ConcurrentSearchNode<TAction, TEdge, TState> rootSearchNode) {
-        return select(rootSearchNode.getEdgeLock().readLock(), simulations, rootSearchNode);
+        return select(rootSearchNode.getEdge().getLock().readLock(), simulations, rootSearchNode);
     }
 }

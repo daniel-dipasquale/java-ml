@@ -19,7 +19,7 @@ public final class IntentionalExpansionPolicy<TAction extends Action, TEdge exte
 
     @Override
     public void expand(final TSearchNode searchNode) {
-        Iterable<TSearchNode> unexploredChildrenIterable = searchNode.createAllPossibleChildNodes(edgeFactory);
+        Iterable<TSearchNode> unexploredChildrenIterable = searchNode.createAllPossibleChildren(edgeFactory);
         SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren = searchNodeGroupProvider.create(unexploredChildrenIterable);
 
         unexploredChildren.shuffle(randomSupport);
