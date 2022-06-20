@@ -19,14 +19,6 @@ public abstract class AbstractSeekStrategy<TAction extends Action, TEdge extends
     private final BackPropagationPolicy<TAction, TEdge, TState, TSearchNode> backPropagationPolicy;
     private final SearchNodeExplorer<TAction, TEdge, TState, TSearchNode> searchNodeExplorer;
 
-    private TSearchNode simulate(final int simulations, final TSearchNode selectedSearchNode) {
-        if (selectedSearchNode == null) {
-            return null;
-        }
-
-        return simulationPolicy.simulate(simulations, selectedSearchNode);
-    }
-
     @Override
     public void process(final TSearchNode rootSearchNode) {
         seekPolicy.begin();
@@ -36,11 +28,11 @@ public abstract class AbstractSeekStrategy<TAction extends Action, TEdge extends
 
             for (int i = 1, c = seekPolicy.getMaximumSelectionCount(); continueSearching && i <= c; i++) {
                 TSearchNode selectedSearchNode = selectionPolicy.select(i, rootSearchNode);
-                TSearchNode leafSearchNode = simulate(i, selectedSearchNode);
+                TSearchNode leafSearchNode = simulationPolicy.simulate(i, selectedSearchNode);
 
-                if (leafSearchNode != null) {
-                    backPropagationPolicy.process(rootSearchNode, selectedSearchNode, leafSearchNode);
-                } else {
+                backPropagationPolicy.process(rootSearchNode, selectedSearchNode, leafSearchNode);
+
+                if (leafSearchNode == null) {
                     continueSearching = !searchNodeExplorer.isFullyExplored(rootSearchNode);
                 }
             }

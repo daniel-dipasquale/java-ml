@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLongArray;
 
-public class IterableErrorHandlerTest {
+public class ErrorHandlerControllerTest {
     @Test
     public void TEST_1() {
         AtomicLongArray data = new AtomicLongArray(3);
@@ -18,7 +18,7 @@ public class IterableErrorHandlerTest {
                 new HandlerMock(data, 2, 1)
         );
 
-        IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
+        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(items, HandlerMock::handle);
 
         test.handleAll(() -> new RuntimeException("unit test failure"));
         Assertions.assertEquals(3, data.get(0));
@@ -36,7 +36,7 @@ public class IterableErrorHandlerTest {
                 new HandlerMock(data, 2, 1)
         );
 
-        IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
+        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(items, HandlerMock::handle);
 
         try {
             test.handleAll(() -> new RuntimeException("unit test failure"));
@@ -68,7 +68,7 @@ public class IterableErrorHandlerTest {
                 new HandlerMock(data, 2, 1)
         );
 
-        IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
+        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(items, HandlerMock::handle);
 
         test.handleAll("unit test failure");
         Assertions.assertEquals(3, data.get(0));
@@ -86,7 +86,7 @@ public class IterableErrorHandlerTest {
                 new HandlerMock(data, 2, 1)
         );
 
-        IterableErrorHandler<HandlerMock> test = new IterableErrorHandler<>(items, HandlerMock::handle);
+        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(items, HandlerMock::handle);
 
         try {
             test.handleAll("unit test failure");

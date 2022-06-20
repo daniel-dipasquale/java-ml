@@ -2,7 +2,6 @@ package com.dipasquale.ai.rl.neat.common.xor;
 
 import com.dipasquale.ai.common.fitness.LastValueFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
-import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.CrossOverSupport;
@@ -15,6 +14,7 @@ import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
 import com.dipasquale.ai.rl.neat.IntegerNumber;
+import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricsSupport;
 import com.dipasquale.ai.rl.neat.MutationSupport;
@@ -68,7 +68,7 @@ public final class XorTaskSetup implements TaskSetup {
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction((ConfinedNeatEnvironment) genomeActivator -> {
+                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
                             genomeIds.add(genomeActivator.getGenome().getId());
 
                             return FITNESS_FUNCTION_SETTINGS_TYPE.environment.test(genomeActivator);
@@ -149,12 +149,12 @@ public final class XorTaskSetup implements TaskSetup {
     private enum FitnessFunctionSettingsType {
         DISTANCE_FROM_EXPECTED(new DistanceFromExpectedObjective());
 
-        FitnessFunctionSettingsType(final NeatObjective<ConfinedNeatEnvironment> objective) {
+        FitnessFunctionSettingsType(final NeatObjective<IsolatedNeatEnvironment> objective) {
             this.environment = objective.getEnvironment();
             this.trainingAssessor = objective.getTrainingAssessor();
         }
 
-        private final ConfinedNeatEnvironment environment;
+        private final IsolatedNeatEnvironment environment;
         private final NeatTrainingAssessor trainingAssessor;
     }
 

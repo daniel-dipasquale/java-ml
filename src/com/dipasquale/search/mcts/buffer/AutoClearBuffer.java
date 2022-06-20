@@ -2,41 +2,34 @@ package com.dipasquale.search.mcts.buffer;
 
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
-import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeFactory;
-import com.dipasquale.search.mcts.SearchNodeResult;
+import com.dipasquale.search.mcts.SearchResult;
 import com.dipasquale.search.mcts.State;
-import com.dipasquale.search.mcts.initialization.InitializationContext;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class AutoClearBuffer<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements Buffer<TAction, TEdge, TState, TSearchNode> {
-    private int ownerParticipantId;
-    private final GenerationTree<TAction, TEdge, TState, TSearchNode> generationTree;
+    private int ownerParticipantId = Integer.MIN_VALUE;
+    private final GenerationTree<TAction, TEdge, TState, TSearchNode> generationTree = new GenerationTree<>();
     private final SearchNodeFactory<TAction, TEdge, TState, TSearchNode> searchNodeFactory;
-    private final EdgeFactory<TEdge> edgeFactory;
 
-    AutoClearBuffer(final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext) {
-        this.ownerParticipantId = Integer.MIN_VALUE;
-        this.generationTree = new GenerationTree<>();
-        this.searchNodeFactory = initializationContext.getSearchNodeFactory();
-        this.edgeFactory = initializationContext.getEdgeFactory();
-    }
-
-    private TSearchNode getOrCreateRoot(final SearchNodeResult<TAction, TState> searchNodeResult) {
-        if (searchNodeResult.getState().getNextParticipantId() == ownerParticipantId) {
-            TSearchNode searchNode = generationTree.reseed(searchNodeResult.getStateId());
+    private TSearchNode getOrCreateRoot(final SearchResult<TAction, TState> searchResult) {
+        if (searchResult.getState().getNextParticipantId() == ownerParticipantId) {
+            TSearchNode searchNode = generationTree.reseed(searchResult.getStateId());
 
             if (searchNode == null) {
-                searchNode = searchNodeFactory.createRoot(searchNodeResult, edgeFactory);
+                searchNode = searchNodeFactory.createRoot(searchResult);
                 generationTree.seed(searchNode);
             } else {
-                searchNode.reinitialize(searchNodeResult);
+                searchNode.reinitialize(searchResult);
             }
 
             return searchNode;
         }
 
-        TSearchNode searchNode = searchNodeFactory.createRoot(searchNodeResult, edgeFactory);
+        TSearchNode searchNode = searchNodeFactory.createRoot(searchResult);
 
         generationTree.seed(searchNode);
 
@@ -44,10 +37,10 @@ final class AutoClearBuffer<TAction extends Action, TEdge extends Edge, TState e
     }
 
     @Override
-    public TSearchNode provide(final SearchNodeResult<TAction, TState> searchNodeResult) {
-        TSearchNode searchNode = getOrCreateRoot(searchNodeResult);
+    public TSearchNode provide(final SearchResult<TAction, TState> searchResult) {
+        TSearchNode searchNode = getOrCreateRoot(searchResult);
 
-        ownerParticipantId = searchNodeResult.getState().getNextParticipantId();
+        ownerParticipantId = searchResult.getState().getNextParticipantId();
 
         return searchNode;
     }

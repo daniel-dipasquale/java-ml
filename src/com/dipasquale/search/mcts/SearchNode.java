@@ -5,7 +5,9 @@ public interface SearchNode<TAction extends Action, TEdge extends Edge, TState e
 
     TSearchNode getParent();
 
-    SearchNodeResult<TAction, TState> getResult();
+    SearchResult<TAction, TState> getResult();
+
+    void reinitialize(SearchResult<TAction, TState> result);
 
     TAction getAction();
 
@@ -14,8 +16,6 @@ public interface SearchNode<TAction extends Action, TEdge extends Edge, TState e
     TState getState();
 
     StateId getStateId();
-
-    void reinitialize(SearchNodeResult<TAction, TState> result);
 
     Iterable<TSearchNode> createAllPossibleChildren(EdgeFactory<TEdge> edgeFactory);
 

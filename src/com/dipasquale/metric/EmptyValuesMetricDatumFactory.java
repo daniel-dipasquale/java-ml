@@ -16,13 +16,13 @@ public final class EmptyValuesMetricDatumFactory implements MetricDatumFactory, 
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public MetricDatum create() {
         return new EmptyValuesMetricDatum();
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

@@ -25,8 +25,8 @@ public final class Mcts<TAction extends Action, TEdge extends Edge, TState exten
         return proposalStrategy.proposeBestNode(simulations, nextDepth, childSearchNodes);
     }
 
-    public SearchNodeResult<TAction, TState> proposeNext(final SearchNodeResult<TAction, TState> searchNodeResult) {
-        TSearchNode rootSearchNode = buffer.provide(searchNodeResult);
+    public SearchResult<TAction, TState> proposeNext(final SearchResult<TAction, TState> searchResult) {
+        TSearchNode rootSearchNode = buffer.provide(searchResult);
 
         seekStrategy.process(rootSearchNode);
 

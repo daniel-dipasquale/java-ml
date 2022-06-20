@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 @Getter
-public final class OptimalPairScout<TRanking extends Comparable<TRanking>, TValue> {
+public final class OptimalPairScouter<TRanking extends Comparable<TRanking>, TValue> {
     private final Comparator<TRanking> comparator;
     private TRanking ranking = null;
     private TValue value = null;

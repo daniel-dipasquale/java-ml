@@ -16,13 +16,13 @@ public final class LastValueFitnessControllerFactory implements FitnessControlle
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public FitnessController create() {
         return new LastValueFitnessController();
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

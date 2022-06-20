@@ -8,8 +8,8 @@ import com.dipasquale.search.mcts.TraversalPolicy;
 import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 
 public final class StandardSelectionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractSelectionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>, Object> {
-    public StandardSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> priorityTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> subsequentTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        super(priorityTraversalPolicy, subsequentTraversalPolicy, expansionPolicy);
+    public StandardSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
+        super(unexploredPrimerTraversalPolicy, explorableTraversalPolicy, expansionPolicy);
     }
 
     @Override
@@ -22,6 +22,11 @@ public final class StandardSelectionPolicy<TAction extends Action, TEdge extends
     }
 
     @Override
-    protected void exit(final Object context) {
+    protected StandardSearchNode<TAction, TEdge, TState> selectNone() {
+        throw new UnsupportedOperationException("unable to select none, this should not happen in a single threaded MCTS implementation");
+    }
+
+    @Override
+    protected void cleanUp(final Object context) {
     }
 }

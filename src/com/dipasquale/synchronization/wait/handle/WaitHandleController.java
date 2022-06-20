@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
-public final class MultiWaitHandle implements WaitHandle {
+public final class WaitHandleController implements WaitHandle {
     private static final WaitHandleStrategy DEFAULT_WAIT_HANDLE_STRATEGY = await -> await == 1;
     private final List<? extends WaitHandle> waitHandles;
     private final DateTimeSupport dateTimeSupport;
     private final WaitHandleStrategy waitHandleStrategy;
 
-    public MultiWaitHandle(final List<? extends WaitHandle> waitHandles, final DateTimeSupport dateTimeSupport) {
+    public WaitHandleController(final List<? extends WaitHandle> waitHandles, final DateTimeSupport dateTimeSupport) {
         this(waitHandles, dateTimeSupport, DEFAULT_WAIT_HANDLE_STRATEGY);
     }
 

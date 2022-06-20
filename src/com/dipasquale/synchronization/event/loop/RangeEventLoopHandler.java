@@ -10,9 +10,9 @@ final class RangeEventLoopHandler implements EventLoopHandler {
     private final int count;
 
     @Override
-    public void handle(final EventLoopId id) {
+    public void handle() {
         for (int i = offset, c = offset + count; i < c; i++) {
-            if (!rangeHandler.handle(id, i)) {
+            if (!rangeHandler.handle(i)) {
                 return;
             }
         }

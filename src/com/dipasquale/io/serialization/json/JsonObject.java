@@ -211,11 +211,6 @@ public final class JsonObject implements Iterable<Object>, Serializable {
         private static final long serialVersionUID = -4908528203739063677L;
         private static final InternalComparator INSTANCE = new InternalComparator();
 
-        @Serial
-        private Object readResolve() {
-            return INSTANCE;
-        }
-
         @Override
         public int compare(final Object key1, final Object key2) {
             boolean key1IsString = key1 instanceof String;
@@ -234,6 +229,11 @@ public final class JsonObject implements Iterable<Object>, Serializable {
             }
 
             return Integer.compare((int) key1, (int) key2);
+        }
+
+        @Serial
+        private Object readResolve() {
+            return INSTANCE;
         }
     }
 }

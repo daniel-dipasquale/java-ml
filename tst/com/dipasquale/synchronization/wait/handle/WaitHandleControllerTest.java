@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class MultiWaitHandleTest {
+public final class WaitHandleControllerTest {
     private static final AtomicLong CURRENT_DATE_TIME = new AtomicLong();
     private static final DateTimeSupport DATE_TIME_SUPPORT = new ProxyDateTimeSupport(CURRENT_DATE_TIME::incrementAndGet, TimeUnit.MILLISECONDS);
 
@@ -34,7 +34,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, __ -> false);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT, __ -> false);
 
         test.await();
 
@@ -58,7 +58,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT);
 
         test.await();
 
@@ -84,7 +84,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT);
 
         try {
             test.await();
@@ -118,7 +118,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT);
 
         try {
             test.await();
@@ -152,7 +152,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, __ -> false);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT, __ -> false);
 
         Assertions.assertTrue(test.await(10L, TimeUnit.MILLISECONDS));
 
@@ -176,7 +176,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT);
 
         Assertions.assertTrue(test.await(4L, TimeUnit.MILLISECONDS));
 
@@ -202,7 +202,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT, __ -> true);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT, __ -> true);
 
         Assertions.assertTrue(test.await(4L, TimeUnit.MILLISECONDS));
 
@@ -234,7 +234,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT);
 
         try {
             test.await(4L, TimeUnit.MILLISECONDS);
@@ -266,7 +266,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT);
 
         try {
             test.await(4L, TimeUnit.MILLISECONDS);
@@ -300,7 +300,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT);
 
         Assertions.assertFalse(test.await(4L, TimeUnit.MILLISECONDS));
 
@@ -326,7 +326,7 @@ public final class MultiWaitHandleTest {
                         .build()
         );
 
-        MultiWaitHandle test = new MultiWaitHandle(waitHandles, DATE_TIME_SUPPORT);
+        WaitHandleController test = new WaitHandleController(waitHandles, DATE_TIME_SUPPORT);
 
         Assertions.assertFalse(test.await(4L, TimeUnit.MILLISECONDS));
 

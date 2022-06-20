@@ -1,6 +1,7 @@
 package com.dipasquale.search.mcts;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,38 +13,40 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Stack;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 public final class StateId {
-    private final WeakReference<StateId> parent;
+    private WeakReference<StateId> parent;
     @Getter
     @EqualsAndHashCode.Include
     @ToString.Include
-    private final int depth;
+    private int depth;
     @EqualsAndHashCode.Include
     @ToString.Include
-    private final int actionId;
+    private int actionId;
 
     public StateId() {
-        this.parent = null;
+        this.parent = new WeakReference<>(null);
         this.depth = 0;
         this.actionId = MonteCarloTreeSearch.ROOT_ACTION_ID;
     }
 
     public StateId getParent() {
-        if (parent == null) {
-            return null;
-        }
-
         return parent.get();
     }
 
-    public StateId createChild(final int actionId) {
-        WeakReference<StateId> current = new WeakReference<>(this);
+    void reinitialize(final StateId stateId) {
+        parent = null;
+        depth = stateId.depth;
+        actionId = stateId.actionId;
+    }
+
+    StateId createChild(final int actionId) {
+        WeakReference<StateId> parent = new WeakReference<>(this);
         int childDepth = depth + 1;
 
-        return new StateId(current, childDepth, actionId);
+        return new StateId(parent, childDepth, actionId);
     }
 
     private static boolean equals(final StateId stateId1, final StateId stateId2) {

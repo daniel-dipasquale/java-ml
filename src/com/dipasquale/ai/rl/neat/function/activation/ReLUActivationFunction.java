@@ -16,11 +16,6 @@ public final class ReLUActivationFunction implements ActivationFunction, Seriali
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public float forward(final float input) {
         return Math.max(0f, input);
@@ -29,5 +24,10 @@ public final class ReLUActivationFunction implements ActivationFunction, Seriali
     @Override
     public String toString() {
         return "ReLU";
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

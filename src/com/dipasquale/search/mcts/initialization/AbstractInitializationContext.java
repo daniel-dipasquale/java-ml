@@ -17,7 +17,7 @@ import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import com.dipasquale.search.mcts.heuristic.selection.UctAlgorithm;
 import com.dipasquale.search.mcts.intention.IntentionType;
 import com.dipasquale.search.mcts.intention.IntentionalTraversalPolicy;
-import com.dipasquale.search.mcts.selection.FirstFoundTraversalPolicy;
+import com.dipasquale.search.mcts.selection.FirstValidTraversalPolicy;
 import com.dipasquale.search.mcts.selection.SelectionPolicy;
 import com.dipasquale.search.mcts.simulation.SimulationPolicy;
 import lombok.AccessLevel;
@@ -36,8 +36,8 @@ public abstract class AbstractInitializationContext<TAction extends Action, TEdg
         return new UniformRandomSupport();
     }
 
-    protected IntentionalExpansionPolicy<TAction, TEdge, TState, TSearchNode> createIntentionalExpansionPolicy() {
-        EdgeFactory<TEdge> edgeFactory = getEdgeFactory();
+    private IntentionalExpansionPolicy<TAction, TEdge, TState, TSearchNode> createIntentionalExpansionPolicy() {
+        EdgeFactory<TEdge> edgeFactory = getSearchNodeFactory().getEdgeFactory();
         SearchNodeGroupProvider<TAction, TEdge, TState, TSearchNode> searchNodeGroupProvider = getSearchNodeGroupProvider();
         RandomSupport randomSupport = createRandomSupport();
 
@@ -45,20 +45,20 @@ public abstract class AbstractInitializationContext<TAction extends Action, TEdg
     }
 
     private UnintentionalExpansionPolicy<TAction, TEdge, TState, TSearchNode> createUnintentionalExpansionPolicy() {
-        EdgeFactory<TEdge> edgeFactory = getEdgeFactory();
+        EdgeFactory<TEdge> edgeFactory = getSearchNodeFactory().getEdgeFactory();
         SearchNodeGroupProvider<TAction, TEdge, TState, TSearchNode> searchNodeGroupProvider = getSearchNodeGroupProvider();
 
         return new UnintentionalExpansionPolicy<>(edgeFactory, searchNodeGroupProvider, explorationHeuristic);
     }
 
-    private static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> mergeExpansionPolicies(final Iterable<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> preOrderExpansionPolicies, final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> inOrderExpansionPolicy, final Iterable<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> postOrderExpansionPolicies) {
+    private static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> mergeExpansionPolicies(final Iterable<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> preOrderExpansionPolicies, final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy, final Iterable<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> postOrderExpansionPolicies) {
         List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies = new ArrayList<>();
 
         for (ExpansionPolicy<TAction, TEdge, TState, TSearchNode> preOrderExpansionPolicy : preOrderExpansionPolicies) {
             expansionPolicies.add(preOrderExpansionPolicy);
         }
 
-        expansionPolicies.add(inOrderExpansionPolicy);
+        expansionPolicies.add(expansionPolicy);
 
         for (ExpansionPolicy<TAction, TEdge, TState, TSearchNode> postOrderExpansionPolicy : postOrderExpansionPolicies) {
             expansionPolicies.add(postOrderExpansionPolicy);
@@ -85,24 +85,24 @@ public abstract class AbstractInitializationContext<TAction extends Action, TEdg
 
     protected abstract TraversalPolicy<TAction, TEdge, TState, TSearchNode> createUnexploredPrimerTraversalPolicy();
 
-    private FirstFoundTraversalPolicy<TAction, TEdge, TState, TSearchNode> createPriorityTraversalPolicy(final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy) {
+    private FirstValidTraversalPolicy<TAction, TEdge, TState, TSearchNode> createUnexploredPrimerTraversalPolicy(final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy) {
         List<TraversalPolicy<TAction, TEdge, TState, TSearchNode>> traversalPolicies = new ArrayList<>();
 
         traversalPolicies.add(createExpansionTraversalPolicy(expansionPolicy));
         traversalPolicies.add(createUnexploredPrimerTraversalPolicy());
 
-        return new FirstFoundTraversalPolicy<>(traversalPolicies);
+        return new FirstValidTraversalPolicy<>(traversalPolicies);
     }
 
-    protected abstract SelectionPolicy<TAction, TEdge, TState, TSearchNode> createSelectionPolicy(TraversalPolicy<TAction, TEdge, TState, TSearchNode> priorityTraversalPolicy, TraversalPolicy<TAction, TEdge, TState, TSearchNode> subsequentTraversalPolicy, ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy);
+    protected abstract SelectionPolicy<TAction, TEdge, TState, TSearchNode> createSelectionPolicy(TraversalPolicy<TAction, TEdge, TState, TSearchNode> unexploredPrimerTraversalPolicy, TraversalPolicy<TAction, TEdge, TState, TSearchNode> explorableTraversalPolicy, ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy);
 
     @Override
     public SelectionPolicy<TAction, TEdge, TState, TSearchNode> createSelectionPolicy(final UctAlgorithm<TEdge> uctAlgorithm, final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy) {
-        TraversalPolicy<TAction, TEdge, TState, TSearchNode> priorityTraversalPolicy = createPriorityTraversalPolicy(expansionPolicy);
+        TraversalPolicy<TAction, TEdge, TState, TSearchNode> unexploredPrimerTraversalPolicy = createUnexploredPrimerTraversalPolicy(expansionPolicy);
         TraversalPolicy<TAction, TEdge, TState, TSearchNode> intentionalTraversalPolicy = new IntentionalTraversalPolicy<>(uctAlgorithm);
-        TraversalPolicy<TAction, TEdge, TState, TSearchNode> subsequentTraversalPolicy = intentionType.createTraversalPolicy(this, intentionalTraversalPolicy);
+        TraversalPolicy<TAction, TEdge, TState, TSearchNode> explorableTraversalPolicy = intentionType.createTraversalPolicy(this, intentionalTraversalPolicy);
 
-        return createSelectionPolicy(priorityTraversalPolicy, subsequentTraversalPolicy, expansionPolicy);
+        return createSelectionPolicy(unexploredPrimerTraversalPolicy, explorableTraversalPolicy, expansionPolicy);
     }
 
     protected abstract TraversalPolicy<TAction, TEdge, TState, TSearchNode> createIntentionalSimulationTraversalPolicy();

@@ -1,18 +1,15 @@
 package com.dipasquale.search.mcts;
 
-import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public final class StandardSearchNodeFactory<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements SearchNodeFactory<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
-    private static final StandardSearchNodeFactory<?, ?, ?> INSTANCE = new StandardSearchNodeFactory<>();
-
-    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> StandardSearchNodeFactory<TAction, TEdge, TState> getInstance() {
-        return (StandardSearchNodeFactory<TAction, TEdge, TState>) INSTANCE;
-    }
+    @Getter
+    private final EdgeFactory<TEdge> edgeFactory;
 
     @Override
-    public StandardSearchNode<TAction, TEdge, TState> createRoot(final SearchNodeResult<TAction, TState> result, final EdgeFactory<TEdge> edgeFactory) {
+    public StandardSearchNode<TAction, TEdge, TState> createRoot(final SearchResult<TAction, TState> result) {
         return new StandardSearchNode<>(result, edgeFactory.create());
     }
 }

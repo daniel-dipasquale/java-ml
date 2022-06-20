@@ -16,13 +16,13 @@ public final class AverageFitnessControllerFactory implements FitnessControllerF
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public FitnessController create() {
         return new AverageFitnessController();
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

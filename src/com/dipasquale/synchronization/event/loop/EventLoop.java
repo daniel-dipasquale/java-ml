@@ -5,12 +5,11 @@ import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
 
+import java.util.List;
 import java.util.Objects;
 
 public interface EventLoop extends WaitHandle {
-    EventLoopId getId();
-
-    int getConcurrencyLevel();
+    List<Long> getThreadIds();
 
     void queue(EventLoopHandler handler, long delayTime, ErrorHandler errorHandler, InteractiveWaitHandle invokedWaitHandle);
 
@@ -39,15 +38,7 @@ public interface EventLoop extends WaitHandle {
     void shutdown();
 
     private static EventLoopFactory.Proxy createFactoryProxy(final EventLoopSettings settings, final EventLoopParams params) {
-        int[] index = new int[]{0};
-
-        return entryPoint -> {
-            int frozenIndex = ++index[0];
-            String name = String.format("%s-%d", settings.getName(), frozenIndex);
-            EventLoopId id = new EventLoopId(frozenIndex, name);
-
-            return settings.getFactory().create(id, params, entryPoint);
-        };
+        return entryPoint -> settings.getFactory().create(params, entryPoint);
     }
 
     private static EventLoopSelector createSelector(final EventLoopSettings settings) {
@@ -55,7 +46,7 @@ public interface EventLoop extends WaitHandle {
     }
 
     static EventLoop create(final EventLoopSettings settings) {
-        ArgumentValidatorSupport.ensureGreaterThanZero(settings.getConcurrencyLevel(), "settings.concurrencyLevel");
+        ArgumentValidatorSupport.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.concurrencyLevel");
 
         EventLoopParams params = EventLoopParams.builder()
                 .executorService(settings.getExecutorService())
@@ -63,17 +54,13 @@ public interface EventLoop extends WaitHandle {
                 .errorHandler(settings.getErrorHandler())
                 .build();
 
-        if (settings.getConcurrencyLevel() == 1) {
-            EventLoopId id = new EventLoopId(0, settings.getName());
-
-            return settings.getFactory().create(id, params, null);
+        if (settings.getNumberOfThreads() == 1) {
+            return settings.getFactory().create(params, null);
         }
 
-        String name = String.format("%s-router", settings.getName());
-        EventLoopId id = new EventLoopId(0, name);
-        EventLoopFactory.Proxy eventLoopFactoryProxy = createFactoryProxy(settings, params);
+        EventLoopFactory.Proxy factoryProxy = createFactoryProxy(settings, params);
         EventLoopSelector selector = createSelector(settings);
 
-        return new RouterEventLoop(id, eventLoopFactoryProxy, settings.getConcurrencyLevel(), selector, settings.getDateTimeSupport());
+        return new RouterEventLoop(factoryProxy, settings.getNumberOfThreads(), selector, settings.getDateTimeSupport());
     }
 }

@@ -1,6 +1,6 @@
 package com.dipasquale.common.factory;
 
 @FunctionalInterface
-public interface ObjectIndexAccessor<T> {
+public interface ObjectIndexReader<T> {
     T get(int index);
 }

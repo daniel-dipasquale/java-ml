@@ -22,14 +22,18 @@ public final class ConcurrentBackPropagationPolicy<TAction extends Action, TEdge
         try {
             super.process(rootSearchNode, selectedSearchNode, leafSearchNode);
         } finally {
-            selectedSearchNode.getSelectionResultLock().unlock();
             leafSearchNode.getSimulationResultLock().unlock();
+            selectedSearchNode.getSelectionResultLock().unlock();
             lock.unlock();
         }
     }
 
     @Override
     public void process(final ConcurrentSearchNode<TAction, TEdge, TState> rootSearchNode, final ConcurrentSearchNode<TAction, TEdge, TState> selectedSearchNode, final ConcurrentSearchNode<TAction, TEdge, TState> leafSearchNode) {
-        process(rootSearchNode.getEdge().getLock().writeLock(), rootSearchNode, selectedSearchNode, leafSearchNode);
+        if (leafSearchNode != null) {
+            process(rootSearchNode.getEdge().getLock().writeLock(), rootSearchNode, selectedSearchNode, leafSearchNode);
+        } else if (selectedSearchNode != null) {
+            selectedSearchNode.getSelectionResultLock().unlock();
+        }
     }
 }

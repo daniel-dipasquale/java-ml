@@ -31,18 +31,18 @@ public final class ConcurrentSearchNodeExplorer<TAction extends Action, TEdge ex
         return isFullyExplored(searchNode.getExpansionLock().readLock(), searchNode);
     }
 
-    private boolean declareFullyExplored(final Lock lock, final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+    private boolean notifyParentIsFullyExplored(final Lock lock, final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
         lock.lock();
 
         try {
-            return super.declareFullyExplored(searchNode);
+            return super.notifyParentIsFullyExplored(searchNode);
         } finally {
             lock.unlock();
         }
     }
 
     @Override
-    public boolean declareFullyExplored(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
-        return declareFullyExplored(searchNode.getExpansionLock().writeLock(), searchNode);
+    public boolean notifyParentIsFullyExplored(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        return notifyParentIsFullyExplored(searchNode.getParent().getExpansionLock().writeLock(), searchNode);
     }
 }

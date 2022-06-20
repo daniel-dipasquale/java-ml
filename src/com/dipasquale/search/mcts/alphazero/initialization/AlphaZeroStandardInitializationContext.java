@@ -44,11 +44,6 @@ public final class AlphaZeroStandardInitializationContext<TAction extends Action
     }
 
     @Override
-    public EdgeFactory<AlphaZeroEdge> getEdgeFactory() {
-        return standardInitializationContext.getEdgeFactory();
-    }
-
-    @Override
     public SearchNodeFactory<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> getSearchNodeFactory() {
         return standardInitializationContext.getSearchNodeFactory();
     }

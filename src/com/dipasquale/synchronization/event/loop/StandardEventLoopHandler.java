@@ -12,13 +12,13 @@ final class StandardEventLoopHandler implements EventLoopHandler {
     private final InteractiveWaitHandle invokedWaitHandle;
 
     @Override
-    public void handle(final EventLoopId id) {
+    public void handle() {
         if (invokedWaitHandle != null) {
             invokedWaitHandle.countUp();
         }
 
         try {
-            handler.handle(id);
+            handler.handle();
         } catch (Throwable e) {
             if (errorHandler == null || !errorHandler.handle(e)) {
                 throw e;

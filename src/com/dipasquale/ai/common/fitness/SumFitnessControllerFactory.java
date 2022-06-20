@@ -16,13 +16,13 @@ public final class SumFitnessControllerFactory implements FitnessControllerFacto
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public FitnessController create() {
         return new SumFitnessController();
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

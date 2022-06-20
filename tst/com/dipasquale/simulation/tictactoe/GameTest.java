@@ -1,7 +1,7 @@
 package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
-import com.dipasquale.search.mcts.SearchNodeResult;
+import com.dipasquale.search.mcts.SearchResult;
 import com.dipasquale.search.mcts.buffer.BufferType;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.propagation.BackPropagationObserver;
@@ -155,8 +155,8 @@ public final class GameTest {
         }
 
         @Override
-        public void notify(final int statusId, final Iterable<SearchNodeResult<GameAction, GameState>> results) {
-            for (SearchNodeResult<GameAction, GameState> result : results) {
+        public void notify(final int statusId, final Iterable<SearchResult<GameAction, GameState>> results) {
+            for (SearchResult<GameAction, GameState> result : results) {
                 int sequence = result.getStateId().getDepth() - 1;
 
                 if (sequence >= 0) {

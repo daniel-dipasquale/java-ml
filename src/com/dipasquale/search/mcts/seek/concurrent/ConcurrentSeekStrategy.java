@@ -41,7 +41,7 @@ public final class ConcurrentSeekStrategy<TAction extends Action, TEdge extends 
     }
 
     private static <TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> ParallelExecutionHandler<SeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>>, ConcurrentSearchNode<TAction, TEdge, TState>> createHandler() {
-        return (id, searchStrategy, rootSearchNode) -> searchStrategy.process(rootSearchNode);
+        return (searchStrategy, rootSearchNode) -> searchStrategy.process(rootSearchNode);
     }
 
     private ConcurrentSeekStrategy(final ParallelEventLoop eventLoop, final InternalArguments<TAction, TEdge, TState> arguments) {

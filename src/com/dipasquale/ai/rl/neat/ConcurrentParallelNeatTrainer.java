@@ -159,7 +159,7 @@ final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
 
     private static boolean isEquivalent(final Context.ParallelismSupport parallelismSupport, final ParallelEventLoop eventLoop) {
         return !parallelismSupport.params().enabled() && eventLoop == null
-                || parallelismSupport.params().enabled() && eventLoop != null && parallelismSupport.params().numberOfThreads() == eventLoop.getConcurrencyLevel();
+                || parallelismSupport.params().enabled() && eventLoop != null && parallelismSupport.params().numberOfThreads() == eventLoop.getThreadIds().size();
     }
 
     @Override

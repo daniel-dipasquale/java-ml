@@ -16,6 +16,14 @@ public final class StandardClassicEdge implements ClassicEdge {
     @Setter
     private float explorationProbability = 1f;
 
+    public StandardClassicEdge(final StandardClassicEdge edge) {
+        this.visited = edge.visited;
+        this.unfinished = edge.unfinished;
+        this.won = edge.won;
+        this.drawn = edge.drawn;
+        this.explorationProbability = edge.explorationProbability;
+    }
+
     @Override
     public int getVisited() {
         return visited - unfinished;

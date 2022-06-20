@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class IterableErrorHandler<T> {
+public final class ErrorHandlerController<T> {
     private final Iterable<T> items;
     private final ItemHandler<T> handler;
 

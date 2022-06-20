@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.common.game2048;
 
-import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
+import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameResult;
@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ScoreByValuedTileCountEnvironment implements ConfinedNeatEnvironment {
+final class ScoreByValuedTileCountEnvironment implements IsolatedNeatEnvironment {
     @Serial
     private static final long serialVersionUID = -1848737743365320805L;
     private final RandomOutcomeGameSupport gameSupport;

@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public final class OptimalPairScoutTest {
+public final class OptimalPairScouterTest {
     private static final Comparator<Float> FLOAT_ASCENDING_COMPARATOR = Float::compare;
     private static final Comparator<Float> FLOAT_DESCENDING_COMPARATOR = FLOAT_ASCENDING_COMPARATOR.reversed();
 
     @Test
     public void TEST_1() {
-        OptimalPairScout<Float, String> test = new OptimalPairScout<>(FLOAT_ASCENDING_COMPARATOR);
+        OptimalPairScouter<Float, String> test = new OptimalPairScouter<>(FLOAT_ASCENDING_COMPARATOR);
 
         Assertions.assertNull(test.getRanking());
         Assertions.assertNull(test.getValue());
@@ -21,7 +21,7 @@ public final class OptimalPairScoutTest {
 
     @Test
     public void TEST_2() {
-        OptimalPairScout<Float, String> test = new OptimalPairScout<>(FLOAT_ASCENDING_COMPARATOR);
+        OptimalPairScouter<Float, String> test = new OptimalPairScouter<>(FLOAT_ASCENDING_COMPARATOR);
 
         Assertions.assertTrue(test.replaceIfHigherRanking(1f, "one"));
         Assertions.assertEquals(1f, test.getRanking());
@@ -36,7 +36,7 @@ public final class OptimalPairScoutTest {
 
     @Test
     public void TEST_3() {
-        OptimalPairScout<Float, List<String>> test = new OptimalPairScout<>(FLOAT_ASCENDING_COMPARATOR);
+        OptimalPairScouter<Float, List<String>> test = new OptimalPairScouter<>(FLOAT_ASCENDING_COMPARATOR);
 
         Assertions.assertTrue(test.computeIfHigherRanking(1f, ArrayList::new));
         test.getValue().add("one a");
@@ -54,7 +54,7 @@ public final class OptimalPairScoutTest {
 
     @Test
     public void TEST_4() {
-        OptimalPairScout<Float, String> test = new OptimalPairScout<>(FLOAT_DESCENDING_COMPARATOR);
+        OptimalPairScouter<Float, String> test = new OptimalPairScouter<>(FLOAT_DESCENDING_COMPARATOR);
 
         Assertions.assertNull(test.getRanking());
         Assertions.assertNull(test.getValue());
@@ -62,7 +62,7 @@ public final class OptimalPairScoutTest {
 
     @Test
     public void TEST_5() {
-        OptimalPairScout<Float, String> test = new OptimalPairScout<>(FLOAT_DESCENDING_COMPARATOR);
+        OptimalPairScouter<Float, String> test = new OptimalPairScouter<>(FLOAT_DESCENDING_COMPARATOR);
 
         Assertions.assertTrue(test.replaceIfHigherRanking(1f, "one"));
         Assertions.assertEquals(1f, test.getRanking());
@@ -77,7 +77,7 @@ public final class OptimalPairScoutTest {
 
     @Test
     public void TEST_6() {
-        OptimalPairScout<Float, List<String>> test = new OptimalPairScout<>(FLOAT_DESCENDING_COMPARATOR);
+        OptimalPairScouter<Float, List<String>> test = new OptimalPairScouter<>(FLOAT_DESCENDING_COMPARATOR);
 
         Assertions.assertTrue(test.computeIfHigherRanking(1f, ArrayList::new));
         test.getValue().add("one a");

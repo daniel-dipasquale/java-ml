@@ -16,11 +16,6 @@ public final class TanHActivationFunction implements ActivationFunction, Seriali
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public float forward(final float input) {
         return (float) Math.tanh(input);
@@ -29,5 +24,10 @@ public final class TanHActivationFunction implements ActivationFunction, Seriali
     @Override
     public String toString() {
         return "TanH";
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

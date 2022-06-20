@@ -20,11 +20,6 @@ public final class NoopLock implements Lock, Serializable {
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public void lock() {
     }
@@ -50,5 +45,10 @@ public final class NoopLock implements Lock, Serializable {
     @Override
     public Condition newCondition() {
         return CONDITION;
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

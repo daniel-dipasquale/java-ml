@@ -3,11 +3,13 @@ package com.dipasquale.search.mcts.heuristic.concurrent;
 import com.dipasquale.search.mcts.concurrent.AbstractConcurrentEdge;
 import com.dipasquale.search.mcts.heuristic.HeuristicEdge;
 
+import java.util.concurrent.locks.ReadWriteLock;
+
 public abstract class AbstractConcurrentHeuristicEdge<T extends HeuristicEdge> extends AbstractConcurrentEdge<T> implements HeuristicEdge {
     private final T edge;
 
-    protected AbstractConcurrentHeuristicEdge(final T edge) {
-        super(edge);
+    protected AbstractConcurrentHeuristicEdge(final T edge, final ReadWriteLock lock) {
+        super(edge, lock);
         this.edge = edge;
     }
 

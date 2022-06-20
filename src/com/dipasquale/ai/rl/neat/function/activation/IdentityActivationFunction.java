@@ -16,11 +16,6 @@ public final class IdentityActivationFunction implements ActivationFunction, Ser
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public float forward(final float input) {
         return input;
@@ -29,5 +24,10 @@ public final class IdentityActivationFunction implements ActivationFunction, Ser
     @Override
     public String toString() {
         return "Identity";
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

@@ -16,13 +16,13 @@ public final class MinimumFitnessControllerFactory implements FitnessControllerF
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public FitnessController create() {
         return new MinimumFitnessController();
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

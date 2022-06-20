@@ -9,9 +9,9 @@ final class ItemProducerEventLoopHandler<T> implements EventLoopHandler {
     private final ItemHandler<T> itemHandler;
 
     @Override
-    public void handle(final EventLoopId id) {
+    public void handle() {
         for (ItemContainer<T> container = itemProducer.next(); container != null; container = itemProducer.next()) {
-            if (!itemHandler.handle(id, container.getItem())) {
+            if (!itemHandler.handle(container.getItem())) {
                 return;
             }
         }

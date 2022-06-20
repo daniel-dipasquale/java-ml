@@ -1,10 +1,11 @@
 package com.dipasquale.synchronization.event.loop;
 
+import com.dipasquale.common.concurrent.AtomicLazyReference;
 import com.dipasquale.common.error.ErrorHandler;
-import com.dipasquale.common.error.IterableErrorHandler;
+import com.dipasquale.common.error.ErrorHandlerController;
 import com.dipasquale.synchronization.wait.handle.CountDownWaitHandle;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
-import com.dipasquale.synchronization.wait.handle.MultiWaitHandle;
+import com.dipasquale.synchronization.wait.handle.WaitHandleController;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -12,15 +13,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public final class ParallelEventLoop {
     private static final int DELAY_TIME = 0;
     private final List<EventLoop> eventLoops;
-    private final MultiWaitHandle eventLoops_whileBusy_waitHandle;
-    private final IterableErrorHandler<EventLoop> eventLoops_shutdownHandler;
+    private final AtomicLazyReference<List<Long>> threadIds;
+    private final WaitHandleController eventLoops_whileBusy_waitHandle;
+    private final ErrorHandlerController<EventLoop> eventLoops_shutdownHandler;
 
     private static boolean areEmpty(final List<EventLoop> eventLoops) {
         return eventLoops.stream()
@@ -29,8 +29,9 @@ public final class ParallelEventLoop {
 
     private ParallelEventLoop(final ParallelEventLoopSettings settings, final List<EventLoop> eventLoops) {
         this.eventLoops = eventLoops;
-        this.eventLoops_whileBusy_waitHandle = new MultiWaitHandle(eventLoops, settings.getDateTimeSupport(), __ -> !areEmpty(eventLoops));
-        this.eventLoops_shutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
+        this.threadIds = new AtomicLazyReference<>(this::captureThreadIds);
+        this.eventLoops_whileBusy_waitHandle = new WaitHandleController(eventLoops, settings.getDateTimeSupport(), __ -> !areEmpty(eventLoops));
+        this.eventLoops_shutdownHandler = new ErrorHandlerController<>(eventLoops, EventLoop::shutdown);
     }
 
     private static List<EventLoop> createEventLoops(final ParallelEventLoopSettings settings) {
@@ -43,10 +44,7 @@ public final class ParallelEventLoop {
                 .build();
 
         for (int i = 0, c = settings.getNumberOfThreads(); i < c; i++) {
-            EventLoopId id = new EventLoopId(i, String.format("eventLoop-%d", i));
-            EventLoop eventLoop = new ZeroDelayEventLoop(id, params, null);
-
-            eventLoops.add(eventLoop);
+            eventLoops.add(new ZeroDelayEventLoop(params, null));
         }
 
         return eventLoops;
@@ -57,8 +55,18 @@ public final class ParallelEventLoop {
         this(settings, createEventLoops(settings));
     }
 
-    public int getConcurrencyLevel() {
-        return eventLoops.size();
+    private List<Long> captureThreadIds() {
+        List<Long> threadIds = new ArrayList<>();
+
+        for (EventLoop eventLoop : eventLoops) {
+            threadIds.addAll(eventLoop.getThreadIds());
+        }
+
+        return List.copyOf(threadIds);
+    }
+
+    public List<Long> getThreadIds() {
+        return threadIds.getReference();
     }
 
     private <T> InteractiveWaitHandle queue(final IteratorProducerFactory<T> iteratorProducerFactory, final ItemHandler<T> itemHandler, final ErrorHandler errorHandler) {
@@ -66,17 +74,18 @@ public final class ParallelEventLoop {
         InteractiveWaitHandle interactiveWaitHandle = new CountDownWaitHandle(size);
 
         for (int i = 0; i < size; i++) {
+            EventLoop eventLoop = eventLoops.get(i);
             ItemProducer<T> itemProducer = iteratorProducerFactory.create(i, size);
             EventLoopHandler handler = new ItemProducerEventLoopHandler<>(itemProducer, itemHandler);
 
-            eventLoops.get(i).queue(handler, DELAY_TIME, errorHandler, interactiveWaitHandle);
+            eventLoop.queue(handler, DELAY_TIME, errorHandler, interactiveWaitHandle);
         }
 
         return interactiveWaitHandle;
     }
 
     public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final ItemHandler<T> itemHandler, final ErrorHandler errorHandler) {
-        ItemProducer<T> itemProducer = new ContendedItemProducer<>(iterator);
+        ItemProducer<T> itemProducer = new SharedItemProducer<>(iterator);
         IteratorProducerFactory<T> iteratorProducerFactory = (__, ___) -> itemProducer;
 
         return queue(iteratorProducerFactory, itemHandler, errorHandler);
@@ -87,7 +96,7 @@ public final class ParallelEventLoop {
     }
 
     public <T> InteractiveWaitHandle queue(final List<T> list, final ItemHandler<T> itemHandler, final ErrorHandler errorHandler) {
-        IteratorProducerFactory<T> iteratorProducerFactory = (offset, step) -> new ConfinedItemProducer<>(list, offset, step);
+        IteratorProducerFactory<T> iteratorProducerFactory = (offset, step) -> new IsolatedItemProducer<>(list, offset, step);
 
         return queue(iteratorProducerFactory, itemHandler, errorHandler);
     }
@@ -96,7 +105,7 @@ public final class ParallelEventLoop {
         return queue(list, itemHandler, null);
     }
 
-    private static Stream<Range> createRanges(final int offset, final int count, final int size) {
+    private static Iterable<Range> createRanges(final int offset, final int count, final int size) {
         int temporaryCount = count / size;
         int plusOneEndIndex = count % size;
 
@@ -106,19 +115,19 @@ public final class ParallelEventLoop {
                     int fixedCount = temporaryCount + (index < plusOneEndIndex ? 1 : 0);
 
                     return new Range(index, fixedOffset, fixedCount);
-                });
+                })
+                ::iterator;
     }
 
     public InteractiveWaitHandle queue(final int offset, final int count, final RangeHandler rangeHandler, final ErrorHandler errorHandler) {
         int size = eventLoops.size();
         InteractiveWaitHandle interactiveWaitHandle = new CountDownWaitHandle(size);
 
-        createRanges(offset, count, size)
-                .forEach(range -> {
-                    RangeEventLoopHandler handler = new RangeEventLoopHandler(rangeHandler, range.offset, range.count);
+        for (Range range : createRanges(offset, count, size)) {
+            RangeEventLoopHandler handler = new RangeEventLoopHandler(rangeHandler, range.offset, range.count);
 
-                    eventLoops.get(range.index).queue(handler, DELAY_TIME, errorHandler, interactiveWaitHandle);
-                });
+            eventLoops.get(range.index).queue(handler, DELAY_TIME, errorHandler, interactiveWaitHandle);
+        }
 
         return interactiveWaitHandle;
     }
@@ -139,29 +148,30 @@ public final class ParallelEventLoop {
         ParallelExecutionContext<TArgument> executionContext = new ParallelExecutionContext<>();
         List<EventLoopHandler> handlers = executionContext.getHandlers();
 
-        createRanges(0, count, eventLoops.size()).forEach(range -> {
+        for (Range range : createRanges(0, count, eventLoops.size())) {
             TProxy proxy = proxyFactory.create(range.offset, range.count);
-            EventLoopHandler handler = id -> proxyHandler.handle(id, proxy, executionContext.getArgument());
+            EventLoopHandler handler = () -> proxyHandler.handle(proxy, executionContext.getArgument());
 
             handlers.add(handler);
-        });
+        }
 
         return executionContext;
     }
 
-    private <T> void queue(final Lock lock, final ParallelExecutionContext<T> executionContext, final T argument, final ErrorHandler errorHandler, final InteractiveWaitHandle interactiveWaitHandle) {
-        lock.lock();
+    private <T> void queue(final ParallelExecutionContext<T> executionContext, final T argument, final ErrorHandler errorHandler, final InteractiveWaitHandle interactiveWaitHandle) {
+        executionContext.getLock().lock();
 
         try {
             executionContext.setArgument(argument);
 
             for (int i = 0, c = eventLoops.size(); i < c; i++) {
+                EventLoop eventLoop = eventLoops.get(i);
                 EventLoopHandler handler = executionContext.getHandlers().get(i);
 
-                eventLoops.get(i).queue(handler, DELAY_TIME, errorHandler, interactiveWaitHandle);
+                eventLoop.queue(handler, DELAY_TIME, errorHandler, interactiveWaitHandle);
             }
         } finally {
-            lock.unlock();
+            executionContext.getLock().unlock();
         }
     }
 
@@ -177,7 +187,7 @@ public final class ParallelEventLoop {
 
         InteractiveWaitHandle interactiveWaitHandle = new CountDownWaitHandle(size);
 
-        queue(executionContext.getLock(), executionContext, argument, errorHandler, interactiveWaitHandle);
+        queue(executionContext, argument, errorHandler, interactiveWaitHandle);
 
         return interactiveWaitHandle;
     }

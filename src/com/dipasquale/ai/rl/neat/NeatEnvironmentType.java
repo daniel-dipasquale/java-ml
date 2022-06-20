@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum NeatEnvironmentType {
-    CONFINED,
+    ISOLATED,
     SHARED;
 
     static NeatEnvironmentType from(final NeatEnvironment environment) {
-        if (environment instanceof ConfinedNeatEnvironment) {
-            return NeatEnvironmentType.CONFINED;
+        if (environment instanceof IsolatedNeatEnvironment) {
+            return NeatEnvironmentType.ISOLATED;
         }
 
         if (environment instanceof SharedNeatEnvironment) {

@@ -3,9 +3,8 @@ package com.dipasquale.ai.rl.neat.common.tictactoe;
 import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
-import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
-import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
+import com.dipasquale.ai.rl.neat.ContestedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.CrossOverSupport;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
@@ -17,6 +16,7 @@ import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
 import com.dipasquale.ai.rl.neat.IntegerNumber;
+import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.MetricsSupport;
@@ -114,13 +114,13 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     private static final TwoPlayerWinRateTrainingAssessor<Player> WIN_RATE_TRAINING_ASSESSOR = new TwoPlayerWinRateTrainingAssessor<>(GAME_SUPPORT, TRAINING_ASSESSOR_MATCHES, TRAINING_ASSESSOR_WIN_RATE);
     private static final MutationSettingsType MUTATION_SETTINGS_TYPE = MutationSettingsType.RECOMMENDED_MARKOV;
     private static final SpeciationSettingsType SPECIATION_SETTINGS_TYPE = SpeciationSettingsType.RECOMMENDED_MARKOV;
-    private static final EnvironmentSettingsType ENVIRONMENT_SETTINGS_TYPE = EnvironmentSettingsType.CONFINED;
+    private static final EnvironmentSettingsType ENVIRONMENT_SETTINGS_TYPE = EnvironmentSettingsType.ISOLATED;
     private static final int MAXIMUM_GENERATIONS = 1_000;
     private static final int FITNESS_TEST_COUNT = 6;
     private final String name = "Tic-Tac-Toe";
 
     private final int populationSize = switch (ENVIRONMENT_SETTINGS_TYPE) {
-        case CONFINED -> POPULATION_SETTINGS_TYPE.confinedPopulationSize;
+        case ISOLATED -> POPULATION_SETTINGS_TYPE.isolatedPopulationSize;
 
         case DUEL -> POPULATION_SETTINGS_TYPE.duelPopulationSize;
     };
@@ -233,7 +233,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
         LESS_THAN_VANILLA(125, 128, 4, 7),
         VANILLA(150, 256, 3, 7);
 
-        private final int confinedPopulationSize;
+        private final int isolatedPopulationSize;
         private final int duelPopulationSize;
         private final int approximateMatchesPerGenome;
         private final int eliminationRounds;
@@ -326,13 +326,13 @@ public final class TicTacToeTaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum FitnessFunctionSettingsType {
-        WIN_OR_DRAW(WinOrDrawFitnessObjective.createConfinedEnvironment(GAME_SUPPORT),
+        WIN_OR_DRAW(WinOrDrawFitnessObjective.createIsolatedEnvironment(GAME_SUPPORT),
                 WinOrDrawFitnessObjective.createContestedEnvironment(GAME_SUPPORT)),
-        ACTION_SCORE(ActionScoreFitnessObjective.createConfinedEnvironment(GAME_SUPPORT),
+        ACTION_SCORE(ActionScoreFitnessObjective.createIsolatedEnvironment(GAME_SUPPORT),
                 ActionScoreFitnessObjective.createContestedEnvironment(GAME_SUPPORT));
 
-        private final ConfinedNeatEnvironment confined;
-        private final ContestNeatEnvironment contested;
+        private final IsolatedNeatEnvironment isolated;
+        private final ContestedNeatEnvironment contested;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -365,10 +365,10 @@ public final class TicTacToeTaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum EnvironmentSettingsType {
-        CONFINED(genomeIds -> (ConfinedNeatEnvironment) genomeActivator -> {
+        ISOLATED(genomeIds -> (IsolatedNeatEnvironment) genomeActivator -> {
             genomeIds.add(genomeActivator.getGenome().getId());
 
-            return FITNESS_FUNCTION_SETTINGS_TYPE.confined.test(genomeActivator);
+            return FITNESS_FUNCTION_SETTINGS_TYPE.isolated.test(genomeActivator);
         }),
         DUEL(genomeIds -> RoundRobinDuelNeatEnvironment.builder()
                 .environment((genomeActivators, round) -> {

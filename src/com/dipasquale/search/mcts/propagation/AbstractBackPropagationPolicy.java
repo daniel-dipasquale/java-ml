@@ -3,10 +3,9 @@ package com.dipasquale.search.mcts.propagation;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
-import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeExplorer;
-import com.dipasquale.search.mcts.SearchNodeResult;
+import com.dipasquale.search.mcts.SearchResult;
 import com.dipasquale.search.mcts.State;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,37 +18,31 @@ public abstract class AbstractBackPropagationPolicy<TAction extends Action, TEdg
 
     @Override
     public void process(final TSearchNode rootSearchNode, final TSearchNode selectedSearchNode, final TSearchNode leafSearchNode) {
-        boolean isLeafFullyExplored = searchNodeExplorer.isFullyExplored(leafSearchNode);
-        int leafStatusId = leafSearchNode.getState().getStatusId();
-        boolean isLeafInProgress = leafStatusId == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
+        TContext context = step.createContext(leafSearchNode);
+        boolean isFullyExplored = searchNodeExplorer.isFullyExplored(leafSearchNode);
 
-        if (!isLeafFullyExplored || !isLeafInProgress) { // TODO: keep track how many times this statement is false
-            TContext context = step.createContext(leafSearchNode);
-            boolean isFullyExplored = !isLeafInProgress;
+        for (TSearchNode currentSearchNode = leafSearchNode; currentSearchNode != null; ) {
+            TSearchNode parentSearchNode = currentSearchNode.getParent();
 
-            for (TSearchNode currentSearchNode = leafSearchNode; currentSearchNode != null; ) {
-                TSearchNode parentSearchNode = currentSearchNode.getParent();
+            step.process(context, currentSearchNode);
 
-                step.process(context, currentSearchNode);
-
-                if (parentSearchNode != null) {
-                    if (isFullyExplored) {
-                        isFullyExplored = searchNodeExplorer.declareFullyExplored(currentSearchNode);
-                    }
-
-                    parentSearchNode.setSelectedExplorableChildKey(SearchNode.NO_SELECTED_EXPLORABLE_CHILD_KEY);
+            if (parentSearchNode != null) {
+                if (isFullyExplored) {
+                    isFullyExplored = searchNodeExplorer.notifyParentIsFullyExplored(currentSearchNode);
                 }
 
-                currentSearchNode = parentSearchNode;
+                parentSearchNode.setSelectedExplorableChildKey(SearchNode.NO_SELECTED_EXPLORABLE_CHILD_KEY);
             }
 
-            if (observer != null) {
-                Iterable<SearchNodeResult<TAction, TState>> results = LinkedIterator.createStream(leafSearchNode, SearchNode::getParent)
-                        .map(SearchNode::getResult)
-                        ::iterator;
+            currentSearchNode = parentSearchNode;
+        }
 
-                observer.notify(leafStatusId, results);
-            }
+        if (observer != null) {
+            Iterable<SearchResult<TAction, TState>> results = LinkedIterator.createStream(leafSearchNode, SearchNode::getParent)
+                    .map(SearchNode::getResult)
+                    ::iterator;
+
+            observer.notify(leafSearchNode.getState().getStatusId(), results);
         }
     }
 }

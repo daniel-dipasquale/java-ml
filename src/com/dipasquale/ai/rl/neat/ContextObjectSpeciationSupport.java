@@ -6,14 +6,14 @@ import com.dipasquale.ai.rl.neat.speciation.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.AllFitnessCalculationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.ConcurrentOrganismFitnessCalculationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.MultiFitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationStrategyController;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SharedEnvironmentFitnessCalculationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.SharedFitnessCalculationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.GenesisReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MateAndMutateReproductionStrategy;
-import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.MultiReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.PreserveMostFitReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionStrategyController;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionPromoterSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.LeastFitRemoverSelectionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategy;
@@ -22,7 +22,7 @@ import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeGeno
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.DualModeIdFactory;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeFitnessCalculationStrategy;
-import com.dipasquale.common.factory.ObjectIndexAccessor;
+import com.dipasquale.common.factory.ObjectIndexReader;
 import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
@@ -85,13 +85,13 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
 
     private static DualModeFitnessCalculationStrategy createFitnessCalculationStrategy(final InitializationContext initializationContext) {
         return switch (initializationContext.getEnvironmentType()) {
-            case CONFINED -> {
+            case ISOLATED -> {
                 List<FitnessCalculationStrategy> concurrentStrategies = List.of(
                         new ConcurrentOrganismFitnessCalculationStrategy(),
                         new SharedFitnessCalculationStrategy()
                 );
 
-                FitnessCalculationStrategy concurrentStrategy = new MultiFitnessCalculationStrategy(concurrentStrategies);
+                FitnessCalculationStrategy concurrentStrategy = new FitnessCalculationStrategyController(concurrentStrategies);
                 FitnessCalculationStrategy defaultStrategy = new AllFitnessCalculationStrategy();
 
                 yield new DualModeFitnessCalculationStrategy(initializationContext.getConcurrencyLevel(), concurrentStrategy, defaultStrategy);
@@ -103,7 +103,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
                         new SharedFitnessCalculationStrategy()
                 );
 
-                FitnessCalculationStrategy strategy = new MultiFitnessCalculationStrategy(strategies);
+                FitnessCalculationStrategy strategy = new FitnessCalculationStrategyController(strategies);
 
                 yield new DualModeFitnessCalculationStrategy(initializationContext.getConcurrencyLevel(), strategy, strategy);
             }
@@ -126,7 +126,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
                 new GenesisReproductionStrategy()
         );
 
-        return new MultiReproductionStrategy(strategies);
+        return new ReproductionStrategyController(strategies);
     }
 
     static ContextObjectSpeciationSupport create(final InitializationContext initializationContext, final SpeciationSupport speciationSupport, final GeneralSupport generalSupport) {
@@ -246,7 +246,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class DualModeReproductionTypeFactory implements ObjectIndexAccessor<ReproductionType>, DualModeObject, Serializable {
+    private static final class DualModeReproductionTypeFactory implements ObjectIndexReader<ReproductionType>, DualModeObject, Serializable {
         @Serial
         private static final long serialVersionUID = 6788712949153539093L;
         private final DualModeRandomSupport randomSupport;

@@ -6,6 +6,7 @@ import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 
 import java.util.EnumMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -13,17 +14,6 @@ final class ZeroDelayEventLoop implements EventLoop {
     private static final Map<TimeUnit, ZeroDateTimeSupport> ZERO_DATE_TIME_SUPPORTS = createZeroDateTimeSupports();
     private static final int DELAY_TIME = 0;
     private final ExplicitDelayEventLoop eventLoop;
-
-    ZeroDelayEventLoop(final EventLoopId id, final EventLoopParams params, final EventLoop entryPoint) {
-        ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
-                .eventLoopRecords(new LinkedList<>())
-                .executorService(params.getExecutorService())
-                .dateTimeSupport(ZERO_DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().timeUnit()))
-                .errorHandler(params.getErrorHandler())
-                .build();
-
-        this.eventLoop = new ExplicitDelayEventLoop(id, fixedParams, entryPoint);
-    }
 
     private static Map<TimeUnit, ZeroDateTimeSupport> createZeroDateTimeSupports() {
         Map<TimeUnit, ZeroDateTimeSupport> zeroDateTimeSupports = new EnumMap<>(TimeUnit.class);
@@ -39,14 +29,20 @@ final class ZeroDelayEventLoop implements EventLoop {
         return zeroDateTimeSupports;
     }
 
-    @Override
-    public EventLoopId getId() {
-        return eventLoop.getId();
+    ZeroDelayEventLoop(final EventLoopParams params, final EventLoop entryPoint) {
+        ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
+                .eventRecords(new LinkedList<>())
+                .executorService(params.getExecutorService())
+                .dateTimeSupport(ZERO_DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().timeUnit()))
+                .errorHandler(params.getErrorHandler())
+                .build();
+
+        this.eventLoop = new ExplicitDelayEventLoop(fixedParams, entryPoint);
     }
 
     @Override
-    public int getConcurrencyLevel() {
-        return eventLoop.getConcurrencyLevel();
+    public List<Long> getThreadIds() {
+        return eventLoop.getThreadIds();
     }
 
     @Override
@@ -84,10 +80,5 @@ final class ZeroDelayEventLoop implements EventLoop {
     @Override
     public void shutdown() {
         eventLoop.shutdown();
-    }
-
-    @Override
-    public String toString() {
-        return eventLoop.toString();
     }
 }

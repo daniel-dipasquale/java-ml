@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 @RequiredArgsConstructor
-public final class MultiFitnessCalculationStrategy implements FitnessCalculationStrategy, Serializable {
+public final class FitnessCalculationStrategyController implements FitnessCalculationStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = -2457394370282288023L;
     private final Collection<FitnessCalculationStrategy> strategies;

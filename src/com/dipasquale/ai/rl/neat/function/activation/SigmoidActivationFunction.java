@@ -16,11 +16,6 @@ public final class SigmoidActivationFunction implements ActivationFunction, Seri
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public float forward(final float input) {
         return 1f / (1f + (float) Math.exp(-input));
@@ -29,5 +24,10 @@ public final class SigmoidActivationFunction implements ActivationFunction, Seri
     @Override
     public String toString() {
         return "Sigmoid";
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

@@ -16,11 +16,6 @@ public final class SteepenedSigmoidActivationFunction implements ActivationFunct
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public float forward(final float input) {
         return 1f / (1f + (float) Math.exp(-4.9f * input));
@@ -29,5 +24,10 @@ public final class SteepenedSigmoidActivationFunction implements ActivationFunct
     @Override
     public String toString() {
         return "SteepenedSigmoid";
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

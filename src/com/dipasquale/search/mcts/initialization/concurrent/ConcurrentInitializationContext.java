@@ -2,14 +2,13 @@ package com.dipasquale.search.mcts.initialization.concurrent;
 
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.search.mcts.Action;
-import com.dipasquale.search.mcts.EdgeFactory;
+import com.dipasquale.search.mcts.SearchNodeFactory;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
 import com.dipasquale.search.mcts.concurrent.ConcurrentEdge;
 import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNode;
 import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNodeExplorer;
-import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNodeFactory;
 import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNodeGroupProvider;
 import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 import com.dipasquale.search.mcts.expansion.concurrent.ConcurrentExpansionTraversalPolicy;
@@ -34,23 +33,20 @@ import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.Getter;
 
 public final class ConcurrentInitializationContext<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractInitializationContext<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
+    @Getter
+    private final SearchNodeFactory<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> searchNodeFactory;
     private final ParallelEventLoop eventLoop;
-    @Getter
-    private final EdgeFactory<TEdge> edgeFactory;
-    @Getter
-    private final ConcurrentSearchNodeFactory<TAction, TEdge, TState> searchNodeFactory;
     private final ComprehensiveSeekPolicy comprehensiveSeekPolicy;
 
-    private ConcurrentInitializationContext(final ParallelEventLoop eventLoop, final EdgeFactory<TEdge> edgeFactory, final ExplorationHeuristic<TAction> explorationHeuristic, final IntentionType intentionType, final ComprehensiveSeekPolicy comprehensiveSeekPolicy) {
+    private ConcurrentInitializationContext(final SearchNodeFactory<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> searchNodeFactory, final ParallelEventLoop eventLoop, final ExplorationHeuristic<TAction> explorationHeuristic, final IntentionType intentionType, final ComprehensiveSeekPolicy comprehensiveSeekPolicy) {
         super(intentionType, explorationHeuristic);
+        this.searchNodeFactory = searchNodeFactory;
         this.eventLoop = eventLoop;
-        this.edgeFactory = edgeFactory;
-        this.searchNodeFactory = new ConcurrentSearchNodeFactory<>(eventLoop.getConcurrencyLevel());
         this.comprehensiveSeekPolicy = comprehensiveSeekPolicy;
     }
 
-    public ConcurrentInitializationContext(final ParallelEventLoop eventLoop, final EdgeFactory<TEdge> edgeFactory, final ExplorationHeuristic<TAction> explorationHeuristic, final ComprehensiveSeekPolicy comprehensiveSeekPolicy) {
-        this(eventLoop, edgeFactory, explorationHeuristic, IntentionType.determine(explorationHeuristic), comprehensiveSeekPolicy);
+    public ConcurrentInitializationContext(final SearchNodeFactory<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> searchNodeFactory, final ParallelEventLoop eventLoop, final ExplorationHeuristic<TAction> explorationHeuristic, final ComprehensiveSeekPolicy comprehensiveSeekPolicy) {
+        this(searchNodeFactory, eventLoop, explorationHeuristic, IntentionType.determine(explorationHeuristic), comprehensiveSeekPolicy);
     }
 
     @Override
@@ -69,10 +65,10 @@ public final class ConcurrentInitializationContext<TAction extends Action, TEdge
     }
 
     @Override
-    protected SelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> priorityTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> subsequentTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
+    protected SelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
         ConcurrentOptionalExpansionPolicy<TAction, TEdge, TState> fixedExpansionPolicy = new ConcurrentOptionalExpansionPolicy<>(expansionPolicy);
 
-        return new ConcurrentSelectionPolicy<>(priorityTraversalPolicy, subsequentTraversalPolicy, fixedExpansionPolicy);
+        return new ConcurrentSelectionPolicy<>(unexploredPrimerTraversalPolicy, explorableTraversalPolicy, fixedExpansionPolicy);
     }
 
     @Override

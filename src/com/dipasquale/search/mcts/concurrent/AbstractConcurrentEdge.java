@@ -6,13 +6,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractConcurrentEdge<T extends Edge> implements ConcurrentEdge {
     private final T edge;
     @Getter
-    private final ReadWriteLock lock = new ReentrantReadWriteLock(ConcurrentSearchNode.FAIR_READ_WRITE_LOCK);
+    private final ReadWriteLock lock;
 
     @Override
     public int getVisited() {

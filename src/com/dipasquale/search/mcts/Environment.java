@@ -11,41 +11,41 @@ public final class Environment<TAction extends Action, TState extends State<TAct
     private static final Inspector<?, ?> DEFAULT_INSPECTOR = new Inspector<>();
     private static final boolean DEBUG = false;
     private final ObjectFactory<TState> initialStateFactory;
-    private final Consumer<SearchNodeResult<TAction, TState>> inspector;
+    private final Consumer<SearchResult<TAction, TState>> inspector;
     private final TParticipant[] participants;
 
     public Environment(final ObjectFactory<TState> initialStateFactory, final TParticipant[] participants) {
-        this(initialStateFactory, (Consumer<SearchNodeResult<TAction, TState>>) (Object) DEFAULT_INSPECTOR, participants);
+        this(initialStateFactory, (Consumer<SearchResult<TAction, TState>>) (Object) DEFAULT_INSPECTOR, participants);
     }
 
     public TState interact() {
         TState state = initialStateFactory.create();
-        SearchNodeResult<TAction, TState> searchNodeResult = SearchNodeResult.createRoot(state);
+        SearchResult<TAction, TState> searchResult = SearchResult.createRoot(state);
 
         if (DEBUG) {
-            inspector.accept(searchNodeResult);
+            inspector.accept(searchResult);
         }
 
         for (int i = 0; state.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; i = state.getNextParticipantId() - 1) {
-            searchNodeResult = participants[i].produceNext(searchNodeResult);
-            state = searchNodeResult.getState();
+            searchResult = participants[i].produceNext(searchResult);
+            state = searchResult.getState();
 
             if (DEBUG) {
-                inspector.accept(searchNodeResult);
+                inspector.accept(searchResult);
             }
         }
 
         for (TParticipant participant : participants) {
-            participant.accept(searchNodeResult);
+            participant.accept(searchResult);
         }
 
         return state;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class Inspector<TAction extends Action, TState extends State<TAction, TState>> implements Consumer<SearchNodeResult<TAction, TState>> {
+    private static final class Inspector<TAction extends Action, TState extends State<TAction, TState>> implements Consumer<SearchResult<TAction, TState>> {
         @Override
-        public void accept(final SearchNodeResult<TAction, TState> searchNodeResult) {
+        public void accept(final SearchResult<TAction, TState> searchResult) {
         }
     }
 }

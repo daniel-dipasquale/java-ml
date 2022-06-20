@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 @RequiredArgsConstructor
-public final class MultiReproductionStrategy implements ReproductionStrategy, Serializable {
+public final class ReproductionStrategyController implements ReproductionStrategy, Serializable {
     @Serial
     private static final long serialVersionUID = 7605352967985128776L;
     private final Collection<ReproductionStrategy> strategies;

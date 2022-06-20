@@ -4,17 +4,17 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 final class ExplicitDelayEventLoopFactory implements EventLoopFactory {
-    private static final Comparator<EventLoopRecord> COMPARATOR = Comparator.comparing(EventLoopRecord::getExecutionDateTime);
+    private static final Comparator<EventRecord> COMPARATOR = Comparator.comparing(EventRecord::getExecutionDateTime);
 
     @Override
-    public EventLoop create(final EventLoopId id, final EventLoopParams params, final EventLoop entryPoint) {
+    public EventLoop create(final EventLoopParams params, final EventLoop entryPoint) {
         ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
-                .eventLoopRecords(new PriorityQueue<>(COMPARATOR))
+                .eventRecords(new PriorityQueue<>(COMPARATOR))
                 .executorService(params.getExecutorService())
                 .dateTimeSupport(params.getDateTimeSupport())
                 .errorHandler(params.getErrorHandler())
                 .build();
 
-        return new ExplicitDelayEventLoop(id, fixedParams, entryPoint);
+        return new ExplicitDelayEventLoop(fixedParams, entryPoint);
     }
 }

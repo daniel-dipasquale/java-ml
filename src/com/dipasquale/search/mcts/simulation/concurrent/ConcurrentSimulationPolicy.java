@@ -26,12 +26,25 @@ public final class ConcurrentSimulationPolicy<TAction extends Action, TEdge exte
     }
 
     @Override
-    protected boolean select(final ExpansionLockContext<TAction, TEdge, TState> context, final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
-        return searchNode.getSimulationResultLock().tryLock();
+    protected ConcurrentSearchNode<TAction, TEdge, TState> select(final ExpansionLockContext<TAction, TEdge, TState> context, final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        if (!searchNode.getSimulationResultLock().tryLock()) {
+            return null;
+        }
+
+        return super.select(context, searchNode);
     }
 
     @Override
-    protected void exit(final ExpansionLockContext<TAction, TEdge, TState> context) {
+    protected void cleanUp(final ExpansionLockContext<TAction, TEdge, TState> context) {
         context.release();
+    }
+
+    @Override
+    public ConcurrentSearchNode<TAction, TEdge, TState> simulate(final int simulations, final ConcurrentSearchNode<TAction, TEdge, TState> selectedSearchNode) {
+        if (selectedSearchNode == null) {
+            return null;
+        }
+
+        return super.simulate(simulations, selectedSearchNode);
     }
 }

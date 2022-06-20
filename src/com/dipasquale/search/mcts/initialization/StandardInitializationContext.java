@@ -14,6 +14,7 @@ import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
 import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 import com.dipasquale.search.mcts.expansion.StandardExpansionTraversalPolicy;
+import com.dipasquale.search.mcts.expansion.StandardOptionalExpansionPolicy;
 import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import com.dipasquale.search.mcts.intention.IntentionType;
 import com.dipasquale.search.mcts.propagation.BackPropagationObserver;
@@ -33,22 +34,17 @@ import lombok.Getter;
 
 public final class StandardInitializationContext<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractInitializationContext<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
     @Getter
-    private final EdgeFactory<TEdge> edgeFactory;
+    private final SearchNodeFactory<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> searchNodeFactory;
     private final ComprehensiveSeekPolicy comprehensiveSeekPolicy;
 
     private StandardInitializationContext(final EdgeFactory<TEdge> edgeFactory, final ExplorationHeuristic<TAction> explorationHeuristic, final IntentionType intentionType, final ComprehensiveSeekPolicy comprehensiveSeekPolicy) {
         super(intentionType, explorationHeuristic);
-        this.edgeFactory = edgeFactory;
+        this.searchNodeFactory = new StandardSearchNodeFactory<>(edgeFactory);
         this.comprehensiveSeekPolicy = comprehensiveSeekPolicy;
     }
 
     public StandardInitializationContext(final EdgeFactory<TEdge> edgeFactory, final ExplorationHeuristic<TAction> explorationHeuristic, final ComprehensiveSeekPolicy comprehensiveSeekPolicy) {
         this(edgeFactory, explorationHeuristic, IntentionType.determine(explorationHeuristic), comprehensiveSeekPolicy);
-    }
-
-    @Override
-    public SearchNodeFactory<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> getSearchNodeFactory() {
-        return StandardSearchNodeFactory.getInstance();
     }
 
     @Override
@@ -67,8 +63,8 @@ public final class StandardInitializationContext<TAction extends Action, TEdge e
     }
 
     @Override
-    protected SelectionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> priorityTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> subsequentTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        return new StandardSelectionPolicy<>(priorityTraversalPolicy, subsequentTraversalPolicy, expansionPolicy);
+    protected SelectionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
+        return new StandardSelectionPolicy<>(unexploredPrimerTraversalPolicy, explorableTraversalPolicy, expansionPolicy);
     }
 
     @Override
@@ -80,7 +76,9 @@ public final class StandardInitializationContext<TAction extends Action, TEdge e
 
     @Override
     protected SimulationPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createSimulationPolicy(final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> traversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        return new StandardSimulationPolicy<>(comprehensiveSeekPolicy, traversalPolicy, expansionPolicy);
+        ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> fixedExpansionPolicy = new StandardOptionalExpansionPolicy<>(expansionPolicy);
+
+        return new StandardSimulationPolicy<>(comprehensiveSeekPolicy, traversalPolicy, fixedExpansionPolicy);
     }
 
     @Override

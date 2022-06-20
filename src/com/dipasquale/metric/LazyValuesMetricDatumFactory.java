@@ -16,13 +16,13 @@ public final class LazyValuesMetricDatumFactory implements MetricDatumFactory, S
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public MetricDatum create() {
         return new LazyValuesMetricDatum();
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

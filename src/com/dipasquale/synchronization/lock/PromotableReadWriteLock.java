@@ -91,13 +91,6 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
             this.underlyingLock = readWriteLock.writeLock();
         }
 
-        @Serial
-        private void readObject(final ObjectInputStream objectInputStream)
-                throws IOException, ClassNotFoundException {
-            objectInputStream.defaultReadObject();
-            context = ThreadLocal.withInitial(WriteLockContext::new);
-        }
-
         private void unlockReadIfHeld() {
             int holdCount = readWriteLock.getReadHoldCount();
 
@@ -108,7 +101,7 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
             context.get().readHoldCounts.push(holdCount);
         }
 
-        private boolean tryLocking(final boolean forcedToLock) {
+        private boolean tryLockInternal(final boolean forcedToLock) {
             boolean locked = promoteLock.tryLock();
 
             if (!locked) {
@@ -138,7 +131,7 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
 
         private void lockInternal()
                 throws InterruptedException {
-            tryLocking(true);
+            tryLockInternal(true);
             underlyingLock.lock();
         }
 
@@ -165,13 +158,13 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
 
         @Override
         public boolean tryLock() {
-            return tryLocking(false) && underlyingLock.tryLock();
+            return tryLockInternal(false) && underlyingLock.tryLock();
         }
 
         @Override
         public boolean tryLock(final long time, final TimeUnit unit)
                 throws InterruptedException {
-            boolean locked = tryLocking(false);
+            boolean locked = tryLockInternal(false);
 
             if (!locked) {
                 TimeTracking timeTracking = new TimeTracking(time, unit);
@@ -182,7 +175,7 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
                     }
 
                     timeTracking.update();
-                    locked = tryLocking(false);
+                    locked = tryLockInternal(false);
                 } while (!locked);
             }
 
@@ -219,6 +212,13 @@ public final class PromotableReadWriteLock implements ReadWriteLock, Serializabl
         @Override
         public Condition newCondition() {
             return underlyingLock.newCondition();
+        }
+
+        @Serial
+        private void readObject(final ObjectInputStream objectInputStream)
+                throws IOException, ClassNotFoundException {
+            objectInputStream.defaultReadObject();
+            context = ThreadLocal.withInitial(WriteLockContext::new);
         }
     }
 }

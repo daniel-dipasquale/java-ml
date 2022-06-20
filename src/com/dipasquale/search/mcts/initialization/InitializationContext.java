@@ -3,7 +3,6 @@ package com.dipasquale.search.mcts.initialization;
 import com.dipasquale.common.random.float1.RandomSupport;
 import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
-import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeFactory;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
@@ -19,8 +18,6 @@ import com.dipasquale.search.mcts.simulation.SimulationPolicy;
 
 public interface InitializationContext<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
     RandomSupport createRandomSupport();
-
-    EdgeFactory<TEdge> getEdgeFactory();
 
     SearchNodeFactory<TAction, TEdge, TState, TSearchNode> getSearchNodeFactory();
 

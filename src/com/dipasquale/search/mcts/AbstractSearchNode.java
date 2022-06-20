@@ -5,17 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 import java.util.stream.StreamSupport;
 
 @Getter
-public abstract class AbstractSearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends AbstractSearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNode<TAction, TEdge, TState, TSearchNode> {
+public abstract class AbstractSearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNode<TAction, TEdge, TState, TSearchNode> {
     @Getter(AccessLevel.NONE)
-    private WeakReference<AbstractSearchNode<TAction, TEdge, TState, TSearchNode>> parent;
-    @Getter(AccessLevel.NONE)
-    private WeakReference<AbstractSearchNode<TAction, TEdge, TState, TSearchNode>> stateOwner;
-    @Setter(AccessLevel.PRIVATE)
-    private SearchNodeResult<TAction, TState> result;
+    private WeakReference<TSearchNode> parent;
+    private final SearchResult<TAction, TState> result;
     private final TEdge edge;
     @Setter
     private SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren;
@@ -24,31 +20,32 @@ public abstract class AbstractSearchNode<TAction extends Action, TEdge extends E
     @Setter
     private SearchNodeGroup<TAction, TEdge, TState, TSearchNode> fullyExploredChildren;
 
-    private AbstractSearchNode(final TSearchNode parent, final TSearchNode stateOwner, final SearchNodeResult<TAction, TState> result, final TEdge edge) {
+    private static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> SearchNodeGroup<TAction, TEdge, TState, TSearchNode> provideChildren(final SearchResult<TAction, TState> result) {
+        if (result.getState().getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID) {
+            return null;
+        }
+
+        return EmptySearchNodeGroup.getInstance();
+    }
+
+    protected AbstractSearchNode(final TSearchNode parent, final SearchResult<TAction, TState> result, final TEdge edge) {
         this.parent = new WeakReference<>(parent);
-        this.stateOwner = new WeakReference<>(Objects.requireNonNullElse(stateOwner, this));
         this.result = result;
         this.edge = edge;
-        this.unexploredChildren = null;
-        this.explorableChildren = null;
-        this.fullyExploredChildren = null;
-    }
-
-    protected AbstractSearchNode(final SearchNodeResult<TAction, TState> result, final TEdge edge) {
-        this(null, null, result, edge);
-    }
-
-    protected AbstractSearchNode(final TSearchNode parent, final SearchNodeResult<TAction, TState> result, final TEdge edge) {
-        this(parent, parent, result, edge);
+        this.unexploredChildren = provideChildren(result);
+        this.explorableChildren = provideChildren(result);
+        this.fullyExploredChildren = provideChildren(result);
     }
 
     @Override
     public TSearchNode getParent() {
-        if (parent == null) {
-            return null;
-        }
+        return parent.get();
+    }
 
-        return (TSearchNode) parent.get();
+    @Override
+    public void reinitialize(final SearchResult<TAction, TState> result) {
+        parent = new WeakReference<>(null);
+        getResult().reinitialize(result);
     }
 
     @Override
@@ -66,19 +63,12 @@ public abstract class AbstractSearchNode<TAction extends Action, TEdge extends E
         return result.getStateId();
     }
 
-    @Override
-    public void reinitialize(final SearchNodeResult<TAction, TState> result) {
-        parent = null;
-        stateOwner = new WeakReference<>(this);
-        setResult(result);
-    }
-
-    protected abstract TSearchNode createChild(SearchNodeResult<TAction, TState> result, EdgeFactory<TEdge> edgeFactory);
+    protected abstract TSearchNode createChild(SearchResult<TAction, TState> result, EdgeFactory<TEdge> edgeFactory);
 
     private TSearchNode createChild(final TAction action, final EdgeFactory<TEdge> edgeFactory) {
-        SearchNodeResult<TAction, TState> childResult = getResult().createChild(action);
+        SearchResult<TAction, TState> childSearchResult = getResult().createChild(action);
 
-        return createChild(childResult, edgeFactory);
+        return createChild(childSearchResult, edgeFactory);
     }
 
     @Override
@@ -102,14 +92,6 @@ public abstract class AbstractSearchNode<TAction extends Action, TEdge extends E
 
     @Override
     public String toString() {
-        TAction action = getAction();
-        TState state = getState();
-        StateId stateId = getStateId();
-
-        if (state == null) {
-            return String.format("depth: %d, actionId: %d, statusId: UNKNOWN", stateId.getDepth(), action.getId());
-        }
-
-        return String.format("depth: %d, actionId: %d, statusId: %d", stateId.getDepth(), action.getId(), state.getStatusId());
+        return String.format("depth: %d, actionId: %d, statusId: %d", getStateId().getDepth(), getAction().getId(), getState().getStatusId());
     }
 }

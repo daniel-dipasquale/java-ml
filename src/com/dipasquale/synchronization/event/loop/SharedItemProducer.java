@@ -8,7 +8,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class ContendedItemProducer<T> implements ItemProducer<T> {
+final class SharedItemProducer<T> implements ItemProducer<T> {
     private final Lock lock = new ReentrantLock();
     private final Iterator<T> iterator;
 

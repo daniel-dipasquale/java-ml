@@ -10,8 +10,9 @@ import com.dipasquale.search.mcts.Mcts;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.ResetHandler;
 import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.SearchNodeFactory;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
-import com.dipasquale.search.mcts.SearchNodeResult;
+import com.dipasquale.search.mcts.SearchResult;
 import com.dipasquale.search.mcts.StandardSearchNode;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.alphazero.expansion.AlphaZeroExpansionPolicy;
@@ -64,10 +65,10 @@ public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState 
         return new HeuristicUctAlgorithm<>(cpuctAlgorithm);
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> createBuffer(final BufferType bufferType, final InitializationContext<TAction, AlphaZeroEdge, TState, TSearchNode> initializationContext) {
+    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> createBuffer(final BufferType bufferType, final SearchNodeFactory<TAction, AlphaZeroEdge, TState, TSearchNode> searchNodeFactory) {
         BufferType fixedBufferType = Objects.requireNonNullElse(bufferType, BufferType.DISABLED);
 
-        return fixedBufferType.create(initializationContext);
+        return fixedBufferType.create(searchNodeFactory);
     }
 
     private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> void addRootExplorationProbabilityNoiseToIfApplicable(final List<ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode>> expansionPolicies, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise) {
@@ -92,7 +93,7 @@ public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState 
 
     private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> createExpansionPolicy(final AlphaZeroModel<TAction, TState, TSearchNode> traversalModel, final InitializationContext<TAction, AlphaZeroEdge, TState, TSearchNode> initializationContext, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> buffer) {
         List<ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode>> expansionPolicies = new ArrayList<>();
-        EdgeFactory<AlphaZeroEdge> edgeFactory = initializationContext.getEdgeFactory();
+        EdgeFactory<AlphaZeroEdge> edgeFactory = initializationContext.getSearchNodeFactory().getEdgeFactory();
         SearchNodeGroupProvider<TAction, AlphaZeroEdge, TState, TSearchNode> searchNodeGroupProvider = initializationContext.getSearchNodeGroupProvider();
 
         expansionPolicies.add(new AlphaZeroExpansionPolicy<>(traversalModel, edgeFactory, searchNodeGroupProvider));
@@ -125,7 +126,7 @@ public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState 
     }
 
     private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> Mcts<TAction, AlphaZeroEdge, TState, TSearchNode> createMcts(final BufferType bufferType, final InitializationContext<TAction, AlphaZeroEdge, TState, TSearchNode> initializationContext, final AlphaZeroModel<TAction, TState, TSearchNode> traversalModel, final RootExplorationProbabilityNoiseSettings rootExplorationProbabilityNoise, final HeuristicUctAlgorithm<AlphaZeroEdge> selectionConfidenceCalculator, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final TemperatureController temperatureController) {
-        Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> buffer = createBuffer(bufferType, initializationContext);
+        Buffer<TAction, AlphaZeroEdge, TState, TSearchNode> buffer = createBuffer(bufferType, initializationContext.getSearchNodeFactory());
         ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> expansionPolicy = createExpansionPolicy(traversalModel, initializationContext, rootExplorationProbabilityNoise, buffer);
         SelectionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> selectionPolicy = initializationContext.createSelectionPolicy(selectionConfidenceCalculator, expansionPolicy);
         SimulationPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> simulationPolicy = initializationContext.createSimulationPolicy(expansionPolicy);
@@ -148,8 +149,8 @@ public final class AlphaZeroMonteCarloTreeSearch<TAction extends Action, TState 
     }
 
     @Override
-    public SearchNodeResult<TAction, TState> proposeNext(final SearchNodeResult<TAction, TState> searchNodeResult) {
-        return mcts.proposeNext(searchNodeResult);
+    public SearchResult<TAction, TState> proposeNext(final SearchResult<TAction, TState> searchResult) {
+        return mcts.proposeNext(searchResult);
     }
 
     @Override

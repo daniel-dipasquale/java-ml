@@ -18,13 +18,13 @@ public final class ThreadLocalUniformRandomSupport implements RandomSupport, Ser
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public float next() {
         return ThreadLocalRandom.current().nextFloat();
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

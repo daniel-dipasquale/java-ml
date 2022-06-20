@@ -1,16 +1,18 @@
 package com.dipasquale.synchronization.event.loop;
 
+import com.dipasquale.common.concurrent.AtomicLazyReference;
 import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.synchronization.InterruptedRuntimeException;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.synchronization.wait.handle.TogglingWaitHandle;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,82 +21,76 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 final class ExplicitDelayEventLoop implements EventLoop {
-    private static final int CONCURRENCY_LEVEL = 1;
-    @Getter
-    private final EventLoopId id;
-    private final Queue<EventLoopRecord> queue;
+    private static final long ZERO_DELAY = 0L;
+    private final AtomicLazyReference<List<Long>> threadIds;
+    private final Queue<EventRecord> eventRecords;
     private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
-    private final Lock addToOrRemoveFromQueueLock;
-    private final Lock handleQueuedEventsLock;
-    private final Condition handleQueuedEventsLock_emptyQueue_condition;
-    private final TogglingWaitHandle handlingQueuedEvent_waitHandle;
+    private final Lock producerLock;
+    private final Lock consumerLock;
+    private final Condition consumerLock_empty_condition;
+    private final TogglingWaitHandle consuming_waitHandle;
     private final ErrorHandler errorHandler;
     private final EventLoop entryPoint;
     private boolean started;
     private final AtomicBoolean shutdown;
 
-    private ExplicitDelayEventLoop(final EventLoopId id, final ExplicitDelayEventLoopParams params, final Lock handleQueuedEventsLock, final EventLoop entryPoint) {
-        this.id = id;
-        this.queue = params.getEventLoopRecords();
+    private ExplicitDelayEventLoop(final ExplicitDelayEventLoopParams params, final Lock consumerLock, final EventLoop entryPoint) {
+        this.threadIds = new AtomicLazyReference<>(this::captureThreadIds);
+        this.eventRecords = params.getEventRecords();
         this.executorService = params.getExecutorService();
         this.dateTimeSupport = params.getDateTimeSupport();
-        this.addToOrRemoveFromQueueLock = new ReentrantLock();
-        this.handleQueuedEventsLock = handleQueuedEventsLock;
-        this.handleQueuedEventsLock_emptyQueue_condition = handleQueuedEventsLock.newCondition();
-        this.handlingQueuedEvent_waitHandle = new TogglingWaitHandle();
+        this.producerLock = new ReentrantLock();
+        this.consumerLock = consumerLock;
+        this.consumerLock_empty_condition = consumerLock.newCondition();
+        this.consuming_waitHandle = new TogglingWaitHandle();
         this.errorHandler = params.getErrorHandler();
         this.entryPoint = Objects.requireNonNullElse(entryPoint, this);
         this.started = false;
         this.shutdown = new AtomicBoolean(true);
     }
 
-    ExplicitDelayEventLoop(final EventLoopId id, final ExplicitDelayEventLoopParams params, final EventLoop entryPoint) {
-        this(id, params, new ReentrantLock(), entryPoint);
+    ExplicitDelayEventLoop(final ExplicitDelayEventLoopParams params, final EventLoop entryPoint) {
+        this(params, new ReentrantLock(), entryPoint);
     }
 
-    @Override
-    public int getConcurrencyLevel() {
-        return CONCURRENCY_LEVEL;
-    }
+    private CandidateEventRecord retrieveCandidateNextEventRecord() {
+        EventRecord eventRecord = eventRecords.peek();
 
-    private EventLoopRecordCandidate retrieveNextRecordCandidate() {
-        EventLoopRecord record = queue.peek();
-
-        if (record == null || dateTimeSupport.now() < record.getExecutionDateTime()) {
-            return new EventLoopRecordCandidate(record, null);
+        if (eventRecord == null || dateTimeSupport.now() < eventRecord.getExecutionDateTime()) {
+            return new CandidateEventRecord(eventRecord, null);
         }
 
-        return new EventLoopRecordCandidate(record, queue.poll());
+        return new CandidateEventRecord(eventRecord, eventRecords.poll());
     }
 
     private void notifyNotBusyIfApplicable() {
-        if (queue.isEmpty()) {
-            handlingQueuedEvent_waitHandle.countDown();
+        if (eventRecords.isEmpty()) {
+            consuming_waitHandle.countDown();
         }
     }
 
-    private long getDelayTime(final EventLoopRecord record) {
-        return Math.max(record.getExecutionDateTime() - dateTimeSupport.now(), 0L);
+    private long getDelayTime(final EventRecord record) {
+        return Math.max(record.getExecutionDateTime() - dateTimeSupport.now(), ZERO_DELAY);
     }
 
     private void handleQueuedEvents() {
-        handleQueuedEventsLock.lock();
+        consumerLock.lock();
 
         try {
             while (!shutdown.get()) {
-                EventLoopRecordCandidate audit = retrieveNextRecordCandidate();
+                CandidateEventRecord candidateEventRecord = retrieveCandidateNextEventRecord();
 
-                if (audit.polled == null) {
+                if (candidateEventRecord.polled == null) {
                     try {
                         notifyNotBusyIfApplicable();
 
-                        if (audit.peeked != null) {
-                            long timeout = getDelayTime(audit.peeked);
+                        if (candidateEventRecord.peeked != null) {
+                            long timeout = getDelayTime(candidateEventRecord.peeked);
 
-                            handleQueuedEventsLock_emptyQueue_condition.await(timeout, dateTimeSupport.timeUnit());
+                            consumerLock_empty_condition.await(timeout, dateTimeSupport.timeUnit());
                         } else {
-                            handleQueuedEventsLock_emptyQueue_condition.await();
+                            consumerLock_empty_condition.await();
                         }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
@@ -103,7 +99,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
                     }
                 } else {
                     try {
-                        audit.polled.getHandler().handle(id);
+                        candidateEventRecord.polled.getHandler().handle();
                     } catch (Throwable e) {
                         if (errorHandler != null) {
                             errorHandler.handle(e);
@@ -114,34 +110,55 @@ final class ExplicitDelayEventLoop implements EventLoop {
                 }
             }
         } finally {
-            handleQueuedEventsLock.unlock();
+            consumerLock.unlock();
         }
     }
 
-    private void queue(final EventLoopRecord record) {
-        addToOrRemoveFromQueueLock.lock();
+    private void queue(final EventRecord eventRecord) {
+        producerLock.lock();
 
         try {
-            handleQueuedEventsLock.lock();
+            consumerLock.lock();
 
             try {
-                queue.add(record);
+                eventRecords.add(eventRecord);
 
                 if (!started) {
                     started = true;
                     shutdown.set(false);
                     executorService.submit(this::handleQueuedEvents);
                 } else {
-                    handleQueuedEventsLock_emptyQueue_condition.signal();
+                    consumerLock_empty_condition.signal();
                 }
 
-                handlingQueuedEvent_waitHandle.countUp();
+                consuming_waitHandle.countUp();
             } finally {
-                handleQueuedEventsLock.unlock();
+                consumerLock.unlock();
             }
         } finally {
-            addToOrRemoveFromQueueLock.unlock();
+            producerLock.unlock();
         }
+    }
+
+    private List<Long> captureThreadIds() {
+        ThreadIdCatcher threadIdCatcher = new ThreadIdCatcher();
+
+        queue(new ThreadIdCatcherEventLoopHandler(threadIdCatcher), ZERO_DELAY);
+
+        try {
+            threadIdCatcher.countDownLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+
+            throw new InterruptedRuntimeException("unable to capture the thread id", e);
+        }
+
+        return List.of(threadIdCatcher.value);
+    }
+
+    @Override
+    public List<Long> getThreadIds() {
+        return threadIds.getReference();
     }
 
     @Override
@@ -149,7 +166,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
         EventLoopHandler fixedHandler = new StandardEventLoopHandler(handler, errorHandler, invokedWaitHandle);
         long executionDateTime = dateTimeSupport.now() + delayTime;
 
-        queue(new EventLoopRecord(fixedHandler, executionDateTime));
+        queue(new EventRecord(fixedHandler, executionDateTime));
     }
 
     @Override
@@ -157,73 +174,85 @@ final class ExplicitDelayEventLoop implements EventLoop {
         EventLoopHandler fixedHandler = new StandardIntervalEventLoopHandler(handler, delayTime, errorHandler, invokedWaitHandle, entryPoint);
         long executionDateTime = dateTimeSupport.now() + delayTime;
 
-        queue(new EventLoopRecord(fixedHandler, executionDateTime));
+        queue(new EventRecord(fixedHandler, executionDateTime));
     }
 
     @Override
     public boolean isEmpty() {
-        addToOrRemoveFromQueueLock.lock();
+        producerLock.lock();
 
         try {
-            handleQueuedEventsLock.lock();
+            consumerLock.lock();
 
             try {
-                return queue.isEmpty();
+                return eventRecords.isEmpty();
             } finally {
-                handleQueuedEventsLock.unlock();
+                consumerLock.unlock();
             }
         } finally {
-            addToOrRemoveFromQueueLock.unlock();
+            producerLock.unlock();
         }
     }
 
     @Override
     public void await()
             throws InterruptedException {
-        handlingQueuedEvent_waitHandle.await();
+        consuming_waitHandle.await();
     }
 
     @Override
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return handlingQueuedEvent_waitHandle.await(timeout, unit);
+        return consuming_waitHandle.await(timeout, unit);
     }
 
     @Override
     public void clear() {
-        handleQueuedEventsLock.lock();
+        consumerLock.lock();
 
         try {
-            queue.clear();
-            handlingQueuedEvent_waitHandle.countDown();
+            eventRecords.clear();
+            consuming_waitHandle.countDown();
         } finally {
-            handleQueuedEventsLock.unlock();
+            consumerLock.unlock();
         }
     }
 
     @Override
     public void shutdown() {
         if (!shutdown.getAndSet(true)) {
-            handleQueuedEventsLock.lock();
+            consumerLock.lock();
 
             try {
-                queue.clear();
-                handlingQueuedEvent_waitHandle.countDown();
-                handleQueuedEventsLock_emptyQueue_condition.signal();
+                eventRecords.clear();
+                consuming_waitHandle.countDown();
+                consumerLock_empty_condition.signal();
             } finally {
-                handleQueuedEventsLock.unlock();
+                consumerLock.unlock();
             }
         }
     }
 
-    @Override
-    public String toString() {
-        return id.toString();
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class ThreadIdCatcher {
+        private Long value = null;
+        private final CountDownLatch countDownLatch = new CountDownLatch(1);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class EventLoopRecordCandidate {
-        private final EventLoopRecord peeked;
-        private final EventLoopRecord polled;
+    private static final class ThreadIdCatcherEventLoopHandler implements EventLoopHandler {
+        private final ThreadIdCatcher threadIdCatcher;
+
+        @Override
+        public void handle() {
+            threadIdCatcher.value = Thread.currentThread().getId();
+            threadIdCatcher.countDownLatch.countDown();
+        }
+    }
+
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class CandidateEventRecord {
+        private final EventRecord peeked;
+        private final EventRecord polled;
     }
 }

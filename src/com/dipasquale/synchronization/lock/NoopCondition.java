@@ -19,11 +19,6 @@ public final class NoopCondition implements Condition, Serializable {
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public void await() {
     }
@@ -53,5 +48,10 @@ public final class NoopCondition implements Condition, Serializable {
 
     @Override
     public void signalAll() {
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

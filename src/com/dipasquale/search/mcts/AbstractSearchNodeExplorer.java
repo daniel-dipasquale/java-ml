@@ -11,7 +11,7 @@ public abstract class AbstractSearchNodeExplorer<TAction extends Action, TEdge e
     }
 
     @Override
-    public boolean declareFullyExplored(final TSearchNode searchNode) {
+    public boolean notifyParentIsFullyExplored(final TSearchNode searchNode) {
         TSearchNode parentSearchNode = searchNode.getParent();
 
         if (parentSearchNode.getExplorableChildren().removeByKey(parentSearchNode.getSelectedExplorableChildKey()) == searchNode) {

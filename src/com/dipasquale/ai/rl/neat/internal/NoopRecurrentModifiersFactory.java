@@ -18,11 +18,6 @@ public final class NoopRecurrentModifiersFactory implements RecurrentModifiersFa
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public List<Float> create() {
         return EMPTY;
@@ -36,5 +31,10 @@ public final class NoopRecurrentModifiersFactory implements RecurrentModifiersFa
     @Override
     public List<Float> createAverage(final List<Float> recurrentWeights1, final List<Float> recurrentWeights2) {
         return EMPTY;
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

@@ -22,9 +22,8 @@ public final class EventLoopSettings {
     private final DateTimeSupport dateTimeSupport = new MillisecondsDateTimeSupport();
     @Builder.Default
     private final EventLoopType type = EventLoopType.EXPLICIT_DELAY;
-    private final String name;
     @Builder.Default
-    private final int concurrencyLevel = 1;
+    private final int numberOfThreads = 1;
     private final EventLoopSelector selector;
     private final ErrorHandler errorHandler;
 

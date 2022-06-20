@@ -18,13 +18,13 @@ public final class RoundRobinDuelNeatEnvironment implements SharedNeatEnvironmen
     @Serial
     private static final long serialVersionUID = -4718577446760598268L;
     private static final Comparator<Double> COMPARATOR = Double::compareTo;
-    private final ContestNeatEnvironment environment;
+    private final ContestedNeatEnvironment environment;
     private final int approximateMatchesPerGenome;
     private final int rematches;
     private final int eliminationRounds;
 
     @Builder
-    private static RoundRobinDuelNeatEnvironment create(final ContestNeatEnvironment environment, final int approximateMatchesPerGenome, final int rematches, final int eliminationRounds) {
+    private static RoundRobinDuelNeatEnvironment create(final ContestedNeatEnvironment environment, final int approximateMatchesPerGenome, final int rematches, final int eliminationRounds) {
         int fixedApproximateMatchesPerGenome = approximateMatchesPerGenome <= 0
                 ? Integer.MAX_VALUE
                 : approximateMatchesPerGenome;

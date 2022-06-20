@@ -15,7 +15,7 @@ public final class ParallelismSupport {
             return 0;
         }
 
-        return eventLoop.getConcurrencyLevel();
+        return eventLoop.getThreadIds().size();
     }
 
     public boolean isEnabled() {

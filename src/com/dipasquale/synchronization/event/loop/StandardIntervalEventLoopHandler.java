@@ -21,8 +21,8 @@ final class StandardIntervalEventLoopHandler implements EventLoopHandler {
     }
 
     @Override
-    public void handle(final EventLoopId id) {
-        standardHandler.handle(id);
+    public void handle() {
+        standardHandler.handle();
 
         if (underlyingHandler.shouldRequeue()) {
             entryPoint.queue(underlyingHandler, delayTime, errorHandler, invokedWaitHandle);

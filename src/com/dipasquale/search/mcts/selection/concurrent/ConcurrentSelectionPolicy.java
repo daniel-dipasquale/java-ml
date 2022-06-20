@@ -12,8 +12,8 @@ import com.dipasquale.search.mcts.selection.AbstractSelectionPolicy;
 import java.util.concurrent.locks.Lock;
 
 public final class ConcurrentSelectionPolicy<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>, ExpansionLockContext<TAction, TEdge, TState>> {
-    public ConcurrentSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> priorityTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> subsequentTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        super(priorityTraversalPolicy, subsequentTraversalPolicy, expansionPolicy);
+    public ConcurrentSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
+        super(unexploredPrimerTraversalPolicy, explorableTraversalPolicy, expansionPolicy);
     }
 
     @Override
@@ -27,20 +27,21 @@ public final class ConcurrentSelectionPolicy<TAction extends Action, TEdge exten
     }
 
     @Override
-    protected boolean expand(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
-        if (searchNode.getSelectionResultLock().tryLock()) {
-            if (!searchNode.isExpanded()) {
-                return super.expand(searchNode);
-            }
-
-            searchNode.getSelectionResultLock().unlock();
-        }
-
-        return false;
+    protected boolean shouldSelect(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        return super.shouldSelect(searchNode) && searchNode.getSelectionResultLock().tryLock();
     }
 
     @Override
-    protected void exit(final ExpansionLockContext<TAction, TEdge, TState> context) {
+    protected ConcurrentSearchNode<TAction, TEdge, TState> selectLeaf(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+        if (!searchNode.getSelectionResultLock().tryLock()) {
+            return null;
+        }
+
+        return super.selectLeaf(searchNode);
+    }
+
+    @Override
+    protected void cleanUp(final ExpansionLockContext<TAction, TEdge, TState> context) {
         context.release();
     }
 

@@ -19,11 +19,6 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public void collectSpeciesComposition(final MetricsContainer metricsContainer, final int age, final int stagnationPeriod, final boolean isStagnant) {
     }
@@ -58,5 +53,10 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
 
     @Override
     public void prepareNextIteration(final MetricsContainer metricsContainer, final int currentGeneration, final Map<Integer, IterationMetrics> iterationsMetrics, final int currentIteration) {
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

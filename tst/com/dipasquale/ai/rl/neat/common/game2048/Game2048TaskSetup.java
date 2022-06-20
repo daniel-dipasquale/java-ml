@@ -3,7 +3,6 @@ package com.dipasquale.ai.rl.neat.common.game2048;
 import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
-import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
@@ -14,6 +13,7 @@ import com.dipasquale.ai.rl.neat.GeneralSupport;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
+import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.MetricsSupport;
@@ -128,7 +128,7 @@ public final class Game2048TaskSetup implements TaskSetup {
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction((ConfinedNeatEnvironment) genomeActivator -> {
+                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
                             genomeIds.add(genomeActivator.getGenome().getId());
 
                             return ENVIRONMENT_SETTINGS_TYPE.reference.test(genomeActivator);
@@ -296,7 +296,7 @@ public final class Game2048TaskSetup implements TaskSetup {
         SCORE_BY_VALUED_TILE_COUNT(new ScoreByValuedTileCountEnvironment(GAME_SUPPORT)),
         AVERAGE_VALUED_TILE(new AverageValuedTileEnvironment(GAME_SUPPORT));
 
-        private final ConfinedNeatEnvironment reference;
+        private final IsolatedNeatEnvironment reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

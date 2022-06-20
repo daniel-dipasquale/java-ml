@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.common.tictactoe;
 
-import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
-import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
+import com.dipasquale.ai.rl.neat.ContestedNeatEnvironment;
+import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameResult;
@@ -27,16 +27,16 @@ final class WinOrDrawFitnessObjective {
         };
     }
 
-    public static ConfinedNeatEnvironment createConfinedEnvironment(final GameSupport gameSupport) {
-        return new InternalConfinedEnvironment(gameSupport);
+    public static IsolatedNeatEnvironment createIsolatedEnvironment(final GameSupport gameSupport) {
+        return new InternalIsolatedEnvironment(gameSupport);
     }
 
-    public static ContestNeatEnvironment createContestedEnvironment(final GameSupport gameSupport) {
+    public static ContestedNeatEnvironment createContestedEnvironment(final GameSupport gameSupport) {
         return new InternalContestedEnvironment(gameSupport);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalConfinedEnvironment implements ConfinedNeatEnvironment {
+    private static final class InternalIsolatedEnvironment implements IsolatedNeatEnvironment {
         @Serial
         private static final long serialVersionUID = -4303134055956916075L;
         private final GameSupport gameSupport;
@@ -53,7 +53,7 @@ final class WinOrDrawFitnessObjective {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalContestedEnvironment implements ContestNeatEnvironment {
+    private static final class InternalContestedEnvironment implements ContestedNeatEnvironment {
         @Serial
         private static final long serialVersionUID = -5504682570162422449L;
         private final GameSupport gameSupport;

@@ -16,11 +16,6 @@ public final class IdentityNeuronLayerTopologyDefinition implements NeuronLayerT
         return INSTANCE;
     }
 
-    @Serial
-    private Object readResolve() {
-        return INSTANCE;
-    }
-
     @Override
     public float[] getValues(final NeuronLayerReader reader) {
         float[] values = new float[reader.size()];
@@ -30,5 +25,10 @@ public final class IdentityNeuronLayerTopologyDefinition implements NeuronLayerT
         }
 
         return values;
+    }
+
+    @Serial
+    private Object readResolve() {
+        return INSTANCE;
     }
 }

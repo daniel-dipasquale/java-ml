@@ -13,10 +13,6 @@ public abstract class AbstractExplorableChildrenTraversalPolicy<TAction extends 
 
     @Override
     public TSearchNode next(final int simulations, final TSearchNode searchNode) {
-        if (!searchNode.isExpanded()) {
-            return null;
-        }
-
         SearchNodeGroup<TAction, TEdge, TState, TSearchNode> childSearchNodes = searchNode.getExplorableChildren();
         int size = childSearchNodes.size();
 

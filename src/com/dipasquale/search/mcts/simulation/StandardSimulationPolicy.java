@@ -23,11 +23,6 @@ public final class StandardSimulationPolicy<TAction extends Action, TEdge extend
     }
 
     @Override
-    protected boolean select(final Object context, final StandardSearchNode<TAction, TEdge, TState> searchNode) {
-        return true;
-    }
-
-    @Override
-    protected void exit(final Object context) {
+    protected void cleanUp(final Object context) {
     }
 }

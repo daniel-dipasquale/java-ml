@@ -1,6 +1,6 @@
 package com.dipasquale.simulation.game2048;
 
-import com.dipasquale.search.mcts.SearchNodeResult;
+import com.dipasquale.search.mcts.SearchResult;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -44,17 +44,17 @@ public final class ValuedTileAdderPlayer implements Player {
     }
 
     @Override
-    public SearchNodeResult<GameAction, GameState> produceNext(final SearchNodeResult<GameAction, GameState> searchNodeResult) {
-        GameState state = searchNodeResult.getState();
+    public SearchResult<GameAction, GameState> produceNext(final SearchResult<GameAction, GameState> searchResult) {
+        GameState state = searchResult.getState();
 
         GameAction action = state.getDepth() == 0
                 ? generateInitialAction(state)
                 : generateActionToAddValuedTile(state);
 
-        return searchNodeResult.createChild(action);
+        return searchResult.createChild(action);
     }
 
     @Override
-    public void accept(final SearchNodeResult<GameAction, GameState> searchNodeResult) {
+    public void accept(final SearchResult<GameAction, GameState> searchResult) {
     }
 }

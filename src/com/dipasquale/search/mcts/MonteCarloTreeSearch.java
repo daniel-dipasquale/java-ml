@@ -5,12 +5,12 @@ public interface MonteCarloTreeSearch<TAction extends Action, TState extends Sta
     int IN_PROGRESS_STATUS_ID = 0;
     int DRAWN_STATUS_ID = -1;
 
-    SearchNodeResult<TAction, TState> proposeNext(SearchNodeResult<TAction, TState> searchNodeResult);
+    SearchResult<TAction, TState> proposeNext(SearchResult<TAction, TState> searchResult);
 
-    default SearchNodeResult<TAction, TState> proposeFirst(final TState state) {
-        SearchNodeResult<TAction, TState> searchNodeResult = SearchNodeResult.createRoot(state);
+    default SearchResult<TAction, TState> proposeFirst(final TState state) {
+        SearchResult<TAction, TState> searchResult = SearchResult.createRoot(state);
 
-        return proposeNext(searchNodeResult);
+        return proposeNext(searchResult);
     }
 
     void reset();

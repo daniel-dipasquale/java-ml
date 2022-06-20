@@ -1,50 +1,58 @@
 package com.dipasquale.synchronization.event.loop;
 
+import com.dipasquale.common.concurrent.AtomicLazyReference;
 import com.dipasquale.common.error.ErrorHandler;
-import com.dipasquale.common.error.IterableErrorHandler;
+import com.dipasquale.common.error.ErrorHandlerController;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
-import com.dipasquale.synchronization.wait.handle.MultiWaitHandle;
-import lombok.Getter;
+import com.dipasquale.synchronization.wait.handle.WaitHandleController;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 final class RouterEventLoop implements EventLoop {
-    @Getter
-    private final EventLoopId id;
     private final List<EventLoop> eventLoops;
+    private final AtomicLazyReference<List<Long>> threadIds;
     private final EventLoopSelector selector;
-    private final MultiWaitHandle eventLoops_handlingEvents_waitHandle;
-    private final IterableErrorHandler<EventLoop> eventLoops_shutdownHandler;
+    private final WaitHandleController eventLoops_busy_waitHandle;
+    private final ErrorHandlerController<EventLoop> eventLoops_shutdownHandler;
 
-    private static List<EventLoop> createEventLoops(final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final RouterEventLoop entryPoint) {
+    private static List<EventLoop> createEventLoops(final EventLoopFactory.Proxy factoryProxy, final int size, final RouterEventLoop entryPoint) {
         List<EventLoop> eventLoops = new ArrayList<>();
 
-        for (int i = 0; i < count; i++) {
-            EventLoop eventLoop = eventLoopFactoryProxy.create(entryPoint);
+        for (int i = 0; i < size; i++) {
+            EventLoop eventLoop = factoryProxy.create(entryPoint);
 
             eventLoops.add(eventLoop);
         }
 
-        return Collections.unmodifiableList(eventLoops);
+        return eventLoops;
     }
 
-    RouterEventLoop(final EventLoopId id, final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final EventLoopSelector selector, final DateTimeSupport dateTimeSupport) {
-        List<EventLoop> eventLoops = createEventLoops(eventLoopFactoryProxy, count, this);
+    RouterEventLoop(final EventLoopFactory.Proxy factoryProxy, final int size, final EventLoopSelector selector, final DateTimeSupport dateTimeSupport) {
+        List<EventLoop> eventLoops = createEventLoops(factoryProxy, size, this);
 
-        this.id = id;
         this.eventLoops = eventLoops;
+        this.threadIds = new AtomicLazyReference<>(this::captureThreadIds);
         this.selector = selector;
-        this.eventLoops_handlingEvents_waitHandle = new MultiWaitHandle(eventLoops, dateTimeSupport, __ -> !isEmpty());
-        this.eventLoops_shutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
+        this.eventLoops_busy_waitHandle = new WaitHandleController(eventLoops, dateTimeSupport, __ -> !isEmpty());
+        this.eventLoops_shutdownHandler = new ErrorHandlerController<>(eventLoops, EventLoop::shutdown);
+    }
+
+    private List<Long> captureThreadIds() {
+        List<Long> threadIds = new ArrayList<>();
+
+        for (EventLoop eventLoop : eventLoops) {
+            threadIds.addAll(eventLoop.getThreadIds());
+        }
+
+        return List.copyOf(threadIds);
     }
 
     @Override
-    public int getConcurrencyLevel() {
-        return eventLoops.size();
+    public List<Long> getThreadIds() {
+        return threadIds.getReference();
     }
 
     private EventLoop getNextEventLoop() {
@@ -72,13 +80,13 @@ final class RouterEventLoop implements EventLoop {
     @Override
     public void await()
             throws InterruptedException {
-        eventLoops_handlingEvents_waitHandle.await();
+        eventLoops_busy_waitHandle.await();
     }
 
     @Override
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return eventLoops_handlingEvents_waitHandle.await(timeout, unit);
+        return eventLoops_busy_waitHandle.await(timeout, unit);
     }
 
     @Override
@@ -89,10 +97,5 @@ final class RouterEventLoop implements EventLoop {
     @Override
     public void shutdown() {
         eventLoops_shutdownHandler.handleAll("unable to shutdown the event loops");
-    }
-
-    @Override
-    public String toString() {
-        return id.toString();
     }
 }

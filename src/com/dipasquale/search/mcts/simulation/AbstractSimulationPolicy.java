@@ -22,60 +22,45 @@ public abstract class AbstractSimulationPolicy<TAction extends Action, TEdge ext
     protected abstract void visit(TContext context, TSearchNode searchNode);
 
     private boolean allowSimulation(final int simulations, final int initialDepth, final int nextDepth, final TState state) {
-        return comprehensiveSeekPolicy.allowSimulation(simulations, initialDepth, nextDepth, state.getParticipantId()) || !state.isIntentional();
+        return state.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID && (!state.isIntentional() || comprehensiveSeekPolicy.allowSimulation(simulations, initialDepth, nextDepth, state.getParticipantId()));
     }
 
-    protected abstract boolean select(TContext context, TSearchNode searchNode);
-
-    protected abstract void exit(TContext context);
-
-    private TSearchNode selectLeafIfAllowed(final TContext context, final TSearchNode searchNode) {
-        if (!select(context, searchNode)) {
-            return null; // TODO: keep track of how many times this happens
-        }
-
+    protected TSearchNode select(final TContext context, final TSearchNode searchNode) {
         return searchNode;
     }
+
+    protected abstract void cleanUp(TContext context);
 
     @Override
     public TSearchNode simulate(final int simulations, final TSearchNode selectedSearchNode) {
         TContext context = createContext();
+        TSearchNode currentSearchNode = selectedSearchNode;
+        TState currentState = currentSearchNode.getState();
+        int initialDepth = currentSearchNode.getStateId().getDepth();
+        int nextDepth = initialDepth + 1;
 
         try {
-            TSearchNode currentSearchNode = selectedSearchNode;
-            TState currentState = currentSearchNode.getState();
-            int initialDepth = currentSearchNode.getStateId().getDepth();
-            int nextDepth = initialDepth + 1;
-
-            for (boolean isFirstVisit = true; currentState.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; ) {
-                if (!allowSimulation(simulations, initialDepth, nextDepth, currentState)) {
-                    return selectLeafIfAllowed(context, currentSearchNode);
-                }
-
-                if (isFirstVisit) {
-                    visit(context, currentSearchNode);
-                    isFirstVisit = false;
-                }
-
-                TSearchNode childSearchNode = traversalPolicy.next(simulations, currentSearchNode);
-
-                if (childSearchNode == null) {
-                    return selectLeafIfAllowed(context, currentSearchNode);
-                }
-
-                currentSearchNode = childSearchNode;
-                currentState = currentSearchNode.getState();
-                nextDepth++;
+            if (allowSimulation(simulations, initialDepth, nextDepth, currentState)) {
                 visit(context, currentSearchNode);
 
-                if (!currentSearchNode.isExpanded()) {
+                do {
+                    TSearchNode childSearchNode = traversalPolicy.next(simulations, currentSearchNode);
+
+                    if (childSearchNode == null) {
+                        return select(context, currentSearchNode);
+                    }
+
+                    currentSearchNode = childSearchNode;
+                    currentState = currentSearchNode.getState();
+                    nextDepth++;
+                    visit(context, currentSearchNode);
                     expansionPolicy.expand(currentSearchNode);
-                }
+                } while (allowSimulation(simulations, initialDepth, nextDepth, currentState));
             }
 
-            return selectLeafIfAllowed(context, currentSearchNode);
+            return select(context, currentSearchNode);
         } finally {
-            exit(context);
+            cleanUp(context);
         }
     }
 }

@@ -40,12 +40,12 @@ final class MultiThreadContextParallelismSupport implements Context.ParallelismS
 
     @Override
     public <T> void forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        forEach(unhandledExceptions -> eventLoop.queue(iterator, ItemHandler.createProxy(itemHandler), unhandledExceptions::add));
+        forEach(unhandledExceptions -> eventLoop.queue(iterator, ItemHandler.adapt(itemHandler), unhandledExceptions::add));
     }
 
     @Override
     public <T> void forEach(final List<T> list, final Consumer<T> itemHandler) {
-        forEach(unhandledExceptions -> eventLoop.queue(list, ItemHandler.createProxy(itemHandler), unhandledExceptions::add));
+        forEach(unhandledExceptions -> eventLoop.queue(list, ItemHandler.adapt(itemHandler), unhandledExceptions::add));
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -57,7 +57,7 @@ final class MultiThreadContextParallelismSupport implements Context.ParallelismS
 
         @Override
         public int numberOfThreads() {
-            return eventLoop.getConcurrencyLevel();
+            return eventLoop.getThreadIds().size();
         }
     }
 

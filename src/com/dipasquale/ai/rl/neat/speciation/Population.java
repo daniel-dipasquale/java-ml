@@ -177,16 +177,12 @@ public final class Population {
 
         assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty();
-
         reproduceThroughAllSpecies(selectionContext);
         populationState.increaseGeneration();
         context.metrics().prepareNextGeneration();
-
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert context.speciation().getDisposedGenomeIdCount() == organismsToBirth.size();
-
         assignOrganismsToSpecies(context);
-
         assert context.general().params().populationSize() == countOrganismsEverywhere();
         assert organismsWithoutSpecies.isEmpty();
         assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
