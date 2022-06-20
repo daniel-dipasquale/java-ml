@@ -1,105 +1,44 @@
 package com.dipasquale.search.mcts;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+public interface SearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+    int NO_SELECTED_EXPLORABLE_CHILD_KEY = -1;
 
-import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+    TSearchNode getParent();
 
-@Getter
-public final class SearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
-    static final int NO_CHILD_SELECTED_INDEX = -1;
-    @Getter(AccessLevel.NONE)
-    private WeakReference<SearchNode<TAction, TEdge, TState>> parent;
-    @Getter(AccessLevel.NONE)
-    private WeakReference<SearchNode<TAction, TEdge, TState>> owner;
-    private TAction action;
-    private final TEdge edge;
-    @Setter(AccessLevel.PRIVATE)
-    private TState state;
-    @Setter
-    private List<SearchNode<TAction, TEdge, TState>> unexploredChildren;
-    @Setter
-    private List<SearchNode<TAction, TEdge, TState>> explorableChildren;
-    @Setter
-    private List<SearchNode<TAction, TEdge, TState>> fullyExploredChildren;
-    @Setter
-    private int selectedExplorableChildIndex;
+    SearchNodeResult<TAction, TState> getResult();
 
-    private SearchNode(final TEdge edge, final TState state) {
-        this.parent = new WeakReference<>(null);
-        this.owner = new WeakReference<>(this);
-        this.action = state.getLastAction();
-        this.edge = edge;
-        this.state = state;
-        this.unexploredChildren = null;
-        this.explorableChildren = null;
-        this.fullyExploredChildren = null;
-        this.selectedExplorableChildIndex = NO_CHILD_SELECTED_INDEX;
-    }
+    TAction getAction();
 
-    private SearchNode(final SearchNode<TAction, TEdge, TState> parent, final TAction action, final TEdge edge) {
-        this.parent = new WeakReference<>(parent);
-        this.owner = new WeakReference<>(parent);
-        this.action = action;
-        this.edge = edge;
-        this.state = null;
-        this.unexploredChildren = null;
-        this.explorableChildren = null;
-        this.fullyExploredChildren = null;
-        this.selectedExplorableChildIndex = NO_CHILD_SELECTED_INDEX;
-    }
+    TEdge getEdge();
 
-    static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> SearchNode<TAction, TEdge, TState> createRoot(final EdgeFactory<TEdge> edgeFactory, final TState state) {
-        return new SearchNode<>(edgeFactory.create(), state);
-    }
+    TState getState();
 
-    public SearchNode<TAction, TEdge, TState> getParent() {
-        if (parent == null) {
-            return null;
-        }
+    StateId getStateId();
 
-        return parent.get();
-    }
+    void reinitialize(SearchNodeResult<TAction, TState> result);
 
-    public void reinitialize(final TState state) {
-        parent = null;
-        owner = new WeakReference<>(this);
-        action = state.getLastAction();
-        setState(state);
-    }
+    Iterable<TSearchNode> createAllPossibleChildren(EdgeFactory<TEdge> edgeFactory);
 
-    public List<SearchNode<TAction, TEdge, TState>> createAllPossibleChildNodes(final EdgeFactory<TEdge> edgeFactory) {
-        Iterable<TAction> possibleActions = state.createAllPossibleActions();
+    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getUnexploredChildren();
 
-        return StreamSupport.stream(possibleActions.spliterator(), false)
-                .map(action -> new SearchNode<>(this, action, edgeFactory.create()))
-                .collect(Collectors.toList());
-    }
+    void setUnexploredChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> unexploredChildren);
 
-    public void initializeState() {
-        TState state = owner.get().state.accept(action);
+    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getExplorableChildren();
 
-        setState(state);
-    }
+    void setExplorableChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> explorableChildren);
 
-    public boolean isExpanded() {
-        return unexploredChildren != null;
-    }
+    SearchNodeGroup<TAction, TEdge, TState, TSearchNode> getFullyExploredChildren();
 
-    public boolean isFullyExplored() {
-        return isExpanded() && unexploredChildren.isEmpty() && explorableChildren.isEmpty();
-    }
+    void setFullyExploredChildren(SearchNodeGroup<TAction, TEdge, TState, TSearchNode> fullyExploredChildren);
+
+    int getSelectedExplorableChildKey();
+
+    void setSelectedExplorableChildKey(int key);
+
+    boolean isExpanded();
+
+    boolean isFullyExplored();
 
     @Override
-    public String toString() {
-        if (state == null) {
-            return String.format("depth: UNKNOWN, actionId: %d, statusId: UNKNOWN", action.getId());
-        }
-
-        return String.format("depth: %d, actionId: %d, statusId: %d", state.getDepth(), action.getId(), state.getStatusId());
-    }
+    String toString();
 }

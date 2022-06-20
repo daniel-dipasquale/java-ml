@@ -25,14 +25,14 @@ public final class EventLoopSettings {
     private final String name;
     @Builder.Default
     private final int concurrencyLevel = 1;
-    private final EventLoopSelector eventLoopSelector;
+    private final EventLoopSelector selector;
     private final ErrorHandler errorHandler;
 
     private static Map<EventLoopType, EventLoopFactory> createEventLoopFactories() {
         Map<EventLoopType, EventLoopFactory> eventLoopFactories = new EnumMap<>(EventLoopType.class);
 
         eventLoopFactories.put(EventLoopType.EXPLICIT_DELAY, new ExplicitDelayEventLoopFactory());
-        eventLoopFactories.put(EventLoopType.NO_DELAY, NoDelayEventLoop::new);
+        eventLoopFactories.put(EventLoopType.ZERO_DELAY, ZeroDelayEventLoop::new);
 
         return eventLoopFactories;
     }

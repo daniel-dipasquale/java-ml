@@ -1,15 +1,15 @@
 package com.dipasquale.search.mcts.alphazero;
 
-import com.dipasquale.search.mcts.common.TechniqueEdge;
+import com.dipasquale.search.mcts.heuristic.HeuristicEdge;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 @Setter
-public final class AlphaZeroEdge implements TechniqueEdge {
+public final class AlphaZeroEdge implements HeuristicEdge {
     @Getter
     @Setter(AccessLevel.NONE)
     private int visited = 0;

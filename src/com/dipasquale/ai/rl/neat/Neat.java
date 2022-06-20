@@ -20,7 +20,7 @@ public final class Neat {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
                         .genesisGenomeTemplate(AVOID_NULL_POINTER_GENESIS_GENOME_TEMPLATE)
-                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> 0f)
+                        .fitnessFunction((ConfinedNeatEnvironment) genomeActivator -> 0f)
                         .build())
                 .build();
     }

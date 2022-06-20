@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.gate.DualModeIsLessThanRandomGate;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
@@ -43,7 +43,7 @@ final class ContextObjectCrossOverSupport implements Context.CrossOverSupport {
         shouldUseWeightFromRandomParentGate = DualModeObject.activateMode(stateGroup.get("crossOver.shouldUseWeightFromRandomParentGate"), concurrencyLevel);
     }
 
-    public void load(final SerializableStateGroup stateGroup, final BatchingEventLoop eventLoop) {
+    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
         load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

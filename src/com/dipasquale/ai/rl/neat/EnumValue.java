@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRando
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeSequentialEnumFactory;
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.common.factory.LiteralEnumFactory;
-import com.dipasquale.data.structure.collection.Lists;
+import com.dipasquale.data.structure.collection.ListSupport;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeEnumFactory;
 import lombok.AccessLevel;
@@ -51,7 +51,7 @@ public final class EnumValue<T extends Enum<T>> {
     private static <T extends Enum<T>> EnumValue<T> createRandom(final T[] values) {
         return EnumValue.<T>builder()
                 .factoryCreator(initializationContext -> {
-                    DualModeRandomEnumFactory<T> enumFactory = new DualModeRandomEnumFactory<>(initializationContext.createDefaultRandomSupport(), Lists.create(values));
+                    DualModeRandomEnumFactory<T> enumFactory = new DualModeRandomEnumFactory<>(initializationContext.createDefaultRandomSupport(), ListSupport.create(values));
 
                     return createFactoryAdapter(enumFactory);
                 })

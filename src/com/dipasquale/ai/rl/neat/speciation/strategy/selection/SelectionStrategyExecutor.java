@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.data.structure.deque.NodeDeque;
-import com.dipasquale.data.structure.deque.PlainNode;
+import com.dipasquale.data.structure.deque.StandardNode;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -16,10 +16,10 @@ public final class SelectionStrategyExecutor implements Serializable {
     private static final long serialVersionUID = -683595110196707789L;
     private final Collection<SelectionStrategy> strategies;
 
-    public void select(final SelectionContext context, final NodeDeque<Species, PlainNode<Species>> speciesNodes) {
+    public void select(final SelectionContext context, final NodeDeque<Species, StandardNode<Species>> speciesNodes) {
         Context.MetricsSupport metricsSupport = context.getParent().metrics();
 
-        for (PlainNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
+        for (StandardNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
             Species species = speciesNodes.getValue(speciesNode);
             boolean survives = species.shouldSurvive();
 
@@ -34,7 +34,7 @@ public final class SelectionStrategyExecutor implements Serializable {
             metricsSupport.collectExtinction(species, !survives);
 
             if (!survives) {
-                PlainNode<Species> speciesNodeNext = speciesNodes.peekNext(speciesNode);
+                StandardNode<Species> speciesNodeNext = speciesNodes.peekNext(speciesNode);
 
                 speciesNodes.remove(speciesNode);
                 speciesNode = speciesNodeNext;

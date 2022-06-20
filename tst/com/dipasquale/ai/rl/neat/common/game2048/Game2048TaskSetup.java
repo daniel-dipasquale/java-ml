@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.common.game2048;
 
-import com.dipasquale.ai.common.NeuralNetworkDecoder;
 import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
 import com.dipasquale.ai.rl.neat.ActivationSupport;
+import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
@@ -14,13 +14,12 @@ import com.dipasquale.ai.rl.neat.GeneralSupport;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.MetricsSupport;
 import com.dipasquale.ai.rl.neat.MutationSupport;
-import com.dipasquale.ai.rl.neat.NeatTrainingPolicies;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
+import com.dipasquale.ai.rl.neat.NeatTrainingPolicyController;
 import com.dipasquale.ai.rl.neat.NodeGeneSupport;
 import com.dipasquale.ai.rl.neat.ParallelismSupport;
 import com.dipasquale.ai.rl.neat.RandomType;
@@ -35,16 +34,16 @@ import com.dipasquale.ai.rl.neat.phenotype.DoubleSolutionNeuronLayerTopologyDefi
 import com.dipasquale.ai.rl.neat.phenotype.IdentityNeuronLayerTopologyDefinition;
 import com.dipasquale.ai.rl.neat.phenotype.NeuronLayerTopologyDefinition;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
-import com.dipasquale.search.mcts.CacheType;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroNeuralNetworkDecoder;
-import com.dipasquale.search.mcts.alphazero.AlphaZeroPrediction;
-import com.dipasquale.search.mcts.alphazero.BackPropagationType;
-import com.dipasquale.search.mcts.alphazero.NeuralNetworkAlphaZeroContext;
-import com.dipasquale.search.mcts.alphazero.PredictionBehaviorType;
-import com.dipasquale.search.mcts.alphazero.RootExplorationProbabilityNoiseSettings;
-import com.dipasquale.search.mcts.common.CPuctCalculator;
-import com.dipasquale.search.mcts.common.RewardHeuristic;
-import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
+import com.dipasquale.search.mcts.StandardSearchNode;
+import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
+import com.dipasquale.search.mcts.alphazero.expansion.RootExplorationProbabilityNoiseSettings;
+import com.dipasquale.search.mcts.alphazero.selection.AlphaZeroNeuralNetworkDecoder;
+import com.dipasquale.search.mcts.alphazero.selection.PredictionBehaviorType;
+import com.dipasquale.search.mcts.buffer.BufferType;
+import com.dipasquale.search.mcts.heuristic.selection.CPuctAlgorithm;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RosinCPuctAlgorithm;
+import com.dipasquale.search.mcts.propagation.BackPropagationType;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;
 import com.dipasquale.simulation.game2048.Player;
@@ -60,7 +59,7 @@ import com.dipasquale.simulation.game2048.heuristic.TwinValuedTileRewardHeuristi
 import com.dipasquale.simulation.game2048.heuristic.UniformityRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.WeightedBoardRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.WeightedBoardType;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -78,7 +77,7 @@ public final class Game2048TaskSetup implements TaskSetup {
     private static final float ROOT_EXPLORATION_PROBABILITY_NOISE_SHAPE = 0.03f;
     private static final float ROOT_EXPLORATION_PROBABILITY_NOISE_EPSILON = 0.25f;
     private static final RootExplorationProbabilityNoiseType ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE = RootExplorationProbabilityNoiseType.NONE;
-    private static final CacheType CACHE_TYPE = CacheType.AUTO_CLEAR;
+    private static final BufferType CACHE_TYPE = BufferType.AUTO_CLEAR;
     private static final PopulationSettingsType POPULATION_SETTINGS_TYPE = PopulationSettingsType.VANILLA;
     private static final VectorEncodingType VECTOR_ENCODING_TYPE = VectorEncodingType.INTEGER;
     private static final InputTopologySettingsType INPUT_TOPOLOGY_SETTINGS_TYPE = InputTopologySettingsType.VALUE_PER_ROW;
@@ -86,7 +85,7 @@ public final class Game2048TaskSetup implements TaskSetup {
     private static final OutputTopologySettingsType OUTPUT_TOPOLOGY_SETTINGS_TYPE = OutputTopologySettingsType.DOUBLE;
     private static final ValueHeuristicSettingsType VALUE_HEURISTIC_SETTINGS_TYPE = ValueHeuristicSettingsType.AVERAGE_VALUED_TILE;
     private static final float C_PUCT_CONSTANT = 1f;
-    private static final CPuctCalculatorType C_PUCT_CALCULATOR_TYPE = CPuctCalculatorType.CONSTANT;
+    private static final CPuctAlgorithmType C_PUCT_ALGORITHM_TYPE = CPuctAlgorithmType.CONSTANT;
     private static final BackPropagationType BACK_PROPAGATION_TYPE = BackPropagationType.IDENTITY;
     private static final int TEMPERATURE_DEPTH_THRESHOLD = 90;
     private static final int VICTORY_VALUE = 11;
@@ -96,12 +95,12 @@ public final class Game2048TaskSetup implements TaskSetup {
     private static final RandomOutcomeGameSupport GAME_SUPPORT = RandomOutcomeGameSupport.builder()
             .maximumExpansions(MAXIMUM_EXPANSIONS)
             .rootExplorationProbabilityNoise(ROOT_EXPLORATION_PROBABILITY_NOISE_TYPE.reference)
-            .cacheType(CACHE_TYPE)
+            .bufferType(CACHE_TYPE)
             .encoder(INPUT_TOPOLOGY_SETTINGS_TYPE.encoder)
             .decoder(OUTPUT_TOPOLOGY_SETTINGS_TYPE.decoder)
             .rewardHeuristic(VALUE_HEURISTIC_SETTINGS_TYPE.reference)
             .explorationHeuristic(GameExplorationHeuristic.getInstance())
-            .cpuctCalculator(C_PUCT_CALCULATOR_TYPE.reference)
+            .cpuctAlgorithm(C_PUCT_ALGORITHM_TYPE.reference)
             .backPropagationType(BACK_PROPAGATION_TYPE)
             .temperatureDepthThreshold(TEMPERATURE_DEPTH_THRESHOLD)
             .gameFactory(GAME_FACTORY)
@@ -118,7 +117,7 @@ public final class Game2048TaskSetup implements TaskSetup {
     private final boolean metricsEmissionEnabled;
 
     @Override
-    public EvaluatorSettings createSettings(final Set<String> genomeIds, final BatchingEventLoop eventLoop) {
+    public EvaluatorSettings createSettings(final Set<String> genomeIds, final ParallelEventLoop eventLoop) {
         return EvaluatorSettings.builder()
                 .general(GeneralSupport.builder()
                         .populationSize(populationSize)
@@ -129,7 +128,7 @@ public final class Game2048TaskSetup implements TaskSetup {
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
+                        .fitnessFunction((ConfinedNeatEnvironment) genomeActivator -> {
                             genomeIds.add(genomeActivator.getGenome().getId());
 
                             return ENVIRONMENT_SETTINGS_TYPE.reference.test(genomeActivator);
@@ -175,7 +174,7 @@ public final class Game2048TaskSetup implements TaskSetup {
 
     @Override
     public NeatTrainingPolicy createTrainingPolicy() {
-        return NeatTrainingPolicies.builder()
+        return NeatTrainingPolicyController.builder()
                 .add(SupervisorTrainingPolicy.builder()
                         .maximumGeneration(10_000_000)
                         .maximumRestartCount(5)
@@ -229,7 +228,7 @@ public final class Game2048TaskSetup implements TaskSetup {
         VANILLA_NO_VALUE(4,
                 EnumValue.literal(OutputActivationFunctionType.SIGMOID),
                 IdentityNeuronLayerTopologyDefinition.getInstance(),
-                AlphaZeroNeuralNetworkDecoder.<GameAction, GameState>builder()
+                AlphaZeroNeuralNetworkDecoder.<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>>builder()
                         .perspectiveParticipantId(1)
                         .behaviorTypes(PREDICTION_BEHAVIOR_TYPES)
                         .valueIndex(-1)
@@ -240,7 +239,7 @@ public final class Game2048TaskSetup implements TaskSetup {
                         .add(4, OutputActivationFunctionType.SIGMOID)
                         .build()),
                 IdentityNeuronLayerTopologyDefinition.getInstance(),
-                AlphaZeroNeuralNetworkDecoder.<GameAction, GameState>builder()
+                AlphaZeroNeuralNetworkDecoder.<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>>builder()
                         .perspectiveParticipantId(1)
                         .behaviorTypes(PREDICTION_BEHAVIOR_TYPES)
                         .valueIndex(0)
@@ -248,7 +247,7 @@ public final class Game2048TaskSetup implements TaskSetup {
         DOUBLE_NO_VALUE(8,
                 EnumValue.literal(OutputActivationFunctionType.SIGMOID),
                 DoubleSolutionNeuronLayerTopologyDefinition.getInstance(),
-                AlphaZeroNeuralNetworkDecoder.<GameAction, GameState>builder()
+                AlphaZeroNeuralNetworkDecoder.<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>>builder()
                         .perspectiveParticipantId(1)
                         .behaviorTypes(PREDICTION_BEHAVIOR_TYPES)
                         .valueIndex(-1)
@@ -259,7 +258,7 @@ public final class Game2048TaskSetup implements TaskSetup {
                         .add(8, OutputActivationFunctionType.SIGMOID)
                         .build()),
                 DoubleSolutionNeuronLayerTopologyDefinition.getInstance(),
-                AlphaZeroNeuralNetworkDecoder.<GameAction, GameState>builder()
+                AlphaZeroNeuralNetworkDecoder.<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>>builder()
                         .perspectiveParticipantId(1)
                         .behaviorTypes(PREDICTION_BEHAVIOR_TYPES)
                         .valueIndex(0)
@@ -268,7 +267,7 @@ public final class Game2048TaskSetup implements TaskSetup {
         private final int nodeCount;
         private final EnumValue<OutputActivationFunctionType> activationFunction;
         private final NeuronLayerTopologyDefinition topologyDefinition;
-        private final NeuralNetworkDecoder<AlphaZeroPrediction<GameAction, GameState>, NeuralNetworkAlphaZeroContext<GameAction, GameState>> decoder;
+        private final AlphaZeroNeuralNetworkDecoder<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>> decoder;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -285,11 +284,11 @@ public final class Game2048TaskSetup implements TaskSetup {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private enum CPuctCalculatorType {
+    private enum CPuctAlgorithmType {
         CONSTANT((simulations, visited) -> C_PUCT_CONSTANT),
-        ROSIN(new RosinCPuctCalculator());
+        ROSIN(new RosinCPuctAlgorithm());
 
-        private final CPuctCalculator reference;
+        private final CPuctAlgorithm reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -297,7 +296,7 @@ public final class Game2048TaskSetup implements TaskSetup {
         SCORE_BY_VALUED_TILE_COUNT(new ScoreByValuedTileCountEnvironment(GAME_SUPPORT)),
         AVERAGE_VALUED_TILE(new AverageValuedTileEnvironment(GAME_SUPPORT));
 
-        private final IsolatedNeatEnvironment reference;
+        private final ConfinedNeatEnvironment reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

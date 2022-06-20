@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts;
 
+@FunctionalInterface
 public interface Action {
-    TreeId getTreeId();
-
     int getId();
 }

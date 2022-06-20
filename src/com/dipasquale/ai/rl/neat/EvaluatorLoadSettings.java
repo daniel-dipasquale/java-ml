@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter(AccessLevel.PACKAGE)
 public final class EvaluatorLoadSettings {
     private final NeatEnvironment fitnessFunction;
-    private final BatchingEventLoop eventLoop;
+    private final ParallelEventLoop eventLoop;
 
     Context.StateOverrideSupport createContext() {
         return new ContextObjectStateOverrideSupport(fitnessFunction, eventLoop);

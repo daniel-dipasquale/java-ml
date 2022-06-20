@@ -1,13 +1,13 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ContextObjectStateOverrideSupport implements Context.StateOverrideSupport {
     private final NeatEnvironment fitnessFunction;
-    private final BatchingEventLoop eventLoop;
+    private final ParallelEventLoop eventLoop;
 
     @Override
     public NeatEnvironment fitnessFunction() {
@@ -15,7 +15,7 @@ final class ContextObjectStateOverrideSupport implements Context.StateOverrideSu
     }
 
     @Override
-    public BatchingEventLoop eventLoop() {
+    public ParallelEventLoop eventLoop() {
         return eventLoop;
     }
 }

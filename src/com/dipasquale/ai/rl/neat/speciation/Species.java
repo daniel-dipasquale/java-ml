@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.speciation.organism.MutateSingleOrganismFactory
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
 import com.dipasquale.common.Pair;
-import com.dipasquale.data.structure.collection.Lists;
+import com.dipasquale.data.structure.collection.ListSupport;
 import com.dipasquale.data.structure.set.DequeSet;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -65,7 +65,7 @@ public final class Species implements Serializable {
 
     private void initializeOrganisms(final Organism organism) {
         representativeOrganism = organism;
-        setOrganisms(Lists.create(organism));
+        setOrganisms(ListSupport.create(organism));
         areOrganismsSorted = true;
     }
 

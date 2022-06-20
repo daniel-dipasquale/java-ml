@@ -11,8 +11,8 @@ import com.dipasquale.ai.rl.neat.common.tictactoe.TicTacToeTaskSetup;
 import com.dipasquale.ai.rl.neat.common.xor.XorTaskSetup;
 import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoopSettings;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoopSettings;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,14 +37,14 @@ public final class NeatTest {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
-    private static final BatchingEventLoopSettings EVENT_LOOP_SETTINGS = BatchingEventLoopSettings.builder()
-            .executorService(EXECUTOR_SERVICE)
-            .numberOfThreads(NUMBER_OF_THREADS)
-            .errorHandler(UNHANDLED_EXCEPTIONS::add)
-            .dateTimeSupport(new MillisecondsDateTimeSupport())
+    private static final ParallelEventLoop EVENT_LOOP = ParallelEventLoop.builder()
+            .settings(ParallelEventLoopSettings.builder()
+                    .executorService(EXECUTOR_SERVICE)
+                    .numberOfThreads(NUMBER_OF_THREADS)
+                    .errorHandler(UNHANDLED_EXCEPTIONS::add)
+                    .dateTimeSupport(new MillisecondsDateTimeSupport())
+                    .build())
             .build();
-
-    private static final BatchingEventLoop EVENT_LOOP = new BatchingEventLoop(EVENT_LOOP_SETTINGS);
 
     @BeforeAll
     public static void beforeAll() {

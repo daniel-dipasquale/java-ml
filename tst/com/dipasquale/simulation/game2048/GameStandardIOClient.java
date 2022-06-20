@@ -64,7 +64,8 @@ public final class GameStandardIOClient implements AutoCloseable {
             StandardIOResponse response = client.invoke(request);
 
             return parseValuedTiles(response.getBody());
-        } catch (FailedToConnectException | ConnectionClosedException | ServerErrorException | InvalidResponseException | UnsupportedStatusCodeException e) {
+        } catch (FailedToConnectException | ConnectionClosedException | ServerErrorException |
+                 InvalidResponseException | UnsupportedStatusCodeException e) {
             throw new IORuntimeException(e.getMessage(), e);
         }
     }
@@ -81,7 +82,8 @@ public final class GameStandardIOClient implements AutoCloseable {
             StandardIOResponse response = client.invoke(request);
 
             return parseValuedTiles(response.getBody()).get(0);
-        } catch (FailedToConnectException | ConnectionClosedException | ServerErrorException | InvalidResponseException | UnsupportedStatusCodeException e) {
+        } catch (FailedToConnectException | ConnectionClosedException | ServerErrorException |
+                 InvalidResponseException | UnsupportedStatusCodeException e) {
             throw new IORuntimeException(e.getMessage(), e);
         }
     }

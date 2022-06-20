@@ -7,7 +7,7 @@ import com.dipasquale.ai.rl.neat.NeatTrainer;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
 import com.dipasquale.ai.rl.neat.NeatTrainingResult;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,12 +27,12 @@ public class NeatTestSetup {
     @Getter
     private final TaskSetup task;
     private final Set<String> genomeIds;
-    private final BatchingEventLoop eventLoop;
+    private final ParallelEventLoop eventLoop;
     private final NeatTrainerFactory neatTrainerFactory;
     private final boolean shouldTestPersistence;
 
     @Builder(access = AccessLevel.PUBLIC)
-    private static NeatTestSetup create(final TaskSetup task, final BatchingEventLoop eventLoop, final NeatTrainerFactory trainerFactory, final boolean shouldTestPersistence) {
+    private static NeatTestSetup create(final TaskSetup task, final ParallelEventLoop eventLoop, final NeatTrainerFactory trainerFactory, final boolean shouldTestPersistence) {
         Set<String> genomeIds = eventLoop == null
                 ? new HashSet<>()
                 : Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -141,7 +141,7 @@ public class NeatTestSetup {
         private final String name;
         private final Set<String> genomeIds;
         private final NeatTrainerFactory neatTrainerFactory;
-        private final BatchingEventLoop eventLoop;
+        private final ParallelEventLoop eventLoop;
         private final EvaluatorSettings settings;
         private final NeatTrainingPolicy trainingPolicy;
     }

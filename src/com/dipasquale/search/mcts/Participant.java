@@ -1,7 +1,7 @@
 package com.dipasquale.search.mcts;
 
 public interface Participant<TAction extends Action, TState extends State<TAction, TState>> {
-    TAction createNextAction(TState state);
+    SearchNodeResult<TAction, TState> produceNext(SearchNodeResult<TAction, TState> searchNodeResult);
 
-    void accept(TState state);
+    void accept(SearchNodeResult<TAction, TState> searchNodeResult);
 }

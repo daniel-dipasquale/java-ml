@@ -1,56 +1,42 @@
 package com.dipasquale.search.mcts;
 
 import com.dipasquale.data.structure.iterator.FlatIterator;
+import com.dipasquale.search.mcts.buffer.Buffer;
+import com.dipasquale.search.mcts.proposal.ProposalStrategy;
+import com.dipasquale.search.mcts.seek.SeekStrategy;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Iterator;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class Mcts<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> {
-    private final SearchPolicy searchPolicy;
-    private final Provider<TAction, TEdge, TState> provider;
-    private final SelectionPolicy<TAction, TEdge, TState> selectionPolicy;
-    private final SimulationRolloutPolicy<TAction, TEdge, TState> simulationRolloutPolicy;
-    private final BackPropagationPolicy<TAction, TEdge, TState, ?> backPropagationPolicy;
-    private final ProposalStrategy<TAction, TEdge, TState> proposalStrategy;
+public final class Mcts<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+    private final Buffer<TAction, TEdge, TState, TSearchNode> buffer;
+    private final SeekStrategy<TAction, TEdge, TState, TSearchNode> seekStrategy;
+    private final ProposalStrategy<TAction, TEdge, TState, TSearchNode> proposalStrategy;
     private final List<ResetHandler> resetHandlers;
 
-    private TAction findBestAction(final TState state) {
-        SearchNode<TAction, TEdge, TState> rootSearchNode = provider.recallOrCreate(state);
-        int rootDepth = rootSearchNode.getState().getDepth();
+    private TSearchNode proposeBestNode(final TSearchNode rootSearchNode) {
+        int simulations = rootSearchNode.getEdge().getVisited();
+        int nextDepth = rootSearchNode.getStateId().getDepth() + 1;
+        List<Iterator<TSearchNode>> childSearchNodeIterators = List.of(rootSearchNode.getExplorableChildren().iterator(), rootSearchNode.getFullyExploredChildren().iterator());
+        Iterable<TSearchNode> childSearchNodes = () -> FlatIterator.fromIterators(childSearchNodeIterators);
 
-        for (int simulations = 0, simulationsPlusOne = simulations + 1; simulationsPlusOne - simulations == 1 && searchPolicy.allowSelection(simulationsPlusOne, rootDepth); simulationsPlusOne++) {
-            SearchNode<TAction, TEdge, TState> selectedSearchNode = selectionPolicy.select(simulationsPlusOne, rootSearchNode);
+        return proposalStrategy.proposeBestNode(simulations, nextDepth, childSearchNodes);
+    }
 
-            if (selectedSearchNode != null) {
-                SearchNode<TAction, TEdge, TState> leafSearchNode = simulationRolloutPolicy.simulate(simulations, selectedSearchNode);
+    public SearchNodeResult<TAction, TState> proposeNext(final SearchNodeResult<TAction, TState> searchNodeResult) {
+        TSearchNode rootSearchNode = buffer.provide(searchNodeResult);
 
-                backPropagationPolicy.process(leafSearchNode);
-                simulations = simulationsPlusOne;
-            }
-        }
+        seekStrategy.process(rootSearchNode);
 
-        int nextDepth = rootDepth + 1;
-        List<Iterator<SearchNode<TAction, TEdge, TState>>> childSearchNodeIterators = List.of(rootSearchNode.getExplorableChildren().iterator(), rootSearchNode.getFullyExploredChildren().iterator());
-        Iterable<SearchNode<TAction, TEdge, TState>> childSearchNodes = () -> FlatIterator.fromIterators(childSearchNodeIterators);
-        SearchNode<TAction, TEdge, TState> bestSearchNode = proposalStrategy.proposeBestNode(rootSearchNode.getEdge().getVisited(), nextDepth, childSearchNodes);
+        TSearchNode bestSearchNode = proposeBestNode(rootSearchNode);
 
         if (bestSearchNode != null) {
-            return bestSearchNode.getAction();
+            return bestSearchNode.getResult();
         }
 
         throw new UnableToProposeNextActionException();
-    }
-
-    public TAction proposeNextAction(final TState state) {
-        searchPolicy.begin();
-
-        try {
-            return findBestAction(state);
-        } finally {
-            searchPolicy.end();
-        }
     }
 
     public void reset() {

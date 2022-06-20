@@ -6,7 +6,7 @@ import com.dipasquale.ai.rl.neat.function.activation.IdentityActivationFunction;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.internal.Id;
-import com.dipasquale.common.PlainLongValue;
+import com.dipasquale.common.StandardLongValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ import java.util.stream.StreamSupport;
 
 public final class NeuronNavigatorTest {
     private static List<Id> createNodeIds(final int count) {
-        NumberSequentialIdFactory nodeIdFactory = new NumberSequentialIdFactory(new PlainLongValue(0L));
+        NumberSequentialIdFactory nodeIdFactory = new NumberSequentialIdFactory(new StandardLongValue(0L));
 
         return IntStream.range(0, count)
                 .mapToObj(__ -> new Id(new StrategyNumberSequentialId("test", nodeIdFactory.create())))

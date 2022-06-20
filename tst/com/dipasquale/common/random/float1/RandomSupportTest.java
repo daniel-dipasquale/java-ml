@@ -1,7 +1,7 @@
 package com.dipasquale.common.random.float1;
 
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -258,7 +258,7 @@ public final class RandomSupportTest {
         Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);
     }
 
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class FloatValue {
         private float value = 0f;
     }

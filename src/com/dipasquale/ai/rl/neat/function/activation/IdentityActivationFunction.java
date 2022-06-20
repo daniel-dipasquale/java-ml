@@ -1,12 +1,12 @@
 package com.dipasquale.ai.rl.neat.function.activation;
 
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IdentityActivationFunction implements ActivationFunction, Serializable {
     @Serial
     private static final long serialVersionUID = 398303803070080944L;

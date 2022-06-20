@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.iterator;
 
-import com.dipasquale.data.structure.collection.Lists;
+import com.dipasquale.data.structure.collection.ListSupport;
 
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +14,7 @@ public final class ZipIterator<T> implements Iterator<List<T>> {
             return (List<Iterator<T>>) iterators;
         }
 
-        return Lists.createCopyOf(iterators);
+        return ListSupport.copyOf(iterators);
     }
 
     public ZipIterator(final Iterable<Iterator<T>> iterators) {

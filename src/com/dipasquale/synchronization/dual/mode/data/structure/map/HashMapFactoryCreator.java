@@ -4,7 +4,6 @@ import com.dipasquale.common.factory.data.structure.map.MapFactory;
 import com.dipasquale.synchronization.dual.mode.ConcurrencyLevelState;
 import com.dipasquale.synchronization.dual.mode.DualModeFactory;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -13,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HashMapFactoryCreator implements DualModeFactory<MapFactory>, Serializable {
     @Serial
     private static final long serialVersionUID = -7796744561536252207L;

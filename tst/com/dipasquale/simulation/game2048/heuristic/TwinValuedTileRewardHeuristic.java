@@ -1,13 +1,13 @@
 package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TwinValuedTileRewardHeuristic implements RewardHeuristic<GameAction, GameState> {
     private static final int[] POSSIBLE_TWIN_COUNT = {
             2, 3, 3, 2,

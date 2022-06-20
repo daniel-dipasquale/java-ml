@@ -4,7 +4,7 @@ import com.dipasquale.ai.rl.neat.Neat;
 import com.dipasquale.ai.rl.neat.NeatTrainer;
 import com.dipasquale.ai.rl.neat.common.NeatTestSetup;
 import com.dipasquale.ai.rl.neat.common.NeatTrainerFactory;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
 
@@ -17,14 +17,14 @@ public final class NeatTestSetupOpenAIGym extends NeatTestSetup {
     private final OpenAIGymTaskSetup task;
     private final boolean shouldVisualizeSolution;
 
-    private NeatTestSetupOpenAIGym(final OpenAIGymTaskSetup task, final Set<String> genomeIds, final BatchingEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
+    private NeatTestSetupOpenAIGym(final OpenAIGymTaskSetup task, final Set<String> genomeIds, final ParallelEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
         super(task, genomeIds, eventLoop, neatTrainerFactory, shouldTestPersistence);
         this.task = task;
         this.shouldVisualizeSolution = shouldVisualizeSolution;
     }
 
     @Builder(access = AccessLevel.PUBLIC, builderMethodName = "openAIGymBuilder")
-    private static NeatTestSetupOpenAIGym create(final OpenAIGymTaskSetup task, final BatchingEventLoop eventLoop, final NeatTrainerFactory trainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
+    private static NeatTestSetupOpenAIGym create(final OpenAIGymTaskSetup task, final ParallelEventLoop eventLoop, final NeatTrainerFactory trainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
         Set<String> genomeIds = eventLoop != null
                 ? Collections.newSetFromMap(new ConcurrentHashMap<>())
                 : new HashSet<>();

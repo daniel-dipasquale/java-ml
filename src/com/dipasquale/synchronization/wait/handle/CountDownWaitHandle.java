@@ -14,12 +14,15 @@ public final class CountDownWaitHandle implements InteractiveWaitHandle {
     }
 
     @Override
-    public void countUp() {
+    public boolean countUp() {
+        return false;
     }
 
     @Override
-    public void countDown() {
+    public boolean countDown() {
         countDownLatch.countDown();
+
+        return true;
     }
 
     @Override

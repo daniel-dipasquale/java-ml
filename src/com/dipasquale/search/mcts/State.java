@@ -1,8 +1,6 @@
 package com.dipasquale.search.mcts;
 
 public interface State<TAction extends Action, TState extends State<TAction, TState>> {
-    int getDepth();
-
     int getStatusId();
 
     int getParticipantId();
@@ -13,7 +11,7 @@ public interface State<TAction extends Action, TState extends State<TAction, TSt
 
     boolean isNextIntentional();
 
-    TAction getLastAction();
+    TAction createRootAction();
 
     Iterable<TAction> createAllPossibleActions();
 

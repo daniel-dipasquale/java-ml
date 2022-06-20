@@ -1,16 +1,18 @@
 package com.dipasquale.simulation.game2048;
 
+import com.dipasquale.common.JvmWarmup;
 import com.dipasquale.common.random.float1.DeterministicRandomSupport;
 import com.dipasquale.common.random.float1.UniformRandomSupport;
-import com.dipasquale.search.mcts.CacheType;
-import com.dipasquale.search.mcts.alphazero.BackPropagationType;
-import com.dipasquale.search.mcts.common.CPuctCalculator;
-import com.dipasquale.search.mcts.common.ExtendedMaximumSearchPolicy;
-import com.dipasquale.search.mcts.common.RewardHeuristic;
-import com.dipasquale.search.mcts.common.RewardHeuristicController;
-import com.dipasquale.search.mcts.common.RewardHeuristicPermissionType;
-import com.dipasquale.search.mcts.common.RosinCPuctCalculator;
+import com.dipasquale.common.time.MillisecondsDateTimeSupport;
+import com.dipasquale.search.mcts.buffer.BufferType;
 import com.dipasquale.search.mcts.heuristic.HeuristicMonteCarloTreeSearch;
+import com.dipasquale.search.mcts.heuristic.selection.CPuctAlgorithm;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristicController;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristicPermissionType;
+import com.dipasquale.search.mcts.heuristic.selection.RosinCPuctAlgorithm;
+import com.dipasquale.search.mcts.propagation.BackPropagationType;
+import com.dipasquale.search.mcts.seek.MaximumComprehensiveSeekPolicy;
 import com.dipasquale.simulation.game2048.heuristic.AverageValuedTileRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.FreeTileRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.GameExplorationHeuristic;
@@ -19,13 +21,22 @@ import com.dipasquale.simulation.game2048.heuristic.TwinValuedTileRewardHeuristi
 import com.dipasquale.simulation.game2048.heuristic.UniformityRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.WeightedBoardRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.WeightedBoardType;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoopSettings;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class GameTest {
     private static final int VICTORY_VALUE = 11;
@@ -34,7 +45,36 @@ public final class GameTest {
     private static final double C_PUCT_ROSIN_INIT = 2.5D;
     private static final float C_PUCT_CONSTANT = 1f;
     private static final boolean PRINT_FINAL_STATE = true;
-    private static final TestOption TEST_OPTION = TestOption.DISPLAYED_ON_BROWSER_ONLY;
+    private static final TestOption TEST_OPTION = TestOption.BACKGROUND_ONLY;
+    private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
+
+    private static final ParallelEventLoop EVENT_LOOP = ParallelEventLoop.builder()
+            .settings(ParallelEventLoopSettings.builder()
+                    .executorService(EXECUTOR_SERVICE)
+                    .numberOfThreads(NUMBER_OF_THREADS)
+                    .errorHandler(UNHANDLED_EXCEPTIONS::add)
+                    .dateTimeSupport(new MillisecondsDateTimeSupport())
+                    .build())
+            .build();
+
+    @BeforeAll
+    public static void beforeAll() {
+        JvmWarmup.start(100_000);
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        EVENT_LOOP.shutdown();
+        EXECUTOR_SERVICE.shutdown();
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        UNHANDLED_EXCEPTIONS.clear();
+        EVENT_LOOP.clear();
+    }
 
     @Test
     public void TEST_1() {
@@ -59,16 +99,16 @@ public final class GameTest {
         Assertions.assertEquals(actionIds.size(), result.getMoveCount());
     }
 
-    private static GameResult playGame(final Player valuedTileAdderPlayer) {
+    private static GameResult playGame(final Player valuedTileAdderPlayer, final int maximumSelectionCount, final BufferType bufferType, final ParallelEventLoop eventLoop) {
         Game game = new Game(VICTORY_VALUE, valuedTileAdderPlayer);
 
         MctsPlayer player = MctsPlayer.builder()
                 .mcts(HeuristicMonteCarloTreeSearch.<GameAction, GameState>builder()
-                        .searchPolicy(ExtendedMaximumSearchPolicy.builder()
-                                .maximumSelections(200)
-                                .maximumSimulationRolloutDepth(16)
+                        .comprehensiveSeekPolicy(MaximumComprehensiveSeekPolicy.builder()
+                                .maximumSelectionCount(maximumSelectionCount)
+                                .maximumSimulationDepth(16)
                                 .build())
-                        .cacheType(CacheType.AUTO_CLEAR)
+                        .bufferType(bufferType)
                         .rewardHeuristic(RewardHeuristicController.<GameAction, GameState>builder()
                                 .permissionTypes(HeuristicPermissionType.INTENTIONAL_ONLY.reference)
                                 .addHeuristic(HeuristicType.WEIGHTED_BOARD.reference, 1f)
@@ -79,8 +119,9 @@ public final class GameTest {
                                 .addHeuristic(HeuristicType.AVERAGE_VALUED_TILE.reference, 0.0001f)
                                 .build())
                         .explorationHeuristic(GameExplorationHeuristic.getInstance())
-                        .cpuctCalculator(CPuctCalculatorType.ROSIN.reference)
+                        .cpuctAlgorithm(CPuctAlgorithmType.ROSIN.reference)
                         .backPropagationType(BackPropagationType.REVERSED_ON_OPPONENT)
+                        .eventLoop(eventLoop)
                         .build())
                 .debug(PRINT_FINAL_STATE)
                 .build();
@@ -88,33 +129,54 @@ public final class GameTest {
         return game.play(player);
     }
 
-    @Test
-    public void TEST_2() {
-        if (!TEST_OPTION.reference.contains(TestType.INVISIBLE)) {
-            return;
-        }
-
+    private static GameResult playGame(final int maximumSelectionCount, final BufferType bufferType, final ParallelEventLoop eventLoop) {
         UniformRandomSupport locationRandomSupport = new UniformRandomSupport();
         UniformRandomSupport valueRandomSupport = new UniformRandomSupport();
         ValuedTileSupport valuedTileSupport = new ValuedTileSupport(locationRandomSupport, valueRandomSupport);
         Player valuedTileAdderPlayer = new ValuedTileAdderPlayer(valuedTileSupport);
-        GameResult result = playGame(valuedTileAdderPlayer);
 
+        return playGame(valuedTileAdderPlayer, maximumSelectionCount, bufferType, eventLoop);
+    }
+
+    private static void assertGameResult(final GameResult result, final int expectedHighestValue) {
         System.out.printf("score: %d, move count: %d%n", result.getScore(), result.getMoveCount());
-        Assertions.assertTrue(result.getHighestValue() >= VICTORY_VALUE - 1);
+        Assertions.assertTrue(result.getHighestValue() >= expectedHighestValue);
+    }
+
+    private static void assertGamePlay(final int maximumSelectionCount, final BufferType bufferType, final ParallelEventLoop eventLoop, final int expectedHighestValue) {
+        GameResult result = playGame(maximumSelectionCount, bufferType, eventLoop);
+
+        assertGameResult(result, expectedHighestValue);
+    }
+
+    @Test
+    public void TEST_2() {
+        if (!TEST_OPTION.testTypes.contains(TestType.BACKGROUND)) {
+            return;
+        }
+
+        assertGamePlay(200, BufferType.AUTO_CLEAR, null, VICTORY_VALUE - 2);
     }
 
     @Test
     public void TEST_3() {
-        if (!TEST_OPTION.reference.contains(TestType.DISPLAYED_ON_BROWSER)) {
+        if (!TEST_OPTION.testTypes.contains(TestType.DISPLAYED_ON_BROWSER)) {
             return;
         }
 
         StandardIOValuedTileAdderPlayer valuedTileAdderPlayer = new StandardIOValuedTileAdderPlayer();
-        GameResult result = playGame(valuedTileAdderPlayer);
+        GameResult result = playGame(valuedTileAdderPlayer, 200, BufferType.DISABLED, null);
 
-        System.out.printf("score: %d, move count: %d%n", result.getScore(), result.getMoveCount());
-        Assertions.assertTrue(result.getHighestValue() >= VICTORY_VALUE - 1);
+        assertGameResult(result, VICTORY_VALUE);
+    }
+
+    @Test
+    public void TEST_4() {
+        if (!TEST_OPTION.testTypes.contains(TestType.BACKGROUND)) {
+            return;
+        }
+
+        assertGamePlay(500, BufferType.DISABLED, EVENT_LOOP, VICTORY_VALUE);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -139,24 +201,24 @@ public final class GameTest {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private enum CPuctCalculatorType {
+    private enum CPuctAlgorithmType {
         CONSTANT((simulations, visited) -> C_PUCT_CONSTANT),
-        ROSIN(new RosinCPuctCalculator(C_PUCT_ROSIN_BASE, C_PUCT_ROSIN_INIT));
+        ROSIN(new RosinCPuctAlgorithm(C_PUCT_ROSIN_BASE, C_PUCT_ROSIN_INIT));
 
-        private final CPuctCalculator reference;
+        private final CPuctAlgorithm reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TestType {
-        INVISIBLE,
+        BACKGROUND,
         DISPLAYED_ON_BROWSER
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum TestOption {
-        INVISIBLE_ONLY(EnumSet.of(TestType.INVISIBLE)),
+        BACKGROUND_ONLY(EnumSet.of(TestType.BACKGROUND)),
         DISPLAYED_ON_BROWSER_ONLY(EnumSet.of(TestType.DISPLAYED_ON_BROWSER)),
-        ALL(EnumSet.of(TestType.INVISIBLE, TestType.DISPLAYED_ON_BROWSER));
-        private final EnumSet<TestType> reference;
+        ALL(EnumSet.of(TestType.BACKGROUND, TestType.DISPLAYED_ON_BROWSER));
+        private final EnumSet<TestType> testTypes;
     }
 }

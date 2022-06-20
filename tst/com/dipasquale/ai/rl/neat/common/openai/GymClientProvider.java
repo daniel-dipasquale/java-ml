@@ -3,13 +3,13 @@ package com.dipasquale.ai.rl.neat.common.openai;
 import com.dipasquale.common.concurrent.AtomicLazyReference;
 import com.dipasquale.simulation.openai.gym.client.GymClient;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GymClientProvider {
     private static final AtomicLazyReference<GymClient> GYM_CLIENT = new AtomicLazyReference<>(GymClientProvider::create);
 

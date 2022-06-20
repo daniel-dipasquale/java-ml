@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.dual.mode;
 
 import com.dipasquale.common.LongValue;
-import com.dipasquale.common.PlainLongValue;
+import com.dipasquale.common.StandardLongValue;
 import com.dipasquale.common.concurrent.AtomicLongValue;
 import lombok.EqualsAndHashCode;
 
@@ -28,7 +28,7 @@ public final class DualModeLongValue implements LongValue, DualModeObject, Seria
             return new AtomicLongValue(value);
         }
 
-        return new PlainLongValue(value);
+        return new StandardLongValue(value);
     }
 
     @Override

@@ -14,10 +14,10 @@ import java.util.concurrent.TimeUnit;
 
 final class RouterEventLoop implements EventLoop {
     @Getter
-    private final String name;
+    private final EventLoopId id;
     private final List<EventLoop> eventLoops;
-    private final EventLoopSelector eventLoopSelector;
-    private final MultiWaitHandle eventLoops_handlingEventsWaitHandle;
+    private final EventLoopSelector selector;
+    private final MultiWaitHandle eventLoops_handlingEvents_waitHandle;
     private final IterableErrorHandler<EventLoop> eventLoops_shutdownHandler;
 
     private static List<EventLoop> createEventLoops(final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final RouterEventLoop entryPoint) {
@@ -32,13 +32,13 @@ final class RouterEventLoop implements EventLoop {
         return Collections.unmodifiableList(eventLoops);
     }
 
-    RouterEventLoop(final String name, final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final EventLoopSelector eventLoopSelector, final DateTimeSupport dateTimeSupport) {
+    RouterEventLoop(final EventLoopId id, final EventLoopFactory.Proxy eventLoopFactoryProxy, final int count, final EventLoopSelector selector, final DateTimeSupport dateTimeSupport) {
         List<EventLoop> eventLoops = createEventLoops(eventLoopFactoryProxy, count, this);
 
-        this.name = name;
+        this.id = id;
         this.eventLoops = eventLoops;
-        this.eventLoopSelector = eventLoopSelector;
-        this.eventLoops_handlingEventsWaitHandle = new MultiWaitHandle(eventLoops, dateTimeSupport, __ -> !isEmpty());
+        this.selector = selector;
+        this.eventLoops_handlingEvents_waitHandle = new MultiWaitHandle(eventLoops, dateTimeSupport, __ -> !isEmpty());
         this.eventLoops_shutdownHandler = new IterableErrorHandler<>(eventLoops, EventLoop::shutdown);
     }
 
@@ -48,7 +48,7 @@ final class RouterEventLoop implements EventLoop {
     }
 
     private EventLoop getNextEventLoop() {
-        int index = eventLoopSelector.nextIndex(eventLoops);
+        int index = selector.nextIndex(eventLoops);
 
         return eventLoops.get(index);
     }
@@ -72,13 +72,13 @@ final class RouterEventLoop implements EventLoop {
     @Override
     public void await()
             throws InterruptedException {
-        eventLoops_handlingEventsWaitHandle.await();
+        eventLoops_handlingEvents_waitHandle.await();
     }
 
     @Override
     public boolean await(final long timeout, final TimeUnit unit)
             throws InterruptedException {
-        return eventLoops_handlingEventsWaitHandle.await(timeout, unit);
+        return eventLoops_handlingEvents_waitHandle.await(timeout, unit);
     }
 
     @Override
@@ -93,6 +93,6 @@ final class RouterEventLoop implements EventLoop {
 
     @Override
     public String toString() {
-        return name;
+        return id.toString();
     }
 }

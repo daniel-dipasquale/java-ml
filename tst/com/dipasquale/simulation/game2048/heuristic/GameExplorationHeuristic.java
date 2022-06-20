@@ -1,15 +1,15 @@
 package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.ExplorationHeuristic;
+import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.ValuedTile;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GameExplorationHeuristic implements ExplorationHeuristic<GameAction> {
     private static final float[] EXPLORATION_PROBABILITIES = {Game.PROBABILITY_OF_SPAWNING_2, 1f - Game.PROBABILITY_OF_SPAWNING_2};
     private static final GameExplorationHeuristic INSTANCE = new GameExplorationHeuristic();

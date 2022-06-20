@@ -3,9 +3,9 @@ package com.dipasquale.simulation.tictactoe;
 import com.dipasquale.search.mcts.Environment;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Game {
     private static GameResult createResult(final int outcomeId, final GameState state) {
         return new GameResult(outcomeId, state.replicateActionIds());

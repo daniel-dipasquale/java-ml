@@ -4,7 +4,6 @@ import com.dipasquale.common.factory.data.structure.set.SetFactory;
 import com.dipasquale.synchronization.dual.mode.ConcurrencyLevelState;
 import com.dipasquale.synchronization.dual.mode.DualModeFactory;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -14,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HashSetFactoryCreator implements DualModeFactory<SetFactory>, Serializable {
     @Serial
     private static final long serialVersionUID = 4579949282217329702L;

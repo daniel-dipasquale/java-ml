@@ -1,16 +1,14 @@
 package com.dipasquale.search.mcts;
 
+import com.dipasquale.search.mcts.buffer.Buffer;
+
 import java.util.List;
 
 @FunctionalInterface
 public interface ResetHandler {
     void reset();
 
-    static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> List<ResetHandler> create(final Provider<TAction, TEdge, TState> provider) {
-        if (!provider.isAllowedToCollect()) {
-            return List.of();
-        }
-
-        return List.of(provider::clear);
+    static List<ResetHandler> create(final Buffer<?, ?, ?, ?> buffer) {
+        return List.of(buffer::clear);
     }
 }

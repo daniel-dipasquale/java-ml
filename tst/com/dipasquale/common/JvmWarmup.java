@@ -2,10 +2,10 @@ package com.dipasquale.common;
 
 import lombok.AccessLevel;
 import lombok.Generated;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Generated
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JvmWarmup {
     private void invoke() {
     }

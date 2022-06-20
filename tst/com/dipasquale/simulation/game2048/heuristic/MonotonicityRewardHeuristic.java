@@ -1,13 +1,13 @@
 package com.dipasquale.simulation.game2048.heuristic;
 
-import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 import com.dipasquale.simulation.game2048.Game;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MonotonicityRewardHeuristic implements RewardHeuristic<GameAction, GameState> {
     private static final float MAXIMUM = (float) (Game.BOARD_ONE_DIMENSION_LENGTH * 2);
     private static final MonotonicityRewardHeuristic INSTANCE = new MonotonicityRewardHeuristic();

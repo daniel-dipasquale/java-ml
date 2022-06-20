@@ -1,9 +1,9 @@
 package com.dipasquale.common;
 
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LimitSupport {
     public static float getFiniteValue(final float value) {
         if (value == Float.POSITIVE_INFINITY) {

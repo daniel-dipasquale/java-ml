@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public final class ParallelismSupport {
-    private final BatchingEventLoop eventLoop;
+    private final ParallelEventLoop eventLoop;
 
-    public static int getConcurrencyLevel(final BatchingEventLoop eventLoop) {
+    public static int getConcurrencyLevel(final ParallelEventLoop eventLoop) {
         if (eventLoop == null) {
             return 0;
         }

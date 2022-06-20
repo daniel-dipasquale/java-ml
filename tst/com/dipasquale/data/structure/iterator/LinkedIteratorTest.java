@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.iterator;
 
-import com.dipasquale.data.structure.collection.Lists;
+import com.dipasquale.data.structure.collection.ListSupport;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -47,7 +47,7 @@ public final class LinkedIteratorTest {
                 .map(__linkedItem -> __linkedItem.value)
                 .limit(2);
 
-        Assertions.assertEquals(List.of("val-1", "val-2"), Lists.createCopyOf(result.iterator()));
+        Assertions.assertEquals(List.of("val-1", "val-2"), ListSupport.copyOf(result.iterator()));
     }
 
     @Test
@@ -57,7 +57,7 @@ public final class LinkedIteratorTest {
         Stream<String> result = LinkedIterator.createStream(linkedItem, __linkedItem -> __linkedItem.next)
                 .map(__linkedItem -> __linkedItem.value);
 
-        Assertions.assertEquals(List.of("val-1", "val-2", "val-3"), Lists.createCopyOf(result.iterator()));
+        Assertions.assertEquals(List.of("val-1", "val-2", "val-3"), ListSupport.copyOf(result.iterator()));
     }
 
     @AllArgsConstructor

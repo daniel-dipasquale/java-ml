@@ -1,30 +1,37 @@
 package com.dipasquale.search.mcts.classic;
 
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.common.random.float1.UniformRandomSupport;
 import com.dipasquale.search.mcts.Action;
-import com.dipasquale.search.mcts.BackPropagationObserver;
-import com.dipasquale.search.mcts.BackPropagationPolicy;
-import com.dipasquale.search.mcts.CacheType;
-import com.dipasquale.search.mcts.EdgeFactory;
-import com.dipasquale.search.mcts.ExpansionPolicy;
-import com.dipasquale.search.mcts.ExpansionPolicyController;
 import com.dipasquale.search.mcts.Mcts;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
-import com.dipasquale.search.mcts.Provider;
 import com.dipasquale.search.mcts.ResetHandler;
+import com.dipasquale.search.mcts.SearchNode;
+import com.dipasquale.search.mcts.SearchNodeResult;
+import com.dipasquale.search.mcts.StandardSearchNode;
 import com.dipasquale.search.mcts.State;
-import com.dipasquale.search.mcts.common.CommonSelectionPolicy;
-import com.dipasquale.search.mcts.common.CommonSelectionPolicyFactory;
-import com.dipasquale.search.mcts.common.CommonSimulationRolloutPolicy;
-import com.dipasquale.search.mcts.common.CommonSimulationRolloutPolicyFactory;
-import com.dipasquale.search.mcts.common.ExplorationHeuristic;
-import com.dipasquale.search.mcts.common.ExtendedSearchPolicy;
-import com.dipasquale.search.mcts.common.IntentRegulatorExpansionPolicy;
-import com.dipasquale.search.mcts.common.IntentionalExpansionPolicy;
-import com.dipasquale.search.mcts.common.MaximumEfficiencyProposalStrategy;
-import com.dipasquale.search.mcts.common.SelectionType;
-import com.dipasquale.search.mcts.common.UnintentionalExpansionPolicy;
+import com.dipasquale.search.mcts.buffer.Buffer;
+import com.dipasquale.search.mcts.buffer.BufferType;
+import com.dipasquale.search.mcts.classic.concurrent.ConcurrentClassicEdge;
+import com.dipasquale.search.mcts.classic.concurrent.ConcurrentClassicEdgeFactory;
+import com.dipasquale.search.mcts.classic.propagation.ClassicBackPropagationStep;
+import com.dipasquale.search.mcts.classic.proposal.PrevalentActionEfficiencyCalculator;
+import com.dipasquale.search.mcts.classic.selection.ClassicUctAlgorithm;
+import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNode;
+import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
+import com.dipasquale.search.mcts.expansion.ExpansionPolicyController;
+import com.dipasquale.search.mcts.expansion.intention.IntentRegulatorExpansionPolicy;
+import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.UctAlgorithm;
+import com.dipasquale.search.mcts.initialization.InitializationContext;
+import com.dipasquale.search.mcts.initialization.StandardInitializationContext;
+import com.dipasquale.search.mcts.initialization.concurrent.ConcurrentInitializationContext;
+import com.dipasquale.search.mcts.propagation.BackPropagationObserver;
+import com.dipasquale.search.mcts.propagation.BackPropagationPolicy;
+import com.dipasquale.search.mcts.proposal.MaximumEfficiencyProposalStrategy;
+import com.dipasquale.search.mcts.seek.ComprehensiveSeekPolicy;
+import com.dipasquale.search.mcts.seek.SeekStrategy;
+import com.dipasquale.search.mcts.selection.SelectionPolicy;
+import com.dipasquale.search.mcts.simulation.SimulationPolicy;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -35,50 +42,65 @@ import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClassicMonteCarloTreeSearch<TAction extends Action, TState extends State<TAction, TState>> implements MonteCarloTreeSearch<TAction, TState> {
-    private static final EdgeFactory<ClassicEdge> EDGE_FACTORY = ClassicEdgeFactory.getInstance();
-    private static final ClassicSelectionConfidenceCalculator SELECTION_CONFIDENCE_CALCULATOR = new ClassicSelectionConfidenceCalculator();
-    private static final PrevalentActionEfficiencyCalculator PREVALENT_ACTION_EFFICIENCY_CALCULATOR = PrevalentActionEfficiencyCalculator.getInstance();
-    private final Mcts<TAction, ClassicEdge, TState> mcts;
+    private final Mcts<TAction, ?, TState, ?> mcts;
 
-    private static <TAction extends Action, TState extends State<TAction, TState>> ExpansionPolicy<TAction, ClassicEdge, TState> createExpansionPolicy(final RandomSupport randomSupport, final ExplorationHeuristic<TAction> explorationHeuristic, final Provider<TAction, ClassicEdge, TState> provider) {
-        List<ExpansionPolicy<TAction, ClassicEdge, TState>> expansionPolicies = new ArrayList<>();
-        IntentionalExpansionPolicy<TAction, ClassicEdge, TState> intentionalExpansionPolicy = new IntentionalExpansionPolicy<>(EDGE_FACTORY, randomSupport);
+    private static <TAction extends Action, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Buffer<TAction, TEdge, TState, TSearchNode> createBuffer(final BufferType bufferType, final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext) {
+        BufferType fixedBufferType = Objects.requireNonNullElse(bufferType, BufferType.DISABLED);
+
+        return fixedBufferType.create(initializationContext);
+    }
+
+    private static <TAction extends Action, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> createExpansionPolicy(final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final ExplorationHeuristic<TAction> explorationHeuristic, final Buffer<TAction, TEdge, TState, TSearchNode> buffer) {
+        List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies = new ArrayList<>();
+        ExpansionPolicy<TAction, TEdge, TState, TSearchNode> intentionalExpansionPolicy = initializationContext.createIntentionalExpansionPolicy(List.of(), List.of());
 
         if (explorationHeuristic != null) {
-            UnintentionalExpansionPolicy<TAction, ClassicEdge, TState> unintentionalExpansionPolicy = new UnintentionalExpansionPolicy<>(EDGE_FACTORY, explorationHeuristic);
-            IntentRegulatorExpansionPolicy<TAction, ClassicEdge, TState> intentRegulatorExpansionPolicy = new IntentRegulatorExpansionPolicy<>(intentionalExpansionPolicy, unintentionalExpansionPolicy);
+            ExpansionPolicy<TAction, TEdge, TState, TSearchNode> unintentionalExpansionPolicy = initializationContext.createUnintentionalExpansionPolicy(List.of(), List.of());
+            IntentRegulatorExpansionPolicy<TAction, TEdge, TState, TSearchNode> intentRegulatorExpansionPolicy = new IntentRegulatorExpansionPolicy<>(intentionalExpansionPolicy, unintentionalExpansionPolicy);
 
             expansionPolicies.add(intentRegulatorExpansionPolicy);
         } else {
             expansionPolicies.add(intentionalExpansionPolicy);
         }
 
-        if (provider.isAllowedToCollect()) {
-            expansionPolicies.add(provider::collect);
-        }
+        expansionPolicies.add(buffer::put);
 
         return ExpansionPolicyController.provide(expansionPolicies);
     }
 
+    private static <TAction extends Action, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Mcts<TAction, TEdge, TState, TSearchNode> createMcts(final BufferType bufferType, final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final UctAlgorithm<TEdge> uctAlgorithm, final ExplorationHeuristic<TAction> explorationHeuristic, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
+        Buffer<TAction, TEdge, TState, TSearchNode> buffer = createBuffer(bufferType, initializationContext);
+        ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy = createExpansionPolicy(initializationContext, explorationHeuristic, buffer);
+        SelectionPolicy<TAction, TEdge, TState, TSearchNode> selectionPolicy = initializationContext.createSelectionPolicy(uctAlgorithm, expansionPolicy);
+        SimulationPolicy<TAction, TEdge, TState, TSearchNode> simulationPolicy = initializationContext.createSimulationPolicy(expansionPolicy);
+        BackPropagationPolicy<TAction, TEdge, TState, TSearchNode> backPropagationPolicy = initializationContext.createBackPropagationPolicy(ClassicBackPropagationStep.getInstance(), backPropagationObserver);
+        SeekStrategy<TAction, TEdge, TState, TSearchNode> seekStrategy = initializationContext.createSearchStrategy(selectionPolicy, simulationPolicy, backPropagationPolicy);
+        MaximumEfficiencyProposalStrategy<TAction, TEdge, TState, TSearchNode> proposalStrategy = new MaximumEfficiencyProposalStrategy<>(PrevalentActionEfficiencyCalculator.getInstance());
+        List<ResetHandler> resetHandlers = ResetHandler.create(buffer);
+
+        return new Mcts<>(buffer, seekStrategy, proposalStrategy, resetHandlers);
+    }
+
     @Builder
-    public static <TAction extends Action, TState extends State<TAction, TState>> ClassicMonteCarloTreeSearch<TAction, TState> create(final ExtendedSearchPolicy searchPolicy, final CacheType cacheType, final ExplorationHeuristic<TAction> explorationHeuristic, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
-        UniformRandomSupport randomSupport = new UniformRandomSupport();
-        CacheType fixedCacheType = Objects.requireNonNullElse(cacheType, CacheType.NONE);
-        Provider<TAction, ClassicEdge, TState> provider = fixedCacheType.create(EDGE_FACTORY);
-        ExpansionPolicy<TAction, ClassicEdge, TState> expansionPolicy = createExpansionPolicy(randomSupport, explorationHeuristic, provider);
-        CommonSelectionPolicy<TAction, ClassicEdge, TState> selectionPolicy = new CommonSelectionPolicyFactory<>(SELECTION_CONFIDENCE_CALCULATOR, SelectionType.determine(explorationHeuristic), expansionPolicy).create();
-        CommonSimulationRolloutPolicy<TAction, ClassicEdge, TState> simulationRolloutPolicy = new CommonSimulationRolloutPolicyFactory<>(searchPolicy, randomSupport, SelectionType.determine(explorationHeuristic), expansionPolicy).create();
-        BackPropagationPolicy<TAction, ClassicEdge, TState, ?> backPropagationPolicy = new BackPropagationPolicy<>(ClassicBackPropagationStep.getInstance(), backPropagationObserver);
-        MaximumEfficiencyProposalStrategy<TAction, ClassicEdge, TState> proposalStrategy = new MaximumEfficiencyProposalStrategy<>(PREVALENT_ACTION_EFFICIENCY_CALCULATOR);
-        List<ResetHandler> resetHandlers = ResetHandler.create(provider);
-        Mcts<TAction, ClassicEdge, TState> mcts = new Mcts<>(searchPolicy, provider, selectionPolicy, simulationRolloutPolicy, backPropagationPolicy, proposalStrategy, resetHandlers);
+    public static <TAction extends Action, TState extends State<TAction, TState>> ClassicMonteCarloTreeSearch<TAction, TState> create(final ComprehensiveSeekPolicy comprehensiveSeekPolicy, final ExplorationHeuristic<TAction> explorationHeuristic, final BufferType bufferType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final ParallelEventLoop eventLoop) {
+        if (eventLoop == null) {
+            InitializationContext<TAction, StandardClassicEdge, TState, StandardSearchNode<TAction, StandardClassicEdge, TState>> initializationContext = new StandardInitializationContext<>(StandardClassicEdgeFactory.getInstance(), explorationHeuristic, comprehensiveSeekPolicy);
+            UctAlgorithm<StandardClassicEdge> uctAlgorithm = ClassicUctAlgorithm.getInstance();
+            Mcts<TAction, StandardClassicEdge, TState, StandardSearchNode<TAction, StandardClassicEdge, TState>> mcts = createMcts(bufferType, initializationContext, uctAlgorithm, explorationHeuristic, backPropagationObserver);
+
+            return new ClassicMonteCarloTreeSearch<>(mcts);
+        }
+
+        InitializationContext<TAction, ConcurrentClassicEdge, TState, ConcurrentSearchNode<TAction, ConcurrentClassicEdge, TState>> initializationContext = new ConcurrentInitializationContext<>(eventLoop, ConcurrentClassicEdgeFactory.getInstance(), explorationHeuristic, comprehensiveSeekPolicy);
+        UctAlgorithm<ConcurrentClassicEdge> uctAlgorithm = ClassicUctAlgorithm.getInstance();
+        Mcts<TAction, ConcurrentClassicEdge, TState, ConcurrentSearchNode<TAction, ConcurrentClassicEdge, TState>> mcts = createMcts(bufferType, initializationContext, uctAlgorithm, explorationHeuristic, backPropagationObserver);
 
         return new ClassicMonteCarloTreeSearch<>(mcts);
     }
 
     @Override
-    public TAction proposeNextAction(final TState state) {
-        return mcts.proposeNextAction(state);
+    public SearchNodeResult<TAction, TState> proposeNext(final SearchNodeResult<TAction, TState> searchNodeResult) {
+        return mcts.proposeNext(searchNodeResult);
     }
 
     @Override

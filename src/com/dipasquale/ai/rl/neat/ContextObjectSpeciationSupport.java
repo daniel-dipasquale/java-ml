@@ -27,7 +27,7 @@ import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -85,7 +85,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
 
     private static DualModeFitnessCalculationStrategy createFitnessCalculationStrategy(final InitializationContext initializationContext) {
         return switch (initializationContext.getEnvironmentType()) {
-            case ISOLATED -> {
+            case CONFINED -> {
                 List<FitnessCalculationStrategy> concurrentStrategies = List.of(
                         new ConcurrentOrganismFitnessCalculationStrategy(),
                         new SharedFitnessCalculationStrategy()
@@ -241,7 +241,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
         reproductionStrategy = stateGroup.get("speciation.reproductionStrategy");
     }
 
-    public void load(final SerializableStateGroup stateGroup, final BatchingEventLoop eventLoop) {
+    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
         load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 

@@ -1,6 +1,7 @@
 package com.dipasquale.simulation.tictactoe;
 
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
+import com.dipasquale.search.mcts.SearchNodeResult;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
@@ -10,12 +11,12 @@ public final class MctsPlayer implements Player {
     private final MonteCarloTreeSearch<GameAction, GameState> mcts;
 
     @Override
-    public GameAction createNextAction(final GameState state) {
-        return mcts.proposeNextAction(state);
+    public SearchNodeResult<GameAction, GameState> produceNext(final SearchNodeResult<GameAction, GameState> searchNodeResult) {
+        return mcts.proposeNext(searchNodeResult);
     }
 
     @Override
-    public void accept(final GameState state) {
+    public void accept(final SearchNodeResult<GameAction, GameState> searchNodeResult) {
         mcts.reset();
     }
 }

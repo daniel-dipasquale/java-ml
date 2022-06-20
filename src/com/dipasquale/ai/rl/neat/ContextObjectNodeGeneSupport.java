@@ -21,7 +21,7 @@ import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeCyclicFloatFactory;
 import com.dipasquale.synchronization.dual.mode.factory.DualModeFloatFactory;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -287,7 +287,7 @@ final class ContextObjectNodeGeneSupport implements Context.NodeGeneSupport {
         hiddenNodes = stateGroup.get("nodes.hiddenNodes");
     }
 
-    public void load(final SerializableStateGroup stateGroup, final BatchingEventLoop eventLoop) {
+    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
         load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

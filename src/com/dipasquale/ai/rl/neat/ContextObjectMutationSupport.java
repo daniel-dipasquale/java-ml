@@ -6,7 +6,7 @@ import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
 import com.dipasquale.synchronization.dual.mode.gate.DualModeIsLessThanRandomGate;
-import com.dipasquale.synchronization.event.loop.BatchingEventLoop;
+import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
@@ -81,7 +81,7 @@ final class ContextObjectMutationSupport implements Context.MutationSupport {
         shouldDisableExpressedConnectionGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldDisableExpressedConnectionGate"), concurrencyLevel);
     }
 
-    public void load(final SerializableStateGroup stateGroup, final BatchingEventLoop eventLoop) {
+    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
         load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
     }
 }

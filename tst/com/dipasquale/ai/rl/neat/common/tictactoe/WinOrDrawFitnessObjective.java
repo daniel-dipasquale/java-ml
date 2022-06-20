@@ -1,19 +1,18 @@
 package com.dipasquale.ai.rl.neat.common.tictactoe;
 
+import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameResult;
 import com.dipasquale.simulation.tictactoe.Player;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class WinOrDrawFitnessObjective {
     private static float[] play(final Player player1, final Player player2) {
         GameResult result = Game.play(player1, player2);
@@ -28,8 +27,8 @@ final class WinOrDrawFitnessObjective {
         };
     }
 
-    public static IsolatedNeatEnvironment createIsolatedEnvironment(final GameSupport gameSupport) {
-        return new InternalIsolatedEnvironment(gameSupport);
+    public static ConfinedNeatEnvironment createConfinedEnvironment(final GameSupport gameSupport) {
+        return new InternalConfinedEnvironment(gameSupport);
     }
 
     public static ContestNeatEnvironment createContestedEnvironment(final GameSupport gameSupport) {
@@ -37,7 +36,7 @@ final class WinOrDrawFitnessObjective {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalIsolatedEnvironment implements IsolatedNeatEnvironment {
+    private static final class InternalConfinedEnvironment implements ConfinedNeatEnvironment {
         @Serial
         private static final long serialVersionUID = -4303134055956916075L;
         private final GameSupport gameSupport;

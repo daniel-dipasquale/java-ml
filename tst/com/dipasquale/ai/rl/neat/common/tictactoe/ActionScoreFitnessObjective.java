@@ -1,22 +1,21 @@
 package com.dipasquale.ai.rl.neat.common.tictactoe;
 
+import com.dipasquale.ai.rl.neat.ConfinedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ContestNeatEnvironment;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
-import com.dipasquale.search.mcts.common.RewardHeuristic;
+import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 import com.dipasquale.simulation.tictactoe.Game;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameResult;
 import com.dipasquale.simulation.tictactoe.GameState;
 import com.dipasquale.simulation.tictactoe.Player;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ActionScoreFitnessObjective {
     private static final float[][] ACTION_SCORE_TABLE = createActionScoreTable();
 
@@ -99,8 +98,8 @@ final class ActionScoreFitnessObjective {
         };
     }
 
-    public static IsolatedNeatEnvironment createIsolatedEnvironment(final GameSupport gameSupport) {
-        return new InternalIsolatedEnvironment(gameSupport);
+    public static ConfinedNeatEnvironment createConfinedEnvironment(final GameSupport gameSupport) {
+        return new InternalConfinedEnvironment(gameSupport);
     }
 
     public static ContestNeatEnvironment createContestedEnvironment(final GameSupport gameSupport) {
@@ -112,7 +111,7 @@ final class ActionScoreFitnessObjective {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalIsolatedEnvironment implements IsolatedNeatEnvironment {
+    private static final class InternalConfinedEnvironment implements ConfinedNeatEnvironment {
         @Serial
         private static final long serialVersionUID = -4235097951450531213L;
         private final GameSupport gameSupport;

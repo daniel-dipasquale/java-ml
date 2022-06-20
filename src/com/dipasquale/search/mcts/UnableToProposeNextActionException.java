@@ -7,7 +7,7 @@ public final class UnableToProposeNextActionException extends RuntimeException {
     private static final long serialVersionUID = -8266074636413331087L;
     private static final String MESSAGE = "unable to suggest which action to take next";
 
-    public UnableToProposeNextActionException() {
+    UnableToProposeNextActionException() {
         super(MESSAGE);
     }
 }

@@ -1,18 +1,18 @@
 package com.dipasquale.data.structure.set;
 
-import com.dipasquale.data.structure.deque.PlainNode;
-import com.dipasquale.data.structure.deque.PlainNodeDeque;
+import com.dipasquale.data.structure.deque.StandardNode;
+import com.dipasquale.data.structure.deque.StandardNodeDeque;
 
 import java.io.Serial;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-public final class DequeIdentitySet<T> extends AbstractDequeSet<T, PlainNode<T>> {
+public final class DequeIdentitySet<T> extends AbstractDequeSet<T, StandardNode<T>> {
     @Serial
     private static final long serialVersionUID = -1997695008715922153L;
 
-    private DequeIdentitySet(final Map<T, PlainNode<T>> nodesMap) {
-        super(nodesMap, new PlainNodeDeque<>());
+    private DequeIdentitySet(final Map<T, StandardNode<T>> nodesMap) {
+        super(nodesMap, new StandardNodeDeque<>());
     }
 
     public DequeIdentitySet() {
