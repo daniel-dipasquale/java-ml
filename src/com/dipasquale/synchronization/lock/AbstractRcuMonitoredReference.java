@@ -9,24 +9,24 @@ abstract class AbstractRcuMonitoredReference<T> implements RcuMonitoredReference
     @Serial
     private static final long serialVersionUID = 1554603056470558809L;
     private final RcuController controller;
-    private volatile Reference<T> previousWriteReference;
-    private Reference<T> currentWriteReference;
+    private volatile RcuReference<T> previousWriteRcuReference;
+    private RcuReference<T> currentWriteRcuReference;
     private final ObjectCloner<T> referenceCloner;
 
-    protected AbstractRcuMonitoredReference(final RcuController controller, final Reference<T> reference, final ObjectCloner<T> referenceCloner) {
+    protected AbstractRcuMonitoredReference(final RcuController controller, final RcuReference<T> rcuReference, final ObjectCloner<T> referenceCloner) {
         this.controller = controller;
-        this.previousWriteReference = reference;
-        this.currentWriteReference = reference;
+        this.previousWriteRcuReference = rcuReference;
+        this.currentWriteRcuReference = rcuReference;
         this.referenceCloner = referenceCloner;
     }
 
     protected AbstractRcuMonitoredReference(final RcuController controller, final T reference, final ObjectCloner<T> referenceCloner) {
-        this(controller, Reference.create(controller, reference), referenceCloner);
+        this(controller, RcuReference.create(controller, reference), referenceCloner);
     }
 
-    protected abstract Reference<T> getReadReference();
+    protected abstract RcuReference<T> getReadReference();
 
-    protected abstract void setReadReference(Reference<T> reference);
+    protected abstract void setReadReference(RcuReference<T> rcuReference);
 
     protected abstract void removeReadReference();
 
@@ -36,30 +36,30 @@ abstract class AbstractRcuMonitoredReference<T> implements RcuMonitoredReference
         Object token = state.getToken();
 
         if (state.isWriting()) {
-            T value = currentWriteReference.getValue();
+            T value = currentWriteRcuReference.getValue();
 
-            if (currentWriteReference.getToken() != token) {
-                previousWriteReference = currentWriteReference;
+            if (currentWriteRcuReference.getToken() != token) {
+                previousWriteRcuReference = currentWriteRcuReference;
                 value = referenceCloner.clone(value);
-                currentWriteReference = new Reference<>(token, value);
+                currentWriteRcuReference = new RcuReference<>(token, value);
             }
 
             return value;
         }
 
         if (state.isReading()) {
-            Reference<T> reference = getReadReference();
+            RcuReference<T> rcuReference = getReadReference();
 
-            if (reference == null || reference.getToken() != token) {
-                reference = previousWriteReference;
-                setReadReference(reference);
+            if (rcuReference == null || rcuReference.getToken() != token) {
+                rcuReference = previousWriteRcuReference;
+                setReadReference(rcuReference);
             }
 
-            return reference.getValue();
+            return rcuReference.getValue();
         }
 
         removeReadReference();
 
-        return previousWriteReference.getValue();
+        return previousWriteRcuReference.getValue();
     }
 }

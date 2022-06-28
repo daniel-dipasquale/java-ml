@@ -1,23 +1,23 @@
 package com.dipasquale.search.mcts.concurrent;
 
-import com.dipasquale.search.mcts.Action;
-import com.dipasquale.search.mcts.EdgeFactory;
-import com.dipasquale.search.mcts.SearchNodeFactory;
-import com.dipasquale.search.mcts.SearchResult;
-import com.dipasquale.search.mcts.State;
+import com.dipasquale.search.mcts.*;
+import com.dipasquale.synchronization.MappedThreadIndex;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 public final class SharedLockSearchNodeFactory<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> implements SearchNodeFactory<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
     @Getter
     private final EdgeFactory<TEdge> edgeFactory;
-    private final List<Long> threadIds;
+    private final MappedThreadIndex mappedThreadIndex;
+
+    public SharedLockSearchNodeFactory(final EdgeFactory<TEdge> edgeFactory, final List<Long> threadIds) {
+        this.edgeFactory = edgeFactory;
+        this.mappedThreadIndex = new MappedThreadIndex(threadIds);
+    }
 
     @Override
     public ConcurrentSearchNode<TAction, TEdge, TState> createRoot(final SearchResult<TAction, TState> result) {
-        return new SharedLockSearchNode<>(result, edgeFactory.create(), threadIds);
+        return new SharedLockSearchNode<>(result, edgeFactory.create(), mappedThreadIndex);
     }
 }

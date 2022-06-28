@@ -66,7 +66,7 @@ public final class GameTest {
 
     private static final ConcurrencySettings CONCURRENCY_SETTINGS = ConcurrencySettings.builder()
             .eventLoop(EVENT_LOOP)
-            .edgeTraversalLockType(EdgeTraversalLockType.SHARED)
+            .edgeTraversalLockType(EdgeTraversalLockType.RCU)
             .build();
 
     @BeforeAll
@@ -187,7 +187,7 @@ public final class GameTest {
             return;
         }
 
-        assertGamePlay(200, CONCURRENCY_SETTINGS, VICTORY_VALUE - 2);
+        assertGamePlay(300, CONCURRENCY_SETTINGS, VICTORY_VALUE - 2);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

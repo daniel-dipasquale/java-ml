@@ -4,23 +4,22 @@ import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchResult;
 import com.dipasquale.search.mcts.State;
-
-import java.util.List;
+import com.dipasquale.synchronization.MappedThreadIndex;
 
 public final class SharedLockSearchNode<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractConcurrentSearchNode<TAction, TEdge, TState> {
-    private final List<Long> threadIds;
+    private final MappedThreadIndex mappedThreadIndex;
 
-    private SharedLockSearchNode(final ConcurrentSearchNode<TAction, TEdge, TState> parent, final SearchResult<TAction, TState> result, final TEdge edge, final List<Long> threadIds) {
-        super(parent, result, edge, threadIds);
-        this.threadIds = threadIds;
+    private SharedLockSearchNode(final ConcurrentSearchNode<TAction, TEdge, TState> parent, final SearchResult<TAction, TState> result, final TEdge edge, final MappedThreadIndex mappedThreadIndex) {
+        super(parent, result, edge, mappedThreadIndex);
+        this.mappedThreadIndex = mappedThreadIndex;
     }
 
-    SharedLockSearchNode(final SearchResult<TAction, TState> result, final TEdge edge, final List<Long> threadIds) {
-        this(null, result, edge, threadIds);
+    SharedLockSearchNode(final SearchResult<TAction, TState> result, final TEdge edge, final MappedThreadIndex mappedThreadIndex) {
+        this(null, result, edge, mappedThreadIndex);
     }
 
     @Override
     protected ConcurrentSearchNode<TAction, TEdge, TState> createChild(final SearchResult<TAction, TState> result, final EdgeFactory<TEdge> edgeFactory) {
-        return new SharedLockSearchNode<>(this, result, edgeFactory.create(), threadIds);
+        return new SharedLockSearchNode<>(this, result, edgeFactory.create(), mappedThreadIndex);
     }
 }

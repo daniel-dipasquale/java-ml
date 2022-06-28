@@ -1,33 +1,33 @@
 package com.dipasquale.synchronization.lock;
 
 import com.dipasquale.common.factory.ObjectCloner;
+import com.dipasquale.synchronization.MappedThreadIndex;
 import com.dipasquale.synchronization.MappedThreadStorage;
 
 import java.io.Serial;
-import java.util.List;
 
 final class FixedRcuMonitoredReference<T> extends AbstractRcuMonitoredReference<T> {
     @Serial
     private static final long serialVersionUID = -2774931536673986660L;
-    private final MappedThreadStorage<Reference<T>> readReference;
+    private final MappedThreadStorage<RcuReference<T>> readReference;
 
-    private static <T> Class<Reference<T>> getType(final Reference<T> reference) {
-        return (Class<Reference<T>>) reference.getClass();
+    private static <T> Class<RcuReference<T>> getType(final RcuReference<T> rcuReference) {
+        return (Class<RcuReference<T>>) rcuReference.getClass();
     }
 
-    FixedRcuMonitoredReference(final RcuController controller, final Reference<T> reference, final ObjectCloner<T> referenceCloner, final List<Long> threadIds) {
-        super(controller, reference, referenceCloner);
-        this.readReference = new MappedThreadStorage<>(getType(reference), threadIds);
+    FixedRcuMonitoredReference(final RcuController controller, final RcuReference<T> rcuReference, final ObjectCloner<T> referenceCloner, final MappedThreadIndex mappedThreadIndex) {
+        super(controller, rcuReference, referenceCloner);
+        this.readReference = new MappedThreadStorage<>(mappedThreadIndex, getType(rcuReference));
     }
 
     @Override
-    protected Reference<T> getReadReference() {
+    protected RcuReference<T> getReadReference() {
         return readReference.getOrDefault(null);
     }
 
     @Override
-    protected void setReadReference(final Reference<T> reference) {
-        readReference.put(reference);
+    protected void setReadReference(final RcuReference<T> rcuReference) {
+        readReference.put(rcuReference);
     }
 
     @Override

@@ -20,13 +20,13 @@ final class UnboundedRcuMonitoredReference<T> extends AbstractRcuMonitoredRefere
     }
 
     @Override
-    protected Reference<T> getReadReference() {
+    protected RcuReference<T> getReadReference() {
         return readReference.get().value;
     }
 
     @Override
-    protected void setReadReference(final Reference<T> reference) {
-        readReference.get().value = reference;
+    protected void setReadReference(final RcuReference<T> rcuReference) {
+        readReference.get().value = rcuReference;
     }
 
     @Override
@@ -45,6 +45,6 @@ final class UnboundedRcuMonitoredReference<T> extends AbstractRcuMonitoredRefere
     private static final class ReadReference<T> implements Serializable {
         @Serial
         private static final long serialVersionUID = -3302321416004804258L;
-        private Reference<T> value = null;
+        private RcuReference<T> value = null;
     }
 }

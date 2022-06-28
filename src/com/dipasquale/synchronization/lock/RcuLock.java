@@ -1,6 +1,7 @@
 package com.dipasquale.synchronization.lock;
 
 import com.dipasquale.common.factory.ObjectCloner;
+import com.dipasquale.synchronization.MappedThreadIndex;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -30,8 +31,8 @@ public final class RcuLock implements ReadWriteLock, Serializable {
         this(new UnboundedRcuController());
     }
 
-    public RcuLock(final List<Long> threadIds) {
-        this(new FixedRcuController(threadIds));
+    public RcuLock(final MappedThreadIndex mappedThreadIndex) {
+        this(new FixedRcuController(mappedThreadIndex));
     }
 
     @Override

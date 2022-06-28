@@ -1,20 +1,20 @@
 package com.dipasquale.synchronization.lock;
 
 import com.dipasquale.common.factory.ObjectCloner;
+import com.dipasquale.synchronization.MappedThreadIndex;
 import com.dipasquale.synchronization.MappedThreadStorage;
 
 import java.io.Serial;
-import java.util.List;
 
 final class FixedRcuController extends AbstractRcuController {
     @Serial
     private static final long serialVersionUID = -6326715153900977880L;
     private final MappedThreadStorage<Object> readToken;
-    private final List<Long> threadIds;
+    private final MappedThreadIndex mappedThreadIndex;
 
-    FixedRcuController(final List<Long> threadIds) {
-        this.readToken = new MappedThreadStorage<>(Object.class, threadIds);
-        this.threadIds = List.copyOf(threadIds);
+    FixedRcuController(final MappedThreadIndex mappedThreadIndex) {
+        this.readToken = new MappedThreadStorage<>(mappedThreadIndex, Object.class);
+        this.mappedThreadIndex = mappedThreadIndex;
     }
 
     @Override
@@ -34,8 +34,8 @@ final class FixedRcuController extends AbstractRcuController {
 
     @Override
     public <T> RcuMonitoredReference<T> createMonitoredReference(final T reference, final ObjectCloner<T> referenceCloner) {
-        Reference<T> fixedReference = Reference.create(this, reference);
+        RcuReference<T> fixedRcuReference = RcuReference.create(this, reference);
 
-        return new FixedRcuMonitoredReference<>(this, fixedReference, referenceCloner, threadIds);
+        return new FixedRcuMonitoredReference<>(this, fixedRcuReference, referenceCloner, mappedThreadIndex);
     }
 }
