@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.initialization;
 
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.search.mcts.Action;
+import com.dipasquale.common.random.RandomSupport;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeFactory;
@@ -16,7 +15,7 @@ import com.dipasquale.search.mcts.seek.SeekStrategy;
 import com.dipasquale.search.mcts.selection.SelectionPolicy;
 import com.dipasquale.search.mcts.simulation.SimulationPolicy;
 
-public interface InitializationContext<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+public interface InitializationContext<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
     RandomSupport createRandomSupport();
 
     SearchNodeFactory<TAction, TEdge, TState, TSearchNode> getSearchNodeFactory();

@@ -4,6 +4,7 @@ import com.dipasquale.ai.rl.neat.NeatTrainer;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsRecord;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsResult;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
+import com.dipasquale.data.structure.collection.ListSupport;
 import com.dipasquale.metric.MetricDatumQueryProjection;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -73,14 +74,14 @@ public final class NeatMetricsReporter {
     }
 
     private static void displayMetrics_Min_Avg_Max(final MetricsViewer metricsViewer, final String name) {
-        List<MetricDatumQueryProjection> queryProjections = List.of(
-                new MetricDatumQueryProjection(name, "min", "1. minimum"),
-                new MetricDatumQueryProjection(name, "avg", "2. average"),
-                new MetricDatumQueryProjection(name, "max", "3. maximum"),
-                new MetricDatumQueryProjection(name, "p10", "4. p10"),
-                new MetricDatumQueryProjection(name, "p50", "5. p50"),
-                new MetricDatumQueryProjection(name, "p90", "6. p90")
-        );
+        List<MetricDatumQueryProjection> queryProjections = ListSupport.<MetricDatumQueryProjection>builder()
+                .add(new MetricDatumQueryProjection(name, "min", "1. minimum"))
+                .add(new MetricDatumQueryProjection(name, "avg", "2. average"))
+                .add(new MetricDatumQueryProjection(name, "max", "3. maximum"))
+                .add(new MetricDatumQueryProjection(name, "p10", "4. p10"))
+                .add(new MetricDatumQueryProjection(name, "p50", "5. p50"))
+                .add(new MetricDatumQueryProjection(name, "p90", "6. p90"))
+                .build();
 
         displayMetrics(metricsViewer.queryLast(queryProjections));
     }

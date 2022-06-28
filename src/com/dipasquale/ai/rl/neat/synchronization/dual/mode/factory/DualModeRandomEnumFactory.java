@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory;
 
 import com.dipasquale.common.factory.EnumFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
+import com.dipasquale.synchronization.dual.mode.random.DualModeRandomSupport;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -18,7 +18,7 @@ public final class DualModeRandomEnumFactory<T extends Enum<T>> implements EnumF
 
     @Override
     public T create() {
-        int index = randomSupport.next(0, values.size());
+        int index = randomSupport.nextInteger(0, values.size());
 
         return values.get(index);
     }

@@ -78,11 +78,9 @@ final class ContextObjectActivationSupport implements Context.ActivationSupport 
         Map<String, FitnessBucket> fitnessBuckets = createFitnessBuckets(initializationContext, generalSupport);
 
         return switch (initializationContext.getEnvironmentType()) {
-            case ISOLATED ->
-                    new ContextObjectActivationSupport(genomeActivatorPool, (IsolatedNeatEnvironment) fitnessFunction, fitnessBuckets);
+            case ISOLATED -> new ContextObjectActivationSupport(genomeActivatorPool, (IsolatedNeatEnvironment) fitnessFunction, fitnessBuckets);
 
-            case SHARED ->
-                    new ContextObjectActivationSupport(initializationContext.getConcurrencyLevel(), genomeActivatorPool, (SharedNeatEnvironment) fitnessFunction, fitnessBuckets);
+            case SHARED -> new ContextObjectActivationSupport(initializationContext.getConcurrencyLevel(), genomeActivatorPool, (SharedNeatEnvironment) fitnessFunction, fitnessBuckets);
         };
     }
 

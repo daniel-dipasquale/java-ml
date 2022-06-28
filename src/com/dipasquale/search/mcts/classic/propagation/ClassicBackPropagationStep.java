@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.classic.propagation;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
@@ -10,10 +9,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ClassicBackPropagationStep<TAction extends Action, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements BackPropagationStep<TAction, TEdge, TState, TSearchNode, ClassicBackPropagationStep.InternalContext> {
+public final class ClassicBackPropagationStep<TAction, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements BackPropagationStep<TAction, TEdge, TState, TSearchNode, ClassicBackPropagationStep.InternalContext> {
     private static final ClassicBackPropagationStep<?, ?, ?, ?> INSTANCE = new ClassicBackPropagationStep<>();
 
-    public static <TAction extends Action, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ClassicBackPropagationStep<TAction, TEdge, TState, TSearchNode> getInstance() {
+    public static <TAction, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ClassicBackPropagationStep<TAction, TEdge, TState, TSearchNode> getInstance() {
         return (ClassicBackPropagationStep<TAction, TEdge, TState, TSearchNode>) INSTANCE;
     }
 

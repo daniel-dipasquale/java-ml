@@ -42,8 +42,7 @@ public final class GenesisGenomeTemplate {
         return switch (initialConnectionType) {
             case FULLY_CONNECTED -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, fixedWeightFactory, true);
 
-            case FULL_CONNECTED_EXCLUDING_BIAS ->
-                    new FullyConnectedGenesisGenomeConnector(hiddenLayers, fixedWeightFactory, false);
+            case FULL_CONNECTED_EXCLUDING_BIAS -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, fixedWeightFactory, false);
         };
     }
 }

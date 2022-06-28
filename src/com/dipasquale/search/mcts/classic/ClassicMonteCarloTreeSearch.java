@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.classic;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Mcts;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.ResetHandler;
@@ -43,16 +42,16 @@ import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ClassicMonteCarloTreeSearch<TAction extends Action, TState extends State<TAction, TState>> implements MonteCarloTreeSearch<TAction, TState> {
+public final class ClassicMonteCarloTreeSearch<TAction, TState extends State<TAction, TState>> implements MonteCarloTreeSearch<TAction, TState> {
     private final Mcts<TAction, ?, TState, ?> mcts;
 
-    private static <TAction extends Action, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Buffer<TAction, TEdge, TState, TSearchNode> createBuffer(final BufferType bufferType, final SearchNodeFactory<TAction, TEdge, TState, TSearchNode> searchNodeFactory) {
+    private static <TAction, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Buffer<TAction, TEdge, TState, TSearchNode> createBuffer(final BufferType bufferType, final SearchNodeFactory<TAction, TEdge, TState, TSearchNode> searchNodeFactory) {
         BufferType fixedBufferType = Objects.requireNonNullElse(bufferType, BufferType.DISABLED);
 
         return fixedBufferType.create(searchNodeFactory);
     }
 
-    private static <TAction extends Action, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> createExpansionPolicy(final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final ExplorationHeuristic<TAction> explorationHeuristic, final Buffer<TAction, TEdge, TState, TSearchNode> buffer) {
+    private static <TAction, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> createExpansionPolicy(final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final ExplorationHeuristic<TAction> explorationHeuristic, final Buffer<TAction, TEdge, TState, TSearchNode> buffer) {
         List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies = new ArrayList<>();
         ExpansionPolicy<TAction, TEdge, TState, TSearchNode> intentionalExpansionPolicy = initializationContext.createIntentionalExpansionPolicy(List.of(), List.of());
 
@@ -70,7 +69,7 @@ public final class ClassicMonteCarloTreeSearch<TAction extends Action, TState ex
         return ExpansionPolicyController.provide(expansionPolicies);
     }
 
-    private static <TAction extends Action, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Mcts<TAction, TEdge, TState, TSearchNode> createMcts(final BufferType bufferType, final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final UctAlgorithm<TEdge> uctAlgorithm, final ExplorationHeuristic<TAction> explorationHeuristic, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
+    private static <TAction, TEdge extends ClassicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Mcts<TAction, TEdge, TState, TSearchNode> createMcts(final BufferType bufferType, final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final UctAlgorithm<TEdge> uctAlgorithm, final ExplorationHeuristic<TAction> explorationHeuristic, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
         Buffer<TAction, TEdge, TState, TSearchNode> buffer = createBuffer(bufferType, initializationContext.getSearchNodeFactory());
         ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy = createExpansionPolicy(initializationContext, explorationHeuristic, buffer);
         SelectionPolicy<TAction, TEdge, TState, TSearchNode> selectionPolicy = initializationContext.createSelectionPolicy(uctAlgorithm, expansionPolicy);
@@ -84,7 +83,7 @@ public final class ClassicMonteCarloTreeSearch<TAction extends Action, TState ex
     }
 
     @Builder
-    public static <TAction extends Action, TState extends State<TAction, TState>> ClassicMonteCarloTreeSearch<TAction, TState> create(final ComprehensiveSeekPolicy comprehensiveSeekPolicy, final ExplorationHeuristic<TAction> explorationHeuristic, final BufferType bufferType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final ConcurrencySettings concurrencySettings) {
+    public static <TAction, TState extends State<TAction, TState>> ClassicMonteCarloTreeSearch<TAction, TState> create(final ComprehensiveSeekPolicy comprehensiveSeekPolicy, final ExplorationHeuristic<TAction> explorationHeuristic, final BufferType bufferType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final ConcurrencySettings concurrencySettings) {
         if (!ConcurrencySettings.isValid(concurrencySettings)) {
             InitializationContext<TAction, StandardClassicEdge, TState, StandardSearchNode<TAction, StandardClassicEdge, TState>> initializationContext = new StandardInitializationContext<>(StandardClassicEdgeFactory.getInstance(), explorationHeuristic, comprehensiveSeekPolicy);
             UctAlgorithm<StandardClassicEdge> uctAlgorithm = ClassicUctAlgorithm.getInstance();

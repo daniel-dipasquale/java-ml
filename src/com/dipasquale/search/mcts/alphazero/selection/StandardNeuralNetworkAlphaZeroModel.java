@@ -4,7 +4,6 @@ import com.dipasquale.ai.common.NeuralNetwork;
 import com.dipasquale.ai.common.NeuralNetworkDecoder;
 import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.common.NeuronMemory;
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.StandardSearchNode;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
@@ -13,7 +12,7 @@ import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-public final class StandardNeuralNetworkAlphaZeroModel<TAction extends Action, TState extends State<TAction, TState>, TNeuronMemory extends NeuronMemory> extends AbstractNeuralNetworkAlphaZeroModel<TAction, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>, TNeuronMemory> {
+public final class StandardNeuralNetworkAlphaZeroModel<TAction, TState extends State<TAction, TState>, TNeuronMemory extends NeuronMemory> extends AbstractNeuralNetworkAlphaZeroModel<TAction, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>, TNeuronMemory> {
     private final NeuralNetworkEncoder<TState> encoder;
     private final NeuralNetwork<TNeuronMemory> neuralNetwork;
 

@@ -6,8 +6,8 @@ import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 
 import java.util.EnumMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 final class ZeroDelayEventLoop implements EventLoop {
@@ -32,7 +32,6 @@ final class ZeroDelayEventLoop implements EventLoop {
     ZeroDelayEventLoop(final EventLoopParams params, final EventLoop entryPoint) {
         ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
                 .eventRecords(new LinkedList<>())
-                .executorService(params.getExecutorService())
                 .dateTimeSupport(ZERO_DATE_TIME_SUPPORTS.get(params.getDateTimeSupport().timeUnit()))
                 .errorHandler(params.getErrorHandler())
                 .build();
@@ -41,7 +40,7 @@ final class ZeroDelayEventLoop implements EventLoop {
     }
 
     @Override
-    public List<Long> getThreadIds() {
+    public Set<Long> getThreadIds() {
         return eventLoop.getThreadIds();
     }
 

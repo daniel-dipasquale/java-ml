@@ -1,14 +1,15 @@
 package com.dipasquale.simulation.game2048;
 
-import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 @Getter
+@EqualsAndHashCode
 @ToString
 public final class ValuedTile {
-    private final int id;
-    private final int value;
+    private final int tileId;
+    private final int exponentialValue;
 }

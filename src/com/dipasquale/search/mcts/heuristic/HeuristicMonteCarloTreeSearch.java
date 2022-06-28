@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.heuristic;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Mcts;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.ResetHandler;
@@ -48,7 +47,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class HeuristicMonteCarloTreeSearch<TAction extends Action, TState extends State<TAction, TState>> implements MonteCarloTreeSearch<TAction, TState> {
+public final class HeuristicMonteCarloTreeSearch<TAction, TState extends State<TAction, TState>> implements MonteCarloTreeSearch<TAction, TState> {
     private static final RosinCPuctAlgorithm ROSIN_C_PUCT_ALGORITHM = new RosinCPuctAlgorithm();
     private static final HeuristicUctAlgorithm<?> UCT_ALGORITHM = new HeuristicUctAlgorithm<>(ROSIN_C_PUCT_ALGORITHM);
     private final Mcts<TAction, ?, TState, ?> mcts;
@@ -61,13 +60,13 @@ public final class HeuristicMonteCarloTreeSearch<TAction extends Action, TState 
         return new HeuristicUctAlgorithm<>(cpuctAlgorithm);
     }
 
-    private static <TAction extends Action, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Buffer<TAction, TEdge, TState, TSearchNode> createBuffer(final BufferType bufferType, final SearchNodeFactory<TAction, TEdge, TState, TSearchNode> searchNodeFactory) {
+    private static <TAction, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Buffer<TAction, TEdge, TState, TSearchNode> createBuffer(final BufferType bufferType, final SearchNodeFactory<TAction, TEdge, TState, TSearchNode> searchNodeFactory) {
         BufferType fixedBufferType = Objects.requireNonNullElse(bufferType, BufferType.DISABLED);
 
         return fixedBufferType.create(searchNodeFactory);
     }
 
-    private static <TAction extends Action, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> createExpansionPolicy(final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final RewardHeuristic<TAction, TState> rewardHeuristic, final ExplorationHeuristic<TAction> explorationHeuristic, final Buffer<TAction, TEdge, TState, TSearchNode> buffer) {
+    private static <TAction, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> createExpansionPolicy(final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final RewardHeuristic<TAction, TState> rewardHeuristic, final ExplorationHeuristic<TAction> explorationHeuristic, final Buffer<TAction, TEdge, TState, TSearchNode> buffer) {
         List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies = new ArrayList<>();
         ProbableRewardExpansionPolicy<TAction, TEdge, TState, TSearchNode> probableRewardExpansionPolicy = new ProbableRewardExpansionPolicy<>(rewardHeuristic);
         ExpansionPolicy<TAction, TEdge, TState, TSearchNode> intentionalExpansionPolicy = initializationContext.createIntentionalExpansionPolicy(List.of(probableRewardExpansionPolicy), List.of());
@@ -86,13 +85,13 @@ public final class HeuristicMonteCarloTreeSearch<TAction extends Action, TState 
         return ExpansionPolicyController.provide(expansionPolicies);
     }
 
-    private static <TAction extends Action, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> HeuristicBackPropagationStep<TAction, TEdge, TState, TSearchNode> createBackPropagationStep(final BackPropagationType backPropagationType) {
+    private static <TAction, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> HeuristicBackPropagationStep<TAction, TEdge, TState, TSearchNode> createBackPropagationStep(final BackPropagationType backPropagationType) {
         BackPropagationType fixedBackPropagationType = Objects.requireNonNullElse(backPropagationType, BackPropagationType.REVERSED_ON_BACKTRACK);
 
         return new HeuristicBackPropagationStep<>(fixedBackPropagationType);
     }
 
-    private static <TAction extends Action, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Mcts<TAction, TEdge, TState, TSearchNode> createMcts(final BufferType bufferType, final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final RewardHeuristic<TAction, TState> rewardHeuristic, final ExplorationHeuristic<TAction> explorationHeuristic, final UctAlgorithm<TEdge> uctAlgorithm, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
+    private static <TAction, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Mcts<TAction, TEdge, TState, TSearchNode> createMcts(final BufferType bufferType, final InitializationContext<TAction, TEdge, TState, TSearchNode> initializationContext, final RewardHeuristic<TAction, TState> rewardHeuristic, final ExplorationHeuristic<TAction> explorationHeuristic, final UctAlgorithm<TEdge> uctAlgorithm, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver) {
         Buffer<TAction, TEdge, TState, TSearchNode> buffer = createBuffer(bufferType, initializationContext.getSearchNodeFactory());
         ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy = createExpansionPolicy(initializationContext, rewardHeuristic, explorationHeuristic, buffer);
         SelectionPolicy<TAction, TEdge, TState, TSearchNode> selectionPolicy = initializationContext.createSelectionPolicy(uctAlgorithm, expansionPolicy);
@@ -107,7 +106,7 @@ public final class HeuristicMonteCarloTreeSearch<TAction extends Action, TState 
     }
 
     @Builder
-    public static <TAction extends Action, TState extends State<TAction, TState>> HeuristicMonteCarloTreeSearch<TAction, TState> create(final ComprehensiveSeekPolicy comprehensiveSeekPolicy, final BufferType bufferType, final RewardHeuristic<TAction, TState> rewardHeuristic, final ExplorationHeuristic<TAction> explorationHeuristic, final CPuctAlgorithm cpuctAlgorithm, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final ConcurrencySettings concurrencySettings) {
+    public static <TAction, TState extends State<TAction, TState>> HeuristicMonteCarloTreeSearch<TAction, TState> create(final ComprehensiveSeekPolicy comprehensiveSeekPolicy, final BufferType bufferType, final RewardHeuristic<TAction, TState> rewardHeuristic, final ExplorationHeuristic<TAction> explorationHeuristic, final CPuctAlgorithm cpuctAlgorithm, final BackPropagationType backPropagationType, final BackPropagationObserver<TAction, TState> backPropagationObserver, final ConcurrencySettings concurrencySettings) {
         if (!ConcurrencySettings.isValid(concurrencySettings)) {
             InitializationContext<TAction, StandardHeuristicEdge, TState, StandardSearchNode<TAction, StandardHeuristicEdge, TState>> initializationContext = new StandardInitializationContext<>(StandardHeuristicEdgeFactory.getInstance(), explorationHeuristic, comprehensiveSeekPolicy);
             UctAlgorithm<StandardHeuristicEdge> uctAlgorithm = createUctAlgorithm(cpuctAlgorithm);

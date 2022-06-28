@@ -6,7 +6,7 @@ import com.dipasquale.synchronization.dual.mode.data.structure.deque.DualModeDeq
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
 import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
 import com.dipasquale.synchronization.dual.mode.data.structure.set.DualModeMapToSetFactory;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
+import com.dipasquale.synchronization.dual.mode.random.DualModeRandomSupport;
 import lombok.Getter;
 
 import java.util.IdentityHashMap;

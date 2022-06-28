@@ -32,4 +32,22 @@ public final class ListSupport {
 
         return list;
     }
+
+    public static <T> Builder<T> builder() {
+        return new Builder<>();
+    }
+
+    public static final class Builder<T> {
+        private final List<T> list = new ArrayList<>();
+
+        public Builder<T> add(final T item) {
+            list.add(item);
+
+            return this;
+        }
+
+        public List<T> build() {
+            return ListSupport.copyOf(list);
+        }
+    }
 }

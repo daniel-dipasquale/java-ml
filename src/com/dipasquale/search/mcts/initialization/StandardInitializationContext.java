@@ -1,7 +1,5 @@
 package com.dipasquale.search.mcts.initialization;
 
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNodeFactory;
@@ -13,7 +11,6 @@ import com.dipasquale.search.mcts.StandardSearchNodeGroupProvider;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
 import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
-import com.dipasquale.search.mcts.expansion.StandardExpansionTraversalPolicy;
 import com.dipasquale.search.mcts.expansion.StandardOptionalExpansionPolicy;
 import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import com.dipasquale.search.mcts.intention.IntentionType;
@@ -28,11 +25,10 @@ import com.dipasquale.search.mcts.selection.SelectionPolicy;
 import com.dipasquale.search.mcts.selection.StandardSelectionPolicy;
 import com.dipasquale.search.mcts.selection.StandardUnexploredPrimerTraversalPolicy;
 import com.dipasquale.search.mcts.simulation.SimulationPolicy;
-import com.dipasquale.search.mcts.simulation.StandardIntentionalSimulationTraversalPolicy;
 import com.dipasquale.search.mcts.simulation.StandardSimulationPolicy;
 import lombok.Getter;
 
-public final class StandardInitializationContext<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractInitializationContext<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
+public final class StandardInitializationContext<TAction, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractInitializationContext<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
     @Getter
     private final SearchNodeFactory<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> searchNodeFactory;
     private final ComprehensiveSeekPolicy comprehensiveSeekPolicy;
@@ -53,32 +49,23 @@ public final class StandardInitializationContext<TAction extends Action, TEdge e
     }
 
     @Override
-    protected TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createExpansionTraversalPolicy(final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        return new StandardExpansionTraversalPolicy<>(expansionPolicy);
+    protected TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createUnexploredPrimerTraversalPolicy(final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
+        return new StandardUnexploredPrimerTraversalPolicy<>(expansionPolicy);
     }
 
     @Override
-    protected TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createUnexploredPrimerTraversalPolicy() {
-        return StandardUnexploredPrimerTraversalPolicy.getInstance();
+    protected ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createOptionalExpansionPolicy(final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
+        return new StandardOptionalExpansionPolicy<>(expansionPolicy);
     }
 
     @Override
-    protected SelectionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        return new StandardSelectionPolicy<>(unexploredPrimerTraversalPolicy, explorableTraversalPolicy, expansionPolicy);
+    protected SelectionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createSelectionPolicy(final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> optionalExpansionPolicy, final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy) {
+        return new StandardSelectionPolicy<>(optionalExpansionPolicy, unexploredPrimerTraversalPolicy, explorableTraversalPolicy);
     }
 
     @Override
-    protected TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createIntentionalSimulationTraversalPolicy() {
-        RandomSupport randomSupport = createRandomSupport();
-
-        return new StandardIntentionalSimulationTraversalPolicy<>(randomSupport);
-    }
-
-    @Override
-    protected SimulationPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createSimulationPolicy(final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> traversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        ExpansionPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> fixedExpansionPolicy = new StandardOptionalExpansionPolicy<>(expansionPolicy);
-
-        return new StandardSimulationPolicy<>(comprehensiveSeekPolicy, traversalPolicy, fixedExpansionPolicy);
+    protected SimulationPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> createSimulationPolicy(final TraversalPolicy<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> traversalPolicy) {
+        return new StandardSimulationPolicy<>(comprehensiveSeekPolicy, traversalPolicy);
     }
 
     @Override

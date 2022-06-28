@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.heuristic.propagation;
 
 import com.dipasquale.common.LimitSupport;
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
@@ -12,7 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class HeuristicBackPropagationStep<TAction extends Action, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements BackPropagationStep<TAction, TEdge, TState, TSearchNode, HeuristicBackPropagationStep.InternalContext> {
+public final class HeuristicBackPropagationStep<TAction, TEdge extends HeuristicEdge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements BackPropagationStep<TAction, TEdge, TState, TSearchNode, HeuristicBackPropagationStep.InternalContext> {
     private final BackPropagationType type;
 
     private float getProbableReward(final TSearchNode searchNode) {

@@ -5,11 +5,11 @@ import com.dipasquale.common.error.ErrorHandler;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.synchronization.wait.handle.WaitHandle;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public interface EventLoop extends WaitHandle {
-    List<Long> getThreadIds();
+    Set<Long> getThreadIds();
 
     void queue(EventLoopHandler handler, long delayTime, ErrorHandler errorHandler, InteractiveWaitHandle invokedWaitHandle);
 
@@ -49,7 +49,6 @@ public interface EventLoop extends WaitHandle {
         ArgumentValidatorSupport.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.concurrencyLevel");
 
         EventLoopParams params = EventLoopParams.builder()
-                .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .errorHandler(settings.getErrorHandler())
                 .build();

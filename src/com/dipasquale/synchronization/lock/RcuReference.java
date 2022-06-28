@@ -14,8 +14,4 @@ final class RcuReference<T> implements Serializable {
     private static final long serialVersionUID = 4376858709182600777L;
     private final Object token;
     private final T value;
-
-    public static <T> RcuReference<T> create(final RcuController controller, final T reference) {
-        return new RcuReference<>(controller.getState().getToken(), reference);
-    }
 }

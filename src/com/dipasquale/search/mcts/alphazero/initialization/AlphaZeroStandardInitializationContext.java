@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.alphazero.initialization;
 
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.search.mcts.Action;
+import com.dipasquale.common.random.RandomSupport;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNodeFactory;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
@@ -27,7 +26,7 @@ import com.dipasquale.search.mcts.seek.StandardSeekStrategy;
 import com.dipasquale.search.mcts.selection.SelectionPolicy;
 import com.dipasquale.search.mcts.simulation.SimulationPolicy;
 
-public final class AlphaZeroStandardInitializationContext<TAction extends Action, TState extends State<TAction, TState>> implements InitializationContext<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> {
+public final class AlphaZeroStandardInitializationContext<TAction, TState extends State<TAction, TState>> implements InitializationContext<TAction, AlphaZeroEdge, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> {
     private final StandardInitializationContext<TAction, AlphaZeroEdge, TState> standardInitializationContext;
     private final AlphaZeroModel<TAction, TState, StandardSearchNode<TAction, AlphaZeroEdge, TState>> traversalModel;
     private final SeekPolicy seekPolicy;

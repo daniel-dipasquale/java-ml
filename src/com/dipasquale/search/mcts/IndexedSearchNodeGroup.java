@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class IndexedSearchNodeGroup<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNodeGroup<TAction, TEdge, TState, TSearchNode> {
+public final class IndexedSearchNodeGroup<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNodeGroup<TAction, TEdge, TState, TSearchNode> {
     private final List<TSearchNode> searchNodes;
 
     @Override

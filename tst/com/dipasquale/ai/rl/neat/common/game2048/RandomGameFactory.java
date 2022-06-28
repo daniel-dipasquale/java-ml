@@ -1,10 +1,10 @@
 package com.dipasquale.ai.rl.neat.common.game2048;
 
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.common.random.float1.UniformRandomSupport;
+import com.dipasquale.common.random.UniformRandomSupport;
 import com.dipasquale.simulation.game2048.Game;
-import com.dipasquale.simulation.game2048.ValuedTileAdderPlayer;
 import com.dipasquale.simulation.game2048.ValuedTileSupport;
+import com.dipasquale.simulation.game2048.player.ValuedTileAllocationPlayer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -14,11 +14,11 @@ final class RandomGameFactory implements ObjectFactory<Game> {
 
     @Override
     public Game create() {
-        UniformRandomSupport locationRandomSupport = new UniformRandomSupport();
-        UniformRandomSupport valueRandomSupport = new UniformRandomSupport();
-        ValuedTileSupport valuedTileSupport = new ValuedTileSupport(locationRandomSupport, valueRandomSupport);
-        ValuedTileAdderPlayer valuedTileAdder = new ValuedTileAdderPlayer(valuedTileSupport);
+        UniformRandomSupport tileIdRandomSupport = new UniformRandomSupport();
+        UniformRandomSupport exponentialValueRandomSupport = new UniformRandomSupport();
+        ValuedTileSupport valuedTileSupport = new ValuedTileSupport(tileIdRandomSupport, exponentialValueRandomSupport);
+        ValuedTileAllocationPlayer valuedTileAdder = new ValuedTileAllocationPlayer(valuedTileSupport);
 
-        return new Game(victoryValue, valuedTileAdder);
+        return Game.create(victoryValue, valuedTileAdder);
     }
 }

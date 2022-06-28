@@ -7,13 +7,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.concurrent.ExecutorService;
-
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PACKAGE)
 @Getter
 final class EventLoopParams {
-    private final ExecutorService executorService;
     private final DateTimeSupport dateTimeSupport;
     private final ErrorHandler errorHandler;
 }

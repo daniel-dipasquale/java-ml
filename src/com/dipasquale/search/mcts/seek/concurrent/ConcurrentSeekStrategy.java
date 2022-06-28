@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.seek.concurrent;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.SearchNodeExplorer;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.concurrent.ConcurrentEdge;
@@ -28,11 +27,11 @@ import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class ConcurrentSeekStrategy<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> implements SeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
+public final class ConcurrentSeekStrategy<TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> implements SeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
     private final ParallelEventLoop eventLoop;
     private final ParallelExecutionContext<ConcurrentSearchNode<TAction, TEdge, TState>> executionContext;
 
-    private static <TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> ParallelExecutionProxyFactory<SeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>>> createProxyFactory(final InternalArguments<TAction, TEdge, TState> arguments) {
+    private static <TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> ParallelExecutionProxyFactory<SeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>>> createProxyFactory(final InternalArguments<TAction, TEdge, TState> arguments) {
         return (workerId, count) -> {
             InternalSeekPolicy fixedSearchPolicy = new InternalSeekPolicy(count, arguments.seekPolicy);
 
@@ -40,7 +39,7 @@ public final class ConcurrentSeekStrategy<TAction extends Action, TEdge extends 
         };
     }
 
-    private static <TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> ParallelExecutionHandler<SeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>>, ConcurrentSearchNode<TAction, TEdge, TState>> createHandler() {
+    private static <TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> ParallelExecutionHandler<SeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>>, ConcurrentSearchNode<TAction, TEdge, TState>> createHandler() {
         return (searchStrategy, rootSearchNode) -> searchStrategy.process(rootSearchNode);
     }
 
@@ -69,7 +68,7 @@ public final class ConcurrentSeekStrategy<TAction extends Action, TEdge extends 
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalArguments<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> {
+    private static final class InternalArguments<TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> {
         private final SeekPolicy seekPolicy;
         private final SelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> selectionPolicy;
         private final SimulationPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> simulationPolicy;
@@ -98,7 +97,7 @@ public final class ConcurrentSeekStrategy<TAction extends Action, TEdge extends 
         }
     }
 
-    private static final class InternalSeekStrategy<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
+    private static final class InternalSeekStrategy<TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSeekStrategy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
         private InternalSeekStrategy(final SeekPolicy seekPolicy, final SelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> selectionPolicy, final SimulationPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> simulationPolicy, final BackPropagationPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> backPropagationPolicy, final SearchNodeExplorer<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> searchNodeExplorer) {
             super(seekPolicy, selectionPolicy, simulationPolicy, backPropagationPolicy, searchNodeExplorer);
         }

@@ -1,6 +1,6 @@
 package com.dipasquale.simulation.cart.pole;
 
-import com.dipasquale.common.random.float2.RandomSupport;
+import com.dipasquale.common.random.RandomSupport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,10 +40,10 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
     private double timeSpent = 0D;
 
     public static CartPoleEnvironment createRandom(final RandomSupport randomSupport, final double positionLimit, final double angleRadiansLimit) {
-        double x = randomSupport.next(-0.5D * positionLimit, 0.5D * positionLimit);
-        double theta = randomSupport.next(-0.5D * angleRadiansLimit, 0.5D * angleRadiansLimit);
-        double dx = randomSupport.next(-1D, 1D);
-        double dTheta = randomSupport.next(-1D, 1D);
+        double x = randomSupport.nextDouble(-0.5D * positionLimit, 0.5D * positionLimit);
+        double theta = randomSupport.nextDouble(-0.5D * angleRadiansLimit, 0.5D * angleRadiansLimit);
+        double dx = randomSupport.nextDouble(-1D, 1D);
+        double dTheta = randomSupport.nextDouble(-1D, 1D);
 
         return CartPoleEnvironment.builder()
                 .x(x)
@@ -99,7 +99,7 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
     }
 
     public double stepInNoisyDiscrete(final double action, final RandomSupport randomSupport) {
-        double fixedAction = action + randomSupport.next(-0.2D, 0.2D);
+        double fixedAction = action + randomSupport.nextDouble(-0.2D, 0.2D);
 
         if (Double.compare(fixedAction, 0.5D) >= 0) {
             return step(10D);

@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.alphazero.expansion;
 
-import com.dipasquale.common.random.float2.MultivariateDistributionSupport;
-import com.dipasquale.search.mcts.Action;
+import com.dipasquale.common.random.MultivariateDistributionSupport;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeGroup;
 import com.dipasquale.search.mcts.State;
@@ -10,7 +9,7 @@ import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> {
+public final class ExplorationProbabilityNoiseRootExpansionPolicy<TAction, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> {
     static final float DEFAULT_SHAPE = 0.5f;
     static final float DEFAULT_EPSILON = 0.25f;
     private final double shape;

@@ -45,16 +45,16 @@ public final class ErrorHandlerSupportTest {
             ErrorHandlerSupport.failAsSuppressedIfAny(() -> new IllegalStateException("test-message"), List.of(new IllegalStateException("illegal-state-exception")));
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(IllegalStateException.class)
                     .message("test-message")
                     .suppressed(List.of(
-                            ErrorComparator.builder()
+                            ErrorSnapshot.builder()
                                     .type(IllegalStateException.class)
                                     .message("illegal-state-exception")
                                     .build()
                     ))
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
     }
 
@@ -64,16 +64,16 @@ public final class ErrorHandlerSupportTest {
             ErrorHandlerSupport.failAsSuppressedIfAny("test-message", List.of(new IllegalStateException("illegal-state-exception")));
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(RuntimeException.class)
                     .message("test-message")
                     .suppressed(List.of(
-                            ErrorComparator.builder()
+                            ErrorSnapshot.builder()
                                     .type(IllegalStateException.class)
                                     .message("illegal-state-exception")
                                     .build()
                     ))
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
     }
 

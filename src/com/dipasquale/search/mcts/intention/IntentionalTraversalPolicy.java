@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.intention;
 
 import com.dipasquale.common.OptimalPairScouter;
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeGroup;
@@ -12,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Comparator;
 
 @RequiredArgsConstructor
-public final class IntentionalTraversalPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> extends AbstractExplorableChildrenTraversalPolicy<TAction, TEdge, TState, TSearchNode> {
+public final class IntentionalTraversalPolicy<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> extends AbstractExplorableChildrenTraversalPolicy<TAction, TEdge, TState, TSearchNode> {
     private static final Comparator<Float> FLOAT_ASCENDING_COMPARATOR = Float::compare;
     private final UctAlgorithm<TEdge> uctAlgorithm;
 
@@ -29,5 +28,10 @@ public final class IntentionalTraversalPolicy<TAction extends Action, TEdge exte
         }
 
         return optimalIndexScouter.getValue();
+    }
+
+    @Override
+    protected void expand(final TSearchNode childSearchNode) {
+        assert childSearchNode.isExpanded();
     }
 }

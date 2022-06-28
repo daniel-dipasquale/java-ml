@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class StandardSearchNodeGroupProvider<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractSearchNodeGroupProvider<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
+public final class StandardSearchNodeGroupProvider<TAction, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractSearchNodeGroupProvider<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
     private static final StandardSearchNodeGroupProvider<?, ?, ?> INSTANCE = new StandardSearchNodeGroupProvider<>();
 
-    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> StandardSearchNodeGroupProvider<TAction, TEdge, TState> getInstance() {
+    public static <TAction, TEdge extends Edge, TState extends State<TAction, TState>> StandardSearchNodeGroupProvider<TAction, TEdge, TState> getInstance() {
         return (StandardSearchNodeGroupProvider<TAction, TEdge, TState>) INSTANCE;
     }
 

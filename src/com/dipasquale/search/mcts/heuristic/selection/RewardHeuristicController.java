@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.heuristic.selection;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.State;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class RewardHeuristicController<TAction extends Action, TState extends State<TAction, TState>> implements RewardHeuristic<TAction, TState> {
+public final class RewardHeuristicController<TAction, TState extends State<TAction, TState>> implements RewardHeuristic<TAction, TState> {
     private final EnumSet<RewardHeuristicPermissionType> permissionTypes;
     private final List<WeightedRewardHeuristic<TAction, TState>> weightedRewardHeuristics;
     private final float totalWeight;
@@ -23,7 +22,7 @@ public final class RewardHeuristicController<TAction extends Action, TState exte
             return 0f;
         }
 
-        boolean intentional = state.isIntentional();
+        boolean intentional = state.isActionIntentional();
 
         if (intentional && !permissionTypes.contains(RewardHeuristicPermissionType.ALLOWED_ON_INTENTIONAL_STATES) || !intentional && !permissionTypes.contains(RewardHeuristicPermissionType.ALLOWED_ON_UNINTENTIONAL_STATES)) {
             return 0f;
@@ -38,18 +37,18 @@ public final class RewardHeuristicController<TAction extends Action, TState exte
         return value / totalWeight;
     }
 
-    public static <TAction extends Action, TState extends State<TAction, TState>> Builder<TAction, TState> builder() {
+    public static <TAction, TState extends State<TAction, TState>> Builder<TAction, TState> builder() {
         return new Builder<>();
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class WeightedRewardHeuristic<TAction extends Action, TState extends State<TAction, TState>> {
+    private static final class WeightedRewardHeuristic<TAction, TState extends State<TAction, TState>> {
         private final RewardHeuristic<TAction, TState> rewardHeuristic;
         private final float weight;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static final class Builder<TAction extends Action, TState extends State<TAction, TState>> {
+    public static final class Builder<TAction, TState extends State<TAction, TState>> {
         private static final EnumSet<RewardHeuristicPermissionType> EMPTY_PERMISSION_TYPE = EnumSet.noneOf(RewardHeuristicPermissionType.class);
         @Setter(AccessLevel.PRIVATE)
         private EnumSet<RewardHeuristicPermissionType> permissionTypes = null;

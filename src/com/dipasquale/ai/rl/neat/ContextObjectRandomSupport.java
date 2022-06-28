@@ -3,7 +3,7 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
+import com.dipasquale.synchronization.dual.mode.random.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,7 +28,7 @@ final class ContextObjectRandomSupport implements Context.RandomSupport {
 
     @Override
     public int generateIndex(final int offset, final int count) {
-        return generateIndexOrItemRandomSupport.next(offset, count);
+        return generateIndexOrItemRandomSupport.nextInteger(offset, count);
     }
 
     @Override
@@ -38,7 +38,7 @@ final class ContextObjectRandomSupport implements Context.RandomSupport {
 
     @Override
     public <T> T generateItem(final ProbabilityClassifier<T> probabilityClassifier) {
-        float value = generateIndexOrItemRandomSupport.next();
+        float value = generateIndexOrItemRandomSupport.nextFloat();
 
         return probabilityClassifier.get(value);
     }

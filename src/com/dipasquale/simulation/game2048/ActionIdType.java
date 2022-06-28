@@ -12,16 +12,14 @@ public enum ActionIdType {
     RIGHT(2),
     DOWN(3);
 
-    private static final ActionIdType[] VALUES = createActionIds();
+    private static final ActionIdType[] ACTION_ID_TYPES = createActionIds();
     private final int value;
 
     private static ActionIdType[] createActionIds() {
         ActionIdType[] actionIdTypes = ActionIdType.values();
         ActionIdType[] fixedActionIdTypes = new ActionIdType[actionIdTypes.length];
 
-        for (int i = 0; i < actionIdTypes.length; i++) {
-            ActionIdType actionIdType = actionIdTypes[i];
-
+        for (ActionIdType actionIdType : actionIdTypes) {
             fixedActionIdTypes[actionIdType.value] = actionIdType;
         }
 
@@ -29,6 +27,6 @@ public enum ActionIdType {
     }
 
     public static ActionIdType from(final int id) {
-        return VALUES[id];
+        return ACTION_ID_TYPES[id];
     }
 }

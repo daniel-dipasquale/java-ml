@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.buffer;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
@@ -10,14 +9,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.Iterator;
 
 @RequiredArgsConstructor
-public final class GenerationTree<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+public final class GenerationTree<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
     private Generation<TAction, TEdge, TState, TSearchNode> generation = new Generation<>();
 
     public void seed(final TSearchNode searchNode) {
         generation.replace(searchNode);
     }
 
-    private static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Generation<TAction, TEdge, TState, TSearchNode> queryDescendantGeneration(final Iterator<StateId> tokenizedTreeIds, final Generation<TAction, TEdge, TState, TSearchNode> firstGeneration) {
+    private static <TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> Generation<TAction, TEdge, TState, TSearchNode> queryDescendantGeneration(final Iterator<StateId> tokenizedTreeIds, final Generation<TAction, TEdge, TState, TSearchNode> firstGeneration) {
         Generation<TAction, TEdge, TState, TSearchNode> temporaryGeneration = firstGeneration;
 
         if (tokenizedTreeIds.hasNext()) {

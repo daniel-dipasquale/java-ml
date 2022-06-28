@@ -9,11 +9,10 @@ import com.dipasquale.synchronization.wait.handle.TogglingWaitHandle;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
@@ -22,9 +21,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 final class ExplicitDelayEventLoop implements EventLoop {
     private static final long ZERO_DELAY = 0L;
-    private final AtomicLazyReference<List<Long>> threadIds;
+    private final AtomicLazyReference<Set<Long>> threadIds;
     private final Queue<EventRecord> eventRecords;
-    private final ExecutorService executorService;
+    private final Thread workerThread;
     private final DateTimeSupport dateTimeSupport;
     private final Lock producerLock;
     private final Lock consumerLock;
@@ -38,7 +37,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
     private ExplicitDelayEventLoop(final ExplicitDelayEventLoopParams params, final Lock consumerLock, final EventLoop entryPoint) {
         this.threadIds = new AtomicLazyReference<>(this::captureThreadIds);
         this.eventRecords = params.getEventRecords();
-        this.executorService = params.getExecutorService();
+        this.workerThread = new Thread(this::handleQueuedEvents);
         this.dateTimeSupport = params.getDateTimeSupport();
         this.producerLock = new ReentrantLock();
         this.consumerLock = consumerLock;
@@ -126,7 +125,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
                 if (!started) {
                     started = true;
                     shutdown.set(false);
-                    executorService.submit(this::handleQueuedEvents);
+                    workerThread.start();
                 } else {
                     consumerLock_empty_condition.signal();
                 }
@@ -140,7 +139,7 @@ final class ExplicitDelayEventLoop implements EventLoop {
         }
     }
 
-    private List<Long> captureThreadIds() {
+    private Set<Long> captureThreadIds() {
         ThreadIdCatcher threadIdCatcher = new ThreadIdCatcher();
 
         queue(new ThreadIdCatcherEventLoopHandler(threadIdCatcher), ZERO_DELAY);
@@ -153,11 +152,11 @@ final class ExplicitDelayEventLoop implements EventLoop {
             throw new InterruptedRuntimeException("unable to capture the thread id", e);
         }
 
-        return List.of(threadIdCatcher.value);
+        return Set.of(threadIdCatcher.value);
     }
 
     @Override
-    public List<Long> getThreadIds() {
+    public Set<Long> getThreadIds() {
         return threadIds.getReference();
     }
 

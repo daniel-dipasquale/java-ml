@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.selection;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
@@ -10,24 +9,18 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractSelectionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TContext> implements SelectionPolicy<TAction, TEdge, TState, TSearchNode> {
+public abstract class AbstractSelectionPolicy<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TContext> implements SelectionPolicy<TAction, TEdge, TState, TSearchNode> {
+    private final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy;
     private final TraversalPolicy<TAction, TEdge, TState, TSearchNode> unexploredPrimerTraversalPolicy;
     private final TraversalPolicy<TAction, TEdge, TState, TSearchNode> explorableTraversalPolicy;
-    private final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy;
 
     protected abstract TContext createContext();
 
     protected abstract void visit(TContext context, TSearchNode searchNode);
 
-    protected boolean shouldSelect(final TSearchNode searchNode) {
-        expansionPolicy.expand(searchNode);
+    protected abstract boolean shouldSelectCandidateLeaf(final TSearchNode candidateSearchNode);
 
-        return true;
-    }
-
-    protected TSearchNode selectLeaf(final TSearchNode searchNode) {
-        return searchNode;
-    }
+    protected abstract boolean shouldSelectKnownLeaf(TSearchNode knownSearchNode);
 
     protected TSearchNode selectNone() {
         return null;
@@ -43,13 +36,19 @@ public abstract class AbstractSelectionPolicy<TAction extends Action, TEdge exte
         try {
             visit(context, nextSearchNode);
 
+            if (simulations == 1) {
+                expansionPolicy.expand(nextSearchNode);
+            }
+
             while (true) {
                 TSearchNode candidateSearchNode = unexploredPrimerTraversalPolicy.next(simulations, nextSearchNode);
 
                 if (candidateSearchNode != null) {
                     visit(context, candidateSearchNode);
 
-                    if (shouldSelect(candidateSearchNode)) {
+                    if (shouldSelectCandidateLeaf(candidateSearchNode)) {
+                        assert candidateSearchNode.isExpanded();
+
                         return candidateSearchNode;
                     }
 
@@ -65,7 +64,13 @@ public abstract class AbstractSelectionPolicy<TAction extends Action, TEdge exte
                 visit(context, nextSearchNode);
 
                 if (nextSearchNode.isFullyExplored()) {
-                    return selectLeaf(nextSearchNode);
+                    assert nextSearchNode.isExpanded();
+
+                    if (!shouldSelectKnownLeaf(nextSearchNode)) {
+                        return null;
+                    }
+
+                    return nextSearchNode;
                 }
             }
         } finally {

@@ -5,14 +5,14 @@ import com.dipasquale.data.structure.group.ListSetGroup;
 
 import java.util.Iterator;
 
-public final class HashedSearchNodeGroup<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNodeGroup<TAction, TEdge, TState, TSearchNode> {
+public final class HashedSearchNodeGroup<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNodeGroup<TAction, TEdge, TState, TSearchNode> {
     private final ListSetGroup<Integer, TSearchNode> searchNodes;
 
-    private static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> int getKey(final TSearchNode searchNode) {
-        return searchNode.getAction().getId();
+    private static <TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> int getKey(final TSearchNode searchNode) {
+        return searchNode.getActionId();
     }
 
-    private static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ListSetGroup<Integer, TSearchNode> createSearchNodes() {
+    private static <TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ListSetGroup<Integer, TSearchNode> createSearchNodes() {
         return new ListSetGroup<>(HashedSearchNodeGroup::getKey);
     }
 
@@ -20,7 +20,7 @@ public final class HashedSearchNodeGroup<TAction extends Action, TEdge extends E
         this.searchNodes = createSearchNodes();
     }
 
-    private static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ListSetGroup<Integer, TSearchNode> createInitializedSearchNodes(final Iterable<TSearchNode> searchNodes) {
+    private static <TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ListSetGroup<Integer, TSearchNode> createInitializedSearchNodes(final Iterable<TSearchNode> searchNodes) {
         ListSetGroup<Integer, TSearchNode> fixedSearchNodes = createSearchNodes();
 
         for (TSearchNode searchNode : searchNodes) {

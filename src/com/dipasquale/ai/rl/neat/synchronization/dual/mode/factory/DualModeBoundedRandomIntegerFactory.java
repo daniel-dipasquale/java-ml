@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory;
 
 import com.dipasquale.common.factory.IntegerFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
+import com.dipasquale.synchronization.dual.mode.random.DualModeRandomSupport;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -18,7 +18,7 @@ public final class DualModeBoundedRandomIntegerFactory implements IntegerFactory
 
     @Override
     public int create() {
-        return randomSupport.next(minimum, maximum);
+        return randomSupport.nextInteger(minimum, maximum);
     }
 
     @Override

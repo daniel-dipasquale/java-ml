@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.heuristic.concurrent;
 
 import com.dipasquale.common.factory.ObjectCloner;
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.concurrent.AbstractRcuLockSearchNodeFactory;
@@ -9,13 +8,13 @@ import com.dipasquale.synchronization.lock.RcuLock;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
-final class RcuLockHeuristicSearchNodeFactory<TAction extends Action, TState extends State<TAction, TState>> extends AbstractRcuLockSearchNodeFactory<TAction, ConcurrentHeuristicEdge, TState> {
+final class RcuLockHeuristicSearchNodeFactory<TAction, TState extends State<TAction, TState>> extends AbstractRcuLockSearchNodeFactory<TAction, ConcurrentHeuristicEdge, TState> {
     private static final EdgeFactoryCreator<ConcurrentHeuristicEdge> EDGE_FACTORY_CREATOR = InternalEdgeFactory::new;
     private static final ObjectCloner<ConcurrentHeuristicEdge> EDGE_CLONER = ConcurrentHeuristicEdge::new;
 
-    RcuLockHeuristicSearchNodeFactory(final List<Long> threadIds) {
+    RcuLockHeuristicSearchNodeFactory(final Set<Long> threadIds) {
         super(EDGE_FACTORY_CREATOR, threadIds, EDGE_CLONER);
     }
 

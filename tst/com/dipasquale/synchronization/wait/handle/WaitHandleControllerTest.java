@@ -1,6 +1,6 @@
 package com.dipasquale.synchronization.wait.handle;
 
-import com.dipasquale.common.error.ErrorComparator;
+import com.dipasquale.common.error.ErrorSnapshot;
 import com.dipasquale.common.time.DateTimeSupport;
 import com.dipasquale.common.time.ProxyDateTimeSupport;
 import lombok.Builder;
@@ -90,10 +90,10 @@ public final class WaitHandleControllerTest {
             test.await();
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(InterruptedException.class)
                     .message("throw interrupted exception 1")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         Assertions.assertEquals(List.of(
@@ -124,10 +124,10 @@ public final class WaitHandleControllerTest {
             test.await();
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(InterruptedException.class)
                     .message("throw interrupted exception 2")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         Assertions.assertEquals(List.of(
@@ -240,10 +240,10 @@ public final class WaitHandleControllerTest {
             test.await(4L, TimeUnit.MILLISECONDS);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(InterruptedException.class)
                     .message("throw interrupted exception 1")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         Assertions.assertEquals(List.of(
@@ -272,10 +272,10 @@ public final class WaitHandleControllerTest {
             test.await(4L, TimeUnit.MILLISECONDS);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(InterruptedException.class)
                     .message("throw interrupted exception 2")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         Assertions.assertEquals(List.of(

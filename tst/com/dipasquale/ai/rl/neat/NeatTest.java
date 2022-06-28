@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Timeout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public final class NeatTest {
@@ -33,14 +31,12 @@ public final class NeatTest {
     private static final boolean OPEN_AI_CART_POLE_TASKS_ENABLED = false;
     private static final boolean TIC_TAC_TOE_TASKS_ENABLED = false;
     private static final boolean GAME_2048_TASKS_ENABLED = false;
-    private static final int NUMBER_OF_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    private static final int CONCURRENCY_LEVEL = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
     private static final ParallelEventLoop EVENT_LOOP = ParallelEventLoop.builder()
             .settings(ParallelEventLoopSettings.builder()
-                    .executorService(EXECUTOR_SERVICE)
-                    .numberOfThreads(NUMBER_OF_THREADS)
+                    .concurrencyLevel(CONCURRENCY_LEVEL)
                     .errorHandler(UNHANDLED_EXCEPTIONS::add)
                     .dateTimeSupport(new MillisecondsDateTimeSupport())
                     .build())
@@ -58,7 +54,6 @@ public final class NeatTest {
         }
 
         EVENT_LOOP.shutdown();
-        EXECUTOR_SERVICE.shutdown();
     }
 
     @BeforeEach

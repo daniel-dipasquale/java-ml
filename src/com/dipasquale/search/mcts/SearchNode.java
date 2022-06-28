@@ -1,6 +1,6 @@
 package com.dipasquale.search.mcts;
 
-public interface SearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+public interface SearchNode<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
     int NO_SELECTED_EXPLORABLE_CHILD_KEY = -1;
 
     TSearchNode getParent();
@@ -9,13 +9,23 @@ public interface SearchNode<TAction extends Action, TEdge extends Edge, TState e
 
     void reinitialize(SearchResult<TAction, TState> result);
 
-    TAction getAction();
+    default int getActionId() {
+        return getResult().getActionId();
+    }
+
+    default TAction getAction() {
+        return getResult().getAction();
+    }
 
     TEdge getEdge();
 
-    TState getState();
+    default StateId getStateId() {
+        return getResult().getStateId();
+    }
 
-    StateId getStateId();
+    default TState getState() {
+        return getResult().getState();
+    }
 
     Iterable<TSearchNode> createAllPossibleChildren(EdgeFactory<TEdge> edgeFactory);
 

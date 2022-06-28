@@ -2,7 +2,7 @@ package com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory;
 
 import com.dipasquale.common.factory.FloatFactory;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
+import com.dipasquale.synchronization.dual.mode.random.DualModeRandomSupport;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -16,7 +16,7 @@ public final class DualModeRandomFloatFactory implements FloatFactory, DualModeO
 
     @Override
     public float create() {
-        return randomSupport.next();
+        return randomSupport.nextFloat();
     }
 
     @Override

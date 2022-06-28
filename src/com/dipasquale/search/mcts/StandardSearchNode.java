@@ -3,7 +3,7 @@ package com.dipasquale.search.mcts;
 import lombok.Getter;
 import lombok.Setter;
 
-public final class StandardSearchNode<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractSearchNode<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
+public final class StandardSearchNode<TAction, TEdge extends Edge, TState extends State<TAction, TState>> extends AbstractSearchNode<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
     @Getter
     @Setter
     private int selectedExplorableChildKey;

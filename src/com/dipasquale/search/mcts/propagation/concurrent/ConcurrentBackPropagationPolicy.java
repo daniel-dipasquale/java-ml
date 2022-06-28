@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.propagation.concurrent;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.SearchNodeExplorer;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.concurrent.ConcurrentEdge;
@@ -11,7 +10,7 @@ import com.dipasquale.search.mcts.propagation.BackPropagationStep;
 
 import java.util.concurrent.locks.Lock;
 
-public final class ConcurrentBackPropagationPolicy<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>, TContext> extends AbstractBackPropagationPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>, TContext> {
+public final class ConcurrentBackPropagationPolicy<TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>, TContext> extends AbstractBackPropagationPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>, TContext> {
     public ConcurrentBackPropagationPolicy(final SearchNodeExplorer<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> searchNodeExplorer, final BackPropagationStep<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>, TContext> step, final BackPropagationObserver<TAction, TState> observer) {
         super(searchNodeExplorer, step, observer);
     }

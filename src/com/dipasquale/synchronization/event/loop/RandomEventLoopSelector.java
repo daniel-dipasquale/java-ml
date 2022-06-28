@@ -1,7 +1,7 @@
 package com.dipasquale.synchronization.event.loop;
 
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.common.random.float1.UniformRandomSupport;
+import com.dipasquale.common.random.RandomSupport;
+import com.dipasquale.common.random.UniformRandomSupport;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +20,6 @@ public final class RandomEventLoopSelector implements EventLoopSelector {
     public int nextIndex(final List<EventLoop> eventLoops) {
         int size = eventLoops.size();
 
-        return RANDOM_SUPPORT.next(0, size);
+        return RANDOM_SUPPORT.nextInteger(0, size);
     }
 }

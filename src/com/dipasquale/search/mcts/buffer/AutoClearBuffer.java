@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.buffer;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeFactory;
@@ -10,7 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class AutoClearBuffer<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements Buffer<TAction, TEdge, TState, TSearchNode> {
+final class AutoClearBuffer<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements Buffer<TAction, TEdge, TState, TSearchNode> {
     private int ownerParticipantId = Integer.MIN_VALUE;
     private final GenerationTree<TAction, TEdge, TState, TSearchNode> generationTree = new GenerationTree<>();
     private final SearchNodeFactory<TAction, TEdge, TState, TSearchNode> searchNodeFactory;

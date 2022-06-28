@@ -24,9 +24,10 @@ import com.dipasquale.ai.rl.neat.synchronization.dual.mode.internal.IdType;
 import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.strategy.fitness.DualModeFitnessCalculationStrategy;
 import com.dipasquale.common.factory.ObjectIndexReader;
 import com.dipasquale.common.random.ProbabilityClassifier;
+import com.dipasquale.data.structure.collection.ListSupport;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
+import com.dipasquale.synchronization.dual.mode.random.DualModeRandomSupport;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -86,10 +87,10 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
     private static DualModeFitnessCalculationStrategy createFitnessCalculationStrategy(final InitializationContext initializationContext) {
         return switch (initializationContext.getEnvironmentType()) {
             case ISOLATED -> {
-                List<FitnessCalculationStrategy> concurrentStrategies = List.of(
-                        new ConcurrentOrganismFitnessCalculationStrategy(),
-                        new SharedFitnessCalculationStrategy()
-                );
+                List<FitnessCalculationStrategy> concurrentStrategies = ListSupport.<FitnessCalculationStrategy>builder()
+                        .add(new ConcurrentOrganismFitnessCalculationStrategy())
+                        .add(new SharedFitnessCalculationStrategy())
+                        .build();
 
                 FitnessCalculationStrategy concurrentStrategy = new FitnessCalculationStrategyController(concurrentStrategies);
                 FitnessCalculationStrategy defaultStrategy = new AllFitnessCalculationStrategy();
@@ -98,10 +99,10 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
             }
 
             case SHARED -> {
-                List<FitnessCalculationStrategy> strategies = List.of(
-                        new SharedEnvironmentFitnessCalculationStrategy(),
-                        new SharedFitnessCalculationStrategy()
-                );
+                List<FitnessCalculationStrategy> strategies = ListSupport.<FitnessCalculationStrategy>builder()
+                        .add(new SharedEnvironmentFitnessCalculationStrategy())
+                        .add(new SharedFitnessCalculationStrategy())
+                        .build();
 
                 FitnessCalculationStrategy strategy = new FitnessCalculationStrategyController(strategies);
 
@@ -111,20 +112,20 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
     }
 
     private static SelectionStrategyExecutor createSelectionStrategy() {
-        List<SelectionStrategy> strategies = List.of(
-                new LeastFitRemoverSelectionStrategy(),
-                new ChampionPromoterSelectionStrategy()
-        );
+        List<SelectionStrategy> strategies = ListSupport.<SelectionStrategy>builder()
+                .add(new LeastFitRemoverSelectionStrategy())
+                .add(new ChampionPromoterSelectionStrategy())
+                .build();
 
         return new SelectionStrategyExecutor(strategies);
     }
 
     private static ReproductionStrategy createReproductionStrategy() {
-        List<ReproductionStrategy> strategies = List.of(
-                new PreserveMostFitReproductionStrategy(),
-                new MateAndMutateReproductionStrategy(),
-                new GenesisReproductionStrategy()
-        );
+        List<ReproductionStrategy> strategies = ListSupport.<ReproductionStrategy>builder()
+                .add(new PreserveMostFitReproductionStrategy())
+                .add(new MateAndMutateReproductionStrategy())
+                .add(new GenesisReproductionStrategy())
+                .build();
 
         return new ReproductionStrategyController(strategies);
     }
@@ -255,7 +256,7 @@ final class ContextObjectSpeciationSupport implements Context.SpeciationSupport 
 
         @Override
         public ReproductionType get(final int organisms) {
-            float value = randomSupport.next();
+            float value = randomSupport.nextFloat();
 
             if (organisms >= 2) {
                 return generalReproductionTypeClassifier.get(value);

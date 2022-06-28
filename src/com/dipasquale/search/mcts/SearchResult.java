@@ -6,25 +6,27 @@ import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-public final class SearchResult<TAction extends Action, TState extends State<TAction, TState>> {
+public final class SearchResult<TAction, TState extends State<TAction, TState>> {
+    private int actionId;
     private TAction action;
-    private TState state;
     private final StateId stateId;
+    private TState state;
 
-    static <TAction extends Action, TState extends State<TAction, TState>> SearchResult<TAction, TState> createRoot(final TState state) {
-        return new SearchResult<>(state.createRootAction(), state, new StateId());
+    static <TAction, TState extends State<TAction, TState>> SearchResult<TAction, TState> createRoot(final TState state) {
+        return new SearchResult<>(MonteCarloTreeSearch.ROOT_ACTION_ID, null, new StateId(), state);
     }
 
     void reinitialize(final SearchResult<TAction, TState> result) {
+        actionId = result.actionId;
         action = result.action;
         state = result.state;
         stateId.reinitialize(result.stateId);
     }
 
-    public SearchResult<TAction, TState> createChild(final TAction action) {
+    public SearchResult<TAction, TState> createChild(final int actionId, final TAction action) {
+        StateId childStateId = stateId.createChild(actionId);
         TState childState = state.accept(action);
-        StateId childStateId = stateId.createChild(action.getId());
 
-        return new SearchResult<>(action, childState, childStateId);
+        return new SearchResult<>(actionId, action, childStateId, childState);
     }
 }

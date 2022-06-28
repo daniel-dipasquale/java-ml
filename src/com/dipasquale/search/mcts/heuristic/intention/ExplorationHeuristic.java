@@ -1,8 +1,6 @@
 package com.dipasquale.search.mcts.heuristic.intention;
 
-import com.dipasquale.search.mcts.Action;
-
 @FunctionalInterface
-public interface ExplorationHeuristic<T extends Action> {
+public interface ExplorationHeuristic<T> {
     float estimate(T action);
 }

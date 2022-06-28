@@ -12,15 +12,15 @@ public final class GameResult {
     private final GameState state;
 
     public boolean isSuccessful() {
-        return state.getStatusId() == GameState.PLAYER_PARTICIPANT_ID;
+        return state.getStatusId() == GameState.INTENTIONAL_PLAYER_ID;
     }
 
     public int getHighestValue() {
-        return state.getHighestValue();
+        return state.getHighestExponentialValue();
     }
 
     public int getValueInTile(final int tileId) {
-        return state.getValueInTile(tileId);
+        return state.getExponentialValue(tileId);
     }
 
     public int getValuedTileCount() {

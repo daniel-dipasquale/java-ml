@@ -10,7 +10,6 @@ final class ExplicitDelayEventLoopFactory implements EventLoopFactory {
     public EventLoop create(final EventLoopParams params, final EventLoop entryPoint) {
         ExplicitDelayEventLoopParams fixedParams = ExplicitDelayEventLoopParams.builder()
                 .eventRecords(new PriorityQueue<>(COMPARATOR))
-                .executorService(params.getExecutorService())
                 .dateTimeSupport(params.getDateTimeSupport())
                 .errorHandler(params.getErrorHandler())
                 .build();

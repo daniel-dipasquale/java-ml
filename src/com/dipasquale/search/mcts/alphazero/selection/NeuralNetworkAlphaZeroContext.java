@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.alphazero.selection;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
@@ -14,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-public final class NeuralNetworkAlphaZeroContext<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> {
+public final class NeuralNetworkAlphaZeroContext<TAction, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> {
     private final TSearchNode searchNode;
     private final EdgeFactory<AlphaZeroEdge> edgeFactory;
     private final SearchNodeGroupProvider<TAction, AlphaZeroEdge, TState, TSearchNode> searchNodeGroupProvider;

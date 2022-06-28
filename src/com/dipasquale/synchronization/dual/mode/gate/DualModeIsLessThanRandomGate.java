@@ -2,7 +2,7 @@ package com.dipasquale.synchronization.dual.mode.gate;
 
 import com.dipasquale.common.gate.Gate;
 import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.random.float1.DualModeRandomSupport;
+import com.dipasquale.synchronization.dual.mode.random.DualModeRandomSupport;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;

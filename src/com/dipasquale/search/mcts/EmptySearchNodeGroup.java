@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import java.util.Iterator;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class EmptySearchNodeGroup<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNodeGroup<TAction, TEdge, TState, TSearchNode> {
+public final class EmptySearchNodeGroup<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements SearchNodeGroup<TAction, TEdge, TState, TSearchNode> {
     private static final EmptyIterator<?> EMPTY_ITERATOR = new EmptyIterator<>();
     private static final EmptySearchNodeGroup<?, ?, ?, ?> INSTANCE = new EmptySearchNodeGroup<>();
 
-    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> EmptySearchNodeGroup<TAction, TEdge, TState, TSearchNode> getInstance() {
+    public static <TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> EmptySearchNodeGroup<TAction, TEdge, TState, TSearchNode> getInstance() {
         return (EmptySearchNodeGroup<TAction, TEdge, TState, TSearchNode>) INSTANCE;
     }
 

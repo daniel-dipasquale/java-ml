@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.expansion.intention;
 
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.search.mcts.Action;
+import com.dipasquale.common.random.RandomSupport;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
@@ -12,7 +11,7 @@ import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class IntentionalExpansionPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, TEdge, TState, TSearchNode> {
+public final class IntentionalExpansionPolicy<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, TEdge, TState, TSearchNode> {
     private final EdgeFactory<TEdge> edgeFactory;
     private final SearchNodeGroupProvider<TAction, TEdge, TState, TSearchNode> searchNodeGroupProvider;
     private final RandomSupport randomSupport;

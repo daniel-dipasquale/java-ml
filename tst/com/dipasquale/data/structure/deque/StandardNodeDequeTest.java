@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.deque;
 
-import com.dipasquale.common.error.ErrorComparator;
+import com.dipasquale.common.error.ErrorSnapshot;
 import com.dipasquale.data.structure.collection.CollectionAsserter;
 import com.dipasquale.data.structure.collection.ListSupport;
 import org.junit.jupiter.api.Assertions;
@@ -29,30 +29,30 @@ public final class StandardNodeDequeTest { // TODO: redo these test cases
             TEST.getFirst();
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(NoSuchElementException.class)
                     .message("the deque is empty")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         try {
             TEST.getLast();
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(NoSuchElementException.class)
                     .message("the deque is empty")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         try {
             TEST.element();
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(NoSuchElementException.class)
                     .message("the deque is empty")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
     }
 
@@ -252,10 +252,10 @@ public final class StandardNodeDequeTest { // TODO: redo these test cases
             TEST.add(node);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(IllegalArgumentException.class)
                     .message("node was not created by this deque")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         Assertions.assertFalse(TEST.offer(node));

@@ -1,35 +1,38 @@
 package com.dipasquale.simulation.tictactoe;
 
-import com.dipasquale.common.bit.int1.BitManipulatorSupport;
+import com.dipasquale.common.bit.VectorManipulatorSupport;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.State;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@Getter
 public final class GameState implements State<GameAction, GameState> {
-    private static final int INITIAL_BOARD = 0;
-    private static final String INITIAL_ACTION_IDS = "";
+    private static final int EMPTY_BOARD_VECTOR = 0;
+    private static final List<Integer> EMPTY_LOCATION_IDS = List.of();
     private static final int FIRST_PARTICIPANT_ID = 2;
-    static final boolean IS_INTENTIONAL = true;
-    private static final int DIMENSION = 3;
-    static final int BOARD_LENGTH = DIMENSION * DIMENSION;
-    static final int NO_PARTICIPANT_ID = 0;
+    private static final boolean IS_INTENTIONAL = true;
+    private static final int VECTOR_DIMENSION_SIZE = 3;
+    public static final int BOARD_VECTOR_SIZE = VECTOR_DIMENSION_SIZE * VECTOR_DIMENSION_SIZE;
+    public static final int NO_PARTICIPANT_ID = 0;
     private static final int MAXIMUM_BITS_PER_TILE = 2;
-    private static final BitManipulatorSupport BIT_MANIPULATOR_SUPPORT = BitManipulatorSupport.create(MAXIMUM_BITS_PER_TILE);
-    @Getter(AccessLevel.NONE)
-    private final int board;
-    @Getter(AccessLevel.NONE)
-    private final String actionIds;
+    private static final VectorManipulatorSupport BOARD_VECTOR_MANIPULATOR_SUPPORT = VectorManipulatorSupport.create(MAXIMUM_BITS_PER_TILE);
+    private final int boardVector;
+    @Getter
+    private final List<Integer> locationIds;
+    @Getter
     private final int statusId;
+    @Getter
     private final int participantId;
 
     GameState() {
-        this(INITIAL_BOARD, INITIAL_ACTION_IDS, MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID, FIRST_PARTICIPANT_ID);
+        this(EMPTY_BOARD_VECTOR, EMPTY_LOCATION_IDS, MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID, FIRST_PARTICIPANT_ID);
     }
 
     @Override
@@ -38,81 +41,73 @@ public final class GameState implements State<GameAction, GameState> {
     }
 
     @Override
-    public boolean isIntentional() {
+    public boolean isActionIntentional() {
         return IS_INTENTIONAL;
     }
 
     @Override
-    public boolean isNextIntentional() {
+    public boolean isNextActionIntentional() {
         return IS_INTENTIONAL;
     }
 
-    @Override
-    public GameAction createRootAction() {
-        return new GameAction(MonteCarloTreeSearch.ROOT_ACTION_ID);
+    private static int extractParticipantIdFromBoardVector(final int boardVector, final int locationId) {
+        return BOARD_VECTOR_MANIPULATOR_SUPPORT.extract(boardVector, locationId);
     }
 
-    private static int extractValueFromBoard(final int board, final int actionId) {
-        return BIT_MANIPULATOR_SUPPORT.extract(board, actionId);
+    public int getParticipantId(final int locationId) {
+        return extractParticipantIdFromBoardVector(boardVector, locationId);
     }
 
-    public int getOwnerParticipantId(final int actionId) {
-        return extractValueFromBoard(board, actionId);
+    private boolean isValid(final int locationId) {
+        return locationId >= 0 && locationId < BOARD_VECTOR_SIZE && getParticipantId(locationId) == NO_PARTICIPANT_ID;
     }
 
-    private boolean isValid(final int actionId) {
-        return actionId >= 0 && actionId < BOARD_LENGTH && getOwnerParticipantId(actionId) == NO_PARTICIPANT_ID;
+    private GameAction createNextAction(final int locationId) {
+        return new GameAction(locationId);
     }
 
-    private GameAction createNextAction(final int id) {
-        return new GameAction(id);
-    }
-
-    public GameAction createAction(final int id) {
-        if (isValid(id)) {
-            return createNextAction(id);
+    public GameAction createAction(final int locationId) {
+        if (isValid(locationId)) {
+            return createNextAction(locationId);
         }
 
-        String message = String.format("game action is not valid due to id: %d", id);
+        String message = String.format("invalid locationId: %d", locationId);
 
         throw new IllegalArgumentException(message);
     }
 
     @Override
     public Iterable<GameAction> createAllPossibleActions() {
-        return IntStream.range(0, BOARD_LENGTH)
-                .filter(actionId -> getOwnerParticipantId(actionId) == NO_PARTICIPANT_ID)
+        return IntStream.range(0, BOARD_VECTOR_SIZE)
+                .filter(locationId -> getParticipantId(locationId) == NO_PARTICIPANT_ID)
                 .mapToObj(this::createNextAction)
                 ::iterator;
     }
 
-    public int[] replicateActionIds() {
-        return IntStream.range(0, actionIds.length())
-                .mapToObj(actionIds::charAt)
-                .mapToInt(actionId -> actionId - '0')
-                .toArray();
+    private static int mergeParticipantIdIntoBoardVector(final int boardVector, final int locationId, final int participantId) {
+        return BOARD_VECTOR_MANIPULATOR_SUPPORT.merge(boardVector, locationId, participantId);
     }
 
-    private static int mergeValueToBoard(final int board, final int actionId, final int value) {
-        return BIT_MANIPULATOR_SUPPORT.merge(board, actionId, value);
+    private static int mergeNextBoardVector(final int boardVector, final GameAction action, final int participantId) {
+        return mergeParticipantIdIntoBoardVector(boardVector, action.getLocationId(), participantId);
     }
 
-    private static int createBoard(final int board, final GameAction action, final int participantId) {
-        return mergeValueToBoard(board, action.getId(), participantId);
+    private static List<Integer> createNextLocationIds(final List<Integer> locationIds, final int locationId) {
+        List<Integer> nextLocationIds = new ArrayList<>(locationIds);
+
+        nextLocationIds.add(locationId);
+
+        return Collections.unmodifiableList(nextLocationIds);
     }
 
-    private static String createActionIds(final String actionIds, final int actionId) {
-        return String.format("%s%d", actionIds, actionId);
-    }
-
-    private static boolean isRowOrColumnTaken(final int board, final int participantId) {
-        for (int i1 = 0; i1 < DIMENSION; i1++) {
+    private static boolean isRowOrColumnTaken(final int boardVector, final int participantId) {
+        for (int i1 = 0; i1 < VECTOR_DIMENSION_SIZE; i1++) {
             boolean taken1 = true;
             boolean taken2 = true;
 
-            for (int i2 = 0; (taken1 || taken2) && i2 < DIMENSION; i2++) {
-                taken1 &= extractValueFromBoard(board, i1 * DIMENSION + i2) == participantId;
-                taken2 &= extractValueFromBoard(board, i2 * DIMENSION + i1) == participantId;
+            for (int i2 = 0; (taken1 || taken2) && i2 < VECTOR_DIMENSION_SIZE; i2++) {
+                taken1 &= extractParticipantIdFromBoardVector(boardVector, i1 * VECTOR_DIMENSION_SIZE + i2) == participantId;
+                taken2 &= extractParticipantIdFromBoardVector(boardVector, i2 * VECTOR_DIMENSION_SIZE + i1) == participantId;
             }
 
             if (taken1 || taken2) {
@@ -123,30 +118,30 @@ public final class GameState implements State<GameAction, GameState> {
         return false;
     }
 
-    private static boolean isDiagonalTaken(final int board, final int participantId) {
+    private static boolean isDiagonalTaken(final int boardVector, final int participantId) {
         boolean taken1 = true;
         boolean taken2 = true;
 
-        for (int i = 0; (taken1 || taken2) && i < DIMENSION; i++) {
-            taken1 &= extractValueFromBoard(board, i * DIMENSION + i) == participantId;
-            taken2 &= extractValueFromBoard(board, i * DIMENSION + (DIMENSION - i - 1)) == participantId;
+        for (int i = 0; (taken1 || taken2) && i < VECTOR_DIMENSION_SIZE; i++) {
+            taken1 &= extractParticipantIdFromBoardVector(boardVector, i * VECTOR_DIMENSION_SIZE + i) == participantId;
+            taken2 &= extractParticipantIdFromBoardVector(boardVector, i * VECTOR_DIMENSION_SIZE + (VECTOR_DIMENSION_SIZE - i - 1)) == participantId;
         }
 
         return taken1 || taken2;
     }
 
-    private static boolean isWon(final int board, final int participantId) {
-        return isRowOrColumnTaken(board, participantId) || isDiagonalTaken(board, participantId);
+    private static boolean isWon(final int boardVector, final int participantId) {
+        return isRowOrColumnTaken(boardVector, participantId) || isDiagonalTaken(boardVector, participantId);
     }
 
-    private static int getStatusId(final int board, final String actionIds, final int participantId) {
-        int actionCount = actionIds.length();
+    private static int determineNextStatusId(final int boardVector, final List<Integer> locationIds, final int participantId) {
+        int size = locationIds.size();
 
-        if (actionCount >= 5 && isWon(board, participantId)) {
+        if (size >= 5 && isWon(boardVector, participantId)) {
             return participantId;
         }
 
-        if (actionCount == BOARD_LENGTH) {
+        if (size == BOARD_VECTOR_SIZE) {
             return MonteCarloTreeSearch.DRAWN_STATUS_ID;
         }
 
@@ -156,10 +151,10 @@ public final class GameState implements State<GameAction, GameState> {
     @Override
     public GameState accept(final GameAction action) {
         int nextParticipantId = getNextParticipantId();
-        int nextBoard = createBoard(board, action, nextParticipantId);
-        String nextActionIds = createActionIds(actionIds, action.getId());
-        int nextStatusId = getStatusId(nextBoard, nextActionIds, nextParticipantId);
+        int nextBoardVector = mergeNextBoardVector(boardVector, action, nextParticipantId);
+        List<Integer> nextLocationIds = createNextLocationIds(locationIds, action.getLocationId());
+        int nextStatusId = determineNextStatusId(nextBoardVector, nextLocationIds, nextParticipantId);
 
-        return new GameState(nextBoard, nextActionIds, nextStatusId, nextParticipantId);
+        return new GameState(nextBoardVector, nextLocationIds, nextStatusId, nextParticipantId);
     }
 }

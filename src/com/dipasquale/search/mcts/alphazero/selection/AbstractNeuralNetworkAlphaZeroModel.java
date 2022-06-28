@@ -3,7 +3,6 @@ package com.dipasquale.search.mcts.alphazero.selection;
 import com.dipasquale.ai.common.NeuralNetwork;
 import com.dipasquale.ai.common.NeuralNetworkDecoder;
 import com.dipasquale.ai.common.NeuronMemory;
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
@@ -12,7 +11,7 @@ import com.dipasquale.search.mcts.alphazero.AlphaZeroEdge;
 import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 
-public abstract class AbstractNeuralNetworkAlphaZeroModel<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>, TNeuronMemory extends NeuronMemory> implements AlphaZeroModel<TAction, TState, TSearchNode> {
+public abstract class AbstractNeuralNetworkAlphaZeroModel<TAction, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>, TNeuronMemory extends NeuronMemory> implements AlphaZeroModel<TAction, TState, TSearchNode> {
     private final NeuralNetworkDecoder<AlphaZeroPrediction<TAction, TState, TSearchNode>, NeuralNetworkAlphaZeroContext<TAction, TState, TSearchNode>> decoder;
     private final NeuralNetwork<TNeuronMemory> neuralNetwork;
     private TNeuronMemory neuronMemory;

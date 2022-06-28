@@ -1,7 +1,5 @@
 package com.dipasquale.search.mcts.initialization.concurrent;
 
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.SearchNodeFactory;
 import com.dipasquale.search.mcts.SearchNodeGroupProvider;
 import com.dipasquale.search.mcts.State;
@@ -11,7 +9,6 @@ import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNode;
 import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNodeExplorer;
 import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNodeGroupProvider;
 import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
-import com.dipasquale.search.mcts.expansion.concurrent.ConcurrentExpansionTraversalPolicy;
 import com.dipasquale.search.mcts.expansion.concurrent.ConcurrentOptionalExpansionPolicy;
 import com.dipasquale.search.mcts.heuristic.intention.ExplorationHeuristic;
 import com.dipasquale.search.mcts.initialization.AbstractInitializationContext;
@@ -27,12 +24,11 @@ import com.dipasquale.search.mcts.selection.SelectionPolicy;
 import com.dipasquale.search.mcts.selection.concurrent.ConcurrentSelectionPolicy;
 import com.dipasquale.search.mcts.selection.concurrent.ConcurrentUnexploredPrimerTraversalPolicy;
 import com.dipasquale.search.mcts.simulation.SimulationPolicy;
-import com.dipasquale.search.mcts.simulation.concurrent.ConcurrentIntentionalSimulationTraversalPolicy;
 import com.dipasquale.search.mcts.simulation.concurrent.ConcurrentSimulationPolicy;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.Getter;
 
-public final class ConcurrentInitializationContext<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractInitializationContext<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
+public final class ConcurrentInitializationContext<TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractInitializationContext<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
     @Getter
     private final SearchNodeFactory<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> searchNodeFactory;
     private final ParallelEventLoop eventLoop;
@@ -55,34 +51,23 @@ public final class ConcurrentInitializationContext<TAction extends Action, TEdge
     }
 
     @Override
-    protected TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createExpansionTraversalPolicy(final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        return new ConcurrentExpansionTraversalPolicy<>(expansionPolicy);
+    protected TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createUnexploredPrimerTraversalPolicy(final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
+        return new ConcurrentUnexploredPrimerTraversalPolicy<>(expansionPolicy);
     }
 
     @Override
-    protected TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createUnexploredPrimerTraversalPolicy() {
-        return ConcurrentUnexploredPrimerTraversalPolicy.getInstance();
+    protected ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createOptionalExpansionPolicy(final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
+        return new ConcurrentOptionalExpansionPolicy<>(expansionPolicy);
     }
 
     @Override
-    protected SelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        ConcurrentOptionalExpansionPolicy<TAction, TEdge, TState> fixedExpansionPolicy = new ConcurrentOptionalExpansionPolicy<>(expansionPolicy);
-
-        return new ConcurrentSelectionPolicy<>(unexploredPrimerTraversalPolicy, explorableTraversalPolicy, fixedExpansionPolicy);
+    protected SelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createSelectionPolicy(final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> optionalExpansionPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy) {
+        return new ConcurrentSelectionPolicy<>(optionalExpansionPolicy, unexploredPrimerTraversalPolicy, explorableTraversalPolicy);
     }
 
     @Override
-    protected TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createIntentionalSimulationTraversalPolicy() {
-        RandomSupport randomSupport = createRandomSupport();
-
-        return new ConcurrentIntentionalSimulationTraversalPolicy<>(randomSupport);
-    }
-
-    @Override
-    protected SimulationPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createSimulationPolicy(final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> traversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        ConcurrentOptionalExpansionPolicy<TAction, TEdge, TState> fixedExpansionPolicy = new ConcurrentOptionalExpansionPolicy<>(expansionPolicy);
-
-        return new ConcurrentSimulationPolicy<>(comprehensiveSeekPolicy, traversalPolicy, fixedExpansionPolicy);
+    protected SimulationPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> createSimulationPolicy(final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> traversalPolicy) {
+        return new ConcurrentSimulationPolicy<>(comprehensiveSeekPolicy, traversalPolicy);
     }
 
     @Override

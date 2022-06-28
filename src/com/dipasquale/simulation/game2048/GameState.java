@@ -1,6 +1,5 @@
 package com.dipasquale.simulation.game2048;
 
-import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.State;
 import lombok.AccessLevel;
@@ -14,16 +13,17 @@ import java.util.stream.Stream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GameState implements State<GameAction, GameState> {
+    public static final int BOARD_DIMENSION_LENGTH = ValuedTileSupport.BOARD_DIMENSION_VECTOR_LENGTH;
+    public static final int BOARD_LENGTH = ValuedTileSupport.BOARD_VECTOR_LENGTH;
     private static final int DEFAULT_VICTORY_VALUE = 11;
-    private static final int VALUED_TILE_ADDER_PARTICIPANT_ID = 1;
-    public static final int PLAYER_PARTICIPANT_ID = 2;
-    public static final float PROBABILITY_OF_SPAWNING_2 = 0.9f;
-    private static final int MAXIMUM_ACTIONS = 4;
-    private static final int MINIMUM_SPAWNING_VALUE = 1;
-    private static final int MAXIMUM_SPAWNING_VALUE = 2;
+    static final int UNINTENTIONAL_PLAYER_ID = 1;
+    static final int INTENTIONAL_PLAYER_ID = 2;
+    private static final int MAXIMUM_INTENTIONAL_PLAYER_POSSIBLE_ACTION_COUNT = 4;
+    private static final int MINIMUM_SPAWN_EXPONENTIAL_VALUE = 1;
+    private static final int MAXIMUM_SPAWN_EXPONENTIAL_VALUE = 2;
     private static final int INITIAL_VALUED_TILE_COUNT = 2;
-    private static final GameAction ROOT_ACTION = constructRootAction();
-    private final int victoryValue;
+    static final GameAction ROOT_ACTION = GameAction.createRoot();
+    private final int victoriousExponentialValue;
     private final Board board;
     @Getter
     private final int depth;
@@ -31,16 +31,15 @@ public final class GameState implements State<GameAction, GameState> {
     private final int statusId;
     @Getter
     private final int participantId;
+    @Getter(AccessLevel.PACKAGE)
     private final GameAction lastAction;
 
-    GameState(final int victoryValue) {
-        ArgumentValidatorSupport.ensureGreaterThanOrEqualToZero(victoryValue, "victoryValue");
-        ArgumentValidatorSupport.ensureLessThanOrEqualTo(victoryValue, Board.MAXIMUM_EXPONENT_PER_TILE, "victoryValue", String.format("the limit is %d", Board.MAXIMUM_EXPONENT_PER_TILE));
-        this.victoryValue = victoryValue;
+    GameState(final int victoriousExponentialValue) {
+        this.victoriousExponentialValue = victoriousExponentialValue;
         this.board = new Board();
         this.depth = 0;
         this.statusId = MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
-        this.participantId = PLAYER_PARTICIPANT_ID;
+        this.participantId = INTENTIONAL_PLAYER_ID;
         this.lastAction = ROOT_ACTION;
     }
 
@@ -54,30 +53,25 @@ public final class GameState implements State<GameAction, GameState> {
     }
 
     @Override
-    public boolean isIntentional() {
-        return participantId == PLAYER_PARTICIPANT_ID;
+    public boolean isActionIntentional() {
+        return participantId == INTENTIONAL_PLAYER_ID;
     }
 
     @Override
-    public boolean isNextIntentional() {
-        return getNextParticipantId() == PLAYER_PARTICIPANT_ID;
+    public boolean isNextActionIntentional() {
+        return participantId != INTENTIONAL_PLAYER_ID;
     }
 
-    private static GameAction constructRootAction() {
-        return new GameAction(MonteCarloTreeSearch.ROOT_ACTION_ID, Board.NO_VALUED_TILES);
+    public int getExponentialValue(final int tileId) {
+        return board.getExponentialValue(tileId);
     }
 
-    @Override
-    public GameAction createRootAction() {
-        return constructRootAction();
+    public int getTileId(final int freedTileId) {
+        return board.getTileId(freedTileId);
     }
 
-    public int getValueInTile(final int tileId) {
-        return board.getValue(tileId);
-    }
-
-    public int getHighestValue() {
-        return board.getHighestValue();
+    public int getHighestExponentialValue() {
+        return board.getHighestExponentialValue();
     }
 
     public int getValuedTileCount() {
@@ -89,15 +83,21 @@ public final class GameState implements State<GameAction, GameState> {
     }
 
     private GameAction createInitialAction(final List<ValuedTile> valuedTiles) {
-        return new GameAction(MonteCarloTreeSearch.ROOT_ACTION_ID, valuedTiles);
+        ValuedTile valuedTile1 = valuedTiles.get(0);
+        ValuedTile valuedTile2 = valuedTiles.get(1);
+        int tileId1 = valuedTile1.getTileId();
+        int tileId2 = valuedTile2.getTileId();
+        int product = tileId1 * Board.VECTOR_LENGTH + tileId2;
+        int subtraction = (tileId1 + 1) * (tileId1 + 2) / 2;
+        int padding1 = 2 * valuedTile1.getExponentialValue() - MINIMUM_SPAWN_EXPONENTIAL_VALUE;
+        int padding2 = valuedTile2.getExponentialValue() - MINIMUM_SPAWN_EXPONENTIAL_VALUE;
+        int actionId = 4 * (product - subtraction) + padding1 + padding2 - 1;
+
+        return new GameAction(actionId, valuedTiles);
     }
 
     public GameAction createInitialAction(final ValuedTile valuedTile1, final ValuedTile valuedTile2) {
-        if (depth != 0) {
-            throw new UnableToCreateGameActionException("game action cannot be created, because the game state is beyond the initial state");
-        }
-
-        if (valuedTile1.getId() < valuedTile2.getId()) {
+        if (valuedTile1.getTileId() < valuedTile2.getTileId()) {
             List<ValuedTile> valuedTiles = List.of(valuedTile1, valuedTile2);
 
             return createInitialAction(valuedTiles);
@@ -108,38 +108,27 @@ public final class GameState implements State<GameAction, GameState> {
         return createInitialAction(valuedTiles);
     }
 
-    private static int calculateActionId(final ValuedTile valuedTile) {
-        return Board.SQUARE_LENGTH * (valuedTile.getValue() - 1) + valuedTile.getId();
-    }
-
-    private static int calculateActionId(final List<ValuedTile> valuedTiles) {
-        int actionId = 0;
-        int size = valuedTiles.size();
-
-        for (int i = 0; i < size; i++) {
-            ValuedTile valuedTile = valuedTiles.get(i);
-
-            actionId += calculateActionId(valuedTile) + (int) Math.pow(10D, size - i - 1);
-        }
-
-        return actionId;
-    }
-
-    private static GameAction createNextAction(final List<ValuedTile> valuedTiles) {
-        int actionId = calculateActionId(valuedTiles);
+    private static GameAction createNextAction(final int freedTileId, final ValuedTile valuedTile) {
+        int actionId = freedTileId * 2 + valuedTile.getExponentialValue() - MINIMUM_SPAWN_EXPONENTIAL_VALUE;
+        List<ValuedTile> valuedTiles = List.of(valuedTile);
 
         return new GameAction(actionId, valuedTiles);
     }
 
-    private GameAction createNextAction(final ValuedTile valuedTile) {
-        List<ValuedTile> valuedTiles = List.of(valuedTile);
+    private GameAction createNextAction(final ValuedTileTemplate valuedTileTemplate) {
+        int tileId = board.getTileId(valuedTileTemplate.freedTileId);
+        ValuedTile valuedTile = new ValuedTile(tileId, valuedTileTemplate.exponentialValue);
 
-        return createNextAction(valuedTiles);
+        return createNextAction(valuedTileTemplate.freedTileId, valuedTile);
     }
 
-    public GameAction createActionToAddValuedTile(final ValuedTile valuedTile) {
-        if (!isNextIntentional()) {
-            return createNextAction(valuedTile);
+    public GameAction createValuedTileAllocationAction(final ValuedTile valuedTile) {
+        if (!isNextActionIntentional()) {
+            int freedTileId = board.getFreedTileId(valuedTile.getTileId());
+
+            assert freedTileId >= 0;
+
+            return createNextAction(freedTileId, valuedTile);
         }
 
         String message = String.format("game action cannot be created, because next turn is not meant to add valued tile: %s", valuedTile);
@@ -147,12 +136,12 @@ public final class GameState implements State<GameAction, GameState> {
         throw new UnableToCreateGameActionException(message);
     }
 
-    private boolean isValid(final int actionId) {
-        return actionId >= 0 && actionId < MAXIMUM_ACTIONS && board.isActionIdValid(actionId);
+    private boolean isValidIntentionalId(final int actionId) {
+        return actionId >= 0 && actionId < MAXIMUM_INTENTIONAL_PLAYER_POSSIBLE_ACTION_COUNT && board.isIntentionalActionIdValid(actionId);
     }
 
     public GameAction createAction(final ActionIdType actionIdType) {
-        if (!isNextIntentional()) {
+        if (!isNextActionIntentional()) {
             String message = String.format("game action '%s' cannot be created, because the next state is not meant to be the player's turn", actionIdType);
 
             throw new UnableToCreateGameActionException(message);
@@ -160,8 +149,8 @@ public final class GameState implements State<GameAction, GameState> {
 
         int actionId = actionIdType.getValue();
 
-        if (isValid(actionId)) {
-            return new GameAction(actionId, Board.NO_VALUED_TILES);
+        if (isValidIntentionalId(actionId)) {
+            return GameAction.createIntentional(actionId);
         }
 
         String message = String.format("game action '%s' cannot be created given the current state of the game", actionIdType);
@@ -169,37 +158,49 @@ public final class GameState implements State<GameAction, GameState> {
         throw new UnableToCreateGameActionException(message);
     }
 
-    private Stream<GameAction> createAllInitialPossibleActions() {
-        return IntStream.range(0, Board.SQUARE_LENGTH - 1)
-                .mapToObj(tileId1 -> IntStream.range(tileId1 + 1, Board.SQUARE_LENGTH)
-                        .mapToObj(tileId2 -> new InitialTileIdSet(new int[]{tileId1, tileId2})))
-                .flatMap(stream -> stream)
-                .flatMap(initialTileIdSet -> {
-                    List<ValuedTile> valuedTiles = IntStream.range(0, INITIAL_VALUED_TILE_COUNT)
-                            .mapToObj(index -> IntStream.range(MINIMUM_SPAWNING_VALUE, MAXIMUM_SPAWNING_VALUE + 1)
-                                    .mapToObj(value -> new ValuedTile(initialTileIdSet.tileIds[index], value)))
-                            .flatMap(stream -> stream)
-                            .toList();
-
-                    return IntStream.range(0, valuedTiles.size())
-                            .mapToObj(index -> {
-                                int fixedIndex = index / INITIAL_VALUED_TILE_COUNT;
-                                ValuedTile valuedTile1 = valuedTiles.get(fixedIndex);
-                                ValuedTile valuedTile2 = valuedTiles.get(fixedIndex + INITIAL_VALUED_TILE_COUNT);
-                                List<ValuedTile> fixedValuedTiles = List.of(valuedTile1, valuedTile2);
-
-                                return new InitialValuedTileSet(fixedValuedTiles);
-                            });
-                })
-                .map(valuedTileSet -> createInitialAction(valuedTileSet.valuedTiles));
+    private static Stream<int[]> createInitialTileIdsCartesianProduct(final int tileId) {
+        return IntStream.range(tileId + 1, Board.VECTOR_LENGTH)
+                .mapToObj(nextTileId -> new int[]{tileId, nextTileId});
     }
 
-    private Stream<GameAction> createAllPossibleValuedTileAdditionActions(final Board board) {
-        return IntStream.range(0, Board.SQUARE_LENGTH)
-                .filter(tileId -> board.getValue(tileId) == Board.EMPTY_TILE_VALUE)
-                .mapToObj(tileId -> IntStream.range(MINIMUM_SPAWNING_VALUE, MAXIMUM_SPAWNING_VALUE + 1)
-                        .mapToObj(value -> new ValuedTile(tileId, value))
-                        .map(this::createNextAction))
+    private static Stream<List<ValuedTile>> createInitialValuedTilesCartesianProduct(final int[] tileIds) {
+        List<ValuedTile> valuedTiles = IntStream.range(0, INITIAL_VALUED_TILE_COUNT)
+                .mapToObj(index -> IntStream.range(MINIMUM_SPAWN_EXPONENTIAL_VALUE, MAXIMUM_SPAWN_EXPONENTIAL_VALUE + 1)
+                        .mapToObj(exponentialValue -> new ValuedTile(tileIds[index], exponentialValue)))
+                .flatMap(stream -> stream)
+                .toList();
+
+        // index: 0 = tileId: 0, exponentialValue: 1
+        // index: 1 = tileId: 0, exponentialValue: 2
+        // index: 2 = tileId: 1, exponentialValue: 1
+        // index: 3 = tileId: 1, exponentialValue: 2
+
+        return IntStream.range(0, valuedTiles.size())
+                .mapToObj(index -> {
+                    ValuedTile valuedTile1 = valuedTiles.get(index / INITIAL_VALUED_TILE_COUNT);
+                    ValuedTile valuedTile2 = valuedTiles.get(index % INITIAL_VALUED_TILE_COUNT + INITIAL_VALUED_TILE_COUNT);
+
+                    return List.of(valuedTile1, valuedTile2);
+                }); // NOTE: (index1, index2) => (0, 2), (0, 3), (1, 2), (1, 3)
+    }
+
+    private Stream<GameAction> createAllInitialPossibleActions() {
+        return IntStream.range(0, Board.VECTOR_LENGTH - 1)
+                .mapToObj(GameState::createInitialTileIdsCartesianProduct)
+                .flatMap(stream -> stream)
+                .flatMap(GameState::createInitialValuedTilesCartesianProduct)
+                .map(this::createInitialAction);
+    }
+
+    private Stream<GameAction> createAllPossibleValuedTileAllocationActions(final int freeTileId) {
+        return IntStream.range(MINIMUM_SPAWN_EXPONENTIAL_VALUE, MAXIMUM_SPAWN_EXPONENTIAL_VALUE + 1)
+                .mapToObj(exponentialValue -> new ValuedTileTemplate(freeTileId, exponentialValue))
+                .map(this::createNextAction);
+    }
+
+    private Stream<GameAction> createAllPossibleValuedTileAllocationActions() {
+        return IntStream.range(0, Board.VECTOR_LENGTH - board.getValuedTileCount())
+                .mapToObj(this::createAllPossibleValuedTileAllocationActions)
                 .flatMap(stream -> stream);
     }
 
@@ -209,35 +210,35 @@ public final class GameState implements State<GameAction, GameState> {
             return createAllInitialPossibleActions()::iterator;
         }
 
-        if (isNextIntentional()) {
-            return IntStream.range(0, MAXIMUM_ACTIONS)
-                    .filter(board::isActionIdValid)
-                    .mapToObj(actionId -> new GameAction(actionId, Board.NO_VALUED_TILES))
+        if (isNextActionIntentional()) {
+            return IntStream.range(0, MAXIMUM_INTENTIONAL_PLAYER_POSSIBLE_ACTION_COUNT)
+                    .filter(board::isIntentionalActionIdValid)
+                    .mapToObj(GameAction::createIntentional)
                     ::iterator;
         }
 
-        return createAllPossibleValuedTileAdditionActions(board)::iterator;
+        return createAllPossibleValuedTileAllocationActions()::iterator;
     }
 
     private Board createNextBoard(final GameAction action) {
+        if (isNextActionIntentional()) {
+            ActionIdType actionIdType = ActionIdType.from(action.getId());
+
+            return board.createNext(actionIdType);
+        }
+
         List<ValuedTile> valuedTiles = action.getValuedTilesAdded();
 
-        if (!valuedTiles.isEmpty()) {
-            return board.createNext(valuedTiles);
-        }
-
-        ActionIdType actionIdType = ActionIdType.from(action.getId());
-
-        return board.createNextPartiallyInitialized(actionIdType);
+        return board.createNext(valuedTiles);
     }
 
-    private static int getNextStatusId(final Board board, final int participantId, final int victoryValue) {
-        if (participantId == PLAYER_PARTICIPANT_ID && board.getHighestValue() >= victoryValue) {
-            return PLAYER_PARTICIPANT_ID;
+    private static int determineNextStatusId(final Board board, final int participantId, final int victoryValue) {
+        if (participantId == INTENTIONAL_PLAYER_ID && board.getHighestExponentialValue() >= victoryValue) {
+            return INTENTIONAL_PLAYER_ID;
         }
 
-        if (participantId == VALUED_TILE_ADDER_PARTICIPANT_ID && board.getActionIdsAllowed() == 0) {
-            return VALUED_TILE_ADDER_PARTICIPANT_ID;
+        if (participantId == UNINTENTIONAL_PLAYER_ID && board.getIntentionalActionIdsAllowedVector() == 0) {
+            return UNINTENTIONAL_PLAYER_ID;
         }
 
         return MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID;
@@ -248,9 +249,9 @@ public final class GameState implements State<GameAction, GameState> {
         Board nextBoard = createNextBoard(action);
         int nextDepth = depth + 1;
         int nextParticipantId = getNextParticipantId();
-        int nextStatusId = getNextStatusId(nextBoard, nextParticipantId, victoryValue);
+        int nextStatusId = determineNextStatusId(nextBoard, nextParticipantId, victoriousExponentialValue);
 
-        return new GameState(victoryValue, nextBoard, nextDepth, nextStatusId, nextParticipantId, action);
+        return new GameState(victoriousExponentialValue, nextBoard, nextDepth, nextStatusId, nextParticipantId, action);
     }
 
     public void print(final PrintStream stream) {
@@ -270,12 +271,8 @@ public final class GameState implements State<GameAction, GameState> {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InitialTileIdSet {
-        private final int[] tileIds;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InitialValuedTileSet {
-        private final List<ValuedTile> valuedTiles;
+    private static final class ValuedTileTemplate {
+        private final int freedTileId;
+        private final int exponentialValue;
     }
 }

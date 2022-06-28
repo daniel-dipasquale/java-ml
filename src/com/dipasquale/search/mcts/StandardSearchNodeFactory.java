@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class StandardSearchNodeFactory<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>> implements SearchNodeFactory<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
+public final class StandardSearchNodeFactory<TAction, TEdge extends Edge, TState extends State<TAction, TState>> implements SearchNodeFactory<TAction, TEdge, TState, StandardSearchNode<TAction, TEdge, TState>> {
     @Getter
     private final EdgeFactory<TEdge> edgeFactory;
 

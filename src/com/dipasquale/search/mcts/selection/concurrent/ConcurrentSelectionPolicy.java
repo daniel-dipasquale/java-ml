@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.selection.concurrent;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
 import com.dipasquale.search.mcts.concurrent.ConcurrentEdge;
@@ -11,9 +10,9 @@ import com.dipasquale.search.mcts.selection.AbstractSelectionPolicy;
 
 import java.util.concurrent.locks.Lock;
 
-public final class ConcurrentSelectionPolicy<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>, ExpansionLockContext<TAction, TEdge, TState>> {
-    public ConcurrentSelectionPolicy(final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy, final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy) {
-        super(unexploredPrimerTraversalPolicy, explorableTraversalPolicy, expansionPolicy);
+public final class ConcurrentSelectionPolicy<TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSelectionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>, ExpansionLockContext<TAction, TEdge, TState>> {
+    public ConcurrentSelectionPolicy(final ExpansionPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> expansionPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> unexploredPrimerTraversalPolicy, final TraversalPolicy<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> explorableTraversalPolicy) {
+        super(expansionPolicy, unexploredPrimerTraversalPolicy, explorableTraversalPolicy);
     }
 
     @Override
@@ -27,17 +26,13 @@ public final class ConcurrentSelectionPolicy<TAction extends Action, TEdge exten
     }
 
     @Override
-    protected boolean shouldSelect(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
-        return super.shouldSelect(searchNode) && searchNode.getSelectionResultLock().tryLock();
+    protected boolean shouldSelectCandidateLeaf(final ConcurrentSearchNode<TAction, TEdge, TState> candidateSearchNode) {
+        return candidateSearchNode.getSelectionResultLock().tryLock();
     }
 
     @Override
-    protected ConcurrentSearchNode<TAction, TEdge, TState> selectLeaf(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
-        if (!searchNode.getSelectionResultLock().tryLock()) {
-            return null;
-        }
-
-        return super.selectLeaf(searchNode);
+    protected boolean shouldSelectKnownLeaf(final ConcurrentSearchNode<TAction, TEdge, TState> knownSearchNode) {
+        return knownSearchNode.getSelectionResultLock().tryLock();
     }
 
     @Override

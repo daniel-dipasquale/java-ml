@@ -7,9 +7,9 @@ import com.dipasquale.ai.rl.neat.common.NeatObjective;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetwork;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuronMemory;
-import com.dipasquale.common.random.float2.DeterministicRandomSupport;
-import com.dipasquale.common.random.float2.RandomSupport;
-import com.dipasquale.common.random.float2.concurrent.ThreadLocalUniformRandomSupport;
+import com.dipasquale.common.random.DeterministicRandomSupport;
+import com.dipasquale.common.random.RandomSupport;
+import com.dipasquale.common.random.ThreadLocalUniformRandomSupport;
 import com.dipasquale.simulation.cart.pole.CartPoleEnvironment;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -75,7 +75,7 @@ final class BalanceUntilDoneObjective implements NeatObjective<IsolatedNeatEnvir
         @Override
         public boolean test(final NeatActivator activator) {
             boolean success = true;
-            DeterministicRandomSupport randomSupport = new DeterministicRandomSupport((long) validationScenarioCount * 4L);
+            DeterministicRandomSupport randomSupport = DeterministicRandomSupport.create((long) validationScenarioCount * 4L);
 
             for (int i = 0; success && i < validationScenarioCount; i++) {
                 CartPoleEnvironment cartPole = CartPoleEnvironment.createRandom(randomSupport);

@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @RequiredArgsConstructor
-public final class Mcts<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
+public final class Mcts<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> {
     private final Buffer<TAction, TEdge, TState, TSearchNode> buffer;
     private final SeekStrategy<TAction, TEdge, TState, TSearchNode> seekStrategy;
     private final ProposalStrategy<TAction, TEdge, TState, TSearchNode> proposalStrategy;

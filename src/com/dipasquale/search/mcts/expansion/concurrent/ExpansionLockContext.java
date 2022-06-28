@@ -1,20 +1,19 @@
 package com.dipasquale.search.mcts.expansion.concurrent;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.concurrent.ConcurrentEdge;
 import com.dipasquale.search.mcts.concurrent.ConcurrentSearchNode;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class ExpansionLockContext<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> {
+public final class ExpansionLockContext<TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> {
     private ConcurrentSearchNode<TAction, TEdge, TState> previousSearchNode = null;
 
-    private static <TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> void lock(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+    private static <TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> void lock(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
         searchNode.getExpansionLock().readLock().lock();
     }
 
-    private static <TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> void unlock(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
+    private static <TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> void unlock(final ConcurrentSearchNode<TAction, TEdge, TState> searchNode) {
         searchNode.getExpansionLock().readLock().unlock();
     }
 

@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.alphazero.expansion;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.EdgeFactory;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.SearchNodeGroup;
@@ -13,16 +12,16 @@ import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class AlphaZeroExpansionPolicy<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> {
+public final class AlphaZeroExpansionPolicy<TAction, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> {
     private final AlphaZeroModel<TAction, TState, TSearchNode> traversalModel;
     private final EdgeFactory<AlphaZeroEdge> edgeFactory;
     private final SearchNodeGroupProvider<TAction, AlphaZeroEdge, TState, TSearchNode> searchNodeGroupProvider;
 
-    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> void initializeProbableReward(final TSearchNode searchNode, final AlphaZeroPrediction<TAction, TState, TSearchNode> prediction) {
+    private static <TAction, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> void initializeProbableReward(final TSearchNode searchNode, final AlphaZeroPrediction<TAction, TState, TSearchNode> prediction) {
         searchNode.getEdge().setProbableReward(prediction.getValue());
     }
 
-    private static <TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> void initializeExplorationProbabilities(final AlphaZeroPrediction<TAction, TState, TSearchNode> prediction) {
+    private static <TAction, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> void initializeExplorationProbabilities(final AlphaZeroPrediction<TAction, TState, TSearchNode> prediction) {
         SearchNodeGroup<TAction, AlphaZeroEdge, TState, TSearchNode> explorableChildren = prediction.getExplorableChildren();
         float[] policies = prediction.getPolicies();
 

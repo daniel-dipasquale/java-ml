@@ -10,14 +10,12 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 public final class EventLoopSettings {
     private static final Map<EventLoopType, EventLoopFactory> EVENT_LOOP_FACTORIES = createEventLoopFactories();
-    private final ExecutorService executorService;
     @Builder.Default
     private final DateTimeSupport dateTimeSupport = new MillisecondsDateTimeSupport();
     @Builder.Default

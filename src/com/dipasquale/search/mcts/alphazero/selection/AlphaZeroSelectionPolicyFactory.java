@@ -1,8 +1,7 @@
 package com.dipasquale.search.mcts.alphazero.selection;
 
 import com.dipasquale.common.factory.ObjectFactory;
-import com.dipasquale.common.random.float1.RandomSupport;
-import com.dipasquale.search.mcts.Action;
+import com.dipasquale.common.random.RandomSupport;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
@@ -13,7 +12,7 @@ import com.dipasquale.search.mcts.intention.UnintentionalTraversalPolicy;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class AlphaZeroSelectionPolicyFactory<TAction extends Action, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ObjectFactory<AlphaZeroSelectionPolicy<TAction, TState, TSearchNode>> {
+public final class AlphaZeroSelectionPolicyFactory<TAction, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, AlphaZeroEdge, TState, TSearchNode>> implements ObjectFactory<AlphaZeroSelectionPolicy<TAction, TState, TSearchNode>> {
     private final AlphaZeroModel<TAction, TState, TSearchNode> traversalModel;
     private final TraversalPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> intentionalTraversalPolicy;
     private final ExpansionPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> expansionPolicy;
@@ -25,7 +24,7 @@ public final class AlphaZeroSelectionPolicyFactory<TAction extends Action, TStat
             return new AlphaZeroSelectionPolicy<>(intentionalTraversalPolicy, expansionPolicy);
         }
 
-        UnintentionalTraversalPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> unintentionalTraversalPolicy = new UnintentionalTraversalPolicy<>(randomSupport);
+        UnintentionalTraversalPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> unintentionalTraversalPolicy = new UnintentionalTraversalPolicy<>(randomSupport, expansionPolicy); // TODO: fix this, most likely broken
         IntentRegulatorTraversalPolicy<TAction, AlphaZeroEdge, TState, TSearchNode> intentRegulatorTraversalPolicy = new IntentRegulatorTraversalPolicy<>(intentionalTraversalPolicy, unintentionalTraversalPolicy);
 
         return new AlphaZeroSelectionPolicy<>(intentRegulatorTraversalPolicy, expansionPolicy);

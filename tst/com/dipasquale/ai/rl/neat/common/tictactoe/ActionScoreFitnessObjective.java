@@ -25,15 +25,15 @@ final class ActionScoreFitnessObjective {
 
     private static float[][] createActionScoreTable() {
         float[][] actionScores = { // x: move, y: location
-                {0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f},
-                {-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f},
-                {0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f},
-                {-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f},
-                {0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f},
-                {-0.13524936f, -0.44041452f, -0.13524936f, -0.44041452f, 0.23178808f, -0.44041452f, -0.13524936f, -0.44041452f, -0.13524936f},
-                {0.7368421f, 0.46153846f, 0.7368421f, 0.46153846f, 1.0486486f, 0.46153846f, 0.7368421f, 0.46153846f, 0.7368421f},
-                {0.2638037f, -0.19565217f, 0.2638037f, -0.19565217f, 0.68085104f, -0.19565217f, 0.2638037f, -0.19565217f, 0.2638037f},
-                {1.6785715f, 1.5f, 1.6785715f, 1.5f, 1.7894737f, 1.5f, 1.6785715f, 1.5f, 1.6785715f}
+                {0.8187333f, 0.40472585f, 0.84372634f, 0.3450493f, 1.0831424f, 0.30593848f, 0.84611243f, 0.3627812f, 0.84338164f},
+                {-0.50775903f, -0.8455282f, -0.5087163f, -0.83390623f, -0.15126844f, -0.8271154f, -0.5224945f, -0.8175632f, -0.5162254f},
+                {0.96744484f, 0.729807f, 0.9556548f, 0.72463083f, 1.1796442f, 0.72959316f, 0.962324f, 0.7165004f, 0.96535337f},
+                {-0.5191783f, -0.821561f, -0.50240505f, -0.81646293f, -0.14940107f, -0.80990356f, -0.50731575f, -0.8300357f, -0.51085675f},
+                {0.9655921f, 0.72832245f, 0.9794821f, 0.7211577f, 1.1959304f, 0.71843874f, 0.9570952f, 0.72529316f, 0.96679085f},
+                {-0.50189704f, -0.8029344f, -0.4982052f, -0.80758446f, -0.14689524f, -0.80584824f, -0.5096584f, -0.8090906f, -0.5057607f},
+                {1.0226603f, 0.75950253f, 1.0152097f, 0.7542408f, 1.2401692f, 0.75279504f, 1.0122758f, 0.75062996f, 1.0095878f},
+                {-0.2640452f, -0.5957712f, -0.24970795f, -0.60293764f, 0.1167173f, -0.5964941f, -0.25778556f, -0.59462315f, -0.2597562f},
+                {1.8264356f, 1.737912f, 1.8301092f, 1.7352599f, 1.8623135f, 1.7359272f, 1.8236066f, 1.7403543f, 1.8231554f}
         };
 
         float[][] fixedActionScores = new float[actionScores.length][actionScores[0].length];
@@ -65,14 +65,14 @@ final class ActionScoreFitnessObjective {
     private static float[] play(final Player player1, final Player player2) {
         GameResult result = Game.play(player1, player2);
         int outcomeId = result.getOutcomeId();
-        int[] actionIds = result.getActionIds();
+        List<Integer> locationIds = result.getLocationIds();
         float player1ActionScore = 0f;
         int player1ActionCount = 0;
         float player2ActionScore = 0f;
         int player2ActionCount = 0;
 
-        for (int i = 0; i < actionIds.length; i++) {
-            float actionScore = ACTION_SCORE_TABLE[i][actionIds[i]];
+        for (int i = 0, c = locationIds.size(); i < c; i++) {
+            float actionScore = ACTION_SCORE_TABLE[i][locationIds.get(i)];
 
             if (i % 2 == 0) {
                 player1ActionScore += actionScore;
@@ -146,14 +146,14 @@ final class ActionScoreFitnessObjective {
     private static final class InternalRewardHeuristic implements RewardHeuristic<GameAction, GameState> {
         private final boolean subtractNextParticipant;
 
-        private static float calculate(final int offset, final int[] actionIds) {
+        private static float calculateScore(final int offset, final List<Integer> locationIds) {
             float actionScore = 0f;
             int actionCount = 0;
 
-            for (int i = offset; i < actionIds.length; i += 2) {
-                int actionId = actionIds[i];
+            for (int i = offset, c = locationIds.size(); i < c; i += 2) {
+                int locationId = locationIds.get(i);
 
-                actionScore += ACTION_SCORE_TABLE[i][actionId];
+                actionScore += ACTION_SCORE_TABLE[i][locationId];
                 actionCount++;
             }
 
@@ -166,18 +166,18 @@ final class ActionScoreFitnessObjective {
 
         @Override
         public float estimate(final GameState state) {
-            int[] actionIds = state.replicateActionIds();
-            int participantOffset = state.getParticipantId() - 1;
-            float participantValue = calculate(participantOffset, actionIds);
+            List<Integer> locationIds = state.getLocationIds();
+            int participantIdOffset = state.getParticipantId() - 1;
+            float participantScore = calculateScore(participantIdOffset, locationIds);
 
             if (!subtractNextParticipant) {
-                return RewardHeuristic.convertProbability(participantValue);
+                return RewardHeuristic.convertProbability(participantScore);
             }
 
-            int nextParticipantOffset = state.getNextParticipantId() - 1;
-            float nextParticipantValue = calculate(nextParticipantOffset, actionIds);
+            int nextParticipantIdOffset = state.getNextParticipantId() - 1;
+            float nextParticipantScore = calculateScore(nextParticipantIdOffset, locationIds);
 
-            return RewardHeuristic.convertProbability(participantValue - nextParticipantValue);
+            return RewardHeuristic.convertProbability(participantScore - nextParticipantScore);
         }
     }
 }

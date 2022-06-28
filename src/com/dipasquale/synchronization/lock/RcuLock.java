@@ -1,13 +1,12 @@
 package com.dipasquale.synchronization.lock;
 
 import com.dipasquale.common.factory.ObjectCloner;
-import com.dipasquale.synchronization.MappedThreadIndex;
+import com.dipasquale.synchronization.IsolatedThreadIndex;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -27,12 +26,8 @@ public final class RcuLock implements ReadWriteLock, Serializable {
         this.writeLock = new WriteLock(controller);
     }
 
-    public RcuLock() {
-        this(new UnboundedRcuController());
-    }
-
-    public RcuLock(final MappedThreadIndex mappedThreadIndex) {
-        this(new FixedRcuController(mappedThreadIndex));
+    public RcuLock(final IsolatedThreadIndex isolatedThreadIndex) {
+        this(new IsolatedRcuController(isolatedThreadIndex));
     }
 
     @Override

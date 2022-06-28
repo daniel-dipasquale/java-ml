@@ -9,11 +9,12 @@ import com.dipasquale.synchronization.wait.handle.WaitHandleController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 final class RouterEventLoop implements EventLoop {
     private final List<EventLoop> eventLoops;
-    private final AtomicLazyReference<List<Long>> threadIds;
+    private final AtomicLazyReference<Set<Long>> threadIds;
     private final EventLoopSelector selector;
     private final WaitHandleController eventLoops_busy_waitHandle;
     private final ErrorHandlerController<EventLoop> eventLoops_shutdownHandler;
@@ -40,18 +41,18 @@ final class RouterEventLoop implements EventLoop {
         this.eventLoops_shutdownHandler = new ErrorHandlerController<>(eventLoops, EventLoop::shutdown);
     }
 
-    private List<Long> captureThreadIds() {
+    private Set<Long> captureThreadIds() {
         List<Long> threadIds = new ArrayList<>();
 
         for (EventLoop eventLoop : eventLoops) {
             threadIds.addAll(eventLoop.getThreadIds());
         }
 
-        return List.copyOf(threadIds);
+        return Set.copyOf(threadIds);
     }
 
     @Override
-    public List<Long> getThreadIds() {
+    public Set<Long> getThreadIds() {
         return threadIds.getReference();
     }
 

@@ -1,6 +1,6 @@
 package com.dipasquale.common.time;
 
-import com.dipasquale.common.error.ErrorComparator;
+import com.dipasquale.common.error.ErrorSnapshot;
 import com.dipasquale.common.factory.LongFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -78,10 +78,10 @@ public final class DateTimeSupportTest {
             DateTimeSupport.parse(Constants.DATE_TIME_PARSER, "invalid format", TimeUnit.MILLISECONDS);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(DateTimeParseException.class)
                     .message("Text 'invalid format' could not be parsed at index 0")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
     }
 
@@ -100,10 +100,10 @@ public final class DateTimeSupportTest {
             TEST.parse("invalid format");
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(DateTimeParseException.class)
                     .message("Text 'invalid format' could not be parsed at index 0")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
     }
 
@@ -122,60 +122,60 @@ public final class DateTimeSupportTest {
             TEST.createBucketExpirationFactory(0L);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(IllegalArgumentException.class)
                     .message("bucketSize '0' cannot be less than or equal to '0'")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         try {
             TEST.createBucketExpirationFactory(100L, -1L);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(IllegalArgumentException.class)
                     .message("bucketOffset '-1' cannot be less than '0'")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         try {
             TEST.createBucketExpirationFactory(100L, 101L);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(IllegalArgumentException.class)
                     .message("bucketOffset '101' cannot be greater than or equal to '100'")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         try {
             TEST.createRoundedBucketExpirationFactory(0L);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(IllegalArgumentException.class)
                     .message("bucketSize '0' cannot be less than or equal to '0'")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         try {
             TEST.createRoundedBucketExpirationFactory(100L, -1L);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(IllegalArgumentException.class)
                     .message("bucketOffset '-1' cannot be less than '0'")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         try {
             TEST.createRoundedBucketExpirationFactory(100L, 101L);
             Assertions.fail();
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(IllegalArgumentException.class)
                     .message("bucketOffset '101' cannot be greater than or equal to '100'")
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
     }
 

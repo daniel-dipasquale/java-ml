@@ -1,28 +1,25 @@
 package com.dipasquale.search.mcts.simulation;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.MonteCarloTreeSearch;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
 import com.dipasquale.search.mcts.TraversalPolicy;
-import com.dipasquale.search.mcts.expansion.ExpansionPolicy;
 import com.dipasquale.search.mcts.seek.ComprehensiveSeekPolicy;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractSimulationPolicy<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TContext> implements SimulationPolicy<TAction, TEdge, TState, TSearchNode> {
+public abstract class AbstractSimulationPolicy<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>, TContext> implements SimulationPolicy<TAction, TEdge, TState, TSearchNode> {
     private final ComprehensiveSeekPolicy comprehensiveSeekPolicy;
     private final TraversalPolicy<TAction, TEdge, TState, TSearchNode> traversalPolicy;
-    private final ExpansionPolicy<TAction, TEdge, TState, TSearchNode> expansionPolicy;
 
     protected abstract TContext createContext();
 
     protected abstract void visit(TContext context, TSearchNode searchNode);
 
     private boolean allowSimulation(final int simulations, final int initialDepth, final int nextDepth, final TState state) {
-        return state.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID && (!state.isIntentional() || comprehensiveSeekPolicy.allowSimulation(simulations, initialDepth, nextDepth, state.getParticipantId()));
+        return state.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID && (!state.isActionIntentional() || comprehensiveSeekPolicy.allowSimulation(simulations, initialDepth, nextDepth, state.getParticipantId()));
     }
 
     protected TSearchNode select(final TContext context, final TSearchNode searchNode) {
@@ -54,7 +51,6 @@ public abstract class AbstractSimulationPolicy<TAction extends Action, TEdge ext
                     currentState = currentSearchNode.getState();
                     nextDepth++;
                     visit(context, currentSearchNode);
-                    expansionPolicy.expand(currentSearchNode);
                 } while (allowSimulation(simulations, initialDepth, nextDepth, currentState));
             }
 

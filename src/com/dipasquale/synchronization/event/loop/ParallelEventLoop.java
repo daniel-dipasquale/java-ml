@@ -13,12 +13,13 @@ import lombok.RequiredArgsConstructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 public final class ParallelEventLoop {
     private static final int DELAY_TIME = 0;
     private final List<EventLoop> eventLoops;
-    private final AtomicLazyReference<List<Long>> threadIds;
+    private final AtomicLazyReference<Set<Long>> threadIds;
     private final WaitHandleController eventLoops_whileBusy_waitHandle;
     private final ErrorHandlerController<EventLoop> eventLoops_shutdownHandler;
 
@@ -38,12 +39,11 @@ public final class ParallelEventLoop {
         List<EventLoop> eventLoops = new ArrayList<>();
 
         EventLoopParams params = EventLoopParams.builder()
-                .executorService(settings.getExecutorService())
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .errorHandler(settings.getErrorHandler())
                 .build();
 
-        for (int i = 0, c = settings.getNumberOfThreads(); i < c; i++) {
+        for (int i = 0, c = settings.getConcurrencyLevel(); i < c; i++) {
             eventLoops.add(new ZeroDelayEventLoop(params, null));
         }
 
@@ -55,17 +55,17 @@ public final class ParallelEventLoop {
         this(settings, createEventLoops(settings));
     }
 
-    private List<Long> captureThreadIds() {
+    private Set<Long> captureThreadIds() {
         List<Long> threadIds = new ArrayList<>();
 
         for (EventLoop eventLoop : eventLoops) {
             threadIds.addAll(eventLoop.getThreadIds());
         }
 
-        return List.copyOf(threadIds);
+        return Set.copyOf(threadIds);
     }
 
-    public List<Long> getThreadIds() {
+    public Set<Long> getThreadIds() {
         return threadIds.getReference();
     }
 

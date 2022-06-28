@@ -1,7 +1,6 @@
 package com.dipasquale.search.mcts.concurrent;
 
 import com.dipasquale.search.mcts.AbstractSearchNodeExplorer;
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.State;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 import java.util.concurrent.locks.Lock;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ConcurrentSearchNodeExplorer<TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSearchNodeExplorer<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
+public final class ConcurrentSearchNodeExplorer<TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> extends AbstractSearchNodeExplorer<TAction, TEdge, TState, ConcurrentSearchNode<TAction, TEdge, TState>> {
     private static final ConcurrentSearchNodeExplorer<?, ?, ?> INSTANCE = new ConcurrentSearchNodeExplorer<>();
 
-    public static <TAction extends Action, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> ConcurrentSearchNodeExplorer<TAction, TEdge, TState> getInstance() {
+    public static <TAction, TEdge extends ConcurrentEdge, TState extends State<TAction, TState>> ConcurrentSearchNodeExplorer<TAction, TEdge, TState> getInstance() {
         return (ConcurrentSearchNodeExplorer<TAction, TEdge, TState>) INSTANCE;
     }
 

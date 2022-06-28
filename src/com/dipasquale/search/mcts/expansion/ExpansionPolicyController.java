@@ -1,6 +1,5 @@
 package com.dipasquale.search.mcts.expansion;
 
-import com.dipasquale.search.mcts.Action;
 import com.dipasquale.search.mcts.Edge;
 import com.dipasquale.search.mcts.SearchNode;
 import com.dipasquale.search.mcts.State;
@@ -10,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ExpansionPolicyController<TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, TEdge, TState, TSearchNode> {
+public final class ExpansionPolicyController<TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> implements ExpansionPolicy<TAction, TEdge, TState, TSearchNode> {
     private final List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies;
 
     @Override
@@ -20,7 +19,7 @@ public final class ExpansionPolicyController<TAction extends Action, TEdge exten
         }
     }
 
-    public static <TAction extends Action, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> provide(final List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies) {
+    public static <TAction, TEdge extends Edge, TState extends State<TAction, TState>, TSearchNode extends SearchNode<TAction, TEdge, TState, TSearchNode>> ExpansionPolicy<TAction, TEdge, TState, TSearchNode> provide(final List<ExpansionPolicy<TAction, TEdge, TState, TSearchNode>> expansionPolicies) {
         return switch (expansionPolicies.size()) {
             case 0 -> null;
 

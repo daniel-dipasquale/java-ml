@@ -55,10 +55,10 @@ import com.dipasquale.search.mcts.propagation.BackPropagationType;
 import com.dipasquale.simulation.tictactoe.GameAction;
 import com.dipasquale.simulation.tictactoe.GameState;
 import com.dipasquale.simulation.tictactoe.Player;
-import com.dipasquale.simulation.tictactoe.ValuePerBoardInputNeuralNetworkEncoder;
-import com.dipasquale.simulation.tictactoe.ValuePerPlayerInputNeuralNetworkEncoder;
-import com.dipasquale.simulation.tictactoe.ValuePerTileInputNeuralNetworkEncoder;
-import com.dipasquale.simulation.tictactoe.VectorEncodingType;
+import com.dipasquale.simulation.tictactoe.encoding.InputPerBoardInputNeuralNetworkEncoder;
+import com.dipasquale.simulation.tictactoe.encoding.InputPerPlayerInputNeuralNetworkEncoder;
+import com.dipasquale.simulation.tictactoe.encoding.InputPerTileInputNeuralNetworkEncoder;
+import com.dipasquale.simulation.tictactoe.encoding.VectorEncodingType;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -242,17 +242,17 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum InputTopologySettingsType {
         VALUE_PER_BOARD(1,
-                ValuePerBoardInputNeuralNetworkEncoder.builder()
+                InputPerBoardInputNeuralNetworkEncoder.builder()
                         .perspectiveParticipantId(1)
                         .vectorEncodingType(VECTOR_ENCODING_TYPE)
                         .build()),
         VALUE_PER_PLAYER(2,
-                ValuePerPlayerInputNeuralNetworkEncoder.builder()
+                InputPerPlayerInputNeuralNetworkEncoder.builder()
                         .perspectiveParticipantId(1)
                         .vectorEncodingType(VECTOR_ENCODING_TYPE)
                         .build()),
         VALUE_PER_TILE(9,
-                ValuePerTileInputNeuralNetworkEncoder.builder()
+                InputPerTileInputNeuralNetworkEncoder.builder()
                         .perspectiveParticipantId(1)
                         .build());
 

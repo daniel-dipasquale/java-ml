@@ -1,38 +1,32 @@
 package com.dipasquale.search.mcts;
 
 import com.dipasquale.common.factory.ObjectFactory;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
-public final class Environment<TAction extends Action, TState extends State<TAction, TState>, TParticipant extends Participant<TAction, TState>> {
-    private static final Inspector<?, ?> DEFAULT_INSPECTOR = new Inspector<>();
-    private static final boolean DEBUG = false;
+public final class Environment<TAction, TState extends State<TAction, TState>, TParticipant extends Participant<TAction, TState>> {
     private final ObjectFactory<TState> initialStateFactory;
-    private final Consumer<SearchResult<TAction, TState>> inspector;
     private final TParticipant[] participants;
+    private final Consumer<SearchResult<TAction, TState>> inspector;
 
-    public Environment(final ObjectFactory<TState> initialStateFactory, final TParticipant[] participants) {
-        this(initialStateFactory, (Consumer<SearchResult<TAction, TState>>) (Object) DEFAULT_INSPECTOR, participants);
+    private void inspect(final SearchResult<TAction, TState> searchResult) {
+        if (inspector != null) {
+            inspector.accept(searchResult);
+        }
     }
 
     public TState interact() {
         TState state = initialStateFactory.create();
         SearchResult<TAction, TState> searchResult = SearchResult.createRoot(state);
 
-        if (DEBUG) {
-            inspector.accept(searchResult);
-        }
+        inspect(searchResult);
 
         for (int i = 0; state.getStatusId() == MonteCarloTreeSearch.IN_PROGRESS_STATUS_ID; i = state.getNextParticipantId() - 1) {
             searchResult = participants[i].produceNext(searchResult);
             state = searchResult.getState();
-
-            if (DEBUG) {
-                inspector.accept(searchResult);
-            }
+            inspect(searchResult);
         }
 
         for (TParticipant participant : participants) {
@@ -40,12 +34,5 @@ public final class Environment<TAction extends Action, TState extends State<TAct
         }
 
         return state;
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class Inspector<TAction extends Action, TState extends State<TAction, TState>> implements Consumer<SearchResult<TAction, TState>> {
-        @Override
-        public void accept(final SearchResult<TAction, TState> searchResult) {
-        }
     }
 }

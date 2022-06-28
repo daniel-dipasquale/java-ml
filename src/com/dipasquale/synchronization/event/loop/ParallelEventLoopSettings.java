@@ -7,14 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.concurrent.ExecutorService;
-
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 public final class ParallelEventLoopSettings {
-    private final ExecutorService executorService;
-    private final int numberOfThreads;
+    private final int concurrencyLevel;
     private final ErrorHandler errorHandler;
     private final DateTimeSupport dateTimeSupport;
 }

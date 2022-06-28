@@ -6,6 +6,9 @@ import com.dipasquale.search.mcts.buffer.BufferType;
 import com.dipasquale.search.mcts.classic.ClassicMonteCarloTreeSearch;
 import com.dipasquale.search.mcts.propagation.BackPropagationObserver;
 import com.dipasquale.search.mcts.seek.MaximumComprehensiveSeekPolicy;
+import com.dipasquale.simulation.tictactoe.player.LocationIdModelPlayer;
+import com.dipasquale.simulation.tictactoe.player.MctsPlayer;
+import com.dipasquale.simulation.tictactoe.player.PredeterminedLocationIdModel;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +30,7 @@ public final class GameTest {
                         .maximumSelectionCount(maximumSimulationCount)
                         .maximumSimulationDepth(8)
                         .build())
-                .bufferType(BufferType.AUTO_CLEAR)
+                .bufferType(BufferType.DISABLED)
                 .backPropagationObserver(backPropagationObserver)
                 .build();
     }
@@ -35,10 +38,10 @@ public final class GameTest {
     @Test
     public void TEST_1() {
         GameOutcomeStatisticsObserver gameOutcomeStatisticsObserver = new GameOutcomeStatisticsObserver();
-        MonteCarloTreeSearch<GameAction, GameState> mcts = createMcts(255_168, gameOutcomeStatisticsObserver);
+        MonteCarloTreeSearch<GameAction, GameState> mcts = createMcts(1_355_168, gameOutcomeStatisticsObserver);
 
         Assertions.assertNotNull(mcts.proposeFirst(new GameState()));
-        Assertions.assertEquals("[[0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f], [0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.14504941f, -0.45045045f, -0.14504941f, -0.45045045f, 0.22258863f, -0.45045045f, -0.14504941f, -0.45045045f, -0.14504941f], [0.67416704f, 0.44931063f, 0.67416704f, 0.44931063f, 0.9536178f, 0.44931063f, 0.67416704f, 0.44931063f, 0.67416704f], [-0.13524936f, -0.44041452f, -0.13524936f, -0.44041452f, 0.23178808f, -0.44041452f, -0.13524936f, -0.44041452f, -0.13524936f], [0.7368421f, 0.46153846f, 0.7368421f, 0.46153846f, 1.0486486f, 0.46153846f, 0.7368421f, 0.46153846f, 0.7368421f], [0.2638037f, -0.19565217f, 0.2638037f, -0.19565217f, 0.68085104f, -0.19565217f, 0.2638037f, -0.19565217f, 0.2638037f], [1.6785715f, 1.5f, 1.6785715f, 1.5f, 1.7894737f, 1.5f, 1.6785715f, 1.5f, 1.6785715f]]", Arrays.deepToString(gameOutcomeStatisticsObserver.dataSets));
+        Assertions.assertEquals("[[0.9328316f, 0.722366f, 0.9328316f, 0.722366f, 1.1601533f, 0.722366f, 0.9328316f, 0.722366f, 0.9328316f], [-0.47020784f, -0.83029723f, -0.47020784f, -0.83029723f, -0.10338681f, -0.83029723f, -0.47020784f, -0.83029723f, -0.47020784f], [0.9328316f, 0.722366f, 0.9328316f, 0.722366f, 1.1601533f, 0.722366f, 0.9328316f, 0.722366f, 0.9328316f], [-0.47020784f, -0.83029723f, -0.47020784f, -0.83029723f, -0.10338681f, -0.83029723f, -0.47020784f, -0.83029723f, -0.47020784f], [0.9328316f, 0.722366f, 0.9328316f, 0.722366f, 1.1601533f, 0.722366f, 0.9328316f, 0.722366f, 0.9328316f], [-0.46666667f, -0.8269231f, -0.46666667f, -0.8269231f, -0.1f, -0.8269231f, -0.46666667f, -0.8269231f, -0.46666667f], [0.95771426f, 0.7505618f, 0.95771426f, 0.7505618f, 1.1813953f, 0.7505618f, 0.95771426f, 0.7505618f, 0.95771426f], [-0.30379745f, -0.6621622f, -0.30379745f, -0.6621622f, 0.04761905f, -0.6621622f, -0.30379745f, -0.6621622f, -0.30379745f], [1.8f, 1.7285714f, 1.8f, 1.7285714f, 1.8857143f, 1.7285714f, 1.8f, 1.7285714f, 1.8f]]", Arrays.deepToString(gameOutcomeStatisticsObserver.dataSets));
     }
 
     @Test
@@ -59,43 +62,43 @@ public final class GameTest {
     public void TEST_3() {
         List<GameSetup> gameSetups = List.of(
                 GameSetup.builder()
-                        .player1ActionIds(List.of(0, 1, 2))
-                        .player2ActionIds(List.of(3, 4))
+                        .player1LocationIds(List.of(0, 1, 2))
+                        .player2LocationIds(List.of(3, 4))
                         .outcomeId(0)
                         .build(),
                 GameSetup.builder()
-                        .player1ActionIds(List.of(0, 6, 8))
-                        .player2ActionIds(List.of(1, 4, 7))
+                        .player1LocationIds(List.of(0, 6, 8))
+                        .player2LocationIds(List.of(1, 4, 7))
                         .outcomeId(1)
                         .build(),
                 GameSetup.builder()
-                        .player1ActionIds(List.of(0, 4, 8))
-                        .player2ActionIds(List.of(1, 2))
+                        .player1LocationIds(List.of(0, 4, 8))
+                        .player2LocationIds(List.of(1, 2))
                         .outcomeId(0)
                         .build(),
                 GameSetup.builder()
-                        .player1ActionIds(List.of(0, 1, 3))
-                        .player2ActionIds(List.of(2, 4, 6))
+                        .player1LocationIds(List.of(0, 1, 3))
+                        .player2LocationIds(List.of(2, 4, 6))
                         .outcomeId(1)
                         .build(),
                 GameSetup.builder()
-                        .player1ActionIds(List.of(0, 2, 5, 6, 7))
-                        .player2ActionIds(List.of(1, 3, 4, 8))
+                        .player1LocationIds(List.of(0, 2, 5, 6, 7))
+                        .player2LocationIds(List.of(1, 3, 4, 8))
                         .outcomeId(-1)
                         .build(),
                 GameSetup.builder()
-                        .player1ActionIds(List.of(0, 7, 6, 1, 5))
-                        .player2ActionIds(List.of(4, 2, 8, 3))
+                        .player1LocationIds(List.of(0, 7, 6, 1, 5))
+                        .player2LocationIds(List.of(4, 2, 8, 3))
                         .outcomeId(-1)
                         .build()
         );
 
         for (GameSetup gameSetup : gameSetups) {
-            ActionIdModelPlayer player1 = new ActionIdModelPlayer(new ListActionIdModel(gameSetup.player1ActionIds));
-            ActionIdModelPlayer player2 = new ActionIdModelPlayer(new ListActionIdModel(gameSetup.player2ActionIds));
+            LocationIdModelPlayer player1 = new LocationIdModelPlayer(new PredeterminedLocationIdModel(gameSetup.player1LocationIds));
+            LocationIdModelPlayer player2 = new LocationIdModelPlayer(new PredeterminedLocationIdModel(gameSetup.player2LocationIds));
             GameResult result = Game.play(player1, player2);
 
-            Assertions.assertEquals(gameSetup.outcomeId, result.getOutcomeId(), String.format("actionIds: %s", Arrays.toString(result.getActionIds())));
+            Assertions.assertEquals(gameSetup.outcomeId, result.getOutcomeId(), String.format("locationIds: %s", result.getLocationIds()));
         }
     }
 
@@ -105,7 +108,7 @@ public final class GameTest {
             return;
         }
 
-        ActionIdModelPlayer player1 = new ActionIdModelPlayer(new ListActionIdModel(List.of(0, 1, 2, 3, 4, 5, 7, 8)));
+        LocationIdModelPlayer player1 = new LocationIdModelPlayer(new PredeterminedLocationIdModel(List.of(0, 1, 2, 3, 4, 5, 7, 8)));
         MctsPlayer player2 = new MctsPlayer(createMcts(1_600, null));
 
         GameResult result = HUMAN_PLAYER_SHOULD_BE_FIRST
@@ -124,6 +127,10 @@ public final class GameTest {
 
         @Override
         public String toString() {
+            if (visited - unfinished <= 0) {
+                return "empty";
+            }
+
             float fixedWon = won;
             float wonWeight = 2f;
             float fixedDrawn = drawn;
@@ -142,7 +149,7 @@ public final class GameTest {
         private final DataSet[][] dataSets = createStatistics();
 
         private static DataSet[][] createStatistics() {
-            int length = GameState.BOARD_LENGTH;
+            int length = GameState.BOARD_VECTOR_SIZE;
             DataSet[][] statistics = new DataSet[length][length];
 
             for (int i1 = 0; i1 < length; i1++) {
@@ -160,7 +167,7 @@ public final class GameTest {
                 int sequence = result.getStateId().getDepth() - 1;
 
                 if (sequence >= 0) {
-                    int actionId = result.getAction().getId();
+                    int actionId = result.getAction().getLocationId();
                     DataSet dataSet = dataSets[sequence][actionId];
 
                     if (statusId == result.getState().getParticipantId()) {
@@ -180,8 +187,8 @@ public final class GameTest {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
     private static final class GameSetup {
-        private final List<Integer> player1ActionIds;
-        private final List<Integer> player2ActionIds;
+        private final List<Integer> player1LocationIds;
+        private final List<Integer> player2LocationIds;
         private final int outcomeId;
     }
 }

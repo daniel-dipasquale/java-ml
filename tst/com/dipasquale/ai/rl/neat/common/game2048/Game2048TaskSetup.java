@@ -47,10 +47,10 @@ import com.dipasquale.search.mcts.propagation.BackPropagationType;
 import com.dipasquale.simulation.game2048.GameAction;
 import com.dipasquale.simulation.game2048.GameState;
 import com.dipasquale.simulation.game2048.Player;
-import com.dipasquale.simulation.game2048.ValuePerRowNeuralNetworkEncoder;
-import com.dipasquale.simulation.game2048.ValuePerTileInputNeuralNetworkEncoder;
-import com.dipasquale.simulation.game2048.ValuePerTileLineInputNeuralNetworkEncoder;
-import com.dipasquale.simulation.game2048.VectorEncodingType;
+import com.dipasquale.simulation.game2048.encoding.InputPerRowNeuralNetworkEncoder;
+import com.dipasquale.simulation.game2048.encoding.InputPerTileInputNeuralNetworkEncoder;
+import com.dipasquale.simulation.game2048.encoding.InputPerTileLineInputNeuralNetworkEncoder;
+import com.dipasquale.simulation.game2048.encoding.VectorEncodingType;
 import com.dipasquale.simulation.game2048.heuristic.AverageValuedTileRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.FreeTileRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.GameExplorationHeuristic;
@@ -209,13 +209,13 @@ public final class Game2048TaskSetup implements TaskSetup {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum InputTopologySettingsType {
         VALUE_PER_TILE(16,
-                new ValuePerTileInputNeuralNetworkEncoder()),
+                new InputPerTileInputNeuralNetworkEncoder()),
         VALUE_PER_ROW(4,
-                ValuePerRowNeuralNetworkEncoder.builder()
+                InputPerRowNeuralNetworkEncoder.builder()
                         .vectorEncodingType(VECTOR_ENCODING_TYPE)
                         .build()),
         VALUE_PER_TILE_LINE(8,
-                ValuePerTileLineInputNeuralNetworkEncoder.builder()
+                InputPerTileLineInputNeuralNetworkEncoder.builder()
                         .vectorEncodingType(VECTOR_ENCODING_TYPE)
                         .build());
 

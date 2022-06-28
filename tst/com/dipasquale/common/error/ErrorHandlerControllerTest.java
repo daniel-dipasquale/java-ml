@@ -41,16 +41,16 @@ public class ErrorHandlerControllerTest {
         try {
             test.handleAll(() -> new RuntimeException("unit test failure"));
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
                     .suppressed(List.of(
-                            ErrorComparator.builder()
+                            ErrorSnapshot.builder()
                                     .type(ArrayIndexOutOfBoundsException.class)
                                     .message("Index -1 out of bounds for length 3")
                                     .build()
                     ))
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         Assertions.assertEquals(3, data.get(0));
@@ -91,16 +91,16 @@ public class ErrorHandlerControllerTest {
         try {
             test.handleAll("unit test failure");
         } catch (Throwable e) {
-            Assertions.assertEquals(ErrorComparator.builder()
+            Assertions.assertEquals(ErrorSnapshot.builder()
                     .type(RuntimeException.class)
                     .message("unit test failure")
                     .suppressed(List.of(
-                            ErrorComparator.builder()
+                            ErrorSnapshot.builder()
                                     .type(ArrayIndexOutOfBoundsException.class)
                                     .message("Index -1 out of bounds for length 3")
                                     .build()
                     ))
-                    .build(), ErrorComparator.create(e));
+                    .build(), ErrorSnapshot.create(e));
         }
 
         Assertions.assertEquals(3, data.get(0));

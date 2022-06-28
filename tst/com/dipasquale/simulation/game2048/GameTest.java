@@ -1,9 +1,11 @@
 package com.dipasquale.simulation.game2048;
 
 import com.dipasquale.common.JvmWarmup;
-import com.dipasquale.common.random.float1.DeterministicRandomSupport;
-import com.dipasquale.common.random.float1.UniformRandomSupport;
+import com.dipasquale.common.random.DeterministicRandomSupport;
+import com.dipasquale.common.random.UniformRandomSupport;
 import com.dipasquale.common.time.MillisecondsDateTimeSupport;
+import com.dipasquale.io.StandardIOClient;
+import com.dipasquale.search.mcts.SearchResult;
 import com.dipasquale.search.mcts.buffer.BufferType;
 import com.dipasquale.search.mcts.concurrent.ConcurrencySettings;
 import com.dipasquale.search.mcts.concurrent.EdgeTraversalLockType;
@@ -23,6 +25,12 @@ import com.dipasquale.simulation.game2048.heuristic.TwinValuedTileRewardHeuristi
 import com.dipasquale.simulation.game2048.heuristic.UniformityRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.WeightedBoardRewardHeuristic;
 import com.dipasquale.simulation.game2048.heuristic.WeightedBoardType;
+import com.dipasquale.simulation.game2048.player.ActionIdModelPlayer;
+import com.dipasquale.simulation.game2048.player.GameStandardIOClient;
+import com.dipasquale.simulation.game2048.player.ListActionIdModel;
+import com.dipasquale.simulation.game2048.player.MctsPlayer;
+import com.dipasquale.simulation.game2048.player.StandardIOValuedTileAllocationPlayer;
+import com.dipasquale.simulation.game2048.player.ValuedTileAllocationPlayer;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoopSettings;
 import lombok.AccessLevel;
@@ -34,40 +42,36 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public final class GameTest {
-    private static final int VICTORY_VALUE = 11;
+    private static final boolean VISUALIZE_TEST_1 = false;
+    private static final int VICTORIOUS_EXPONENTIAL_VALUE = 11;
     private static final WeightedBoardType WEIGHTED_BOARD_TYPE = WeightedBoardType.SNAKE_SHAPE;
     private static final double C_PUCT_ROSIN_BASE = 196D;
     private static final double C_PUCT_ROSIN_INIT = 2.5D;
     private static final float C_PUCT_CONSTANT = 1f;
-    private static final boolean PRINT_FINAL_STATE = true;
+    private static final boolean SHOULD_ECHO_FINAL_STATE = true;
     private static final BufferType BUFFER_TYPE = BufferType.DISABLED;
     private static final TestOption TEST_OPTION = TestOption.BACKGROUND_ONLY;
-    private static final int NUMBER_OF_THREADS = Math.max(1, 2);
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    private static final int CONCURRENCY_LEVEL = 2;
     private static final List<Throwable> UNHANDLED_EXCEPTIONS = Collections.synchronizedList(new ArrayList<>());
 
     private static final ParallelEventLoop EVENT_LOOP = ParallelEventLoop.builder()
             .settings(ParallelEventLoopSettings.builder()
-                    .executorService(EXECUTOR_SERVICE)
-                    .numberOfThreads(NUMBER_OF_THREADS)
+                    .concurrencyLevel(CONCURRENCY_LEVEL)
                     .errorHandler(UNHANDLED_EXCEPTIONS::add)
                     .dateTimeSupport(new MillisecondsDateTimeSupport())
                     .build())
             .build();
 
-    private static final ConcurrencySettings CONCURRENCY_SETTINGS = ConcurrencySettings.builder()
-            .eventLoop(EVENT_LOOP)
-            .edgeTraversalLockType(EdgeTraversalLockType.RCU)
-            .build();
+    private static final int MAXIMUM_SIMULATION_DEPTH = 16;
 
     @BeforeAll
     public static void beforeAll() {
@@ -77,7 +81,6 @@ public final class GameTest {
     @AfterAll
     public static void afterAll() {
         EVENT_LOOP.shutdown();
-        EXECUTOR_SERVICE.shutdown();
     }
 
     @BeforeEach
@@ -91,32 +94,37 @@ public final class GameTest {
         List<Integer> actionIds = List.of(
                 0, 3, 2, 1, 0, 3, 1, 2, 3,
                 0, 1, 3, 0, 0, 3, 2, 0, 1,
-                0, 0, 1, 2, 2, 1, 3, 0, 3,
-                2, 3, 1, 0, 3, 1, 2, 1, 1,
-                2, 2, 1
+                0, 2, 3, 0, 3, 0, 0, 1, 0,
+                1, 0, 0, 1, 2, 3, 1, 0, 2,
+                3, 0, 1
         );
 
         int victoryValue = 6;
-        DeterministicRandomSupport locationRandomSupport = new DeterministicRandomSupport(16);
-        DeterministicRandomSupport valueRandomSupport = new DeterministicRandomSupport(10);
-        ValuedTileSupport valuedTileSupport = new ValuedTileSupport(locationRandomSupport, valueRandomSupport);
-        Game game = new Game(victoryValue, new ValuedTileAdderPlayer(valuedTileSupport));
+        DeterministicRandomSupport tileIdRandomSupport = DeterministicRandomSupport.create(16L);
+        DeterministicRandomSupport exponentialValueRandomSupport = DeterministicRandomSupport.create(10L);
+        ValuedTileSupport valuedTileSupport = new ValuedTileSupport(tileIdRandomSupport, exponentialValueRandomSupport);
+
+        Consumer<SearchResult<GameAction, GameState>> inspector = VISUALIZE_TEST_1
+                ? searchResult -> searchResult.getState().print(System.out)
+                : null;
+
+        Game game = Game.create(victoryValue, new ValuedTileAllocationPlayer(valuedTileSupport), inspector);
         ActionIdModelPlayer player = new ActionIdModelPlayer(new ListActionIdModel(actionIds));
         GameResult result = game.play(player);
 
         Assertions.assertTrue(result.isSuccessful());
-        Assertions.assertEquals(332, result.getScore());
+        Assertions.assertEquals(340, result.getScore());
         Assertions.assertEquals(actionIds.size(), result.getMoveCount());
     }
 
     private static GameResult playGame(final Player valuedTileAdderPlayer, final int maximumSelectionCount, final ConcurrencySettings concurrencySettings) {
-        Game game = new Game(VICTORY_VALUE, valuedTileAdderPlayer);
+        Game game = Game.create(VICTORIOUS_EXPONENTIAL_VALUE, valuedTileAdderPlayer);
 
         MctsPlayer player = MctsPlayer.builder()
                 .mcts(HeuristicMonteCarloTreeSearch.<GameAction, GameState>builder()
                         .comprehensiveSeekPolicy(MaximumComprehensiveSeekPolicy.builder()
                                 .maximumSelectionCount(maximumSelectionCount)
-                                .maximumSimulationDepth(16)
+                                .maximumSimulationDepth(MAXIMUM_SIMULATION_DEPTH)
                                 .build())
                         .bufferType(BUFFER_TYPE)
                         .rewardHeuristic(RewardHeuristicController.<GameAction, GameState>builder()
@@ -133,17 +141,17 @@ public final class GameTest {
                         .backPropagationType(BackPropagationType.REVERSED_ON_OPPONENT)
                         .concurrencySettings(concurrencySettings)
                         .build())
-                .debug(PRINT_FINAL_STATE)
+                .debug(SHOULD_ECHO_FINAL_STATE)
                 .build();
 
         return game.play(player);
     }
 
     private static GameResult playGame(final int maximumSelectionCount, final ConcurrencySettings concurrencySettings) {
-        UniformRandomSupport locationRandomSupport = new UniformRandomSupport();
-        UniformRandomSupport valueRandomSupport = new UniformRandomSupport();
-        ValuedTileSupport valuedTileSupport = new ValuedTileSupport(locationRandomSupport, valueRandomSupport);
-        Player valuedTileAdderPlayer = new ValuedTileAdderPlayer(valuedTileSupport);
+        UniformRandomSupport tileIdRandomSupport = new UniformRandomSupport();
+        UniformRandomSupport exponentialValueRandomSupport = new UniformRandomSupport();
+        ValuedTileSupport valuedTileSupport = new ValuedTileSupport(tileIdRandomSupport, exponentialValueRandomSupport);
+        Player valuedTileAdderPlayer = new ValuedTileAllocationPlayer(valuedTileSupport);
 
         return playGame(valuedTileAdderPlayer, maximumSelectionCount, concurrencySettings);
     }
@@ -153,10 +161,10 @@ public final class GameTest {
         Assertions.assertTrue(result.getHighestValue() >= expectedHighestValue);
     }
 
-    private static void assertGamePlay(final int maximumSelectionCount, final ConcurrencySettings concurrencySettings, final int expectedHighestValue) {
+    private static void assertGamePlay(final int maximumSelectionCount, final ConcurrencySettings concurrencySettings, final int expectedHighestExponentialValue) {
         GameResult result = playGame(maximumSelectionCount, concurrencySettings);
 
-        assertGameResult(result, expectedHighestValue);
+        assertGameResult(result, expectedHighestExponentialValue);
     }
 
     @Test
@@ -165,7 +173,23 @@ public final class GameTest {
             return;
         }
 
-        assertGamePlay(200, null, VICTORY_VALUE - 2);
+        assertGamePlay(200, null, VICTORIOUS_EXPONENTIAL_VALUE - 2);
+    }
+
+    private static String getDirectoryName() {
+        String currentDirectoryName = System.getProperty("user.dir");
+
+        return Path.of(currentDirectoryName, "tst/com/dipasquale/simulation/game2048/python").toString();
+    }
+
+    private static GameStandardIOClient createClient() {
+        StandardIOClient client = StandardIOClient.builder()
+                .directoryName(getDirectoryName())
+                .processFileName("python")
+                .arguments(List.of("main.py"))
+                .build();
+
+        return new GameStandardIOClient(client);
     }
 
     @Test
@@ -174,20 +198,58 @@ public final class GameTest {
             return;
         }
 
-        StandardIOValuedTileAdderPlayer valuedTileAdderPlayer = new StandardIOValuedTileAdderPlayer();
+        StandardIOValuedTileAllocationPlayer valuedTileAdderPlayer = new StandardIOValuedTileAllocationPlayer(GameTest::createClient);
         GameResult result = playGame(valuedTileAdderPlayer, 400, null);
 
-        assertGameResult(result, VICTORY_VALUE);
+        assertGameResult(result, VICTORIOUS_EXPONENTIAL_VALUE);
     }
 
+    /*
+     * NOTE:
+     *
+     * (a) sample runs for 400 selections per move, 8+ simulated depth from selected node:
+     *       1-thread: 0m24s
+     *       15-thread(shared-lock): 0m43s
+     *       15-thread(rcu-lock): 0m58s
+     *
+     * (b) sample runs for 800 selections per move, 8+ simulated depth from selected node
+     *       1-thread: 1m1s
+     *       15-thread(shared-lock): 1m30s
+     *       15-thread(rcu-lock): 2m3s
+     *
+     * (c) sample runs for 1,600 selections per move, 8+ simulated depth from selected node
+     *       1-thread: 1m41s
+     *       15-thread(shared-lock): 3m10s
+     *       15-thread(rcu-lock): 5m22s
+     */
     @Test
     @Timeout(value = 270_000, unit = TimeUnit.MILLISECONDS)
-    public void TEST_4() { // NOTE: sample runs for 800 simulations per move, 8 moves ahead => 1-thread: 1m13s, 7-thread(shared-lock): 4m10s, 7-thread(rcu-lock): 7m16s
+    public void TEST_4() {
         if (!TEST_OPTION.testTypes.contains(TestType.BACKGROUND)) {
             return;
         }
 
-        assertGamePlay(300, CONCURRENCY_SETTINGS, VICTORY_VALUE - 2);
+        ConcurrencySettings concurrencySettings = ConcurrencySettings.builder()
+                .eventLoop(EVENT_LOOP)
+                .edgeTraversalLockType(EdgeTraversalLockType.SHARED)
+                .build();
+
+        assertGamePlay(250, concurrencySettings, VICTORIOUS_EXPONENTIAL_VALUE - 2);
+    }
+
+    @Test
+    @Timeout(value = 470_000, unit = TimeUnit.MILLISECONDS)
+    public void TEST_5() {
+        if (!TEST_OPTION.testTypes.contains(TestType.BACKGROUND)) {
+            return;
+        }
+
+        ConcurrencySettings concurrencySettings = ConcurrencySettings.builder()
+                .eventLoop(EVENT_LOOP)
+                .edgeTraversalLockType(EdgeTraversalLockType.RCU)
+                .build();
+
+        assertGamePlay(250, concurrencySettings, VICTORIOUS_EXPONENTIAL_VALUE - 2);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
