@@ -22,7 +22,7 @@ public final class MateBetweenOrganismsFactory implements OrganismFactory, Seria
             organism.mutate(context);
         }
 
-        organism.registerNodes(context.connections());
+        organism.registerNodeGenes(context.nodeGenes());
 
         return organism;
     }

@@ -1,5 +1,7 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.common.FloatValue;
+import com.dipasquale.common.StandardFloatValue;
 import com.dipasquale.synchronization.InterruptedRuntimeException;
 import com.dipasquale.synchronization.wait.handle.StrategyWaitHandle;
 import lombok.AccessLevel;
@@ -23,10 +25,15 @@ final class SingleThreadContextParallelismSupport implements Context.Parallelism
     }
 
     @Override
-    public <T> void forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
+    public FloatValue createFloatValue(final float initialValue) {
+        return new StandardFloatValue(initialValue);
+    }
+
+    @Override
+    public <T> void forEach(final Iterator<T> iterator, final Consumer<T> elementHandler) {
         while (iterator.hasNext()) {
             try {
-                itemHandler.accept(iterator.next());
+                elementHandler.accept(iterator.next());
             } catch (Throwable e) {
                 unhandledExceptions.add(e);
             }
@@ -44,8 +51,8 @@ final class SingleThreadContextParallelismSupport implements Context.Parallelism
     }
 
     @Override
-    public <T> void forEach(final List<T> list, final Consumer<T> itemHandler) {
-        forEach(list.iterator(), itemHandler);
+    public <T> void forEach(final List<T> list, final Consumer<T> elementHandler) {
+        forEach(list.iterator(), elementHandler);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

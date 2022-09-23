@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
+import com.dipasquale.ai.rl.neat.Id;
 import com.dipasquale.ai.rl.neat.function.activation.ActivationFunction;
-import com.dipasquale.ai.rl.neat.internal.Id;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;

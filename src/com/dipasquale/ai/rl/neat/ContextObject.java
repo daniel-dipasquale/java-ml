@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
@@ -9,10 +10,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@Builder(access = AccessLevel.PRIVATE)
 final class ContextObject implements Context {
     private final ContextObjectGeneralSupport generalSupport;
     private final ContextObjectParallelismSupport parallelismSupport;
-    private final ContextObjectRandomSupport randomSupport;
+    private final ContextObjectRandomnessSupport randomnessSupport;
     private final ContextObjectNodeGeneSupport nodeGeneSupport;
     private final ContextObjectConnectionGeneSupport connectionGeneSupport;
     private final ContextObjectActivationSupport activationSupport;
@@ -32,17 +34,17 @@ final class ContextObject implements Context {
     }
 
     @Override
-    public RandomSupport random() {
-        return randomSupport;
+    public RandomnessSupport randomness() {
+        return randomnessSupport;
     }
 
     @Override
-    public NodeGeneSupport nodes() {
+    public NodeGeneSupport nodeGenes() {
         return nodeGeneSupport;
     }
 
     @Override
-    public ConnectionGeneSupport connections() {
+    public ConnectionGeneSupport connectionGenes() {
         return connectionGeneSupport;
     }
 
@@ -77,7 +79,7 @@ final class ContextObject implements Context {
         SerializableStateGroup stateGroup = new SerializableStateGroup();
 
         generalSupport.save(stateGroup);
-        randomSupport.save(stateGroup);
+        randomnessSupport.save(stateGroup);
         nodeGeneSupport.save(stateGroup);
         connectionGeneSupport.save(stateGroup);
         activationSupport.save(stateGroup);
@@ -88,21 +90,23 @@ final class ContextObject implements Context {
         stateGroup.writeTo(outputStream);
     }
 
-    @Override
-    public void load(final ObjectInputStream inputStream, final StateOverrideSupport override)
+    static ContextObject create(final ObjectInputStream objectInputStream, final LoadSupport loadSupport)
             throws IOException, ClassNotFoundException {
         SerializableStateGroup stateGroup = new SerializableStateGroup();
 
-        stateGroup.readFrom(inputStream);
-        generalSupport.load(stateGroup);
-        parallelismSupport.load(override.eventLoop());
-        randomSupport.load(stateGroup, override.eventLoop());
-        nodeGeneSupport.load(stateGroup, override.eventLoop());
-        connectionGeneSupport.load(stateGroup, override.eventLoop());
-        activationSupport.load(stateGroup, override.eventLoop(), override.fitnessFunction());
-        mutationSupport.load(stateGroup, override.eventLoop());
-        crossOverSupport.load(stateGroup, override.eventLoop());
-        speciationSupport.load(stateGroup, override.eventLoop());
-        metricsSupport.load(stateGroup, override.eventLoop());
+        stateGroup.readFrom(objectInputStream);
+
+        return ContextObject.builder()
+                .generalSupport(ContextObjectGeneralSupport.create(stateGroup))
+                .parallelismSupport(ContextObjectParallelismSupport.create(loadSupport.eventLoop()))
+                .randomnessSupport(ContextObjectRandomnessSupport.create(stateGroup))
+                .nodeGeneSupport(ContextObjectNodeGeneSupport.create(stateGroup))
+                .connectionGeneSupport(ContextObjectConnectionGeneSupport.create(stateGroup))
+                .activationSupport(ContextObjectActivationSupport.create(stateGroup, loadSupport.fitnessFunction()))
+                .mutationSupport(ContextObjectMutationSupport.create(stateGroup))
+                .crossOverSupport(ContextObjectCrossOverSupport.create(stateGroup))
+                .speciationSupport(ContextObjectSpeciationSupport.create(stateGroup, loadSupport.eventLoop()))
+                .metricsSupport(ContextObjectMetricsSupport.create(stateGroup, loadSupport.eventLoop()))
+                .build();
     }
 }

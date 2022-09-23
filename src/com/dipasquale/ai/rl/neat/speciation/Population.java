@@ -5,7 +5,7 @@ import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import com.dipasquale.ai.rl.neat.speciation.organism.OrganismFactory;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationContext;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessEvaluationContext;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionContext;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.SpeciesState;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.ChampionOrganismMissingException;
@@ -13,10 +13,11 @@ import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionContext;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.StandardNode;
 import com.dipasquale.data.structure.deque.StandardNodeDeque;
-import com.dipasquale.data.structure.iterable.Iterables;
+import com.dipasquale.data.structure.iterable.IterableSupport;
 import com.dipasquale.data.structure.set.DequeIdentitySet;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.dipasquale.io.serialization.SerializableStateGroup;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -30,15 +31,19 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
-    private PopulationState populationState = new PopulationState();
-    private DequeSet<Organism> organismsWithoutSpecies = new DequeIdentitySet<>();
-    private Queue<OrganismFactory> organismsToBirth = new LinkedList<>();
-    private NodeDeque<Species, StandardNode<Species>> speciesNodes = new StandardNodeDeque<>();
+    private final PopulationState populationState;
+    private final DequeSet<Organism> organismsWithoutSpecies;
+    private final Queue<OrganismFactory> organismsToBirth;
+    private final NodeDeque<Species, StandardNode<Species>> speciesNodes;
     @Getter
-    private OrganismActivator championOrganismActivator = new OrganismActivator();
+    private final OrganismActivator championOrganismActivator;
+
+    public Population() {
+        this(new PopulationState(), new DequeIdentitySet<>(), new LinkedList<>(), new StandardNodeDeque<>(), new OrganismActivator());
+    }
 
     public int getIteration() {
         return populationState.getIteration();
@@ -50,13 +55,13 @@ public final class Population {
 
     private void fillOrganismsWithoutSpeciesWithGenesisGenomes(final Context context) {
         Context.SpeciationSupport speciationSupport = context.speciation();
-        Context.ConnectionGeneSupport connectionGeneSupport = context.connections();
+        Context.NodeGeneSupport nodeGeneSupport = context.nodeGenes();
 
         for (int i = 0, c = context.general().params().populationSize(); i < c; i++) {
             Genome genome = speciationSupport.createGenesisGenome(context);
             Organism organism = new Organism(genome, populationState);
 
-            organism.registerNodes(connectionGeneSupport);
+            organism.registerNodeGenes(nodeGeneSupport);
             organismsWithoutSpecies.add(organism);
         }
     }
@@ -97,7 +102,7 @@ public final class Population {
         OrganismMatchMaker matchMaker = new OrganismMatchMaker(speciationSupport);
         int maximumSpecies = speciationSupport.params().maximumSpecies();
 
-        for (Organism organism : Iterables.concatenate(organismsWithoutSpecies, organismsBirthed)) {
+        for (Organism organism : IterableSupport.concatenate(organismsWithoutSpecies, organismsBirthed)) {
             for (StandardNode<Species> speciesNode : speciesNodes) {
                 matchMaker.replaceIfBetterMatch(organism, speciesNodes.getValue(speciesNode));
             }
@@ -113,7 +118,7 @@ public final class Population {
 
         organismsWithoutSpecies.clear();
         organismsToBirth.clear();
-        context.metrics().collectInitialCompositions(speciesNodes::flattenedIterator);
+        context.metrics().collectAllSpeciesCompositions(speciesNodes::flattenedIterator);
     }
 
     public void initializeChampionOrganism(final Organism organism, final GenomeActivator genomeActivator) {
@@ -121,7 +126,7 @@ public final class Population {
     }
 
     private void initializeChampionOrganism(final Organism organism, final Context context) {
-        initializeChampionOrganism(organism.createClone(context.connections()), organism.getActivator(context.activation()));
+        initializeChampionOrganism(organism.createClone(context.connectionGenes()), organism.getActivator(context.activation()));
     }
 
     public void initialize(final Context context) {
@@ -131,8 +136,8 @@ public final class Population {
     }
 
     public void updateFitness(final Context context) {
-        context.speciation().getFitnessCalculationStrategy().calculate(new FitnessCalculationContext(context, speciesNodes));
-        context.metrics().prepareNextFitnessCalculation();
+        context.speciation().getFitnessEvaluationStrategy().calculate(new FitnessEvaluationContext(context, speciesNodes));
+        context.metrics().prepareNextFitnessEvaluation();
     }
 
     private SpeciesState createSpeciesState(final Context.SpeciationSupport speciationSupport) {
@@ -190,8 +195,8 @@ public final class Population {
 
     public void restart(final Context context) {
         populationState.restart();
-        context.connections().reset();
-        context.nodes().reset();
+        context.connectionGenes().reset();
+        context.nodeGenes().reset();
         context.speciation().clearGenomeIds();
         organismsWithoutSpecies.clear();
         organismsToBirth.clear();
@@ -214,15 +219,18 @@ public final class Population {
         stateGroup.writeTo(outputStream);
     }
 
-    public void load(final ObjectInputStream inputStream)
+    public static Population create(final ObjectInputStream inputStream)
             throws IOException, ClassNotFoundException {
         SerializableStateGroup stateGroup = new SerializableStateGroup();
 
         stateGroup.readFrom(inputStream);
-        populationState = stateGroup.get("population.populationState");
-        organismsWithoutSpecies = stateGroup.get("population.organismsWithoutSpecies");
-        organismsToBirth = stateGroup.get("population.organismsToBirth");
-        speciesNodes = stateGroup.get("population.speciesNodes");
-        championOrganismActivator = stateGroup.get("population.championOrganismActivator");
+
+        PopulationState populationState = stateGroup.get("population.populationState");
+        DequeSet<Organism> organismsWithoutSpecies = stateGroup.get("population.organismsWithoutSpecies");
+        Queue<OrganismFactory> organismsToBirth = stateGroup.get("population.organismsToBirth");
+        NodeDeque<Species, StandardNode<Species>> speciesNodes = stateGroup.get("population.speciesNodes");
+        OrganismActivator championOrganismActivator = stateGroup.get("population.championOrganismActivator");
+
+        return new Population(populationState, organismsWithoutSpecies, organismsToBirth, speciesNodes, championOrganismActivator);
     }
 }

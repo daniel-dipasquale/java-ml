@@ -21,11 +21,13 @@ final class ContextObjectGeneralSupport implements Context.GeneralSupport {
         return params;
     }
 
-    public void save(final SerializableStateGroup stateGroup) {
+    void save(final SerializableStateGroup stateGroup) {
         stateGroup.put("general.params", params);
     }
 
-    public void load(final SerializableStateGroup stateGroup) {
-        params = stateGroup.get("general.params");
+    static ContextObjectGeneralSupport create(final SerializableStateGroup stateGroup) {
+        ContextObjectGeneralParameters params = stateGroup.get("general.params");
+
+        return new ContextObjectGeneralSupport(params);
     }
 }

@@ -1,5 +1,6 @@
 package com.dipasquale.common.error;
 
+import com.dipasquale.data.structure.collection.ListSupport;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,13 +13,13 @@ public class ErrorHandlerControllerTest {
     public void TEST_1() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<HandlerMock> items = List.of(
-                new HandlerMock(data, 0, 3),
-                new HandlerMock(data, 1, 2),
-                new HandlerMock(data, 2, 1)
-        );
+        List<HandlerMock> elements = ListSupport.<HandlerMock>builder()
+                .add(new HandlerMock(data, 0, 3))
+                .add(new HandlerMock(data, 1, 2))
+                .add(new HandlerMock(data, 2, 1))
+                .build();
 
-        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(items, HandlerMock::handle);
+        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(elements, HandlerMock::handle);
 
         test.handleAll(() -> new RuntimeException("unit test failure"));
         Assertions.assertEquals(3, data.get(0));
@@ -30,13 +31,13 @@ public class ErrorHandlerControllerTest {
     public void TEST_2() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<HandlerMock> items = List.of(
-                new HandlerMock(data, 0, 3),
-                new HandlerMock(data, -1, 2),
-                new HandlerMock(data, 2, 1)
-        );
+        List<HandlerMock> elements = ListSupport.<HandlerMock>builder()
+                .add(new HandlerMock(data, 0, 3))
+                .add(new HandlerMock(data, -1, 2))
+                .add(new HandlerMock(data, 2, 1))
+                .build();
 
-        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(items, HandlerMock::handle);
+        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(elements, HandlerMock::handle);
 
         try {
             test.handleAll(() -> new RuntimeException("unit test failure"));
@@ -62,13 +63,13 @@ public class ErrorHandlerControllerTest {
     public void TEST_3() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<HandlerMock> items = List.of(
-                new HandlerMock(data, 0, 3),
-                new HandlerMock(data, 1, 2),
-                new HandlerMock(data, 2, 1)
-        );
+        List<HandlerMock> elements = ListSupport.<HandlerMock>builder()
+                .add(new HandlerMock(data, 0, 3))
+                .add(new HandlerMock(data, 1, 2))
+                .add(new HandlerMock(data, 2, 1))
+                .build();
 
-        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(items, HandlerMock::handle);
+        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(elements, HandlerMock::handle);
 
         test.handleAll("unit test failure");
         Assertions.assertEquals(3, data.get(0));
@@ -80,13 +81,13 @@ public class ErrorHandlerControllerTest {
     public void TEST_4() {
         AtomicLongArray data = new AtomicLongArray(3);
 
-        List<HandlerMock> items = List.of(
-                new HandlerMock(data, 0, 3),
-                new HandlerMock(data, -1, 2),
-                new HandlerMock(data, 2, 1)
-        );
+        List<HandlerMock> elements = ListSupport.<HandlerMock>builder()
+                .add(new HandlerMock(data, 0, 3))
+                .add(new HandlerMock(data, -1, 2))
+                .add(new HandlerMock(data, 2, 1))
+                .build();
 
-        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(items, HandlerMock::handle);
+        ErrorHandlerController<HandlerMock> test = new ErrorHandlerController<>(elements, HandlerMock::handle);
 
         try {
             test.handleAll("unit test failure");

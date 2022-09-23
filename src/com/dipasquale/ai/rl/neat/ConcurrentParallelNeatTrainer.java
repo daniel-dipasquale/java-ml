@@ -16,11 +16,13 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -30,19 +32,23 @@ import java.util.stream.IntStream;
 final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
     private static final Comparator<IndexedNeatTrainer> MAXIMUM_FITNESS_COMPARATOR = Comparator.comparing(indexedTrainer -> indexedTrainer.trainer.getState().getMaximumFitness());
     private final ReadWriteLock lock;
-    private volatile Context.ParallelismSupport parallelismSupport;
+    private final Context.ParallelismSupport parallelismSupport;
     private final AtomicBoolean solutionFound;
     private final List<IndexedNeatTrainer> indexedTrainers;
     private volatile int championTrainerIndex;
     private final ConcurrentNeatState state;
 
-    private ConcurrentParallelNeatTrainer(final ReadWriteLock lock, final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<IndexedNeatTrainer> indexedTrainers) {
+    private ConcurrentParallelNeatTrainer(final ReadWriteLock lock, final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<IndexedNeatTrainer> indexedTrainers, final int championTrainerIndex) {
         this.lock = lock;
         this.parallelismSupport = parallelismSupport;
         this.solutionFound = solutionFound;
         this.indexedTrainers = indexedTrainers;
-        this.championTrainerIndex = 0;
+        this.championTrainerIndex = championTrainerIndex;
         this.state = new ConcurrentNeatState();
+    }
+
+    private ConcurrentParallelNeatTrainer(final ReadWriteLock lock, final Context.ParallelismSupport parallelismSupport, final AtomicBoolean solutionFound, final List<IndexedNeatTrainer> indexedTrainers) {
+        this(lock, parallelismSupport, solutionFound, indexedTrainers, 0);
     }
 
     private static List<IndexedNeatTrainer> createTrainers(final List<Context> contexts, final ParallelTrainingPolicy parallelTrainingPolicy, final NeatTrainingPolicy trainingPolicy) {
@@ -69,7 +75,7 @@ final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
                 .add(trainingPolicy.createClone())
                 .build();
 
-        return new ConcurrentNeatTrainer(context, fixedTrainingPolicy, NoopReadWriteLock.getInstance());
+        return new ConcurrentNeatTrainer(NoopReadWriteLock.getInstance(), context, fixedTrainingPolicy);
     }
 
     @Override
@@ -145,8 +151,9 @@ final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
 
         try {
             try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
-                objectOutputStream.writeObject(solutionFound.get());
-                objectOutputStream.writeObject(championTrainerIndex);
+                objectOutputStream.writeInt(indexedTrainers.size());
+                objectOutputStream.writeBoolean(solutionFound.get());
+                objectOutputStream.writeInt(championTrainerIndex);
             }
 
             for (IndexedNeatTrainer indexedTrainer : indexedTrainers) {
@@ -157,54 +164,68 @@ final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
         }
     }
 
-    private static boolean isEquivalent(final Context.ParallelismSupport parallelismSupport, final ParallelEventLoop eventLoop) {
-        return !parallelismSupport.params().enabled() && eventLoop == null
-                || parallelismSupport.params().enabled() && eventLoop != null && parallelismSupport.params().numberOfThreads() == eventLoop.getThreadIds().size();
+    private static Context.ParallelismSupport createParallelismSupport(final ParallelEventLoop eventLoop) {
+        return ParallelismSettings.builder()
+                .eventLoop(eventLoop)
+                .build()
+                .create();
     }
 
-    @Override
-    public void load(final InputStream inputStream, final EvaluatorLoadSettings settings)
+    static ConcurrentParallelNeatTrainer create(final InputStream inputStream, final NeatLoadSettings loadSettings)
             throws IOException {
-        lock.writeLock().lock();
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+            int indexTrainerCount;
+            AtomicBoolean solutionFound;
+            int championTrainerIndex;
 
-        if (!isEquivalent(parallelismSupport, settings.getEventLoop())) {
-            throw new IOException("unable to override event loop");
-        }
+            try {
+                indexTrainerCount = objectInputStream.readInt();
+            } catch (IOException e) {
+                throw new IOException("unable to load the multi instance trainer: failed at loading the index trainer count", e);
+            }
 
-        try {
-            EvaluatorLoadSettings fixedSettings = EvaluatorLoadSettings.builder()
-                    .fitnessFunction(settings.getFitnessFunction())
+            try {
+                solutionFound = new AtomicBoolean(objectInputStream.readBoolean());
+            } catch (IOException e) {
+                throw new IOException("unable to load the multi instance trainer: failed at loading the solution found synchronization flag", e);
+            }
+
+            try {
+                championTrainerIndex = objectInputStream.readInt();
+            } catch (IOException e) {
+                throw new IOException("unable to load the multi instance trainer: failed at loading the champion index indicator", e);
+            }
+
+            NeatLoadSettings fixedLoadSettings = NeatLoadSettings.builder()
+                    .fitnessFunction(loadSettings.getFitnessFunction())
                     .build();
 
-            try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
-                solutionFound.set((boolean) objectInputStream.readObject());
-                championTrainerIndex = (int) objectInputStream.readObject();
-            } catch (ClassNotFoundException e) {
-                throw new IOException("unable to load the multi instance trainer", e);
+            List<IndexedNeatTrainer> indexedNeatTrainers = new ArrayList<>();
+
+            try {
+                for (int i = 0; i < indexTrainerCount; i++) {
+                    ConcurrentNeatTrainer neatTrainer = ConcurrentNeatTrainer.create(inputStream, fixedLoadSettings);
+                    IndexedNeatTrainer indexedNeatTrainer = new IndexedNeatTrainer(i, neatTrainer);
+
+                    indexedNeatTrainers.add(indexedNeatTrainer);
+                }
+            } catch (IOException e) {
+                throw new IOException("unable to load the multi instance trainer: failed at loading one of the trainers", e);
             }
 
-            for (IndexedNeatTrainer indexedTrainer : indexedTrainers) {
-                indexedTrainer.trainer.load(inputStream, fixedSettings);
-            }
-
-            parallelismSupport = ParallelismSupport.builder()
-                    .eventLoop(settings.getEventLoop())
-                    .build()
-                    .create();
-        } finally {
-            lock.writeLock().unlock();
+            return new ConcurrentParallelNeatTrainer(new ReentrantReadWriteLock(), createParallelismSupport(loadSettings.getEventLoop()), solutionFound, indexedNeatTrainers, championTrainerIndex);
         }
     }
 
     @Override
-    public NeatTrainer cloneMostEfficientTrainer(final EvaluatorOverrideSettings settings) {
+    public NeatTrainer cloneMostEfficientTrainer(final NeatSettingsOverride settingsOverride) {
         NeatTrainer trainer = getMostEfficientTrainer();
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             trainer.save(outputStream);
 
             try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-                return Neat.createTrainer(inputStream, settings);
+                return Neat.createTrainer(inputStream, settingsOverride);
             }
         } catch (IOException e) {
             throw new IORuntimeException("unable to clone the most efficient neat trainer", e);
@@ -235,70 +256,94 @@ final class ConcurrentParallelNeatTrainer implements ParallelNeatTrainer {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private final class ConcurrentNeatState implements NeatState {
-        @Override
-        public int getIteration() {
-            lock.readLock().lock();
+        private int getIteration(final Lock lock) {
+            lock.lock();
 
             try {
                 return getMostEfficientTrainer().getState().getIteration();
             } finally {
-                lock.readLock().unlock();
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public int getIteration() {
+            return getIteration(lock.readLock());
+        }
+
+        private int getGeneration(final Lock lock) {
+            lock.lock();
+
+            try {
+                return getMostEfficientTrainer().getState().getGeneration();
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public int getGeneration() {
-            lock.readLock().lock();
+            return getGeneration(lock.readLock());
+        }
+
+        private int getSpeciesCount(final Lock lock) {
+            lock.lock();
 
             try {
-                return getMostEfficientTrainer().getState().getGeneration();
+                return getMostEfficientTrainer().getState().getSpeciesCount();
             } finally {
-                lock.readLock().unlock();
+                lock.unlock();
             }
         }
 
         @Override
         public int getSpeciesCount() {
-            lock.readLock().lock();
+            return getSpeciesCount(lock.readLock());
+        }
+
+        private Genome getChampionGenome(final Lock lock) {
+            lock.lock();
 
             try {
-                return getMostEfficientTrainer().getState().getSpeciesCount();
+                return getMostEfficientTrainer().getState().getChampionGenome();
             } finally {
-                lock.readLock().unlock();
+                lock.unlock();
             }
         }
 
         @Override
         public Genome getChampionGenome() {
-            lock.readLock().lock();
+            return getChampionGenome(lock.readLock());
+        }
+
+        private float getMaximumFitness(final Lock lock) {
+            lock.lock();
 
             try {
-                return getMostEfficientTrainer().getState().getChampionGenome();
+                return getMostEfficientTrainer().getState().getMaximumFitness();
             } finally {
-                lock.readLock().unlock();
+                lock.unlock();
             }
         }
 
         @Override
         public float getMaximumFitness() {
-            lock.readLock().lock();
+            return getMaximumFitness(lock.readLock());
+        }
+
+        private MetricsViewer createMetricsViewer(final Lock lock) {
+            lock.lock();
 
             try {
-                return getMostEfficientTrainer().getState().getMaximumFitness();
+                return getMostEfficientTrainer().getState().createMetricsViewer();
             } finally {
-                lock.readLock().unlock();
+                lock.unlock();
             }
         }
 
         @Override
         public MetricsViewer createMetricsViewer() {
-            lock.readLock().lock();
-
-            try {
-                return getMostEfficientTrainer().getState().createMetricsViewer();
-            } finally {
-                lock.readLock().unlock();
-            }
+            return createMetricsViewer(lock.readLock());
         }
     }
 }

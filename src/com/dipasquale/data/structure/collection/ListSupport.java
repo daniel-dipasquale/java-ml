@@ -40,8 +40,8 @@ public final class ListSupport {
     public static final class Builder<T> {
         private final List<T> list = new ArrayList<>();
 
-        public Builder<T> add(final T item) {
-            list.add(item);
+        public Builder<T> add(final T element) {
+            list.add(element);
 
             return this;
         }

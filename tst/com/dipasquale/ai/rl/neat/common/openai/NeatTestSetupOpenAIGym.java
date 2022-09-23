@@ -17,7 +17,7 @@ public final class NeatTestSetupOpenAIGym extends NeatTestSetup {
     private final OpenAIGymTaskSetup task;
     private final boolean shouldVisualizeSolution;
 
-    private NeatTestSetupOpenAIGym(final OpenAIGymTaskSetup task, final Set<String> genomeIds, final ParallelEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
+    private NeatTestSetupOpenAIGym(final OpenAIGymTaskSetup task, final Set<Integer> genomeIds, final ParallelEventLoop eventLoop, final NeatTrainerFactory neatTrainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
         super(task, genomeIds, eventLoop, neatTrainerFactory, shouldTestPersistence);
         this.task = task;
         this.shouldVisualizeSolution = shouldVisualizeSolution;
@@ -25,7 +25,7 @@ public final class NeatTestSetupOpenAIGym extends NeatTestSetup {
 
     @Builder(access = AccessLevel.PUBLIC, builderMethodName = "openAIGymBuilder")
     private static NeatTestSetupOpenAIGym create(final OpenAIGymTaskSetup task, final ParallelEventLoop eventLoop, final NeatTrainerFactory trainerFactory, final boolean shouldTestPersistence, final boolean shouldVisualizeSolution) {
-        Set<String> genomeIds = eventLoop != null
+        Set<Integer> genomeIds = eventLoop != null
                 ? Collections.newSetFromMap(new ConcurrentHashMap<>())
                 : new HashSet<>();
 

@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.common.cartpole;
 
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.NeatActivator;
 import com.dipasquale.ai.rl.neat.NeatTrainingAssessor;
+import com.dipasquale.ai.rl.neat.SecludedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.common.NeatObjective;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuralNetwork;
@@ -18,9 +18,9 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serial;
 
 @Getter
-final class BalanceUntilDoneObjective implements NeatObjective<IsolatedNeatEnvironment> {
+final class BalanceUntilDoneObjective implements NeatObjective<SecludedNeatEnvironment> {
     private static final RandomSupport RANDOM_SUPPORT = ThreadLocalUniformRandomSupport.getInstance();
-    private final IsolatedNeatEnvironment environment;
+    private final SecludedNeatEnvironment environment;
     private final NeatTrainingAssessor trainingAssessor;
 
     BalanceUntilDoneObjective(final double timeBalancingGoal, final int validationScenarioCount) {
@@ -50,7 +50,7 @@ final class BalanceUntilDoneObjective implements NeatObjective<IsolatedNeatEnvir
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalEnvironment implements IsolatedNeatEnvironment {
+    private static final class InternalEnvironment implements SecludedNeatEnvironment {
         @Serial
         private static final long serialVersionUID = -5257999118034158016L;
         private final double timeBalancingGoal;

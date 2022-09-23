@@ -38,14 +38,14 @@ public final class ParallelEventLoopTest {
     @Test
     public void TEST_1() {
         ParallelEventLoop test = new ParallelEventLoop(SETTINGS);
-        ItemCollector collector = new ItemCollector();
+        ElementCollector collector = new ElementCollector();
 
-        List<Item> items = IntStream.range(0, 256)
-                .mapToObj(index -> new Item((long) index + 1L))
+        List<Element> elements = IntStream.range(0, 256)
+                .mapToObj(index -> new Element((long) index + 1L))
                 .toList();
 
         try {
-            test.queue(items.iterator(), ItemHandler.adapt(item -> collector.value.addAndGet(item.value)));
+            test.queue(elements.iterator(), ElementHandler.adapt(element -> collector.value.addAndGet(element.value)));
             test.awaitUntilDone();
             Assertions.assertEquals(32_896L, collector.value.get());
         } catch (InterruptedException e) {
@@ -58,19 +58,19 @@ public final class ParallelEventLoopTest {
     @Test
     public void TEST_2() {
         ParallelEventLoop test = new ParallelEventLoop(SETTINGS);
-        ItemCollector collector = new ItemCollector();
+        ElementCollector collector = new ElementCollector();
 
-        List<Item> items = IntStream.range(0, 256)
-                .mapToObj(index -> new Item((long) index + 1L))
+        List<Element> elements = IntStream.range(0, 256)
+                .mapToObj(index -> new Element((long) index + 1L))
                 .toList();
 
-        Iterator<Item> itemIterator = items.stream()
-                .peek(item -> item.value++)
+        Iterator<Element> elementIterator = elements.stream()
+                .peek(element -> element.value++)
                 .iterator();
 
         try {
 
-            test.queue(itemIterator, ItemHandler.adapt(item -> collector.value.addAndGet(item.value)));
+            test.queue(elementIterator, ElementHandler.adapt(element -> collector.value.addAndGet(element.value)));
             test.awaitUntilDone();
             Assertions.assertEquals(33_152L, collector.value.get());
         } catch (InterruptedException e) {
@@ -81,11 +81,11 @@ public final class ParallelEventLoopTest {
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class Item {
+    private static final class Element {
         private long value;
     }
 
-    private static final class ItemCollector {
+    private static final class ElementCollector {
         private final AtomicLong value = new AtomicLong();
     }
 }

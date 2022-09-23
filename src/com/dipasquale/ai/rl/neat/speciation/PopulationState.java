@@ -25,11 +25,11 @@ public final class PopulationState implements Serializable {
     }
 
     public PopulationState createClone() {
-        PopulationState populationState = new PopulationState();
+        PopulationState state = new PopulationState();
 
-        populationState.iteration = iteration;
-        populationState.generation = generation;
+        state.iteration = iteration;
+        state.generation = generation;
 
-        return populationState;
+        return state;
     }
 }

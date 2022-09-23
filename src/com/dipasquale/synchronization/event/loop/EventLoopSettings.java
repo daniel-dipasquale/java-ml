@@ -21,7 +21,7 @@ public final class EventLoopSettings {
     @Builder.Default
     private final EventLoopType type = EventLoopType.EXPLICIT_DELAY;
     @Builder.Default
-    private final int numberOfThreads = 1;
+    private final int concurrencyLevel = 1;
     private final EventLoopSelector selector;
     private final ErrorHandler errorHandler;
 

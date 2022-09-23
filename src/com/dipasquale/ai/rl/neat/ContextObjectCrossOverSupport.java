@@ -1,24 +1,22 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.common.gate.IsLessThanRandomGate;
 import com.dipasquale.io.serialization.SerializableStateGroup;
-import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.gate.DualModeIsLessThanRandomGate;
-import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ContextObjectCrossOverSupport implements Context.CrossOverSupport {
-    private DualModeIsLessThanRandomGate shouldOverrideExpressedConnectionGate;
-    private DualModeIsLessThanRandomGate shouldUseWeightFromRandomParentGate;
+    private final IsLessThanRandomGate shouldOverrideExpressedConnectionGate;
+    private final IsLessThanRandomGate shouldUseWeightFromRandomParentGate;
 
-    private static DualModeIsLessThanRandomGate createIsLessThanGate(final InitializationContext initializationContext, final FloatNumber maximum) {
-        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.getFloatSingleton(maximum));
+    private static IsLessThanRandomGate createIsLessThanGate(final InitializationContext initializationContext, final FloatNumber maximum) {
+        return new IsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.provideSingleton(maximum));
     }
 
-    static ContextObjectCrossOverSupport create(final InitializationContext initializationContext, final CrossOverSupport crossOverSupport) {
-        DualModeIsLessThanRandomGate shouldOverrideExpressedConnectionGate = createIsLessThanGate(initializationContext, crossOverSupport.getOverrideExpressedConnectionRate());
-        DualModeIsLessThanRandomGate shouldUseWeightFromRandomParentGate = createIsLessThanGate(initializationContext, crossOverSupport.getUseWeightFromRandomParentRate());
+    static ContextObjectCrossOverSupport create(final InitializationContext initializationContext, final CrossOverSettings crossOverSettings) {
+        IsLessThanRandomGate shouldOverrideExpressedConnectionGate = createIsLessThanGate(initializationContext, crossOverSettings.getOverrideExpressedConnectionRate());
+        IsLessThanRandomGate shouldUseWeightFromRandomParentGate = createIsLessThanGate(initializationContext, crossOverSettings.getUseWeightFromRandomParentRate());
 
         return new ContextObjectCrossOverSupport(shouldOverrideExpressedConnectionGate, shouldUseWeightFromRandomParentGate);
     }
@@ -33,17 +31,15 @@ final class ContextObjectCrossOverSupport implements Context.CrossOverSupport {
         return shouldUseWeightFromRandomParentGate.isOn();
     }
 
-    public void save(final SerializableStateGroup stateGroup) {
+    void save(final SerializableStateGroup stateGroup) {
         stateGroup.put("crossOver.shouldOverrideExpressedConnectionGate", shouldOverrideExpressedConnectionGate);
         stateGroup.put("crossOver.shouldUseWeightFromRandomParentGate", shouldUseWeightFromRandomParentGate);
     }
 
-    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
-        shouldOverrideExpressedConnectionGate = DualModeObject.activateMode(stateGroup.get("crossOver.shouldOverrideExpressedConnectionGate"), concurrencyLevel);
-        shouldUseWeightFromRandomParentGate = DualModeObject.activateMode(stateGroup.get("crossOver.shouldUseWeightFromRandomParentGate"), concurrencyLevel);
-    }
+    static ContextObjectCrossOverSupport create(final SerializableStateGroup stateGroup) {
+        IsLessThanRandomGate shouldOverrideExpressedConnectionGate = stateGroup.get("crossOver.shouldOverrideExpressedConnectionGate");
+        IsLessThanRandomGate shouldUseWeightFromRandomParentGate = stateGroup.get("crossOver.shouldUseWeightFromRandomParentGate");
 
-    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
-        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
+        return new ContextObjectCrossOverSupport(shouldOverrideExpressedConnectionGate, shouldUseWeightFromRandomParentGate);
     }
 }

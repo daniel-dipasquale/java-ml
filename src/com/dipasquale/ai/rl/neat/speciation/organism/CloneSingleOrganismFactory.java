@@ -16,7 +16,7 @@ public final class CloneSingleOrganismFactory implements OrganismFactory, Serial
     public Organism create(final Context context) {
         Organism copiedOrganism = organism.createCopy(context);
 
-        copiedOrganism.registerNodes(context.connections());
+        copiedOrganism.registerNodeGenes(context.nodeGenes());
 
         return copiedOrganism;
     }

@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
+import com.dipasquale.ai.rl.neat.Id;
 import com.dipasquale.ai.rl.neat.genotype.ConnectionGene;
-import com.dipasquale.ai.rl.neat.genotype.ConnectionType;
-import com.dipasquale.ai.rl.neat.internal.Id;
+import com.dipasquale.ai.rl.neat.genotype.ConnectionGeneType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -36,7 +36,7 @@ abstract class AbstractRecurrentNeuronStateGroup implements NeuronStateGroup {
     public float calculateValue(final Neuron neuron, final NeuronOutputConnection connection) {
         Id neuronId = neuron.getId();
 
-        if (ConnectionGene.getType(neuronId, connection.getTargetNeuronId()) != ConnectionType.FORWARD) {
+        if (ConnectionGene.getType(neuronId, connection.getTargetNeuronId()) != ConnectionGeneType.FORWARD) {
             return calculateRecurrentValue(neuron, connection);
         }
 

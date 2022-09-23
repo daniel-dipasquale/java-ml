@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.common.xor;
 
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.NeatActivator;
 import com.dipasquale.ai.rl.neat.NeatTrainingAssessor;
+import com.dipasquale.ai.rl.neat.SecludedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.common.NeatObjective;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuronMemory;
@@ -14,7 +14,7 @@ import java.io.Serial;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-final class DistanceFromExpectedObjective implements NeatObjective<IsolatedNeatEnvironment> {
+final class DistanceFromExpectedObjective implements NeatObjective<SecludedNeatEnvironment> {
     private static final float[][] INPUTS = {
             {1f, 1f}, // => 0f
             {1f, 0f}, // => 1f
@@ -23,11 +23,11 @@ final class DistanceFromExpectedObjective implements NeatObjective<IsolatedNeatE
     };
 
     private static final float[] EXPECTED_OUTPUTS = {0f, 1f, 1f, 0f};
-    private final IsolatedNeatEnvironment environment = new InternalEnvironment();
+    private final SecludedNeatEnvironment environment = new InternalEnvironment();
     private final NeatTrainingAssessor trainingAssessor = new InternalTrainingAssessor();
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalEnvironment implements IsolatedNeatEnvironment {
+    private static final class InternalEnvironment implements SecludedNeatEnvironment {
         @Serial
         private static final long serialVersionUID = -4986662353963236661L;
 

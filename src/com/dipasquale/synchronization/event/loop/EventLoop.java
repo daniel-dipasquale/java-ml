@@ -46,20 +46,20 @@ public interface EventLoop extends WaitHandle {
     }
 
     static EventLoop create(final EventLoopSettings settings) {
-        ArgumentValidatorSupport.ensureGreaterThanZero(settings.getNumberOfThreads(), "settings.concurrencyLevel");
+        ArgumentValidatorSupport.ensureGreaterThanZero(settings.getConcurrencyLevel(), "settings.concurrencyLevel");
 
         EventLoopParams params = EventLoopParams.builder()
                 .dateTimeSupport(settings.getDateTimeSupport())
                 .errorHandler(settings.getErrorHandler())
                 .build();
 
-        if (settings.getNumberOfThreads() == 1) {
+        if (settings.getConcurrencyLevel() == 1) {
             return settings.getFactory().create(params, null);
         }
 
         EventLoopFactory.Proxy factoryProxy = createFactoryProxy(settings, params);
         EventLoopSelector selector = createSelector(settings);
 
-        return new RouterEventLoop(factoryProxy, settings.getNumberOfThreads(), selector, settings.getDateTimeSupport());
+        return new RouterEventLoop(factoryProxy, settings.getConcurrencyLevel(), selector, settings.getDateTimeSupport());
     }
 }

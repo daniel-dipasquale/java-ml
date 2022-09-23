@@ -7,16 +7,16 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public final class ErrorHandlerController<T> {
-    private final Iterable<T> items;
-    private final ItemHandler<T> handler;
+    private final Iterable<T> elements;
+    private final ElementHandler<T> handler;
 
     public <TError extends Throwable> void handleAll(final ErrorHandlerSupport.Factory<TError> errorFactory)
             throws TError {
         List<Throwable> suppressed = new ArrayList<>();
 
-        for (T item : items) {
+        for (T element : elements) {
             try {
-                handler.handle(item);
+                handler.handle(element);
             } catch (Throwable e) {
                 suppressed.add(e);
             }
@@ -30,7 +30,7 @@ public final class ErrorHandlerController<T> {
     }
 
     @FunctionalInterface
-    public interface ItemHandler<T> {
-        void handle(T item) throws Exception;
+    public interface ElementHandler<T> {
+        void handle(T element) throws Exception;
     }
 }

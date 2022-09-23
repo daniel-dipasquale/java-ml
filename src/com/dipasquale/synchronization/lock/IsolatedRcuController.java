@@ -24,7 +24,7 @@ final class IsolatedRcuController implements RcuController, Serializable {
         this.writeToken = writeToken;
         this.unprotectedToken = writeToken;
         this.isolatedThreadIndex = isolatedThreadIndex;
-        this.readToken = new IsolatedThreadStorage<>(isolatedThreadIndex, Object.class);
+        this.readToken = new IsolatedThreadStorage<>(isolatedThreadIndex);
     }
 
     IsolatedRcuController(final IsolatedThreadIndex isolatedThreadIndex) {
@@ -52,17 +52,17 @@ final class IsolatedRcuController implements RcuController, Serializable {
     }
 
     public Object getReadTokenFromCurrent() {
-        return readToken.getFromCurrent();
+        return readToken.fetch();
     }
 
     @Override
     public void acquireRead() {
-        readToken.putInCurrent(unprotectedToken);
+        readToken.attach(unprotectedToken);
     }
 
     @Override
     public void releaseRead() {
-        readToken.removeFromCurrent();
+        readToken.detach();
     }
 
     @Override

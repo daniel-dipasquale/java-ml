@@ -141,26 +141,26 @@ public final class Species implements Serializable {
         List<OrganismFactory> organismsToBirth = new ArrayList<>();
         int size = organisms.size();
         Context.SpeciationSupport speciationSupport = context.speciation();
-        Context.RandomSupport randomSupport = context.random();
+        Context.RandomnessSupport randomnessSupport = context.randomness();
 
         for (int i = 0; i < count; i++) {
             ReproductionType reproductionType = speciationSupport.generateReproductionType(size);
 
             OrganismFactory organismToBirth = switch (reproductionType) {
                 case MATE_AND_MUTATE, MATE_ONLY -> {
-                    Pair<Organism> organismCouple = randomSupport.generateItemPair(organisms);
+                    Pair<Organism> organismCouple = randomnessSupport.generateElementPair(organisms);
 
                     yield new MateBetweenOrganismsFactory(organismCouple.getLeft(), organismCouple.getRight(), reproductionType == ReproductionType.MATE_AND_MUTATE);
                 }
 
                 case MUTATE_ONLY -> {
-                    Organism organism = randomSupport.generateItem(organisms);
+                    Organism organism = randomnessSupport.generateElement(organisms);
 
                     yield new MutateSingleOrganismFactory(organism);
                 }
 
                 case CLONE -> {
-                    Organism organism = randomSupport.generateItem(organisms);
+                    Organism organism = randomnessSupport.generateElement(organisms);
 
                     yield new CloneSingleOrganismFactory(organism);
                 }
@@ -172,13 +172,13 @@ public final class Species implements Serializable {
         return organismsToBirth;
     }
 
-    public OrganismFactory reproduce(final Context.RandomSupport randomSupport, final Species other) {
+    public OrganismFactory reproduce(final Context.RandomnessSupport randomnessSupport, final Species other) {
         if (organisms.isEmpty() || other.organisms.isEmpty()) {
             return null;
         }
 
-        Organism organism1 = randomSupport.generateItem(organisms);
-        Organism organism2 = randomSupport.generateItem(other.organisms);
+        Organism organism1 = randomnessSupport.generateElement(organisms);
+        Organism organism2 = randomnessSupport.generateElement(other.organisms);
 
         return new MateBetweenOrganismsFactory(organism1, organism2, false);
     }
@@ -214,12 +214,12 @@ public final class Species implements Serializable {
         return organisms.size() > 1;
     }
 
-    public List<Organism> restart(final Context.RandomSupport randomSupport, final DequeSet<Organism> organismsTaken) {
+    public List<Organism> restart(final Context.RandomnessSupport randomnessSupport, final DequeSet<Organism> organismsTaken) {
         List<Organism> fixedOrganisms = organisms.stream()
                 .filter(organism -> !organismsTaken.contains(organism))
                 .collect(Collectors.toList());
 
-        int index = randomSupport.generateIndex(fixedOrganisms.size());
+        int index = randomnessSupport.generateIndex(fixedOrganisms.size());
         Organism fixedRepresentativeOrganism = fixedOrganisms.remove(index);
 
         initializeOrganisms(fixedRepresentativeOrganism);

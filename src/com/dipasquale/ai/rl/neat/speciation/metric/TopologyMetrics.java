@@ -1,6 +1,7 @@
 package com.dipasquale.ai.rl.neat.speciation.metric;
 
 import com.dipasquale.metric.MetricDatum;
+import com.dipasquale.metric.MetricDatumFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -12,23 +13,27 @@ import java.io.Serializable;
 public final class TopologyMetrics implements Serializable {
     @Serial
     private static final long serialVersionUID = -1203469875972822936L;
-    private final MetricDatum hiddenNodes;
-    private final MetricDatum connections;
+    private final MetricDatum hiddenNodeGenes;
+    private final MetricDatum connectionGenes;
+
+    public static TopologyMetrics create(final MetricDatumFactory metricDatumFactory) {
+        return new TopologyMetrics(metricDatumFactory.create(), metricDatumFactory.create());
+    }
 
     public void merge(final TopologyMetrics topologyMetrics) {
-        hiddenNodes.merge(topologyMetrics.hiddenNodes);
-        connections.merge(topologyMetrics.connections);
+        hiddenNodeGenes.merge(topologyMetrics.hiddenNodeGenes);
+        connectionGenes.merge(topologyMetrics.connectionGenes);
     }
 
     public TopologyMetrics createCopy() {
-        MetricDatum copiedHiddenNodes = hiddenNodes.createCopy();
-        MetricDatum copiedConnections = connections.createCopy();
+        MetricDatum copiedHiddenNodeGenes = hiddenNodeGenes.createCopy();
+        MetricDatum copiedConnectionGenes = connectionGenes.createCopy();
 
-        return new TopologyMetrics(copiedHiddenNodes, copiedConnections);
+        return new TopologyMetrics(copiedHiddenNodeGenes, copiedConnectionGenes);
     }
 
     public void clear() {
-        hiddenNodes.clear();
-        connections.clear();
+        hiddenNodeGenes.clear();
+        connectionGenes.clear();
     }
 }

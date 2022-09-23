@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
+import com.dipasquale.ai.rl.neat.Id;
 import com.dipasquale.ai.rl.neat.function.activation.ActivationFunction;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.internal.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,35 +18,35 @@ import java.util.Collection;
 final class Neuron implements Serializable {
     @Serial
     private static final long serialVersionUID = -7305330143842774982L;
-    private final NodeGene node;
+    private final NodeGene nodeGene;
     @Getter
     private final Collection<NeuronInputConnection> inputConnections;
     @Getter
     private final Collection<NeuronOutputConnection> outputConnections;
 
     public Id getId() {
-        return node.getId();
+        return nodeGene.getId();
     }
 
     public NodeGeneType getType() {
-        return node.getType();
+        return nodeGene.getType();
     }
 
     public float getBias() {
-        return node.getBias();
+        return nodeGene.getBias();
     }
 
     public float getRecurrentBias(final int index) {
-        return node.getRecurrentBiases().get(index);
+        return nodeGene.getRecurrentBiases().get(index);
     }
 
     public ActivationFunction getActivationFunction() {
-        return node.getActivationFunction();
+        return nodeGene.getActivationFunction();
     }
 
     @Override
     public String toString() {
-        return node.toString();
+        return nodeGene.toString();
     }
 
     public static float calculateValue(final ActivationFunction activationFunction, final float[] weights, final float[] values, final float[] biases) {

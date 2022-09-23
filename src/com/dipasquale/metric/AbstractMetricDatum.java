@@ -1,10 +1,13 @@
 package com.dipasquale.metric;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public abstract class AbstractMetricDatum implements MetricDatum, Serializable {
     @Serial
@@ -14,32 +17,32 @@ public abstract class AbstractMetricDatum implements MetricDatum, Serializable {
     protected Float maximum = null;
     protected Float lastValue = null;
 
-    protected void appendStatistics(final int size, final float value) {
-        if (size == 0) {
-            sum = value;
-            minimum = value;
-            maximum = value;
-        } else {
-            sum += value;
-            minimum = Math.min(minimum, value);
-            maximum = Math.max(maximum, value);
-        }
-
+    protected void initializeSummary(final float value) {
+        sum = value;
+        minimum = value;
+        maximum = value;
         lastValue = value;
     }
 
-    protected void mergeStatistics(final int size, final MetricDatum other) {
-        if (size == 0) {
-            sum = other.getSum();
-            minimum = other.getMinimum();
-            maximum = other.getMaximum();
-            lastValue = other.getLastValue();
-        } else if (!other.getValues().isEmpty()) {
-            sum += other.getSum();
-            minimum = Math.min(minimum, other.getMinimum());
-            maximum = Math.max(maximum, other.getMaximum());
-            lastValue = other.getLastValue();
-        }
+    protected void amendSummary(final float value) {
+        sum += value;
+        minimum = Math.min(minimum, value);
+        maximum = Math.max(maximum, value);
+        lastValue = value;
+    }
+
+    protected void initializeSummary(final MetricDatum other) {
+        sum = other.getSum();
+        minimum = other.getMinimum();
+        maximum = other.getMaximum();
+        lastValue = other.getLastValue();
+    }
+
+    protected void mergeSummaries(final MetricDatum other) {
+        sum += other.getSum();
+        minimum = Math.min(minimum, other.getMinimum());
+        maximum = Math.max(maximum, other.getMaximum());
+        lastValue = other.getLastValue();
     }
 
     @Override

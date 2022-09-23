@@ -11,52 +11,34 @@ import java.util.stream.IntStream;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Neat {
-    private static final GenesisGenomeTemplate AVOID_NULL_POINTER_GENESIS_GENOME_TEMPLATE = GenesisGenomeTemplate.builder()
-            .inputs(1)
-            .outputs(1)
-            .build();
-
-    static EvaluatorSettings createOverridableSettings() {
-        return EvaluatorSettings.builder()
-                .general(GeneralSupport.builder()
-                        .genesisGenomeTemplate(AVOID_NULL_POINTER_GENESIS_GENOME_TEMPLATE)
-                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> 0f)
-                        .build())
-                .build();
-    }
-
-    public static NeatEvaluator createEvaluator(final EvaluatorSettings settings) {
+    public static NeatEvaluator createEvaluator(final NeatSettings settings) {
         return new ConcurrentNeatEvaluator(settings.createContext());
     }
 
-    public static NeatTrainer createTrainer(final EvaluatorSettings settings, final NeatTrainingPolicy trainingPolicy) {
+    public static NeatTrainer createTrainer(final NeatSettings settings, final NeatTrainingPolicy trainingPolicy) {
         return new ConcurrentNeatTrainer(settings.createContext(), trainingPolicy);
     }
 
-    public static NeatTrainer createTrainer(final InputStream inputStream, final EvaluatorOverrideSettings settings)
+    public static NeatTrainer createTrainer(final InputStream inputStream, final NeatSettingsOverride settingsOverride)
             throws IOException {
-        NeatTrainer trainer = Neat.createTrainer(createOverridableSettings(), InvalidTrainingPolicy.getInstance());
-
-        EvaluatorLoadSettings fixedSettings = EvaluatorLoadSettings.builder()
-                .fitnessFunction(settings.getFitnessFunction())
-                .eventLoop(settings.getEventLoop())
+        NeatLoadSettings loadSettings = NeatLoadSettings.builder()
+                .fitnessFunction(settingsOverride.getFitnessFunction())
+                .eventLoop(settingsOverride.getEventLoop())
                 .build();
 
-        trainer.load(inputStream, fixedSettings);
-
-        return trainer;
+        return ConcurrentNeatTrainer.create(inputStream, loadSettings);
     }
 
-    public static ParallelNeatTrainer createParallelTrainer(final EvaluatorSettings settings, final NeatTrainingPolicy trainingPolicy) {
+    public static ParallelNeatTrainer createParallelTrainer(final NeatSettings settings, final NeatTrainingPolicy trainingPolicy) {
         Context.ParallelismSupport parallelismSupport = settings.getParallelism().create();
 
-        EvaluatorSettings fixedSettings = EvaluatorSettings.builder()
+        NeatSettings fixedSettings = NeatSettings.builder()
                 .general(settings.getGeneral())
-                .parallelism(ParallelismSupport.builder()
+                .parallelism(ParallelismSettings.builder()
                         .build())
-                .random(settings.getRandom())
-                .nodes(settings.getNodes())
-                .connections(settings.getConnections())
+                .randomness(settings.getRandomness())
+                .nodeGenes(settings.getNodeGenes())
+                .connectionGenes(settings.getConnectionGenes())
                 .activation(settings.getActivation())
                 .mutation(settings.getMutation())
                 .crossOver(settings.getCrossOver())
@@ -64,7 +46,7 @@ public final class Neat {
                 .metrics(settings.getMetrics())
                 .build();
 
-        List<Context> contexts = IntStream.range(0, settings.getParallelism().getConcurrencyLevel())
+        List<Context> contexts = IntStream.range(0, settings.getParallelism().getThreadIds().size())
                 .mapToObj(__ -> fixedSettings.createContext())
                 .collect(Collectors.toList());
 

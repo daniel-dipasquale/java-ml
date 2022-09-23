@@ -9,9 +9,10 @@ import com.dipasquale.ai.rl.neat.speciation.ReproductionType;
 import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessCalculationStrategy;
+import com.dipasquale.ai.rl.neat.speciation.strategy.fitness.FitnessEvaluationStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.reproduction.ReproductionStrategy;
 import com.dipasquale.ai.rl.neat.speciation.strategy.selection.SelectionStrategyExecutor;
+import com.dipasquale.common.FloatValue;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.data.structure.group.ListSetGroup;
@@ -20,7 +21,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
 import java.util.List;
@@ -31,11 +31,11 @@ public interface Context {
 
     ParallelismSupport parallelism();
 
-    RandomSupport random();
+    RandomnessSupport randomness();
 
-    NodeGeneSupport nodes();
+    NodeGeneSupport nodeGenes();
 
-    ConnectionGeneSupport connections();
+    ConnectionGeneSupport connectionGenes();
 
     ActivationSupport activation();
 
@@ -48,8 +48,6 @@ public interface Context {
     MetricsSupport metrics();
 
     void save(ObjectOutputStream outputStream) throws IOException;
-
-    void load(ObjectInputStream inputStream, StateOverrideSupport override) throws IOException, ClassNotFoundException;
 
     @FunctionalInterface
     interface GeneralParams {
@@ -70,20 +68,22 @@ public interface Context {
     interface ParallelismSupport {
         ParallelismParameters params();
 
-        <T> void forEach(Iterator<T> iterator, Consumer<T> itemHandler);
+        FloatValue createFloatValue(float initialValue);
 
-        <T> void forEach(List<T> list, Consumer<T> itemHandler);
+        <T> void forEach(Iterator<T> iterator, Consumer<T> elementHandler);
+
+        <T> void forEach(List<T> list, Consumer<T> elementHandler);
     }
 
-    interface RandomSupport {
+    interface RandomnessSupport {
         int generateIndex(int offset, int count);
 
         default int generateIndex(final int count) {
             return generateIndex(0, count);
         }
 
-        default <T> T generateItem(final List<T> items) {
-            int size = items.size();
+        default <T> T generateElement(final List<T> elements) {
+            int size = elements.size();
 
             if (size == 0) {
                 return null;
@@ -91,11 +91,11 @@ public interface Context {
 
             int index = generateIndex(size);
 
-            return items.get(index);
+            return elements.get(index);
         }
 
-        default <T> T generateItem(final ListSetGroup<? extends Comparable<?>, T> items) {
-            int size = items.size();
+        default <T> T generateElement(final ListSetGroup<? extends Comparable<?>, T> elements) {
+            int size = elements.size();
 
             if (size == 0) {
                 return null;
@@ -103,41 +103,53 @@ public interface Context {
 
             int index = generateIndex(size);
 
-            return items.getByIndex(index);
+            return elements.getByIndex(index);
         }
 
         boolean isLessThan(float rate);
 
-        default <T> Pair<T> generateItemPair(final List<T> items) {
-            int size = items.size();
+        default <T> T generateElement(final T element1, final T element2) {
+            if (isLessThan(0.5f)) {
+                return element1;
+            }
+
+            return element2;
+        }
+
+        default <T> Pair<T> generateElementPair(final List<T> elements) {
+            int size = elements.size();
 
             if (size <= 1) {
                 return null;
             }
 
             if (size == 2) {
-                return new Pair<>(items.get(0), items.get(1));
+                return new Pair<>(elements.get(0), elements.get(1));
             }
 
             int index1 = generateIndex(size);
             int index2 = generateIndex(size - 1);
 
             if (index2 < index1) {
-                return new Pair<>(items.get(index1), items.get(index2));
+                return new Pair<>(elements.get(index1), elements.get(index2));
             }
 
-            return new Pair<>(items.get(index1), items.get(index2 + 1));
+            return new Pair<>(elements.get(index1), elements.get(index2 + 1));
         }
 
-        <T> T generateItem(ProbabilityClassifier<T> probabilityClassifier);
+        <T> T generateElement(ProbabilityClassifier<T> probabilityClassifier);
 
-        <T> void shuffle(List<T> items);
+        <T> void shuffle(List<T> elements);
     }
 
     interface NodeGeneSupport {
         NodeGene createHidden();
 
-        void setupInitialNodes(Genome genome);
+        void setupInitial(Genome genome);
+
+        void registerAll(Genome genome);
+
+        void deregisterAll(Genome genome);
 
         void reset();
     }
@@ -159,15 +171,11 @@ public interface Context {
 
         boolean shouldAllowMultiCycle();
 
-        void setupInitialConnections(Genome genome);
+        void setupInitial(Genome genome);
 
-        InnovationId provideInnovationId(NodeGene sourceNode, NodeGene targetNode);
+        InnovationId provideInnovationId(NodeGene sourceNodeGene, NodeGene targetNodeGene);
 
         boolean containsInnovationId(InnovationId innovationId);
-
-        void registerNodes(Genome genome);
-
-        void deregisterNodes(Genome genome);
 
         void reset();
     }
@@ -233,7 +241,7 @@ public interface Context {
 
         void clearSpeciesIds();
 
-        String createGenomeId();
+        int createGenomeId();
 
         void clearGenomeIds();
 
@@ -261,7 +269,7 @@ public interface Context {
 
         ReproductionType generateReproductionType(int organisms);
 
-        FitnessCalculationStrategy getFitnessCalculationStrategy();
+        FitnessEvaluationStrategy getFitnessEvaluationStrategy();
 
         SelectionStrategyExecutor getSelectionStrategy();
 
@@ -280,7 +288,7 @@ public interface Context {
     interface MetricsSupport {
         MetricsParameters params();
 
-        void collectInitialCompositions(Iterable<Species> allSpecies);
+        void collectAllSpeciesCompositions(Iterable<Species> allSpecies);
 
         void collectFitness(Species species, Organism organism);
 
@@ -290,7 +298,7 @@ public interface Context {
 
         void collectExtinction(Species species, boolean extinct);
 
-        void prepareNextFitnessCalculation();
+        void prepareNextFitnessEvaluation();
 
         void prepareNextGeneration();
 
@@ -299,7 +307,7 @@ public interface Context {
         MetricsViewer createMetricsViewer();
     }
 
-    interface StateOverrideSupport {
+    interface LoadSupport {
         NeatEnvironment fitnessFunction();
 
         ParallelEventLoop eventLoop();

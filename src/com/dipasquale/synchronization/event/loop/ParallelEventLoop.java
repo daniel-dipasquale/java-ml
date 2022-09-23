@@ -69,14 +69,14 @@ public final class ParallelEventLoop {
         return threadIds.getReference();
     }
 
-    private <T> InteractiveWaitHandle queue(final IteratorProducerFactory<T> iteratorProducerFactory, final ItemHandler<T> itemHandler, final ErrorHandler errorHandler) {
+    private <T> InteractiveWaitHandle queue(final IteratorProducerFactory<T> iteratorProducerFactory, final ElementHandler<T> elementHandler, final ErrorHandler errorHandler) {
         int size = eventLoops.size();
         InteractiveWaitHandle interactiveWaitHandle = new CountDownWaitHandle(size);
 
         for (int i = 0; i < size; i++) {
             EventLoop eventLoop = eventLoops.get(i);
-            ItemProducer<T> itemProducer = iteratorProducerFactory.create(i, size);
-            EventLoopHandler handler = new ItemProducerEventLoopHandler<>(itemProducer, itemHandler);
+            ElementProducer<T> elementProducer = iteratorProducerFactory.create(i, size);
+            EventLoopHandler handler = new ElementProducerEventLoopHandler<>(elementProducer, elementHandler);
 
             eventLoop.queue(handler, DELAY_TIME, errorHandler, interactiveWaitHandle);
         }
@@ -84,25 +84,25 @@ public final class ParallelEventLoop {
         return interactiveWaitHandle;
     }
 
-    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final ItemHandler<T> itemHandler, final ErrorHandler errorHandler) {
-        ItemProducer<T> itemProducer = new SharedItemProducer<>(iterator);
-        IteratorProducerFactory<T> iteratorProducerFactory = (__, ___) -> itemProducer;
+    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final ElementHandler<T> elementHandler, final ErrorHandler errorHandler) {
+        ElementProducer<T> elementProducer = new SharedElementProducer<>(iterator);
+        IteratorProducerFactory<T> iteratorProducerFactory = (__, ___) -> elementProducer;
 
-        return queue(iteratorProducerFactory, itemHandler, errorHandler);
+        return queue(iteratorProducerFactory, elementHandler, errorHandler);
     }
 
-    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final ItemHandler<T> itemHandler) {
-        return queue(iterator, itemHandler, null);
+    public <T> InteractiveWaitHandle queue(final Iterator<T> iterator, final ElementHandler<T> elementHandler) {
+        return queue(iterator, elementHandler, null);
     }
 
-    public <T> InteractiveWaitHandle queue(final List<T> list, final ItemHandler<T> itemHandler, final ErrorHandler errorHandler) {
-        IteratorProducerFactory<T> iteratorProducerFactory = (offset, step) -> new IsolatedItemProducer<>(list, offset, step);
+    public <T> InteractiveWaitHandle queue(final List<T> list, final ElementHandler<T> elementHandler, final ErrorHandler errorHandler) {
+        IteratorProducerFactory<T> iteratorProducerFactory = (offset, step) -> new IsolatedElementProducer<>(list, offset, step);
 
-        return queue(iteratorProducerFactory, itemHandler, errorHandler);
+        return queue(iteratorProducerFactory, elementHandler, errorHandler);
     }
 
-    public <T> InteractiveWaitHandle queue(final List<T> list, final ItemHandler<T> itemHandler) {
-        return queue(list, itemHandler, null);
+    public <T> InteractiveWaitHandle queue(final List<T> list, final ElementHandler<T> elementHandler) {
+        return queue(list, elementHandler, null);
     }
 
     private static Iterable<Range> createRanges(final int offset, final int count, final int size) {
@@ -207,7 +207,7 @@ public final class ParallelEventLoop {
 
     @FunctionalInterface
     private interface IteratorProducerFactory<T> {
-        ItemProducer<T> create(int offset, int step);
+        ElementProducer<T> create(int offset, int step);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

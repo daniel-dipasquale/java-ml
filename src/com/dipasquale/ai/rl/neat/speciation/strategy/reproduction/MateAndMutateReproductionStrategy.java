@@ -18,9 +18,9 @@ public final class MateAndMutateReproductionStrategy implements ReproductionStra
     @Serial
     private static final long serialVersionUID = -8229774363987716310L;
 
-    private void reproduceInterSpecies(final Context.RandomSupport randomSupport, final List<Species> rankedSpecies, final Queue<OrganismFactory> organismsToBirth) {
-        Pair<Species> speciesPair = randomSupport.generateItemPair(rankedSpecies);
-        OrganismFactory organismToBirth = speciesPair.getLeft().reproduce(randomSupport, speciesPair.getRight());
+    private void reproduceInterSpecies(final Context.RandomnessSupport randomnessSupport, final List<Species> rankedSpecies, final Queue<OrganismFactory> organismsToBirth) {
+        Pair<Species> speciesPair = randomnessSupport.generateElementPair(rankedSpecies);
+        OrganismFactory organismToBirth = speciesPair.getLeft().reproduce(randomnessSupport, speciesPair.getRight());
 
         organismsToBirth.add(organismToBirth);
     }
@@ -38,16 +38,16 @@ public final class MateAndMutateReproductionStrategy implements ReproductionStra
             float organismsToReproduce = organismsNeeded * context.getParent().speciation().params().interSpeciesMatingRate();
             float flooredOrganismsToReproduce = (float) Math.floor(organismsToReproduce);
             int fixedFlooredOrganismsToReproduce = (int) flooredOrganismsToReproduce;
-            Context.RandomSupport randomSupport = context.getParent().random();
+            Context.RandomnessSupport randomnessSupport = context.getParent().randomness();
 
             for (int i = 0; i < fixedFlooredOrganismsToReproduce; i++) {
-                reproduceInterSpecies(randomSupport, rankedSpecies, organismsToBirth);
+                reproduceInterSpecies(randomnessSupport, rankedSpecies, organismsToBirth);
             }
 
             reproduced = fixedFlooredOrganismsToReproduce;
 
-            if (context.getParent().random().isLessThan(organismsToReproduce - flooredOrganismsToReproduce)) {
-                reproduceInterSpecies(context.getParent().random(), rankedSpecies, organismsToBirth);
+            if (context.getParent().randomness().isLessThan(organismsToReproduce - flooredOrganismsToReproduce)) {
+                reproduceInterSpecies(context.getParent().randomness(), rankedSpecies, organismsToBirth);
                 reproduced++;
             }
         }

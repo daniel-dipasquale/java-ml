@@ -9,58 +9,48 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public final class LinkedIterator<T> implements Iterator<T> {
-    private final ItemContainer<T> currentItemContainer;
-    private final NextProducer<T> nextProducer;
-    private final Predicate<T> hasNextPredicate;
+    private final ElementContainer<T> current;
+    private final NextElementProducer<T> nextProducer;
+    private final HasNextElementPredicate<T> hasNextPredicate;
 
-    private LinkedIterator(final T root, final NextProducer<T> nextProducer, final Predicate<T> hasNextPredicate) {
-        this.currentItemContainer = new ItemContainer<>(root);
+    private LinkedIterator(final T root, final NextElementProducer<T> nextProducer, final HasNextElementPredicate<T> hasNextPredicate) {
+        this.current = new ElementContainer<>(root);
         this.nextProducer = nextProducer;
         this.hasNextPredicate = hasNextPredicate;
     }
 
     @Override
     public boolean hasNext() {
-        return hasNextPredicate.hasMore(currentItemContainer.item);
+        return hasNextPredicate.hasMore(current.element);
     }
 
     @Override
     public T next() {
-        T currentItem = currentItemContainer.item;
+        T currentElement = current.element;
 
-        currentItemContainer.item = nextProducer.next(currentItem);
+        current.element = nextProducer.next(currentElement);
 
-        return currentItem;
+        return currentElement;
     }
 
-    public static <T> Iterable<T> createIterable(final T root, final NextProducer<T> nextProducer, final Predicate<T> hasNextItemPredicate) {
-        return () -> new LinkedIterator<>(root, nextProducer, hasNextItemPredicate);
+    public static <T> Iterable<T> createIterable(final T root, final NextElementProducer<T> nextProducer, final HasNextElementPredicate<T> hasNextPredicate) {
+        return () -> new LinkedIterator<>(root, nextProducer, hasNextPredicate);
     }
 
-    public static <T> Iterable<T> createIterable(final T root, final NextProducer<T> nextProducer) {
+    public static <T> Iterable<T> createIterable(final T root, final NextElementProducer<T> nextProducer) {
         return createIterable(root, nextProducer, Objects::nonNull);
     }
 
-    public static <T> Stream<T> createStream(final T root, final NextProducer<T> nextProducer, final Predicate<T> hasNextItemPredicate) {
-        return StreamSupport.stream(createIterable(root, nextProducer, hasNextItemPredicate).spliterator(), false);
+    public static <T> Stream<T> createStream(final T root, final NextElementProducer<T> nextProducer, final HasNextElementPredicate<T> hasNextPredicate) {
+        return StreamSupport.stream(createIterable(root, nextProducer, hasNextPredicate).spliterator(), false);
     }
 
-    public static <T> Stream<T> createStream(final T root, final NextProducer<T> nextProducer) {
+    public static <T> Stream<T> createStream(final T root, final NextElementProducer<T> nextProducer) {
         return StreamSupport.stream(createIterable(root, nextProducer).spliterator(), false);
     }
 
-    @FunctionalInterface
-    public interface NextProducer<T> {
-        T next(T current);
-    }
-
-    @FunctionalInterface
-    public interface Predicate<T> {
-        boolean hasMore(T item);
-    }
-
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ItemContainer<T> {
-        private T item;
+    private static final class ElementContainer<T> {
+        private T element;
     }
 }

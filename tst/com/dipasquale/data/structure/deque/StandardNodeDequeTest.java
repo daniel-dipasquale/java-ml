@@ -1,7 +1,6 @@
 package com.dipasquale.data.structure.deque;
 
 import com.dipasquale.common.error.ErrorSnapshot;
-import com.dipasquale.data.structure.collection.CollectionAsserter;
 import com.dipasquale.data.structure.collection.ListSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -293,16 +292,5 @@ public final class StandardNodeDequeTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.add(node2));
         Assertions.assertTrue(TEST.add(node3));
         Assertions.assertEquals(List.of(node3, node2, node1), ListSupport.copyOf(TEST.descendingIterator()));
-    }
-
-    @Test
-    public void TEST_18() {
-        CollectionAsserter<StandardNode<String>> collectionAsserter = new CollectionAsserter<>(TEST, index -> TEST.createUnbound(String.format("item-%d", index)), StandardNode.class, Assertions::assertEquals);
-
-        collectionAsserter.assertToArray();
-        collectionAsserter.assertContainsAll();
-        collectionAsserter.assertAddAll();
-        collectionAsserter.assertRetainAll();
-        collectionAsserter.assertRemoveAll();
     }
 }

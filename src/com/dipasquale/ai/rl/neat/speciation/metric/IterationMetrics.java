@@ -1,11 +1,11 @@
 package com.dipasquale.ai.rl.neat.speciation.metric;
 
-import com.dipasquale.common.factory.data.structure.map.MapFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -16,11 +16,15 @@ public final class IterationMetrics implements Serializable {
     private static final long serialVersionUID = 1590234190652192689L;
     private final Map<Integer, GenerationMetrics> generations;
 
-    public IterationMetrics createCopy(final MapFactory mapFactory) {
-        Map<Integer, GenerationMetrics> copiedGenerations = generations.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy(mapFactory)));
+    public IterationMetrics() {
+        this(new HashMap<>());
+    }
 
-        return new IterationMetrics(mapFactory.create(copiedGenerations));
+    public IterationMetrics createCopy() {
+        Map<Integer, GenerationMetrics> copiedGenerations = generations.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().createCopy()));
+
+        return new IterationMetrics(new HashMap<>(copiedGenerations));
     }
 
     public void clear() {

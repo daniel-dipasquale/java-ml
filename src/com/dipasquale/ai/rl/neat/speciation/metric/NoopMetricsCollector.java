@@ -1,5 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.metric;
 
+import com.dipasquale.ai.rl.neat.speciation.Species;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +21,7 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
     }
 
     @Override
-    public void collectSpeciesComposition(final MetricsContainer metricsContainer, final int age, final int stagnationPeriod, final boolean isStagnant) {
-    }
-
-    @Override
-    public void collectOrganismTopology(final MetricsContainer metricsContainer, final String speciesId, final int hiddenNodes, final int connections) {
+    public void collectAllSpeciesCompositions(final MetricsContainer metricsContainer, final Iterable<Species> allSpecies, final int stagnationDropOffAge) {
     }
 
     @Override
@@ -44,7 +41,7 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
     }
 
     @Override
-    public void prepareNextFitnessCalculation(final MetricsContainer metricsContainer) {
+    public void prepareNextFitnessEvaluation(final MetricsContainer metricsContainer) {
     }
 
     @Override
@@ -52,7 +49,7 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
     }
 
     @Override
-    public void prepareNextIteration(final MetricsContainer metricsContainer, final int currentGeneration, final Map<Integer, IterationMetrics> iterationsMetrics, final int currentIteration) {
+    public void prepareNextIteration(final MetricsContainer metricsContainer, final int currentGeneration, final Map<Integer, IterationMetrics> allIterationMetrics, final int currentIteration) {
     }
 
     @Serial

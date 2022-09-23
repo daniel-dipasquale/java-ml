@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
 import com.dipasquale.ai.common.NeuronMemory;
+import com.dipasquale.ai.rl.neat.Id;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
-import com.dipasquale.ai.rl.neat.internal.Id;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

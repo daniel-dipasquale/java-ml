@@ -2,32 +2,30 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.phenotype.NeatNeuronMemory;
 import com.dipasquale.ai.rl.neat.speciation.PopulationExtinctionException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ConcurrentNeatTrainer implements NeatTrainer {
     private final ReadWriteLock lock;
     private final ConcurrentNeatEvaluator evaluator;
-    private NeatTrainingPolicy trainingPolicy;
+    private final NeatTrainingPolicy trainingPolicy;
 
-    private ConcurrentNeatTrainer(final ReadWriteLock lock, final ConcurrentNeatEvaluator evaluator, final NeatTrainingPolicy trainingPolicy) {
-        this.lock = lock;
-        this.evaluator = evaluator;
-        this.trainingPolicy = trainingPolicy.createClone();
-    }
-
-    ConcurrentNeatTrainer(final Context context, final NeatTrainingPolicy trainingPolicy, final ReadWriteLock lock) {
-        this(lock, new ConcurrentNeatEvaluator(context, lock), trainingPolicy);
+    ConcurrentNeatTrainer(final ReadWriteLock lock, final Context context, final NeatTrainingPolicy trainingPolicy) {
+        this(lock, new ConcurrentNeatEvaluator(lock, context), trainingPolicy.createClone());
     }
 
     ConcurrentNeatTrainer(final Context context, final NeatTrainingPolicy trainingPolicy) {
-        this(context, trainingPolicy, new ReentrantReadWriteLock());
+        this(new ReentrantReadWriteLock(), context, trainingPolicy);
     }
 
     @Override
@@ -45,9 +43,8 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
         return evaluator.activate(input, neuronMemory);
     }
 
-    @Override
-    public boolean train() {
-        lock.writeLock().lock();
+    private boolean train(final Lock lock) {
+        lock.lock();
 
         try {
             while (true) {
@@ -82,26 +79,34 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
             }
         } finally {
             trainingPolicy.reset();
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
-    public NeatTrainingResult test() {
-        lock.readLock().lock();
+    public boolean train() {
+        return train(lock.writeLock());
+    }
+
+    private NeatTrainingResult test(final Lock lock) {
+        lock.lock();
 
         try {
             return trainingPolicy.test(evaluator);
         } finally {
             trainingPolicy.reset();
-            lock.readLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
-    public void save(final OutputStream outputStream)
+    public NeatTrainingResult test() {
+        return test(lock.readLock());
+    }
+
+    private void save(final Lock lock, final OutputStream outputStream)
             throws IOException {
-        lock.writeLock().lock();
+        lock.lock();
 
         try {
             try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
@@ -110,25 +115,35 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
 
             evaluator.save(outputStream);
         } finally {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
-    public void load(final InputStream inputStream, final EvaluatorLoadSettings settings)
+    public void save(final OutputStream outputStream)
             throws IOException {
-        lock.writeLock().lock();
+        save(lock.writeLock(), outputStream);
+    }
 
-        try {
-            try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+    static ConcurrentNeatTrainer create(final InputStream inputStream, final NeatLoadSettings loadSettings)
+            throws IOException {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+            NeatTrainingPolicy trainingPolicy;
+            ConcurrentNeatEvaluator evaluator;
+
+            try {
                 trainingPolicy = (NeatTrainingPolicy) objectInputStream.readObject();
-            } catch (ClassNotFoundException e) {
-                throw new IOException("unable to load the training policy", e);
+            } catch (IOException | ClassNotFoundException e) {
+                throw new IOException("unable to load the trainer: failed to load the training policy", e);
             }
 
-            evaluator.load(inputStream, settings);
-        } finally {
-            lock.writeLock().unlock();
+            try {
+                evaluator = ConcurrentNeatEvaluator.create(inputStream, loadSettings);
+            } catch (IOException e) {
+                throw new IOException("unable to load the trainer: failed to load the evaluator", e);
+            }
+
+            return new ConcurrentNeatTrainer(new ReentrantReadWriteLock(), evaluator, trainingPolicy);
         }
     }
 }

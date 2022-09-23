@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.common.tictactoe;
 
 import com.dipasquale.ai.rl.neat.ContestedNeatEnvironment;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
+import com.dipasquale.ai.rl.neat.SecludedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.search.mcts.heuristic.selection.RewardHeuristic;
 import com.dipasquale.simulation.tictactoe.Game;
@@ -98,8 +98,8 @@ final class ActionScoreFitnessObjective {
         };
     }
 
-    public static IsolatedNeatEnvironment createIsolatedEnvironment(final GameSupport gameSupport) {
-        return new InternalIsolatedEnvironment(gameSupport);
+    public static SecludedNeatEnvironment createIsolatedEnvironment(final GameSupport gameSupport) {
+        return new InternalSecludedEnvironment(gameSupport);
     }
 
     public static ContestedNeatEnvironment createContestedEnvironment(final GameSupport gameSupport) {
@@ -111,7 +111,7 @@ final class ActionScoreFitnessObjective {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class InternalIsolatedEnvironment implements IsolatedNeatEnvironment {
+    private static final class InternalSecludedEnvironment implements SecludedNeatEnvironment {
         @Serial
         private static final long serialVersionUID = -4235097951450531213L;
         private final GameSupport gameSupport;

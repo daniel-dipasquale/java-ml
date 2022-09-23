@@ -162,12 +162,12 @@ public abstract class AbstractMap<TKey, TValue> implements Map<TKey, TValue>, Se
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        int items = 0;
+        int elementCount = 0;
 
         stringBuilder.append('{');
 
         do {
-            if (items++ > 0) {
+            if (elementCount++ > 0) {
                 stringBuilder.append(',');
                 stringBuilder.append(' ');
             }

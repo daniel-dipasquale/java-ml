@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.collection;
 
-import com.dipasquale.data.structure.iterator.ZipIterator;
+import com.dipasquale.data.structure.iterable.IterableSupport;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -8,9 +8,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
@@ -25,9 +23,9 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
     }
 
     @Override
-    public boolean containsAll(final Collection<?> items) {
-        for (Object item : items) {
-            if (!contains(item)) {
+    public boolean containsAll(final Collection<?> elements) {
+        for (Object element : elements) {
+            if (!contains(element)) {
                 return false;
             }
         }
@@ -36,11 +34,11 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
     }
 
     @Override
-    public boolean addAll(final Collection<? extends T> items) {
+    public boolean addAll(final Collection<? extends T> elements) {
         boolean modified = false;
 
-        for (T item : items) {
-            if (add(item)) {
+        for (T element : elements) {
+            if (add(element)) {
                 modified = true;
             }
         }
@@ -50,46 +48,46 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
 
     @Override
     public boolean removeIf(final Predicate<? super T> filter) {
-        List<T> itemsToRemove = stream()
+        List<T> elementsToRemove = stream()
                 .filter(filter)
                 .toList();
 
-        itemsToRemove.forEach(this::remove);
+        elementsToRemove.forEach(this::remove);
 
-        return !itemsToRemove.isEmpty();
+        return !elementsToRemove.isEmpty();
     }
 
     @Override
-    public boolean removeAll(final Collection<?> items) {
-        long removed = items.stream()
+    public boolean removeAll(final Collection<?> elements) {
+        long removed = elements.stream()
                 .filter(this::remove)
                 .count();
 
         return removed > 0L;
     }
 
-    private static Set<?> ensureSet(final Collection<?> collection) {
+    private static Set<?> ensureSet(final Collection<?> elements) {
         Set<Object> set = Collections.newSetFromMap(new IdentityHashMap<>());
 
-        set.addAll(collection);
+        set.addAll(elements);
 
         return set;
     }
 
     @Override
-    public boolean retainAll(final Collection<?> items) {
-        Set<?> itemsToRetain = ensureSet(items);
+    public boolean retainAll(final Collection<?> elements) {
+        Set<?> elementsToRetain = ensureSet(elements);
 
-        if (!itemsToRetain.isEmpty()) {
-            List<T> itemsToRemove = stream()
-                    .filter(key -> !itemsToRetain.contains(key))
+        if (!elementsToRetain.isEmpty()) {
+            List<T> elementsToRemove = stream()
+                    .filter(key -> !elementsToRetain.contains(key))
                     .toList();
 
-            if (itemsToRemove.isEmpty()) {
+            if (elementsToRemove.isEmpty()) {
                 return false;
             }
 
-            itemsToRemove.forEach(this::remove);
+            elementsToRemove.forEach(this::remove);
         } else {
             clear();
         }
@@ -102,8 +100,8 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
         Object[] array = new Object[size()];
         int i = 0;
 
-        for (T item : this) {
-            array[i++] = item;
+        for (T element : this) {
+            array[i++] = element;
         }
 
         return array;
@@ -119,8 +117,8 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
 
         int i = 0;
 
-        for (T item : this) {
-            fixedArray[i++] = (TArray) item;
+        for (T element : this) {
+            fixedArray[i++] = (TArray) element;
         }
 
         return fixedArray;
@@ -131,23 +129,17 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
         return toArray(generator.apply(size()));
     }
 
+    @Override
+    public int hashCode() {
+        return IterableSupport.hashCode(this);
+    }
+
     private boolean equals(final Collection<T> other) {
         if (size() != other.size()) {
             return false;
         }
 
-        List<Iterator<T>> iterators = List.of(iterator(), other.iterator());
-        ZipIterator<T> iterator = new ZipIterator<>(iterators);
-
-        while (iterator.hasNext()) {
-            List<T> items = iterator.next();
-
-            if (!Objects.equals(items.get(0), items.get(1))) {
-                return false;
-            }
-        }
-
-        return true;
+        return IterableSupport.equals(this, other);
     }
 
     @Override
@@ -168,42 +160,7 @@ public abstract class AbstractCollection<T> implements Collection<T>, Serializab
     }
 
     @Override
-    public int hashCode() {
-        int hashCode = 0;
-
-        for (T item : this) {
-            hashCode += item.hashCode();
-        }
-
-        return hashCode;
-    }
-
-    @Override
     public String toString() {
-        Iterator<T> iterator = iterator();
-
-        if (!iterator.hasNext()) {
-            return "[]";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        int items = 0;
-
-        sb.append('[');
-
-        do {
-            if (items++ > 0) {
-                sb.append(',');
-                sb.append(' ');
-            }
-
-            T item = iterator.next();
-
-            sb.append(item == this ? "(this Collection)" : item);
-        } while (iterator.hasNext());
-
-        sb.append(']');
-
-        return sb.toString();
+        return IterableSupport.toString(this);
     }
 }

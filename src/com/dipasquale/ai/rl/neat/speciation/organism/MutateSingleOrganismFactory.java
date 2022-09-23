@@ -17,7 +17,7 @@ public final class MutateSingleOrganismFactory implements OrganismFactory, Seria
         Organism mutatedOrganism = organism.createCopy(context);
 
         mutatedOrganism.mutate(context);
-        mutatedOrganism.registerNodes(context.connections());
+        mutatedOrganism.registerNodeGenes(context.nodeGenes());
 
         return mutatedOrganism;
     }

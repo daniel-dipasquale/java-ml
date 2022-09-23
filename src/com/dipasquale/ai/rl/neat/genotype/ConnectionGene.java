@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.rl.neat.Context;
-import com.dipasquale.ai.rl.neat.internal.Id;
+import com.dipasquale.ai.rl.neat.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 @EqualsAndHashCode
 public final class ConnectionGene implements Serializable {
@@ -47,18 +47,18 @@ public final class ConnectionGene implements Serializable {
         return createCopy(connectionGeneSupport, cyclesAllowed);
     }
 
-    public static ConnectionType getType(final Id sourceNodeId, final Id targetNodeId) {
+    public static ConnectionGeneType getType(final Id sourceNodeId, final Id targetNodeId) {
         int comparison = sourceNodeId.compareTo(targetNodeId);
 
         if (comparison == 0) {
-            return ConnectionType.REFLEXIVE;
+            return ConnectionGeneType.REFLEXIVE;
         }
 
         if (comparison > 0) {
-            return ConnectionType.BACKWARD;
+            return ConnectionGeneType.BACKWARD;
         }
 
-        return ConnectionType.FORWARD;
+        return ConnectionGeneType.FORWARD;
     }
 
     @Override

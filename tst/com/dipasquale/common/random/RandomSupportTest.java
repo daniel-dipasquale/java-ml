@@ -306,31 +306,31 @@ public final class RandomSupportTest {
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_shuffling_items_in_place_THEN_shuffle_all_items() {
+    public void GIVEN_a_random_number_generator_WHEN_shuffling_elements_in_place_THEN_shuffle_all_elements() {
         DeterministicRandomSupport test = DeterministicRandomSupport.create(2L);
         int size = 10;
 
-        List<Integer> items = new ArrayList<>(IntStream.range(0, size)
+        List<Integer> elements = new ArrayList<>(IntStream.range(0, size)
                 .mapToObj(index -> size - 1 - index)
                 .toList());
 
-        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);
-        test.shuffle(items);
-        Assertions.assertEquals(List.of(8, 6, 7, 4, 5, 2, 3, 0, 1, 9), items);
+        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), elements);
+        test.shuffle(elements);
+        Assertions.assertEquals(List.of(8, 6, 7, 4, 5, 2, 3, 0, 1, 9), elements);
     }
 
     @Test
-    public void GIVEN_a_random_number_generator_WHEN_creating_a_copy_of_the_shuffled_items_THEN_create_a_copy_of_the_shuffled_items() {
+    public void GIVEN_a_random_number_generator_WHEN_creating_a_copy_of_the_shuffled_elements_THEN_create_a_copy_of_the_shuffled_elements() {
         DeterministicRandomSupport test = DeterministicRandomSupport.create(2L);
         int size = 10;
 
-        List<Integer> items = new ArrayList<>(IntStream.range(0, size)
+        List<Integer> elements = new ArrayList<>(IntStream.range(0, size)
                 .mapToObj(index -> size - 1 - index)
                 .toList());
 
-        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);
-        Assertions.assertEquals(List.of(8, 6, 7, 4, 5, 2, 3, 0, 1, 9), test.createShuffled(items, Integer.class));
-        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), items);
+        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), elements);
+        Assertions.assertEquals(List.of(8, 6, 7, 4, 5, 2, 3, 0, 1, 9), test.createShuffled(elements, Integer.class));
+        Assertions.assertEquals(List.of(9, 8, 7, 6, 5, 4, 3, 2, 1, 0), elements);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

@@ -206,6 +206,6 @@ public abstract class AbstractDequeSet<TValue, TNode extends Node> extends Abstr
 
     @FunctionalInterface
     private interface PairMaker<T> {
-        void pair(T item1, T item2);
+        void pair(T element1, T element2);
     }
 }

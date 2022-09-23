@@ -17,10 +17,10 @@ public abstract class AbstractDeque<T> extends AbstractCollection<T> implements 
 
     @Override
     public T getFirst() {
-        T item = peekFirst();
+        T element = peekFirst();
 
-        if (item != null) {
-            return item;
+        if (element != null) {
+            return element;
         }
 
         throw new NoSuchElementException("the deque is empty");
@@ -28,10 +28,10 @@ public abstract class AbstractDeque<T> extends AbstractCollection<T> implements 
 
     @Override
     public T getLast() {
-        T item = peekLast();
+        T element = peekLast();
 
-        if (item != null) {
-            return item;
+        if (element != null) {
+            return element;
         }
 
         throw new NoSuchElementException("the deque is empty");
@@ -43,20 +43,20 @@ public abstract class AbstractDeque<T> extends AbstractCollection<T> implements 
     }
 
     @Override
-    public boolean offer(final T item) {
-        return offerLast(item);
+    public boolean offer(final T element) {
+        return offerLast(element);
     }
 
     @Override
-    public boolean add(final T item) {
-        addLast(item);
+    public boolean add(final T element) {
+        addLast(element);
 
         return true;
     }
 
     @Override
-    public void push(final T item) {
-        addFirst(item);
+    public void push(final T element) {
+        addFirst(element);
     }
 
     @Override
@@ -85,12 +85,12 @@ public abstract class AbstractDeque<T> extends AbstractCollection<T> implements 
     }
 
     @Override
-    public boolean removeFirstOccurrence(final Object item) {
-        return remove(item);
+    public boolean removeFirstOccurrence(final Object element) {
+        return remove(element);
     }
 
     @Override
-    public boolean removeLastOccurrence(final Object item) {
-        return remove(item);
+    public boolean removeLastOccurrence(final Object element) {
+        return remove(element);
     }
 }

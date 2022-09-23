@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
-import com.dipasquale.ai.rl.neat.internal.Id;
+import com.dipasquale.ai.rl.neat.Id;
 import com.dipasquale.data.structure.map.HashDequeMap;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -29,12 +29,12 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return speciationSupport.calculateCompatibility(genome, species.getRepresentative().genome);
     }
 
-    public int getHiddenNodes() {
-        return genome.getNodes().size(NodeGeneType.HIDDEN);
+    public int getHiddenNodeGenes() {
+        return genome.getNodeGenes().size(NodeGeneType.HIDDEN);
     }
 
-    public int getConnections() {
-        return genome.getConnections().getExpressed().size();
+    public int getConnectionGenes() {
+        return genome.getConnectionGenes().getExpressed().size();
     }
 
     public GenomeActivator getActivator(final Context.ActivationSupport activationSupport) {
@@ -80,8 +80,8 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return new Organism(crossedOverGenome, populationState);
     }
 
-    public void registerNodes(final Context.ConnectionGeneSupport connectionGeneSupport) {
-        connectionGeneSupport.registerNodes(genome);
+    public void registerNodeGenes(final Context.NodeGeneSupport nodeGeneSupport) {
+        nodeGeneSupport.registerAll(genome);
     }
 
     public Organism createCopy(final Context context) {
@@ -103,7 +103,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
         speciationSupport.disposeGenomeId(genome);
     }
 
-    public void deregisterNodes(final Context.ConnectionGeneSupport connectionGeneSupport) {
-        connectionGeneSupport.deregisterNodes(genome);
+    public void deregisterNodeGenes(final Context.NodeGeneSupport nodeGeneSupport) {
+        nodeGeneSupport.deregisterAll(genome);
     }
 }

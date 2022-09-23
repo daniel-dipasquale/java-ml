@@ -1,29 +1,28 @@
 package com.dipasquale.ai.rl.neat;
 
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeOutputClassifierFactory;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeRandomFloatFactory;
+import com.dipasquale.ai.rl.neat.factory.OutputClassifierFactory;
+import com.dipasquale.ai.rl.neat.factory.RandomFloatFactory;
+import com.dipasquale.common.gate.IsLessThanRandomGate;
 import com.dipasquale.common.random.ProbabilityClassifier;
 import com.dipasquale.io.serialization.SerializableStateGroup;
-import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.gate.DualModeIsLessThanRandomGate;
-import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ContextObjectMutationSupport implements Context.MutationSupport {
-    private DualModeIsLessThanRandomGate shouldAddNodeGate;
-    private DualModeIsLessThanRandomGate shouldAddConnectionGate;
-    private DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> weightMutationTypeFactory;
-    private DualModeIsLessThanRandomGate shouldDisableExpressedConnectionGate;
+    private final IsLessThanRandomGate shouldAddNodeGate;
+    private final IsLessThanRandomGate shouldAddConnectionGate;
+    private final OutputClassifierFactory<WeightMutationType> weightMutationTypeFactory;
+    private final IsLessThanRandomGate shouldDisableExpressedConnectionGate;
 
-    private static DualModeIsLessThanRandomGate createIsLessThanGate(final InitializationContext initializationContext, final FloatNumber maximum) {
-        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.getFloatSingleton(maximum));
+    private static IsLessThanRandomGate createIsLessThanGate(final InitializationContext initializationContext, final FloatNumber maximum) {
+        return new IsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.provideSingleton(maximum));
     }
 
-    private static DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> createWeightMutationTypeFactory(final InitializationContext initializationContext, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate) {
-        float perturbRate = initializationContext.getFloatSingleton(perturbWeightRate);
-        float replaceRate = initializationContext.getFloatSingleton(replaceWeightRate);
+    private static OutputClassifierFactory<WeightMutationType> createWeightMutationTypeFactory(final InitializationContext initializationContext, final FloatNumber perturbWeightRate, final FloatNumber replaceWeightRate) {
+        RandomFloatFactory randomFloatFactory = new RandomFloatFactory(initializationContext.createDefaultRandomSupport());
+        float perturbRate = initializationContext.provideSingleton(perturbWeightRate);
+        float replaceRate = initializationContext.provideSingleton(replaceWeightRate);
         float totalRate = (float) Math.ceil(perturbRate + replaceRate);
         ProbabilityClassifier<WeightMutationType> weightMutationTypeClassifier = new ProbabilityClassifier<>();
 
@@ -35,14 +34,14 @@ final class ContextObjectMutationSupport implements Context.MutationSupport {
             weightMutationTypeClassifier.add(1f, WeightMutationType.NONE);
         }
 
-        return new DualModeOutputClassifierFactory<>(new DualModeRandomFloatFactory(initializationContext.createDefaultRandomSupport()), weightMutationTypeClassifier);
+        return new OutputClassifierFactory<>(randomFloatFactory, weightMutationTypeClassifier);
     }
 
-    static ContextObjectMutationSupport create(final InitializationContext initializationContext, final MutationSupport mutationSupport) {
-        DualModeIsLessThanRandomGate shouldAddNodeGate = createIsLessThanGate(initializationContext, mutationSupport.getAddNodeRate());
-        DualModeIsLessThanRandomGate shouldAddConnectionGate = createIsLessThanGate(initializationContext, mutationSupport.getAddConnectionRate());
-        DualModeOutputClassifierFactory<DualModeRandomFloatFactory, WeightMutationType> weightMutationTypeFactory = createWeightMutationTypeFactory(initializationContext, mutationSupport.getPerturbWeightRate(), mutationSupport.getReplaceWeightRate());
-        DualModeIsLessThanRandomGate shouldDisableExpressedConnectionGate = createIsLessThanGate(initializationContext, mutationSupport.getDisableExpressedConnectionRate());
+    static ContextObjectMutationSupport create(final InitializationContext initializationContext, final MutationSettings mutationSettings) {
+        IsLessThanRandomGate shouldAddNodeGate = createIsLessThanGate(initializationContext, mutationSettings.getAddNodeRate());
+        IsLessThanRandomGate shouldAddConnectionGate = createIsLessThanGate(initializationContext, mutationSettings.getAddConnectionRate());
+        OutputClassifierFactory<WeightMutationType> weightMutationTypeFactory = createWeightMutationTypeFactory(initializationContext, mutationSettings.getPerturbWeightRate(), mutationSettings.getReplaceWeightRate());
+        IsLessThanRandomGate shouldDisableExpressedConnectionGate = createIsLessThanGate(initializationContext, mutationSettings.getDisableExpressedConnectionRate());
 
         return new ContextObjectMutationSupport(shouldAddNodeGate, shouldAddConnectionGate, weightMutationTypeFactory, shouldDisableExpressedConnectionGate);
     }
@@ -67,21 +66,19 @@ final class ContextObjectMutationSupport implements Context.MutationSupport {
         return shouldDisableExpressedConnectionGate.isOn();
     }
 
-    public void save(final SerializableStateGroup stateGroup) {
+    void save(final SerializableStateGroup stateGroup) {
         stateGroup.put("mutation.shouldAddNodeGate", shouldAddNodeGate);
         stateGroup.put("mutation.shouldAddConnectionGate", shouldAddConnectionGate);
         stateGroup.put("mutation.weightMutationTypeFactory", weightMutationTypeFactory);
         stateGroup.put("mutation.shouldDisableExpressedConnectionGate", shouldDisableExpressedConnectionGate);
     }
 
-    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
-        shouldAddNodeGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddNodeGate"), concurrencyLevel);
-        shouldAddConnectionGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldAddConnectionGate"), concurrencyLevel);
-        weightMutationTypeFactory = DualModeObject.activateMode(stateGroup.get("mutation.weightMutationTypeFactory"), concurrencyLevel);
-        shouldDisableExpressedConnectionGate = DualModeObject.activateMode(stateGroup.get("mutation.shouldDisableExpressedConnectionGate"), concurrencyLevel);
-    }
+    static ContextObjectMutationSupport create(final SerializableStateGroup stateGroup) {
+        IsLessThanRandomGate shouldAddNodeGate = stateGroup.get("mutation.shouldAddNodeGate");
+        IsLessThanRandomGate shouldAddConnectionGate = stateGroup.get("mutation.shouldAddConnectionGate");
+        OutputClassifierFactory<WeightMutationType> weightMutationTypeFactory = stateGroup.get("mutation.weightMutationTypeFactory");
+        IsLessThanRandomGate shouldDisableExpressedConnectionGate = stateGroup.get("mutation.shouldDisableExpressedConnectionGate");
 
-    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
-        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
+        return new ContextObjectMutationSupport(shouldAddNodeGate, shouldAddConnectionGate, weightMutationTypeFactory, shouldDisableExpressedConnectionGate);
     }
 }

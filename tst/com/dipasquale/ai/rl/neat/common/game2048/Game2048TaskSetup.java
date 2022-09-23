@@ -2,28 +2,28 @@ package com.dipasquale.ai.rl.neat.common.game2048;
 
 import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
-import com.dipasquale.ai.rl.neat.ActivationSupport;
-import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
+import com.dipasquale.ai.rl.neat.ActivationSettings;
+import com.dipasquale.ai.rl.neat.ConnectionGeneSettings;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
 import com.dipasquale.ai.rl.neat.EnumValue;
-import com.dipasquale.ai.rl.neat.EvaluatorSettings;
 import com.dipasquale.ai.rl.neat.FloatNumber;
-import com.dipasquale.ai.rl.neat.GeneralSupport;
+import com.dipasquale.ai.rl.neat.GeneralSettings;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
-import com.dipasquale.ai.rl.neat.MetricsSupport;
-import com.dipasquale.ai.rl.neat.MutationSupport;
+import com.dipasquale.ai.rl.neat.MetricsSettings;
+import com.dipasquale.ai.rl.neat.MutationSettings;
+import com.dipasquale.ai.rl.neat.NeatSettings;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicyController;
-import com.dipasquale.ai.rl.neat.NodeGeneSupport;
-import com.dipasquale.ai.rl.neat.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.NodeGeneSettings;
+import com.dipasquale.ai.rl.neat.ParallelismSettings;
 import com.dipasquale.ai.rl.neat.RandomType;
 import com.dipasquale.ai.rl.neat.RecurrentStateType;
+import com.dipasquale.ai.rl.neat.SecludedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.Sequence;
 import com.dipasquale.ai.rl.neat.SupervisorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.common.TaskSetup;
@@ -117,9 +117,9 @@ public final class Game2048TaskSetup implements TaskSetup {
     private final boolean metricsEmissionEnabled;
 
     @Override
-    public EvaluatorSettings createSettings(final Set<String> genomeIds, final ParallelEventLoop eventLoop) {
-        return EvaluatorSettings.builder()
-                .general(GeneralSupport.builder()
+    public NeatSettings createSettings(final Set<Integer> genomeIds, final ParallelEventLoop eventLoop) {
+        return NeatSettings.builder()
+                .general(GeneralSettings.builder()
                         .populationSize(populationSize)
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(INPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
@@ -128,17 +128,17 @@ public final class Game2048TaskSetup implements TaskSetup {
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
+                        .fitnessFunction((SecludedNeatEnvironment) genomeActivator -> {
                             genomeIds.add(genomeActivator.getGenome().getId());
 
                             return ENVIRONMENT_SETTINGS_TYPE.reference.test(genomeActivator);
                         })
                         .fitnessControllerFactory(AverageFitnessControllerFactory.getInstance())
                         .build())
-                .parallelism(ParallelismSupport.builder()
+                .parallelism(ParallelismSettings.builder()
                         .eventLoop(eventLoop)
                         .build())
-                .nodes(NodeGeneSupport.builder()
+                .nodeGenes(NodeGeneSettings.builder()
                         .inputBias(FloatNumber.literal(0f))
                         .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
                         .outputBias(FloatNumber.random(RandomType.UNIFORM, 2f))
@@ -146,7 +146,7 @@ public final class Game2048TaskSetup implements TaskSetup {
                         .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 4f))
                         .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
                         .build())
-                .connections(ConnectionGeneSupport.builder()
+                .connectionGenes(ConnectionGeneSettings.builder()
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentStateType(RecurrentStateType.DEFAULT)
@@ -154,17 +154,17 @@ public final class Game2048TaskSetup implements TaskSetup {
                         .unrestrictedDirectionAllowanceRate(FloatNumber.literal(0f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
-                .activation(ActivationSupport.builder()
+                .activation(ActivationSettings.builder()
                         .outputTopologyDefinition(OUTPUT_TOPOLOGY_SETTINGS_TYPE.topologyDefinition)
                         .build())
-                .mutation(MutationSupport.builder()
+                .mutation(MutationSettings.builder()
                         .addNodeRate(MUTATION_SETTINGS_TYPE.addNodeRate)
                         .addConnectionRate(MUTATION_SETTINGS_TYPE.addConnectionRate)
                         .perturbWeightRate(FloatNumber.literal(0.75f))
                         .replaceWeightRate(FloatNumber.literal(0.5f))
                         .disableExpressedConnectionRate(MUTATION_SETTINGS_TYPE.disableExpressedConnectionRate)
                         .build())
-                .metrics(MetricsSupport.builder()
+                .metrics(MetricsSettings.builder()
                         .types(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))
@@ -296,7 +296,7 @@ public final class Game2048TaskSetup implements TaskSetup {
         SCORE_BY_VALUED_TILE_COUNT(new ScoreByValuedTileCountEnvironment(GAME_SUPPORT)),
         AVERAGE_VALUED_TILE(new AverageValuedTileEnvironment(GAME_SUPPORT));
 
-        private final IsolatedNeatEnvironment reference;
+        private final SecludedNeatEnvironment reference;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

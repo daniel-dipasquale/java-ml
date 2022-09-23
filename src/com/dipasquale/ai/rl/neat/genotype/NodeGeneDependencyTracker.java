@@ -1,13 +1,38 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
+import com.dipasquale.common.IntegerValue;
+import com.dipasquale.common.StandardIntegerValue;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-public interface NodeGeneDependencyTracker {
-    void increaseBlastRadius();
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+final class NodeGeneDependencyTracker implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -3057494575848684621L;
+    private final IntegerValue blastRadius = new StandardIntegerValue(0);
+    private final Set<DirectedEdge> directedEdges = new HashSet<>();
 
-    int decreaseBlastRadius();
+    public void increaseBlastRadius() {
+        blastRadius.increment();
+    }
 
-    void addEdge(DirectedEdge directedEdge);
+    public int decreaseBlastRadius() {
+        return blastRadius.decrement();
+    }
 
-    void removeEdgesFrom(Map<DirectedEdge, InnovationId> innovationIds);
+    public void addEdge(final DirectedEdge directedEdge) {
+        directedEdges.add(directedEdge);
+    }
+
+    public void removeEdgesFrom(final Map<DirectedEdge, InnovationId> innovationIds) {
+        for (DirectedEdge directedEdge : directedEdges) {
+            innovationIds.remove(directedEdge);
+        }
+    }
 }

@@ -1,36 +1,29 @@
 package com.dipasquale.ai.rl.neat.speciation.metric;
 
-import com.dipasquale.common.factory.data.structure.map.MapFactory;
-import com.dipasquale.metric.MetricDatumFactory;
-
-import java.util.ArrayList;
-
 public interface MetricsContainer {
-    FitnessMetrics getFitnessMetrics();
+    void addSpeciesComposition(int age, int stagnationPeriod, boolean isStagnant);
 
-    FitnessMetrics replaceFitnessMetrics();
+    void addOrganismTopology(String speciesId, int hiddenNodeGenes, int connectionGenes);
 
-    GenerationMetrics getGenerationMetrics();
+    void addOrganismFitness(String speciesId, float fitness);
 
-    GenerationMetrics replaceGenerationMetrics();
+    void addSpeciesFitness(float fitness);
 
-    IterationMetrics getIterationMetrics();
+    void addOrganismsKilled(String speciesId, int count);
 
-    IterationMetrics replaceIterationMetrics();
+    void addSpeciesExtinction(boolean extinct);
 
-    static TopologyMetrics createTopologyMetrics(final MetricDatumFactory metricDatumFactory) {
-        return new TopologyMetrics(metricDatumFactory.create(), metricDatumFactory.create());
-    }
+    void clearFitnessEvaluations();
 
-    static FitnessMetrics createFitnessMetrics(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        return new FitnessMetrics(mapFactory.create(), metricDatumFactory.create());
-    }
+    void commitFitness();
 
-    static GenerationMetrics createGenerationMetrics(final MapFactory mapFactory, final MetricDatumFactory metricDatumFactory) {
-        return new GenerationMetrics(mapFactory.create(), new ArrayList<>(), metricDatumFactory.create(), metricDatumFactory.create(), metricDatumFactory.create(), mapFactory.create(), metricDatumFactory.create());
-    }
+    void clearPreviousGenerations();
 
-    static IterationMetrics createIterationMetrics(final MapFactory mapFactory) {
-        return new IterationMetrics(mapFactory.create());
-    }
+    void commitGeneration(int generation);
+
+    IterationMetrics commitIteration();
+
+    IterationMetrics createInterimIterationCopy(int currentGeneration);
+
+    IterationMetrics createIterationCopy();
 }

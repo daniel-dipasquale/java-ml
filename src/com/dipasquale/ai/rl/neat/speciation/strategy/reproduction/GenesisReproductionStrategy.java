@@ -16,16 +16,16 @@ public final class GenesisReproductionStrategy implements ReproductionStrategy, 
 
     private static void killOrganism(final Organism organism, final Context context) {
         organism.kill(context.speciation());
-        organism.deregisterNodes(context.connections());
+        organism.deregisterNodeGenes(context.nodeGenes());
     }
 
     @Override
     public void reproduce(final ReproductionContext context) {
-        Context.RandomSupport randomSupport = context.getParent().random();
+        Context.RandomnessSupport randomnessSupport = context.getParent().randomness();
         Context.MetricsSupport metricsSupport = context.getParent().metrics();
 
         for (Species species : context.getSpeciesState().getAll()) {
-            List<Organism> organismsToKill = species.restart(randomSupport, context.getOrganismsWithoutSpecies());
+            List<Organism> organismsToKill = species.restart(randomnessSupport, context.getOrganismsWithoutSpecies());
 
             organismsToKill.forEach(organismToKill -> killOrganism(organismToKill, context.getParent()));
             metricsSupport.collectKilled(species, organismsToKill);

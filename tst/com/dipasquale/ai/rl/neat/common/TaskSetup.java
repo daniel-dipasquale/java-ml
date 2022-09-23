@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.common;
 
-import com.dipasquale.ai.rl.neat.EvaluatorSettings;
+import com.dipasquale.ai.rl.neat.NeatSettings;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 
@@ -13,7 +13,7 @@ public interface TaskSetup {
 
     boolean isMetricsEmissionEnabled();
 
-    EvaluatorSettings createSettings(Set<String> genomeIds, ParallelEventLoop eventLoop);
+    NeatSettings createSettings(Set<Integer> genomeIds, ParallelEventLoop eventLoop);
 
     NeatTrainingPolicy createTrainingPolicy();
 }

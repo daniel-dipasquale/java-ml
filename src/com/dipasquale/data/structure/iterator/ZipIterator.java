@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public final class ZipIterator<T> implements Iterator<List<T>> {
     private final List<Iterator<T>> iterators;
 
-    private static <T> List<Iterator<T>> getOrCreate(final Iterable<Iterator<T>> iterators) {
+    private static <T> List<Iterator<T>> provide(final Iterable<Iterator<T>> iterators) {
         if (iterators instanceof List<?>) {
             return (List<Iterator<T>>) iterators;
         }
@@ -18,7 +18,7 @@ public final class ZipIterator<T> implements Iterator<List<T>> {
     }
 
     public ZipIterator(final Iterable<Iterator<T>> iterators) {
-        this.iterators = getOrCreate(iterators);
+        this.iterators = provide(iterators);
     }
 
     @Override

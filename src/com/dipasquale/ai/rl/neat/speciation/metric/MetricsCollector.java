@@ -1,11 +1,11 @@
 package com.dipasquale.ai.rl.neat.speciation.metric;
 
+import com.dipasquale.ai.rl.neat.speciation.Species;
+
 import java.util.Map;
 
 public interface MetricsCollector {
-    void collectSpeciesComposition(MetricsContainer metricsContainer, int age, int stagnationPeriod, boolean isStagnant);
-
-    void collectOrganismTopology(MetricsContainer metricsContainer, String speciesId, int hiddenNodes, int connections);
+    void collectAllSpeciesCompositions(MetricsContainer metricsContainer, Iterable<Species> allSpecies, int stagnationDropOffAge);
 
     void collectOrganismFitness(MetricsContainer metricsContainer, String speciesId, float fitness);
 
@@ -15,9 +15,9 @@ public interface MetricsCollector {
 
     void collectSpeciesExtinction(MetricsContainer metricsContainer, boolean extinct);
 
-    void prepareNextFitnessCalculation(MetricsContainer metricsContainer);
+    void prepareNextFitnessEvaluation(MetricsContainer metricsContainer);
 
     void prepareNextGeneration(MetricsContainer metricsContainer, int currentGeneration);
 
-    void prepareNextIteration(MetricsContainer metricsContainer, int currentGeneration, Map<Integer, IterationMetrics> iterationsMetrics, int currentIteration);
+    void prepareNextIteration(MetricsContainer metricsContainer, int currentGeneration, Map<Integer, IterationMetrics> allIterationMetrics, int currentIteration);
 }

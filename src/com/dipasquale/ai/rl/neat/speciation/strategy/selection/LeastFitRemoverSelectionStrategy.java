@@ -16,7 +16,7 @@ public final class LeastFitRemoverSelectionStrategy implements SelectionStrategy
 
     private static void killOrganism(final Organism organism, final Context context) {
         organism.kill(context.speciation());
-        organism.deregisterNodes(context.connections());
+        organism.deregisterNodeGenes(context.nodeGenes());
     }
 
     @Override

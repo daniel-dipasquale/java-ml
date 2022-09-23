@@ -24,7 +24,7 @@ public abstract class AbstractConcurrentSearchNode<TAction, TEdge extends Concur
 
     protected AbstractConcurrentSearchNode(final ConcurrentSearchNode<TAction, TEdge, TState> parent, final SearchResult<TAction, TState> result, final TEdge edge, final IsolatedThreadIndex isolatedThreadIndex) {
         super(parent, result, edge);
-        this.selectedExplorableChildKeys = new IsolatedThreadStorage<>(isolatedThreadIndex, Integer.class);
+        this.selectedExplorableChildKeys = new IsolatedThreadStorage<>(isolatedThreadIndex);
         this.selectionResultLock = new ReentrantLock();
         this.expansionLock = new PromotableReadWriteLock(FAIR_READ_WRITE_LOCK);
         this.simulationResultLock = new ReentrantLock();
@@ -32,15 +32,15 @@ public abstract class AbstractConcurrentSearchNode<TAction, TEdge extends Concur
 
     @Override
     public int getSelectedExplorableChildKey() {
-        return selectedExplorableChildKeys.getFromCurrentOrDefault(NO_SELECTED_EXPLORABLE_CHILD_KEY);
+        return selectedExplorableChildKeys.fetchOrDefault(NO_SELECTED_EXPLORABLE_CHILD_KEY);
     }
 
     @Override
     public void setSelectedExplorableChildKey(final int key) {
         if (key != NO_SELECTED_EXPLORABLE_CHILD_KEY) {
-            selectedExplorableChildKeys.putInCurrent(key);
+            selectedExplorableChildKeys.attach(key);
         } else {
-            selectedExplorableChildKeys.removeFromCurrent();
+            selectedExplorableChildKeys.detach();
         }
     }
 }

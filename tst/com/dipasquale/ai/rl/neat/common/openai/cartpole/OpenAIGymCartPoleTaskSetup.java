@@ -2,26 +2,26 @@ package com.dipasquale.ai.rl.neat.common.openai.cartpole;
 
 import com.dipasquale.ai.common.NeuralNetwork;
 import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
-import com.dipasquale.ai.rl.neat.ActivationSupport;
-import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
+import com.dipasquale.ai.rl.neat.ActivationSettings;
+import com.dipasquale.ai.rl.neat.ConnectionGeneSettings;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
 import com.dipasquale.ai.rl.neat.EnumValue;
-import com.dipasquale.ai.rl.neat.EvaluatorSettings;
 import com.dipasquale.ai.rl.neat.FloatNumber;
-import com.dipasquale.ai.rl.neat.GeneralSupport;
+import com.dipasquale.ai.rl.neat.GeneralSettings;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
-import com.dipasquale.ai.rl.neat.MetricsSupport;
+import com.dipasquale.ai.rl.neat.MetricsSettings;
 import com.dipasquale.ai.rl.neat.NeatActivator;
+import com.dipasquale.ai.rl.neat.NeatSettings;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicyController;
-import com.dipasquale.ai.rl.neat.NodeGeneSupport;
-import com.dipasquale.ai.rl.neat.ParallelismSupport;
+import com.dipasquale.ai.rl.neat.NodeGeneSettings;
+import com.dipasquale.ai.rl.neat.ParallelismSettings;
+import com.dipasquale.ai.rl.neat.SecludedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.SupervisorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.common.openai.OpenAIGymTaskSetup;
 import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
@@ -101,9 +101,9 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     }
 
     @Override
-    public EvaluatorSettings createSettings(final Set<String> genomeIds, final ParallelEventLoop eventLoop) {
-        return EvaluatorSettings.builder()
-                .general(GeneralSupport.builder()
+    public NeatSettings createSettings(final Set<Integer> genomeIds, final ParallelEventLoop eventLoop) {
+        return NeatSettings.builder()
+                .general(GeneralSettings.builder()
                         .populationSize(populationSize)
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(4)
@@ -113,26 +113,26 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                                 .initialConnectionType(InitialConnectionType.FULLY_CONNECTED)
                                 .initialWeightType(InitialWeightType.ALL_RANDOM)
                                 .build())
-                        .fitnessFunction((IsolatedNeatEnvironment) genomeActivator -> {
+                        .fitnessFunction((SecludedNeatEnvironment) genomeActivator -> {
                             genomeIds.add(genomeActivator.getGenome().getId());
 
                             return calculateFitness(genomeActivator);
                         })
                         .fitnessControllerFactory(AverageFitnessControllerFactory.getInstance())
                         .build())
-                .parallelism(ParallelismSupport.builder()
+                .parallelism(ParallelismSettings.builder()
                         .eventLoop(eventLoop)
                         .build())
-                .nodes(NodeGeneSupport.builder()
+                .nodeGenes(NodeGeneSettings.builder()
                         .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
                         .build())
-                .connections(ConnectionGeneSupport.builder()
+                .connectionGenes(ConnectionGeneSettings.builder()
                         .recurrentAllowanceRate(FloatNumber.literal(0f))
                         .build())
-                .activation(ActivationSupport.builder()
+                .activation(ActivationSettings.builder()
                         .outputTopologyDefinition(TOPOLOGY_SETTINGS_TYPE.outputTopologyDefinition)
                         .build())
-                .metrics(MetricsSupport.builder()
+                .metrics(MetricsSettings.builder()
                         .types(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))

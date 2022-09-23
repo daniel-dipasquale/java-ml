@@ -18,13 +18,13 @@ import java.util.TreeMap;
 
 @RequiredArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public final class ListSetGroup<TKey extends Comparable<TKey>, TItem> implements Iterable<TItem>, Serializable {
+public final class ListSetGroup<TKey extends Comparable<TKey>, TElement> implements Iterable<TElement>, Serializable {
     @Serial
     private static final long serialVersionUID = 2209041596810668817L;
-    private final ItemKeyAccessor<TKey, TItem> itemKeyAccessor;
+    private final ElementKeyAccessor<TKey, TElement> elementKeyAccessor;
     @EqualsAndHashCode.Include
-    private final List<Record<TKey, TItem>> list = new ArrayList<>();
-    private final NavigableMap<TKey, TItem> navigableMap = new TreeMap<>(Comparator.naturalOrder());
+    private final List<Record<TKey, TElement>> list = new ArrayList<>();
+    private final NavigableMap<TKey, TElement> navigableMap = new TreeMap<>(Comparator.naturalOrder());
 
     public int size() {
         return list.size();
@@ -34,16 +34,16 @@ public final class ListSetGroup<TKey extends Comparable<TKey>, TItem> implements
         return list.isEmpty();
     }
 
-    public TItem getByIndex(final int index) {
+    public TElement getByIndex(final int index) {
         return list.get(index).getValue();
     }
 
-    public TItem getById(final TKey key) {
+    public TElement getById(final TKey key) {
         return navigableMap.get(key);
     }
 
-    public TItem getLast() {
-        Map.Entry<TKey, TItem> entry = navigableMap.lastEntry();
+    public TElement getLast() {
+        Map.Entry<TKey, TElement> entry = navigableMap.lastEntry();
 
         if (entry == null) {
             return null;
@@ -52,79 +52,79 @@ public final class ListSetGroup<TKey extends Comparable<TKey>, TItem> implements
         return entry.getValue();
     }
 
-    public TItem set(final int index, final TItem item) {
-        ArgumentValidatorSupport.ensureNotNull(item, "item");
+    public TElement set(final int index, final TElement element) {
+        ArgumentValidatorSupport.ensureNotNull(element, "element");
 
-        TKey key = itemKeyAccessor.getKey(item);
-        Record<TKey, TItem> oldRecord = list.set(index, new Record<>(key, item));
+        TKey key = elementKeyAccessor.getKey(element);
+        Record<TKey, TElement> oldRecord = list.set(index, new Record<>(key, element));
         TKey oldKey = oldRecord.getKey();
-        TItem oldItem = oldRecord.getValue();
+        TElement oldElement = oldRecord.getValue();
 
         if (key != oldKey) {
             navigableMap.remove(oldKey);
         }
 
-        if (key != oldKey || item != oldItem) {
-            navigableMap.put(key, item);
+        if (key != oldKey || element != oldElement) {
+            navigableMap.put(key, element);
         }
 
-        if (item == oldItem) {
+        if (element == oldElement) {
             return null;
         }
 
-        return oldItem;
+        return oldElement;
     }
 
     public void swap(final int fromIndex, final int toIndex) {
-        Record<TKey, TItem> replacedRecord = list.set(toIndex, list.get(fromIndex));
+        Record<TKey, TElement> replacedRecord = list.set(toIndex, list.get(fromIndex));
 
         list.set(fromIndex, replacedRecord);
     }
 
-    public TItem put(final TItem item) {
-        ArgumentValidatorSupport.ensureNotNull(item, "item");
+    public TElement put(final TElement element) {
+        ArgumentValidatorSupport.ensureNotNull(element, "element");
 
-        TKey key = itemKeyAccessor.getKey(item);
-        TItem oldItem = navigableMap.put(key, item);
+        TKey key = elementKeyAccessor.getKey(element);
+        TElement oldElement = navigableMap.put(key, element);
 
-        if (oldItem != null && oldItem != item) {
-            list.removeIf(entry -> entry.getValue() == oldItem);
-            list.add(new Record<>(key, item));
-        } else if (oldItem == null) {
-            list.add(new Record<>(key, item));
+        if (oldElement != null && oldElement != element) {
+            list.removeIf(entry -> entry.getValue() == oldElement);
+            list.add(new Record<>(key, element));
+        } else if (oldElement == null) {
+            list.add(new Record<>(key, element));
         }
 
-        return oldItem;
+        return oldElement;
     }
 
-    public TItem removeByIndex(final int index) {
-        Record<TKey, TItem> record = list.remove(index);
+    public TElement removeByIndex(final int index) {
+        Record<TKey, TElement> record = list.remove(index);
 
         return navigableMap.remove(record.getKey());
     }
 
-    public TItem removeByKey(final TKey key) {
-        TItem item = navigableMap.remove(key);
+    public TElement removeByKey(final TKey key) {
+        TElement element = navigableMap.remove(key);
 
-        if (item != null) {
-            list.removeIf(entry -> entry.getValue() == item); // TODO: think of a better way of handling this
+        if (element != null) {
+            list.removeIf(entry -> entry.getValue() == element); // TODO: think of a better way of handling this
         }
 
-        return item;
+        return element;
     }
 
-    public Iterator<Pair<TItem>> fullJoin(final ListSetGroup<TKey, TItem> other) {
+    public Iterator<Pair<TElement>> fullJoin(final ListSetGroup<TKey, TElement> other) {
         return new ListSetGroupIterator<>(navigableMap, other.navigableMap);
     }
 
     @Override
-    public Iterator<TItem> iterator() {
+    public Iterator<TElement> iterator() {
         return list.stream()
                 .map(Record::getValue)
                 .iterator();
     }
 
-    public Iterator<TItem> sortedIterator() {
+    public Iterator<TElement> sortedIterator() {
         return navigableMap.values().iterator();
     }
 }

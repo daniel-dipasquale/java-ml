@@ -3,9 +3,9 @@ package com.dipasquale.ai.rl.neat;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.common.time.DateTimeSupport;
-import com.dipasquale.metric.LazyValuesMetricDatumFactory;
 import com.dipasquale.metric.MetricDatum;
 import com.dipasquale.metric.MetricDatumFactory;
+import com.dipasquale.metric.StandardMetricDatumFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -17,7 +17,7 @@ import java.util.List;
 public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, Serializable { // TODO: come up with a plan for this
     @Serial
     private static final long serialVersionUID = 6023334719020977847L;
-    private static final MetricDatumFactory METRIC_DATUM_FACTORY = LazyValuesMetricDatumFactory.getInstance();
+    private static final MetricDatumFactory METRIC_DATUM_FACTORY = StandardMetricDatumFactory.getInstance();
     private final DateTimeSupport dateTimeSupport;
     private int lastGenerationTested = 0;
     private long lastGenerationDateTime = Long.MIN_VALUE;
@@ -42,9 +42,9 @@ public final class MetricCollectorTrainingPolicy implements NeatTrainingPolicy, 
         String messageFormat = "%s: %d { time: (%s), average time: (%s), species: (%d), hidden nodes: (%d), expressed connections: (%d), total connections: (%d), maximum fitness: (%s) }%n";
         float time = timeMetricDatum.getLastValue();
         float averageTime = timeMetricDatum.getAverage();
-        int hiddenNodes = genome.getNodes().size(NodeGeneType.HIDDEN);
-        int expressedConnections = genome.getConnections().getExpressed().size();
-        int totalConnections = genome.getConnections().getAll().size();
+        int hiddenNodes = genome.getNodeGenes().size(NodeGeneType.HIDDEN);
+        int expressedConnections = genome.getConnectionGenes().getExpressed().size();
+        int totalConnections = genome.getConnectionGenes().getAll().size();
 
         System.out.printf(messageFormat, name, number, format(time), format(averageTime), species, hiddenNodes, expressedConnections, totalConnections, format(maximumFitness));
     }

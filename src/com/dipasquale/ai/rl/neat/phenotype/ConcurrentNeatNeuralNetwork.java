@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
+import com.dipasquale.ai.rl.neat.Id;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.internal.Id;
 import com.dipasquale.common.ArgumentValidatorSupport;
 import com.dipasquale.common.concurrent.AtomicLazyReference;
 import com.dipasquale.common.factory.ObjectFactory;
@@ -21,16 +21,16 @@ final class ConcurrentNeatNeuralNetwork implements NeatNeuralNetwork, Serializab
     private final ObjectFactory<NeatNeuronMemory> neuronMemoryFactory;
     private final NeuronStateGroupFactory neuronStateFactory;
 
-    private static Neuron createNeuronIfValid(final Genome genome, final NodeGene node) {
-        List<NeuronInputConnection> inputConnections = genome.getConnections().getExpressed().getIncomingToNode(node).values().stream()
-                .map(connection -> new NeuronInputConnection(connection.getInnovationId().getSourceNodeId(), connection.getCyclesAllowed()))
+    private static Neuron createNeuronIfValid(final Genome genome, final NodeGene nodeGene) {
+        List<NeuronInputConnection> inputConnections = genome.getConnectionGenes().getExpressed().getIncomingToNodeGene(nodeGene).values().stream()
+                .map(connectionGene -> new NeuronInputConnection(connectionGene.getInnovationId().getSourceNodeGeneId(), connectionGene.getCyclesAllowed()))
                 .toList();
 
-        List<NeuronOutputConnection> outputConnections = genome.getConnections().getExpressed().getOutgoingFromNode(node).values().stream()
-                .map(connection -> new NeuronOutputConnection(connection.getInnovationId().getTargetNodeId(), connection.getWeight(), connection.getRecurrentWeights()))
+        List<NeuronOutputConnection> outputConnections = genome.getConnectionGenes().getExpressed().getOutgoingFromNodeGene(nodeGene).values().stream()
+                .map(connectionGene -> new NeuronOutputConnection(connectionGene.getInnovationId().getTargetNodeGeneId(), connectionGene.getWeight(), connectionGene.getRecurrentWeights()))
                 .toList();
 
-        switch (node.getType()) {
+        switch (nodeGene.getType()) {
             case BIAS:
             case HIDDEN:
                 if (inputConnections.size() + outputConnections.size() == 0) {
@@ -38,14 +38,14 @@ final class ConcurrentNeatNeuralNetwork implements NeatNeuralNetwork, Serializab
                 }
         }
 
-        return new Neuron(node, inputConnections, outputConnections);
+        return new Neuron(nodeGene, inputConnections, outputConnections);
     }
 
     private static NeuronNavigator createNeuronNavigator(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final NeuronLayerTopologyDefinition outputTopologyDefinition) {
         NeuronNavigator neuronNavigator = new NeuronNavigator(neuronPathBuilder, outputTopologyDefinition);
 
-        for (NodeGene node : genome.getNodes()) {
-            Neuron neuron = createNeuronIfValid(genome, node);
+        for (NodeGene nodeGene : genome.getNodeGenes()) {
+            Neuron neuron = createNeuronIfValid(genome, nodeGene);
 
             if (neuron != null) {
                 neuronNavigator.add(neuron);
@@ -59,7 +59,7 @@ final class ConcurrentNeatNeuralNetwork implements NeatNeuralNetwork, Serializab
 
     ConcurrentNeatNeuralNetwork(final Genome genome, final NeuronPathBuilder neuronPathBuilder, final NeuronLayerTopologyDefinition outputTopologyDefinition, final ObjectFactory<NeatNeuronMemory> neuronMemoryFactory, final NeuronStateGroupFactory neuronStateFactory) {
         this.genome = genome;
-        this.inputSize = genome.getNodes().size(NodeGeneType.INPUT);
+        this.inputSize = genome.getNodeGenes().size(NodeGeneType.INPUT);
         this.neuronNavigatorProvider = new AtomicLazyReference<>((ObjectFactory<NeuronNavigator> & Serializable) () -> createNeuronNavigator(genome, neuronPathBuilder, outputTopologyDefinition));
         this.neuronMemoryFactory = neuronMemoryFactory;
         this.neuronStateFactory = neuronStateFactory;
@@ -71,11 +71,11 @@ final class ConcurrentNeatNeuralNetwork implements NeatNeuralNetwork, Serializab
     }
 
     private void initializeNeurons(final NeuronStateGroup neuronState, final float[] input) {
-        Iterable<NodeGene> inputNodes = () -> genome.getNodes().iterator(NodeGeneType.INPUT);
+        Iterable<NodeGene> inputNodeGenes = () -> genome.getNodeGenes().iterator(NodeGeneType.INPUT);
         int index = 0;
 
-        for (NodeGene inputNode : inputNodes) {
-            neuronState.setValue(inputNode.getId(), input[index++]);
+        for (NodeGene inputNodeGene : inputNodeGenes) {
+            neuronState.setValue(inputNodeGene.getId(), input[index++]);
         }
     }
 

@@ -1,76 +1,88 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.speciation.Species;
-import com.dipasquale.ai.rl.neat.speciation.metric.ConfigurableMetricsCollector;
-import com.dipasquale.ai.rl.neat.speciation.metric.GenerationMetrics;
+import com.dipasquale.ai.rl.neat.speciation.metric.DefaultMetricsCollector;
 import com.dipasquale.ai.rl.neat.speciation.metric.IterationMetrics;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsCollector;
+import com.dipasquale.ai.rl.neat.speciation.metric.MetricsContainer;
 import com.dipasquale.ai.rl.neat.speciation.metric.MetricsViewer;
 import com.dipasquale.ai.rl.neat.speciation.metric.NoopMetricsCollector;
+import com.dipasquale.ai.rl.neat.speciation.metric.StandardMetricsContainer;
+import com.dipasquale.ai.rl.neat.speciation.metric.concurrent.IsolatedMetricContainer;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.speciation.metric.DualModeMetricsContainer;
+import com.dipasquale.common.IntegerValue;
+import com.dipasquale.common.StandardIntegerValue;
 import com.dipasquale.data.structure.map.UnionMap;
 import com.dipasquale.io.serialization.SerializableStateGroup;
-import com.dipasquale.metric.EmptyValuesMetricDatumFactory;
-import com.dipasquale.metric.LazyValuesMetricDatumFactory;
+import com.dipasquale.metric.LightMetricDatumFactory;
 import com.dipasquale.metric.MetricDatumFactory;
-import com.dipasquale.synchronization.dual.mode.DualModeIntegerValue;
-import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMap;
-import com.dipasquale.synchronization.dual.mode.data.structure.map.DualModeMapFactory;
+import com.dipasquale.metric.StandardMetricDatumFactory;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ContextObjectMetricsSupport implements Context.MetricsSupport {
-    private ContextObjectMetricsParameters params;
-    private MetricDatumFactory metricDatumFactory;
-    private DualModeMetricsContainer metricsContainer;
-    private MetricsCollector metricsCollector;
-    private int stagnationDropOffAge;
-    private DualModeIntegerValue iteration;
-    private DualModeIntegerValue generation;
-    private DualModeMap<Integer, IterationMetrics, DualModeMapFactory> metrics;
+    private final ContextObjectMetricsParameters params;
+    private final MetricDatumFactory metricDatumFactory;
+    private final MetricsContainer metricsContainer;
+    private final MetricsCollector metricsCollector;
+    private final int stagnationDropOffAge;
+    private final IntegerValue iteration;
+    private final IntegerValue generation;
+    private final Map<Integer, IterationMetrics> allIterationMetrics;
 
     private static MetricDatumFactory createMetricDatumFactory(final EnumSet<MetricCollectionType> types) {
         if (!types.contains(MetricCollectionType.ENABLED) || types.contains(MetricCollectionType.SKIP_NORMAL_DISTRIBUTION_METRICS)) {
-            return EmptyValuesMetricDatumFactory.getInstance();
+            return LightMetricDatumFactory.getInstance();
         }
 
-        return LazyValuesMetricDatumFactory.getInstance();
+        return StandardMetricDatumFactory.getInstance();
     }
 
-    private static MetricsCollector createMetricsCollector(final MetricDatumFactory metricDatumFactory, final EnumSet<MetricCollectionType> types) {
+    private static MetricsContainer createMetricsContainer(final Set<Long> threadIds, final MetricDatumFactory metricDatumFactory, final IterationMetrics iterationMetrics) {
+        IterationMetrics fixedIterationMetrics = Objects.requireNonNullElseGet(iterationMetrics, IterationMetrics::new);
+
+        if (threadIds.isEmpty()) {
+            return new StandardMetricsContainer(metricDatumFactory, fixedIterationMetrics);
+        }
+
+        return new IsolatedMetricContainer(threadIds, metricDatumFactory, fixedIterationMetrics);
+    }
+
+    private static MetricsCollector createMetricsCollector(final EnumSet<MetricCollectionType> types) {
         if (!types.contains(MetricCollectionType.ENABLED)) {
             return NoopMetricsCollector.getInstance();
         }
 
-        boolean clearFitnessOnAdd = types.contains(MetricCollectionType.ONLY_KEEP_LAST_FITNESS_EVALUATION);
-        boolean clearGenerationsOnAdd = types.contains(MetricCollectionType.ONLY_KEEP_LAST_GENERATION);
-        boolean clearIterationsOnAdd = types.contains(MetricCollectionType.ONLY_KEEP_LAST_ITERATION);
+        boolean clearFitnessOnNext = types.contains(MetricCollectionType.ONLY_KEEP_LAST_FITNESS_EVALUATION);
+        boolean clearGenerationsOnNext = types.contains(MetricCollectionType.ONLY_KEEP_LAST_GENERATION);
+        boolean clearIterationsOnNext = types.contains(MetricCollectionType.ONLY_KEEP_LAST_ITERATION);
 
-        return new ConfigurableMetricsCollector(metricDatumFactory, clearFitnessOnAdd, clearGenerationsOnAdd, clearIterationsOnAdd);
+        return new DefaultMetricsCollector(clearFitnessOnNext, clearGenerationsOnNext, clearIterationsOnNext);
     }
 
-    static ContextObjectMetricsSupport create(final InitializationContext initializationContext, final MetricsSupport metricsSupport, final SpeciationSupport speciationSupport) {
+    static ContextObjectMetricsSupport create(final InitializationContext initializationContext, final MetricsSettings metricsSettings, final SpeciationSettings speciationSettings) {
         ContextObjectMetricsParameters params = ContextObjectMetricsParameters.builder()
-                .enabled(metricsSupport.getTypes().contains(MetricCollectionType.ENABLED))
+                .enabled(metricsSettings.getTypes().contains(MetricCollectionType.ENABLED))
                 .build();
 
-        MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricsSupport.getTypes());
-        DualModeMetricsContainer metricsContainer = new DualModeMetricsContainer(initializationContext.createMapFactory(), metricDatumFactory);
-        MetricsCollector metricsCollector = createMetricsCollector(metricDatumFactory, metricsSupport.getTypes());
-        int stagnationDropOffAge = initializationContext.getIntegerSingleton(speciationSupport.getStagnationDropOffAge());
-        DualModeIntegerValue iteration = new DualModeIntegerValue(initializationContext.getConcurrencyLevel(), 1);
-        DualModeIntegerValue generation = new DualModeIntegerValue(initializationContext.getConcurrencyLevel(), 1);
+        MetricDatumFactory metricDatumFactory = createMetricDatumFactory(metricsSettings.getTypes());
+        MetricsContainer metricsContainer = createMetricsContainer(initializationContext.getThreadIds(), metricDatumFactory, null);
+        MetricsCollector metricsCollector = createMetricsCollector(metricsSettings.getTypes());
+        int stagnationDropOffAge = initializationContext.provideSingleton(speciationSettings.getStagnationDropOffAge());
+        IntegerValue iteration = new StandardIntegerValue(1);
+        IntegerValue generation = new StandardIntegerValue(1);
+        Map<Integer, IterationMetrics> allIterationMetrics = new HashMap<>();
 
-        return new ContextObjectMetricsSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, initializationContext.createMap());
+        return new ContextObjectMetricsSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, allIterationMetrics);
     }
 
     @Override
@@ -79,18 +91,8 @@ final class ContextObjectMetricsSupport implements Context.MetricsSupport {
     }
 
     @Override
-    public void collectInitialCompositions(final Iterable<Species> allSpecies) {
-        if (!params.enabled()) {
-            return;
-        }
-
-        for (Species species : allSpecies) {
-            metricsCollector.collectSpeciesComposition(metricsContainer, species.getAge(), species.getStagnationPeriod(), species.isStagnant(stagnationDropOffAge));
-
-            for (Organism organism : species.getOrganisms()) {
-                metricsCollector.collectOrganismTopology(metricsContainer, species.getId(), organism.getHiddenNodes(), organism.getConnections());
-            }
-        }
+    public void collectAllSpeciesCompositions(final Iterable<Species> allSpecies) {
+        metricsCollector.collectAllSpeciesCompositions(metricsContainer, allSpecies, stagnationDropOffAge);
     }
 
     @Override
@@ -114,8 +116,8 @@ final class ContextObjectMetricsSupport implements Context.MetricsSupport {
     }
 
     @Override
-    public void prepareNextFitnessCalculation() {
-        metricsCollector.prepareNextFitnessCalculation(metricsContainer);
+    public void prepareNextFitnessEvaluation() {
+        metricsCollector.prepareNextFitnessEvaluation(metricsContainer);
     }
 
     @Override
@@ -125,57 +127,40 @@ final class ContextObjectMetricsSupport implements Context.MetricsSupport {
 
     @Override
     public void prepareNextIteration() {
-        metricsCollector.prepareNextIteration(metricsContainer, generation.current(), metrics, iteration.increment() - 1);
+        metricsCollector.prepareNextIteration(metricsContainer, generation.current(), allIterationMetrics, iteration.increment() - 1);
         generation.current(1);
-    }
-
-    private static <TKey, TValue> Map<TKey, TValue> createMap(final TKey key, final TValue value) {
-        Map<TKey, TValue> map = new HashMap<>();
-
-        map.put(key, value);
-
-        return map;
-    }
-
-    private IterationMetrics mergeIterationsMetrics() {
-        Map<Integer, GenerationMetrics> currentGenerations = createMap(generation.current(), metricsContainer.getGenerationMetrics());
-        Map<Integer, GenerationMetrics> previousGenerations = metricsContainer.getIterationMetrics().getGenerations();
-        Map<Integer, GenerationMetrics> generations = new UnionMap<>(currentGenerations, previousGenerations);
-
-        return new IterationMetrics(generations);
     }
 
     @Override
     public MetricsViewer createMetricsViewer() {
-        Map<Integer, IterationMetrics> currentIterations = createMap(iteration.current(), mergeIterationsMetrics());
-        Map<Integer, IterationMetrics> fixedMetrics = new UnionMap<>(currentIterations, metrics);
+        Map<Integer, IterationMetrics> currentIterationMetrics = Map.of(iteration.current(), metricsContainer.createInterimIterationCopy(generation.current()));
+        Map<Integer, IterationMetrics> fixedIterationMetrics = new UnionMap<>(currentIterationMetrics, allIterationMetrics);
 
-        return new MetricsViewer(fixedMetrics, metricDatumFactory);
+        return new MetricsViewer(fixedIterationMetrics, metricDatumFactory);
     }
 
-    public void save(final SerializableStateGroup stateGroup) {
+    void save(final SerializableStateGroup stateGroup) {
         stateGroup.put("metrics.params", params);
         stateGroup.put("metrics.metricDatumFactory", metricDatumFactory);
-        stateGroup.put("metrics.metricsContainer", metricsContainer);
+        stateGroup.put("metrics.iterationMetrics", metricsContainer.createIterationCopy());
         stateGroup.put("metrics.metricsCollector", metricsCollector);
         stateGroup.put("metrics.stagnationDropOffAge", stagnationDropOffAge);
         stateGroup.put("metrics.iteration", iteration);
         stateGroup.put("metrics.generation", generation);
-        stateGroup.put("metrics.metrics", metrics);
+        stateGroup.put("metrics.allIterationMetrics", allIterationMetrics);
     }
 
-    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
-        params = stateGroup.get("metrics.params");
-        metricDatumFactory = stateGroup.get("metrics.metricDatumFactory");
-        metricsContainer = DualModeObject.activateMode(stateGroup.get("metrics.metricsContainer"), concurrencyLevel);
-        metricsCollector = stateGroup.get("metrics.metricsCollector");
-        stagnationDropOffAge = stateGroup.get("metrics.stagnationDropOffAge");
-        iteration = DualModeObject.activateMode(stateGroup.get("metrics.iteration"), concurrencyLevel);
-        generation = DualModeObject.activateMode(stateGroup.get("metrics.generation"), concurrencyLevel);
-        metrics = DualModeObject.activateMode(stateGroup.get("metrics.metrics"), concurrencyLevel);
-    }
+    static ContextObjectMetricsSupport create(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
+        ContextObjectMetricsParameters params = stateGroup.get("metrics.params");
+        MetricDatumFactory metricDatumFactory = stateGroup.get("metrics.metricDatumFactory");
+        IterationMetrics iterationMetrics = stateGroup.get("metrics.iterationMetrics");
+        MetricsContainer metricsContainer = createMetricsContainer(ParallelismSettings.getThreadIds(eventLoop), metricDatumFactory, iterationMetrics);
+        MetricsCollector metricsCollector = stateGroup.get("metrics.metricsCollector");
+        int stagnationDropOffAge = stateGroup.get("metrics.stagnationDropOffAge");
+        IntegerValue iteration = stateGroup.get("metrics.iteration");
+        IntegerValue generation = stateGroup.get("metrics.generation");
+        Map<Integer, IterationMetrics> allIterationMetrics = stateGroup.get("metrics.allIterationMetrics");
 
-    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
-        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
+        return new ContextObjectMetricsSupport(params, metricDatumFactory, metricsContainer, metricsCollector, stagnationDropOffAge, iteration, generation, allIterationMetrics);
     }
 }

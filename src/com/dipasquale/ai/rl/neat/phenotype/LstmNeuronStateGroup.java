@@ -1,9 +1,9 @@
 package com.dipasquale.ai.rl.neat.phenotype;
 
+import com.dipasquale.ai.rl.neat.Id;
 import com.dipasquale.ai.rl.neat.function.activation.ActivationFunction;
 import com.dipasquale.ai.rl.neat.function.activation.SigmoidActivationFunction;
 import com.dipasquale.ai.rl.neat.function.activation.TanHActivationFunction;
-import com.dipasquale.ai.rl.neat.internal.Id;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

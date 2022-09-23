@@ -63,45 +63,45 @@ public interface RandomSupport {
         return isBetween(0D, maximum);
     }
 
-    default <T> void shuffle(final List<T> items) {
-        for (int i = items.size(); i > 1; i--) {
+    default <T> void shuffle(final List<T> elements) {
+        for (int i = elements.size(); i > 1; i--) {
             int fromIndex = i - 1;
             int toIndex = nextInteger(0, i);
-            T replacedItem = items.set(toIndex, items.get(fromIndex));
+            T replacedElement = elements.set(toIndex, elements.get(fromIndex));
 
-            items.set(fromIndex, replacedItem);
+            elements.set(fromIndex, replacedElement);
         }
     }
 
-    default <T> void shuffle(final ListSetGroup<?, T> items) {
-        for (int i = items.size(); i > 1; i--) {
+    default <T> void shuffle(final ListSetGroup<?, T> elements) {
+        for (int i = elements.size(); i > 1; i--) {
             int fromIndex = i - 1;
             int toIndex = nextInteger(0, i);
 
-            items.swap(fromIndex, toIndex);
+            elements.swap(fromIndex, toIndex);
         }
     }
 
-    default <T> List<T> createShuffled(final List<T> items, final Class<T> itemType) {
-        int size = items.size();
-        T[] shuffledItems = (T[]) Array.newInstance(itemType, size);
+    default <T> List<T> createShuffled(final List<T> elements, final Class<T> elementType) {
+        int size = elements.size();
+        T[] shuffledElements = (T[]) Array.newInstance(elementType, size);
 
         if (size > 0) {
-            shuffledItems[0] = items.get(0);
+            shuffledElements[0] = elements.get(0);
 
-            for (int i = items.size(); i > 1; i--) {
+            for (int i = elements.size(); i > 1; i--) {
                 int fromIndex = i - 1;
                 int toIndex = nextInteger(0, i);
-                T item = shuffledItems[toIndex];
+                T element = shuffledElements[toIndex];
 
-                if (item != null) {
-                    shuffledItems[fromIndex] = item;
+                if (element != null) {
+                    shuffledElements[fromIndex] = element;
                 }
 
-                shuffledItems[toIndex] = items.get(fromIndex);
+                shuffledElements[toIndex] = elements.get(fromIndex);
             }
         }
 
-        return Arrays.asList(shuffledItems); // TODO: create a more friendly type of ArrayList for this
+        return Arrays.asList(shuffledElements); // TODO: create a more friendly type of ArrayList for this
     }
 }

@@ -13,9 +13,9 @@ final class SpeciesTopologyMetricsAggregator {
     private GenerationMetrics cachedGenerationMetrics = null;
     private TopologyMetrics cachedTopologyMetrics = null;
     @Getter
-    private final MetricDatumSelector<GenerationMetrics> hiddenNodes = new SingleMetricDatumSelector(this, TopologyMetrics::getHiddenNodes);
+    private final MetricDatumSelector<GenerationMetrics> hiddenNodes = new SingleMetricDatumSelector(this, TopologyMetrics::getHiddenNodeGenes);
     @Getter
-    private final MetricDatumSelector<GenerationMetrics> connections = new SingleMetricDatumSelector(this, TopologyMetrics::getConnections);
+    private final MetricDatumSelector<GenerationMetrics> connections = new SingleMetricDatumSelector(this, TopologyMetrics::getConnectionGenes);
 
     private TopologyMetrics createTopologyMetrics(final GenerationMetrics generationMetrics) {
         TopologyMetrics topologyMetrics = new TopologyMetrics(metricDatumFactory.create(), metricDatumFactory.create());

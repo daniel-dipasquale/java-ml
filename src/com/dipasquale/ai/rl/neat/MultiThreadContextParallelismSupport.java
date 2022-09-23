@@ -1,7 +1,9 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.common.FloatValue;
+import com.dipasquale.common.concurrent.AtomicFloatValue;
 import com.dipasquale.synchronization.InterruptedRuntimeException;
-import com.dipasquale.synchronization.event.loop.ItemHandler;
+import com.dipasquale.synchronization.event.loop.ElementHandler;
 import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import com.dipasquale.synchronization.wait.handle.InteractiveWaitHandle;
 import com.dipasquale.synchronization.wait.handle.StrategyWaitHandle;
@@ -25,6 +27,11 @@ final class MultiThreadContextParallelismSupport implements Context.ParallelismS
         return params;
     }
 
+    @Override
+    public FloatValue createFloatValue(final float initialValue) {
+        return new AtomicFloatValue(initialValue);
+    }
+
     private static void forEach(final InteractiveWaitHandleFactory interactiveWaitHandleFactory) {
         Collection<Throwable> unhandledExceptions = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
         InteractiveWaitHandle invokedWaitHandle = interactiveWaitHandleFactory.create(unhandledExceptions);
@@ -39,13 +46,13 @@ final class MultiThreadContextParallelismSupport implements Context.ParallelismS
     }
 
     @Override
-    public <T> void forEach(final Iterator<T> iterator, final Consumer<T> itemHandler) {
-        forEach(unhandledExceptions -> eventLoop.queue(iterator, ItemHandler.adapt(itemHandler), unhandledExceptions::add));
+    public <T> void forEach(final Iterator<T> iterator, final Consumer<T> elementHandler) {
+        forEach(unhandledExceptions -> eventLoop.queue(iterator, ElementHandler.adapt(elementHandler), unhandledExceptions::add));
     }
 
     @Override
-    public <T> void forEach(final List<T> list, final Consumer<T> itemHandler) {
-        forEach(unhandledExceptions -> eventLoop.queue(list, ItemHandler.adapt(itemHandler), unhandledExceptions::add));
+    public <T> void forEach(final List<T> list, final Consumer<T> elementHandler) {
+        forEach(unhandledExceptions -> eventLoop.queue(list, ElementHandler.adapt(elementHandler), unhandledExceptions::add));
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

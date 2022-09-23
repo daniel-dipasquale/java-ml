@@ -1,6 +1,6 @@
 package com.dipasquale.data.structure.map;
 
-import com.dipasquale.data.structure.iterable.Iterables;
+import com.dipasquale.data.structure.iterable.IterableSupport;
 
 import java.io.Serial;
 import java.util.Map;
@@ -12,7 +12,7 @@ public final class UnionMap<TKey, TValue> extends AbstractMap<TKey, TValue> {
     private final Map<TKey, TValue> second;
 
     public UnionMap(final Map<TKey, TValue> first, final Map<TKey, TValue> second) {
-        super(Iterables.concatenate(first.entrySet(), second.entrySet())::iterator);
+        super(IterableSupport.concatenate(first.entrySet(), second.entrySet())::iterator);
         this.first = first;
         this.second = second;
     }

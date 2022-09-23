@@ -2,14 +2,15 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.genotype.FullyConnectedGenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
+import com.dipasquale.common.factory.FloatFactory;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 public final class GenesisGenomeTemplate {
@@ -24,7 +25,7 @@ public final class GenesisGenomeTemplate {
     @Builder.Default
     private final InitialWeightType initialWeightType = InitialWeightType.ALL_RANDOM;
 
-    private FloatNumber.DualModeFactory createWeightFactory(final InitializationContext initializationContext, final FloatNumber.DualModeFactory weightFactory) {
+    private FloatFactory createWeightFactory(final InitializationContext initializationContext, final FloatFactory weightFactory) {
         return switch (initialWeightType) {
             case ALL_RANDOM -> weightFactory;
 
@@ -36,8 +37,8 @@ public final class GenesisGenomeTemplate {
         };
     }
 
-    public GenesisGenomeConnector createConnector(final InitializationContext initializationContext, final FloatNumber.DualModeFactory weightFactory) {
-        FloatNumber.DualModeFactory fixedWeightFactory = createWeightFactory(initializationContext, weightFactory);
+    public GenesisGenomeConnector createConnector(final InitializationContext initializationContext, final FloatFactory weightFactory) {
+        FloatFactory fixedWeightFactory = createWeightFactory(initializationContext, weightFactory);
 
         return switch (initialConnectionType) {
             case FULLY_CONNECTED -> new FullyConnectedGenesisGenomeConnector(hiddenLayers, fixedWeightFactory, true);

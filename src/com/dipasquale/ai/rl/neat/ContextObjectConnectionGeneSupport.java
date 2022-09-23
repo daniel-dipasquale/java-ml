@@ -1,65 +1,60 @@
 package com.dipasquale.ai.rl.neat;
 
+import com.dipasquale.ai.common.factory.WeightPerturber;
 import com.dipasquale.ai.rl.neat.genotype.DirectedEdge;
 import com.dipasquale.ai.rl.neat.genotype.GenesisGenomeConnector;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
+import com.dipasquale.ai.rl.neat.genotype.HistoricalMarkings;
 import com.dipasquale.ai.rl.neat.genotype.InnovationId;
 import com.dipasquale.ai.rl.neat.genotype.NodeGene;
-import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
-import com.dipasquale.ai.rl.neat.internal.NoopRecurrentModifiersFactory;
-import com.dipasquale.ai.rl.neat.internal.ProxyRecurrentModifiersFactory;
-import com.dipasquale.ai.rl.neat.internal.RecurrentModifiersFactory;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.factory.DualModeWeightPerturber;
-import com.dipasquale.ai.rl.neat.synchronization.dual.mode.genotype.DualModeHistoricalMarkings;
+import com.dipasquale.common.factory.FloatFactory;
+import com.dipasquale.common.gate.IsLessThanRandomGate;
 import com.dipasquale.io.serialization.SerializableStateGroup;
-import com.dipasquale.synchronization.dual.mode.DualModeObject;
-import com.dipasquale.synchronization.dual.mode.gate.DualModeIsLessThanRandomGate;
-import com.dipasquale.synchronization.event.loop.ParallelEventLoop;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class ContextObjectConnectionGeneSupport implements Context.ConnectionGeneSupport {
-    private FloatNumber.DualModeFactory weightFactory;
-    private RecurrentModifiersFactory recurrentWeightsFactory;
-    private DualModeWeightPerturber<FloatNumber.DualModeFactory> weightPerturber;
-    private DualModeIsLessThanRandomGate shouldAllowRecurrentGate;
-    private DualModeIsLessThanRandomGate shouldAllowUnrestrictedDirectionGate;
-    private DualModeIsLessThanRandomGate shouldAllowMultiCycleGate;
-    private GenesisGenomeConnector genesisGenomeConnector;
-    private DualModeHistoricalMarkings historicalMarkings;
+    private final FloatFactory weightFactory;
+    private final RecurrentModifiersFactory recurrentWeightsFactory;
+    private final WeightPerturber weightPerturber;
+    private final IsLessThanRandomGate shouldAllowRecurrentGate;
+    private final IsLessThanRandomGate shouldAllowUnrestrictedDirectionGate;
+    private final IsLessThanRandomGate shouldAllowMultiCycleGate;
+    private final GenesisGenomeConnector genesisGenomeConnector;
+    private final HistoricalMarkings historicalMarkings;
 
-    private static RecurrentModifiersFactory createRecurrentWeightsFactory(final InitializationContext initializationContext, final ConnectionGeneSupport connectionGeneSupport, final FloatNumber.DualModeFactory weightFactory) {
-        float recurrentAllowanceRate = initializationContext.getFloatSingleton(connectionGeneSupport.getRecurrentAllowanceRate());
+    private static RecurrentModifiersFactory createRecurrentWeightsFactory(final InitializationContext initializationContext, final ConnectionGeneSettings connectionGeneSettings, final FloatFactory weightFactory) {
+        float recurrentAllowanceRate = initializationContext.provideSingleton(connectionGeneSettings.getRecurrentAllowanceRate());
 
         if (Float.compare(recurrentAllowanceRate, 0f) <= 0) {
             return NoopRecurrentModifiersFactory.getInstance();
         }
 
-        return new ProxyRecurrentModifiersFactory(weightFactory, connectionGeneSupport.getRecurrentStateType());
+        return new ProxyRecurrentModifiersFactory(weightFactory, connectionGeneSettings.getRecurrentStateType());
     }
 
-    private static DualModeWeightPerturber<FloatNumber.DualModeFactory> createWeightPerturber(final InitializationContext initializationContext, final FloatNumber weightPerturber) {
-        FloatNumber.DualModeFactory floatFactory = weightPerturber.createFactory(initializationContext);
+    private static WeightPerturber createWeightPerturber(final InitializationContext initializationContext, final FloatNumber weightPerturber) {
+        FloatFactory floatFactory = weightPerturber.createFactory(initializationContext);
 
-        return new DualModeWeightPerturber<>(floatFactory);
+        return new WeightPerturber(floatFactory);
     }
 
-    private static DualModeIsLessThanRandomGate createIsLessThanRandomGate(final InitializationContext initializationContext, final FloatNumber maximum) {
-        return new DualModeIsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.getFloatSingleton(maximum));
+    private static IsLessThanRandomGate createIsLessThanRandomGate(final InitializationContext initializationContext, final FloatNumber maximum) {
+        return new IsLessThanRandomGate(initializationContext.createDefaultRandomSupport(), initializationContext.provideSingleton(maximum));
     }
 
-    static ContextObjectConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSupport connectionGeneSupport) {
-        FloatNumber.DualModeFactory weightFactory = connectionGeneSupport.getWeightFactory().createFactory(initializationContext);
-        RecurrentModifiersFactory recurrentWeightsFactory = createRecurrentWeightsFactory(initializationContext, connectionGeneSupport, weightFactory);
-        DualModeWeightPerturber<FloatNumber.DualModeFactory> weightPerturber = createWeightPerturber(initializationContext, connectionGeneSupport.getWeightPerturber());
-        DualModeIsLessThanRandomGate shouldAllowRecurrentGate = createIsLessThanRandomGate(initializationContext, connectionGeneSupport.getRecurrentAllowanceRate());
-        DualModeIsLessThanRandomGate shouldAllowUnrestrictedDirectionGate = createIsLessThanRandomGate(initializationContext, connectionGeneSupport.getUnrestrictedDirectionAllowanceRate());
-        DualModeIsLessThanRandomGate shouldAllowMultiCycleGate = createIsLessThanRandomGate(initializationContext, connectionGeneSupport.getMultiCycleAllowanceRate());
+    static ContextObjectConnectionGeneSupport create(final InitializationContext initializationContext, final GenesisGenomeTemplate genesisGenomeTemplate, final ConnectionGeneSettings connectionGeneSettings) {
+        FloatFactory weightFactory = connectionGeneSettings.getWeightFactory().createFactory(initializationContext);
+        RecurrentModifiersFactory recurrentWeightsFactory = createRecurrentWeightsFactory(initializationContext, connectionGeneSettings, weightFactory);
+        WeightPerturber weightPerturber = createWeightPerturber(initializationContext, connectionGeneSettings.getWeightPerturber());
+        IsLessThanRandomGate shouldAllowRecurrentGate = createIsLessThanRandomGate(initializationContext, connectionGeneSettings.getRecurrentAllowanceRate());
+        IsLessThanRandomGate shouldAllowUnrestrictedDirectionGate = createIsLessThanRandomGate(initializationContext, connectionGeneSettings.getUnrestrictedDirectionAllowanceRate());
+        IsLessThanRandomGate shouldAllowMultiCycleGate = createIsLessThanRandomGate(initializationContext, connectionGeneSettings.getMultiCycleAllowanceRate());
         GenesisGenomeConnector genesisGenomeConnector = genesisGenomeTemplate.createConnector(initializationContext, weightFactory);
-        DualModeHistoricalMarkings historicalMarkings = new DualModeHistoricalMarkings(initializationContext.getConcurrencyLevel(), initializationContext.createMap(), initializationContext.createSetFactory(), initializationContext.createMap());
+        HistoricalMarkings historicalMarkings = initializationContext.getHistoricalMarkings();
 
         return new ContextObjectConnectionGeneSupport(weightFactory, recurrentWeightsFactory, weightPerturber, shouldAllowRecurrentGate, shouldAllowUnrestrictedDirectionGate, shouldAllowMultiCycleGate, genesisGenomeConnector, historicalMarkings);
     }
@@ -105,13 +100,13 @@ final class ContextObjectConnectionGeneSupport implements Context.ConnectionGene
     }
 
     @Override
-    public void setupInitialConnections(final Genome genome) {
+    public void setupInitial(final Genome genome) {
         genesisGenomeConnector.setupConnections(genome, this);
     }
 
     @Override
-    public InnovationId provideInnovationId(final NodeGene sourceNode, final NodeGene targetNode) {
-        return historicalMarkings.provideInnovationId(new DirectedEdge(sourceNode, targetNode));
+    public InnovationId provideInnovationId(final NodeGene sourceNodeGene, final NodeGene targetNodeGene) {
+        return historicalMarkings.provideInnovationId(new DirectedEdge(sourceNodeGene, targetNodeGene));
     }
 
     @Override
@@ -119,30 +114,12 @@ final class ContextObjectConnectionGeneSupport implements Context.ConnectionGene
         return historicalMarkings.containsInnovationId(innovationId.getDirectedEdge());
     }
 
-    private static Iterable<? extends NodeGene> getHiddenNodes(final Genome genome) {
-        return () -> genome.getNodes().iterator(NodeGeneType.HIDDEN);
-    }
-
-    @Override
-    public void registerNodes(final Genome genome) {
-        for (NodeGene node : getHiddenNodes(genome)) {
-            historicalMarkings.registerNode(node);
-        }
-    }
-
-    @Override
-    public void deregisterNodes(final Genome genome) {
-        for (NodeGene node : getHiddenNodes(genome)) {
-            historicalMarkings.deregisterNode(node);
-        }
-    }
-
     @Override
     public void reset() {
         historicalMarkings.clear();
     }
 
-    public void save(final SerializableStateGroup stateGroup) {
+    void save(final SerializableStateGroup stateGroup) {
         stateGroup.put("connections.weightFactory", weightFactory);
         stateGroup.put("connections.recurrentWeightsFactory", recurrentWeightsFactory);
         stateGroup.put("connections.weightPerturber", weightPerturber);
@@ -153,18 +130,16 @@ final class ContextObjectConnectionGeneSupport implements Context.ConnectionGene
         stateGroup.put("connections.historicalMarkings", historicalMarkings);
     }
 
-    private void load(final SerializableStateGroup stateGroup, final int concurrencyLevel) {
-        weightFactory = DualModeObject.activateMode(stateGroup.get("connections.weightFactory"), concurrencyLevel);
-        recurrentWeightsFactory = stateGroup.get("connections.recurrentWeightsFactory");
-        weightPerturber = DualModeObject.activateMode(stateGroup.get("connections.weightPerturber"), concurrencyLevel);
-        shouldAllowRecurrentGate = DualModeObject.activateMode(stateGroup.get("connections.shouldAllowRecurrentGate"), concurrencyLevel);
-        shouldAllowUnrestrictedDirectionGate = DualModeObject.activateMode(stateGroup.get("connections.shouldAllowUnrestrictedDirectionGate"), concurrencyLevel);
-        shouldAllowMultiCycleGate = DualModeObject.activateMode(stateGroup.get("connections.shouldAllowMultiCycleGate"), concurrencyLevel);
-        genesisGenomeConnector = stateGroup.get("connections.genesisGenomeConnector");
-        historicalMarkings = DualModeObject.activateMode(stateGroup.get("connections.historicalMarkings"), concurrencyLevel);
-    }
+    static ContextObjectConnectionGeneSupport create(final SerializableStateGroup stateGroup) {
+        FloatFactory weightFactory = stateGroup.get("connections.weightFactory");
+        RecurrentModifiersFactory recurrentWeightsFactory = stateGroup.get("connections.recurrentWeightsFactory");
+        WeightPerturber weightPerturber = stateGroup.get("connections.weightPerturber");
+        IsLessThanRandomGate shouldAllowRecurrentGate = stateGroup.get("connections.shouldAllowRecurrentGate");
+        IsLessThanRandomGate shouldAllowUnrestrictedDirectionGate = stateGroup.get("connections.shouldAllowUnrestrictedDirectionGate");
+        IsLessThanRandomGate shouldAllowMultiCycleGate = stateGroup.get("connections.shouldAllowMultiCycleGate");
+        GenesisGenomeConnector genesisGenomeConnector = stateGroup.get("connections.genesisGenomeConnector");
+        HistoricalMarkings historicalMarkings = stateGroup.get("connections.historicalMarkings");
 
-    public void load(final SerializableStateGroup stateGroup, final ParallelEventLoop eventLoop) {
-        load(stateGroup, ParallelismSupport.getConcurrencyLevel(eventLoop));
+        return new ContextObjectConnectionGeneSupport(weightFactory, recurrentWeightsFactory, weightPerturber, shouldAllowRecurrentGate, shouldAllowUnrestrictedDirectionGate, shouldAllowMultiCycleGate, genesisGenomeConnector, historicalMarkings);
     }
 }

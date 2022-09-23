@@ -21,7 +21,7 @@ public final class SelectionContext {
             throw new ChampionOrganismMissingException("the champion organism is missing");
         }
 
-        Organism organism = championOrganism.createClone(parent.connections());
+        Organism organism = championOrganism.createClone(parent.connectionGenes());
         GenomeActivator genomeActivator = championOrganism.createTransientActivator(parent.activation());
 
         population.initializeChampionOrganism(organism, genomeActivator);

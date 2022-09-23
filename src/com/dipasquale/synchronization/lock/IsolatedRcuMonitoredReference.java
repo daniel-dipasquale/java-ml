@@ -16,6 +16,14 @@ final class IsolatedRcuMonitoredReference<T> implements RcuMonitoredReference<T>
     private final ObjectCloner<T> referenceCloner;
     private final IsolatedThreadStorage<RcuReference<T>> readRcuReference;
 
+    private IsolatedRcuMonitoredReference(final IsolatedRcuController controller, final RcuReference<T> rcuReference, final ObjectCloner<T> referenceCloner, final IsolatedThreadIndex isolatedThreadIndex) {
+        this.controller = controller;
+        this.unprotectedRcuReference = rcuReference;
+        this.writeRcuReference = rcuReference;
+        this.referenceCloner = referenceCloner;
+        this.readRcuReference = new IsolatedThreadStorage<>(isolatedThreadIndex);
+    }
+
     private static <T> RcuReference<T> createRcuReference(final IsolatedRcuController controller, final T reference) {
         Object writeToken = controller.getWriteToken();
 
@@ -30,18 +38,6 @@ final class IsolatedRcuMonitoredReference<T> implements RcuMonitoredReference<T>
         }
 
         return new RcuReference<>(controller.getUnprotectedToken(), reference);
-    }
-
-    private static <T> Class<RcuReference<T>> getType(final RcuReference<T> rcuReference) {
-        return (Class<RcuReference<T>>) rcuReference.getClass();
-    }
-
-    private IsolatedRcuMonitoredReference(final IsolatedRcuController controller, final RcuReference<T> rcuReference, final ObjectCloner<T> referenceCloner, final IsolatedThreadIndex isolatedThreadIndex) {
-        this.controller = controller;
-        this.unprotectedRcuReference = rcuReference;
-        this.writeRcuReference = rcuReference;
-        this.referenceCloner = referenceCloner;
-        this.readRcuReference = new IsolatedThreadStorage<>(isolatedThreadIndex, getType(rcuReference));
     }
 
     IsolatedRcuMonitoredReference(final IsolatedRcuController controller, final T reference, final ObjectCloner<T> referenceCloner, final IsolatedThreadIndex isolatedThreadIndex) {

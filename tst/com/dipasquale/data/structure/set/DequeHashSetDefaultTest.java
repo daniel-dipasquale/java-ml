@@ -1,6 +1,5 @@
 package com.dipasquale.data.structure.set;
 
-import com.dipasquale.data.structure.collection.CollectionAsserter;
 import com.dipasquale.data.structure.collection.ListSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -117,16 +116,5 @@ public final class DequeHashSetDefaultTest { // TODO: redo these test cases
         Assertions.assertTrue(TEST.remove("item-2"));
         Assertions.assertTrue(TEST.add("item-2"));
         Assertions.assertEquals(List.of("item-2", "item-3", "item-1"), ListSupport.copyOf(TEST.descendingIterator()));
-    }
-
-    @Test
-    public void TEST_12() {
-        CollectionAsserter<String> collectionAsserter = new CollectionAsserter<>(TEST, index -> String.format("item-%d", index), String.class, Assertions::assertEquals);
-
-        collectionAsserter.assertToArray();
-        collectionAsserter.assertContainsAll();
-        collectionAsserter.assertAddAll();
-        collectionAsserter.assertRetainAll();
-        collectionAsserter.assertRemoveAll();
     }
 }

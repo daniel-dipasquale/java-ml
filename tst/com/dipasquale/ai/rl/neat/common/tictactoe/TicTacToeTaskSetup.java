@@ -2,36 +2,36 @@ package com.dipasquale.ai.rl.neat.common.tictactoe;
 
 import com.dipasquale.ai.common.NeuralNetworkEncoder;
 import com.dipasquale.ai.common.fitness.AverageFitnessControllerFactory;
-import com.dipasquale.ai.rl.neat.ActivationSupport;
-import com.dipasquale.ai.rl.neat.ConnectionGeneSupport;
+import com.dipasquale.ai.rl.neat.ActivationSettings;
+import com.dipasquale.ai.rl.neat.ConnectionGeneSettings;
 import com.dipasquale.ai.rl.neat.ContestedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
-import com.dipasquale.ai.rl.neat.CrossOverSupport;
+import com.dipasquale.ai.rl.neat.CrossOverSettings;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
 import com.dipasquale.ai.rl.neat.EnumValue;
-import com.dipasquale.ai.rl.neat.EvaluatorSettings;
 import com.dipasquale.ai.rl.neat.FloatNumber;
-import com.dipasquale.ai.rl.neat.GeneralSupport;
+import com.dipasquale.ai.rl.neat.GeneralSettings;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
 import com.dipasquale.ai.rl.neat.IntegerNumber;
-import com.dipasquale.ai.rl.neat.IsolatedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
-import com.dipasquale.ai.rl.neat.MetricsSupport;
-import com.dipasquale.ai.rl.neat.MutationSupport;
+import com.dipasquale.ai.rl.neat.MetricsSettings;
+import com.dipasquale.ai.rl.neat.MutationSettings;
 import com.dipasquale.ai.rl.neat.NeatEnvironment;
+import com.dipasquale.ai.rl.neat.NeatSettings;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicyController;
-import com.dipasquale.ai.rl.neat.NodeGeneSupport;
-import com.dipasquale.ai.rl.neat.ParallelismSupport;
-import com.dipasquale.ai.rl.neat.RandomSupport;
+import com.dipasquale.ai.rl.neat.NodeGeneSettings;
+import com.dipasquale.ai.rl.neat.ParallelismSettings;
 import com.dipasquale.ai.rl.neat.RandomType;
+import com.dipasquale.ai.rl.neat.RandomnessSettings;
 import com.dipasquale.ai.rl.neat.RecurrentStateType;
 import com.dipasquale.ai.rl.neat.RoundRobinDuelNeatEnvironment;
+import com.dipasquale.ai.rl.neat.SecludedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.Sequence;
-import com.dipasquale.ai.rl.neat.SpeciationSupport;
+import com.dipasquale.ai.rl.neat.SpeciationSettings;
 import com.dipasquale.ai.rl.neat.SupervisorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.common.TaskSetup;
 import com.dipasquale.ai.rl.neat.common.TwoPlayerWinRateTrainingAssessor;
@@ -114,13 +114,13 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     private static final TwoPlayerWinRateTrainingAssessor<Player> WIN_RATE_TRAINING_ASSESSOR = new TwoPlayerWinRateTrainingAssessor<>(GAME_SUPPORT, TRAINING_ASSESSOR_MATCHES, TRAINING_ASSESSOR_WIN_RATE);
     private static final MutationSettingsType MUTATION_SETTINGS_TYPE = MutationSettingsType.RECOMMENDED_MARKOV;
     private static final SpeciationSettingsType SPECIATION_SETTINGS_TYPE = SpeciationSettingsType.RECOMMENDED_MARKOV;
-    private static final EnvironmentSettingsType ENVIRONMENT_SETTINGS_TYPE = EnvironmentSettingsType.ISOLATED;
+    private static final EnvironmentSettingsType ENVIRONMENT_SETTINGS_TYPE = EnvironmentSettingsType.SECLUDED;
     private static final int MAXIMUM_GENERATIONS = 1_000;
     private static final int FITNESS_TEST_COUNT = 6;
     private final String name = "Tic-Tac-Toe";
 
     private final int populationSize = switch (ENVIRONMENT_SETTINGS_TYPE) {
-        case ISOLATED -> POPULATION_SETTINGS_TYPE.isolatedPopulationSize;
+        case SECLUDED -> POPULATION_SETTINGS_TYPE.isolatedPopulationSize;
 
         case DUEL -> POPULATION_SETTINGS_TYPE.duelPopulationSize;
     };
@@ -128,9 +128,9 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     private final boolean metricsEmissionEnabled;
 
     @Override
-    public EvaluatorSettings createSettings(final Set<String> genomeIds, final ParallelEventLoop eventLoop) {
-        return EvaluatorSettings.builder()
-                .general(GeneralSupport.builder()
+    public NeatSettings createSettings(final Set<Integer> genomeIds, final ParallelEventLoop eventLoop) {
+        return NeatSettings.builder()
+                .general(GeneralSettings.builder()
                         .populationSize(populationSize)
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(INPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
@@ -143,13 +143,13 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                         .fitnessFunction(ENVIRONMENT_SETTINGS_TYPE.factory.create(genomeIds))
                         .fitnessControllerFactory(AverageFitnessControllerFactory.getInstance())
                         .build())
-                .parallelism(ParallelismSupport.builder()
+                .parallelism(ParallelismSettings.builder()
                         .eventLoop(eventLoop)
                         .build())
-                .random(RandomSupport.builder()
+                .randomness(RandomnessSettings.builder()
                         .type(RandomType.UNIFORM)
                         .build())
-                .nodes(NodeGeneSupport.builder()
+                .nodeGenes(NodeGeneSettings.builder()
                         .inputBias(FloatNumber.literal(0f))
                         .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
                         .outputBias(FloatNumber.random(RandomType.UNIFORM, 2f))
@@ -157,7 +157,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                         .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 4f))
                         .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
                         .build())
-                .connections(ConnectionGeneSupport.builder()
+                .connectionGenes(ConnectionGeneSettings.builder()
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
                         .weightPerturber(FloatNumber.literal(2.5f))
                         .recurrentStateType(RecurrentStateType.DEFAULT)
@@ -165,21 +165,21 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                         .unrestrictedDirectionAllowanceRate(FloatNumber.literal(0f))
                         .multiCycleAllowanceRate(FloatNumber.literal(0f))
                         .build())
-                .activation(ActivationSupport.builder()
+                .activation(ActivationSettings.builder()
                         .outputTopologyDefinition(OUTPUT_TOPOLOGY_SETTINGS_TYPE.topologyDefinition)
                         .build())
-                .mutation(MutationSupport.builder()
+                .mutation(MutationSettings.builder()
                         .addNodeRate(MUTATION_SETTINGS_TYPE.addNodeRate)
                         .addConnectionRate(MUTATION_SETTINGS_TYPE.addConnectionRate)
                         .perturbWeightRate(FloatNumber.literal(0.75f))
                         .replaceWeightRate(FloatNumber.literal(0.5f))
                         .disableExpressedConnectionRate(MUTATION_SETTINGS_TYPE.disableExpressedConnectionRate)
                         .build())
-                .crossOver(CrossOverSupport.builder()
+                .crossOver(CrossOverSettings.builder()
                         .overrideExpressedConnectionRate(FloatNumber.literal(0.5f))
                         .useWeightFromRandomParentRate(FloatNumber.literal(0.6f))
                         .build())
-                .speciation(SpeciationSupport.builder()
+                .speciation(SpeciationSettings.builder()
                         .maximumSpecies(SPECIATION_SETTINGS_TYPE.maximumSpecies)
                         .weightDifferenceCoefficient(SPECIATION_SETTINGS_TYPE.weightDifferenceCoefficient)
                         .disjointCoefficient(FloatNumber.literal(1f))
@@ -194,7 +194,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                         .mateOnlyRate(FloatNumber.literal(0.2f))
                         .mutateOnlyRate(FloatNumber.literal(0.25f))
                         .build())
-                .metrics(MetricsSupport.builder()
+                .metrics(MetricsSettings.builder()
                         .types(metricsEmissionEnabled
                                 ? EnumSet.of(MetricCollectionType.ENABLED)
                                 : EnumSet.noneOf(MetricCollectionType.class))
@@ -331,7 +331,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
         ACTION_SCORE(ActionScoreFitnessObjective.createIsolatedEnvironment(GAME_SUPPORT),
                 ActionScoreFitnessObjective.createContestedEnvironment(GAME_SUPPORT));
 
-        private final IsolatedNeatEnvironment isolated;
+        private final SecludedNeatEnvironment isolated;
         private final ContestedNeatEnvironment contested;
     }
 
@@ -360,12 +360,12 @@ public final class TicTacToeTaskSetup implements TaskSetup {
 
     @FunctionalInterface
     private interface NeatEnvironmentFactory {
-        NeatEnvironment create(Set<String> genomeIds);
+        NeatEnvironment create(Set<Integer> genomeIds);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum EnvironmentSettingsType {
-        ISOLATED(genomeIds -> (IsolatedNeatEnvironment) genomeActivator -> {
+        SECLUDED(genomeIds -> (SecludedNeatEnvironment) genomeActivator -> {
             genomeIds.add(genomeActivator.getGenome().getId());
 
             return FITNESS_FUNCTION_SETTINGS_TYPE.isolated.test(genomeActivator);

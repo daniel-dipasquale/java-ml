@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.common;
 
-import com.dipasquale.ai.rl.neat.EvaluatorOverrideSettings;
-import com.dipasquale.ai.rl.neat.EvaluatorSettings;
 import com.dipasquale.ai.rl.neat.Neat;
+import com.dipasquale.ai.rl.neat.NeatSettings;
+import com.dipasquale.ai.rl.neat.NeatSettingsOverride;
 import com.dipasquale.ai.rl.neat.NeatTrainer;
 import com.dipasquale.ai.rl.neat.NeatTrainingPolicy;
 import com.dipasquale.ai.rl.neat.NeatTrainingResult;
@@ -26,14 +26,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NeatTestSetup {
     @Getter
     private final TaskSetup task;
-    private final Set<String> genomeIds;
+    private final Set<Integer> genomeIds;
     private final ParallelEventLoop eventLoop;
     private final NeatTrainerFactory neatTrainerFactory;
     private final boolean shouldTestPersistence;
 
     @Builder(access = AccessLevel.PUBLIC)
     private static NeatTestSetup create(final TaskSetup task, final ParallelEventLoop eventLoop, final NeatTrainerFactory trainerFactory, final boolean shouldTestPersistence) {
-        Set<String> genomeIds = eventLoop == null
+        Set<Integer> genomeIds = eventLoop == null
                 ? new HashSet<>()
                 : Collections.newSetFromMap(new ConcurrentHashMap<>());
 
@@ -53,7 +53,7 @@ public class NeatTestSetup {
         }
     }
 
-    private static NeatTrainer createTrainer(final byte[] bytes, final EvaluatorOverrideSettings overrideSettings)
+    private static NeatTrainer createTrainer(final byte[] bytes, final NeatSettingsOverride overrideSettings)
             throws IOException {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
             return Neat.createTrainer(inputStream, overrideSettings);
@@ -81,9 +81,9 @@ public class NeatTestSetup {
         System.out.printf("iteration: %d%n", trainer.getState().getIteration());
         System.out.printf("generation: %d%n", trainer.getState().getGeneration());
         System.out.printf("species: %d%n", trainer.getState().getSpeciesCount());
-        System.out.printf("hidden nodes: %d%n", trainer.getState().getChampionGenome().getNodes().size(NodeGeneType.HIDDEN));
-        System.out.printf("expressed connections: %d%n", trainer.getState().getChampionGenome().getConnections().getExpressed().size());
-        System.out.printf("total connections: %d%n", trainer.getState().getChampionGenome().getConnections().getAll().size());
+        System.out.printf("hidden nodes: %d%n", trainer.getState().getChampionGenome().getNodeGenes().size(NodeGeneType.HIDDEN));
+        System.out.printf("expressed connections: %d%n", trainer.getState().getChampionGenome().getConnectionGenes().getExpressed().size());
+        System.out.printf("total connections: %d%n", trainer.getState().getChampionGenome().getConnectionGenes().getAll().size());
         System.out.printf("maximum fitness: %f%n", trainer.getState().getMaximumFitness());
         Assertions.assertTrue(success);
         Assertions.assertEquals(populationSize, trainerSetup.genomeIds.size());
@@ -95,7 +95,7 @@ public class NeatTestSetup {
 
             Assertions.assertTrue(bytes.length > 30_000); // TODO: work on adding an upper bound check, though remember that it will be higher if metrics are enabled
 
-            EvaluatorOverrideSettings overrideSettings = EvaluatorOverrideSettings.builder()
+            NeatSettingsOverride overrideSettings = NeatSettingsOverride.builder()
                     .fitnessFunction(null)
                     .eventLoop(null)
                     .build();
@@ -139,10 +139,10 @@ public class NeatTestSetup {
     @Builder(access = AccessLevel.PRIVATE)
     private static final class NeatTrainerSetup {
         private final String name;
-        private final Set<String> genomeIds;
+        private final Set<Integer> genomeIds;
         private final NeatTrainerFactory neatTrainerFactory;
         private final ParallelEventLoop eventLoop;
-        private final EvaluatorSettings settings;
+        private final NeatSettings settings;
         private final NeatTrainingPolicy trainingPolicy;
     }
 }

@@ -20,80 +20,80 @@ public final class FullyConnectedGenesisGenomeConnector implements GenesisGenome
     private final FloatFactory weightFactory;
     private final boolean shouldConnectBiasNodes;
 
-    private static Iterable<NodeGene> getNodes(final Genome genome, final NodeGeneType type) {
-        return () -> genome.getNodes().iterator(type);
+    private static Iterable<NodeGene> getNodeGenes(final Genome genome, final NodeGeneType type) {
+        return () -> genome.getNodeGenes().iterator(type);
     }
 
-    private static NodeLayer createNodeLayer(final int count, final Iterator<NodeGene> nodes) {
-        List<NodeGene> copiedNodes = new ArrayList<>();
+    private static NodeGeneLayer createNodeGeneLayer(final int count, final Iterator<NodeGene> nodeGenes) {
+        List<NodeGene> copiedNodeGenes = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
-            copiedNodes.add(nodes.next());
+            copiedNodeGenes.add(nodeGenes.next());
         }
 
-        return new NodeLayer(copiedNodes);
+        return new NodeGeneLayer(copiedNodeGenes);
     }
 
-    private List<NodeLayer> createNodeLayers(final Genome genome) {
-        List<NodeLayer> nodeLayers = new ArrayList<>();
-        Iterable<NodeGene> inputNodes = getNodes(genome, NodeGeneType.INPUT);
+    private List<NodeGeneLayer> createNodeLayers(final Genome genome) {
+        List<NodeGeneLayer> nodeGeneLayers = new ArrayList<>();
+        Iterable<NodeGene> inputNodeGenes = getNodeGenes(genome, NodeGeneType.INPUT);
 
-        nodeLayers.add(new NodeLayer(inputNodes));
+        nodeGeneLayers.add(new NodeGeneLayer(inputNodeGenes));
 
         if (!hiddenLayers.isEmpty()) {
-            Iterator<NodeGene> hiddenNodes = getNodes(genome, NodeGeneType.HIDDEN).iterator();
+            Iterator<NodeGene> hiddenNodeGenes = getNodeGenes(genome, NodeGeneType.HIDDEN).iterator();
 
-            for (int nodeCount : hiddenLayers) {
-                nodeLayers.add(createNodeLayer(nodeCount, hiddenNodes));
+            for (int nodeGeneCount : hiddenLayers) {
+                nodeGeneLayers.add(createNodeGeneLayer(nodeGeneCount, hiddenNodeGenes));
             }
         }
 
-        Iterable<NodeGene> outputNodes = getNodes(genome, NodeGeneType.OUTPUT);
+        Iterable<NodeGene> outputNodeGenes = getNodeGenes(genome, NodeGeneType.OUTPUT);
 
-        nodeLayers.add(new NodeLayer(outputNodes));
+        nodeGeneLayers.add(new NodeGeneLayer(outputNodeGenes));
 
-        return nodeLayers;
+        return nodeGeneLayers;
     }
 
-    private static ConnectionGene createConnection(final Context.ConnectionGeneSupport connectionGeneSupport, final NodeGene inputNode, final NodeGene outputNode, final float weight) {
-        InnovationId innovationId = connectionGeneSupport.provideInnovationId(inputNode, outputNode);
+    private static ConnectionGene createConnectionGene(final Context.ConnectionGeneSupport connectionGeneSupport, final NodeGene inputNodeGene, final NodeGene outputNodeGene, final float weight) {
+        InnovationId innovationId = connectionGeneSupport.provideInnovationId(inputNodeGene, outputNodeGene);
 
         return new ConnectionGene(innovationId, weight, connectionGeneSupport.generateRecurrentWeights());
     }
 
     @Override
     public void setupConnections(final Genome genome, final Context.ConnectionGeneSupport connectionGeneSupport) {
-        ConnectionGeneGroup connections = genome.getConnections();
-        List<NodeLayer> nodeLayers = createNodeLayers(genome);
+        ConnectionGeneGroup connectionGenes = genome.getConnectionGenes();
+        List<NodeGeneLayer> nodeGeneLayers = createNodeLayers(genome);
 
-        for (int i = 1, c = nodeLayers.size(); i < c; i++) {
-            NodeLayer inputLayer = nodeLayers.get(i - 1);
-            NodeLayer outputLayer = nodeLayers.get(i);
+        for (int i = 1, c = nodeGeneLayers.size(); i < c; i++) {
+            NodeGeneLayer inputLayer = nodeGeneLayers.get(i - 1);
+            NodeGeneLayer outputLayer = nodeGeneLayers.get(i);
 
-            for (NodeGene inputNode : inputLayer.nodes) {
-                for (NodeGene outputNode : outputLayer.nodes) {
-                    ConnectionGene connection = createConnection(connectionGeneSupport, inputNode, outputNode, weightFactory.create());
+            for (NodeGene inputNodeGene : inputLayer.nodeGenes) {
+                for (NodeGene outputNodeGene : outputLayer.nodeGenes) {
+                    ConnectionGene connectionGene = createConnectionGene(connectionGeneSupport, inputNodeGene, outputNodeGene, weightFactory.create());
 
-                    connections.put(connection);
+                    connectionGenes.put(connectionGene);
                 }
             }
         }
 
         if (shouldConnectBiasNodes) {
-            NodeLayer outputLayer = nodeLayers.get(1);
+            NodeGeneLayer outputLayer = nodeGeneLayers.get(1);
 
-            for (NodeGene biasNode : getNodes(genome, NodeGeneType.BIAS)) {
-                for (NodeGene outputNode : outputLayer.nodes) {
-                    ConnectionGene connection = createConnection(connectionGeneSupport, biasNode, outputNode, BIAS_WEIGHT);
+            for (NodeGene biasNodeGene : getNodeGenes(genome, NodeGeneType.BIAS)) {
+                for (NodeGene outputNodeGene : outputLayer.nodeGenes) {
+                    ConnectionGene connectionGene = createConnectionGene(connectionGeneSupport, biasNodeGene, outputNodeGene, BIAS_WEIGHT);
 
-                    connections.put(connection);
+                    connectionGenes.put(connectionGene);
                 }
             }
         }
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class NodeLayer {
-        private final Iterable<NodeGene> nodes;
+    private static final class NodeGeneLayer {
+        private final Iterable<NodeGene> nodeGenes;
     }
 }

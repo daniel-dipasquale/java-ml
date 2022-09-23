@@ -1,8 +1,8 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.rl.neat.internal.Id;
+import com.dipasquale.ai.rl.neat.Id;
 import com.dipasquale.common.Pair;
-import com.dipasquale.data.structure.group.ItemKeyAccessor;
+import com.dipasquale.data.structure.group.ElementKeyAccessor;
 import com.dipasquale.data.structure.group.ListSetGroup;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -26,11 +26,11 @@ public final class ConnectionGeneGroup implements Serializable {
     private final All all = new All();
     private final Expressed expressed = new Expressed();
 
-    boolean put(final ConnectionGene connection) {
-        all.connections.put(connection);
+    boolean put(final ConnectionGene connectionGene) {
+        all.connectionGenes.put(connectionGene);
 
-        if (connection.isExpressed()) {
-            expressed.add(connection);
+        if (connectionGene.isExpressed()) {
+            expressed.add(connectionGene);
 
             return true;
         }
@@ -38,8 +38,8 @@ public final class ConnectionGeneGroup implements Serializable {
         return false;
     }
 
-    private static ListSetGroup<InnovationId, ConnectionGene> createConnections() {
-        return new ListSetGroup<>((ItemKeyAccessor<InnovationId, ConnectionGene> & Serializable) ConnectionGene::getInnovationId);
+    private static ListSetGroup<InnovationId, ConnectionGene> createConnectionGenes() {
+        return new ListSetGroup<>((ElementKeyAccessor<InnovationId, ConnectionGene> & Serializable) ConnectionGene::getInnovationId);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -47,27 +47,27 @@ public final class ConnectionGeneGroup implements Serializable {
     public static final class All implements Iterable<ConnectionGene>, Serializable {
         @Serial
         private static final long serialVersionUID = -2991129194086625584L;
-        private final ListSetGroup<InnovationId, ConnectionGene> connections = createConnections();
+        private final ListSetGroup<InnovationId, ConnectionGene> connectionGenes = createConnectionGenes();
 
         public int size() {
-            return connections.size();
+            return connectionGenes.size();
         }
 
         public ConnectionGene getById(final InnovationId innovationId) {
-            return connections.getById(innovationId);
+            return connectionGenes.getById(innovationId);
         }
 
         public ConnectionGene getLast() {
-            return connections.getLast();
+            return connectionGenes.getLast();
         }
 
         @Override
         public Iterator<ConnectionGene> iterator() {
-            return connections.iterator();
+            return connectionGenes.iterator();
         }
 
         public Iterator<Pair<ConnectionGene>> fullJoin(final ConnectionGeneGroup other) {
-            return connections.fullJoin(other.all.connections);
+            return connectionGenes.fullJoin(other.all.connectionGenes);
         }
     }
 
@@ -75,20 +75,20 @@ public final class ConnectionGeneGroup implements Serializable {
     public static final class Expressed implements Serializable {
         @Serial
         private static final long serialVersionUID = -9128761857546984189L;
-        private final ListSetGroup<InnovationId, ConnectionGene> connections = createConnections();
-        private final Map<Id, Map<DirectedEdge, ConnectionGene>> incomingToNodeId = new HashMap<>();
-        private final Map<Id, Map<DirectedEdge, ConnectionGene>> outgoingFromNodeId = new HashMap<>();
+        private final ListSetGroup<InnovationId, ConnectionGene> connectionGenes = createConnectionGenes();
+        private final Map<Id, Map<DirectedEdge, ConnectionGene>> incomingToNodeGeneId = new HashMap<>();
+        private final Map<Id, Map<DirectedEdge, ConnectionGene>> outgoingFromNodeGeneId = new HashMap<>();
 
         public int size() {
-            return connections.size();
+            return connectionGenes.size();
         }
 
         public boolean isEmpty() {
-            return connections.isEmpty();
+            return connectionGenes.isEmpty();
         }
 
         public ConnectionGene getByIndex(final int index) {
-            return connections.getByIndex(index);
+            return connectionGenes.getByIndex(index);
         }
 
         private static <TKey, TValue> Map<TKey, TValue> ensureNotNull(final Map<TKey, TValue> map) {
@@ -99,80 +99,80 @@ public final class ConnectionGeneGroup implements Serializable {
             return Map.of();
         }
 
-        public Map<DirectedEdge, ConnectionGene> getIncomingToNodeId(final Id nodeId) {
-            return ensureNotNull(incomingToNodeId.get(nodeId));
+        public Map<DirectedEdge, ConnectionGene> getIncomingToNodeGeneId(final Id nodeGeneId) {
+            return ensureNotNull(incomingToNodeGeneId.get(nodeGeneId));
         }
 
-        public Map<DirectedEdge, ConnectionGene> getIncomingToNode(final NodeGene node) {
-            return getIncomingToNodeId(node.getId());
+        public Map<DirectedEdge, ConnectionGene> getIncomingToNodeGene(final NodeGene nodeGene) {
+            return getIncomingToNodeGeneId(nodeGene.getId());
         }
 
-        public Map<DirectedEdge, ConnectionGene> getOutgoingFromNodeId(final Id nodeId) {
-            return ensureNotNull(outgoingFromNodeId.get(nodeId));
+        public Map<DirectedEdge, ConnectionGene> getOutgoingFromNodeGeneId(final Id nodeGeneId) {
+            return ensureNotNull(outgoingFromNodeGeneId.get(nodeGeneId));
         }
 
-        public Map<DirectedEdge, ConnectionGene> getOutgoingFromNode(final NodeGene node) {
-            return getOutgoingFromNodeId(node.getId());
+        public Map<DirectedEdge, ConnectionGene> getOutgoingFromNodeGene(final NodeGene nodeGene) {
+            return getOutgoingFromNodeGeneId(nodeGene.getId());
         }
 
-        private static Map<DirectedEdge, ConnectionGene> removeIfEmpty(final Map<DirectedEdge, ConnectionGene> connections, final DirectedEdge directedEdge) {
-            connections.remove(directedEdge);
+        private static Map<DirectedEdge, ConnectionGene> removeIfEmpty(final Map<DirectedEdge, ConnectionGene> connectionGenes, final DirectedEdge directedEdge) {
+            connectionGenes.remove(directedEdge);
 
-            if (connections.isEmpty()) {
+            if (connectionGenes.isEmpty()) {
                 return null;
             }
 
-            return connections;
+            return connectionGenes;
         }
 
-        private void add(final ConnectionGene connection) {
-            Id targetNodeId = connection.getInnovationId().getTargetNodeId();
-            Id sourceNodeId = connection.getInnovationId().getSourceNodeId();
-            DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
+        private void add(final ConnectionGene connectionGene) {
+            Id targetNodeId = connectionGene.getInnovationId().getTargetNodeGeneId();
+            Id sourceNodeId = connectionGene.getInnovationId().getSourceNodeGeneId();
+            DirectedEdge directedEdge = connectionGene.getInnovationId().getDirectedEdge();
 
-            connections.put(connection);
-            incomingToNodeId.computeIfAbsent(targetNodeId, __ -> new LinkedHashMap<>()).put(directedEdge, connection);
-            outgoingFromNodeId.computeIfAbsent(sourceNodeId, __ -> new LinkedHashMap<>()).put(directedEdge, connection);
+            connectionGenes.put(connectionGene);
+            incomingToNodeGeneId.computeIfAbsent(targetNodeId, __ -> new LinkedHashMap<>()).put(directedEdge, connectionGene);
+            outgoingFromNodeGeneId.computeIfAbsent(sourceNodeId, __ -> new LinkedHashMap<>()).put(directedEdge, connectionGene);
         }
 
-        private void remove(final ConnectionGene connection) {
-            Id targetNodeId = connection.getInnovationId().getTargetNodeId();
-            Id sourceNodeId = connection.getInnovationId().getSourceNodeId();
-            DirectedEdge directedEdge = connection.getInnovationId().getDirectedEdge();
+        private void remove(final ConnectionGene connectionGene) {
+            Id targetNodeGeneId = connectionGene.getInnovationId().getTargetNodeGeneId();
+            Id sourceNodeGeneId = connectionGene.getInnovationId().getSourceNodeGeneId();
+            DirectedEdge directedEdge = connectionGene.getInnovationId().getDirectedEdge();
 
-            connections.removeByKey(connection.getInnovationId());
-            incomingToNodeId.computeIfPresent(targetNodeId, (__, connections) -> removeIfEmpty(connections, directedEdge));
-            outgoingFromNodeId.computeIfPresent(sourceNodeId, (__, connections) -> removeIfEmpty(connections, directedEdge));
+            connectionGenes.removeByKey(connectionGene.getInnovationId());
+            incomingToNodeGeneId.computeIfPresent(targetNodeGeneId, (__, connectionGenes) -> removeIfEmpty(connectionGenes, directedEdge));
+            outgoingFromNodeGeneId.computeIfPresent(sourceNodeGeneId, (__, connectionGenes) -> removeIfEmpty(connectionGenes, directedEdge));
         }
 
-        boolean addCyclesAllowed(final ConnectionGene connection, final int delta) {
-            boolean previouslyExpressed = connection.isExpressed();
+        boolean addCyclesAllowed(final ConnectionGene connectionGene, final int delta) {
+            boolean previouslyExpressed = connectionGene.isExpressed();
 
-            connection.addCyclesAllowed(delta);
+            connectionGene.addCyclesAllowed(delta);
 
-            if (previouslyExpressed && !connection.isExpressed()) {
-                remove(connection);
-            } else if (!previouslyExpressed && connection.isExpressed()) {
-                add(connection);
+            if (previouslyExpressed && !connectionGene.isExpressed()) {
+                remove(connectionGene);
+            } else if (!previouslyExpressed && connectionGene.isExpressed()) {
+                add(connectionGene);
             }
 
-            return connection.isExpressed();
+            return connectionGene.isExpressed();
         }
 
         ConnectionGene addCyclesAllowed(final int index, final int delta) {
-            ConnectionGene connection = getByIndex(index);
+            ConnectionGene connectionGene = getByIndex(index);
 
-            addCyclesAllowed(connection, delta);
+            addCyclesAllowed(connectionGene, delta);
 
-            return connection;
+            return connectionGene;
         }
 
         ConnectionGene disableByIndex(final int index) {
-            ConnectionGene connection = getByIndex(index);
+            ConnectionGene connectionGene = getByIndex(index);
 
-            addCyclesAllowed(connection, -connection.getCyclesAllowed());
+            addCyclesAllowed(connectionGene, -connectionGene.getCyclesAllowed());
 
-            return connection;
+            return connectionGene;
         }
     }
 }

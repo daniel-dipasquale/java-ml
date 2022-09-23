@@ -1,8 +1,8 @@
 package com.dipasquale.ai.common.fitness;
 
-import com.dipasquale.metric.LazyValuesMetricDatumFactory;
 import com.dipasquale.metric.MetricDatum;
 import com.dipasquale.metric.MetricDatumFactory;
+import com.dipasquale.metric.StandardMetricDatumFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -13,7 +13,7 @@ import java.io.Serializable;
 final class PercentileFitnessController implements FitnessController, Serializable {
     @Serial
     private static final long serialVersionUID = -5316290173390134390L;
-    private static final MetricDatumFactory METRIC_DATUM_FACTORY = LazyValuesMetricDatumFactory.getInstance();
+    private static final MetricDatumFactory METRIC_DATUM_FACTORY = StandardMetricDatumFactory.getInstance();
     private final MetricDatum metricDatum = METRIC_DATUM_FACTORY.create();
     private final float percentage;
 

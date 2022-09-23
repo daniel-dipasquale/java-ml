@@ -38,7 +38,8 @@ public interface MetricDatum {
             return null;
         }
 
-        int index = Math.min((int) (percentage * values.size()), values.size() - 1);
+        int size = values.size();
+        int index = Math.min((int) (percentage * size), size - 1);
 
         return values.get(index);
     }
