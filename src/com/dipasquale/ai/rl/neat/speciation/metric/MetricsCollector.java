@@ -5,7 +5,7 @@ import com.dipasquale.ai.rl.neat.speciation.Species;
 import java.util.Map;
 
 public interface MetricsCollector {
-    void collectAllSpeciesCompositions(MetricsContainer metricsContainer, Iterable<Species> allSpecies, int stagnationDropOffAge);
+    void collectAllSpeciesCompositions(MetricsContainer metricsContainer, Iterable<Species> allSpecies);
 
     void collectOrganismFitness(MetricsContainer metricsContainer, String speciesId, float fitness);
 

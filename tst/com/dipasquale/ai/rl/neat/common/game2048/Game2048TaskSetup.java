@@ -8,10 +8,10 @@ import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
 import com.dipasquale.ai.rl.neat.EnumValue;
 import com.dipasquale.ai.rl.neat.FloatNumber;
-import com.dipasquale.ai.rl.neat.GeneralSettings;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
+import com.dipasquale.ai.rl.neat.IntegerNumber;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.MetricsSettings;
@@ -25,6 +25,7 @@ import com.dipasquale.ai.rl.neat.RandomType;
 import com.dipasquale.ai.rl.neat.RecurrentStateType;
 import com.dipasquale.ai.rl.neat.SecludedNeatEnvironment;
 import com.dipasquale.ai.rl.neat.Sequence;
+import com.dipasquale.ai.rl.neat.SpeciationSettings;
 import com.dipasquale.ai.rl.neat.SupervisorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.common.TaskSetup;
 import com.dipasquale.ai.rl.neat.common.TwoPlayerWinRateTrainingAssessor;
@@ -111,7 +112,7 @@ public final class Game2048TaskSetup implements TaskSetup {
     private static final TwoPlayerWinRateTrainingAssessor<Player> WIN_RATE_TRAINING_ASSESSOR = new TwoPlayerWinRateTrainingAssessor<>(GAME_SUPPORT.createAsTwo(), VALIDATION_MATCHES, VALIDATION_WIN_RATE);
     private static final EnvironmentSettingsType ENVIRONMENT_SETTINGS_TYPE = EnvironmentSettingsType.AVERAGE_VALUED_TILE;
     private static final MutationSettingsType MUTATION_SETTINGS_TYPE = MutationSettingsType.RECOMMENDED_MARKOV;
-    private static final int FITNESS_TEST_COUNT = 3;
+    private static final int FITNESS_EVALUATION_COUNT = 3;
     private final String name = "Game 2048";
     private final int populationSize = POPULATION_SETTINGS_TYPE.populationSize;
     private final boolean metricsEmissionEnabled;
@@ -119,8 +120,10 @@ public final class Game2048TaskSetup implements TaskSetup {
     @Override
     public NeatSettings createSettings(final Set<Integer> genomeIds, final ParallelEventLoop eventLoop) {
         return NeatSettings.builder()
-                .general(GeneralSettings.builder()
-                        .populationSize(populationSize)
+                .parallelism(ParallelismSettings.builder()
+                        .eventLoop(eventLoop)
+                        .build())
+                .activation(ActivationSettings.builder()
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(INPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
                                 .outputs(OUTPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
@@ -134,35 +137,33 @@ public final class Game2048TaskSetup implements TaskSetup {
                             return ENVIRONMENT_SETTINGS_TYPE.reference.test(genomeActivator);
                         })
                         .fitnessControllerFactory(AverageFitnessControllerFactory.getInstance())
-                        .build())
-                .parallelism(ParallelismSettings.builder()
-                        .eventLoop(eventLoop)
+                        .outputTopologyDefinition(OUTPUT_TOPOLOGY_SETTINGS_TYPE.topologyDefinition)
                         .build())
                 .nodeGenes(NodeGeneSettings.builder()
-                        .inputBias(FloatNumber.literal(0f))
-                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .inputBias(FloatNumber.constant(0f))
+                        .inputActivationFunction(EnumValue.constant(ActivationFunctionType.IDENTITY))
                         .outputBias(FloatNumber.random(RandomType.UNIFORM, 2f))
                         .outputActivationFunction(OUTPUT_TOPOLOGY_SETTINGS_TYPE.activationFunction)
                         .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 4f))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .hiddenActivationFunction(EnumValue.constant(ActivationFunctionType.TAN_H))
                         .build())
                 .connectionGenes(ConnectionGeneSettings.builder()
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
-                        .weightPerturber(FloatNumber.literal(2.5f))
+                        .weightPerturber(FloatNumber.constant(2.5f))
                         .recurrentStateType(RecurrentStateType.DEFAULT)
-                        .recurrentAllowanceRate(FloatNumber.literal(0f))
-                        .unrestrictedDirectionAllowanceRate(FloatNumber.literal(0f))
-                        .multiCycleAllowanceRate(FloatNumber.literal(0f))
-                        .build())
-                .activation(ActivationSettings.builder()
-                        .outputTopologyDefinition(OUTPUT_TOPOLOGY_SETTINGS_TYPE.topologyDefinition)
+                        .recurrentAllowanceRate(0f)
+                        .unrestrictedDirectionAllowanceRate(0f)
+                        .multiCycleAllowanceRate(0f)
                         .build())
                 .mutation(MutationSettings.builder()
                         .addNodeRate(MUTATION_SETTINGS_TYPE.addNodeRate)
                         .addConnectionRate(MUTATION_SETTINGS_TYPE.addConnectionRate)
-                        .perturbWeightRate(FloatNumber.literal(0.75f))
-                        .replaceWeightRate(FloatNumber.literal(0.5f))
+                        .perturbWeightRate(FloatNumber.constant(0.75f))
+                        .replaceWeightRate(FloatNumber.constant(0.5f))
                         .disableExpressedConnectionRate(MUTATION_SETTINGS_TYPE.disableExpressedConnectionRate)
+                        .build())
+                .speciation(SpeciationSettings.builder()
+                        .populationSize(IntegerNumber.constant(populationSize))
                         .build())
                 .metrics(MetricsSettings.builder()
                         .types(metricsEmissionEnabled
@@ -182,7 +183,7 @@ public final class Game2048TaskSetup implements TaskSetup {
                 .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
                 .add(new DelegatedTrainingPolicy(WIN_RATE_TRAINING_ASSESSOR))
                 .add(ContinuousTrainingPolicy.builder()
-                        .fitnessTestCount(FITNESS_TEST_COUNT)
+                        .fitnessEvaluationCount(FITNESS_EVALUATION_COUNT)
                         .build())
                 .build();
     }
@@ -226,7 +227,7 @@ public final class Game2048TaskSetup implements TaskSetup {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum OutputTopologySettingsType {
         VANILLA_NO_VALUE(4,
-                EnumValue.literal(OutputActivationFunctionType.SIGMOID),
+                EnumValue.constant(OutputActivationFunctionType.SIGMOID),
                 IdentityNeuronLayerTopologyDefinition.getInstance(),
                 AlphaZeroNeuralNetworkDecoder.<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>>builder()
                         .perspectiveParticipantId(1)
@@ -245,7 +246,7 @@ public final class Game2048TaskSetup implements TaskSetup {
                         .valueIndex(0)
                         .build()),
         DOUBLE_NO_VALUE(8,
-                EnumValue.literal(OutputActivationFunctionType.SIGMOID),
+                EnumValue.constant(OutputActivationFunctionType.SIGMOID),
                 DoubleSolutionNeuronLayerTopologyDefinition.getInstance(),
                 AlphaZeroNeuralNetworkDecoder.<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>>builder()
                         .perspectiveParticipantId(1)
@@ -301,8 +302,8 @@ public final class Game2048TaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum MutationSettingsType {
-        RECOMMENDED_MARKOV(FloatNumber.literal(0.03f), FloatNumber.literal(0.06f), FloatNumber.literal(0.015f)),
-        DOUBLE_MARKOV(FloatNumber.literal(0.06f), FloatNumber.literal(0.12f), FloatNumber.literal(0.03f));
+        RECOMMENDED_MARKOV(FloatNumber.constant(0.03f), FloatNumber.constant(0.06f), FloatNumber.constant(0.015f)),
+        DOUBLE_MARKOV(FloatNumber.constant(0.06f), FloatNumber.constant(0.12f), FloatNumber.constant(0.03f));
 
         private final FloatNumber addNodeRate;
         private final FloatNumber addConnectionRate;

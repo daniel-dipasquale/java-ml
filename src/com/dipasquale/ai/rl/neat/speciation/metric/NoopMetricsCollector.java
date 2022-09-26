@@ -21,7 +21,7 @@ public final class NoopMetricsCollector implements MetricsCollector, Serializabl
     }
 
     @Override
-    public void collectAllSpeciesCompositions(final MetricsContainer metricsContainer, final Iterable<Species> allSpecies, final int stagnationDropOffAge) {
+    public void collectAllSpeciesCompositions(final MetricsContainer metricsContainer, final Iterable<Species> allSpecies) {
     }
 
     @Override

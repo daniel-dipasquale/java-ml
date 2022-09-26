@@ -20,11 +20,11 @@ final class ConcurrentNeatTrainer implements NeatTrainer {
     private final ConcurrentNeatEvaluator evaluator;
     private final NeatTrainingPolicy trainingPolicy;
 
-    ConcurrentNeatTrainer(final ReadWriteLock lock, final Context context, final NeatTrainingPolicy trainingPolicy) {
+    ConcurrentNeatTrainer(final ReadWriteLock lock, final NeatContext context, final NeatTrainingPolicy trainingPolicy) {
         this(lock, new ConcurrentNeatEvaluator(lock, context), trainingPolicy.createClone());
     }
 
-    ConcurrentNeatTrainer(final Context context, final NeatTrainingPolicy trainingPolicy) {
+    ConcurrentNeatTrainer(final NeatContext context, final NeatTrainingPolicy trainingPolicy) {
         this(new ReentrantReadWriteLock(), context, trainingPolicy);
     }
 

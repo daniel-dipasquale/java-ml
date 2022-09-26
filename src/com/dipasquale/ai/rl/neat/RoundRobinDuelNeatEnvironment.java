@@ -74,7 +74,7 @@ public final class RoundRobinDuelNeatEnvironment implements CommunalNeatEnvironm
         }
     }
 
-    private List<Match> createMatches(final Context.RandomnessSupport randomnessSupport, final List<GenomeActivator> genomeActivators) {
+    private List<Match> createMatches(final NeatContext.RandomnessSupport randomnessSupport, final List<GenomeActivator> genomeActivators) {
         List<Match> matches = new ArrayList<>();
         int populationSize = genomeActivators.size();
         int defaultMatchCount = populationSize - 1;
@@ -110,17 +110,17 @@ public final class RoundRobinDuelNeatEnvironment implements CommunalNeatEnvironm
         }
     }
 
-    private void playMatches(final Context.ParallelismSupport parallelismSupport, final List<Match> matches, final CommunalGenomeActivator communalGenomeActivator, final int round) {
+    private void playMatches(final NeatContext.ParallelismSupport parallelismSupport, final List<Match> matches, final CommunalGenomeActivator communalGenomeActivator, final int round) {
         parallelismSupport.forEach(matches, match -> playMatch(communalGenomeActivator, match, round));
     }
 
     @Override
     public void test(final CommunalGenomeActivator communalGenomeActivator) {
-        Context context = communalGenomeActivator.getContext();
-        Context.RandomnessSupport randomnessSupport = context.randomness();
+        NeatContext context = communalGenomeActivator.getContext();
+        NeatContext.RandomnessSupport randomnessSupport = context.getRandomness();
         List<GenomeActivator> genomeActivators = communalGenomeActivator.getGenomeActivators();
         int possibleRounds = (int) (Math.log(genomeActivators.size()) / Math.log(2D));
-        Context.ParallelismSupport parallelismSupport = context.parallelism();
+        NeatContext.ParallelismSupport parallelismSupport = context.getParallelism();
         Comparator<GenomeActivator> mostFitComparator = new MostFitGenomeActivatorComparator(communalGenomeActivator);
 
         for (int i = 0, c = Math.min(possibleRounds, eliminationRounds + 1), limit = (int) Math.pow(2D, possibleRounds); i < c; ) {

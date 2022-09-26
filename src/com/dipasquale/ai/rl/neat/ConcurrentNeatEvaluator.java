@@ -19,33 +19,25 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 final class ConcurrentNeatEvaluator implements NeatEvaluator {
     private final ConcurrentNeatState state;
     private final ReadWriteLock lock;
-    private final Context context;
+    private final NeatContext context;
     private final Population population;
 
-    private ConcurrentNeatEvaluator(final ReadWriteLock lock, final Context context, final Population population) {
+    private ConcurrentNeatEvaluator(final ReadWriteLock lock, final NeatContext context, final Population population) {
         this.state = new ConcurrentNeatState();
         this.lock = lock;
         this.context = context;
         this.population = population;
     }
 
-    private static Population createPopulation(final Context context) {
-        Population population = new Population();
-
-        population.initialize(context);
-
-        return population;
+    ConcurrentNeatEvaluator(final ReadWriteLock lock, final NeatContext context) {
+        this(lock, context, Population.create(context));
     }
 
-    ConcurrentNeatEvaluator(final ReadWriteLock lock, final Context context) {
-        this(lock, context, createPopulation(context));
-    }
-
-    ConcurrentNeatEvaluator(final Context context) {
+    ConcurrentNeatEvaluator(final NeatContext context) {
         this(new ReentrantReadWriteLock(), context);
     }
 
-    private ConcurrentNeatEvaluator(final Context context, final Population population) {
+    private ConcurrentNeatEvaluator(final NeatContext context, final Population population) {
         this(new ReentrantReadWriteLock(), context, population);
     }
 
@@ -150,11 +142,11 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
     static ConcurrentNeatEvaluator create(final InputStream inputStream, final NeatLoadSettings loadSettings)
             throws IOException {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
-            Context context;
+            NeatContext context;
             Population population;
 
             try {
-                context = ContextObject.create(objectInputStream, loadSettings.createContext());
+                context = DefaultNeatContext.create(objectInputStream, loadSettings.createContext());
             } catch (IOException | ClassNotFoundException e) {
                 throw new IOException("unable to load the evaluator: failed at loading the context", e);
             }
@@ -250,7 +242,7 @@ final class ConcurrentNeatEvaluator implements NeatEvaluator {
             lock.lock();
 
             try {
-                return context.metrics().createMetricsViewer();
+                return context.getMetrics().createMetricsViewer();
             } finally {
                 lock.unlock();
             }

@@ -1,5 +1,6 @@
 package com.dipasquale.data.structure.collection;
 
+import com.dipasquale.common.factory.ObjectIndexProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -162,6 +163,87 @@ public final class IterableArrayTest {
 
         Assertions.assertEquals(ListSupport.<String>builder()
                 .add("1.1")
+                .build(), ListSupport.copyOf(test));
+    }
+
+    @Test
+    public void TEST_11() {
+        IterableArray<String> test = new IterableArray<>(3);
+
+        test.put(0, "0.1");
+        test.put(1, "1.1");
+        test.put(2, "2.1");
+        Assertions.assertEquals(List.of(), test.resize(3, null));
+        Assertions.assertEquals(3, test.size());
+        Assertions.assertEquals(3, test.capacity());
+
+        Assertions.assertEquals(ListSupport.<String>builder()
+                .add("0.1")
+                .add("1.1")
+                .add("2.1")
+                .build(), ListSupport.copyOf(test));
+    }
+
+    @Test
+    public void TEST_12() {
+        IterableArray<String> test = new IterableArray<>(3);
+
+        test.put(0, "0.1");
+        test.put(1, "1.1");
+        test.put(2, "2.1");
+
+        Assertions.assertEquals(ListSupport.<String>builder()
+                .add("0.1")
+                .add("1.1")
+                .build(), test.resize(1, null));
+
+        Assertions.assertEquals(1, test.size());
+        Assertions.assertEquals(1, test.capacity());
+
+        Assertions.assertEquals(ListSupport.<String>builder()
+                .add("0.1")
+                .build(), ListSupport.copyOf(test));
+    }
+
+    @Test
+    public void TEST_13() {
+        IterableArray<String> test = new IterableArray<>(3);
+
+        test.put(0, "0.1");
+        test.put(1, "1.1");
+        test.put(2, "2.1");
+        Assertions.assertEquals(List.of(), test.resize(5, null));
+        Assertions.assertEquals(3, test.size());
+        Assertions.assertEquals(5, test.capacity());
+
+        Assertions.assertEquals(ListSupport.<String>builder()
+                .add("0.1")
+                .add("1.1")
+                .add("2.1")
+                .build(), ListSupport.copyOf(test));
+    }
+
+    @Test
+    public void TEST_14() {
+        IterableArray<String> test = new IterableArray<>(3);
+
+        ObjectIndexProvider<String> resizeObjectProvider = index -> index % 2 == 0
+                ? String.format("%d.1", index)
+                : null;
+
+        test.put(0, "0.1");
+        test.put(1, "1.1");
+        test.put(2, "2.1");
+
+        Assertions.assertEquals(List.of(), test.resize(5, resizeObjectProvider));
+        Assertions.assertEquals(4, test.size());
+        Assertions.assertEquals(5, test.capacity());
+
+        Assertions.assertEquals(ListSupport.<String>builder()
+                .add("0.1")
+                .add("1.1")
+                .add("2.1")
+                .add("4.1")
                 .build(), ListSupport.copyOf(test));
     }
 }

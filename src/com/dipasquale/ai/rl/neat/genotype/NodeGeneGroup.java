@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.Id;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.common.Pair;
 import com.dipasquale.data.structure.group.ElementKeyAccessor;
 import com.dipasquale.data.structure.group.ListSetGroup;
@@ -55,11 +55,11 @@ public final class NodeGeneGroup implements Iterable<NodeGene>, Serializable {
         return nodeGenes.getById(id);
     }
 
-    public NodeGene getRandom(final Context.RandomnessSupport randomnessSupport) {
+    public NodeGene getRandom(final NeatContext.RandomnessSupport randomnessSupport) {
         return randomnessSupport.generateElement(nodeGenes);
     }
 
-    public NodeGene getRandom(final Context.RandomnessSupport randomnessSupport, final NodeGeneType type) {
+    public NodeGene getRandom(final NeatContext.RandomnessSupport randomnessSupport, final NodeGeneType type) {
         return randomnessSupport.generateElement(nodeGenesByType.get(type));
     }
 

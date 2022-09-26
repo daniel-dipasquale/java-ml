@@ -1,9 +1,11 @@
 package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.common.fitness.FitnessBucket;
+import com.dipasquale.ai.rl.neat.factory.FitnessBucketProvider;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.common.FloatValue;
 import com.dipasquale.data.structure.collection.IterableArray;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,17 +21,30 @@ import java.util.stream.Collectors;
 final class StandardCommunalNeatEnvironment implements Serializable {
     @Serial
     private static final long serialVersionUID = -6417656439061002573L;
-    @Setter
+    @Setter(AccessLevel.PRIVATE)
     private transient CommunalNeatEnvironment environment;
     @Getter
-    @Setter
+    @Setter(AccessLevel.PRIVATE)
     private transient Exception environmentLoadException;
     private final IterableArray<FitnessBucket> fitnessBuckets;
+    private final FitnessBucketProvider fitnessBucketProvider;
 
-    StandardCommunalNeatEnvironment(final CommunalNeatEnvironment environment, final IterableArray<FitnessBucket> fitnessBuckets) {
+    StandardCommunalNeatEnvironment(final CommunalNeatEnvironment environment, final FitnessBucketProvider fitnessBucketProvider) {
         this.environment = environment;
         this.environmentLoadException = null;
-        this.fitnessBuckets = fitnessBuckets;
+        this.fitnessBuckets = new IterableArray<>(0);
+        this.fitnessBucketProvider = fitnessBucketProvider;
+    }
+
+    public void override(final CommunalNeatEnvironment environment) {
+        setEnvironment(environment);
+        setEnvironmentLoadException(null);
+    }
+
+    public void expandIfInsufficient(final int populationSize) {
+        if (fitnessBuckets.capacity() < populationSize) {
+            fitnessBuckets.resize(populationSize, fitnessBucketProvider);
+        }
     }
 
     private float incorporateFitness(final GenomeActivator genomeActivator, final IterableArray<FloatValue> fitnessValues) {
@@ -40,10 +55,10 @@ final class StandardCommunalNeatEnvironment implements Serializable {
         return fitnessBucket.incorporate(genomeActivator, fitness);
     }
 
-    public List<Float> test(final Context context, final List<GenomeActivator> genomeActivators) {
+    public List<Float> test(final NeatContext context, final List<GenomeActivator> genomeActivators) {
         int size = genomeActivators.size();
         IterableArray<FloatValue> fitnessValues = new IterableArray<>(size);
-        Context.ParallelismSupport parallelismSupport = context.parallelism();
+        NeatContext.ParallelismSupport parallelismSupport = context.getParallelism();
 
         for (int genomeId = 0; genomeId < size; genomeId++) {
             fitnessValues.put(genomeId, parallelismSupport.createFloatValue(0f));

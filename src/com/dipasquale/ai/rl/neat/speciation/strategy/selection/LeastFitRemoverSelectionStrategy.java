@@ -1,39 +1,43 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 
-@RequiredArgsConstructor
-public final class LeastFitRemoverSelectionStrategy implements SelectionStrategy, Serializable {
-    @Serial
-    private static final long serialVersionUID = -8972350994440640462L;
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class LeastFitRemoverSelectionStrategy implements SelectionStrategy {
+    private static final LeastFitRemoverSelectionStrategy INSTANCE = new LeastFitRemoverSelectionStrategy();
 
-    private static void killOrganism(final Organism organism, final Context context) {
-        organism.kill(context.speciation());
-        organism.deregisterNodeGenes(context.nodeGenes());
+    public static LeastFitRemoverSelectionStrategy getInstance() {
+        return INSTANCE;
+    }
+
+    private static void killOrganism(final Organism organism, final NeatContext context) {
+        organism.kill(context.getSpeciation());
+        organism.deregisterNodeGenes(context.getNodeGenes());
     }
 
     @Override
     public void prepareSurvival(final SelectionContext context, final Species species) {
-        Context.SpeciationSupport speciationSupport = context.getParent().speciation();
+        NeatContext parentContext = context.getParent();
+        NeatContext.SpeciationSupport speciationSupport = parentContext.getSpeciation();
         List<Organism> organisms = species.removeUnfitToReproduce(speciationSupport);
 
-        organisms.forEach(organism -> killOrganism(organism, context.getParent()));
-        context.getParent().metrics().collectKilled(species, organisms);
+        organisms.forEach(organism -> killOrganism(organism, parentContext));
+        context.getParent().getMetrics().collectKilled(species, organisms);
     }
 
     @Override
     public void prepareExtinction(final SelectionContext context, final Species species) {
         List<Organism> organisms = species.getOrganisms();
+        NeatContext parentContext = context.getParent();
 
-        organisms.forEach(organism -> killOrganism(organism, context.getParent()));
-        context.getParent().metrics().collectKilled(species, organisms);
+        organisms.forEach(organism -> killOrganism(organism, parentContext));
+        parentContext.getMetrics().collectKilled(species, organisms);
     }
 
     @Override

@@ -29,9 +29,9 @@ public final class DefaultMetricsCollector implements MetricsCollector, Serializ
     }
 
     @Override
-    public void collectAllSpeciesCompositions(final MetricsContainer metricsContainer, final Iterable<Species> allSpecies, final int stagnationDropOffAge) {
+    public void collectAllSpeciesCompositions(final MetricsContainer metricsContainer, final Iterable<Species> allSpecies) {
         for (Species species : allSpecies) {
-            collectSpeciesComposition(metricsContainer, species.getAge(), species.getStagnationPeriod(), species.isStagnant(stagnationDropOffAge));
+            collectSpeciesComposition(metricsContainer, species.getAge(), species.getStagnationPeriod(), species.isStagnant());
 
             for (Organism organism : species.getOrganisms()) {
                 collectOrganismTopology(metricsContainer, species.getId(), organism.getHiddenNodeGenes(), organism.getConnectionGenes());

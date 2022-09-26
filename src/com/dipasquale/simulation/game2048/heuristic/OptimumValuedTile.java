@@ -39,9 +39,9 @@ final class OptimumValuedTile { // TODO: make these untranslated values
 
                     for (int i2 = 0, c2 = optimumMetricDatum.valuedTiles.size(); i2 < c2; ) {
                         int value1 = optimumMetricDatum.valuedTiles.get(i2);
-                        int i2Next = i2 + 1;
+                        int nextI2 = i2 + 1;
 
-                        if (i2Next < c2 && value1 == optimumMetricDatum.valuedTiles.get(i2Next)) {
+                        if (nextI2 < c2 && value1 == optimumMetricDatum.valuedTiles.get(nextI2)) {
                             newValuedTiles.add(value1 + 1);
                             i2 += 2;
                         } else {

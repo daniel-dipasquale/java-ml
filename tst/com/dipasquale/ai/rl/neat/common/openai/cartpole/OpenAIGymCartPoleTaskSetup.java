@@ -7,11 +7,10 @@ import com.dipasquale.ai.rl.neat.ConnectionGeneSettings;
 import com.dipasquale.ai.rl.neat.ContinuousTrainingPolicy;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
 import com.dipasquale.ai.rl.neat.EnumValue;
-import com.dipasquale.ai.rl.neat.FloatNumber;
-import com.dipasquale.ai.rl.neat.GeneralSettings;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
+import com.dipasquale.ai.rl.neat.IntegerNumber;
 import com.dipasquale.ai.rl.neat.MetricCollectionType;
 import com.dipasquale.ai.rl.neat.MetricCollectorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.MetricsSettings;
@@ -22,6 +21,7 @@ import com.dipasquale.ai.rl.neat.NeatTrainingPolicyController;
 import com.dipasquale.ai.rl.neat.NodeGeneSettings;
 import com.dipasquale.ai.rl.neat.ParallelismSettings;
 import com.dipasquale.ai.rl.neat.SecludedNeatEnvironment;
+import com.dipasquale.ai.rl.neat.SpeciationSettings;
 import com.dipasquale.ai.rl.neat.SupervisorTrainingPolicy;
 import com.dipasquale.ai.rl.neat.common.openai.OpenAIGymTaskSetup;
 import com.dipasquale.ai.rl.neat.function.activation.ActivationFunctionType;
@@ -50,7 +50,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     private static final TopologySettingsType TOPOLOGY_SETTINGS_TYPE = TopologySettingsType.DOUBLE_OUTPUT;
     private static final int VALIDATION_SCENARIO_COUNT = 2; // NOTE: the higher this number the more consistent the solution will be
     private static final double REWARD_GOAL = 195D;
-    private static final int FITNESS_TEST_COUNT = 5;
+    private static final int FITNESS_EVALUATION_COUNT = 5;
     private final String name = "CartPole-v0";
     private final GymClient gymClient;
     private final int populationSize = 150;
@@ -103,8 +103,10 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
     @Override
     public NeatSettings createSettings(final Set<Integer> genomeIds, final ParallelEventLoop eventLoop) {
         return NeatSettings.builder()
-                .general(GeneralSettings.builder()
-                        .populationSize(populationSize)
+                .parallelism(ParallelismSettings.builder()
+                        .eventLoop(eventLoop)
+                        .build())
+                .activation(ActivationSettings.builder()
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(4)
                                 .outputs(TOPOLOGY_SETTINGS_TYPE.nodeCount)
@@ -119,18 +121,16 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                             return calculateFitness(genomeActivator);
                         })
                         .fitnessControllerFactory(AverageFitnessControllerFactory.getInstance())
-                        .build())
-                .parallelism(ParallelismSettings.builder()
-                        .eventLoop(eventLoop)
+                        .outputTopologyDefinition(TOPOLOGY_SETTINGS_TYPE.outputTopologyDefinition)
                         .build())
                 .nodeGenes(NodeGeneSettings.builder()
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.RE_LU))
+                        .hiddenActivationFunction(EnumValue.constant(ActivationFunctionType.RE_LU))
                         .build())
                 .connectionGenes(ConnectionGeneSettings.builder()
-                        .recurrentAllowanceRate(FloatNumber.literal(0f))
+                        .recurrentAllowanceRate(0f)
                         .build())
-                .activation(ActivationSettings.builder()
-                        .outputTopologyDefinition(TOPOLOGY_SETTINGS_TYPE.outputTopologyDefinition)
+                .speciation(SpeciationSettings.builder()
+                        .populationSize(IntegerNumber.constant(populationSize))
                         .build())
                 .metrics(MetricsSettings.builder()
                         .types(metricsEmissionEnabled
@@ -150,7 +150,7 @@ public final class OpenAIGymCartPoleTaskSetup implements OpenAIGymTaskSetup {
                 .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
                 .add(new DelegatedTrainingPolicy(this::determineTrainingResult))
                 .add(ContinuousTrainingPolicy.builder()
-                        .fitnessTestCount(FITNESS_TEST_COUNT)
+                        .fitnessEvaluationCount(FITNESS_EVALUATION_COUNT)
                         .build())
                 .build();
     }

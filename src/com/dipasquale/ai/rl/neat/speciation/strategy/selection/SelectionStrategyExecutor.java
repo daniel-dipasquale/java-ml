@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.StandardNode;
@@ -17,27 +17,27 @@ public final class SelectionStrategyExecutor implements Serializable {
     private final Collection<SelectionStrategy> strategies;
 
     public void select(final SelectionContext context, final NodeDeque<Species, StandardNode<Species>> speciesNodes) {
-        Context.MetricsSupport metricsSupport = context.getParent().metrics();
+        NeatContext.MetricsSupport metricsSupport = context.getParent().getMetrics();
 
         for (StandardNode<Species> speciesNode = speciesNodes.peekFirst(); speciesNode != null; ) {
             Species species = speciesNodes.getValue(speciesNode);
-            boolean survives = species.shouldSurvive();
+            boolean shouldSurvive = species.shouldSurvive();
 
             for (SelectionStrategy strategy : strategies) {
-                if (survives) {
+                if (shouldSurvive) {
                     strategy.prepareSurvival(context, species);
                 } else {
                     strategy.prepareExtinction(context, species);
                 }
             }
 
-            metricsSupport.collectExtinction(species, !survives);
+            metricsSupport.collectExtinction(species, !shouldSurvive);
 
-            if (!survives) {
-                StandardNode<Species> speciesNodeNext = speciesNodes.peekNext(speciesNode);
+            if (!shouldSurvive) {
+                StandardNode<Species> nextSpeciesNode = speciesNodes.peekNext(speciesNode);
 
                 speciesNodes.remove(speciesNode);
-                speciesNode = speciesNodeNext;
+                speciesNode = nextSpeciesNode;
             } else {
                 speciesNode = speciesNodes.peekNext(speciesNode);
             }

@@ -12,9 +12,9 @@ public final class ContinuousTrainingPolicy implements NeatTrainingPolicy, Seria
     private final int fitnessEvaluationCycle;
 
     @Builder
-    public ContinuousTrainingPolicy(final int fitnessTestCount) {
+    public ContinuousTrainingPolicy(final int fitnessEvaluationCount) {
         this.cycle = 1;
-        this.fitnessEvaluationCycle = fitnessTestCount + 1;
+        this.fitnessEvaluationCycle = fitnessEvaluationCount + 1;
     }
 
     public ContinuousTrainingPolicy() {

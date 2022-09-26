@@ -10,7 +10,6 @@ import com.dipasquale.ai.rl.neat.CrossOverSettings;
 import com.dipasquale.ai.rl.neat.DelegatedTrainingPolicy;
 import com.dipasquale.ai.rl.neat.EnumValue;
 import com.dipasquale.ai.rl.neat.FloatNumber;
-import com.dipasquale.ai.rl.neat.GeneralSettings;
 import com.dipasquale.ai.rl.neat.GenesisGenomeTemplate;
 import com.dipasquale.ai.rl.neat.InitialConnectionType;
 import com.dipasquale.ai.rl.neat.InitialWeightType;
@@ -116,7 +115,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     private static final SpeciationSettingsType SPECIATION_SETTINGS_TYPE = SpeciationSettingsType.RECOMMENDED_MARKOV;
     private static final EnvironmentSettingsType ENVIRONMENT_SETTINGS_TYPE = EnvironmentSettingsType.SECLUDED;
     private static final int MAXIMUM_GENERATIONS = 1_000;
-    private static final int FITNESS_TEST_COUNT = 6;
+    private static final int FITNESS_EVALUATION_COUNT = 6;
     private final String name = "Tic-Tac-Toe";
 
     private final int populationSize = switch (ENVIRONMENT_SETTINGS_TYPE) {
@@ -130,8 +129,13 @@ public final class TicTacToeTaskSetup implements TaskSetup {
     @Override
     public NeatSettings createSettings(final Set<Integer> genomeIds, final ParallelEventLoop eventLoop) {
         return NeatSettings.builder()
-                .general(GeneralSettings.builder()
-                        .populationSize(populationSize)
+                .parallelism(ParallelismSettings.builder()
+                        .eventLoop(eventLoop)
+                        .build())
+                .randomness(RandomnessSettings.builder()
+                        .type(RandomType.UNIFORM)
+                        .build())
+                .activation(ActivationSettings.builder()
                         .genesisGenomeTemplate(GenesisGenomeTemplate.builder()
                                 .inputs(INPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
                                 .outputs(OUTPUT_TOPOLOGY_SETTINGS_TYPE.nodeCount)
@@ -142,57 +146,50 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                                 .build())
                         .fitnessFunction(ENVIRONMENT_SETTINGS_TYPE.factory.create(genomeIds))
                         .fitnessControllerFactory(AverageFitnessControllerFactory.getInstance())
-                        .build())
-                .parallelism(ParallelismSettings.builder()
-                        .eventLoop(eventLoop)
-                        .build())
-                .randomness(RandomnessSettings.builder()
-                        .type(RandomType.UNIFORM)
+                        .outputTopologyDefinition(OUTPUT_TOPOLOGY_SETTINGS_TYPE.topologyDefinition)
                         .build())
                 .nodeGenes(NodeGeneSettings.builder()
-                        .inputBias(FloatNumber.literal(0f))
-                        .inputActivationFunction(EnumValue.literal(ActivationFunctionType.IDENTITY))
+                        .inputBias(FloatNumber.constant(0f))
+                        .inputActivationFunction(EnumValue.constant(ActivationFunctionType.IDENTITY))
                         .outputBias(FloatNumber.random(RandomType.UNIFORM, 2f))
                         .outputActivationFunction(OUTPUT_TOPOLOGY_SETTINGS_TYPE.activationFunction)
                         .hiddenBias(FloatNumber.random(RandomType.UNIFORM, 4f))
-                        .hiddenActivationFunction(EnumValue.literal(ActivationFunctionType.TAN_H))
+                        .hiddenActivationFunction(EnumValue.constant(ActivationFunctionType.TAN_H))
                         .build())
                 .connectionGenes(ConnectionGeneSettings.builder()
                         .weightFactory(FloatNumber.random(RandomType.BELL_CURVE, 2f))
-                        .weightPerturber(FloatNumber.literal(2.5f))
+                        .weightPerturber(FloatNumber.constant(2.5f))
                         .recurrentStateType(RecurrentStateType.DEFAULT)
-                        .recurrentAllowanceRate(FloatNumber.literal(0f))
-                        .unrestrictedDirectionAllowanceRate(FloatNumber.literal(0f))
-                        .multiCycleAllowanceRate(FloatNumber.literal(0f))
-                        .build())
-                .activation(ActivationSettings.builder()
-                        .outputTopologyDefinition(OUTPUT_TOPOLOGY_SETTINGS_TYPE.topologyDefinition)
+                        .recurrentAllowanceRate(0f)
+                        .unrestrictedDirectionAllowanceRate(0f)
+                        .multiCycleAllowanceRate(0f)
                         .build())
                 .mutation(MutationSettings.builder()
                         .addNodeRate(MUTATION_SETTINGS_TYPE.addNodeRate)
                         .addConnectionRate(MUTATION_SETTINGS_TYPE.addConnectionRate)
-                        .perturbWeightRate(FloatNumber.literal(0.75f))
-                        .replaceWeightRate(FloatNumber.literal(0.5f))
+                        .perturbWeightRate(FloatNumber.constant(0.75f))
+                        .replaceWeightRate(FloatNumber.constant(0.5f))
                         .disableExpressedConnectionRate(MUTATION_SETTINGS_TYPE.disableExpressedConnectionRate)
                         .build())
                 .crossOver(CrossOverSettings.builder()
-                        .overrideExpressedConnectionRate(FloatNumber.literal(0.5f))
-                        .useWeightFromRandomParentRate(FloatNumber.literal(0.6f))
+                        .overrideExpressedConnectionRate(FloatNumber.constant(0.5f))
+                        .useWeightFromRandomParentRate(FloatNumber.constant(0.6f))
                         .build())
                 .speciation(SpeciationSettings.builder()
+                        .populationSize(IntegerNumber.constant(populationSize))
                         .maximumSpecies(SPECIATION_SETTINGS_TYPE.maximumSpecies)
                         .weightDifferenceCoefficient(SPECIATION_SETTINGS_TYPE.weightDifferenceCoefficient)
-                        .disjointCoefficient(FloatNumber.literal(1f))
-                        .excessCoefficient(FloatNumber.literal(1f))
-                        .compatibilityThreshold(FloatNumber.literal(3f))
-                        .compatibilityThresholdModifier(FloatNumber.literal(1f))
-                        .eugenicsThreshold(FloatNumber.literal(0.2f))
-                        .elitistThreshold(FloatNumber.literal(0.01f))
-                        .elitistThresholdMinimum(IntegerNumber.literal(2))
+                        .disjointCoefficient(FloatNumber.constant(1f))
+                        .excessCoefficient(FloatNumber.constant(1f))
+                        .compatibilityThreshold(FloatNumber.constant(3f))
+                        .compatibilityThresholdModifier(FloatNumber.constant(1f))
+                        .eugenicsThreshold(FloatNumber.constant(0.2f))
+                        .elitistThreshold(FloatNumber.constant(0.01f))
+                        .minimumElitistDesired(IntegerNumber.constant(2))
                         .stagnationDropOffAge(SPECIATION_SETTINGS_TYPE.stagnationDropOffAge)
                         .interSpeciesMatingRate(SPECIATION_SETTINGS_TYPE.interSpeciesMatingRate)
-                        .mateOnlyRate(FloatNumber.literal(0.2f))
-                        .mutateOnlyRate(FloatNumber.literal(0.25f))
+                        .mateOnlyRate(FloatNumber.constant(0.2f))
+                        .mutateOnlyRate(FloatNumber.constant(0.25f))
                         .build())
                 .metrics(MetricsSettings.builder()
                         .types(metricsEmissionEnabled
@@ -212,7 +209,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                 .add(new MetricCollectorTrainingPolicy(new MillisecondsDateTimeSupport()))
                 .add(new DelegatedTrainingPolicy(WIN_RATE_TRAINING_ASSESSOR))
                 .add(ContinuousTrainingPolicy.builder()
-                        .fitnessTestCount(FITNESS_TEST_COUNT)
+                        .fitnessEvaluationCount(FITNESS_EVALUATION_COUNT)
                         .build())
                 .build();
     }
@@ -274,7 +271,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                         .valueIndex(0)
                         .build()),
         VANILLA_WITHOUT_VALUE(9,
-                EnumValue.literal(OutputActivationFunctionType.SIGMOID),
+                EnumValue.constant(OutputActivationFunctionType.SIGMOID),
                 IdentityNeuronLayerTopologyDefinition.getInstance(),
                 AlphaZeroNeuralNetworkDecoder.<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>>builder()
                         .perspectiveParticipantId(1)
@@ -293,7 +290,7 @@ public final class TicTacToeTaskSetup implements TaskSetup {
                         .valueIndex(0)
                         .build()),
         DOUBLE_WITHOUT_VALUE(18,
-                EnumValue.literal(OutputActivationFunctionType.SIGMOID),
+                EnumValue.constant(OutputActivationFunctionType.SIGMOID),
                 DoubleSolutionNeuronLayerTopologyDefinition.getInstance(),
                 AlphaZeroNeuralNetworkDecoder.<GameAction, GameState, StandardSearchNode<GameAction, AlphaZeroEdge, GameState>>builder()
                         .perspectiveParticipantId(1)
@@ -337,10 +334,10 @@ public final class TicTacToeTaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum MutationSettingsType {
-        RECOMMENDED_DUEL(FloatNumber.literal(0.0025f), FloatNumber.literal(0.1f), FloatNumber.literal(0.00125f)),
-        DOUBLE_DUEL(FloatNumber.literal(0.005f), FloatNumber.literal(0.15f), FloatNumber.literal(0.0025f)),
-        RECOMMENDED_MARKOV(FloatNumber.literal(0.03f), FloatNumber.literal(0.06f), FloatNumber.literal(0.015f)),
-        DOUBLE_MARKOV(FloatNumber.literal(0.06f), FloatNumber.literal(0.12f), FloatNumber.literal(0.03f));
+        RECOMMENDED_DUEL(FloatNumber.constant(0.0025f), FloatNumber.constant(0.1f), FloatNumber.constant(0.00125f)),
+        DOUBLE_DUEL(FloatNumber.constant(0.005f), FloatNumber.constant(0.15f), FloatNumber.constant(0.0025f)),
+        RECOMMENDED_MARKOV(FloatNumber.constant(0.03f), FloatNumber.constant(0.06f), FloatNumber.constant(0.015f)),
+        DOUBLE_MARKOV(FloatNumber.constant(0.06f), FloatNumber.constant(0.12f), FloatNumber.constant(0.03f));
 
         private final FloatNumber addNodeRate;
         private final FloatNumber addConnectionRate;
@@ -349,8 +346,8 @@ public final class TicTacToeTaskSetup implements TaskSetup {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum SpeciationSettingsType {
-        RECOMMENDED_DUEL(IntegerNumber.literal(20), FloatNumber.literal(2f), IntegerNumber.literal(20), FloatNumber.literal(0.05f)),
-        RECOMMENDED_MARKOV(IntegerNumber.literal(256), FloatNumber.literal(0.4f), IntegerNumber.literal(15), FloatNumber.literal(0.001f));
+        RECOMMENDED_DUEL(IntegerNumber.constant(20), FloatNumber.constant(2f), IntegerNumber.constant(20), FloatNumber.constant(0.05f)),
+        RECOMMENDED_MARKOV(IntegerNumber.constant(256), FloatNumber.constant(0.4f), IntegerNumber.constant(15), FloatNumber.constant(0.001f));
 
         private final IntegerNumber maximumSpecies;
         private final FloatNumber weightDifferenceCoefficient;

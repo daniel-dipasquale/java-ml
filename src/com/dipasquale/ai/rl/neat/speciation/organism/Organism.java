@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.genotype.NodeGeneType;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
@@ -25,7 +25,7 @@ public final class Organism implements Comparable<Organism>, Serializable {
     @Getter
     private float fitness = 0f;
 
-    public float calculateCompatibility(final Context.SpeciationSupport speciationSupport, final Species species) {
+    public float calculateCompatibility(final NeatContext.SpeciationSupport speciationSupport, final Species species) {
         return speciationSupport.calculateCompatibility(genome, species.getRepresentative().genome);
     }
 
@@ -37,23 +37,23 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return genome.getConnectionGenes().getExpressed().size();
     }
 
-    public GenomeActivator getActivator(final Context.ActivationSupport activationSupport) {
-        return activationSupport.provideActivator(genome, populationState, Context.GenomeActivatorType.PERSISTENT);
+    public GenomeActivator provideActivator(final NeatContext.ActivationSupport activationSupport) {
+        return activationSupport.provideActivator(genome, populationState, NeatContext.GenomeActivatorType.PERSISTENT);
     }
 
-    public GenomeActivator createTransientActivator(final Context.ActivationSupport activationSupport) {
-        return activationSupport.provideActivator(genome, populationState, Context.GenomeActivatorType.TRANSIENT);
+    public GenomeActivator createTransientActivator(final NeatContext.ActivationSupport activationSupport) {
+        return activationSupport.provideActivator(genome, populationState, NeatContext.GenomeActivatorType.TRANSIENT);
     }
 
-    public void setFitness(final Species species, final Context context, final float fitnessValue) {
+    public void setFitness(final Species species, final NeatContext context, final float fitnessValue) {
         fitness = fitnessValue;
-        context.metrics().collectFitness(species, this);
+        context.getMetrics().collectFitness(species, this);
     }
 
-    public float updateFitness(final Species species, final Context context) {
-        Context.ActivationSupport activationSupport = context.activation();
-        GenomeActivator genomeActivator = getActivator(activationSupport);
-        float fitness = activationSupport.calculateFitness(genomeActivator);
+    public float updateFitness(final Species species, final NeatContext context) {
+        NeatContext.ActivationSupport activationSupport = context.getActivation();
+        GenomeActivator genomeActivator = provideActivator(activationSupport);
+        float fitness = activationSupport.evaluateFitness(genomeActivator);
 
         setFitness(species, context, fitness);
 
@@ -65,13 +65,13 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return Float.compare(fitness, other.fitness);
     }
 
-    public boolean mutate(final Context context) {
+    public boolean mutate(final NeatContext context) {
         return genome.mutate(context);
     }
 
-    public Organism mate(final Context context, final Organism other) {
+    public Organism mate(final NeatContext context, final Organism other) {
         int comparison = compareTo(other);
-        Context.CrossOverSupport crossOverSupport = context.crossOver();
+        NeatContext.CrossOverSupport crossOverSupport = context.getCrossOver();
 
         Genome crossedOverGenome = comparison == 0 ? crossOverSupport.crossOverByEqualTreatment(context, genome, other.genome)
                 : comparison > 0 ? crossOverSupport.crossOverBySkippingUnfitDisjointOrExcess(context, genome, other.genome)
@@ -80,17 +80,17 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return new Organism(crossedOverGenome, populationState);
     }
 
-    public void registerNodeGenes(final Context.NodeGeneSupport nodeGeneSupport) {
+    public void registerNodeGenes(final NeatContext.NodeGeneSupport nodeGeneSupport) {
         nodeGeneSupport.registerAll(genome);
     }
 
-    public Organism createCopy(final Context context) {
+    public Organism createCopy(final NeatContext context) {
         Genome copiedGenome = genome.createCopy(context);
 
         return new Organism(copiedGenome, populationState);
     }
 
-    public Organism createClone(final Context.ConnectionGeneSupport connectionGeneSupport) {
+    public Organism createClone(final NeatContext.ConnectionGeneSupport connectionGeneSupport) {
         Genome clonedGenome = genome.createClone(connectionGeneSupport);
         Organism clonedOrganism = new Organism(clonedGenome, populationState);
 
@@ -99,11 +99,11 @@ public final class Organism implements Comparable<Organism>, Serializable {
         return clonedOrganism;
     }
 
-    public void kill(final Context.SpeciationSupport speciationSupport) {
+    public void kill(final NeatContext.SpeciationSupport speciationSupport) {
         speciationSupport.disposeGenomeId(genome);
     }
 
-    public void deregisterNodeGenes(final Context.NodeGeneSupport nodeGeneSupport) {
+    public void deregisterNodeGenes(final NeatContext.NodeGeneSupport nodeGeneSupport) {
         nodeGeneSupport.deregisterAll(genome);
     }
 }

@@ -13,7 +13,7 @@ final class NeatLoadSettings {
     private final NeatEnvironment fitnessFunction;
     private final ParallelEventLoop eventLoop;
 
-    Context.LoadSupport createContext() {
-        return new ContextObjectLoadSupport(fitnessFunction, eventLoop);
+    NeatContext.PretrainedSupport createContext() {
+        return new DefaultNeatContextPretrainedSupport(fitnessFunction, eventLoop);
     }
 }

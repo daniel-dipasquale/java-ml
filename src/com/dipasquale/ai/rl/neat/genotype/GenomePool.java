@@ -1,23 +1,23 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.ai.common.sequence.IntegerIdFactory;
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 @RequiredArgsConstructor
 public final class GenomePool implements Serializable {
     @Serial
     private static final long serialVersionUID = 6680979157037947466L;
     private final IntegerIdFactory genomeIdFactory = new IntegerIdFactory();
-    private final Deque<Integer> disposedGenomeIds = new LinkedList<>();
+    private final Queue<Integer> disposedGenomeIds = new PriorityQueue<>(Integer::compare); // TODO: ensure this algorithm works with a dynamic population size
 
     public int createGenomeId() {
-        Integer id = disposedGenomeIds.pollFirst();
+        Integer id = disposedGenomeIds.poll();
 
         if (id != null) {
             return id;
@@ -26,11 +26,11 @@ public final class GenomePool implements Serializable {
         return genomeIdFactory.next();
     }
 
-    public Genome createGenesisGenome(final Context context) {
+    public Genome createGenesisGenome(final NeatContext context) {
         Genome genome = new Genome(createGenomeId());
 
-        context.nodeGenes().setupInitial(genome);
-        context.connectionGenes().setupInitial(genome);
+        context.getNodeGenes().setupInitial(genome);
+        context.getConnectionGenes().setupInitial(genome);
 
         return genome;
     }

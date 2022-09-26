@@ -1,33 +1,38 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.reproduction;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
+import com.dipasquale.data.structure.set.DequeSet;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 
-@RequiredArgsConstructor
-public final class GenesisReproductionStrategy implements ReproductionStrategy, Serializable {
-    @Serial
-    private static final long serialVersionUID = -4687936745852249338L;
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class GenesisReproductionStrategy implements ReproductionStrategy {
+    private static final GenesisReproductionStrategy INSTANCE = new GenesisReproductionStrategy();
 
-    private static void killOrganism(final Organism organism, final Context context) {
-        organism.kill(context.speciation());
-        organism.deregisterNodeGenes(context.nodeGenes());
+    public static GenesisReproductionStrategy getInstance() {
+        return INSTANCE;
+    }
+
+    private static void killOrganism(final Organism organism, final NeatContext context) {
+        organism.kill(context.getSpeciation());
+        organism.deregisterNodeGenes(context.getNodeGenes());
     }
 
     @Override
     public void reproduce(final ReproductionContext context) {
-        Context.RandomnessSupport randomnessSupport = context.getParent().randomness();
-        Context.MetricsSupport metricsSupport = context.getParent().metrics();
+        NeatContext parentContext = context.getParent();
+        NeatContext.RandomnessSupport randomnessSupport = parentContext.getRandomness();
+        DequeSet<Organism> undeterminedOrganisms = context.getUndeterminedOrganisms();
+        NeatContext.MetricsSupport metricsSupport = parentContext.getMetrics();
 
         for (Species species : context.getSpeciesState().getAll()) {
-            List<Organism> organismsToKill = species.restart(randomnessSupport, context.getOrganismsWithoutSpecies());
+            List<Organism> organismsToKill = species.restart(randomnessSupport, undeterminedOrganisms);
 
-            organismsToKill.forEach(organismToKill -> killOrganism(organismToKill, context.getParent()));
+            organismsToKill.forEach(organismToKill -> killOrganism(organismToKill, parentContext));
             metricsSupport.collectKilled(species, organismsToKill);
         }
     }

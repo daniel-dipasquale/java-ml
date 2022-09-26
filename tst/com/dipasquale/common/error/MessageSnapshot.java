@@ -14,7 +14,7 @@ final class MessageSnapshot {
     private final String value;
     private final Pattern pattern;
 
-    static MessageSnapshot literal(final String message) {
+    static MessageSnapshot message(final String message) {
         return new MessageSnapshot(message, null);
     }
 

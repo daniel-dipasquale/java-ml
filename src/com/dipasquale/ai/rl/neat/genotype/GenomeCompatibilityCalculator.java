@@ -2,6 +2,7 @@ package com.dipasquale.ai.rl.neat.genotype;
 
 import com.dipasquale.common.LimitSupport;
 import com.dipasquale.common.Pair;
+import com.dipasquale.common.factory.FloatFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -11,9 +12,9 @@ import java.io.Serializable;
 public final class GenomeCompatibilityCalculator implements Serializable {
     @Serial
     private static final long serialVersionUID = 8186925797297865215L;
-    private final float excessCoefficient; // c1;
-    private final float disjointCoefficient; // c2;
-    private final float weightDifferenceCoefficient; // c3
+    private final FloatFactory excessCoefficientFactory; // c1;
+    private final FloatFactory disjointCoefficientFactory; // c2;
+    private final FloatFactory weightDifferenceCoefficientFactory; // c3
 
     private static boolean isMatching(final Pair<ConnectionGene> connectionGenePair) {
         return connectionGenePair.getLeft() != null && connectionGenePair.getRight() != null;
@@ -50,6 +51,10 @@ public final class GenomeCompatibilityCalculator implements Serializable {
         return lastConnectionGene2;
     }
 
+    private static float calculateCompatibility(final float excessCoefficient, final float excessCount, final float n, final float disjointCoefficient, final float disjointCount, final float weightDifferenceCoefficient, final float averageWeightDifference) {
+        return excessCoefficient * excessCount / n + disjointCoefficient * disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
+    }
+
     public float calculateCompatibility(final Genome genome1, final Genome genome2) {
         ConnectionGene excessFromConnectionGene = getExcessConnectionGene(genome1, genome2);
         int matchingCount = 0;
@@ -71,7 +76,7 @@ public final class GenomeCompatibilityCalculator implements Serializable {
         int maximumNodes = Math.max(genome1.getNodeGenes().size(), genome2.getNodeGenes().size());
         float n = Math.max(maximumNodes - 20, 1f);
         float averageWeightDifference = weightDifference / (float) (1 + matchingCount);
-        float compatibility = excessCoefficient * (float) excessCount / n + disjointCoefficient * (float) disjointCount / n + weightDifferenceCoefficient * averageWeightDifference;
+        float compatibility = calculateCompatibility(excessCoefficientFactory.create(), (float) excessCount, n, disjointCoefficientFactory.create(), (float) disjointCount, weightDifferenceCoefficientFactory.create(), averageWeightDifference);
 
         return LimitSupport.getFiniteValue(compatibility);
     }

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.selection;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.Population;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
@@ -11,18 +11,18 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Getter
 public final class SelectionContext {
-    private final Context parent;
+    private final NeatContext parent;
     private final Population population;
     @Setter
     private Organism championOrganism = null;
 
-    public void setChampionOrganism() {
+    public void initializeChampionOrganism() {
         if (championOrganism == null) {
             throw new ChampionOrganismMissingException("the champion organism is missing");
         }
 
-        Organism organism = championOrganism.createClone(parent.connectionGenes());
-        GenomeActivator genomeActivator = championOrganism.createTransientActivator(parent.activation());
+        Organism organism = championOrganism.createClone(parent.getConnectionGenes());
+        GenomeActivator genomeActivator = championOrganism.createTransientActivator(parent.getActivation());
 
         population.initializeChampionOrganism(organism, genomeActivator);
     }

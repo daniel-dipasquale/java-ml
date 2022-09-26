@@ -2,8 +2,8 @@ package com.dipasquale.ai.rl.neat;
 
 import com.dipasquale.ai.rl.neat.factory.RandomEnumFactory;
 import com.dipasquale.ai.rl.neat.factory.SequentialEnumFactory;
+import com.dipasquale.common.factory.ConstantEnumFactory;
 import com.dipasquale.common.factory.EnumFactory;
-import com.dipasquale.common.factory.LiteralEnumFactory;
 import com.dipasquale.common.random.RandomSupport;
 import com.dipasquale.data.structure.collection.ListSupport;
 import lombok.AccessLevel;
@@ -17,9 +17,9 @@ import java.util.List;
 public final class EnumValue<T extends Enum<T>> {
     private final EnumFactoryCreator<T> factoryCreator;
 
-    public static <T extends Enum<T>> EnumValue<T> literal(final T value) {
+    public static <T extends Enum<T>> EnumValue<T> constant(final T value) {
         return EnumValue.<T>builder()
-                .factoryCreator(initializationContext -> new LiteralEnumFactory<>(value))
+                .factoryCreator(initializationContext -> new ConstantEnumFactory<>(value))
                 .build();
     }
 
@@ -52,12 +52,12 @@ public final class EnumValue<T extends Enum<T>> {
         return createRandom(values);
     }
 
-    EnumFactory<T> createFactory(final InitializationContext initializationContext) {
+    EnumFactory<T> createFactory(final NeatInitializationContext initializationContext) {
         return factoryCreator.create(initializationContext);
     }
 
     @FunctionalInterface
     private interface EnumFactoryCreator<T extends Enum<T>> {
-        EnumFactory<T> create(InitializationContext initializationContext);
+        EnumFactory<T> create(NeatInitializationContext initializationContext);
     }
 }

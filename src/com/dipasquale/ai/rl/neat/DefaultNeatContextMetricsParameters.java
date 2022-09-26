@@ -1,0 +1,21 @@
+package com.dipasquale.ai.rl.neat;
+
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
+
+import java.io.Serial;
+import java.io.Serializable;
+
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PACKAGE)
+final class DefaultNeatContextMetricsParameters implements NeatContext.MetricsParameters, Serializable {
+    @Serial
+    private static final long serialVersionUID = 3933676175004672652L;
+    private final boolean enabled;
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+}

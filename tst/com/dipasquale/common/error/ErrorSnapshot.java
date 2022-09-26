@@ -27,28 +27,24 @@ public final class ErrorSnapshot {
     private final List<ErrorSnapshot> suppressed;
     private final FieldSnapshotGroup<? extends Throwable> fields;
 
-    private static Optional<MessageSnapshot> createMessagePattern(final Object message) {
+    private static Optional<MessageSnapshot> createPatternMessageSnapshot(final Object message) {
         return Optional.ofNullable(message)
                 .filter(__message -> __message instanceof Pattern)
                 .map(__message -> (Pattern) __message)
                 .map(MessageSnapshot::pattern);
     }
 
-    private static Optional<MessageSnapshot> createMessageLiteral(final Object message) {
+    private static Optional<MessageSnapshot> createExactMessageSnapshot(final Object message) {
         return Optional.ofNullable(message)
                 .filter(__message -> __message instanceof String)
                 .map(__message -> (String) __message)
-                .map(MessageSnapshot::literal);
+                .map(MessageSnapshot::message);
     }
 
     @Builder
-    private static <T extends Throwable> ErrorSnapshot create(final Class<? extends T> type,
-                                                              final Object message,
-                                                              final ErrorSnapshot cause,
-                                                              final List<ErrorSnapshot> suppressed,
-                                                              final List<FieldSnapshot<T>> fields) {
-        MessageSnapshot fixedMessage = createMessagePattern(message)
-                .orElseGet(() -> createMessageLiteral(message).orElse(null));
+    private static <T extends Throwable> ErrorSnapshot create(final Class<? extends T> type, final Object message, final ErrorSnapshot cause, final List<ErrorSnapshot> suppressed, final List<FieldSnapshot<T>> fields) {
+        MessageSnapshot fixedMessage = createPatternMessageSnapshot(message)
+                .orElseGet(() -> createExactMessageSnapshot(message).orElse(null));
 
         List<ErrorSnapshot> fixedSuppressed = Optional.ofNullable(suppressed)
                 .orElseGet(List::of);
@@ -66,7 +62,7 @@ public final class ErrorSnapshot {
         }
 
         Class<? extends Throwable> type = error.getClass();
-        MessageSnapshot message = MessageSnapshot.literal(error.getMessage());
+        MessageSnapshot message = MessageSnapshot.message(error.getMessage());
         ErrorSnapshot cause = create(error.getCause());
 
         List<ErrorSnapshot> suppressed = Arrays.stream(error.getSuppressed())

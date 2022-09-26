@@ -1,5 +1,6 @@
 package com.dipasquale.data.structure.collection;
 
+import com.dipasquale.common.factory.ObjectIndexProvider;
 import com.dipasquale.data.structure.iterable.IterableSupport;
 import com.dipasquale.data.structure.iterator.LinkedIterator;
 import lombok.AccessLevel;
@@ -7,7 +8,10 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 
 public final class IterableArray<T> implements Iterable<T>, Serializable {
@@ -15,7 +19,7 @@ public final class IterableArray<T> implements Iterable<T>, Serializable {
     private static final long serialVersionUID = -4987033620251239128L;
     private final LinkedElement root;
     private LinkedElement tail;
-    private final LinkedElement[] array;
+    private LinkedElement[] array;
     private int size;
 
     private IterableArray(final LinkedElement root, final int capacity) {
@@ -118,6 +122,47 @@ public final class IterableArray<T> implements Iterable<T>, Serializable {
         root.next = null;
         tail = root;
         size = 0;
+    }
+
+    public List<T> resize(final int capacity, final ObjectIndexProvider<T> elementIndexProvider) {
+        if (array.length == capacity) {
+            return List.of();
+        }
+
+        List<T> elementsRemoved = null;
+
+        if (size > capacity) {
+            elementsRemoved = new ArrayList<>();
+
+            for (int i = size - 1; i >= capacity; i--) {
+                T element = remove(i);
+
+                if (element != null) {
+                    elementsRemoved.add(element);
+                }
+            }
+        }
+
+        LinkedElement[] resizedArray = new LinkedElement[capacity];
+
+        System.arraycopy(array, 0, resizedArray, 0, Math.min(array.length, capacity));
+        array = resizedArray;
+
+        if (size < capacity && elementIndexProvider != null) {
+            for (int i = size; i < array.length; i++) {
+                T element = elementIndexProvider.provide(i);
+
+                if (element != null) {
+                    put(i, element);
+                }
+            }
+        }
+
+        if (elementsRemoved == null || elementsRemoved.isEmpty()) {
+            return List.of();
+        }
+
+        return Collections.unmodifiableList(elementsRemoved);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.rl.neat.Context;
 import com.dipasquale.ai.rl.neat.Id;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -39,11 +39,11 @@ public final class ConnectionGene implements Serializable {
         return cyclesAllowed > 0;
     }
 
-    ConnectionGene createCopy(final Context.ConnectionGeneSupport connectionGeneSupport, final int cyclesAllowed) {
+    ConnectionGene createCopy(final NeatContext.ConnectionGeneSupport connectionGeneSupport, final int cyclesAllowed) {
         return new ConnectionGene(innovationId, weight, connectionGeneSupport.cloneRecurrentWeights(recurrentWeights), cyclesAllowed);
     }
 
-    ConnectionGene createClone(final Context.ConnectionGeneSupport connectionGeneSupport) {
+    ConnectionGene createClone(final NeatContext.ConnectionGeneSupport connectionGeneSupport) {
         return createCopy(connectionGeneSupport, cyclesAllowed);
     }
 

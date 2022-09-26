@@ -1,18 +1,30 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.fitness;
 
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.speciation.Species;
+import com.dipasquale.data.structure.deque.NodeDeque;
 import com.dipasquale.data.structure.deque.StandardNode;
 import com.dipasquale.synchronization.InterruptedRuntimeException;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AllFitnessEvaluationStrategy implements FitnessEvaluationStrategy {
-    @Override
-    public void calculate(final FitnessEvaluationContext context) {
-        for (StandardNode<Species> speciesNode : context.getSpeciesNodes()) {
-            Species species = context.getSpeciesNodes().getValue(speciesNode);
+    private static final AllFitnessEvaluationStrategy INSTANCE = new AllFitnessEvaluationStrategy();
 
-            species.updateAllFitness(context.getParent());
+    public static AllFitnessEvaluationStrategy getInstance() {
+        return INSTANCE;
+    }
+
+    @Override
+    public void evaluate(final FitnessEvaluationContext context) {
+        NodeDeque<Species, StandardNode<Species>> speciesNodes = context.getSpeciesNodes();
+        NeatContext parentContext = context.getParent();
+
+        for (StandardNode<Species> speciesNode : speciesNodes) {
+            Species species = speciesNodes.getValue(speciesNode);
+
+            species.updateAllFitness(parentContext);
         }
 
         if (Thread.interrupted()) {

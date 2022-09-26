@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -13,11 +13,11 @@ public final class MutateSingleOrganismFactory implements OrganismFactory, Seria
     private final Organism organism;
 
     @Override
-    public Organism create(final Context context) {
+    public Organism create(final NeatContext context) {
         Organism mutatedOrganism = organism.createCopy(context);
 
         mutatedOrganism.mutate(context);
-        mutatedOrganism.registerNodeGenes(context.nodeGenes());
+        mutatedOrganism.registerNodeGenes(context.getNodeGenes());
 
         return mutatedOrganism;
     }

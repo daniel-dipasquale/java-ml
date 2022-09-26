@@ -14,7 +14,7 @@ public final class MetricsSettings {
     @Builder.Default
     private final EnumSet<MetricCollectionType> types = EnumSet.noneOf(MetricCollectionType.class);
 
-    ContextObjectMetricsSupport create(final InitializationContext initializationContext, final SpeciationSettings speciationSettings) {
-        return ContextObjectMetricsSupport.create(initializationContext, this, speciationSettings);
+    DefaultNeatContextMetricsSupport create(final NeatInitializationContext initializationContext, final SpeciationSettings speciationSettings) {
+        return DefaultNeatContextMetricsSupport.create(initializationContext, this, speciationSettings);
     }
 }

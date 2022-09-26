@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.common.factory.FloatFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -55,14 +55,14 @@ public final class FullyConnectedGenesisGenomeConnector implements GenesisGenome
         return nodeGeneLayers;
     }
 
-    private static ConnectionGene createConnectionGene(final Context.ConnectionGeneSupport connectionGeneSupport, final NodeGene inputNodeGene, final NodeGene outputNodeGene, final float weight) {
+    private static ConnectionGene createConnectionGene(final NeatContext.ConnectionGeneSupport connectionGeneSupport, final NodeGene inputNodeGene, final NodeGene outputNodeGene, final float weight) {
         InnovationId innovationId = connectionGeneSupport.provideInnovationId(inputNodeGene, outputNodeGene);
 
         return new ConnectionGene(innovationId, weight, connectionGeneSupport.generateRecurrentWeights());
     }
 
     @Override
-    public void setupConnections(final Genome genome, final Context.ConnectionGeneSupport connectionGeneSupport) {
+    public void setupConnections(final Genome genome, final NeatContext.ConnectionGeneSupport connectionGeneSupport) {
         ConnectionGeneGroup connectionGenes = genome.getConnectionGenes();
         List<NodeGeneLayer> nodeGeneLayers = createNodeLayers(genome);
 

@@ -12,7 +12,7 @@ public final class RandomnessSettings {
     @Builder.Default
     private final RandomType type = RandomType.UNIFORM;
 
-    ContextObjectRandomnessSupport create(final InitializationContext initializationContext) {
-        return ContextObjectRandomnessSupport.create(initializationContext);
+    DefaultNeatContextRandomnessSupport create(final NeatInitializationContext initializationContext) {
+        return DefaultNeatContextRandomnessSupport.create(initializationContext);
     }
 }

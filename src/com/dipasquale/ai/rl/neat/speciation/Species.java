@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.speciation.organism.CloneSingleOrganismFactory;
 import com.dipasquale.ai.rl.neat.speciation.organism.MateBetweenOrganismsFactory;
 import com.dipasquale.ai.rl.neat.speciation.organism.MutateSingleOrganismFactory;
@@ -39,8 +39,9 @@ public final class Species implements Serializable {
     private float maximumSharedFitness;
     private final int createdOnGeneration;
     private int improvedAtAge;
+    private final int stagnationDropOffAge;
 
-    Species(final String id, final Organism representativeOrganism, final PopulationState populationState) {
+    Species(final String id, final Organism representativeOrganism, final PopulationState populationState, final int stagnationDropOffAge) {
         this.id = id;
         this.initializeOrganisms(representativeOrganism);
         this.populationState = populationState;
@@ -48,6 +49,7 @@ public final class Species implements Serializable {
         this.maximumSharedFitness = 0f;
         this.createdOnGeneration = populationState.getGeneration();
         this.improvedAtAge = 0;
+        this.stagnationDropOffAge = stagnationDropOffAge;
     }
 
     public Organism getRepresentative() {
@@ -95,16 +97,16 @@ public final class Species implements Serializable {
         return sharedFitness;
     }
 
-    public float updateSharedFitnessOnly(final Context.MetricsSupport metricsSupport) {
+    public float updateSharedFitnessOnly(final NeatContext.MetricsSupport metricsSupport) {
         updateAllFitness(Organism::getFitness);
         metricsSupport.collectFitness(this);
 
         return sharedFitness;
     }
 
-    public float updateAllFitness(final Context context) {
+    public float updateAllFitness(final NeatContext context) {
         updateAllFitness(organism -> organism.updateFitness(this, context));
-        context.metrics().collectFitness(this);
+        context.getMetrics().collectFitness(this);
 
         return sharedFitness;
     }
@@ -118,7 +120,7 @@ public final class Species implements Serializable {
         return organisms;
     }
 
-    public List<Organism> removeUnfitToReproduce(final Context.SpeciationSupport speciationSupport) {
+    public List<Organism> removeUnfitToReproduce(final NeatContext.SpeciationSupport speciationSupport) {
         int size = organisms.size();
 
         if (size > 1) {
@@ -137,11 +139,11 @@ public final class Species implements Serializable {
         return List.of();
     }
 
-    public List<OrganismFactory> reproduce(final Context context, final int count) {
+    public List<OrganismFactory> reproduce(final NeatContext context, final int count) {
         List<OrganismFactory> organismsToBirth = new ArrayList<>();
         int size = organisms.size();
-        Context.SpeciationSupport speciationSupport = context.speciation();
-        Context.RandomnessSupport randomnessSupport = context.randomness();
+        NeatContext.SpeciationSupport speciationSupport = context.getSpeciation();
+        NeatContext.RandomnessSupport randomnessSupport = context.getRandomness();
 
         for (int i = 0; i < count; i++) {
             ReproductionType reproductionType = speciationSupport.generateReproductionType(size);
@@ -172,7 +174,7 @@ public final class Species implements Serializable {
         return organismsToBirth;
     }
 
-    public OrganismFactory reproduce(final Context.RandomnessSupport randomnessSupport, final Species other) {
+    public OrganismFactory reproduce(final NeatContext.RandomnessSupport randomnessSupport, final Species other) {
         if (organisms.isEmpty() || other.organisms.isEmpty()) {
             return null;
         }
@@ -187,7 +189,7 @@ public final class Species implements Serializable {
         return ensureOrganismsIsSorted().get(organisms.size() - 1);
     }
 
-    public List<Organism> getFittestOrganisms(final Context.SpeciationSupport speciationSupport, final boolean includeRepresentative) {
+    public List<Organism> getFittestOrganisms(final NeatContext.SpeciationSupport speciationSupport, final boolean includeRepresentative) {
         int size = organisms.size();
         int select = speciationSupport.determineElitesToPreserve(size, includeRepresentative);
 
@@ -202,19 +204,15 @@ public final class Species implements Serializable {
         return getAge() - improvedAtAge;
     }
 
-    public boolean isStagnant(final int stagnationDropOffAge) {
+    public boolean isStagnant() {
         return getStagnationPeriod() >= stagnationDropOffAge;
-    }
-
-    public boolean isStagnant(final Context.SpeciationSupport speciationSupport) {
-        return isStagnant(speciationSupport.params().stagnationDropOffAge());
     }
 
     public boolean shouldSurvive() {
         return organisms.size() > 1;
     }
 
-    public List<Organism> restart(final Context.RandomnessSupport randomnessSupport, final DequeSet<Organism> organismsTaken) {
+    public List<Organism> restart(final NeatContext.RandomnessSupport randomnessSupport, final DequeSet<Organism> organismsTaken) {
         List<Organism> fixedOrganisms = organisms.stream()
                 .filter(organism -> !organismsTaken.contains(organism))
                 .collect(Collectors.toList());

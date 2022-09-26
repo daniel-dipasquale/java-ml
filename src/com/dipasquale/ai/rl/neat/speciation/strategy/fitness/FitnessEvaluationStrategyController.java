@@ -9,9 +9,9 @@ public final class FitnessEvaluationStrategyController implements FitnessEvaluat
     private final Collection<FitnessEvaluationStrategy> strategies;
 
     @Override
-    public void calculate(final FitnessEvaluationContext context) {
+    public void evaluate(final FitnessEvaluationContext context) {
         for (FitnessEvaluationStrategy strategy : strategies) {
-            strategy.calculate(context);
+            strategy.evaluate(context);
         }
     }
 }

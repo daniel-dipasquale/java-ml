@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -15,14 +15,14 @@ public final class MateBetweenOrganismsFactory implements OrganismFactory, Seria
     private final boolean shouldMutate;
 
     @Override
-    public Organism create(final Context context) {
+    public Organism create(final NeatContext context) {
         Organism organism = parentOrganism1.mate(context, parentOrganism2);
 
         if (shouldMutate) {
             organism.mutate(context);
         }
 
-        organism.registerNodeGenes(context.nodeGenes());
+        organism.registerNodeGenes(context.getNodeGenes());
 
         return organism;
     }

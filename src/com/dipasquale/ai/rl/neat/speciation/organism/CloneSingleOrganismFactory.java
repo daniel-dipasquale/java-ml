@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation.organism;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
@@ -13,10 +13,10 @@ public final class CloneSingleOrganismFactory implements OrganismFactory, Serial
     private final Organism organism;
 
     @Override
-    public Organism create(final Context context) {
+    public Organism create(final NeatContext context) {
         Organism copiedOrganism = organism.createCopy(context);
 
-        copiedOrganism.registerNodeGenes(context.nodeGenes());
+        copiedOrganism.registerNodeGenes(context.getNodeGenes());
 
         return copiedOrganism;
     }

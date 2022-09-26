@@ -78,13 +78,13 @@ public final class CartPoleEnvironment { // code based on: https://github.com/Co
         double cosTheta = Math.cos(theta);
         double poleHalfLength = pole.getLength() / 2D;
         double totalMass = cart.getMass() + pole.getMass();
-        double accelerationThetaNext = (gravity * sinTheta + cosTheta * (-force - pole.getMass() * poleHalfLength * Math.pow(dTheta, 2) * sinTheta) / totalMass) / (poleHalfLength * (4D / 3D - pole.getMass() * Math.pow(cosTheta, 2D) / totalMass));
-        double accelerationXNext = (force + pole.getMass() * poleHalfLength * (Math.pow(dTheta, 2D) * sinTheta - accelerationThetaNext * cosTheta)) / totalMass;
+        double nextAccelerationTheta = (gravity * sinTheta + cosTheta * (-force - pole.getMass() * poleHalfLength * Math.pow(dTheta, 2) * sinTheta) / totalMass) / (poleHalfLength * (4D / 3D - pole.getMass() * Math.pow(cosTheta, 2D) / totalMass));
+        double nextAccelerationX = (force + pole.getMass() * poleHalfLength * (Math.pow(dTheta, 2D) * sinTheta - nextAccelerationTheta * cosTheta)) / totalMass;
 
-        dx += 0.5D * (accelerationX + accelerationXNext) * stepTime;
-        dTheta += 0.5D * (accelerationTheta + accelerationThetaNext) * stepTime;
-        accelerationX = accelerationXNext;
-        accelerationTheta = accelerationThetaNext;
+        dx += 0.5D * (accelerationX + nextAccelerationX) * stepTime;
+        dTheta += 0.5D * (accelerationTheta + nextAccelerationTheta) * stepTime;
+        accelerationX = nextAccelerationX;
+        accelerationTheta = nextAccelerationTheta;
         timeSpent += stepTime;
 
         return timeSpent;

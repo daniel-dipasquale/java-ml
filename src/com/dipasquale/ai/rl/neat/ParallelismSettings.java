@@ -16,7 +16,7 @@ public final class ParallelismSettings {
         return eventLoop != null;
     }
 
-    static Set<Long> getThreadIds(final ParallelEventLoop eventLoop) {
+    static Set<Long> extractThreadIds(final ParallelEventLoop eventLoop) {
         if (eventLoop == null) {
             return Set.of();
         }
@@ -24,19 +24,19 @@ public final class ParallelismSettings {
         return eventLoop.getThreadIds();
     }
 
-    public Set<Long> getThreadIds() {
-        return getThreadIds(eventLoop);
+    public Set<Long> extractThreadIds() {
+        return extractThreadIds(eventLoop);
     }
 
-    ContextObjectParallelismSupport create() {
+    DefaultNeatContextParallelismSupport create() {
         if (!isEnabled()) {
-            Context.ParallelismSupport parallelismSupport = new SingleThreadContextParallelismSupport();
+            NeatContext.ParallelismSupport parallelismSupport = new DefaultNeatContextParallelismSupportSingleThread();
 
-            return new ContextObjectParallelismSupport(parallelismSupport);
+            return new DefaultNeatContextParallelismSupport(parallelismSupport);
         }
 
-        Context.ParallelismSupport parallelismSupport = new MultiThreadContextParallelismSupport(eventLoop);
+        NeatContext.ParallelismSupport parallelismSupport = new DefaultNeatContextParallelismSupportMultiThread(eventLoop);
 
-        return new ContextObjectParallelismSupport(parallelismSupport);
+        return new DefaultNeatContextParallelismSupport(parallelismSupport);
     }
 }

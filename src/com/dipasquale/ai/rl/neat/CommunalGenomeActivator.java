@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class CommunalGenomeActivator {
     @Getter(AccessLevel.PACKAGE)
-    private final Context context;
+    private final NeatContext context;
     @Getter
     private final List<GenomeActivator> genomeActivators;
     private final IterableArray<FloatValue> fitnessValues;

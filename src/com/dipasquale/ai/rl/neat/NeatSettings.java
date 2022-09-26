@@ -10,10 +10,6 @@ import lombok.Getter;
 @Getter(AccessLevel.PACKAGE)
 public final class NeatSettings {
     @Builder.Default
-    private final GeneralSettings general = GeneralSettings.builder()
-            .build();
-
-    @Builder.Default
     private final ParallelismSettings parallelism = ParallelismSettings.builder()
             .build();
 
@@ -22,15 +18,15 @@ public final class NeatSettings {
             .build();
 
     @Builder.Default
+    private final ActivationSettings activation = ActivationSettings.builder()
+            .build();
+
+    @Builder.Default
     private final NodeGeneSettings nodeGenes = NodeGeneSettings.builder()
             .build();
 
     @Builder.Default
     private final ConnectionGeneSettings connectionGenes = ConnectionGeneSettings.builder()
-            .build();
-
-    @Builder.Default
-    private final ActivationSettings activation = ActivationSettings.builder()
             .build();
 
     @Builder.Default
@@ -49,19 +45,18 @@ public final class NeatSettings {
     private final MetricsSettings metrics = MetricsSettings.builder()
             .build();
 
-    Context createContext() {
-        InitializationContext initializationContext = new InitializationContext(general, parallelism, randomness);
-        ContextObjectGeneralSupport generalSupport = general.create();
-        ContextObjectParallelismSupport parallelismSupport = parallelism.create();
-        ContextObjectRandomnessSupport randomnessSupport = randomness.create(initializationContext);
-        ContextObjectNodeGeneSupport nodeGeneSupport = nodeGenes.create(initializationContext, general.getGenesisGenomeTemplate(), connectionGenes);
-        ContextObjectConnectionGeneSupport connectionGeneSupport = connectionGenes.create(initializationContext, general.getGenesisGenomeTemplate());
-        ContextObjectActivationSupport activationSupport = activation.create(initializationContext, connectionGenes);
-        ContextObjectMutationSupport mutationSupport = mutation.create(initializationContext);
-        ContextObjectCrossOverSupport crossOverSupport = crossOver.create(initializationContext);
-        ContextObjectSpeciationSupport speciationSupport = speciation.create(initializationContext, general);
-        ContextObjectMetricsSupport metricsSupport = metrics.create(initializationContext, speciation);
+    DefaultNeatContext createContext() {
+        NeatInitializationContext initializationContext = new NeatInitializationContext(parallelism, randomness, activation);
+        DefaultNeatContextParallelismSupport parallelismSupport = parallelism.create();
+        DefaultNeatContextRandomnessSupport randomnessSupport = randomness.create(initializationContext);
+        DefaultNeatContextActivationSupport activationSupport = activation.create(initializationContext, connectionGenes);
+        DefaultNeatContextNodeGeneSupport nodeGeneSupport = nodeGenes.create(initializationContext, activation.getGenesisGenomeTemplate(), connectionGenes);
+        DefaultNeatContextConnectionGeneSupport connectionGeneSupport = connectionGenes.create(initializationContext, activation.getGenesisGenomeTemplate());
+        DefaultNeatContextMutationSupport mutationSupport = mutation.create(initializationContext);
+        DefaultNeatContextCrossOverSupport crossOverSupport = crossOver.create(initializationContext);
+        DefaultNeatContextSpeciationSupport speciationSupport = speciation.create(initializationContext);
+        DefaultNeatContextMetricsSupport metricsSupport = metrics.create(initializationContext, speciation);
 
-        return new ContextObject(generalSupport, parallelismSupport, randomnessSupport, nodeGeneSupport, connectionGeneSupport, activationSupport, mutationSupport, crossOverSupport, speciationSupport, metricsSupport);
+        return new DefaultNeatContext(parallelismSupport, randomnessSupport, activationSupport, nodeGeneSupport, connectionGeneSupport, mutationSupport, crossOverSupport, speciationSupport, metricsSupport);
     }
 }

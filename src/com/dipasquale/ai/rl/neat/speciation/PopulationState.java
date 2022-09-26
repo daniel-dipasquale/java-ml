@@ -1,13 +1,12 @@
 package com.dipasquale.ai.rl.neat.speciation;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 @Getter
 public final class PopulationState implements Serializable {
     @Serial
@@ -15,7 +14,7 @@ public final class PopulationState implements Serializable {
     private int iteration = 1;
     private int generation = 1;
 
-    public void increaseGeneration() {
+    public void advanceGeneration() {
         generation++;
     }
 

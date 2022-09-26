@@ -11,5 +11,5 @@ import java.util.List;
 public final class SpeciesState {
     private final List<Species> all;
     private final List<Species> ranked;
-    private final float totalSharedFitness;
+    private final float totalFitness;
 }

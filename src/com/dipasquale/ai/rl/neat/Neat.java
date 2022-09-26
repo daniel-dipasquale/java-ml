@@ -30,10 +30,9 @@ public final class Neat {
     }
 
     public static ParallelNeatTrainer createParallelTrainer(final NeatSettings settings, final NeatTrainingPolicy trainingPolicy) {
-        Context.ParallelismSupport parallelismSupport = settings.getParallelism().create();
+        NeatContext.ParallelismSupport parallelismSupport = settings.getParallelism().create();
 
         NeatSettings fixedSettings = NeatSettings.builder()
-                .general(settings.getGeneral())
                 .parallelism(ParallelismSettings.builder()
                         .build())
                 .randomness(settings.getRandomness())
@@ -46,7 +45,7 @@ public final class Neat {
                 .metrics(settings.getMetrics())
                 .build();
 
-        List<Context> contexts = IntStream.range(0, settings.getParallelism().getThreadIds().size())
+        List<NeatContext> contexts = IntStream.range(0, settings.getParallelism().extractThreadIds().size())
                 .mapToObj(__ -> fixedSettings.createContext())
                 .collect(Collectors.toList());
 

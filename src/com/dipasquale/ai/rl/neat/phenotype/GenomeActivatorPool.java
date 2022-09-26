@@ -12,7 +12,7 @@ import java.io.Serializable;
 public final class GenomeActivatorPool implements Serializable {
     @Serial
     private static final long serialVersionUID = 6724662215050116412L;
-    private final IterableArray<GenomeActivator> genomeActivators;
+    private final IterableArray<GenomeActivator> genomeActivators = new IterableArray<>(0);
     private final NeatNeuralNetworkFactory neuralNetworkFactory;
 
     private GenomeActivator createGenomeActivator(final Genome genome, final PopulationState populationState) {
@@ -33,5 +33,11 @@ public final class GenomeActivatorPool implements Serializable {
 
     public GenomeActivator create(final Genome genome, final PopulationState populationState) {
         return createGenomeActivator(genome, populationState.createClone());
+    }
+
+    public void expandIfInsufficient(final int populationSize) {
+        if (genomeActivators.capacity() < populationSize) {
+            genomeActivators.resize(populationSize, null);
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.genotype;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.WeightMutationType;
 import com.dipasquale.common.Pair;
 import com.dipasquale.common.random.ProbabilityClassifier;
@@ -22,7 +22,7 @@ public final class Genome implements Serializable {
     private final NodeGeneGroup nodeGenes = new NodeGeneGroup();
     private final ConnectionGeneGroup connectionGenes = new ConnectionGeneGroup();
 
-    private boolean mutateWeights(final Context.MutationSupport mutationSupport, final Context.ConnectionGeneSupport connectionGeneSupport) {
+    private boolean mutateWeights(final NeatContext.MutationSupport mutationSupport, final NeatContext.ConnectionGeneSupport connectionGeneSupport) {
         boolean mutated = false;
 
         for (ConnectionGene connectionGene : connectionGenes.getAll()) {
@@ -48,7 +48,7 @@ public final class Genome implements Serializable {
         return mutated;
     }
 
-    private boolean disableRandomConnectionGene(final Context.RandomnessSupport randomnessSupport) {
+    private boolean disableRandomConnectionGene(final NeatContext.RandomnessSupport randomnessSupport) {
         int size = connectionGenes.getExpressed().size();
 
         if (size == 0) {
@@ -62,7 +62,7 @@ public final class Genome implements Serializable {
         return true;
     }
 
-    private boolean addRandomNodeGene(final Context.RandomnessSupport randomnessSupport, final Context.NodeGeneSupport nodeGeneSupport, final Context.ConnectionGeneSupport connectionGeneSupport) {
+    private boolean addRandomNodeGene(final NeatContext.RandomnessSupport randomnessSupport, final NeatContext.NodeGeneSupport nodeGeneSupport, final NeatContext.ConnectionGeneSupport connectionGeneSupport) {
         int size = connectionGenes.getExpressed().size();
 
         if (size == 0) {
@@ -84,7 +84,7 @@ public final class Genome implements Serializable {
         return true;
     }
 
-    private NodeGene getRandomNodeGene(final Context.RandomnessSupport randomnessSupport, final NodeGeneType... types) {
+    private NodeGene getRandomNodeGene(final NeatContext.RandomnessSupport randomnessSupport, final NodeGeneType... types) {
         ProbabilityClassifier<NodeGeneType> nodeGeneTypeClassifier = new ProbabilityClassifier<>();
 
         for (NodeGeneType type : types) {
@@ -96,7 +96,7 @@ public final class Genome implements Serializable {
         return nodeGenes.getRandom(randomnessSupport, randomnessSupport.generateElement(nodeGeneTypeClassifier));
     }
 
-    private NodeGene getRandomMatchingNodeGene(final Context.RandomnessSupport randomnessSupport, final NodeGeneType type) {
+    private NodeGene getRandomMatchingNodeGene(final NeatContext.RandomnessSupport randomnessSupport, final NodeGeneType type) {
         return switch (type) {
             case INPUT, BIAS -> getRandomNodeGene(randomnessSupport, NodeGeneType.OUTPUT, NodeGeneType.HIDDEN);
 
@@ -106,7 +106,7 @@ public final class Genome implements Serializable {
         };
     }
 
-    private static InnovationId createFeedForwardInnovationIdIfPossible(final Context.ConnectionGeneSupport connectionGeneSupport, final NodeGene nodeGene1, final NodeGene nodeGene2) {
+    private static InnovationId createFeedForwardInnovationIdIfPossible(final NeatContext.ConnectionGeneSupport connectionGeneSupport, final NodeGene nodeGene1, final NodeGene nodeGene2) {
         return switch (ConnectionGene.getType(nodeGene1.getId(), nodeGene2.getId())) {
             case REFLEXIVE -> null;
 
@@ -116,7 +116,7 @@ public final class Genome implements Serializable {
         };
     }
 
-    private InnovationId createRandomInnovationId(final Context.RandomnessSupport randomnessSupport, final Context.ConnectionGeneSupport connectionGeneSupport, final boolean shouldAllowRecurrent) {
+    private InnovationId createRandomInnovationId(final NeatContext.RandomnessSupport randomnessSupport, final NeatContext.ConnectionGeneSupport connectionGeneSupport, final boolean shouldAllowRecurrent) {
         int size = nodeGenes.size();
 
         if (size == 0 || !shouldAllowRecurrent && size == 1) {
@@ -158,7 +158,7 @@ public final class Genome implements Serializable {
         };
     }
 
-    private boolean addRandomConnection(final Context.RandomnessSupport randomnessSupport, final Context.ConnectionGeneSupport connectionGeneSupport) {
+    private boolean addRandomConnection(final NeatContext.RandomnessSupport randomnessSupport, final NeatContext.ConnectionGeneSupport connectionGeneSupport) {
         boolean shouldAllowRecurrent = connectionGeneSupport.shouldAllowRecurrent();
         InnovationId innovationId = createRandomInnovationId(randomnessSupport, connectionGeneSupport, shouldAllowRecurrent);
 
@@ -182,10 +182,10 @@ public final class Genome implements Serializable {
         return false;
     }
 
-    public boolean mutate(final Context context) {
-        Context.RandomnessSupport randomnessSupport = context.randomness();
-        Context.MutationSupport mutationSupport = context.mutation();
-        Context.ConnectionGeneSupport connectionGeneSupport = context.connectionGenes();
+    public boolean mutate(final NeatContext context) {
+        NeatContext.RandomnessSupport randomnessSupport = context.getRandomness();
+        NeatContext.MutationSupport mutationSupport = context.getMutation();
+        NeatContext.ConnectionGeneSupport connectionGeneSupport = context.getConnectionGenes();
         boolean mutated = mutateWeights(mutationSupport, connectionGeneSupport);
 
         if (mutationSupport.shouldDisableExpressedConnection()) {
@@ -193,7 +193,7 @@ public final class Genome implements Serializable {
         }
 
         if (mutationSupport.shouldAddNode()) {
-            mutated |= addRandomNodeGene(randomnessSupport, context.nodeGenes(), connectionGeneSupport);
+            mutated |= addRandomNodeGene(randomnessSupport, context.getNodeGenes(), connectionGeneSupport);
         }
 
         if (connectionGenes.getExpressed().isEmpty() || mutationSupport.shouldAddConnection()) {
@@ -211,19 +211,19 @@ public final class Genome implements Serializable {
         return Math.max(connectionGene.getCyclesAllowed(), 1);
     }
 
-    private static ConnectionGene createChildConnection(final Context context, final ConnectionGene parent1ConnectionGene, final ConnectionGene parent2ConnectionGene) {
-        ConnectionGene randomParentConnectionGene = context.randomness().generateElement(parent1ConnectionGene, parent2ConnectionGene);
-        Context.CrossOverSupport crossOverSupport = context.crossOver();
+    private static ConnectionGene createChildConnection(final NeatContext context, final ConnectionGene parent1ConnectionGene, final ConnectionGene parent2ConnectionGene) {
+        ConnectionGene randomParentConnectionGene = context.getRandomness().generateElement(parent1ConnectionGene, parent2ConnectionGene);
+        NeatContext.CrossOverSupport crossOverSupport = context.getCrossOver();
         boolean expressed = parent1ConnectionGene.isExpressed() && parent2ConnectionGene.isExpressed() || crossOverSupport.shouldOverrideExpressedConnection();
         int cyclesAllowed = determineCyclesAllowed(randomParentConnectionGene, expressed);
 
         if (crossOverSupport.shouldUseWeightFromRandomParent()) {
-            return randomParentConnectionGene.createCopy(context.connectionGenes(), cyclesAllowed);
+            return randomParentConnectionGene.createCopy(context.getConnectionGenes(), cyclesAllowed);
         }
 
         InnovationId innovationId = randomParentConnectionGene.getInnovationId();
         float weight = (parent1ConnectionGene.getWeight() + parent2ConnectionGene.getWeight()) / 2f;
-        List<Float> recurrentWeights = context.connectionGenes().createAverageRecurrentWeights(parent1ConnectionGene.getRecurrentWeights(), parent2ConnectionGene.getRecurrentWeights());
+        List<Float> recurrentWeights = context.getConnectionGenes().createAverageRecurrentWeights(parent1ConnectionGene.getRecurrentWeights(), parent2ConnectionGene.getRecurrentWeights());
 
         return new ConnectionGene(innovationId, weight, recurrentWeights, cyclesAllowed);
     }
@@ -232,7 +232,7 @@ public final class Genome implements Serializable {
         return () -> genome1.nodeGenes.fullJoin(genome2.nodeGenes);
     }
 
-    private static boolean isInnovationIdValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connectionGene1, final ConnectionGene connectionGene2) {
+    private static boolean isInnovationIdValid(final NeatContext.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connectionGene1, final ConnectionGene connectionGene2) {
         if (connectionGene1 != null) {
             return connectionGeneSupport.containsInnovationId(connectionGene1.getInnovationId());
         }
@@ -240,13 +240,13 @@ public final class Genome implements Serializable {
         return connectionGeneSupport.containsInnovationId(connectionGene2.getInnovationId());
     }
 
-    private static boolean isInnovationIdValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connectionGene) {
+    private static boolean isInnovationIdValid(final NeatContext.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connectionGene) {
         return isInnovationIdValid(connectionGeneSupport, connectionGene, null);
     }
 
-    public static Genome crossOverBySkippingUnfitDisjointOrExcess(final Context context, final Genome fitParent, final Genome unfitParent) {
-        Genome child = new Genome(context.speciation().createGenomeId());
-        Context.RandomnessSupport randomnessSupport = context.randomness();
+    public static Genome crossOverBySkippingUnfitDisjointOrExcess(final NeatContext context, final Genome fitParent, final Genome unfitParent) {
+        Genome child = new Genome(context.getSpeciation().createGenomeId());
+        NeatContext.RandomnessSupport randomnessSupport = context.getRandomness();
 
         for (Pair<NodeGene> nodeGenePair : fullJoinBetweenNodes(fitParent, unfitParent)) {
             if (nodeGenePair.getLeft() != null && nodeGenePair.getRight() != null) {
@@ -256,8 +256,8 @@ public final class Genome implements Serializable {
             }
         }
 
-        Context.ConnectionGeneSupport connectionGeneSupport = context.connectionGenes();
-        Context.CrossOverSupport crossOverSupport = context.crossOver();
+        NeatContext.ConnectionGeneSupport connectionGeneSupport = context.getConnectionGenes();
+        NeatContext.CrossOverSupport crossOverSupport = context.getCrossOver();
 
         for (ConnectionGene fitConnectionGene : fitParent.connectionGenes.getAll()) {
             if (isInnovationIdValid(connectionGeneSupport, fitConnectionGene)) {
@@ -284,9 +284,9 @@ public final class Genome implements Serializable {
         return () -> genome1.connectionGenes.getAll().fullJoin(genome2.connectionGenes);
     }
 
-    public static Genome crossOverByEqualTreatment(final Context context, final Genome parent1, final Genome parent2) {
-        Genome child = new Genome(context.speciation().createGenomeId());
-        Context.RandomnessSupport randomnessSupport = context.randomness();
+    public static Genome crossOverByEqualTreatment(final NeatContext context, final Genome parent1, final Genome parent2) {
+        Genome child = new Genome(context.getSpeciation().createGenomeId());
+        NeatContext.RandomnessSupport randomnessSupport = context.getRandomness();
 
         for (Pair<NodeGene> nodeGenePair : fullJoinBetweenNodes(parent1, parent2)) {
             if (nodeGenePair.getLeft() != null && nodeGenePair.getRight() != null) {
@@ -298,8 +298,8 @@ public final class Genome implements Serializable {
             }
         }
 
-        Context.ConnectionGeneSupport connectionGeneSupport = context.connectionGenes();
-        Context.CrossOverSupport crossOverSupport = context.crossOver();
+        NeatContext.ConnectionGeneSupport connectionGeneSupport = context.getConnectionGenes();
+        NeatContext.CrossOverSupport crossOverSupport = context.getCrossOver();
 
         for (Pair<ConnectionGene> connectionGenePair : fullJoinBetweenConnections(parent1, parent2)) {
             if (isInnovationIdValid(connectionGeneSupport, connectionGenePair.getLeft(), connectionGenePair.getRight())) {
@@ -326,13 +326,13 @@ public final class Genome implements Serializable {
         return child;
     }
 
-    private static void addConnectionIfValid(final Context.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connectionGene, final Genome genome) {
+    private static void addConnectionIfValid(final NeatContext.ConnectionGeneSupport connectionGeneSupport, final ConnectionGene connectionGene, final Genome genome) {
         if (connectionGeneSupport == null || isInnovationIdValid(connectionGeneSupport, connectionGene)) {
             genome.connectionGenes.put(connectionGene.createClone(connectionGeneSupport));
         }
     }
 
-    private Genome createCopy(final int id, final Context.ConnectionGeneSupport connectionGeneSupport) {
+    private Genome createCopy(final int id, final NeatContext.ConnectionGeneSupport connectionGeneSupport) {
         Genome genome = new Genome(id);
 
         nodeGenes.forEach(genome.nodeGenes::put);
@@ -341,13 +341,13 @@ public final class Genome implements Serializable {
         return genome;
     }
 
-    public Genome createCopy(final Context context) {
-        int id = context.speciation().createGenomeId();
+    public Genome createCopy(final NeatContext context) {
+        int id = context.getSpeciation().createGenomeId();
 
-        return createCopy(id, context.connectionGenes());
+        return createCopy(id, context.getConnectionGenes());
     }
 
-    public Genome createClone(final Context.ConnectionGeneSupport connectionGeneSupport) {
+    public Genome createClone(final NeatContext.ConnectionGeneSupport connectionGeneSupport) {
         return createCopy(id, connectionGeneSupport);
     }
 }

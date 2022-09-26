@@ -1,28 +1,32 @@
 package com.dipasquale.ai.rl.neat.speciation.strategy.reproduction;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.speciation.Species;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
+import com.dipasquale.data.structure.set.DequeSet;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 
-@RequiredArgsConstructor
-public final class PreserveMostFitReproductionStrategy implements ReproductionStrategy, Serializable {
-    @Serial
-    private static final long serialVersionUID = -1918824077284264052L;
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class PreserveMostFitReproductionStrategy implements ReproductionStrategy {
     private static final boolean INCLUDE_REPRESENTATIVE_ORGANISM = false;
+    private static final PreserveMostFitReproductionStrategy INSTANCE = new PreserveMostFitReproductionStrategy();
+
+    public static PreserveMostFitReproductionStrategy getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public void reproduce(final ReproductionContext context) {
-        Context.SpeciationSupport speciationSupport = context.getParent().speciation();
+        NeatContext.SpeciationSupport speciationSupport = context.getParent().getSpeciation();
+        DequeSet<Organism> undeterminedOrganisms = context.getUndeterminedOrganisms();
 
         for (Species species : context.getSpeciesState().getAll()) {
             List<Organism> organisms = species.getFittestOrganisms(speciationSupport, INCLUDE_REPRESENTATIVE_ORGANISM);
 
-            context.getOrganismsWithoutSpecies().addAll(organisms);
+            undeterminedOrganisms.addAll(organisms);
         }
     }
 }

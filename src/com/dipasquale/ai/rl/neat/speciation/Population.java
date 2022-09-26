@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.genotype.Genome;
 import com.dipasquale.ai.rl.neat.phenotype.GenomeActivator;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
@@ -18,8 +18,8 @@ import com.dipasquale.data.structure.set.DequeIdentitySet;
 import com.dipasquale.data.structure.set.DequeSet;
 import com.dipasquale.io.serialization.SerializableStateGroup;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -31,19 +31,16 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Population {
     private static final Comparator<Species> SHARED_FITNESS_COMPARATOR = Comparator.comparing(Species::getSharedFitness);
     private final PopulationState populationState;
-    private final DequeSet<Organism> organismsWithoutSpecies;
+    private int size;
+    private final DequeSet<Organism> undeterminedOrganisms;
     private final Queue<OrganismFactory> organismsToBirth;
     private final NodeDeque<Species, StandardNode<Species>> speciesNodes;
     @Getter
     private final OrganismActivator championOrganismActivator;
-
-    public Population() {
-        this(new PopulationState(), new DequeIdentitySet<>(), new LinkedList<>(), new StandardNodeDeque<>(), new OrganismActivator());
-    }
 
     public int getIteration() {
         return populationState.getIteration();
@@ -53,36 +50,36 @@ public final class Population {
         return populationState.getGeneration();
     }
 
-    private void fillOrganismsWithoutSpeciesWithGenesisGenomes(final Context context) {
-        Context.SpeciationSupport speciationSupport = context.speciation();
-        Context.NodeGeneSupport nodeGeneSupport = context.nodeGenes();
-
-        for (int i = 0, c = context.general().params().populationSize(); i < c; i++) {
-            Genome genome = speciationSupport.createGenesisGenome(context);
-            Organism organism = new Organism(genome, populationState);
-
-            organism.registerNodeGenes(nodeGeneSupport);
-            organismsWithoutSpecies.add(organism);
-        }
-    }
-
-    private int countOrganismsInAllSpecies() {
-        return speciesNodes.flattenedStream()
-                .map(Species::getOrganisms)
-                .map(List::size)
-                .reduce(0, Integer::sum);
-    }
-
-    private int countOrganismsEverywhere() {
-        return organismsWithoutSpecies.size() + organismsToBirth.size() + countOrganismsInAllSpecies();
-    }
-
     public int getSpeciesCount() {
         return speciesNodes.size();
     }
 
-    private Species createSpecies(final Context.SpeciationSupport speciationSupport, final Organism organism) {
-        return new Species(speciationSupport.createSpeciesId(), organism, populationState);
+    private void initializeUndeterminedOrganisms(final NeatContext context) {
+        NeatContext.SpeciationSupport speciationSupport = context.getSpeciation();
+        NeatContext.NodeGeneSupport nodeGeneSupport = context.getNodeGenes();
+
+        for (int i = 0, c = size; i < c; i++) {
+            Genome genome = speciationSupport.createGenesisGenome(context);
+            Organism organism = new Organism(genome, populationState);
+
+            organism.registerNodeGenes(nodeGeneSupport);
+            undeterminedOrganisms.add(organism);
+        }
+    }
+
+    public void initializeChampionOrganism(final Organism organism, final GenomeActivator genomeActivator) {
+        championOrganismActivator.initialize(organism, genomeActivator);
+    }
+
+    private void initializeChampionOrganism(final Organism organism, final NeatContext context) {
+        initializeChampionOrganism(organism.createClone(context.getConnectionGenes()), organism.provideActivator(context.getActivation()));
+    }
+
+    private Species createSpecies(final NeatContext.SpeciationSupport speciationSupport, final Organism representativeOrganism) {
+        String id = speciationSupport.createSpeciesId();
+        int stagnationDropOffAge = speciationSupport.getStagnationDropOffAge();
+
+        return new Species(id, representativeOrganism, populationState, stagnationDropOffAge);
     }
 
     private StandardNode<Species> addSpecies(final Species species) {
@@ -93,16 +90,16 @@ public final class Population {
         return speciesNode;
     }
 
-    private void assignOrganismsToSpecies(final Context context) {
+    private void assignOrganismsToSpecies(final NeatContext context) {
         Iterable<Organism> organismsBirthed = organismsToBirth.stream()
                 .map(organismFactory -> organismFactory.create(context))
                 ::iterator;
 
-        Context.SpeciationSupport speciationSupport = context.speciation();
+        NeatContext.SpeciationSupport speciationSupport = context.getSpeciation();
         OrganismMatchMaker matchMaker = new OrganismMatchMaker(speciationSupport);
-        int maximumSpecies = speciationSupport.params().maximumSpecies();
+        int maximumSpecies = speciationSupport.getMaximumSpecies();
 
-        for (Organism organism : IterableSupport.concatenate(organismsWithoutSpecies, organismsBirthed)) {
+        for (Organism organism : IterableSupport.concatenate(undeterminedOrganisms, organismsBirthed)) {
             for (StandardNode<Species> speciesNode : speciesNodes) {
                 matchMaker.replaceIfBetterMatch(organism, speciesNodes.getValue(speciesNode));
             }
@@ -116,93 +113,113 @@ public final class Population {
             matchMaker.clear();
         }
 
-        organismsWithoutSpecies.clear();
+        undeterminedOrganisms.clear();
         organismsToBirth.clear();
-        context.metrics().collectAllSpeciesCompositions(speciesNodes::flattenedIterator);
+        context.getMetrics().collectAllSpeciesCompositions(speciesNodes::flattenedIterator);
     }
 
-    public void initializeChampionOrganism(final Organism organism, final GenomeActivator genomeActivator) {
-        championOrganismActivator.initialize(organism, genomeActivator);
-    }
-
-    private void initializeChampionOrganism(final Organism organism, final Context context) {
-        initializeChampionOrganism(organism.createClone(context.connectionGenes()), organism.getActivator(context.activation()));
-    }
-
-    public void initialize(final Context context) {
-        fillOrganismsWithoutSpeciesWithGenesisGenomes(context);
-        initializeChampionOrganism(organismsWithoutSpecies.getFirst(), context);
+    private void initialize(final NeatContext context) {
+        initializeUndeterminedOrganisms(context);
+        initializeChampionOrganism(undeterminedOrganisms.getFirst(), context);
         assignOrganismsToSpecies(context);
     }
 
-    public void updateFitness(final Context context) {
-        context.speciation().getFitnessEvaluationStrategy().calculate(new FitnessEvaluationContext(context, speciesNodes));
-        context.metrics().prepareNextFitnessEvaluation();
+    public static Population create(final NeatContext context) {
+        int populationSize = context.getSpeciation().getPopulationSize();
+        Population population = new Population(new PopulationState(), populationSize, new DequeIdentitySet<>(), new LinkedList<>(), new StandardNodeDeque<>(), new OrganismActivator());
+
+        population.initialize(context);
+        context.getActivation().initialize(populationSize);
+
+        return population;
     }
 
-    private SpeciesState createSpeciesState(final Context.SpeciationSupport speciationSupport) {
+    public void updateFitness(final NeatContext context) {
+        context.getSpeciation().getFitnessEvaluationStrategy().evaluate(new FitnessEvaluationContext(context, speciesNodes));
+        context.getMetrics().prepareNextFitnessEvaluation();
+    }
+
+    private SpeciesState createSpeciesState(final NeatContext.SpeciationSupport speciationSupport) {
         List<Species> all = new ArrayList<>();
-        float[] totalSharedFitness = {0f};
+        float[] totalFitness = {0f};
 
         List<Species> ranked = speciesNodes.flattenedStream()
                 .peek(all::add)
-                .peek(species -> totalSharedFitness[0] += species.getSharedFitness())
-                .filter(species -> !species.isStagnant(speciationSupport))
+                .peek(species -> totalFitness[0] += species.getSharedFitness())
+                .filter(species -> !species.isStagnant())
                 .sorted(SHARED_FITNESS_COMPARATOR)
                 .collect(Collectors.toList());
 
         if (!ranked.isEmpty()) {
-            return new SpeciesState(all, ranked, totalSharedFitness[0]);
+            return new SpeciesState(all, ranked, totalFitness[0]);
         }
 
         throw new PopulationExtinctionException("not enough organisms are allowed to reproduce the next generation");
     }
 
     private void reproduceThroughAllSpecies(final SelectionContext selectionContext) {
-        Context context = selectionContext.getParent();
-        Context.SpeciationSupport speciationSupport = context.speciation();
+        NeatContext context = selectionContext.getParent();
+        NeatContext.SpeciationSupport speciationSupport = context.getSpeciation();
         SpeciesState speciesState = createSpeciesState(speciationSupport);
-        ReproductionContext reproductionContext = new ReproductionContext(context, speciesState, organismsWithoutSpecies, organismsToBirth);
+        ReproductionContext reproductionContext = new ReproductionContext(context, speciesState, undeterminedOrganisms, organismsToBirth);
 
-        selectionContext.getParent().speciation().getReproductionStrategy().reproduce(reproductionContext);
+        context.getSpeciation().getReproductionStrategy().reproduce(reproductionContext);
     }
 
-    public void evolve(final Context context) {
+    private int countOrganismsInAllSpecies() {
+        return speciesNodes.flattenedStream()
+                .map(Species::getOrganisms)
+                .map(List::size)
+                .reduce(0, Integer::sum);
+    }
+
+    private int addOrganismCountEverywhere() {
+        return undeterminedOrganisms.size() + organismsToBirth.size() + countOrganismsInAllSpecies();
+    }
+
+    public void evolve(final NeatContext context) {
         SelectionContext selectionContext = new SelectionContext(context, this);
 
-        assert context.general().params().populationSize() == countOrganismsEverywhere();
-        assert organismsWithoutSpecies.isEmpty();
-        assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
+        assert context.getSpeciation().getPopulationSize() == addOrganismCountEverywhere();
+        assert undeterminedOrganisms.isEmpty();
+        assert organismsToBirth.isEmpty() && context.getSpeciation().getDisposedGenomeIdCount() == 0;
 
         try {
-            context.speciation().getSelectionStrategy().select(selectionContext, speciesNodes);
+            context.getSpeciation().getSelectionStrategy().select(selectionContext, speciesNodes);
         } catch (ChampionOrganismMissingException e) {
             throw new PopulationExtinctionException("the population has gone extinct", e);
         }
 
-        assert organismsWithoutSpecies.isEmpty();
+        assert undeterminedOrganisms.isEmpty();
         assert organismsToBirth.isEmpty();
-        reproduceThroughAllSpecies(selectionContext);
-        populationState.increaseGeneration();
-        context.metrics().prepareNextGeneration();
-        assert context.general().params().populationSize() == countOrganismsEverywhere();
-        assert context.speciation().getDisposedGenomeIdCount() == organismsToBirth.size();
+        assert speciesNodes.size() == countOrganismsInAllSpecies();
+        size = speciesNodes.size();
+        reproduceThroughAllSpecies(selectionContext); // TODO: determine the order for this
+        populationState.advanceGeneration();
+        context.getActivation().advanceGeneration(size);
+        context.getConnectionGenes().advanceGeneration();
+        context.getMutation().advanceGeneration();
+        context.getCrossOver().advanceGeneration();
+        size = context.getSpeciation().advanceGeneration(size);
+        context.getMetrics().prepareNextGeneration();
+        assert context.getSpeciation().getPopulationSize() == addOrganismCountEverywhere();
+        assert context.getSpeciation().getPopulationSize() == size;
+        assert context.getSpeciation().getDisposedGenomeIdCount() == organismsToBirth.size();
         assignOrganismsToSpecies(context);
-        assert context.general().params().populationSize() == countOrganismsEverywhere();
-        assert organismsWithoutSpecies.isEmpty();
-        assert organismsToBirth.isEmpty() && context.speciation().getDisposedGenomeIdCount() == 0;
+        assert context.getSpeciation().getPopulationSize() == addOrganismCountEverywhere();
+        assert undeterminedOrganisms.isEmpty();
+        assert organismsToBirth.isEmpty() && context.getSpeciation().getDisposedGenomeIdCount() == 0;
     }
 
-    public void restart(final Context context) {
+    public void restart(final NeatContext context) {
         populationState.restart();
-        context.connectionGenes().reset();
-        context.nodeGenes().reset();
-        context.speciation().clearGenomeIds();
-        organismsWithoutSpecies.clear();
+        context.getActivation().clear();
+        context.getNodeGenes().clear();
+        undeterminedOrganisms.clear();
         organismsToBirth.clear();
-        context.speciation().clearSpeciesIds();
+        context.getSpeciation().clear();
         speciesNodes.clear();
-        context.metrics().prepareNextIteration();
+        context.getMetrics().prepareNextIteration();
         championOrganismActivator.reset();
         initialize(context);
     }
@@ -212,7 +229,8 @@ public final class Population {
         SerializableStateGroup stateGroup = new SerializableStateGroup();
 
         stateGroup.put("population.populationState", populationState);
-        stateGroup.put("population.organismsWithoutSpecies", organismsWithoutSpecies);
+        stateGroup.put("population.size", size);
+        stateGroup.put("population.undeterminedOrganisms", undeterminedOrganisms);
         stateGroup.put("population.organismsToBirth", organismsToBirth);
         stateGroup.put("population.speciesNodes", speciesNodes);
         stateGroup.put("population.championOrganismActivator", championOrganismActivator);
@@ -226,11 +244,12 @@ public final class Population {
         stateGroup.readFrom(inputStream);
 
         PopulationState populationState = stateGroup.get("population.populationState");
-        DequeSet<Organism> organismsWithoutSpecies = stateGroup.get("population.organismsWithoutSpecies");
+        int size = stateGroup.get("population.size");
+        DequeSet<Organism> undeterminedOrganisms = stateGroup.get("population.undeterminedOrganisms");
         Queue<OrganismFactory> organismsToBirth = stateGroup.get("population.organismsToBirth");
         NodeDeque<Species, StandardNode<Species>> speciesNodes = stateGroup.get("population.speciesNodes");
         OrganismActivator championOrganismActivator = stateGroup.get("population.championOrganismActivator");
 
-        return new Population(populationState, organismsWithoutSpecies, organismsToBirth, speciesNodes, championOrganismActivator);
+        return new Population(populationState, size, undeterminedOrganisms, organismsToBirth, speciesNodes, championOrganismActivator);
     }
 }

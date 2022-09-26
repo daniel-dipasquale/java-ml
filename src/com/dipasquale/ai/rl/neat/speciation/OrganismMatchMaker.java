@@ -1,6 +1,6 @@
 package com.dipasquale.ai.rl.neat.speciation;
 
-import com.dipasquale.ai.rl.neat.Context;
+import com.dipasquale.ai.rl.neat.NeatContext;
 import com.dipasquale.ai.rl.neat.speciation.organism.Organism;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class OrganismMatchMaker {
     private static final float MINIMUM_COMPATIBILITY = Float.POSITIVE_INFINITY;
-    private final Context.SpeciationSupport speciationSupport;
+    private final NeatContext.SpeciationSupport speciationSupport;
     private float bestMatchCompatibility = MINIMUM_COMPATIBILITY;
     private Species bestMatchSpecies = null;
 
@@ -30,7 +30,7 @@ final class OrganismMatchMaker {
     }
 
     public boolean isBestMatchCompatible(final int generation) {
-        float compatibilityThreshold = speciationSupport.params().compatibilityThreshold(generation);
+        float compatibilityThreshold = speciationSupport.calculateCompatibilityThreshold(generation);
 
         return Float.compare(bestMatchCompatibility, compatibilityThreshold) < 0;
     }
